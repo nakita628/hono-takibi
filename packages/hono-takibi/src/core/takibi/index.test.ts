@@ -1,7 +1,9 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../openapi/index.js'
 import { template } from '../template/index.js'
 import { takibi } from './index.js'
@@ -226,7 +228,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const takibiResult = await runTakibi(openapi, out)
       expect(takibiResult.ok).toBe(true)
 
-      const templateResult = await template(openapi, out, true, '/', undefined, undefined)
+      const templateResult = await template(openapi, out, true, '/', undefined, undefined, false)
       expect(templateResult.ok).toBe(true)
       if (templateResult.ok) {
         expect(templateResult.value).toMatch('Generated code and template files written')
@@ -1294,7 +1296,15 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await template(simpleOpenapi, routeOutput, true, '/', undefined, undefined)
+      const result = await template(
+        simpleOpenapi,
+        routeOutput,
+        true,
+        '/',
+        undefined,
+        undefined,
+        false,
+      )
 
       expect(result).toStrictEqual({
         ok: true,

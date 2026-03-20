@@ -1,6 +1,7 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare'
 import { drizzle } from 'drizzle-orm/d1'
 import { Context, Effect, Layer } from 'effect'
+
 import * as schema from '@/db/schema'
 
 export const getDb = () => {

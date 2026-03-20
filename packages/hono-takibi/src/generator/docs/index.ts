@@ -1,4 +1,5 @@
 import { STATUS_CODES } from 'node:http'
+
 import {
   isMedia,
   isOAuthFlowValue,
@@ -122,7 +123,7 @@ function resolveResponse(response: Responses, components: Components | undefined
  * Formats a schema type string as widdershins does.
  * Examples: "string(email)", "integer(int64)", "[User](#schemauser)", "[[User](#schemauser)]"
  */
-function formatSchemaType(schema: Schema, components: Components | undefined): string {
+function formatSchemaType(schema: Schema, _components: Components | undefined): string {
   if (!schema) return 'object'
   if (schema.$ref) {
     const name = refName(schema.$ref)
@@ -131,7 +132,7 @@ function formatSchemaType(schema: Schema, components: Components | undefined): s
   if (schema.type === 'array' && schema.items) {
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
     if (itemSchema) {
-      const inner = formatSchemaType(itemSchema, components)
+      const inner = formatSchemaType(itemSchema, _components)
       return `[${inner}]`
     }
     return 'array'

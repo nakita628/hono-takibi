@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <>
-      <Header label='Home' />
+      <Header label="Home" />
       <Form placeholder="What's happening?" />
       {!isLoading && currentUser && <PostFeed />}
     </>

@@ -3,6 +3,7 @@
 import { useCallback, useRef } from 'react'
 import { ClipLoader } from 'react-spinners'
 import useSWRInfinite from 'swr/infinite'
+
 import { PostItem } from '@/components/organisms/PostItem'
 import { getGetPostsKey, getPosts } from '@/hooks'
 
@@ -85,8 +86,8 @@ export function PostFeed({ userId }: Props) {
 
   if (isLoading) {
     return (
-      <div className='flex justify-center items-center py-8'>
-        <ClipLoader color='lightblue' size={35} />
+      <div className="flex justify-center items-center py-8">
+        <ClipLoader color="lightblue" size={35} />
       </div>
     )
   }
@@ -96,14 +97,14 @@ export function PostFeed({ userId }: Props) {
       {posts.map((post) => (
         <PostItem key={post.id} data={post} />
       ))}
-      <div ref={sentinelRef} className='h-1' />
+      <div ref={sentinelRef} className="h-1" />
       {isLoadingMore && (
-        <div className='flex justify-center items-center py-4'>
-          <ClipLoader color='lightblue' size={25} />
+        <div className="flex justify-center items-center py-4">
+          <ClipLoader color="lightblue" size={25} />
         </div>
       )}
       {isReachingEnd && posts.length > 0 && (
-        <p className='text-center text-neutral-500 py-4'>No more posts</p>
+        <p className="text-center text-neutral-500 py-4">No more posts</p>
       )}
     </>
   )

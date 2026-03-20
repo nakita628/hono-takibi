@@ -1,4 +1,5 @@
 import { Effect } from 'effect'
+
 import { ContractViolationError } from '@/backend/domain'
 import { UserSchema } from '@/backend/routes'
 import * as AuthService from '@/backend/services/auth'

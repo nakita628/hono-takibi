@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../utils/index.js'
 import { core } from './core.js'
 
@@ -26,7 +27,7 @@ export async function makeExports(
     | 'PathItem'
     | 'Webhook',
   output: string,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

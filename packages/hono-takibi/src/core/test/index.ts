@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { fmt } from '../../format/index.js'
 import { mkdir, readFile, writeFile } from '../../fsp/index.js'
 import { makeTestFile } from '../../generator/test/index.js'

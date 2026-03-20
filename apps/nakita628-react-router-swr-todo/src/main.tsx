@@ -2,9 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { SWRConfig } from 'swr'
+
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { TodoDetailPage } from '@/routes/$id'
 import { HomePage } from '@/routes/index'
+
 import './index.css'
 
 const rootElement = document.getElementById('root')
@@ -17,8 +19,8 @@ if (rootElement) {
         <ErrorBoundary>
           <BrowserRouter>
             <Routes>
-              <Route path='/' element={<HomePage />} />
-              <Route path='/:id' element={<TodoDetailPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/:id" element={<TodoDetailPage />} />
             </Routes>
           </BrowserRouter>
         </ErrorBoundary>

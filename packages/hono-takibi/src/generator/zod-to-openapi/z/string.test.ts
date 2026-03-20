@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Schema } from '../../../openapi/index.js'
 import { string } from './string.js'
 
@@ -196,11 +197,11 @@ describe('string', () => {
       [{ type: 'string', format: 'uuidv6' }, 'z.uuidv6()'],
       [{ type: 'string', format: 'base64url' }, 'z.base64url()'],
       [{ type: 'string', format: 'hex' }, 'z.hex()'],
-      [{ type: 'string', format: 'mac' }, 'z.mac()'],
+      [{ type: 'string', format: 'mac' } as any, 'z.mac()'],
       // unknown format falls back to z.string()
-      [{ type: 'string', format: 'unknown-format' }, 'z.string()'],
+      [{ type: 'string', format: 'unknown-format' } as any, 'z.string()'],
       // empty format string falls back to z.string()
-      [{ type: 'string', format: '' }, 'z.string()'],
+      [{ type: 'string', format: '' } as any, 'z.string()'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })

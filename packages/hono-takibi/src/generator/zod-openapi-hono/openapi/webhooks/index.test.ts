@@ -1,17 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../../../openapi/index.js'
 import { webhookCode } from './index.js'
 
 describe('webhookCode', () => {
   it.concurrent('returns empty string when no webhooks', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       paths: {},
-    }
+    } as unknown as OpenAPI
     expect(webhookCode(openapi)).toBe('')
   })
 
   it.concurrent('generates webhook code from OpenAPI webhooks', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       paths: {},
       webhooks: {
         orderStatus: {
@@ -25,14 +26,14 @@ describe('webhookCode', () => {
           },
         },
       },
-    }
+    } as unknown as OpenAPI
     const result = webhookCode(openapi)
     const expected = `export const orderStatusPostWebhook={method:'post',path:'/orderStatus',operationId:'orderStatusUpdate',responses:{200:{description:"OK"}}}`
     expect(result).toBe(expected)
   })
 
   it.concurrent('generates multiple webhooks', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       paths: {},
       webhooks: {
         orderStatus: {
@@ -50,7 +51,7 @@ describe('webhookCode', () => {
           },
         },
       },
-    }
+    } as unknown as OpenAPI
     const result = webhookCode(openapi)
     const expected = `export const orderStatusPostWebhook={method:'post',path:'/orderStatus',responses:{200:{description:"OK"}}}
 
@@ -59,7 +60,7 @@ export const paymentReceivedPostWebhook={method:'post',path:'/paymentReceived',r
   })
 
   it.concurrent('handles webhook with multiple methods', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       paths: {},
       webhooks: {
         events: {
@@ -75,7 +76,7 @@ export const paymentReceivedPostWebhook={method:'post',path:'/paymentReceived',r
           },
         },
       },
-    }
+    } as unknown as OpenAPI
     const result = webhookCode(openapi)
     const expected = `export const eventsGetWebhook={method:'get',path:'/events',responses:{200:{description:"OK"}}}
 
@@ -84,7 +85,7 @@ export const eventsPostWebhook={method:'post',path:'/events',responses:{200:{des
   })
 
   it.concurrent('applies readonly when specified', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       paths: {},
       webhooks: {
         test: {
@@ -95,7 +96,7 @@ export const eventsPostWebhook={method:'post',path:'/events',responses:{200:{des
           },
         },
       },
-    }
+    } as unknown as OpenAPI
     const result = webhookCode(openapi, true)
     const expected = `export const testPostWebhook={method:'post',path:'/test',responses:{200:{description:"OK"}}} as const`
     expect(result).toBe(expected)

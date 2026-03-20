@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useSWRConfig } from 'swr'
+
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { authClient } from '@/infra/auth-client'
@@ -57,17 +58,17 @@ export function LoginModal() {
   }, [email, password, loginModal, mutate])
 
   const bodyContent = (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <Input
-        placeholder='Email'
+        placeholder="Email"
         value={email}
         disabled={isLoading}
         onChange={(e) => setEmail(e.target.value)}
       />
       <Input
-        placeholder='Password'
+        placeholder="Password"
         value={password}
-        type='password'
+        type="password"
         disabled={isLoading}
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -75,13 +76,13 @@ export function LoginModal() {
   )
 
   const footerContent = (
-    <div className='mt-4 text-center text-neutral-400'>
+    <div className="mt-4 text-center text-neutral-400">
       <p>
         First time using Twitter?{' '}
         <button
-          type='button'
+          type="button"
           onClick={onToggle}
-          className='text-white cursor-pointer hover:underline'
+          className="text-white cursor-pointer hover:underline"
         >
           Create an account
         </button>
@@ -93,8 +94,8 @@ export function LoginModal() {
     <Modal
       disabled={isLoading}
       isOpen={loginModal.isOpen}
-      title='Login'
-      actionLabel='Sign in'
+      title="Login"
+      actionLabel="Sign in"
       onClose={loginModal.onClose}
       onSubmit={onSubmit}
       body={bodyContent}

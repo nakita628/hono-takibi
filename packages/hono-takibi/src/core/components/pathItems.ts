@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
 import { core, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
@@ -36,17 +37,17 @@ import { makeBarrel, uncapitalize } from '../../utils/index.js'
 export async function pathItems(
   components: Components,
   pathItemsConfig?: {
-    readonly output: string | `${string}.ts`
+    readonly output: string
     readonly split?: boolean
   },
   componentsConfig?: {
     readonly [k: string]: {
-      readonly output: string | `${string}.ts`
+      readonly output: string
       readonly split?: boolean
       readonly import?: string
     }
   },
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

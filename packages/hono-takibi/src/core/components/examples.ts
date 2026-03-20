@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { makeExportConst } from '../../helper/code.js'
 import { core, makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
@@ -35,7 +36,7 @@ export async function examples(
   examples: Components['examples'],
   output: string,
   split: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

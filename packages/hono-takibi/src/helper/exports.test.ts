@@ -1,5 +1,7 @@
 import fs from 'node:fs'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+
 import { makeExports } from './exports.js'
 
 describe('makeExports', () => {

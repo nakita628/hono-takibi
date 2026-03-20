@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   core,
@@ -112,7 +113,7 @@ const makeHeader = (
  */
 export async function rpc(
   openAPI: OpenAPI,
-  output: string | `${string}.ts`,
+  output: string,
   importPath: string,
   split?: boolean,
   clientName = 'client',

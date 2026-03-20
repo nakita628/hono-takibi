@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import {
   extractTestCases,
   FORMAT_TO_FAKER,
@@ -84,7 +85,7 @@ describe('extractTestCases', () => {
         },
       },
     }
-    const result = extractTestCases(openAPI, '/')
+    const result = extractTestCases(openAPI)
     expect(Array.isArray(result)).toBe(true)
     expect(result.length).toBeGreaterThan(0)
   })

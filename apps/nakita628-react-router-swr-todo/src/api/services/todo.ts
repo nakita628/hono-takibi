@@ -1,5 +1,6 @@
 import { sql } from 'kysely'
 import { err, ok, ResultAsync } from 'neverthrow'
+
 import { db } from '@/api/db'
 import { DatabaseError, DataNotFoundError } from '@/api/domain'
 

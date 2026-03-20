@@ -1,5 +1,6 @@
 import { z } from '@hono/zod-openapi'
 import { describe, expect, it } from 'vitest'
+
 import { formatZodErrors } from './format-zod-errors'
 
 describe('formatZodErrors', () => {

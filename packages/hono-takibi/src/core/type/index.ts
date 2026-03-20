@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import {
   isHttpMethod,
   isMediaWithSchema,
@@ -382,7 +383,9 @@ function makeSchemaTypeString(
   if (schema.const !== undefined) {
     return typeof schema.const === 'string'
       ? `'${String(schema.const).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
-      : String(schema.const)
+      : typeof schema.const === 'object'
+        ? JSON.stringify(schema.const)
+        : String(schema.const as string | number | boolean)
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')

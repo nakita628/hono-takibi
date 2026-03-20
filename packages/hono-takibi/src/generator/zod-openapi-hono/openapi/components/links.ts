@@ -25,7 +25,7 @@ import type { Components } from '../../../../openapi/index.js'
 export function linksCode(
   components: Components,
   exportLinks: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { links } = components
   if (!links) return ''

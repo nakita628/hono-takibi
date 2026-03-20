@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Components } from '../../../../openapi/index.js'
 import { requestBodiesCode } from './request-bodies.js'
 
@@ -58,7 +59,7 @@ describe('requestBodiesCode', () => {
       requestBodies: {
         Alias: {
           $ref: '#/components/requestBodies/UserBody',
-        },
+        } as any,
       },
     }
     const result = requestBodiesCode(components, true, true)
@@ -70,7 +71,7 @@ describe('requestBodiesCode', () => {
       requestBodies: {
         Alias: {
           $ref: '#/components/requestBodies/BaseUser',
-        },
+        } as any,
         Inline: {
           content: {
             'application/json': {

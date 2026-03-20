@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { mkdir, writeFile } from '../../fsp/index.js'
 import { makeDocs } from '../../generator/docs/index.js'
 import type { OpenAPI } from '../../openapi/index.js'

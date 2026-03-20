@@ -1,7 +1,8 @@
 import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 describe('CLI and config options test with string matching', { timeout: 30000 }, () => {
   beforeEach(() => {
@@ -14,9 +15,9 @@ describe('CLI and config options test with string matching', { timeout: 30000 },
   })
 
   it('--help returns help text', { timeout: 10000 }, () => {
-    const result = execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} --help`,
-    ).toString()
+    const result = execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')} --help`, {
+      encoding: 'utf-8',
+    })
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 
 Options:
@@ -25,9 +26,9 @@ Options:
   })
 
   it('-h returns help text', () => {
-    const result = execSync(
-      `node ${path.resolve('packages/hono-takibi/dist/index.js')} -h`,
-    ).toString()
+    const result = execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')} -h`, {
+      encoding: 'utf-8',
+    })
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 
 Options:
@@ -1660,9 +1661,8 @@ export const getUsersRoute = createRoute({
       path.join(testDir, 'src/security/bearerAuth.ts'),
       'utf-8',
     )
-    expect(
-      bearerAuthFile,
-    ).toBe(`export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
+    expect(bearerAuthFile)
+      .toBe(`export const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 `)
 
     const getSecureRoute = fs.readFileSync(path.join(testDir, 'src/routes/getSecure.ts'), 'utf-8')
@@ -1804,9 +1804,8 @@ export const postUsersRoute = createRoute({
       path.join(testDir, 'src/examples/userExample.ts'),
       'utf-8',
     )
-    expect(
-      userExampleFile,
-    ).toBe(`export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
+    expect(userExampleFile)
+      .toBe(`export const UserExampleExample = { summary: 'User example', value: { id: 1, name: 'John' } }
 `)
 
     const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
@@ -1895,9 +1894,8 @@ export * from './chainedUser.ts'
 
     // Check BaseUser is exported as object (no import)
     const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf-8')
-    expect(
-      baseUserFile,
-    ).toBe(`export const BaseUserExample = { summary: 'Base user', value: { id: 1, name: 'Base' } }
+    expect(baseUserFile)
+      .toBe(`export const BaseUserExample = { summary: 'Base user', value: { id: 1, name: 'Base' } }
 `)
     // Check AliasUser imports and references BaseUser
     const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf-8')

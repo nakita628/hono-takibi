@@ -13,7 +13,7 @@ import { webhookCode } from './webhooks/index.js'
 export function zodOpenAPIHono(
   openapi: OpenAPI,
   options: {
-    readonly readonly?: boolean | undefined
+    readonly readonly?: boolean
     // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean

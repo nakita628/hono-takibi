@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
+
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
 import { authClient } from '@/infra/auth-client'
@@ -48,25 +49,25 @@ export function ChangePasswordModal() {
   }, [currentPassword, newPassword, confirmPassword, changePasswordModal])
 
   const bodyContent = (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <Input
-        placeholder='Current Password'
+        placeholder="Current Password"
         value={currentPassword}
-        type='password'
+        type="password"
         disabled={isLoading}
         onChange={(e) => setCurrentPassword(e.target.value)}
       />
       <Input
-        placeholder='New Password'
+        placeholder="New Password"
         value={newPassword}
-        type='password'
+        type="password"
         disabled={isLoading}
         onChange={(e) => setNewPassword(e.target.value)}
       />
       <Input
-        placeholder='Confirm New Password'
+        placeholder="Confirm New Password"
         value={confirmPassword}
-        type='password'
+        type="password"
         disabled={isLoading}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
@@ -77,8 +78,8 @@ export function ChangePasswordModal() {
     <Modal
       disabled={isLoading}
       isOpen={changePasswordModal.isOpen}
-      title='Change Password'
-      actionLabel='Change password'
+      title="Change Password"
+      actionLabel="Change password"
       onClose={changePasswordModal.onClose}
       onSubmit={onSubmit}
       body={bodyContent}

@@ -12,8 +12,8 @@ type Props = {
 
 export function FormField({ label, id, placeholder, value, type, disabled, onChange }: Props) {
   return (
-    <div className='flex flex-col gap-2'>
-      <label htmlFor={id} className='text-white text-sm font-semibold'>
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-white text-sm font-semibold">
         {label}
       </label>
       <Input

@@ -4,6 +4,7 @@ import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
+
 import { client } from '@/lib'
 
 /**
@@ -133,10 +134,9 @@ export function getPutTodoIdMutationKey() {
  */
 export function usePutTodoId(options?: {
   mutation?: SWRMutationConfiguration<
-    | Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$put']>>>>
-      >
-    | undefined,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$put']>>>>
+    >,
     Error,
     Key,
     InferRequestType<(typeof client.todo)[':id']['$put']>
@@ -174,12 +174,9 @@ export function getDeleteTodoIdMutationKey() {
  */
 export function useDeleteTodoId(options?: {
   mutation?: SWRMutationConfiguration<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.todo)[':id']['$delete']>>>>
+    >,
     Error,
     Key,
     InferRequestType<(typeof client.todo)[':id']['$delete']>

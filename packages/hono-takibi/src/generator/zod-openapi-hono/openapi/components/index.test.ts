@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Components } from '../../../../openapi/index.js'
 import { componentsCode } from './index.js'
 
@@ -32,6 +33,9 @@ describe('componentsCode Test', () => {
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
     const expected = `export const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
@@ -53,6 +57,9 @@ export type Test=z.infer<typeof TestSchema>`
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
     const expected = `const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')
 
@@ -74,6 +81,9 @@ export type Test=z.infer<typeof TestSchema>`
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
     const expected = `export const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')`
     expect(result).toBe(expected)
@@ -93,6 +103,9 @@ export type Test=z.infer<typeof TestSchema>`
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
     const expected = `const TestSchema=z.object({test:z.string()}).openapi({"required":["test"]}).openapi('Test')`
     expect(result).toBe(expected)

@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import * as helper from './index.js'
 
 describe('helper barrel file exports', () => {

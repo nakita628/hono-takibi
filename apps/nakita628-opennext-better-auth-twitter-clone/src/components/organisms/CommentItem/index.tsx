@@ -3,6 +3,7 @@
 import { formatDistanceToNowStrict } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
+
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 
 type CommentUser = {
@@ -40,27 +41,27 @@ export function CommentItem({ data }: Props) {
   }, [data?.createdAt])
 
   return (
-    <div className='border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition'>
-      <div className='flex flex-row items-start gap-3'>
+    <div className="border-b border-neutral-800 p-5 cursor-pointer hover:bg-neutral-900 transition">
+      <div className="flex flex-row items-start gap-3">
         <AvatarLink
           userId={data.user.id}
           src={data.user.profileImage || '/images/placeholder.png'}
         />
         <div>
-          <div className='flex flex-row items-center gap-2'>
+          <div className="flex flex-row items-center gap-2">
             <button
-              type='button'
+              type="button"
               onClick={goToUser}
-              className='text-white font-semibold cursor-pointer hover:underline'
+              className="text-white font-semibold cursor-pointer hover:underline"
             >
               {data.user.name}
             </button>
-            <span className='text-neutral-500 cursor-pointer hover:underline hidden md:block'>
+            <span className="text-neutral-500 cursor-pointer hover:underline hidden md:block">
               @{data.user.username}
             </span>
-            <span className='text-neutral-500 text-sm'>{createdAt}</span>
+            <span className="text-neutral-500 text-sm">{createdAt}</span>
           </div>
-          <div className='text-white mt-1'>{data.body}</div>
+          <div className="text-white mt-1">{data.body}</div>
         </div>
       </div>
     </div>

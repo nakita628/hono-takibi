@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Components } from '../../../../openapi/index.js'
 import { mediaTypesCode } from './mediaTypes.js'
 
@@ -87,7 +88,7 @@ describe('mediaTypesCode', () => {
   it('should skip non-media entries', () => {
     const components: Components = {
       mediaTypes: {
-        NoSchema: { encoding: {} },
+        NoSchema: { encoding: {} } as any,
       },
     }
     const result = mediaTypesCode(components, true, false)

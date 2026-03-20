@@ -3,6 +3,7 @@
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from 'react-hot-toast'
 import { SWRConfig } from 'swr'
+
 import { ChangePasswordModal } from '@/components/organisms/ChangePasswordModal'
 import { EditModal } from '@/components/organisms/EditModal'
 import { LoginModal } from '@/components/organisms/LoginModal'

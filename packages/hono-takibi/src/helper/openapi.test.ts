@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import {
   makeCallback,
   makeCallbacks,
@@ -1051,7 +1052,7 @@ describe('openapi helper', () => {
 
     it.concurrent('generates operation with security', () => {
       const result = makeOperation({
-        security: [{ bearerAuth: [] }],
+        security: [{ bearerAuth: [] }] as any,
         responses: { 200: { description: 'OK' } },
       })
       expect(result).toBe('{responses:{200:{description:"OK"}},security:[{"bearerAuth":[]}]}')
@@ -1078,7 +1079,7 @@ describe('openapi helper', () => {
     })
 
     it.concurrent('generates empty operation', () => {
-      const result = makeOperation({})
+      const result = makeOperation({} as any)
       expect(result).toBe('{}')
     })
   })
@@ -1121,7 +1122,7 @@ describe('openapi helper', () => {
 
     it.concurrent('generates pathItem with servers', () => {
       const result = makePathItem({
-        servers: [{ url: 'https://api.example.com' }],
+        servers: [{ url: 'https://api.example.com' }] as any,
         get: { responses: { 200: { description: 'OK' } } },
       })
       expect(result).toBe(

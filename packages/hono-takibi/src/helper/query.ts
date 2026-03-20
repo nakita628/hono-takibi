@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, escapeCommentEnd, makeOperationDocs, methodPath } from '../utils/index.js'
@@ -1377,7 +1378,7 @@ function makeHeader(
  */
 export async function makeQueryHooks(
   openAPI: OpenAPI,
-  output: string | `${string}.ts`,
+  output: string,
   importPath: string,
   config: {
     packageName: string

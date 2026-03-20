@@ -1,4 +1,5 @@
-import { describe, it } from 'vitest'
+import { describe, it } from 'vite-plus/test'
+
 import type { OpenAPI } from '../../../openapi/index.js'
 import { zodOpenAPIHono } from './index.js'
 
@@ -455,11 +456,14 @@ describe('zodOpenAPIHono', () => {
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
   })
 
   it.concurrent('generates webhooks from OpenAPI 3.1 webhooks section', async () => {
-    const { expect } = await import('vitest')
+    const { expect } = await import('vite-plus/test')
     const openapiWithWebhooks: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Webhook API', version: '1.0.0' },
@@ -498,6 +502,9 @@ describe('zodOpenAPIHono', () => {
       exportExamples: false,
       exportLinks: false,
       exportCallbacks: false,
+      exportPathItems: false,
+      exportMediaTypes: false,
+      exportMediaTypesTypes: false,
     })
 
     expect(result).toBe(`import{createRoute,z}from'@hono/zod-openapi'

@@ -182,7 +182,7 @@ export function makeResponses(responses: Responses) {
     // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
     `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
-    responses.content ? `content:{${makeContent(responses.content)}}` : undefined,
+    responses.content ? `content:{${makeContent(responses.content).join(',')}}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
           .map(([key, link]) =>
@@ -224,7 +224,9 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
     'schema' in headers && headers.schema
       ? `schema:${zodToOpenAPI(headers.schema, { headers: headers })}`
       : undefined,
-    'content' in headers && headers.content ? `content:${makeContent(headers.content)}` : undefined,
+    'content' in headers && headers.content
+      ? `content:${makeContent(headers.content).join(',')}`
+      : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -403,7 +405,9 @@ export function makeRequestBody(body: RequestBody | Reference) {
   }
   const result = [
     body.description ? `description:${JSON.stringify(body.description)}` : undefined,
-    'content' in body && body.content ? `content:{${makeContent(body.content)}}` : undefined,
+    'content' in body && body.content
+      ? `content:{${makeContent(body.content).join(',')}}`
+      : undefined,
     'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
   ]
     .filter((v) => v !== undefined)

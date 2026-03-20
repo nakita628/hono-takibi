@@ -1,5 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import type { postRegisterRoute } from '@/backend/routes'
 import * as UserTransaction from '@/backend/transactions/register'
 import { AuthType, DBLive } from '@/infra'

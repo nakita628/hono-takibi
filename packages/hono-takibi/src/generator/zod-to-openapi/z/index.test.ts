@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import { _enum, integer, number, object, string } from './index.js'
 
 describe('z barrel file exports', () => {

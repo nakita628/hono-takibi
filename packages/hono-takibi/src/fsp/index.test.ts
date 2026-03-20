@@ -1,7 +1,9 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vite-plus/test'
+
 import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')

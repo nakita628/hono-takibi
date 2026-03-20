@@ -57,7 +57,11 @@ export function makeTypeString(
   }
 
   if (schema.const !== undefined) {
-    return typeof schema.const === 'string' ? `'${schema.const}'` : String(schema.const)
+    return typeof schema.const === 'string'
+      ? `'${schema.const}'`
+      : typeof schema.const === 'object'
+        ? JSON.stringify(schema.const)
+        : String(schema.const as string | number | boolean)
   }
 
   const types = normalizeType(schema)

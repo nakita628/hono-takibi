@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 /**
  * Uses `bundle()` to resolve external $refs while preserving internal ones.
  * This enables variable references (e.g., `UserSchema`) instead of duplicated inline schemas,

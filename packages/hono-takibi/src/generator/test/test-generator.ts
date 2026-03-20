@@ -156,13 +156,13 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
         responseKeys
           .filter((s) => s.startsWith('2'))
           .map((s) => Number.parseInt(s, 10))
-          .sort()[0] ?? 200
+          .sort((a, b) => a - b)[0] ?? 200
       // Extract error statuses (4xx client errors, 5xx server errors), exclude 'default' which is a wildcard in OpenAPI
       const errorStatuses = responseKeys
         .filter((s) => s.startsWith('4') || s.startsWith('5'))
         .filter((s) => s !== 'default')
         .map((s) => Number.parseInt(s, 10))
-        .sort()
+        .sort((a, b) => a - b)
       const security = extractSecurityRequirements(
         isSecurityArray(op.security) ? op.security : undefined,
         isSecurityArray(spec.security) ? spec.security : undefined,

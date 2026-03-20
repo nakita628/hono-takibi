@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { fmt } from '../../format/index.js'
 import { readFile, writeFile } from '../../fsp/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
@@ -13,7 +14,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  */
 export async function template(
   openAPI: OpenAPI,
-  output: `${string}.ts` | string,
+  output: string,
   test: boolean,
   basePath: string,
   pathAlias: string | undefined,

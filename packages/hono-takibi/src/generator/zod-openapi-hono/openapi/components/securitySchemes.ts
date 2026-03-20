@@ -24,7 +24,7 @@ import type { Components } from '../../../../openapi/index.js'
 export function securitySchemesCode(
   components: Components,
   exportSecuritySchemes: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { securitySchemes } = components
   if (!securitySchemes) return ''

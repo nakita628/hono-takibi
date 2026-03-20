@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
+
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { wrap } from './wrap.js'
 
@@ -569,7 +570,7 @@ describe('wrap', () => {
       const schema = {
         type: 'object',
         if: { type: 'string' },
-        // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if/then/else filtering
+        // eslint-disable-next-line unicorn/no-thenable -- testing JSON Schema if/then/else filtering
         then: { minLength: 1 },
         else: { maxLength: 0 },
         description: 'conditional',

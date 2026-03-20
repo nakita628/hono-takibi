@@ -16,7 +16,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  */
 export async function swr(
   openAPI: OpenAPI,
-  output: string | `${string}.ts`,
+  output: string,
   importPath: string,
   split?: boolean,
   clientName = 'client',

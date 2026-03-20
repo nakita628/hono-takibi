@@ -1,31 +1,28 @@
 {
   "name": "hono-takibi",
-  "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "version": "0.9.991",
-  "type": "module",
-  "license": "MIT",
+  "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
     "openapi"
   ],
   "homepage": "https://github.com/nakita628/hono-takibi",
-  "publishConfig": {
-    "access": "public"
+  "bugs": {
+    "url": "https://github.com/nakita628/hono-takibi/issues"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nakita628/hono-takibi.git"
   },
-  "bugs": {
-    "url": "https://github.com/nakita628/hono-takibi/issues"
-  },
-  "sideEffects": false,
-  "files": [
-    "dist"
-  ],
   "bin": {
     "hono-takibi": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
   "exports": {
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
@@ -68,11 +65,13 @@
       "import": "./dist/core/docs/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite --host",
     "deps": "rm -rf node_modules && pnpm install",
     "build": "tsdown",
-    "typecheck": "tsc --noEmit",
     "release": "pnpm build && pnpm publish"
   },
   "dependencies": {

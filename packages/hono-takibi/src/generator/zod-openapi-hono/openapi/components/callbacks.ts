@@ -24,7 +24,7 @@ import type { Callbacks, Components } from '../../../../openapi/index.js'
 export function callbacksCode(
   components: Components,
   exportCallbacks: boolean,
-  readonly?: boolean | undefined,
+  readonly?: boolean,
 ): string {
   const { callbacks } = components
   if (!callbacks) return ''

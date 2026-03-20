@@ -1,4 +1,5 @@
 import { Effect } from 'effect'
+
 import { ContractViolationError, makeFormatPublicUser, NotFoundError } from '@/backend/domain'
 import { PaginatedPostsSchema, PostDetailSchema, PostSchema } from '@/backend/routes'
 import * as PostService from '@/backend/services/post'

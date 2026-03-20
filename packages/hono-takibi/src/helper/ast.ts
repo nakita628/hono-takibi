@@ -1,4 +1,5 @@
 import ts from 'typescript'
+
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'

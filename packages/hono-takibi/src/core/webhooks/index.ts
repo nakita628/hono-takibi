@@ -1,4 +1,5 @@
 import path from 'node:path'
+
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
 import { core, makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -26,12 +27,12 @@ import { makeBarrel, uncapitalize } from '../../utils/index.js'
 export async function webhooks(
   openAPI: OpenAPI,
   webhooks?: {
-    readonly output: string | `${string}.ts`
+    readonly output: string
     readonly split?: boolean
   },
   components?: {
     readonly [k: string]: {
-      readonly output: string | `${string}.ts`
+      readonly output: string
       readonly split?: boolean
       readonly import?: string
     }

@@ -12,5 +12,5 @@
     "declaration": true,
     "exactOptionalPropertyTypes": true
   },
-  "exclude": ["**/src/**/*.test.ts", "tsdown.config.ts"]
+  "exclude": ["**/src/**/*.test.ts", "tsdown.config.ts", "dist"]
 }

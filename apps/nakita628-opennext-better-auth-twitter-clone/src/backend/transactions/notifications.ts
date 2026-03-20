@@ -1,5 +1,6 @@
 import { z } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import { ContractViolationError } from '@/backend/domain'
 import { MessageResponseSchema, NotificationSchema } from '@/backend/routes'
 import * as NotificationService from '@/backend/services/notification'

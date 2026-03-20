@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 import { mutate } from 'swr'
 import { unstable_serialize } from 'swr/infinite'
+
 import { Button } from '@/components/atoms/Button'
 import { AvatarLink } from '@/components/molecules/AvatarLink'
 import {
@@ -90,35 +91,35 @@ export function Form({ placeholder, isComment, postId }: Props) {
   }, [body, isComment, postId, createPost, createComment])
 
   return (
-    <div className='border-b border-neutral-800 px-5 py-2'>
+    <div className="border-b border-neutral-800 px-5 py-2">
       {currentUser ? (
-        <div className='flex flex-row gap-4'>
+        <div className="flex flex-row gap-4">
           <div>
             <AvatarLink
               userId={currentUser.id}
               src={currentUser.profileImage || '/images/placeholder.png'}
             />
           </div>
-          <div className='w-full'>
+          <div className="w-full">
             <textarea
               disabled={isLoading}
               onChange={(e) => setBody(e.target.value)}
               value={body}
               placeholder={placeholder}
-              className='disabled:opacity-80 peer resize-none mt-3 w-full bg-black ring-0 outline-none text-[20px] placeholder:text-neutral-500 text-white'
+              className="disabled:opacity-80 peer resize-none mt-3 w-full bg-black ring-0 outline-none text-[20px] placeholder:text-neutral-500 text-white"
             />
-            <hr className='opacity-0 peer-focus:opacity-100 h-[1px] w-full border-neutral-800 transition' />
-            <div className='mt-4 flex flex-row justify-end'>
-              <Button disabled={isLoading || !body} onClick={onSubmit} label='Tweet' />
+            <hr className="opacity-0 peer-focus:opacity-100 h-[1px] w-full border-neutral-800 transition" />
+            <div className="mt-4 flex flex-row justify-end">
+              <Button disabled={isLoading || !body} onClick={onSubmit} label="Tweet" />
             </div>
           </div>
         </div>
       ) : (
-        <div className='py-8'>
-          <h1 className='text-white text-2xl font-bold'>Welcome to Twitter</h1>
-          <div className='flex flex-row items-center gap-4'>
-            <Button label='Login' onClick={loginModal.onOpen} />
-            <Button label='Register' onClick={registerModal.onOpen} secondary />
+        <div className="py-8">
+          <h1 className="text-white text-2xl font-bold">Welcome to Twitter</h1>
+          <div className="flex flex-row items-center gap-4">
+            <Button label="Login" onClick={loginModal.onOpen} />
+            <Button label="Register" onClick={registerModal.onOpen} secondary />
           </div>
         </div>
       )}

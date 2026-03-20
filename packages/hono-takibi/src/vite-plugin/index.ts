@@ -1,5 +1,6 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
+
 import { parseConfig } from '../config/index.js'
 import {
   callbacks,
@@ -111,7 +112,7 @@ const readConfigurationWithHotReload = async (
       server.moduleGraph.invalidateAll()
     }
 
-    const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${Date.now()}`)
+    const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
     const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
     if (!isConfiguration(defaultExport))
       return { ok: false, error: 'Config must export default object' }
@@ -235,7 +236,9 @@ const runAllGenerationTasks = async (
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
       const result = await takibi(openAPI, outputPath, {
-        readonly: config['zod-openapi']?.readonly,
+        ...(config['zod-openapi']?.readonly !== undefined
+          ? { readonly: config['zod-openapi'].readonly }
+          : {}),
         exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
         exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
         exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,

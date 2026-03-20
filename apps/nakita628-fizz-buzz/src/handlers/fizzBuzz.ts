@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+
 import * as FizzBuzzDomain from '../domain'
 import { getFizzBuzzRoute } from '../routes'
 

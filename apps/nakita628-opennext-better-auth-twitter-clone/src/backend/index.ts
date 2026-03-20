@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
+
 import { formatZodErrors } from '@/backend/domain'
 import {
   deleteFollowRouteHandler,
