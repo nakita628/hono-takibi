@@ -222,7 +222,7 @@ function makeInfiniteQueryKeyGetterCode(
   hasArgs: boolean,
   argsType: string,
   honoPath: string,
-  config: { frameworkName: string; isVueQuery?: boolean },
+  config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
   hasHeader = false,
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
@@ -288,7 +288,11 @@ function makeQueryOptionsGetterCode(
   argsType: string,
   parseResponseFuncName: string,
   honoPath: string,
-  config: { frameworkName: string; hasQueryOptionsHelper?: boolean; isVueQuery?: boolean },
+  config: {
+    readonly frameworkName: string
+    readonly hasQueryOptionsHelper?: boolean
+    readonly isVueQuery?: boolean
+  },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
@@ -532,7 +536,7 @@ function makeInfiniteQueryOptionsGetterCode(
   argsType: string,
   parseResponseFuncName: string,
   honoPath: string,
-  config: { frameworkName: string; isVueQuery?: boolean },
+  config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
