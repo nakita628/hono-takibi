@@ -2,7 +2,13 @@ import path from 'node:path'
 
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { capitalize, escapeCommentEnd, makeOperationDocs, methodPath } from '../utils/index.js'
+import {
+  capitalize,
+  escapeCommentEnd,
+  makeOperationDocs,
+  methodPath,
+  toIdentifierPascalCase,
+} from '../utils/index.js'
 import {
   core,
   formatPath,
@@ -694,7 +700,7 @@ function makeMutationKeyGetterName(method: string, pathStr: string): string {
  * @see https://tkdodo.eu/blog/effective-react-query-keys
  */
 function makePrefixKeyCode(prefix: string): string {
-  const funcName = `get${capitalize(prefix)}Key`
+  const funcName = `get${toIdentifierPascalCase(prefix)}Key`
   return `/**
  * Returns key prefix for all /${prefix} related queries and mutations.
  * Use for broad cache invalidation: invalidateQueries({ queryKey: ${funcName}() })

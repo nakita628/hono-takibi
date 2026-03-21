@@ -1281,11 +1281,11 @@ import { client } from '../client'
 
 /**
  * Returns key prefix for all /hono-x related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getHono-xKey() })
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoXKey() })
  *
  * @see https://tkdodo.eu/blog/effective-react-query-keys
  */
-export function getHono-xKey() {
+export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
