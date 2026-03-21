@@ -137,7 +137,7 @@ const ConfigSchema = z
         exportMediaTypesTypes: z.boolean().exactOptional(),
         routes: z
           .object({
-            output: z.custom<string>((v) => typeof v === 'string'),
+            output: z.string(),
             split: z.boolean().exactOptional(),
             import: z.string().exactOptional(),
           })
@@ -149,7 +149,7 @@ const ConfigSchema = z
           .object({
             schemas: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -160,7 +160,7 @@ const ConfigSchema = z
               .exactOptional(),
             parameters: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -171,7 +171,7 @@ const ConfigSchema = z
               .exactOptional(),
             headers: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -182,7 +182,7 @@ const ConfigSchema = z
               .exactOptional(),
             securitySchemes: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -192,7 +192,7 @@ const ConfigSchema = z
               .exactOptional(),
             requestBodies: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -202,7 +202,7 @@ const ConfigSchema = z
               .exactOptional(),
             responses: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -212,7 +212,7 @@ const ConfigSchema = z
               .exactOptional(),
             examples: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -222,7 +222,7 @@ const ConfigSchema = z
               .exactOptional(),
             links: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -232,7 +232,7 @@ const ConfigSchema = z
               .exactOptional(),
             callbacks: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -242,7 +242,7 @@ const ConfigSchema = z
               .exactOptional(),
             pathItems: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -252,7 +252,7 @@ const ConfigSchema = z
               .exactOptional(),
             mediaTypes: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -263,7 +263,7 @@ const ConfigSchema = z
               .exactOptional(),
             webhooks: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -286,7 +286,7 @@ const ConfigSchema = z
       .exactOptional(),
     rpc: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -298,10 +298,12 @@ const ConfigSchema = z
       .exactOptional(),
     swr: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
+        /** Generate infinite query hooks. (Default: true) */
+        infinite: z.boolean().exactOptional(),
       })
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
@@ -309,10 +311,12 @@ const ConfigSchema = z
       .exactOptional(),
     'tanstack-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
+        /** Generate infinite query hooks. (Default: true) */
+        infinite: z.boolean().exactOptional(),
       })
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
@@ -320,10 +324,12 @@ const ConfigSchema = z
       .exactOptional(),
     'svelte-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
+        /** Generate infinite query hooks. (Default: true) */
+        infinite: z.boolean().exactOptional(),
       })
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
@@ -331,10 +337,12 @@ const ConfigSchema = z
       .exactOptional(),
     'vue-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
+        /** Generate infinite query hooks. (Default: true) */
+        infinite: z.boolean().exactOptional(),
       })
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
@@ -342,14 +350,14 @@ const ConfigSchema = z
       .exactOptional(),
     test: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         framework: z.enum(['vitest', 'bun']).default('vitest').exactOptional(),
       })
       .exactOptional(),
     mock: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
       })
       .exactOptional(),
     docs: z

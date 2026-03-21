@@ -12,6 +12,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  * @param importPath - Import path for the Hono client
  * @param split - Whether to split into multiple files (one per hook)
  * @param clientName - Name of the client export (default: 'client')
+ * @param infinite - Whether to generate infinite query hooks (default: true)
  * @returns Promise resolving to success message or error
  */
 export async function swr(
@@ -20,6 +21,7 @@ export async function swr(
   importPath: string,
   split?: boolean,
   clientName = 'client',
+  infinite = true,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -33,8 +35,12 @@ export async function swr(
     useMutationOptionsType: 'SWRMutationConfiguration',
     isSWR: true,
     immutableQueryFn: 'useSWRImmutable',
-    infiniteQueryFn: 'useSWRInfinite',
-    useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
+    ...(infinite
+      ? {
+          infiniteQueryFn: 'useSWRInfinite',
+          useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
+        }
+      : {}),
   }
   const result = await makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 

@@ -279,6 +279,7 @@ export async function honoTakibi(): Promise<
           config.swr.import,
           config.swr.split ?? false,
           config.swr.client ?? 'client',
+          config.swr.infinite ?? true,
         )
       : Promise.resolve(undefined),
     config['tanstack-query']
@@ -288,6 +289,7 @@ export async function honoTakibi(): Promise<
           config['tanstack-query'].import,
           config['tanstack-query'].split ?? false,
           config['tanstack-query'].client ?? 'client',
+          config['tanstack-query'].infinite ?? true,
         )
       : Promise.resolve(undefined),
     config['svelte-query']
@@ -297,6 +299,7 @@ export async function honoTakibi(): Promise<
           config['svelte-query'].import,
           config['svelte-query'].split ?? false,
           config['svelte-query'].client ?? 'client',
+          config['svelte-query'].infinite ?? true,
         )
       : Promise.resolve(undefined),
     config['vue-query']
@@ -306,6 +309,7 @@ export async function honoTakibi(): Promise<
           config['vue-query'].import,
           config['vue-query'].split ?? false,
           config['vue-query'].client ?? 'client',
+          config['vue-query'].infinite ?? true,
         )
       : Promise.resolve(undefined),
     config.test

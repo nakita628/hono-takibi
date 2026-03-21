@@ -73,6 +73,26 @@ import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
 /**
+ * Returns key prefix for all /hono related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getHonoKey() {
+  return ['hono'] as const
+}
+
+/**
+ * Returns key prefix for all /users related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
  * Generates TanStack Query cache key for GET /hono
  * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
@@ -414,11 +434,36 @@ describe('tanstackQuery (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './getHono'
+      const indexExpected = `export * from './_keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `
       expect(index).toBe(indexExpected)
+
+      // Check _keys.ts prefix key file
+      const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
+      const keysExpected = `/**
+ * Returns key prefix for all /hono related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getHonoKey() {
+  return ['hono'] as const
+}
+
+/**
+ * Returns key prefix for all /users related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+`
+      expect(keys).toBe(keysExpected)
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
@@ -845,6 +890,16 @@ import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
 /**
+ * Returns key prefix for all /users related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
  * Generates TanStack Query cache key for GET /users
  * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
@@ -1010,6 +1065,16 @@ import type {
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
+
+/**
+ * Returns key prefix for all /ping related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getPingKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getPingKey() {
+  return ['ping'] as const
+}
 
 /**
  * Generates TanStack Query cache key for GET /ping
@@ -1215,6 +1280,16 @@ import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
 /**
+ * Returns key prefix for all /hono-x related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getHono-xKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getHono-xKey() {
+  return ['hono-x'] as const
+}
+
+/**
  * Generates TanStack Query cache key for GET /hono-x
  * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
@@ -1381,6 +1456,16 @@ import type {
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
+
+/**
+ * Returns key prefix for all /users related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
 
 /**
  * Generates TanStack Query cache key for GET /users/{id}

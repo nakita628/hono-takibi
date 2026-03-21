@@ -158,6 +158,7 @@ function makeQueryKeyGetterCode(
   argsType: string,
   honoPath: string,
   config: { frameworkName: string; isVueQuery?: boolean; isSWR?: boolean },
+  hasHeader = false,
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
@@ -173,7 +174,7 @@ function makeQueryKeyGetterCode(
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',args]as const}`
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','GET','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
     }
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -184,11 +185,15 @@ export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as con
 
   // TanStack Query / Svelte Query: ['prefix', 'GET', '/path', args?]
   if (hasArgs) {
+    // Exclude 'header' from key per REST principle: headers are metadata, not resource identifiers
+    const body = hasHeader
+      ? `const{header:_,...keyArgs}=args;return['${prefix}','GET','${honoPath}',keyArgs]as const`
+      : `return['${prefix}','GET','${honoPath}',args]as const`
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:${argsType}){return['${prefix}','GET','${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${argsType}){${body}}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -208,6 +213,7 @@ function makeInfiniteQueryKeyGetterCode(
   argsType: string,
   honoPath: string,
   config: { frameworkName: string; isVueQuery?: boolean },
+  hasHeader = false,
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
@@ -220,7 +226,7 @@ function makeInfiniteQueryKeyGetterCode(
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){return['${prefix}','GET','${honoPath}',args,'infinite']as const}`
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','GET','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
     }
     return `/**
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPathNoParam}
@@ -231,11 +237,14 @@ export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}','infin
 
   // TanStack Query / Svelte Query
   if (hasArgs) {
+    const infBody = hasHeader
+      ? `const{header:_,...keyArgs}=args;return['${prefix}','GET','${honoPath}',keyArgs,'infinite']as const`
+      : `return['${prefix}','GET','${honoPath}',args,'infinite']as const`
     return `/**
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPath}
  * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
  */
-export function ${keyGetterName}(args:${argsType}){return['${prefix}','GET','${honoPath}',args,'infinite']as const}`
+export function ${keyGetterName}(args:${argsType}){${infBody}}`
   }
   return `/**
  * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPathNoParam}
@@ -672,6 +681,43 @@ function makeMutationKeyGetterName(method: string, pathStr: string): string {
   return `get${capitalize(funcName)}MutationKey`
 }
 
+/* ─────────────────────────────── Prefix Key ─────────────────────────────── */
+
+/**
+ * Generates prefix key getter function code.
+ *
+ * Pattern: ['prefix'] for broad cache invalidation across all methods and paths.
+ *
+ * This enables:
+ * - Invalidate all queries/mutations for a resource: invalidateQueries({ queryKey: getTodosKey() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+function makePrefixKeyCode(prefix: string): string {
+  const funcName = `get${capitalize(prefix)}Key`
+  return `/**
+ * Returns key prefix for all /${prefix} related queries and mutations.
+ * Use for broad cache invalidation: invalidateQueries({ queryKey: ${funcName}() })
+ *
+ * @see https://tkdodo.eu/blog/effective-react-query-keys
+ */
+export function ${funcName}(){return['${prefix}']as const}`
+}
+
+/**
+ * Extracts unique prefixes from OpenAPI paths and generates prefix key functions.
+ */
+function makePrefixKeyCodes(paths: OpenAPIPaths): string[] {
+  const prefixes = new Set<string>()
+  for (const p of Object.keys(paths)) {
+    const prefix = p.replace(/^\//, '').split('/')[0]
+    if (prefix) prefixes.add(prefix)
+  }
+  return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
+}
+
+/* ─────────────────────────────── Mutation Key ─────────────────────────────── */
+
 /**
  * Generates mutation key getter function code.
  *
@@ -928,6 +974,11 @@ function makeHookCode(
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
+  // Detect header parameters for key exclusion (REST: headers are metadata, not resource identifiers)
+  const pathLevelParams = deps.toParameterLikes(item.parameters)
+  const opParams = deps.toParameterLikes(op.parameters)
+  const hasHeaderArgs = [...pathLevelParams, ...opParams].some((p) => p.in === 'header')
+
   // parseResponse function name (same naming as parseResponse/ generator)
   const parseResponseFuncName = methodPath(method, pathStr)
   const argsType = makeArgsType(clientName, method, pathStr)
@@ -962,6 +1013,7 @@ function makeHookCode(
         argsType,
         honoPath,
         config,
+        hasHeaderArgs,
       )
       const hookCode = makeSWRQueryHookCode(
         hookName,
@@ -993,6 +1045,7 @@ function makeHookCode(
         argsType,
         honoPath,
         config,
+        hasHeaderArgs,
       )
       const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(parseResponseFuncName)}`
       const infiniteHookCode = makeSWRInfiniteHookCode(
@@ -1047,7 +1100,7 @@ function makeHookCode(
   if (isQuery) {
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
     const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
-    const keyGetterCode = makeQueryKeyGetterCode(keyGetterName, hasArgs, argsType, honoPath, config)
+    const keyGetterCode = makeQueryKeyGetterCode(keyGetterName, hasArgs, argsType, honoPath, config, hasHeaderArgs)
     const optionsGetterCode = makeQueryOptionsGetterCode(
       optionsGetterName,
       keyGetterName,
@@ -1073,7 +1126,7 @@ function makeHookCode(
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
     const infiniteKeyGetterCode = hasInfinite
-      ? makeInfiniteQueryKeyGetterCode(infiniteKeyGetterName, hasArgs, argsType, honoPath, config)
+      ? makeInfiniteQueryKeyGetterCode(infiniteKeyGetterName, hasArgs, argsType, honoPath, config, hasHeaderArgs)
       : null
 
     // Generate infinite query options getter
@@ -1417,12 +1470,15 @@ export async function makeQueryHooks(
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
 
   const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
+  const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
 
   const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
 
   // Non-split: write single file
   if (!split) {
-    const body = hookCodes.map(({ code }) => code).join('\n\n')
+    const prefixBody = prefixKeyCodes.join('\n\n')
+    const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
+    const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
     const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
     const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
     const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
@@ -1447,14 +1503,26 @@ export async function makeQueryHooks(
   // Split: write each file + index.ts (barrel) in parallel
   const { outDir, indexPath } = resolveSplitOutDir(output)
 
+  const prefixKeyFileName = '_keys'
   const exportLines = Array.from(
-    new Set(
-      hookCodes.map(({ parseResponseFuncName }) => `export * from './${parseResponseFuncName}'`),
-    ),
+    new Set([
+      ...(prefixKeyCodes.length > 0 ? [`export * from './${prefixKeyFileName}'`] : []),
+      ...hookCodes.map(({ parseResponseFuncName }) => `export * from './${parseResponseFuncName}'`),
+    ]),
   )
   const index = `${exportLines.join('\n')}\n`
 
   const allResults = await Promise.all([
+    // Prefix key file (no imports needed — pure functions returning string literals)
+    ...(prefixKeyCodes.length > 0
+      ? [
+          core(
+            `${prefixKeyCodes.join('\n\n')}\n`,
+            path.dirname(path.join(outDir, `${prefixKeyFileName}.ts`)),
+            path.join(outDir, `${prefixKeyFileName}.ts`),
+          ),
+        ]
+      : []),
     ...hookCodes.map(({ parseResponseFuncName, code, isQuery, hasArgs }) => {
       const hasQueryWithArgs = isQuery && hasArgs
       const header = makeHeader(
