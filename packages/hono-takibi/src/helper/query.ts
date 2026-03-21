@@ -163,7 +163,11 @@ function makeQueryKeyGetterCode(
   hasArgs: boolean,
   argsType: string,
   honoPath: string,
-  config: { frameworkName: string; isVueQuery?: boolean; isSWR?: boolean },
+  config: {
+    readonly frameworkName: string
+    readonly isVueQuery?: boolean
+    readonly isSWR?: boolean
+  },
   hasHeader = false,
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
@@ -409,11 +413,11 @@ function makeQueryHookCode(
   responseType: string,
   docs: string,
   config: {
-    queryFn: string
-    useThunk?: boolean
-    isVueQuery?: boolean
-    useQueryOptionsType: string
-    errorType?: string
+    readonly queryFn: string
+    readonly useThunk?: boolean
+    readonly isVueQuery?: boolean
+    readonly useQueryOptionsType: string
+    readonly errorType?: string
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
@@ -462,11 +466,11 @@ function makeSuspenseQueryHookCode(
   responseType: string,
   docs: string,
   config: {
-    suspenseQueryFn: string
-    useSuspenseQueryOptionsType: string
-    useThunk?: boolean
-    isVueQuery?: boolean
-    errorType?: string
+    readonly suspenseQueryFn: string
+    readonly useSuspenseQueryOptionsType: string
+    readonly useThunk?: boolean
+    readonly isVueQuery?: boolean
+    readonly errorType?: string
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
@@ -583,11 +587,11 @@ function makeInfiniteQueryHookCode(
   responseType: string,
   docs: string,
   config: {
-    infiniteQueryFn: string
-    useInfiniteQueryOptionsType: string
-    useThunk?: boolean
-    isVueQuery?: boolean
-    errorType?: string
+    readonly infiniteQueryFn: string
+    readonly useInfiniteQueryOptionsType: string
+    readonly useThunk?: boolean
+    readonly isVueQuery?: boolean
+    readonly errorType?: string
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
@@ -633,11 +637,11 @@ function makeSuspenseInfiniteQueryHookCode(
   responseType: string,
   docs: string,
   config: {
-    suspenseInfiniteQueryFn: string
-    useSuspenseInfiniteQueryOptionsType: string
-    useThunk?: boolean
-    isVueQuery?: boolean
-    errorType?: string
+    readonly suspenseInfiniteQueryFn: string
+    readonly useSuspenseInfiniteQueryOptionsType: string
+    readonly useThunk?: boolean
+    readonly isVueQuery?: boolean
+    readonly errorType?: string
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
@@ -914,10 +918,10 @@ function makeMutationHookCode(
   responseType: string,
   docs: string,
   config: {
-    mutationFn: string
-    useThunk?: boolean
-    useMutationOptionsType: string
-    errorType?: string
+    readonly mutationFn: string
+    readonly useThunk?: boolean
+    readonly useMutationOptionsType: string
+    readonly errorType?: string
   },
   hasNoContent: boolean,
 ): string {
@@ -951,25 +955,25 @@ function makeHookCode(
   item: ReturnType<typeof parsePathItem>,
   deps: ReturnType<typeof makeOperationDeps>,
   config: {
-    hookPrefix: string
-    frameworkName: string
-    queryFn: string
-    mutationFn: string
-    useThunk?: boolean
-    useQueryOptionsType: string
-    useMutationOptionsType: string
-    isVueQuery?: boolean
-    isSWR?: boolean
-    hasQueryOptionsHelper?: boolean
-    hasMutationOptionsHelper?: boolean
-    suspenseQueryFn?: string
-    infiniteQueryFn?: string
-    suspenseInfiniteQueryFn?: string
-    useSuspenseQueryOptionsType?: string
-    useInfiniteQueryOptionsType?: string
-    useSuspenseInfiniteQueryOptionsType?: string
-    errorType?: string
-    immutableQueryFn?: string
+    readonly hookPrefix: string
+    readonly frameworkName: string
+    readonly queryFn: string
+    readonly mutationFn: string
+    readonly useThunk?: boolean
+    readonly useQueryOptionsType: string
+    readonly useMutationOptionsType: string
+    readonly isVueQuery?: boolean
+    readonly isSWR?: boolean
+    readonly hasQueryOptionsHelper?: boolean
+    readonly hasMutationOptionsHelper?: boolean
+    readonly suspenseQueryFn?: string
+    readonly infiniteQueryFn?: string
+    readonly suspenseInfiniteQueryFn?: string
+    readonly useSuspenseQueryOptionsType?: string
+    readonly useInfiniteQueryOptionsType?: string
+    readonly useSuspenseInfiniteQueryOptionsType?: string
+    readonly errorType?: string
+    readonly immutableQueryFn?: string
   },
   clientName: string,
 ): { code: string; isQuery: boolean; hasArgs: boolean; parseResponseFuncName: string } | null {
@@ -1106,7 +1110,14 @@ function makeHookCode(
   if (isQuery) {
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
     const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
-    const keyGetterCode = makeQueryKeyGetterCode(keyGetterName, hasArgs, argsType, honoPath, config, hasHeaderArgs)
+    const keyGetterCode = makeQueryKeyGetterCode(
+      keyGetterName,
+      hasArgs,
+      argsType,
+      honoPath,
+      config,
+      hasHeaderArgs,
+    )
     const optionsGetterCode = makeQueryOptionsGetterCode(
       optionsGetterName,
       keyGetterName,
@@ -1132,7 +1143,14 @@ function makeHookCode(
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
     const infiniteKeyGetterCode = hasInfinite
-      ? makeInfiniteQueryKeyGetterCode(infiniteKeyGetterName, hasArgs, argsType, honoPath, config, hasHeaderArgs)
+      ? makeInfiniteQueryKeyGetterCode(
+          infiniteKeyGetterName,
+          hasArgs,
+          argsType,
+          honoPath,
+          config,
+          hasHeaderArgs,
+        )
       : null
 
     // Generate infinite query options getter
@@ -1270,25 +1288,25 @@ function makeHookCodes(
   paths: OpenAPIPaths,
   deps: ReturnType<typeof makeOperationDeps>,
   config: {
-    hookPrefix: string
-    frameworkName: string
-    queryFn: string
-    mutationFn: string
-    useThunk?: boolean
-    useQueryOptionsType: string
-    useMutationOptionsType: string
-    isVueQuery?: boolean
-    isSWR?: boolean
-    hasQueryOptionsHelper?: boolean
-    hasMutationOptionsHelper?: boolean
-    suspenseQueryFn?: string
-    infiniteQueryFn?: string
-    suspenseInfiniteQueryFn?: string
-    useSuspenseQueryOptionsType?: string
-    useInfiniteQueryOptionsType?: string
-    useSuspenseInfiniteQueryOptionsType?: string
-    errorType?: string
-    immutableQueryFn?: string
+    readonly hookPrefix: string
+    readonly frameworkName: string
+    readonly queryFn: string
+    readonly mutationFn: string
+    readonly useThunk?: boolean
+    readonly useQueryOptionsType: string
+    readonly useMutationOptionsType: string
+    readonly isVueQuery?: boolean
+    readonly isSWR?: boolean
+    readonly hasQueryOptionsHelper?: boolean
+    readonly hasMutationOptionsHelper?: boolean
+    readonly suspenseQueryFn?: string
+    readonly infiniteQueryFn?: string
+    readonly suspenseInfiniteQueryFn?: string
+    readonly useSuspenseQueryOptionsType?: string
+    readonly useInfiniteQueryOptionsType?: string
+    readonly useSuspenseInfiniteQueryOptionsType?: string
+    readonly errorType?: string
+    readonly immutableQueryFn?: string
   },
   clientName: string,
 ): {
@@ -1349,22 +1367,22 @@ function makeHeader(
   hasMutation: boolean,
   hasAnyArgs: boolean,
   config: {
-    packageName: string
-    queryFn: string
-    mutationFn: string
-    useQueryOptionsType: string
-    useMutationOptionsType: string
-    isVueQuery?: boolean
-    isSWR?: boolean
-    hasQueryOptionsHelper?: boolean
-    hasMutationOptionsHelper?: boolean
-    suspenseQueryFn?: string
-    infiniteQueryFn?: string
-    suspenseInfiniteQueryFn?: string
-    useSuspenseQueryOptionsType?: string
-    useInfiniteQueryOptionsType?: string
-    useSuspenseInfiniteQueryOptionsType?: string
-    immutableQueryFn?: string
+    readonly packageName: string
+    readonly queryFn: string
+    readonly mutationFn: string
+    readonly useQueryOptionsType: string
+    readonly useMutationOptionsType: string
+    readonly isVueQuery?: boolean
+    readonly isSWR?: boolean
+    readonly hasQueryOptionsHelper?: boolean
+    readonly hasMutationOptionsHelper?: boolean
+    readonly suspenseQueryFn?: string
+    readonly infiniteQueryFn?: string
+    readonly suspenseInfiniteQueryFn?: string
+    readonly useSuspenseQueryOptionsType?: string
+    readonly useInfiniteQueryOptionsType?: string
+    readonly useSuspenseInfiniteQueryOptionsType?: string
+    readonly immutableQueryFn?: string
   },
   hasQueryWithArgs = false,
 ): string {
@@ -1440,26 +1458,26 @@ export async function makeQueryHooks(
   output: string,
   importPath: string,
   config: {
-    packageName: string
-    frameworkName: string
-    hookPrefix: string
-    queryFn: string
-    mutationFn: string
-    useThunk?: boolean
-    useQueryOptionsType: string
-    useMutationOptionsType: string
-    isVueQuery?: boolean
-    isSWR?: boolean
-    hasQueryOptionsHelper?: boolean
-    hasMutationOptionsHelper?: boolean
-    suspenseQueryFn?: string
-    infiniteQueryFn?: string
-    suspenseInfiniteQueryFn?: string
-    useSuspenseQueryOptionsType?: string
-    useInfiniteQueryOptionsType?: string
-    useSuspenseInfiniteQueryOptionsType?: string
-    errorType?: string
-    immutableQueryFn?: string
+    readonly packageName: string
+    readonly frameworkName: string
+    readonly hookPrefix: string
+    readonly queryFn: string
+    readonly mutationFn: string
+    readonly useThunk?: boolean
+    readonly useQueryOptionsType: string
+    readonly useMutationOptionsType: string
+    readonly isVueQuery?: boolean
+    readonly isSWR?: boolean
+    readonly hasQueryOptionsHelper?: boolean
+    readonly hasMutationOptionsHelper?: boolean
+    readonly suspenseQueryFn?: string
+    readonly infiniteQueryFn?: string
+    readonly suspenseInfiniteQueryFn?: string
+    readonly useSuspenseQueryOptionsType?: string
+    readonly useInfiniteQueryOptionsType?: string
+    readonly useSuspenseInfiniteQueryOptionsType?: string
+    readonly errorType?: string
+    readonly immutableQueryFn?: string
   },
   split?: boolean,
   clientName = 'client',
