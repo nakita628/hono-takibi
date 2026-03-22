@@ -19,14 +19,17 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates TanStack Query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetItemsItemIdQueryKey(
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** GET /items/{itemId} query key */
+export function getItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args] as const
+  const { header: _, ...keyArgs } = args
+  return ['items', '/items/:itemId', keyArgs] as const
 }
 
 /**
@@ -40,16 +43,14 @@ export async function getItemsItemId(
 }
 
 /**
- * Returns TanStack Query query options for GET /items/{itemId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items/{itemId} query options
  */
-export function getGetItemsItemIdQueryOptions(
+export function getItemsItemIdQueryOptions(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetItemsItemIdQueryKey(args),
+    queryKey: getItemsItemIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsItemId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -59,7 +60,7 @@ export function getGetItemsItemIdQueryOptions(
 /**
  * GET /items/{itemId}
  */
-export function useGetItemsItemId(
+export function useItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -67,13 +68,13 @@ export function useGetItemsItemId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /items/{itemId}
  */
-export function useSuspenseGetItemsItemId(
+export function useSuspenseItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -81,34 +82,26 @@ export function useSuspenseGetItemsItemId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...getGetItemsItemIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useSuspenseQuery({ ...getItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetItemsItemIdInfiniteQueryKey(
+/** GET /items/{itemId} infinite query key */
+export function getItemsItemIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args, 'infinite'] as const
+  const { header: _, ...keyArgs } = args
+  return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /items/{itemId}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items/{itemId} infinite query options
  */
-export function getGetItemsItemIdInfiniteQueryOptions(
+export function getItemsItemIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetItemsItemIdInfiniteQueryKey(args),
+    queryKey: getItemsItemIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsItemId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -118,7 +111,7 @@ export function getGetItemsItemIdInfiniteQueryOptions(
 /**
  * GET /items/{itemId}
  */
-export function useInfiniteGetItemsItemId(
+export function useInfiniteItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -127,7 +120,7 @@ export function useInfiniteGetItemsItemId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetItemsItemIdInfiniteQueryOptions(args, clientOptions),
+    ...getItemsItemIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -135,7 +128,7 @@ export function useInfiniteGetItemsItemId(
 /**
  * GET /items/{itemId}
  */
-export function useSuspenseInfiniteGetItemsItemId(
+export function useSuspenseInfiniteItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -144,17 +137,9 @@ export function useSuspenseInfiniteGetItemsItemId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetItemsItemIdInfiniteQueryOptions(args, clientOptions),
+    ...getItemsItemIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for PUT /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutItemsItemIdMutationKey() {
-  return ['items', 'PUT', '/items/:itemId'] as const
 }
 
 /**
@@ -167,14 +152,10 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for PUT /items/{itemId}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** PUT /items/{itemId} */
 export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPutItemsItemIdMutationKey(),
+    mutationKey: ['items', '/items/:itemId'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
       return putItemsItemId(args, options)
     },
@@ -197,14 +178,6 @@ export function usePutItemsItemId(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for DELETE /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteItemsItemIdMutationKey() {
-  return ['items', 'DELETE', '/items/:itemId'] as const
-}
-
-/**
  * DELETE /items/{itemId}
  */
 export async function deleteItemsItemId(
@@ -214,14 +187,10 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for DELETE /items/{itemId}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** DELETE /items/{itemId} */
 export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getDeleteItemsItemIdMutationKey(),
+    mutationKey: ['items', '/items/:itemId'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
       return deleteItemsItemId(args, options)
     },
@@ -243,12 +212,9 @@ export function useDeleteItemsItemId(options?: {
   return useMutation({ ...getDeleteItemsItemIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates TanStack Query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', 'GET', '/items', args] as const
+/** GET /items query key */
+export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', '/items', args] as const
 }
 
 /**
@@ -262,16 +228,14 @@ export async function getItems(
 }
 
 /**
- * Returns TanStack Query query options for GET /items
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items query options
  */
-export function getGetItemsQueryOptions(
+export function getItemsQueryOptions(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetItemsQueryKey(args),
+    queryKey: getItemsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -281,7 +245,7 @@ export function getGetItemsQueryOptions(
 /**
  * GET /items
  */
-export function useGetItems(
+export function useItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -289,13 +253,13 @@ export function useGetItems(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /items
  */
-export function useSuspenseGetItems(
+export function useSuspenseItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -303,29 +267,23 @@ export function useSuspenseGetItems(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getItemsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/** GET /items infinite query key */
+export function getItemsInfiniteQueryKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', '/items', args, 'infinite'] as const
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /items infinite query options
  */
-export function getGetItemsInfiniteQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', 'GET', '/items', args, 'infinite'] as const
-}
-
-/**
- * Returns TanStack Query infinite query options for GET /items
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetItemsInfiniteQueryOptions(
+export function getItemsInfiniteQueryOptions(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetItemsInfiniteQueryKey(args),
+    queryKey: getItemsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -335,7 +293,7 @@ export function getGetItemsInfiniteQueryOptions(
 /**
  * GET /items
  */
-export function useInfiniteGetItems(
+export function useInfiniteItems(
   args: InferRequestType<typeof client.items.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -343,16 +301,13 @@ export function useInfiniteGetItems(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetItemsInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getItemsInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /items
  */
-export function useSuspenseInfiniteGetItems(
+export function useSuspenseInfiniteItems(
   args: InferRequestType<typeof client.items.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -361,7 +316,7 @@ export function useSuspenseInfiniteGetItems(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetItemsInfiniteQueryOptions(args, clientOptions),
+    ...getItemsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

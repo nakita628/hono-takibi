@@ -9,12 +9,29 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR mutation key for POST /nullable
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostNullableMutationKey() {
-  return ['nullable', 'POST', '/nullable'] as const
+/** Key prefix for /additional-props */
+export function getAdditionalPropsKey() {
+  return ['additional-props'] as const
+}
+
+/** Key prefix for /composed */
+export function getComposedKey() {
+  return ['composed'] as const
+}
+
+/** Key prefix for /deep-nested */
+export function getDeepNestedKey() {
+  return ['deep-nested'] as const
+}
+
+/** Key prefix for /discriminated */
+export function getDiscriminatedKey() {
+  return ['discriminated'] as const
+}
+
+/** Key prefix for /nullable */
+export function getNullableKey() {
+  return ['nullable'] as const
 }
 
 /**
@@ -41,7 +58,7 @@ export function usePostNullable(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostNullableMutationKey()
+  const swrKey = customKey ?? (['nullable', '/nullable'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -51,14 +68,6 @@ export function usePostNullable(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /discriminated
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostDiscriminatedMutationKey() {
-  return ['discriminated', 'POST', '/discriminated'] as const
 }
 
 /**
@@ -85,7 +94,7 @@ export function usePostDiscriminated(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostDiscriminatedMutationKey()
+  const swrKey = customKey ?? (['discriminated', '/discriminated'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -97,12 +106,9 @@ export function usePostDiscriminated(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /composed
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /composed query key */
 export function getGetComposedKey() {
-  return ['composed', 'GET', '/composed'] as const
+  return ['composed', '/composed'] as const
 }
 
 /**
@@ -141,12 +147,9 @@ export function useImmutableGetComposed(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /composed
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /composed infinite query key */
 export function getGetComposedInfiniteKey() {
-  return ['composed', 'GET', '/composed', 'infinite'] as const
+  return ['composed', '/composed', 'infinite'] as const
 }
 
 /**
@@ -165,12 +168,9 @@ export function useInfiniteGetComposed(options: {
   return useSWRInfinite(keyLoader, async () => getComposed(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /deep-nested
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /deep-nested query key */
 export function getGetDeepNestedKey() {
-  return ['deep-nested', 'GET', '/deep-nested'] as const
+  return ['deep-nested', '/deep-nested'] as const
 }
 
 /**
@@ -209,12 +209,9 @@ export function useImmutableGetDeepNested(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /deep-nested
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /deep-nested infinite query key */
 export function getGetDeepNestedInfiniteKey() {
-  return ['deep-nested', 'GET', '/deep-nested', 'infinite'] as const
+  return ['deep-nested', '/deep-nested', 'infinite'] as const
 }
 
 /**
@@ -233,12 +230,9 @@ export function useInfiniteGetDeepNested(options: {
   return useSWRInfinite(keyLoader, async () => getDeepNested(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /additional-props
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /additional-props query key */
 export function getGetAdditionalPropsKey() {
-  return ['additional-props', 'GET', '/additional-props'] as const
+  return ['additional-props', '/additional-props'] as const
 }
 
 /**
@@ -280,12 +274,9 @@ export function useImmutableGetAdditionalProps(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /additional-props
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /additional-props infinite query key */
 export function getGetAdditionalPropsInfiniteKey() {
-  return ['additional-props', 'GET', '/additional-props', 'infinite'] as const
+  return ['additional-props', '/additional-props', 'infinite'] as const
 }
 
 /**

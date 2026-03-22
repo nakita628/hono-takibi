@@ -640,20 +640,6 @@ export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryO
 export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
-/* ─────────────────────────────── Mutation Key Getter ─────────────────────────────── */
-
-/**
- * Generates the mutation key getter function name.
- *
- * @param method - HTTP method
- * @param pathStr - API path
- * @returns Mutation key getter function name (e.g., "getPutPetMutationKey")
- */
-function makeMutationKeyGetterName(method: string, pathStr: string): string {
-  const funcName = methodPath(method, pathStr)
-  return `get${capitalize(funcName)}MutationKey`
-}
-
 /* ─────────────────────────────── Prefix Key ─────────────────────────────── */
 
 /**
@@ -682,40 +668,6 @@ function makePrefixKeyCodes(paths: OpenAPIPaths): string[] {
     if (prefix) prefixes.add(prefix)
   }
   return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
-}
-
-/* ─────────────────────────────── Mutation Key ─────────────────────────────── */
-
-/**
- * Generates mutation key getter function code.
- *
- * Pattern: ['prefix', 'METHOD', '/path'] to match Query key structure.
- * - prefix: First path segment for prefix-based filtering (e.g., 'pet')
- * - method: HTTP method to avoid collisions (e.g., 'PUT', 'POST')
- * - path: Full path template (e.g., '/pet/:petId')
- *
- * This enables:
- * - Prefix filtering: isMutating({ mutationKey: ['pet'] }) → all pet mutations
- * - No collisions: PUT /pet and POST /pet have different keys
- *
- * @param keyGetterName - Function name for key getter
- * @param honoPath - Hono-style path (with :param)
- * @param method - HTTP method
- * @param config - Framework configuration
- * @returns Mutation key getter function code
- */
-function makeMutationKeyGetterCode(
-  keyGetterName: string,
-  honoPath: string,
-  method: string,
-  config: { frameworkName: string },
-): string {
-  const methodUpper = method.toUpperCase()
-  const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
-  // Extract prefix (first path segment without leading slash)
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
-  return `/** ${methodUpper} ${safeCommentPath} mutation key */
-export function ${keyGetterName}(){return['${prefix}','${methodUpper}','${honoPath}']as const}`
 }
 
 /* ─────────────────────────────── Mutation Options Getter ─────────────────────────────── */
@@ -831,7 +783,7 @@ function makeSWRHeader(
  */
 function makeSWRMutationHookCode(
   hookName: string,
-  keyGetterName: string,
+  inlineKey: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -847,13 +799,13 @@ function makeSWRMutationHookCode(
   if (hasArgs) {
     const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
     return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,clientOptions),restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,clientOptions),restMutationOptions)}}`
   }
 
   // No args - simpler pattern
   const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
   return `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */

@@ -9,12 +9,19 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR mutation key for POST /orders
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostOrdersMutationKey() {
-  return ['orders', 'POST', '/orders'] as const
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** Key prefix for /orders */
+export function getOrdersKey() {
+  return ['orders'] as const
+}
+
+/** Key prefix for /payments */
+export function getPaymentsKey() {
+  return ['payments'] as const
 }
 
 /**
@@ -45,7 +52,7 @@ export function usePostOrders(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostOrdersMutationKey()
+  const swrKey = customKey ?? (['orders', '/orders'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -55,14 +62,6 @@ export function usePostOrders(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /payments
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPaymentsMutationKey() {
-  return ['payments', 'POST', '/payments'] as const
 }
 
 /**
@@ -93,7 +92,7 @@ export function usePostPayments(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPaymentsMutationKey()
+  const swrKey = customKey ?? (['payments', '/payments'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -105,12 +104,9 @@ export function usePostPayments(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /items query key */
 export function getGetItemsKey() {
-  return ['items', 'GET', '/items'] as const
+  return ['items', '/items'] as const
 }
 
 /**
@@ -152,12 +148,9 @@ export function useImmutableGetItems(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /items infinite query key */
 export function getGetItemsInfiniteKey() {
-  return ['items', 'GET', '/items', 'infinite'] as const
+  return ['items', '/items', 'infinite'] as const
 }
 
 /**

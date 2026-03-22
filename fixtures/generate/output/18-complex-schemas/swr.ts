@@ -9,12 +9,34 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR mutation key for POST /expressions
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostExpressionsMutationKey() {
-  return ['expressions', 'POST', '/expressions'] as const
+/** Key prefix for /configs */
+export function getConfigsKey() {
+  return ['configs'] as const
+}
+
+/** Key prefix for /documents */
+export function getDocumentsKey() {
+  return ['documents'] as const
+}
+
+/** Key prefix for /expressions */
+export function getExpressionsKey() {
+  return ['expressions'] as const
+}
+
+/** Key prefix for /nested-circular */
+export function getNestedCircularKey() {
+  return ['nested-circular'] as const
+}
+
+/** Key prefix for /nullable-union */
+export function getNullableUnionKey() {
+  return ['nullable-union'] as const
+}
+
+/** Key prefix for /shapes */
+export function getShapesKey() {
+  return ['shapes'] as const
 }
 
 /**
@@ -45,7 +67,7 @@ export function usePostExpressions(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostExpressionsMutationKey()
+  const swrKey = customKey ?? (['expressions', '/expressions'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -55,14 +77,6 @@ export function usePostExpressions(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /shapes
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostShapesMutationKey() {
-  return ['shapes', 'POST', '/shapes'] as const
 }
 
 /**
@@ -93,7 +107,7 @@ export function usePostShapes(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostShapesMutationKey()
+  const swrKey = customKey ?? (['shapes', '/shapes'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -103,14 +117,6 @@ export function usePostShapes(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /documents
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostDocumentsMutationKey() {
-  return ['documents', 'POST', '/documents'] as const
 }
 
 /**
@@ -141,7 +147,7 @@ export function usePostDocuments(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostDocumentsMutationKey()
+  const swrKey = customKey ?? (['documents', '/documents'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -151,14 +157,6 @@ export function usePostDocuments(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /configs
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostConfigsMutationKey() {
-  return ['configs', 'POST', '/configs'] as const
 }
 
 /**
@@ -189,7 +187,7 @@ export function usePostConfigs(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostConfigsMutationKey()
+  const swrKey = customKey ?? (['configs', '/configs'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -201,12 +199,9 @@ export function usePostConfigs(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /nullable-union
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /nullable-union query key */
 export function getGetNullableUnionKey() {
-  return ['nullable-union', 'GET', '/nullable-union'] as const
+  return ['nullable-union', '/nullable-union'] as const
 }
 
 /**
@@ -251,12 +246,9 @@ export function useImmutableGetNullableUnion(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /nullable-union
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /nullable-union infinite query key */
 export function getGetNullableUnionInfiniteKey() {
-  return ['nullable-union', 'GET', '/nullable-union', 'infinite'] as const
+  return ['nullable-union', '/nullable-union', 'infinite'] as const
 }
 
 /**
@@ -277,12 +269,9 @@ export function useInfiniteGetNullableUnion(options: {
   return useSWRInfinite(keyLoader, async () => getNullableUnion(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /nested-circular
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /nested-circular query key */
 export function getGetNestedCircularKey() {
-  return ['nested-circular', 'GET', '/nested-circular'] as const
+  return ['nested-circular', '/nested-circular'] as const
 }
 
 /**
@@ -327,12 +316,9 @@ export function useImmutableGetNestedCircular(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /nested-circular
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /nested-circular infinite query key */
 export function getGetNestedCircularInfiniteKey() {
-  return ['nested-circular', 'GET', '/nested-circular', 'infinite'] as const
+  return ['nested-circular', '/nested-circular', 'infinite'] as const
 }
 
 /**

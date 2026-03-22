@@ -19,12 +19,19 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates TanStack Query cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', 'GET', '/posts', args] as const
+/** Key prefix for /posts */
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/** Key prefix for /tags */
+export function getTagsKey() {
+  return ['tags'] as const
+}
+
+/** GET /posts query key */
+export function getPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', '/posts', args] as const
 }
 
 /**
@@ -38,16 +45,14 @@ export async function getPosts(
 }
 
 /**
- * Returns TanStack Query query options for GET /posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts query options
  */
-export function getGetPostsQueryOptions(
+export function getPostsQueryOptions(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsQueryKey(args),
+    queryKey: getPostsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPosts(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -57,7 +62,7 @@ export function getGetPostsQueryOptions(
 /**
  * GET /posts
  */
-export function useGetPosts(
+export function usePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -65,13 +70,13 @@ export function useGetPosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /posts
  */
-export function useSuspenseGetPosts(
+export function useSuspensePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -79,29 +84,23 @@ export function useSuspenseGetPosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/** GET /posts infinite query key */
+export function getPostsInfiniteQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', '/posts', args, 'infinite'] as const
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts infinite query options
  */
-export function getGetPostsInfiniteQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', 'GET', '/posts', args, 'infinite'] as const
-}
-
-/**
- * Returns TanStack Query infinite query options for GET /posts
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetPostsInfiniteQueryOptions(
+export function getPostsInfiniteQueryOptions(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsInfiniteQueryKey(args),
+    queryKey: getPostsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPosts(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -111,7 +110,7 @@ export function getGetPostsInfiniteQueryOptions(
 /**
  * GET /posts
  */
-export function useInfiniteGetPosts(
+export function useInfinitePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -119,16 +118,13 @@ export function useInfiniteGetPosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetPostsInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getPostsInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /posts
  */
-export function useSuspenseInfiniteGetPosts(
+export function useSuspenseInfinitePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -137,17 +133,9 @@ export function useSuspenseInfiniteGetPosts(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetPostsInfiniteQueryOptions(args, clientOptions),
+    ...getPostsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for POST /posts
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsMutationKey() {
-  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -160,14 +148,10 @@ export async function postPosts(
   return await parseResponse(client.posts.$post(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /posts
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /posts */
 export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostPostsMutationKey(),
+    mutationKey: ['posts', '/posts'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
       return postPosts(args, options)
     },
@@ -189,14 +173,9 @@ export function usePostPosts(options?: {
   return useMutation({ ...getPostPostsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates TanStack Query cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetPostsIdQueryKey(
-  args: InferRequestType<(typeof client.posts)[':id']['$get']>,
-) {
-  return ['posts', 'GET', '/posts/:id', args] as const
+/** GET /posts/{id} query key */
+export function getPostsIdQueryKey(args: InferRequestType<(typeof client.posts)[':id']['$get']>) {
+  return ['posts', '/posts/:id', args] as const
 }
 
 /**
@@ -210,16 +189,14 @@ export async function getPostsId(
 }
 
 /**
- * Returns TanStack Query query options for GET /posts/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/{id} query options
  */
-export function getGetPostsIdQueryOptions(
+export function getPostsIdQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIdQueryKey(args),
+    queryKey: getPostsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -229,7 +206,7 @@ export function getGetPostsIdQueryOptions(
 /**
  * GET /posts/{id}
  */
-export function useGetPostsId(
+export function usePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -237,13 +214,13 @@ export function useGetPostsId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /posts/{id}
  */
-export function useSuspenseGetPostsId(
+export function useSuspensePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -251,31 +228,25 @@ export function useSuspenseGetPostsId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetPostsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetPostsIdInfiniteQueryKey(
+/** GET /posts/{id} infinite query key */
+export function getPostsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id', args, 'infinite'] as const
+  return ['posts', '/posts/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /posts/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/{id} infinite query options
  */
-export function getGetPostsIdInfiniteQueryOptions(
+export function getPostsIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIdInfiniteQueryKey(args),
+    queryKey: getPostsIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -285,7 +256,7 @@ export function getGetPostsIdInfiniteQueryOptions(
 /**
  * GET /posts/{id}
  */
-export function useInfiniteGetPostsId(
+export function useInfinitePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -294,7 +265,7 @@ export function useInfiniteGetPostsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetPostsIdInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -302,7 +273,7 @@ export function useInfiniteGetPostsId(
 /**
  * GET /posts/{id}
  */
-export function useSuspenseInfiniteGetPostsId(
+export function useSuspenseInfinitePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -311,17 +282,9 @@ export function useSuspenseInfiniteGetPostsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetPostsIdInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for PUT /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutPostsIdMutationKey() {
-  return ['posts', 'PUT', '/posts/:id'] as const
 }
 
 /**
@@ -334,14 +297,10 @@ export async function putPostsId(
   return await parseResponse(client.posts[':id'].$put(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for PUT /posts/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** PUT /posts/{id} */
 export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPutPostsIdMutationKey(),
+    mutationKey: ['posts', '/posts/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
       return putPostsId(args, options)
     },
@@ -364,14 +323,6 @@ export function usePutPostsId(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for DELETE /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeletePostsIdMutationKey() {
-  return ['posts', 'DELETE', '/posts/:id'] as const
-}
-
-/**
  * DELETE /posts/{id}
  */
 export async function deletePostsId(
@@ -381,14 +332,10 @@ export async function deletePostsId(
   return await parseResponse(client.posts[':id'].$delete(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for DELETE /posts/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** DELETE /posts/{id} */
 export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getDeletePostsIdMutationKey(),
+    mutationKey: ['posts', '/posts/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
       return deletePostsId(args, options)
     },
@@ -410,14 +357,11 @@ export function useDeletePostsId(options?: {
   return useMutation({ ...getDeletePostsIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates TanStack Query cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetPostsIdCommentsQueryKey(
+/** GET /posts/{id}/comments query key */
+export function getPostsIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args] as const
+  return ['posts', '/posts/:id/comments', args] as const
 }
 
 /**
@@ -431,16 +375,14 @@ export async function getPostsIdComments(
 }
 
 /**
- * Returns TanStack Query query options for GET /posts/{id}/comments
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/{id}/comments query options
  */
-export function getGetPostsIdCommentsQueryOptions(
+export function getPostsIdCommentsQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIdCommentsQueryKey(args),
+    queryKey: getPostsIdCommentsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -450,7 +392,7 @@ export function getGetPostsIdCommentsQueryOptions(
 /**
  * GET /posts/{id}/comments
  */
-export function useGetPostsIdComments(
+export function usePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -458,13 +400,13 @@ export function useGetPostsIdComments(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /posts/{id}/comments
  */
-export function useSuspenseGetPostsIdComments(
+export function useSuspensePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -473,33 +415,27 @@ export function useSuspenseGetPostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseQuery({
-    ...getGetPostsIdCommentsQueryOptions(args, clientOptions),
+    ...getPostsIdCommentsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetPostsIdCommentsInfiniteQueryKey(
+/** GET /posts/{id}/comments infinite query key */
+export function getPostsIdCommentsInfiniteQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args, 'infinite'] as const
+  return ['posts', '/posts/:id/comments', args, 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /posts/{id}/comments
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/{id}/comments infinite query options
  */
-export function getGetPostsIdCommentsInfiniteQueryOptions(
+export function getPostsIdCommentsInfiniteQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIdCommentsInfiniteQueryKey(args),
+    queryKey: getPostsIdCommentsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -509,7 +445,7 @@ export function getGetPostsIdCommentsInfiniteQueryOptions(
 /**
  * GET /posts/{id}/comments
  */
-export function useInfiniteGetPostsIdComments(
+export function useInfinitePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -518,7 +454,7 @@ export function useInfiniteGetPostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -526,7 +462,7 @@ export function useInfiniteGetPostsIdComments(
 /**
  * GET /posts/{id}/comments
  */
-export function useSuspenseInfiniteGetPostsIdComments(
+export function useSuspenseInfinitePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -535,17 +471,9 @@ export function useSuspenseInfiniteGetPostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for POST /posts/{id}/comments
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIdCommentsMutationKey() {
-  return ['posts', 'POST', '/posts/:id/comments'] as const
 }
 
 /**
@@ -558,14 +486,10 @@ export async function postPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$post(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /posts/{id}/comments
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /posts/{id}/comments */
 export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostPostsIdCommentsMutationKey(),
+    mutationKey: ['posts', '/posts/:id/comments'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
       return postPostsIdComments(args, options)
     },
@@ -590,12 +514,9 @@ export function usePostPostsIdComments(options?: {
   })
 }
 
-/**
- * Generates TanStack Query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetTagsQueryKey() {
-  return ['tags', 'GET', '/tags'] as const
+/** GET /tags query key */
+export function getTagsQueryKey() {
+  return ['tags', '/tags'] as const
 }
 
 /**
@@ -606,13 +527,11 @@ export async function getTags(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /tags
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /tags query options
  */
-export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
+export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetTagsQueryKey(),
+    queryKey: getTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -622,42 +541,36 @@ export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function useGetTags(options?: {
+export function useTags(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /tags
  */
-export function useSuspenseGetTags(options?: {
+export function useSuspenseTags(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/** GET /tags infinite query key */
+export function getTagsInfiniteQueryKey() {
+  return ['tags', '/tags', 'infinite'] as const
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tags infinite query options
  */
-export function getGetTagsInfiniteQueryKey() {
-  return ['tags', 'GET', '/tags', 'infinite'] as const
-}
-
-/**
- * Returns TanStack Query infinite query options for GET /tags
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetTagsInfiniteQueryKey(),
+    queryKey: getTagsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -667,24 +580,24 @@ export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function useInfiniteGetTags(options: {
+export function useInfiniteTags(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /tags
  */
-export function useSuspenseInfiniteGetTags(options: {
+export function useSuspenseInfiniteTags(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetTagsInfiniteQueryOptions(clientOptions),
+    ...getTagsInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }

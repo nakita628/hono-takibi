@@ -5,12 +5,29 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR mutation key for POST /json
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostJsonMutationKey() {
-  return ['json', 'POST', '/json'] as const
+/** Key prefix for /form */
+export function getFormKey() {
+  return ['form'] as const
+}
+
+/** Key prefix for /json */
+export function getJsonKey() {
+  return ['json'] as const
+}
+
+/** Key prefix for /multi-content */
+export function getMultiContentKey() {
+  return ['multi-content'] as const
+}
+
+/** Key prefix for /text */
+export function getTextKey() {
+  return ['text'] as const
+}
+
+/** Key prefix for /upload */
+export function getUploadKey() {
+  return ['upload'] as const
 }
 
 /**
@@ -37,7 +54,7 @@ export function usePostJson(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostJsonMutationKey()
+  const swrKey = customKey ?? (['json', '/json'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -47,14 +64,6 @@ export function usePostJson(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /form
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostFormMutationKey() {
-  return ['form', 'POST', '/form'] as const
 }
 
 /**
@@ -81,7 +90,7 @@ export function usePostForm(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostFormMutationKey()
+  const swrKey = customKey ?? (['form', '/form'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -91,14 +100,6 @@ export function usePostForm(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /upload
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUploadMutationKey() {
-  return ['upload', 'POST', '/upload'] as const
 }
 
 /**
@@ -125,7 +126,7 @@ export function usePostUpload(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostUploadMutationKey()
+  const swrKey = customKey ?? (['upload', '/upload'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -135,14 +136,6 @@ export function usePostUpload(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /text
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostTextMutationKey() {
-  return ['text', 'POST', '/text'] as const
 }
 
 /**
@@ -169,7 +162,7 @@ export function usePostText(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostTextMutationKey()
+  const swrKey = customKey ?? (['text', '/text'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -179,14 +172,6 @@ export function usePostText(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /multi-content
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostMultiContentMutationKey() {
-  return ['multi-content', 'POST', '/multi-content'] as const
 }
 
 /**
@@ -213,7 +198,7 @@ export function usePostMultiContent(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostMultiContentMutationKey()
+  const swrKey = customKey ?? (['multi-content', '/multi-content'] as const)
   return {
     swrKey,
     ...useSWRMutation(

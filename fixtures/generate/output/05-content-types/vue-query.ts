@@ -4,12 +4,29 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates Vue Query mutation key for POST /json
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostJsonMutationKey() {
-  return ['json', 'POST', '/json'] as const
+/** Key prefix for /form */
+export function getFormKey() {
+  return ['form'] as const
+}
+
+/** Key prefix for /json */
+export function getJsonKey() {
+  return ['json'] as const
+}
+
+/** Key prefix for /multi-content */
+export function getMultiContentKey() {
+  return ['multi-content'] as const
+}
+
+/** Key prefix for /text */
+export function getTextKey() {
+  return ['text'] as const
+}
+
+/** Key prefix for /upload */
+export function getUploadKey() {
+  return ['upload'] as const
 }
 
 /**
@@ -22,14 +39,10 @@ export async function postJson(
   return await parseResponse(client.json.$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /json
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /json */
 export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostJsonMutationKey(),
+    mutationKey: ['json', '/json'] as const,
     async mutationFn(args: InferRequestType<typeof client.json.$post>) {
       return postJson(args, options)
     },
@@ -52,14 +65,6 @@ export function usePostJson(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /form
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostFormMutationKey() {
-  return ['form', 'POST', '/form'] as const
-}
-
-/**
  * POST /form
  */
 export async function postForm(
@@ -69,14 +74,10 @@ export async function postForm(
   return await parseResponse(client.form.$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /form
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /form */
 export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostFormMutationKey(),
+    mutationKey: ['form', '/form'] as const,
     async mutationFn(args: InferRequestType<typeof client.form.$post>) {
       return postForm(args, options)
     },
@@ -99,14 +100,6 @@ export function usePostForm(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /upload
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUploadMutationKey() {
-  return ['upload', 'POST', '/upload'] as const
-}
-
-/**
  * POST /upload
  */
 export async function postUpload(
@@ -116,14 +109,10 @@ export async function postUpload(
   return await parseResponse(client.upload.$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /upload
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /upload */
 export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostUploadMutationKey(),
+    mutationKey: ['upload', '/upload'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
       return postUpload(args, options)
     },
@@ -146,14 +135,6 @@ export function usePostUpload(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /text
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostTextMutationKey() {
-  return ['text', 'POST', '/text'] as const
-}
-
-/**
  * POST /text
  */
 export async function postText(
@@ -163,14 +144,10 @@ export async function postText(
   return await parseResponse(client.text.$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /text
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /text */
 export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostTextMutationKey(),
+    mutationKey: ['text', '/text'] as const,
     async mutationFn(args: InferRequestType<typeof client.text.$post>) {
       return postText(args, options)
     },
@@ -193,14 +170,6 @@ export function usePostText(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /multi-content
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostMultiContentMutationKey() {
-  return ['multi-content', 'POST', '/multi-content'] as const
-}
-
-/**
  * POST /multi-content
  */
 export async function postMultiContent(
@@ -210,14 +179,10 @@ export async function postMultiContent(
   return await parseResponse(client['multi-content'].$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /multi-content
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /multi-content */
 export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostMultiContentMutationKey(),
+    mutationKey: ['multi-content', '/multi-content'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
       return postMultiContent(args, options)
     },

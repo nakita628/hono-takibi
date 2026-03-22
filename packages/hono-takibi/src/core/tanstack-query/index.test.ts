@@ -333,9 +333,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users'] as const,
@@ -713,9 +711,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users'] as const,
@@ -1072,9 +1068,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * POST /ping
- */
+/** POST /ping */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['ping', '/ping'] as const,
@@ -1450,9 +1444,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- */
+/** DELETE /users/{id} */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users/:id'] as const,

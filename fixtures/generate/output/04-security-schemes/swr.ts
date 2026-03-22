@@ -7,12 +7,39 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR cache key for GET /public
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** Key prefix for /api-key-protected */
+export function getApiKeyProtectedKey() {
+  return ['api-key-protected'] as const
+}
+
+/** Key prefix for /basic-protected */
+export function getBasicProtectedKey() {
+  return ['basic-protected'] as const
+}
+
+/** Key prefix for /bearer-protected */
+export function getBearerProtectedKey() {
+  return ['bearer-protected'] as const
+}
+
+/** Key prefix for /multi-auth */
+export function getMultiAuthKey() {
+  return ['multi-auth'] as const
+}
+
+/** Key prefix for /oauth-protected */
+export function getOauthProtectedKey() {
+  return ['oauth-protected'] as const
+}
+
+/** Key prefix for /public */
+export function getPublicKey() {
+  return ['public'] as const
+}
+
+/** GET /public query key */
 export function getGetPublicKey() {
-  return ['public', 'GET', '/public'] as const
+  return ['public', '/public'] as const
 }
 
 /**
@@ -51,12 +78,9 @@ export function useImmutableGetPublic(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /public
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /public infinite query key */
 export function getGetPublicInfiniteKey() {
-  return ['public', 'GET', '/public', 'infinite'] as const
+  return ['public', '/public', 'infinite'] as const
 }
 
 /**
@@ -75,12 +99,9 @@ export function useInfiniteGetPublic(options: {
   return useSWRInfinite(keyLoader, async () => getPublic(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /bearer-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /bearer-protected query key */
 export function getGetBearerProtectedKey() {
-  return ['bearer-protected', 'GET', '/bearer-protected'] as const
+  return ['bearer-protected', '/bearer-protected'] as const
 }
 
 /**
@@ -122,12 +143,9 @@ export function useImmutableGetBearerProtected(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /bearer-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /bearer-protected infinite query key */
 export function getGetBearerProtectedInfiniteKey() {
-  return ['bearer-protected', 'GET', '/bearer-protected', 'infinite'] as const
+  return ['bearer-protected', '/bearer-protected', 'infinite'] as const
 }
 
 /**
@@ -146,12 +164,9 @@ export function useInfiniteGetBearerProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBearerProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /api-key-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /api-key-protected query key */
 export function getGetApiKeyProtectedKey() {
-  return ['api-key-protected', 'GET', '/api-key-protected'] as const
+  return ['api-key-protected', '/api-key-protected'] as const
 }
 
 /**
@@ -193,12 +208,9 @@ export function useImmutableGetApiKeyProtected(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /api-key-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /api-key-protected infinite query key */
 export function getGetApiKeyProtectedInfiniteKey() {
-  return ['api-key-protected', 'GET', '/api-key-protected', 'infinite'] as const
+  return ['api-key-protected', '/api-key-protected', 'infinite'] as const
 }
 
 /**
@@ -217,12 +229,9 @@ export function useInfiniteGetApiKeyProtected(options: {
   return useSWRInfinite(keyLoader, async () => getApiKeyProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /basic-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /basic-protected query key */
 export function getGetBasicProtectedKey() {
-  return ['basic-protected', 'GET', '/basic-protected'] as const
+  return ['basic-protected', '/basic-protected'] as const
 }
 
 /**
@@ -261,12 +270,9 @@ export function useImmutableGetBasicProtected(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /basic-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /basic-protected infinite query key */
 export function getGetBasicProtectedInfiniteKey() {
-  return ['basic-protected', 'GET', '/basic-protected', 'infinite'] as const
+  return ['basic-protected', '/basic-protected', 'infinite'] as const
 }
 
 /**
@@ -285,12 +291,9 @@ export function useInfiniteGetBasicProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBasicProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /oauth-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /oauth-protected query key */
 export function getGetOauthProtectedKey() {
-  return ['oauth-protected', 'GET', '/oauth-protected'] as const
+  return ['oauth-protected', '/oauth-protected'] as const
 }
 
 /**
@@ -329,12 +332,9 @@ export function useImmutableGetOauthProtected(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /oauth-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /oauth-protected infinite query key */
 export function getGetOauthProtectedInfiniteKey() {
-  return ['oauth-protected', 'GET', '/oauth-protected', 'infinite'] as const
+  return ['oauth-protected', '/oauth-protected', 'infinite'] as const
 }
 
 /**
@@ -353,12 +353,9 @@ export function useInfiniteGetOauthProtected(options: {
   return useSWRInfinite(keyLoader, async () => getOauthProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /multi-auth
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /multi-auth query key */
 export function getGetMultiAuthKey() {
-  return ['multi-auth', 'GET', '/multi-auth'] as const
+  return ['multi-auth', '/multi-auth'] as const
 }
 
 /**
@@ -397,12 +394,9 @@ export function useImmutableGetMultiAuth(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /multi-auth
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /multi-auth infinite query key */
 export function getGetMultiAuthInfiniteKey() {
-  return ['multi-auth', 'GET', '/multi-auth', 'infinite'] as const
+  return ['multi-auth', '/multi-auth', 'infinite'] as const
 }
 
 /**

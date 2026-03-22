@@ -19,12 +19,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates TanStack Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+/** Key prefix for /users */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/** GET /users query key */
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
 }
 
 /**
@@ -38,16 +40,14 @@ export async function getUsers(
 }
 
 /**
- * Returns TanStack Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users query options
  */
-export function getGetUsersQueryOptions(
+export function getUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(args),
+    queryKey: getUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -57,7 +57,7 @@ export function getGetUsersQueryOptions(
 /**
  * GET /users
  */
-export function useGetUsers(
+export function useUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -65,13 +65,13 @@ export function useGetUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /users
  */
-export function useSuspenseGetUsers(
+export function useSuspenseUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -79,29 +79,23 @@ export function useSuspenseGetUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/** GET /users infinite query key */
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users infinite query options
  */
-export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
-}
-
-/**
- * Returns TanStack Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersInfiniteQueryOptions(
+export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -111,7 +105,7 @@ export function getGetUsersInfiniteQueryOptions(
 /**
  * GET /users
  */
-export function useInfiniteGetUsers(
+export function useInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -119,16 +113,13 @@ export function useInfiniteGetUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /users
  */
-export function useSuspenseInfiniteGetUsers(
+export function useSuspenseInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -137,17 +128,9 @@ export function useSuspenseInfiniteGetUsers(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -160,14 +143,10 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /users
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostUsersMutationKey(),
+    mutationKey: ['users', '/users'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
@@ -189,14 +168,9 @@ export function usePostUsers(options?: {
   return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates TanStack Query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
-  return ['users', 'GET', '/users/:id', args] as const
+/** GET /users/{id} query key */
+export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
 }
 
 /**
@@ -210,16 +184,14 @@ export async function getUsersId(
 }
 
 /**
- * Returns TanStack Query query options for GET /users/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users/{id} query options
  */
-export function getGetUsersIdQueryOptions(
+export function getUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdQueryKey(args),
+    queryKey: getUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -229,7 +201,7 @@ export function getGetUsersIdQueryOptions(
 /**
  * GET /users/{id}
  */
-export function useGetUsersId(
+export function useUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -237,13 +209,13 @@ export function useGetUsersId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /users/{id}
  */
-export function useSuspenseGetUsersId(
+export function useSuspenseUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -251,31 +223,25 @@ export function useSuspenseGetUsersId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetUsersIdInfiniteQueryKey(
+/** GET /users/{id} infinite query key */
+export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /users/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users/{id} infinite query options
  */
-export function getGetUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -285,7 +251,7 @@ export function getGetUsersIdInfiniteQueryOptions(
 /**
  * GET /users/{id}
  */
-export function useInfiniteGetUsersId(
+export function useInfiniteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -294,7 +260,7 @@ export function useInfiniteGetUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -302,7 +268,7 @@ export function useInfiniteGetUsersId(
 /**
  * GET /users/{id}
  */
-export function useSuspenseInfiniteGetUsersId(
+export function useSuspenseInfiniteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -311,7 +277,7 @@ export function useSuspenseInfiniteGetUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

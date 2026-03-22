@@ -9,14 +9,17 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** GET /items/{itemId} query key */
 export function getGetItemsItemIdKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args] as const
+  const { header: _, ...keyArgs } = args
+  return ['items', '/items/:itemId', keyArgs] as const
 }
 
 /**
@@ -67,14 +70,12 @@ export function useImmutableGetItemsItemId(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /items/{itemId} infinite query key */
 export function getGetItemsItemIdInfiniteKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args, 'infinite'] as const
+  const { header: _, ...keyArgs } = args
+  return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
 }
 
 /**
@@ -94,14 +95,6 @@ export function useInfiniteGetItemsItemId(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetItemsItemIdInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getItemsItemId(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for PUT /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutItemsItemIdMutationKey() {
-  return ['items', 'PUT', '/items/:itemId'] as const
 }
 
 /**
@@ -128,7 +121,7 @@ export function usePutItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPutItemsItemIdMutationKey()
+  const swrKey = customKey ?? (['items', '/items/:itemId'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -140,14 +133,6 @@ export function usePutItemsItemId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteItemsItemIdMutationKey() {
-  return ['items', 'DELETE', '/items/:itemId'] as const
 }
 
 /**
@@ -174,7 +159,7 @@ export function useDeleteItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeleteItemsItemIdMutationKey()
+  const swrKey = customKey ?? (['items', '/items/:itemId'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -188,12 +173,9 @@ export function useDeleteItemsItemId(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /items query key */
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', 'GET', '/items', args] as const
+  return ['items', '/items', args] as const
 }
 
 /**
@@ -241,12 +223,9 @@ export function useImmutableGetItems(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /items infinite query key */
 export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', 'GET', '/items', args, 'infinite'] as const
+  return ['items', '/items', args, 'infinite'] as const
 }
 
 /**

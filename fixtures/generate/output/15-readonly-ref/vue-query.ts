@@ -11,12 +11,19 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates Vue Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetUsersQueryKey() {
-  return ['users', 'GET', '/users'] as const
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** Key prefix for /users */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/** GET /users query key */
+export function getUsersQueryKey() {
+  return ['users', '/users'] as const
 }
 
 /**
@@ -29,13 +36,11 @@ export async function getUsers(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users query options
  */
-export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
+export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(),
+    queryKey: getUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
@@ -47,31 +52,25 @@ export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
  *
  * List users
  */
-export function useGetUsers(options?: {
+export function useUsers(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getUsersQueryOptions(clientOptions), ...queryOptions })
+}
+
+/** GET /users infinite query key */
+export function getUsersInfiniteQueryKey() {
+  return ['users', '/users', 'infinite'] as const
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /users infinite query options
  */
-export function getGetUsersInfiniteQueryKey() {
-  return ['users', 'GET', '/users', 'infinite'] as const
-}
-
-/**
- * Returns Vue Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(),
+    queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
@@ -83,20 +82,12 @@ export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) 
  *
  * List users
  */
-export function useInfiniteGetUsers(options: {
+export function useInfiniteUsers(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(clientOptions), ...queryOptions })
-}
-
-/**
- * Generates Vue Query mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
+  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -111,14 +102,10 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for POST /users
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostUsersMutationKey(),
+    mutationKey: ['users', '/users'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
@@ -142,14 +129,11 @@ export function usePostUsers(options?: {
   return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates Vue Query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersIdQueryKey(
+/** GET /users/{id} query key */
+export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id', args] as const
+  return ['users', '/users/:id', args] as const
 }
 
 /**
@@ -165,16 +149,14 @@ export async function getUsersId(
 }
 
 /**
- * Returns Vue Query query options for GET /users/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users/{id} query options
  */
-export function getGetUsersIdQueryOptions(
+export function getUsersIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdQueryKey(args),
+    queryKey: getUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -186,7 +168,7 @@ export function getGetUsersIdQueryOptions(
  *
  * Get user by ID
  */
-export function useGetUsersId(
+export function useUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -194,31 +176,25 @@ export function useGetUsersId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates Vue Query infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetUsersIdInfiniteQueryKey(
+/** GET /users/{id} infinite query key */
+export function getUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /users/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users/{id} infinite query options
  */
-export function getGetUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -230,7 +206,7 @@ export function getGetUsersIdInfiniteQueryOptions(
  *
  * Get user by ID
  */
-export function useInfiniteGetUsersId(
+export function useInfiniteUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -239,17 +215,9 @@ export function useInfiniteGetUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for PUT /users/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutUsersIdMutationKey() {
-  return ['users', 'PUT', '/users/:id'] as const
 }
 
 /**
@@ -264,14 +232,10 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for PUT /users/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** PUT /users/{id} */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPutUsersIdMutationKey(),
+    mutationKey: ['users', '/users/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return putUsersId(args, options)
     },
@@ -295,12 +259,9 @@ export function usePutUsersId(options?: {
   return useMutation({ ...getPutUsersIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates Vue Query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetItemsQueryKey() {
-  return ['items', 'GET', '/items'] as const
+/** GET /items query key */
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
 }
 
 /**
@@ -313,13 +274,11 @@ export async function getItems(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /items
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items query options
  */
-export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetItemsQueryKey(),
+    queryKey: getItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -331,31 +290,25 @@ export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
  *
  * List items (uses $ref response alias)
  */
-export function useGetItems(options?: {
+export function useItems(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsQueryOptions(clientOptions), ...queryOptions })
+}
+
+/** GET /items infinite query key */
+export function getItemsInfiniteQueryKey() {
+  return ['items', '/items', 'infinite'] as const
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /items infinite query options
  */
-export function getGetItemsInfiniteQueryKey() {
-  return ['items', 'GET', '/items', 'infinite'] as const
-}
-
-/**
- * Returns Vue Query infinite query options for GET /items
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetItemsInfiniteQueryKey(),
+    queryKey: getItemsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -367,10 +320,10 @@ export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) 
  *
  * List items (uses $ref response alias)
  */
-export function useInfiniteGetItems(options: {
+export function useInfiniteItems(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetItemsInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getItemsInfiniteQueryOptions(clientOptions), ...queryOptions })
 }

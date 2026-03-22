@@ -9,12 +9,64 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR mutation key for POST /one-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostOneOfMutationKey() {
-  return ['one-of', 'POST', '/one-of'] as const
+/** Key prefix for /all-of */
+export function getAllOfKey() {
+  return ['all-of'] as const
+}
+
+/** Key prefix for /all-of-sibling */
+export function getAllOfSiblingKey() {
+  return ['all-of-sibling'] as const
+}
+
+/** Key prefix for /any-of */
+export function getAnyOfKey() {
+  return ['any-of'] as const
+}
+
+/** Key prefix for /any-of-ref */
+export function getAnyOfRefKey() {
+  return ['any-of-ref'] as const
+}
+
+/** Key prefix for /any-of-three */
+export function getAnyOfThreeKey() {
+  return ['any-of-three'] as const
+}
+
+/** Key prefix for /not */
+export function getNotKey() {
+  return ['not'] as const
+}
+
+/** Key prefix for /not-composition */
+export function getNotCompositionKey() {
+  return ['not-composition'] as const
+}
+
+/** Key prefix for /not-const */
+export function getNotConstKey() {
+  return ['not-const'] as const
+}
+
+/** Key prefix for /not-enum */
+export function getNotEnumKey() {
+  return ['not-enum'] as const
+}
+
+/** Key prefix for /not-ref */
+export function getNotRefKey() {
+  return ['not-ref'] as const
+}
+
+/** Key prefix for /nullable-one-of */
+export function getNullableOneOfKey() {
+  return ['nullable-one-of'] as const
+}
+
+/** Key prefix for /one-of */
+export function getOneOfKey() {
+  return ['one-of'] as const
 }
 
 /**
@@ -41,7 +93,7 @@ export function usePostOneOf(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostOneOfMutationKey()
+  const swrKey = customKey ?? (['one-of', '/one-of'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -51,14 +103,6 @@ export function usePostOneOf(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /any-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostAnyOfMutationKey() {
-  return ['any-of', 'POST', '/any-of'] as const
 }
 
 /**
@@ -85,7 +129,7 @@ export function usePostAnyOf(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostAnyOfMutationKey()
+  const swrKey = customKey ?? (['any-of', '/any-of'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -95,14 +139,6 @@ export function usePostAnyOf(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /all-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostAllOfMutationKey() {
-  return ['all-of', 'POST', '/all-of'] as const
 }
 
 /**
@@ -129,7 +165,7 @@ export function usePostAllOf(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostAllOfMutationKey()
+  const swrKey = customKey ?? (['all-of', '/all-of'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -139,14 +175,6 @@ export function usePostAllOf(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /not
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostNotMutationKey() {
-  return ['not', 'POST', '/not'] as const
 }
 
 /**
@@ -173,7 +201,7 @@ export function usePostNot(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostNotMutationKey()
+  const swrKey = customKey ?? (['not', '/not'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -185,12 +213,9 @@ export function usePostNot(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /not-ref
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /not-ref query key */
 export function getGetNotRefKey() {
-  return ['not-ref', 'GET', '/not-ref'] as const
+  return ['not-ref', '/not-ref'] as const
 }
 
 /**
@@ -229,12 +254,9 @@ export function useImmutableGetNotRef(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /not-ref
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /not-ref infinite query key */
 export function getGetNotRefInfiniteKey() {
-  return ['not-ref', 'GET', '/not-ref', 'infinite'] as const
+  return ['not-ref', '/not-ref', 'infinite'] as const
 }
 
 /**
@@ -253,12 +275,9 @@ export function useInfiniteGetNotRef(options: {
   return useSWRInfinite(keyLoader, async () => getNotRef(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /not-enum
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /not-enum query key */
 export function getGetNotEnumKey() {
-  return ['not-enum', 'GET', '/not-enum'] as const
+  return ['not-enum', '/not-enum'] as const
 }
 
 /**
@@ -297,12 +316,9 @@ export function useImmutableGetNotEnum(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /not-enum
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /not-enum infinite query key */
 export function getGetNotEnumInfiniteKey() {
-  return ['not-enum', 'GET', '/not-enum', 'infinite'] as const
+  return ['not-enum', '/not-enum', 'infinite'] as const
 }
 
 /**
@@ -321,12 +337,9 @@ export function useInfiniteGetNotEnum(options: {
   return useSWRInfinite(keyLoader, async () => getNotEnum(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /not-const
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /not-const query key */
 export function getGetNotConstKey() {
-  return ['not-const', 'GET', '/not-const'] as const
+  return ['not-const', '/not-const'] as const
 }
 
 /**
@@ -365,12 +378,9 @@ export function useImmutableGetNotConst(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /not-const
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /not-const infinite query key */
 export function getGetNotConstInfiniteKey() {
-  return ['not-const', 'GET', '/not-const', 'infinite'] as const
+  return ['not-const', '/not-const', 'infinite'] as const
 }
 
 /**
@@ -389,12 +399,9 @@ export function useInfiniteGetNotConst(options: {
   return useSWRInfinite(keyLoader, async () => getNotConst(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /not-composition
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /not-composition query key */
 export function getGetNotCompositionKey() {
-  return ['not-composition', 'GET', '/not-composition'] as const
+  return ['not-composition', '/not-composition'] as const
 }
 
 /**
@@ -433,12 +440,9 @@ export function useImmutableGetNotComposition(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /not-composition
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /not-composition infinite query key */
 export function getGetNotCompositionInfiniteKey() {
-  return ['not-composition', 'GET', '/not-composition', 'infinite'] as const
+  return ['not-composition', '/not-composition', 'infinite'] as const
 }
 
 /**
@@ -457,12 +461,9 @@ export function useInfiniteGetNotComposition(options: {
   return useSWRInfinite(keyLoader, async () => getNotComposition(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /all-of-sibling
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /all-of-sibling query key */
 export function getGetAllOfSiblingKey() {
-  return ['all-of-sibling', 'GET', '/all-of-sibling'] as const
+  return ['all-of-sibling', '/all-of-sibling'] as const
 }
 
 /**
@@ -501,12 +502,9 @@ export function useImmutableGetAllOfSibling(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /all-of-sibling
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /all-of-sibling infinite query key */
 export function getGetAllOfSiblingInfiniteKey() {
-  return ['all-of-sibling', 'GET', '/all-of-sibling', 'infinite'] as const
+  return ['all-of-sibling', '/all-of-sibling', 'infinite'] as const
 }
 
 /**
@@ -525,12 +523,9 @@ export function useInfiniteGetAllOfSibling(options: {
   return useSWRInfinite(keyLoader, async () => getAllOfSibling(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /nullable-one-of
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /nullable-one-of query key */
 export function getGetNullableOneOfKey() {
-  return ['nullable-one-of', 'GET', '/nullable-one-of'] as const
+  return ['nullable-one-of', '/nullable-one-of'] as const
 }
 
 /**
@@ -569,12 +564,9 @@ export function useImmutableGetNullableOneOf(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /nullable-one-of
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /nullable-one-of infinite query key */
 export function getGetNullableOneOfInfiniteKey() {
-  return ['nullable-one-of', 'GET', '/nullable-one-of', 'infinite'] as const
+  return ['nullable-one-of', '/nullable-one-of', 'infinite'] as const
 }
 
 /**
@@ -593,12 +585,9 @@ export function useInfiniteGetNullableOneOf(options: {
   return useSWRInfinite(keyLoader, async () => getNullableOneOf(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /any-of-three
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /any-of-three query key */
 export function getGetAnyOfThreeKey() {
-  return ['any-of-three', 'GET', '/any-of-three'] as const
+  return ['any-of-three', '/any-of-three'] as const
 }
 
 /**
@@ -637,12 +626,9 @@ export function useImmutableGetAnyOfThree(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /any-of-three
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /any-of-three infinite query key */
 export function getGetAnyOfThreeInfiniteKey() {
-  return ['any-of-three', 'GET', '/any-of-three', 'infinite'] as const
+  return ['any-of-three', '/any-of-three', 'infinite'] as const
 }
 
 /**
@@ -661,12 +647,9 @@ export function useInfiniteGetAnyOfThree(options: {
   return useSWRInfinite(keyLoader, async () => getAnyOfThree(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /any-of-ref
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /any-of-ref query key */
 export function getGetAnyOfRefKey() {
-  return ['any-of-ref', 'GET', '/any-of-ref'] as const
+  return ['any-of-ref', '/any-of-ref'] as const
 }
 
 /**
@@ -705,12 +688,9 @@ export function useImmutableGetAnyOfRef(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /any-of-ref
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /any-of-ref infinite query key */
 export function getGetAnyOfRefInfiniteKey() {
-  return ['any-of-ref', 'GET', '/any-of-ref', 'infinite'] as const
+  return ['any-of-ref', '/any-of-ref', 'infinite'] as const
 }
 
 /**

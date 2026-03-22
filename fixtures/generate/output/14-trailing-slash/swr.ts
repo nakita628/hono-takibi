@@ -9,12 +9,29 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates SWR cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** Key prefix for /api */
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** Key prefix for /posts */
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/** Key prefix for /users */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/** GET /api/reverseChiban/ query key */
 export function getGetApiReverseChibanIndexKey() {
-  return ['api', 'GET', '/api/reverseChiban/'] as const
+  return ['api', '/api/reverseChiban/'] as const
 }
 
 /**
@@ -62,12 +79,9 @@ export function useImmutableGetApiReverseChibanIndex(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /api/reverseChiban/ infinite query key */
 export function getGetApiReverseChibanIndexInfiniteKey() {
-  return ['api', 'GET', '/api/reverseChiban/', 'infinite'] as const
+  return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
 
 /**
@@ -93,12 +107,9 @@ export function useInfiniteGetApiReverseChibanIndex(options: {
   )
 }
 
-/**
- * Generates SWR cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /api/reverseChiban query key */
 export function getGetApiReverseChibanKey() {
-  return ['api', 'GET', '/api/reverseChiban'] as const
+  return ['api', '/api/reverseChiban'] as const
 }
 
 /**
@@ -146,12 +157,9 @@ export function useImmutableGetApiReverseChiban(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /api/reverseChiban infinite query key */
 export function getGetApiReverseChibanInfiniteKey() {
-  return ['api', 'GET', '/api/reverseChiban', 'infinite'] as const
+  return ['api', '/api/reverseChiban', 'infinite'] as const
 }
 
 /**
@@ -172,12 +180,9 @@ export function useInfiniteGetApiReverseChiban(options: {
   return useSWRInfinite(keyLoader, async () => getApiReverseChiban(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /posts/ query key */
 export function getGetPostsIndexKey(args: InferRequestType<typeof client.posts.index.$get>) {
-  return ['posts', 'GET', '/posts/', args] as const
+  return ['posts', '/posts/', args] as const
 }
 
 /**
@@ -234,14 +239,11 @@ export function useImmutableGetPostsIndex(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /posts/ infinite query key */
 export function getGetPostsIndexInfiniteKey(
   args: InferRequestType<typeof client.posts.index.$get>,
 ) {
-  return ['posts', 'GET', '/posts/', args, 'infinite'] as const
+  return ['posts', '/posts/', args, 'infinite'] as const
 }
 
 /**
@@ -263,14 +265,6 @@ export function useInfiniteGetPostsIndex(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetPostsIndexInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getPostsIndex(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for POST /posts/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIndexMutationKey() {
-  return ['posts', 'POST', '/posts/'] as const
 }
 
 /**
@@ -301,7 +295,7 @@ export function usePostPostsIndex(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPostsIndexMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts/'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -313,14 +307,11 @@ export function usePostPostsIndex(options?: {
   }
 }
 
-/**
- * Generates SWR cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /users/{id}/ query key */
 export function getGetUsersIdIndexKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id/', args] as const
+  return ['users', '/users/:id/', args] as const
 }
 
 /**
@@ -377,14 +368,11 @@ export function useImmutableGetUsersIdIndex(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /users/{id}/ infinite query key */
 export function getGetUsersIdIndexInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id/', args, 'infinite'] as const
+  return ['users', '/users/:id/', args, 'infinite'] as const
 }
 
 /**
@@ -408,12 +396,9 @@ export function useInfiniteGetUsersIdIndex(
   return useSWRInfinite(keyLoader, async () => getUsersIdIndex(args, clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /items/ query key */
 export function getGetItemsIndexKey() {
-  return ['items', 'GET', '/items/'] as const
+  return ['items', '/items/'] as const
 }
 
 /**
@@ -458,12 +443,9 @@ export function useImmutableGetItemsIndex(options?: {
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /items/ infinite query key */
 export function getGetItemsIndexInfiniteKey() {
-  return ['items', 'GET', '/items/', 'infinite'] as const
+  return ['items', '/items/', 'infinite'] as const
 }
 
 /**

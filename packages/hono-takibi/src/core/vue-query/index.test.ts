@@ -257,9 +257,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users'] as const,
@@ -555,9 +553,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
+/** POST /users */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users'] as const,
@@ -838,9 +834,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * POST /ping
- */
+/** POST /ping */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping'] as const,
@@ -1138,9 +1132,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- */
+/** DELETE /users/{id} */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,
@@ -1259,9 +1251,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/**
- * PUT /users/{id}
- */
+/** PUT /users/{id} */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,
@@ -1300,9 +1290,7 @@ export async function patchUsersId(
   return await parseResponse(client.users[':id'].$patch(args, options))
 }
 
-/**
- * PATCH /users/{id}
- */
+/** PATCH /users/{id} */
 export function getPatchUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,

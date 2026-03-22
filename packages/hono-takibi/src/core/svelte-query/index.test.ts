@@ -184,9 +184,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-/**
- * POST /pets
- */
+/** POST /pets */
 export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets'] as const,
@@ -321,9 +319,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-/**
- * PUT /pets/{petId}
- */
+/** PUT /pets/{petId} */
 export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -366,9 +362,7 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-/**
- * DELETE /pets/{petId}
- */
+/** DELETE /pets/{petId} */
 export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -673,9 +667,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-/**
- * POST /pets
- */
+/** POST /pets */
 export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets'] as const,
@@ -731,9 +723,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-/**
- * PUT /pets/{petId}
- */
+/** PUT /pets/{petId} */
 export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -789,9 +779,7 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-/**
- * DELETE /pets/{petId}
- */
+/** DELETE /pets/{petId} */
 export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -1097,9 +1085,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * POST /ping
- */
+/** POST /ping */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping'] as const,
@@ -1411,9 +1397,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- */
+/** DELETE /users/{id} */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,

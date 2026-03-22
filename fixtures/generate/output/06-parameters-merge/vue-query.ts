@@ -11,14 +11,17 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Generates Vue Query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetItemsItemIdQueryKey(
+/** Key prefix for /items */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/** GET /items/{itemId} query key */
+export function getItemsItemIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args] as const
+  const { header: _, ...keyArgs } = toValue(args)
+  return ['items', '/items/:itemId', keyArgs] as const
 }
 
 /**
@@ -32,16 +35,14 @@ export async function getItemsItemId(
 }
 
 /**
- * Returns Vue Query query options for GET /items/{itemId}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items/{itemId} query options
  */
-export function getGetItemsItemIdQueryOptions(
+export function getItemsItemIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetItemsItemIdQueryKey(args),
+    queryKey: getItemsItemIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsItemId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -51,7 +52,7 @@ export function getGetItemsItemIdQueryOptions(
 /**
  * GET /items/{itemId}
  */
-export function useGetItemsItemId(
+export function useItemsItemId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -59,31 +60,26 @@ export function useGetItemsItemId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates Vue Query infinite query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetItemsItemIdInfiniteQueryKey(
+/** GET /items/{itemId} infinite query key */
+export function getItemsItemIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
 ) {
-  return ['items', 'GET', '/items/:itemId', args, 'infinite'] as const
+  const { header: _, ...keyArgs } = toValue(args)
+  return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /items/{itemId}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items/{itemId} infinite query options
  */
-export function getGetItemsItemIdInfiniteQueryOptions(
+export function getItemsItemIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetItemsItemIdInfiniteQueryKey(args),
+    queryKey: getItemsItemIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsItemId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -93,7 +89,7 @@ export function getGetItemsItemIdInfiniteQueryOptions(
 /**
  * GET /items/{itemId}
  */
-export function useInfiniteGetItemsItemId(
+export function useInfiniteItemsItemId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
@@ -102,17 +98,9 @@ export function useInfiniteGetItemsItemId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetItemsItemIdInfiniteQueryOptions(args, clientOptions),
+    ...getItemsItemIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for PUT /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutItemsItemIdMutationKey() {
-  return ['items', 'PUT', '/items/:itemId'] as const
 }
 
 /**
@@ -125,14 +113,10 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for PUT /items/{itemId}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** PUT /items/{itemId} */
 export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPutItemsItemIdMutationKey(),
+    mutationKey: ['items', '/items/:itemId'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
       return putItemsItemId(args, options)
     },
@@ -155,14 +139,6 @@ export function usePutItemsItemId(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for DELETE /items/{itemId}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteItemsItemIdMutationKey() {
-  return ['items', 'DELETE', '/items/:itemId'] as const
-}
-
-/**
  * DELETE /items/{itemId}
  */
 export async function deleteItemsItemId(
@@ -172,14 +148,10 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-/**
- * Returns Vue Query mutation options for DELETE /items/{itemId}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+/** DELETE /items/{itemId} */
 export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getDeleteItemsItemIdMutationKey(),
+    mutationKey: ['items', '/items/:itemId'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
       return deleteItemsItemId(args, options)
     },
@@ -201,14 +173,11 @@ export function useDeleteItemsItemId(options?: {
   return useMutation({ ...getDeleteItemsItemIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * Generates Vue Query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetItemsQueryKey(
+/** GET /items query key */
+export function getItemsQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
 ) {
-  return ['items', 'GET', '/items', args] as const
+  return ['items', '/items', args] as const
 }
 
 /**
@@ -222,16 +191,14 @@ export async function getItems(
 }
 
 /**
- * Returns Vue Query query options for GET /items
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items query options
  */
-export function getGetItemsQueryOptions(
+export function getItemsQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetItemsQueryKey(args),
+    queryKey: getItemsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -241,7 +208,7 @@ export function getGetItemsQueryOptions(
 /**
  * GET /items
  */
-export function useGetItems(
+export function useItems(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -249,31 +216,25 @@ export function useGetItems(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * Generates Vue Query infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetItemsInfiniteQueryKey(
+/** GET /items infinite query key */
+export function getItemsInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
 ) {
-  return ['items', 'GET', '/items', args, 'infinite'] as const
+  return ['items', '/items', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /items
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items infinite query options
  */
-export function getGetItemsInfiniteQueryOptions(
+export function getItemsInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetItemsInfiniteQueryKey(args),
+    queryKey: getItemsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -283,7 +244,7 @@ export function getGetItemsInfiniteQueryOptions(
 /**
  * GET /items
  */
-export function useInfiniteGetItems(
+export function useInfiniteItems(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
@@ -291,8 +252,5 @@ export function useInfiniteGetItems(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetItemsInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getItemsInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
