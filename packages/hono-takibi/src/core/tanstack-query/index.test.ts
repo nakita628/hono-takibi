@@ -1534,6 +1534,543 @@ export function useDeleteUsersId(options?: {
   })
 })
 
+describe('tanstackQuery (split mode - CRUD)', () => {
+  it('should generate correct split files for full CRUD resource', async () => {
+    const openapiCrud: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+          post: {
+            summary: 'Create user',
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+        '/users/{id}': {
+          get: {
+            summary: 'Get user',
+            parameters: [
+              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+          put: {
+            summary: 'Update user',
+            parameters: [
+              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+          delete: {
+            summary: 'Delete user',
+            parameters: [
+              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: { '204': { description: 'No Content' } },
+          },
+        },
+      },
+    }
+
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-crud-'))
+    try {
+      const out = path.join(dir, 'hooks', 'index.ts')
+      const result = await tanstackQuery(openapiCrud, out, '../client', true)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated tanstack-query hooks written to ${path.join(dir, 'hooks')}/*.ts (index.ts included)`,
+      })
+
+      const hooksDir = path.join(dir, 'hooks')
+      const files = fs.readdirSync(hooksDir).sort()
+      expect(files).toStrictEqual([
+        '_keys.ts',
+        'deleteUsersId.ts',
+        'getUsers.ts',
+        'getUsersId.ts',
+        'index.ts',
+        'postUsers.ts',
+        'putUsersId.ts',
+      ])
+
+      const indexContent = fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`export * from './_keys'
+export * from './getUsers'
+export * from './postUsers'
+export * from './getUsersId'
+export * from './putUsersId'
+export * from './deleteUsersId'
+`)
+
+      const keysContent = fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')
+      expect(keysContent).toBe(`/**
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+`)
+
+      const postUsersContent = fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')
+      expect(postUsersContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * POST /users
+ *
+ * Create user
+ */
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
+/**
+ * POST /users
+ */
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return postUsers(args, options)
+    },
+  })
+}
+
+/**
+ * POST /users
+ *
+ * Create user
+ */
+export function usePostUsers(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const putUsersIdContent = fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')
+      expect(putUsersIdContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * PUT /users/{id}
+ *
+ * Update user
+ */
+export async function putUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$put(args, options))
+}
+
+/**
+ * PUT /users/{id}
+ */
+export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users/:id'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
+      return putUsersId(args, options)
+    },
+  })
+}
+
+/**
+ * PUT /users/{id}
+ *
+ * Update user
+ */
+export function usePutUsersId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUsersId>>,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$put']>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPutUsersIdMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const deleteUsersIdContent = fs.readFileSync(
+        path.join(hooksDir, 'deleteUsersId.ts'),
+        'utf-8',
+      )
+      expect(deleteUsersIdContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
+/**
+ * DELETE /users/{id}
+ */
+export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users/:id'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
+      return deleteUsersId(args, options)
+    },
+  })
+}
+
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
+export function useDeleteUsersId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersIdMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const getUsersIdContent = fs.readFileSync(path.join(hooksDir, 'getUsersId.ts'), 'utf-8')
+      expect(getUsersIdContent).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /users/{id} query key
+ */
+export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
+}
+
+/**
+ * GET /users/{id} query options
+ */
+export function getUsersIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useSuspenseUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users/{id} infinite query key
+ */
+export function getUsersIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+) {
+  return ['users', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * GET /users/{id} infinite query options
+ */
+export function getUsersIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useSuspenseInfiniteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+`)
+
+      const getUsersContent = fs.readFileSync(path.join(hooksDir, 'getUsers.ts'), 'utf-8')
+      expect(getUsersContent).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /users query key
+ */
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
+}
+
+/**
+ * GET /users query options
+ */
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useSuspenseUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users infinite query key
+ */
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users infinite query options
+ */
+export function getUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useInfiniteUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useSuspenseInfiniteUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
+    ...queryOptions,
+  })
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('tanstackQuery (invalid paths)', () => {
   it('should return error for invalid OpenAPI paths', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-invalid-'))

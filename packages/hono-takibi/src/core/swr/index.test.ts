@@ -1182,6 +1182,440 @@ export function useDeleteUsersId(options?: {
   })
 })
 
+/** Full CRUD resource OpenAPI spec for split mode tests */
+const openapiCrud: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/users': {
+      get: {
+        summary: 'List users',
+        parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+        responses: { '200': { description: 'OK' } },
+      },
+      post: {
+        summary: 'Create user',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+    '/users/{id}': {
+      get: {
+        summary: 'Get user',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'OK' } },
+      },
+      put: {
+        summary: 'Update user',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '200': { description: 'OK' } },
+      },
+      delete: {
+        summary: 'Delete user',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '204': { description: 'No Content' } },
+      },
+    },
+  },
+}
+
+describe('swr (split mode with full CRUD resource)', () => {
+  it('should generate split files for GET list, GET by id, POST, PUT, DELETE', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-crud-'))
+    try {
+      const out = path.join(dir, 'hooks', 'index.ts')
+      const result = await swr(openapiCrud, out, '../client', true)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated swr hooks written to ${path.join(dir, 'hooks')}/*.ts (index.ts included)`,
+      })
+
+      const hooksDir = path.join(dir, 'hooks')
+      const files = fs.readdirSync(hooksDir).sort()
+      expect(files).toStrictEqual([
+        '_keys.ts',
+        'deleteUsersId.ts',
+        'getUsers.ts',
+        'getUsersId.ts',
+        'index.ts',
+        'postUsers.ts',
+        'putUsersId.ts',
+      ])
+
+      // _keys.ts
+      expect(fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')).toBe(`/**
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+`)
+
+      // getUsers.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'getUsers.ts'), 'utf-8')).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /users query key
+ */
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useImmutableGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * GET /users infinite query key
+ */
+export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
+}
+
+/**
+ * GET /users
+ *
+ * List users
+ */
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
+}
+`)
+
+      // getUsersId.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'getUsersId.ts'), 'utf-8')).toBe(`import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * GET /users/{id} query key
+ */
+export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useImmutableGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions),
+  }
+}
+
+/**
+ * GET /users/{id} infinite query key
+ */
+export function getGetUsersIdInfiniteKey(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+) {
+  return ['users', '/users/:id', args, 'infinite'] as const
+}
+
+/**
+ * GET /users/{id}
+ *
+ * Get user
+ */
+export function useInfiniteGetUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
+}
+`)
+
+      // postUsers.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * POST /users
+ *
+ * Create user
+ */
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
+/**
+ * POST /users
+ *
+ * Create user
+ */
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof postUsers>>,
+    Error,
+    Key,
+    InferRequestType<typeof client.users.$post>
+  > & { swrKey?: Key }
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? (['users', '/users'] as const)
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+        postUsers(arg, clientOptions),
+      restMutationOptions,
+    ),
+  }
+}
+`)
+
+      // putUsersId.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * PUT /users/{id}
+ *
+ * Update user
+ */
+export async function putUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$put(args, options))
+}
+
+/**
+ * PUT /users/{id}
+ *
+ * Update user
+ */
+export function usePutUsersId(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof putUsersId>>,
+    Error,
+    Key,
+    InferRequestType<(typeof client.users)[':id']['$put']>
+  > & { swrKey?: Key }
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? (['users', '/users/:id'] as const)
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$put']> }) =>
+        putUsersId(arg, clientOptions),
+      restMutationOptions,
+    ),
+  }
+}
+`)
+
+      // deleteUsersId.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'deleteUsersId.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
+/**
+ * DELETE /users/{id}
+ *
+ * Delete user
+ */
+export function useDeleteUsersId(options?: {
+  mutation?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
+    Error,
+    Key,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
+  > & { swrKey?: Key }
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? (['users', '/users/:id'] as const)
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> }) =>
+        deleteUsersId(arg, clientOptions),
+      restMutationOptions,
+    ),
+  }
+}
+`)
+
+      // index.ts
+      expect(fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8')).toBe(`export * from './_keys'
+export * from './getUsers'
+export * from './postUsers'
+export * from './getUsersId'
+export * from './putUsersId'
+export * from './deleteUsersId'
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('swr (invalid paths)', () => {
   it('should return error for invalid OpenAPI paths', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-invalid-'))
