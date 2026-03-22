@@ -238,11 +238,6 @@ export function useInfiniteGetUsers(
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
-/** POST /users mutation key */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
-}
-
 /**
  * POST /users
  *
@@ -275,7 +270,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostUsersMutationKey()
+  const swrKey = customKey ?? (['users', '/users'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -528,11 +523,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** POST /users mutation key */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
-}
-
 /**
  * POST /users
  *
@@ -565,7 +555,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostUsersMutationKey()
+  const swrKey = customKey ?? (['users', '/users'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -815,11 +805,6 @@ export function useInfiniteGetPing(options: {
   return useSWRInfinite(keyLoader, async () => getPing(clientOptions), restSwrOptions)
 }
 
-/** POST /ping mutation key */
-export function getPostPingMutationKey() {
-  return ['ping', 'POST', '/ping'] as const
-}
-
 /**
  * POST /ping
  *
@@ -845,7 +830,7 @@ export function usePostPing(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPingMutationKey()
+  const swrKey = customKey ?? (['ping', '/ping'] as const)
   return {
     swrKey,
     ...useSWRMutation(swrKey, async () => postPing(clientOptions), restMutationOptions),
@@ -1103,11 +1088,6 @@ export function useInfiniteGetUsersId(
   return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }
 
-/** DELETE /users/{id} mutation key */
-export function getDeleteUsersIdMutationKey() {
-  return ['users', 'DELETE', '/users/:id'] as const
-}
-
 /**
  * DELETE /users/{id}
  *
@@ -1136,7 +1116,7 @@ export function useDeleteUsersId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeleteUsersIdMutationKey()
+  const swrKey = customKey ?? (['users', '/users/:id'] as const)
   return {
     swrKey,
     ...useSWRMutation(
