@@ -64,41 +64,22 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /hono
- */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /hono query key
- */
 export function getHonoQueryKey() {
   return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * GET /hono query options
- */
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHonoQueryKey(),
@@ -108,13 +89,6 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useHono(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
@@ -123,16 +97,10 @@ export function useHono(options?: {
   return useQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /hono infinite query key
- */
 export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * GET /hono infinite query options
- */
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoInfiniteQueryKey(),
@@ -142,13 +110,6 @@ export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useInfiniteHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
@@ -157,22 +118,12 @@ export function useInfiniteHono(options: {
   return useInfiniteQuery({ ...getHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users query key
- */
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -180,9 +131,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users query options
- */
 export function getUsersQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -195,13 +143,6 @@ export function getUsersQueryOptions(
   })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -213,18 +154,12 @@ export function useUsers(
   return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users infinite query key
- */
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users infinite query options
- */
 export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -237,13 +172,6 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useInfiniteUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
@@ -255,13 +183,6 @@ export function useInfiniteUsers(
   return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -269,25 +190,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users'] as const,
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   }
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
@@ -334,16 +245,10 @@ export * from './postUsers'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
-      const keysExpected = `/**
- * Key prefix for /hono
- */
-export function getHonoKey() {
+      const keysExpected = `export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
@@ -362,27 +267,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /hono query key
- */
 export function getHonoQueryKey() {
   return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * GET /hono query options
- */
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHonoQueryKey(),
@@ -392,13 +284,6 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useHono(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
@@ -407,16 +292,10 @@ export function useHono(options?: {
   return useQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /hono infinite query key
- */
 export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * GET /hono infinite query options
- */
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoInfiniteQueryKey(),
@@ -426,13 +305,6 @@ export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useInfiniteHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
@@ -457,22 +329,12 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users query key
- */
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -480,9 +342,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users query options
- */
 export function getUsersQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -495,13 +354,6 @@ export function getUsersQueryOptions(
   })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -513,18 +365,12 @@ export function useUsers(
   return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users infinite query key
- */
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users infinite query options
- */
 export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -537,13 +383,6 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useInfiniteUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
@@ -565,13 +404,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -579,25 +411,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users'] as const,
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   }
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
@@ -657,32 +479,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users query key
- */
 export function getUsersQueryKey() {
   return ['users', '/users'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(authClient.users.$get(undefined, options))
 }
 
-/**
- * GET /users query options
- */
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getUsersQueryKey(),
@@ -692,11 +500,6 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useUsers(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
@@ -705,16 +508,10 @@ export function useUsers(options?: {
   return useQuery({ ...getUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users infinite query key
- */
 export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-/**
- * GET /users infinite query options
- */
 export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getUsersInfiniteQueryKey(),
@@ -724,11 +521,6 @@ export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useInfiniteUsers(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
@@ -785,32 +577,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /ping
- */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/**
- * GET /ping query key
- */
 export function getPingQueryKey() {
   return ['ping', '/ping'] as const
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export async function getPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$get(undefined, options))
 }
 
-/**
- * GET /ping query options
- */
 export function getPingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getPingQueryKey(),
@@ -820,11 +598,6 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export function usePing(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   options?: ClientRequestOptions
@@ -833,16 +606,10 @@ export function usePing(options?: {
   return useQuery({ ...getPingQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /ping infinite query key
- */
 export function getPingInfiniteQueryKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-/**
- * GET /ping infinite query options
- */
 export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getPingInfiniteQueryKey(),
@@ -852,11 +619,6 @@ export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export function useInfinitePing(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   options?: ClientRequestOptions
@@ -865,32 +627,19 @@ export function useInfinitePing(options: {
   return useInfiniteQuery({ ...getPingInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * POST /ping
- *
- * Post ping
- */
 export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * POST /ping
- */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['ping', '/ping'] as const,
+    mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
       return postPing(options)
     },
   }
 }
 
-/**
- * POST /ping
- *
- * Post ping
- */
 export function usePostPing(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
   options?: ClientRequestOptions
@@ -941,32 +690,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /hono-x
- */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/**
- * GET /hono-x query key
- */
 export function getHonoXQueryKey() {
   return ['hono-x', '/hono-x'] as const
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export async function getHonoX(options?: ClientRequestOptions) {
   return await parseResponse(client['hono-x'].$get(undefined, options))
 }
 
-/**
- * GET /hono-x query options
- */
 export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHonoXQueryKey(),
@@ -976,11 +711,6 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export function useHonoX(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   options?: ClientRequestOptions
@@ -989,16 +719,10 @@ export function useHonoX(options?: {
   return useQuery({ ...getHonoXQueryOptions(clientOptions), ...queryOptions })
 }
 
-/**
- * GET /hono-x infinite query key
- */
 export function getHonoXInfiniteQueryKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-/**
- * GET /hono-x infinite query options
- */
 export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoXInfiniteQueryKey(),
@@ -1008,11 +732,6 @@ export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export function useInfiniteHonoX(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   options?: ClientRequestOptions
@@ -1072,27 +791,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users/{id} query key
- */
 export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1100,9 +808,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id} query options
- */
 export function getUsersIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
@@ -1115,11 +820,6 @@ export function getUsersIdQueryOptions(
   })
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
@@ -1131,18 +831,12 @@ export function useUsersId(
   return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id} infinite query options
- */
 export function getUsersIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
@@ -1155,11 +849,6 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useInfiniteUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
@@ -1174,11 +863,6 @@ export function useInfiniteUsersId(
   })
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -1186,23 +870,15 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users/:id'] as const,
+    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return deleteUsersId(args, options)
     },
   }
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export function useDeleteUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1302,10 +978,7 @@ export * from './deleteUsersId'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
-      const keysExpected = `/**
- * Key prefix for /users
- */
-export function getUsersKey() {
+      const keysExpected = `export function getUsersKey() {
   return ['users'] as const
 }
 `
@@ -1325,20 +998,12 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users query key
- */
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -1346,9 +1011,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users query options
- */
 export function getUsersQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -1361,11 +1023,6 @@ export function getUsersQueryOptions(
   })
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export function useUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -1377,18 +1034,12 @@ export function useUsers(
   return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users infinite query key
- */
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users infinite query options
- */
 export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
@@ -1401,11 +1052,6 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export function useInfiniteUsers(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
@@ -1427,11 +1073,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * POST /users
- *
- * Create user
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -1439,23 +1080,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users'] as const,
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   }
 }
 
-/**
- * POST /users
- *
- * Create user
- */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
@@ -1484,20 +1117,12 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users/{id} query key
- */
 export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1505,9 +1130,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id} query options
- */
 export function getUsersIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
@@ -1520,11 +1142,6 @@ export function getUsersIdQueryOptions(
   })
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
@@ -1536,18 +1153,12 @@ export function useUsersId(
   return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id} infinite query options
- */
 export function getUsersIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
@@ -1560,11 +1171,6 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useInfiniteUsersId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
@@ -1589,11 +1195,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * PUT /users/{id}
- *
- * Update user
- */
 export async function putUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -1601,23 +1202,15 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/**
- * PUT /users/{id}
- */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users/:id'] as const,
+    mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return putUsersId(args, options)
     },
   }
 }
 
-/**
- * PUT /users/{id}
- *
- * Update user
- */
 export function usePutUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
@@ -1640,11 +1233,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -1652,23 +1240,15 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users/:id'] as const,
+    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return deleteUsersId(args, options)
     },
   }
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export function useDeleteUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1756,18 +1336,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * PUT /users/{id}
- *
- * Replace user
- */
 export async function putUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -1775,23 +1347,15 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/**
- * PUT /users/{id}
- */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users/:id'] as const,
+    mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return putUsersId(args, options)
     },
   }
 }
 
-/**
- * PUT /users/{id}
- *
- * Replace user
- */
 export function usePutUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
@@ -1804,11 +1368,6 @@ export function usePutUsersId(options?: {
   return useMutation({ ...getPutUsersIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * PATCH /users/{id}
- *
- * Update user
- */
 export async function patchUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$patch']>,
   options?: ClientRequestOptions,
@@ -1816,23 +1375,15 @@ export async function patchUsersId(
   return await parseResponse(client.users[':id'].$patch(args, options))
 }
 
-/**
- * PATCH /users/{id}
- */
 export function getPatchUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users/:id'] as const,
+    mutationKey: ['users', '/users/:id', 'PATCH'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
       return patchUsersId(args, options)
     },
   }
 }
 
-/**
- * PATCH /users/{id}
- *
- * Update user
- */
 export function usePatchUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof patchUsersId>>,

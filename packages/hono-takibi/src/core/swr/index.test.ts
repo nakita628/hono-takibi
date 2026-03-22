@@ -63,45 +63,22 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /hono
- */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /hono query key
- */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -112,13 +89,6 @@ export function useGetHono(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useImmutableGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -129,20 +99,10 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono infinite query key
- */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useInfiniteGetHono(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -156,20 +116,10 @@ export function useInfiniteGetHono(options: {
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -177,13 +127,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -197,13 +140,6 @@ export function useGetUsers(
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useImmutableGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -220,20 +156,10 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
@@ -250,13 +176,6 @@ export function useInfiniteGetUsers(
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -264,13 +183,6 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
@@ -282,7 +194,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users'] as const)
+  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -326,16 +238,10 @@ export * from './postUsers'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'swr', '_keys.ts'), 'utf-8')
-      expect(keys).toBe(`/**
- * Key prefix for /hono
- */
-export function getHonoKey() {
+      expect(keys).toBe(`export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
@@ -352,31 +258,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /hono query key
- */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -387,13 +276,6 @@ export function useGetHono(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useImmutableGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -404,20 +286,10 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono infinite query key
- */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export function useInfiniteGetHono(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -443,20 +315,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -464,13 +326,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -484,13 +339,6 @@ export function useGetUsers(
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useImmutableGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -507,20 +355,10 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
@@ -547,13 +385,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -561,13 +392,6 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
@@ -579,7 +403,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users'] as const)
+  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -637,34 +461,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey() {
   return ['users', '/users'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(authClient.users.$get(undefined, options))
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useGetUsers(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -675,11 +483,6 @@ export function useGetUsers(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useImmutableGetUsers(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -690,18 +493,10 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useInfiniteGetUsers(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -763,34 +558,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /ping
- */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/**
- * GET /ping query key
- */
 export function getGetPingKey() {
   return ['ping', '/ping'] as const
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export async function getPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$get(undefined, options))
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export function useGetPing(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -801,11 +580,6 @@ export function useGetPing(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export function useImmutableGetPing(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -816,18 +590,10 @@ export function useImmutableGetPing(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /ping infinite query key
- */
 export function getGetPingInfiniteKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
 export function useInfiniteGetPing(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPing>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -841,20 +607,10 @@ export function useInfiniteGetPing(options: {
   return useSWRInfinite(keyLoader, async () => getPing(clientOptions), restSwrOptions)
 }
 
-/**
- * POST /ping
- *
- * Post ping
- */
 export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * POST /ping
- *
- * Post ping
- */
 export function usePostPing(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPing>>,
@@ -866,7 +622,7 @@ export function usePostPing(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['ping', '/ping'] as const)
+  const swrKey = customKey ?? (['ping', '/ping', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(swrKey, async () => postPing(clientOptions), restMutationOptions),
@@ -914,34 +670,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /hono-x
- */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/**
- * GET /hono-x query key
- */
 export function getGetHonoXKey() {
   return ['hono-x', '/hono-x'] as const
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export async function getHonoX(options?: ClientRequestOptions) {
   return await parseResponse(client['hono-x'].$get(undefined, options))
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export function useGetHonoX(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -952,11 +692,6 @@ export function useGetHonoX(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export function useImmutableGetHonoX(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -967,18 +702,10 @@ export function useImmutableGetHonoX(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono-x infinite query key
- */
 export function getGetHonoXInfiniteKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
 export function useInfiniteGetHonoX(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHonoX>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -1041,25 +768,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users/{id} query key
- */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1067,11 +783,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -1085,11 +796,6 @@ export function useGetUsersId(
   return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useImmutableGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -1106,20 +812,12 @@ export function useImmutableGetUsersId(
   }
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useInfiniteGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
@@ -1136,11 +834,6 @@ export function useInfiniteGetUsersId(
   return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -1148,11 +841,6 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export function useDeleteUsersId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1164,7 +852,7 @@ export function useDeleteUsersId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id'] as const)
+  const swrKey = customKey ?? (['users', '/users/:id', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -1251,10 +939,7 @@ describe('swr (split mode with full CRUD resource)', () => {
       ])
 
       // _keys.ts
-      expect(fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')).toBe(`/**
- * Key prefix for /users
- */
-export function getUsersKey() {
+      expect(fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')).toBe(`export function getUsersKey() {
   return ['users'] as const
 }
 `)
@@ -1269,18 +954,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -1288,11 +965,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -1306,11 +978,6 @@ export function useGetUsers(
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export function useImmutableGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -1327,18 +994,10 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users
- *
- * List users
- */
 export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
@@ -1366,18 +1025,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users/{id} query key
- */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1385,11 +1036,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -1403,11 +1049,6 @@ export function useGetUsersId(
   return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useImmutableGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -1424,20 +1065,12 @@ export function useImmutableGetUsersId(
   }
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
 export function useInfiniteGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
@@ -1463,11 +1096,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * POST /users
- *
- * Create user
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -1475,11 +1103,6 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- *
- * Create user
- */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
@@ -1491,7 +1114,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users'] as const)
+  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -1512,11 +1135,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * PUT /users/{id}
- *
- * Update user
- */
 export async function putUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -1524,11 +1142,6 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/**
- * PUT /users/{id}
- *
- * Update user
- */
 export function usePutUsersId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putUsersId>>,
@@ -1540,7 +1153,7 @@ export function usePutUsersId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id'] as const)
+  const swrKey = customKey ?? (['users', '/users/:id', 'PUT'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -1561,11 +1174,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -1573,11 +1181,6 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export function useDeleteUsersId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1589,7 +1192,7 @@ export function useDeleteUsersId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id'] as const)
+  const swrKey = customKey ?? (['users', '/users/:id', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -1675,34 +1278,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /hono
- */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * GET /hono query key
- */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * GET /hono
- *
- * Hono
- */
 export function useGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -1713,11 +1300,6 @@ export function useGetHono(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono
- *
- * Hono
- */
 export function useImmutableGetHono(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -1728,18 +1310,10 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /hono infinite query key
- */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- */
 export function useInfiniteGetHono(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -1795,34 +1369,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey() {
   return ['users', '/users'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(client.users.$get(undefined, options))
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useGetUsers(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -1833,11 +1391,6 @@ export function useGetUsers(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useImmutableGetUsers(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -1848,18 +1401,10 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
 export function useInfiniteGetUsers(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader

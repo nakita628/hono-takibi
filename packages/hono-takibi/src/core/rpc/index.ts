@@ -10,7 +10,7 @@ import {
   resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
-import { makeInferRequestType, makeOperationDocs, methodPath } from '../../utils/index.js'
+import { makeInferRequestType, methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Types ─────────────────────────────── */
 
@@ -49,13 +49,9 @@ const makeOperationCode = (
     : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options)`
   const call = useParseResponse ? `parseResponse(${clientCall})` : clientCall
 
-  const summary = typeof op.summary === 'string' ? op.summary : ''
-  const description = typeof op.description === 'string' ? op.description : ''
-  const docs = makeOperationDocs(method, pathStr, summary || undefined, description || undefined)
-
   const func = `export async function ${funcName}(${argSig}){return await ${call}}`
 
-  return { code: `${docs}\n${func}`, hasArgs }
+  return { code: func, hasArgs }
 }
 
 /**
