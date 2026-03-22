@@ -9,17 +9,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** Key prefix for /orders */
+/**
+ * Key prefix for /orders
+ */
 export function getOrdersKey() {
   return ['orders'] as const
 }
 
-/** Key prefix for /payments */
+/**
+ * Key prefix for /payments
+ */
 export function getPaymentsKey() {
   return ['payments'] as const
 }
@@ -104,7 +110,9 @@ export function usePostPayments(options?: {
   }
 }
 
-/** GET /items query key */
+/**
+ * GET /items query key
+ */
 export function getGetItemsKey() {
   return ['items', '/items'] as const
 }
@@ -148,7 +156,9 @@ export function useImmutableGetItems(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
 }
 
-/** GET /items infinite query key */
+/**
+ * GET /items infinite query key
+ */
 export function getGetItemsInfiniteKey() {
   return ['items', '/items', 'infinite'] as const
 }

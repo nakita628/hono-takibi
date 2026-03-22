@@ -7,37 +7,51 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /api-key-protected */
+/**
+ * Key prefix for /api-key-protected
+ */
 export function getApiKeyProtectedKey() {
   return ['api-key-protected'] as const
 }
 
-/** Key prefix for /basic-protected */
+/**
+ * Key prefix for /basic-protected
+ */
 export function getBasicProtectedKey() {
   return ['basic-protected'] as const
 }
 
-/** Key prefix for /bearer-protected */
+/**
+ * Key prefix for /bearer-protected
+ */
 export function getBearerProtectedKey() {
   return ['bearer-protected'] as const
 }
 
-/** Key prefix for /multi-auth */
+/**
+ * Key prefix for /multi-auth
+ */
 export function getMultiAuthKey() {
   return ['multi-auth'] as const
 }
 
-/** Key prefix for /oauth-protected */
+/**
+ * Key prefix for /oauth-protected
+ */
 export function getOauthProtectedKey() {
   return ['oauth-protected'] as const
 }
 
-/** Key prefix for /public */
+/**
+ * Key prefix for /public
+ */
 export function getPublicKey() {
   return ['public'] as const
 }
 
-/** GET /public query key */
+/**
+ * GET /public query key
+ */
 export function getGetPublicKey() {
   return ['public', '/public'] as const
 }
@@ -78,7 +92,9 @@ export function useImmutableGetPublic(options?: {
   }
 }
 
-/** GET /public infinite query key */
+/**
+ * GET /public infinite query key
+ */
 export function getGetPublicInfiniteKey() {
   return ['public', '/public', 'infinite'] as const
 }
@@ -99,7 +115,9 @@ export function useInfiniteGetPublic(options: {
   return useSWRInfinite(keyLoader, async () => getPublic(clientOptions), restSwrOptions)
 }
 
-/** GET /bearer-protected query key */
+/**
+ * GET /bearer-protected query key
+ */
 export function getGetBearerProtectedKey() {
   return ['bearer-protected', '/bearer-protected'] as const
 }
@@ -143,7 +161,9 @@ export function useImmutableGetBearerProtected(options?: {
   }
 }
 
-/** GET /bearer-protected infinite query key */
+/**
+ * GET /bearer-protected infinite query key
+ */
 export function getGetBearerProtectedInfiniteKey() {
   return ['bearer-protected', '/bearer-protected', 'infinite'] as const
 }
@@ -164,7 +184,9 @@ export function useInfiniteGetBearerProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBearerProtected(clientOptions), restSwrOptions)
 }
 
-/** GET /api-key-protected query key */
+/**
+ * GET /api-key-protected query key
+ */
 export function getGetApiKeyProtectedKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
@@ -208,7 +230,9 @@ export function useImmutableGetApiKeyProtected(options?: {
   }
 }
 
-/** GET /api-key-protected infinite query key */
+/**
+ * GET /api-key-protected infinite query key
+ */
 export function getGetApiKeyProtectedInfiniteKey() {
   return ['api-key-protected', '/api-key-protected', 'infinite'] as const
 }
@@ -229,7 +253,9 @@ export function useInfiniteGetApiKeyProtected(options: {
   return useSWRInfinite(keyLoader, async () => getApiKeyProtected(clientOptions), restSwrOptions)
 }
 
-/** GET /basic-protected query key */
+/**
+ * GET /basic-protected query key
+ */
 export function getGetBasicProtectedKey() {
   return ['basic-protected', '/basic-protected'] as const
 }
@@ -270,7 +296,9 @@ export function useImmutableGetBasicProtected(options?: {
   }
 }
 
-/** GET /basic-protected infinite query key */
+/**
+ * GET /basic-protected infinite query key
+ */
 export function getGetBasicProtectedInfiniteKey() {
   return ['basic-protected', '/basic-protected', 'infinite'] as const
 }
@@ -291,7 +319,9 @@ export function useInfiniteGetBasicProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBasicProtected(clientOptions), restSwrOptions)
 }
 
-/** GET /oauth-protected query key */
+/**
+ * GET /oauth-protected query key
+ */
 export function getGetOauthProtectedKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
@@ -332,7 +362,9 @@ export function useImmutableGetOauthProtected(options?: {
   }
 }
 
-/** GET /oauth-protected infinite query key */
+/**
+ * GET /oauth-protected infinite query key
+ */
 export function getGetOauthProtectedInfiniteKey() {
   return ['oauth-protected', '/oauth-protected', 'infinite'] as const
 }
@@ -353,7 +385,9 @@ export function useInfiniteGetOauthProtected(options: {
   return useSWRInfinite(keyLoader, async () => getOauthProtected(clientOptions), restSwrOptions)
 }
 
-/** GET /multi-auth query key */
+/**
+ * GET /multi-auth query key
+ */
 export function getGetMultiAuthKey() {
   return ['multi-auth', '/multi-auth'] as const
 }
@@ -394,7 +428,9 @@ export function useImmutableGetMultiAuth(options?: {
   }
 }
 
-/** GET /multi-auth infinite query key */
+/**
+ * GET /multi-auth infinite query key
+ */
 export function getGetMultiAuthInfiniteKey() {
   return ['multi-auth', '/multi-auth', 'infinite'] as const
 }

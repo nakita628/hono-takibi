@@ -9,32 +9,44 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /configs */
+/**
+ * Key prefix for /configs
+ */
 export function getConfigsKey() {
   return ['configs'] as const
 }
 
-/** Key prefix for /documents */
+/**
+ * Key prefix for /documents
+ */
 export function getDocumentsKey() {
   return ['documents'] as const
 }
 
-/** Key prefix for /expressions */
+/**
+ * Key prefix for /expressions
+ */
 export function getExpressionsKey() {
   return ['expressions'] as const
 }
 
-/** Key prefix for /nested-circular */
+/**
+ * Key prefix for /nested-circular
+ */
 export function getNestedCircularKey() {
   return ['nested-circular'] as const
 }
 
-/** Key prefix for /nullable-union */
+/**
+ * Key prefix for /nullable-union
+ */
 export function getNullableUnionKey() {
   return ['nullable-union'] as const
 }
 
-/** Key prefix for /shapes */
+/**
+ * Key prefix for /shapes
+ */
 export function getShapesKey() {
   return ['shapes'] as const
 }
@@ -51,7 +63,9 @@ export async function postExpressions(
   return await parseResponse(client.expressions.$post(args, options))
 }
 
-/** POST /expressions */
+/**
+ * POST /expressions
+ */
 export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['expressions', '/expressions'] as const,
@@ -90,7 +104,9 @@ export async function postShapes(
   return await parseResponse(client.shapes.$post(args, options))
 }
 
-/** POST /shapes */
+/**
+ * POST /shapes
+ */
 export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['shapes', '/shapes'] as const,
@@ -129,7 +145,9 @@ export async function postDocuments(
   return await parseResponse(client.documents.$post(args, options))
 }
 
-/** POST /documents */
+/**
+ * POST /documents
+ */
 export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['documents', '/documents'] as const,
@@ -168,7 +186,9 @@ export async function postConfigs(
   return await parseResponse(client.configs.$post(args, options))
 }
 
-/** POST /configs */
+/**
+ * POST /configs
+ */
 export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['configs', '/configs'] as const,
@@ -195,7 +215,9 @@ export function usePostConfigs(options?: {
   return useMutation({ ...getPostConfigsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /nullable-union query key */
+/**
+ * GET /nullable-union query key
+ */
 export function getNullableUnionQueryKey() {
   return ['nullable-union', '/nullable-union'] as const
 }
@@ -234,7 +256,9 @@ export function useNullableUnion(options?: {
   return useQuery({ ...getNullableUnionQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /nullable-union infinite query key */
+/**
+ * GET /nullable-union infinite query key
+ */
 export function getNullableUnionInfiniteQueryKey() {
   return ['nullable-union', '/nullable-union', 'infinite'] as const
 }
@@ -267,7 +291,9 @@ export function useInfiniteNullableUnion(options: {
   })
 }
 
-/** GET /nested-circular query key */
+/**
+ * GET /nested-circular query key
+ */
 export function getNestedCircularQueryKey() {
   return ['nested-circular', '/nested-circular'] as const
 }
@@ -306,7 +332,9 @@ export function useNestedCircular(options?: {
   return useQuery({ ...getNestedCircularQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /nested-circular infinite query key */
+/**
+ * GET /nested-circular infinite query key
+ */
 export function getNestedCircularInfiniteQueryKey() {
   return ['nested-circular', '/nested-circular', 'infinite'] as const
 }

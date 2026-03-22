@@ -9,12 +9,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -64,7 +68,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -124,7 +130,9 @@ export function usePostUsers(options?: {
   }
 }
 
-/** GET /users/{id} query key */
+/**
+ * GET /users/{id} query key
+ */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
@@ -174,7 +182,9 @@ export function useImmutableGetUsersId(
   }
 }
 
-/** GET /users/{id} infinite query key */
+/**
+ * GET /users/{id} infinite query key
+ */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {

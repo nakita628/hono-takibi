@@ -9,27 +9,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /additional-props */
+/**
+ * Key prefix for /additional-props
+ */
 export function getAdditionalPropsKey() {
   return ['additional-props'] as const
 }
 
-/** Key prefix for /composed */
+/**
+ * Key prefix for /composed
+ */
 export function getComposedKey() {
   return ['composed'] as const
 }
 
-/** Key prefix for /deep-nested */
+/**
+ * Key prefix for /deep-nested
+ */
 export function getDeepNestedKey() {
   return ['deep-nested'] as const
 }
 
-/** Key prefix for /discriminated */
+/**
+ * Key prefix for /discriminated
+ */
 export function getDiscriminatedKey() {
   return ['discriminated'] as const
 }
 
-/** Key prefix for /nullable */
+/**
+ * Key prefix for /nullable
+ */
 export function getNullableKey() {
   return ['nullable'] as const
 }
@@ -106,7 +116,9 @@ export function usePostDiscriminated(options?: {
   }
 }
 
-/** GET /composed query key */
+/**
+ * GET /composed query key
+ */
 export function getGetComposedKey() {
   return ['composed', '/composed'] as const
 }
@@ -147,7 +159,9 @@ export function useImmutableGetComposed(options?: {
   }
 }
 
-/** GET /composed infinite query key */
+/**
+ * GET /composed infinite query key
+ */
 export function getGetComposedInfiniteKey() {
   return ['composed', '/composed', 'infinite'] as const
 }
@@ -168,7 +182,9 @@ export function useInfiniteGetComposed(options: {
   return useSWRInfinite(keyLoader, async () => getComposed(clientOptions), restSwrOptions)
 }
 
-/** GET /deep-nested query key */
+/**
+ * GET /deep-nested query key
+ */
 export function getGetDeepNestedKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
@@ -209,7 +225,9 @@ export function useImmutableGetDeepNested(options?: {
   }
 }
 
-/** GET /deep-nested infinite query key */
+/**
+ * GET /deep-nested infinite query key
+ */
 export function getGetDeepNestedInfiniteKey() {
   return ['deep-nested', '/deep-nested', 'infinite'] as const
 }
@@ -230,7 +248,9 @@ export function useInfiniteGetDeepNested(options: {
   return useSWRInfinite(keyLoader, async () => getDeepNested(clientOptions), restSwrOptions)
 }
 
-/** GET /additional-props query key */
+/**
+ * GET /additional-props query key
+ */
 export function getGetAdditionalPropsKey() {
   return ['additional-props', '/additional-props'] as const
 }
@@ -274,7 +294,9 @@ export function useImmutableGetAdditionalProps(options?: {
   }
 }
 
-/** GET /additional-props infinite query key */
+/**
+ * GET /additional-props infinite query key
+ */
 export function getGetAdditionalPropsInfiniteKey() {
   return ['additional-props', '/additional-props', 'infinite'] as const
 }

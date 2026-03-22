@@ -11,17 +11,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /posts */
+/**
+ * Key prefix for /posts
+ */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/** Key prefix for /tags */
+/**
+ * Key prefix for /tags
+ */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/** GET /posts query key */
+/**
+ * GET /posts query key
+ */
 export function getPostsQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
 ) {
@@ -67,7 +73,9 @@ export function usePosts(
   return useQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /posts infinite query key */
+/**
+ * GET /posts infinite query key
+ */
 export function getPostsInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
 ) {
@@ -113,7 +121,9 @@ export async function postPosts(
   return await parseResponse(client.posts.$post(args, options))
 }
 
-/** POST /posts */
+/**
+ * POST /posts
+ */
 export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts'] as const,
@@ -138,7 +148,9 @@ export function usePostPosts(options?: {
   return useMutation({ ...getPostPostsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /posts/{id} query key */
+/**
+ * GET /posts/{id} query key
+ */
 export function getPostsIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
 ) {
@@ -184,7 +196,9 @@ export function usePostsId(
   return useQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /posts/{id} infinite query key */
+/**
+ * GET /posts/{id} infinite query key
+ */
 export function getPostsIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
 ) {
@@ -233,7 +247,9 @@ export async function putPostsId(
   return await parseResponse(client.posts[':id'].$put(args, options))
 }
 
-/** PUT /posts/{id} */
+/**
+ * PUT /posts/{id}
+ */
 export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id'] as const,
@@ -268,7 +284,9 @@ export async function deletePostsId(
   return await parseResponse(client.posts[':id'].$delete(args, options))
 }
 
-/** DELETE /posts/{id} */
+/**
+ * DELETE /posts/{id}
+ */
 export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id'] as const,
@@ -293,7 +311,9 @@ export function useDeletePostsId(options?: {
   return useMutation({ ...getDeletePostsIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /posts/{id}/comments query key */
+/**
+ * GET /posts/{id}/comments query key
+ */
 export function getPostsIdCommentsQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
 ) {
@@ -339,7 +359,9 @@ export function usePostsIdComments(
   return useQuery({ ...getPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /posts/{id}/comments infinite query key */
+/**
+ * GET /posts/{id}/comments infinite query key
+ */
 export function getPostsIdCommentsInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
 ) {
@@ -388,7 +410,9 @@ export async function postPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$post(args, options))
 }
 
-/** POST /posts/{id}/comments */
+/**
+ * POST /posts/{id}/comments
+ */
 export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id/comments'] as const,
@@ -416,7 +440,9 @@ export function usePostPostsIdComments(options?: {
   })
 }
 
-/** GET /tags query key */
+/**
+ * GET /tags query key
+ */
 export function getTagsQueryKey() {
   return ['tags', '/tags'] as const
 }
@@ -451,7 +477,9 @@ export function useTags(options?: {
   return useQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /tags infinite query key */
+/**
+ * GET /tags infinite query key
+ */
 export function getTagsInfiniteQueryKey() {
   return ['tags', '/tags', 'infinite'] as const
 }

@@ -9,32 +9,44 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /categories */
+/**
+ * Key prefix for /categories
+ */
 export function getCategoriesKey() {
   return ['categories'] as const
 }
 
-/** Key prefix for /orders */
+/**
+ * Key prefix for /orders
+ */
 export function getOrdersKey() {
   return ['orders'] as const
 }
 
-/** Key prefix for /products */
+/**
+ * Key prefix for /products
+ */
 export function getProductsKey() {
   return ['products'] as const
 }
 
-/** Key prefix for /upload */
+/**
+ * Key prefix for /upload
+ */
 export function getUploadKey() {
   return ['upload'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -84,7 +96,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -144,7 +158,9 @@ export function usePostUsers(options?: {
   }
 }
 
-/** GET /users/{userId} query key */
+/**
+ * GET /users/{userId} query key
+ */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
@@ -199,7 +215,9 @@ export function useImmutableGetUsersUserId(
   }
 }
 
-/** GET /users/{userId} infinite query key */
+/**
+ * GET /users/{userId} infinite query key
+ */
 export function getGetUsersUserIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
@@ -301,7 +319,9 @@ export function useDeleteUsersUserId(options?: {
   }
 }
 
-/** GET /products query key */
+/**
+ * GET /products query key
+ */
 export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args] as const
 }
@@ -351,7 +371,9 @@ export function useImmutableGetProducts(
   }
 }
 
-/** GET /products infinite query key */
+/**
+ * GET /products infinite query key
+ */
 export function getGetProductsInfiniteKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args, 'infinite'] as const
 }
@@ -411,7 +433,9 @@ export function usePostProducts(options?: {
   }
 }
 
-/** GET /products/{productId} query key */
+/**
+ * GET /products/{productId} query key
+ */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
@@ -470,7 +494,9 @@ export function useImmutableGetProductsProductId(
   }
 }
 
-/** GET /products/{productId} infinite query key */
+/**
+ * GET /products/{productId} infinite query key
+ */
 export function getGetProductsProductIdInfiniteKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
@@ -539,7 +565,9 @@ export function usePutProductsProductId(options?: {
   }
 }
 
-/** GET /products/{productId}/reviews query key */
+/**
+ * GET /products/{productId}/reviews query key
+ */
 export function getGetProductsProductIdReviewsKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
@@ -598,7 +626,9 @@ export function useImmutableGetProductsProductIdReviews(
   }
 }
 
-/** GET /products/{productId}/reviews infinite query key */
+/**
+ * GET /products/{productId}/reviews infinite query key
+ */
 export function getGetProductsProductIdReviewsInfiniteKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
@@ -670,7 +700,9 @@ export function usePostProductsProductIdReviews(options?: {
   }
 }
 
-/** GET /orders query key */
+/**
+ * GET /orders query key
+ */
 export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args] as const
 }
@@ -720,7 +752,9 @@ export function useImmutableGetOrders(
   }
 }
 
-/** GET /orders infinite query key */
+/**
+ * GET /orders infinite query key
+ */
 export function getGetOrdersInfiniteKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args, 'infinite'] as const
 }
@@ -780,7 +814,9 @@ export function usePostOrders(options?: {
   }
 }
 
-/** GET /orders/{orderId} query key */
+/**
+ * GET /orders/{orderId} query key
+ */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
@@ -835,7 +871,9 @@ export function useImmutableGetOrdersOrderId(
   }
 }
 
-/** GET /orders/{orderId} infinite query key */
+/**
+ * GET /orders/{orderId} infinite query key
+ */
 export function getGetOrdersOrderIdInfiniteKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
@@ -866,7 +904,9 @@ export function useInfiniteGetOrdersOrderId(
   )
 }
 
-/** GET /categories query key */
+/**
+ * GET /categories query key
+ */
 export function getGetCategoriesKey() {
   return ['categories', '/categories'] as const
 }
@@ -907,7 +947,9 @@ export function useImmutableGetCategories(options?: {
   }
 }
 
-/** GET /categories infinite query key */
+/**
+ * GET /categories infinite query key
+ */
 export function getGetCategoriesInfiniteKey() {
   return ['categories', '/categories', 'infinite'] as const
 }

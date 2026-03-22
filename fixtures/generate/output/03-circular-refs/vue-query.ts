@@ -9,17 +9,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /graph */
+/**
+ * Key prefix for /graph
+ */
 export function getGraphKey() {
   return ['graph'] as const
 }
 
-/** Key prefix for /tree */
+/**
+ * Key prefix for /tree
+ */
 export function getTreeKey() {
   return ['tree'] as const
 }
 
-/** GET /tree query key */
+/**
+ * GET /tree query key
+ */
 export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
 }
@@ -54,7 +60,9 @@ export function useTree(options?: {
   return useQuery({ ...getTreeQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /tree infinite query key */
+/**
+ * GET /tree infinite query key
+ */
 export function getTreeInfiniteQueryKey() {
   return ['tree', '/tree', 'infinite'] as const
 }
@@ -92,7 +100,9 @@ export async function postTree(
   return await parseResponse(client.tree.$post(args, options))
 }
 
-/** POST /tree */
+/**
+ * POST /tree
+ */
 export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tree', '/tree'] as const,
@@ -117,7 +127,9 @@ export function usePostTree(options?: {
   return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /graph query key */
+/**
+ * GET /graph query key
+ */
 export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
 }
@@ -152,7 +164,9 @@ export function useGraph(options?: {
   return useQuery({ ...getGraphQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /graph infinite query key */
+/**
+ * GET /graph infinite query key
+ */
 export function getGraphInfiniteQueryKey() {
   return ['graph', '/graph', 'infinite'] as const
 }

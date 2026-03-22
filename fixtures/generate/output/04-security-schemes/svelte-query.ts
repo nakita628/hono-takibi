@@ -8,37 +8,51 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /api-key-protected */
+/**
+ * Key prefix for /api-key-protected
+ */
 export function getApiKeyProtectedKey() {
   return ['api-key-protected'] as const
 }
 
-/** Key prefix for /basic-protected */
+/**
+ * Key prefix for /basic-protected
+ */
 export function getBasicProtectedKey() {
   return ['basic-protected'] as const
 }
 
-/** Key prefix for /bearer-protected */
+/**
+ * Key prefix for /bearer-protected
+ */
 export function getBearerProtectedKey() {
   return ['bearer-protected'] as const
 }
 
-/** Key prefix for /multi-auth */
+/**
+ * Key prefix for /multi-auth
+ */
 export function getMultiAuthKey() {
   return ['multi-auth'] as const
 }
 
-/** Key prefix for /oauth-protected */
+/**
+ * Key prefix for /oauth-protected
+ */
 export function getOauthProtectedKey() {
   return ['oauth-protected'] as const
 }
 
-/** Key prefix for /public */
+/**
+ * Key prefix for /public
+ */
 export function getPublicKey() {
   return ['public'] as const
 }
 
-/** GET /public query key */
+/**
+ * GET /public query key
+ */
 export function getPublicQueryKey() {
   return ['public', '/public'] as const
 }
@@ -77,7 +91,9 @@ export function createPublic(
   })
 }
 
-/** GET /public infinite query key */
+/**
+ * GET /public infinite query key
+ */
 export function getPublicInfiniteQueryKey() {
   return ['public', '/public', 'infinite'] as const
 }
@@ -109,7 +125,9 @@ export function createInfinitePublic(
   })
 }
 
-/** GET /bearer-protected query key */
+/**
+ * GET /bearer-protected query key
+ */
 export function getBearerProtectedQueryKey() {
   return ['bearer-protected', '/bearer-protected'] as const
 }
@@ -148,7 +166,9 @@ export function createBearerProtected(
   })
 }
 
-/** GET /bearer-protected infinite query key */
+/**
+ * GET /bearer-protected infinite query key
+ */
 export function getBearerProtectedInfiniteQueryKey() {
   return ['bearer-protected', '/bearer-protected', 'infinite'] as const
 }
@@ -180,7 +200,9 @@ export function createInfiniteBearerProtected(
   })
 }
 
-/** GET /api-key-protected query key */
+/**
+ * GET /api-key-protected query key
+ */
 export function getApiKeyProtectedQueryKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
@@ -219,7 +241,9 @@ export function createApiKeyProtected(
   })
 }
 
-/** GET /api-key-protected infinite query key */
+/**
+ * GET /api-key-protected infinite query key
+ */
 export function getApiKeyProtectedInfiniteQueryKey() {
   return ['api-key-protected', '/api-key-protected', 'infinite'] as const
 }
@@ -251,7 +275,9 @@ export function createInfiniteApiKeyProtected(
   })
 }
 
-/** GET /basic-protected query key */
+/**
+ * GET /basic-protected query key
+ */
 export function getBasicProtectedQueryKey() {
   return ['basic-protected', '/basic-protected'] as const
 }
@@ -290,7 +316,9 @@ export function createBasicProtected(
   })
 }
 
-/** GET /basic-protected infinite query key */
+/**
+ * GET /basic-protected infinite query key
+ */
 export function getBasicProtectedInfiniteQueryKey() {
   return ['basic-protected', '/basic-protected', 'infinite'] as const
 }
@@ -322,7 +350,9 @@ export function createInfiniteBasicProtected(
   })
 }
 
-/** GET /oauth-protected query key */
+/**
+ * GET /oauth-protected query key
+ */
 export function getOauthProtectedQueryKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
@@ -361,7 +391,9 @@ export function createOauthProtected(
   })
 }
 
-/** GET /oauth-protected infinite query key */
+/**
+ * GET /oauth-protected infinite query key
+ */
 export function getOauthProtectedInfiniteQueryKey() {
   return ['oauth-protected', '/oauth-protected', 'infinite'] as const
 }
@@ -393,7 +425,9 @@ export function createInfiniteOauthProtected(
   })
 }
 
-/** GET /multi-auth query key */
+/**
+ * GET /multi-auth query key
+ */
 export function getMultiAuthQueryKey() {
   return ['multi-auth', '/multi-auth'] as const
 }
@@ -432,7 +466,9 @@ export function createMultiAuth(
   })
 }
 
-/** GET /multi-auth infinite query key */
+/**
+ * GET /multi-auth infinite query key
+ */
 export function getMultiAuthInfiniteQueryKey() {
   return ['multi-auth', '/multi-auth', 'infinite'] as const
 }

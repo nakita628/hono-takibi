@@ -5,27 +5,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /form */
+/**
+ * Key prefix for /form
+ */
 export function getFormKey() {
   return ['form'] as const
 }
 
-/** Key prefix for /json */
+/**
+ * Key prefix for /json
+ */
 export function getJsonKey() {
   return ['json'] as const
 }
 
-/** Key prefix for /multi-content */
+/**
+ * Key prefix for /multi-content
+ */
 export function getMultiContentKey() {
   return ['multi-content'] as const
 }
 
-/** Key prefix for /text */
+/**
+ * Key prefix for /text
+ */
 export function getTextKey() {
   return ['text'] as const
 }
 
-/** Key prefix for /upload */
+/**
+ * Key prefix for /upload
+ */
 export function getUploadKey() {
   return ['upload'] as const
 }

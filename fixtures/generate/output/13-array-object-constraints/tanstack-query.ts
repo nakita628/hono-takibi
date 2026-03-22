@@ -19,27 +19,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /config */
+/**
+ * Key prefix for /config
+ */
 export function getConfigKey() {
   return ['config'] as const
 }
 
-/** Key prefix for /payment */
+/**
+ * Key prefix for /payment
+ */
 export function getPaymentKey() {
   return ['payment'] as const
 }
 
-/** Key prefix for /settings */
+/**
+ * Key prefix for /settings
+ */
 export function getSettingsKey() {
   return ['settings'] as const
 }
 
-/** Key prefix for /tags */
+/**
+ * Key prefix for /tags
+ */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/** GET /tags query key */
+/**
+ * GET /tags query key
+ */
 export function getTagsQueryKey() {
   return ['tags', '/tags'] as const
 }
@@ -85,7 +95,9 @@ export function useSuspenseTags(options?: {
   return useSuspenseQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /tags infinite query key */
+/**
+ * GET /tags infinite query key
+ */
 export function getTagsInfiniteQueryKey() {
   return ['tags', '/tags', 'infinite'] as const
 }
@@ -137,7 +149,9 @@ export async function postTags(
   return await parseResponse(client.tags.$post(args, options))
 }
 
-/** POST /tags */
+/**
+ * POST /tags
+ */
 export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['tags', '/tags'] as const,
@@ -162,7 +176,9 @@ export function usePostTags(options?: {
   return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /settings query key */
+/**
+ * GET /settings query key
+ */
 export function getSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args] as const
 }
@@ -220,7 +236,9 @@ export function useSuspenseSettings(
   return useSuspenseQuery({ ...getSettingsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /settings infinite query key */
+/**
+ * GET /settings infinite query key
+ */
 export function getSettingsInfiniteQueryKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args, 'infinite'] as const
 }
@@ -284,7 +302,9 @@ export async function putSettings(
   return await parseResponse(client.settings.$put(args, options))
 }
 
-/** PUT /settings */
+/**
+ * PUT /settings
+ */
 export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['settings', '/settings'] as const,
@@ -319,7 +339,9 @@ export async function postConfig(
   return await parseResponse(client.config.$post(args, options))
 }
 
-/** POST /config */
+/**
+ * POST /config
+ */
 export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['config', '/config'] as const,
@@ -354,7 +376,9 @@ export async function postPayment(
   return await parseResponse(client.payment.$post(args, options))
 }
 
-/** POST /payment */
+/**
+ * POST /payment
+ */
 export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['payment', '/payment'] as const,

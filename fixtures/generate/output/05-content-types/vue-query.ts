@@ -4,27 +4,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /form */
+/**
+ * Key prefix for /form
+ */
 export function getFormKey() {
   return ['form'] as const
 }
 
-/** Key prefix for /json */
+/**
+ * Key prefix for /json
+ */
 export function getJsonKey() {
   return ['json'] as const
 }
 
-/** Key prefix for /multi-content */
+/**
+ * Key prefix for /multi-content
+ */
 export function getMultiContentKey() {
   return ['multi-content'] as const
 }
 
-/** Key prefix for /text */
+/**
+ * Key prefix for /text
+ */
 export function getTextKey() {
   return ['text'] as const
 }
 
-/** Key prefix for /upload */
+/**
+ * Key prefix for /upload
+ */
 export function getUploadKey() {
   return ['upload'] as const
 }
@@ -39,7 +49,9 @@ export async function postJson(
   return await parseResponse(client.json.$post(args, options))
 }
 
-/** POST /json */
+/**
+ * POST /json
+ */
 export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['json', '/json'] as const,
@@ -74,7 +86,9 @@ export async function postForm(
   return await parseResponse(client.form.$post(args, options))
 }
 
-/** POST /form */
+/**
+ * POST /form
+ */
 export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['form', '/form'] as const,
@@ -109,7 +123,9 @@ export async function postUpload(
   return await parseResponse(client.upload.$post(args, options))
 }
 
-/** POST /upload */
+/**
+ * POST /upload
+ */
 export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['upload', '/upload'] as const,
@@ -144,7 +160,9 @@ export async function postText(
   return await parseResponse(client.text.$post(args, options))
 }
 
-/** POST /text */
+/**
+ * POST /text
+ */
 export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['text', '/text'] as const,
@@ -179,7 +197,9 @@ export async function postMultiContent(
   return await parseResponse(client['multi-content'].$post(args, options))
 }
 
-/** POST /multi-content */
+/**
+ * POST /multi-content
+ */
 export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['multi-content', '/multi-content'] as const,

@@ -9,32 +9,44 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /configs */
+/**
+ * Key prefix for /configs
+ */
 export function getConfigsKey() {
   return ['configs'] as const
 }
 
-/** Key prefix for /documents */
+/**
+ * Key prefix for /documents
+ */
 export function getDocumentsKey() {
   return ['documents'] as const
 }
 
-/** Key prefix for /expressions */
+/**
+ * Key prefix for /expressions
+ */
 export function getExpressionsKey() {
   return ['expressions'] as const
 }
 
-/** Key prefix for /nested-circular */
+/**
+ * Key prefix for /nested-circular
+ */
 export function getNestedCircularKey() {
   return ['nested-circular'] as const
 }
 
-/** Key prefix for /nullable-union */
+/**
+ * Key prefix for /nullable-union
+ */
 export function getNullableUnionKey() {
   return ['nullable-union'] as const
 }
 
-/** Key prefix for /shapes */
+/**
+ * Key prefix for /shapes
+ */
 export function getShapesKey() {
   return ['shapes'] as const
 }
@@ -199,7 +211,9 @@ export function usePostConfigs(options?: {
   }
 }
 
-/** GET /nullable-union query key */
+/**
+ * GET /nullable-union query key
+ */
 export function getGetNullableUnionKey() {
   return ['nullable-union', '/nullable-union'] as const
 }
@@ -246,7 +260,9 @@ export function useImmutableGetNullableUnion(options?: {
   }
 }
 
-/** GET /nullable-union infinite query key */
+/**
+ * GET /nullable-union infinite query key
+ */
 export function getGetNullableUnionInfiniteKey() {
   return ['nullable-union', '/nullable-union', 'infinite'] as const
 }
@@ -269,7 +285,9 @@ export function useInfiniteGetNullableUnion(options: {
   return useSWRInfinite(keyLoader, async () => getNullableUnion(clientOptions), restSwrOptions)
 }
 
-/** GET /nested-circular query key */
+/**
+ * GET /nested-circular query key
+ */
 export function getGetNestedCircularKey() {
   return ['nested-circular', '/nested-circular'] as const
 }
@@ -316,7 +334,9 @@ export function useImmutableGetNestedCircular(options?: {
   }
 }
 
-/** GET /nested-circular infinite query key */
+/**
+ * GET /nested-circular infinite query key
+ */
 export function getGetNestedCircularInfiniteKey() {
   return ['nested-circular', '/nested-circular', 'infinite'] as const
 }

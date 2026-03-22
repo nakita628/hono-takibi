@@ -14,27 +14,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /api */
+/**
+ * Key prefix for /api
+ */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** Key prefix for /posts */
+/**
+ * Key prefix for /posts
+ */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /api/reverseChiban/ query key */
+/**
+ * GET /api/reverseChiban/ query key
+ */
 export function getApiReverseChibanIndexQueryKey() {
   return ['api', '/api/reverseChiban/'] as const
 }
@@ -77,7 +87,9 @@ export function createApiReverseChibanIndex(
   })
 }
 
-/** GET /api/reverseChiban/ infinite query key */
+/**
+ * GET /api/reverseChiban/ infinite query key
+ */
 export function getApiReverseChibanIndexInfiniteQueryKey() {
   return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
@@ -111,7 +123,9 @@ export function createInfiniteApiReverseChibanIndex(
   })
 }
 
-/** GET /api/reverseChiban query key */
+/**
+ * GET /api/reverseChiban query key
+ */
 export function getApiReverseChibanQueryKey() {
   return ['api', '/api/reverseChiban'] as const
 }
@@ -154,7 +168,9 @@ export function createApiReverseChiban(
   })
 }
 
-/** GET /api/reverseChiban infinite query key */
+/**
+ * GET /api/reverseChiban infinite query key
+ */
 export function getApiReverseChibanInfiniteQueryKey() {
   return ['api', '/api/reverseChiban', 'infinite'] as const
 }
@@ -188,7 +204,9 @@ export function createInfiniteApiReverseChiban(
   })
 }
 
-/** GET /posts/ query key */
+/**
+ * GET /posts/ query key
+ */
 export function getPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
   return ['posts', '/posts/', args] as const
 }
@@ -238,7 +256,9 @@ export function createPostsIndex(
   })
 }
 
-/** GET /posts/ infinite query key */
+/**
+ * GET /posts/ infinite query key
+ */
 export function getPostsIndexInfiniteQueryKey(
   args: InferRequestType<typeof client.posts.index.$get>,
 ) {
@@ -290,7 +310,9 @@ export async function postPostsIndex(
   return await parseResponse(client.posts.index.$post(args, options))
 }
 
-/** POST /posts/ */
+/**
+ * POST /posts/
+ */
 export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/'] as const,
@@ -321,7 +343,9 @@ export function createPostPostsIndex(
   })
 }
 
-/** GET /users/{id}/ query key */
+/**
+ * GET /users/{id}/ query key
+ */
 export function getUsersIdIndexQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
@@ -373,7 +397,9 @@ export function createUsersIdIndex(
   })
 }
 
-/** GET /users/{id}/ infinite query key */
+/**
+ * GET /users/{id}/ infinite query key
+ */
 export function getUsersIdIndexInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
@@ -413,7 +439,9 @@ export function createInfiniteUsersIdIndex(
   })
 }
 
-/** GET /items/ query key */
+/**
+ * GET /items/ query key
+ */
 export function getItemsIndexQueryKey() {
   return ['items', '/items/'] as const
 }
@@ -456,7 +484,9 @@ export function createItemsIndex(
   })
 }
 
-/** GET /items/ infinite query key */
+/**
+ * GET /items/ infinite query key
+ */
 export function getItemsIndexInfiniteQueryKey() {
   return ['items', '/items/', 'infinite'] as const
 }

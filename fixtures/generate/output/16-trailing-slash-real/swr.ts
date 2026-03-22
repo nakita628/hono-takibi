@@ -9,12 +9,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /api */
+/**
+ * Key prefix for /api
+ */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/** GET /api/reverseGeocode/ query key */
+/**
+ * GET /api/reverseGeocode/ query key
+ */
 export function getGetApiReverseGeocodeIndexKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
@@ -79,7 +83,9 @@ export function useImmutableGetApiReverseGeocodeIndex(
   }
 }
 
-/** GET /api/reverseGeocode/ infinite query key */
+/**
+ * GET /api/reverseGeocode/ infinite query key
+ */
 export function getGetApiReverseGeocodeIndexInfiniteKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {

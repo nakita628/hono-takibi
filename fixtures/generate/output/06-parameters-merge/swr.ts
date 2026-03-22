@@ -9,12 +9,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** GET /items/{itemId} query key */
+/**
+ * GET /items/{itemId} query key
+ */
 export function getGetItemsItemIdKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -70,7 +74,9 @@ export function useImmutableGetItemsItemId(
   }
 }
 
-/** GET /items/{itemId} infinite query key */
+/**
+ * GET /items/{itemId} infinite query key
+ */
 export function getGetItemsItemIdInfiniteKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -173,7 +179,9 @@ export function useDeleteItemsItemId(options?: {
   }
 }
 
-/** GET /items query key */
+/**
+ * GET /items query key
+ */
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
 }
@@ -223,7 +231,9 @@ export function useImmutableGetItems(
   }
 }
 
-/** GET /items infinite query key */
+/**
+ * GET /items infinite query key
+ */
 export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args, 'infinite'] as const
 }

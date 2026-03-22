@@ -9,27 +9,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /config */
+/**
+ * Key prefix for /config
+ */
 export function getConfigKey() {
   return ['config'] as const
 }
 
-/** Key prefix for /payment */
+/**
+ * Key prefix for /payment
+ */
 export function getPaymentKey() {
   return ['payment'] as const
 }
 
-/** Key prefix for /settings */
+/**
+ * Key prefix for /settings
+ */
 export function getSettingsKey() {
   return ['settings'] as const
 }
 
-/** Key prefix for /tags */
+/**
+ * Key prefix for /tags
+ */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/** GET /tags query key */
+/**
+ * GET /tags query key
+ */
 export function getGetTagsKey() {
   return ['tags', '/tags'] as const
 }
@@ -67,7 +77,9 @@ export function useImmutableGetTags(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/** GET /tags infinite query key */
+/**
+ * GET /tags infinite query key
+ */
 export function getGetTagsInfiniteKey() {
   return ['tags', '/tags', 'infinite'] as const
 }
@@ -124,7 +136,9 @@ export function usePostTags(options?: {
   }
 }
 
-/** GET /settings query key */
+/**
+ * GET /settings query key
+ */
 export function getGetSettingsKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args] as const
 }
@@ -174,7 +188,9 @@ export function useImmutableGetSettings(
   }
 }
 
-/** GET /settings infinite query key */
+/**
+ * GET /settings infinite query key
+ */
 export function getGetSettingsInfiniteKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args, 'infinite'] as const
 }

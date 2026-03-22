@@ -19,27 +19,37 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /additional-props */
+/**
+ * Key prefix for /additional-props
+ */
 export function getAdditionalPropsKey() {
   return ['additional-props'] as const
 }
 
-/** Key prefix for /composed */
+/**
+ * Key prefix for /composed
+ */
 export function getComposedKey() {
   return ['composed'] as const
 }
 
-/** Key prefix for /deep-nested */
+/**
+ * Key prefix for /deep-nested
+ */
 export function getDeepNestedKey() {
   return ['deep-nested'] as const
 }
 
-/** Key prefix for /discriminated */
+/**
+ * Key prefix for /discriminated
+ */
 export function getDiscriminatedKey() {
   return ['discriminated'] as const
 }
 
-/** Key prefix for /nullable */
+/**
+ * Key prefix for /nullable
+ */
 export function getNullableKey() {
   return ['nullable'] as const
 }
@@ -54,7 +64,9 @@ export async function postNullable(
   return await parseResponse(client.nullable.$post(args, options))
 }
 
-/** POST /nullable */
+/**
+ * POST /nullable
+ */
 export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['nullable', '/nullable'] as const,
@@ -89,7 +101,9 @@ export async function postDiscriminated(
   return await parseResponse(client.discriminated.$post(args, options))
 }
 
-/** POST /discriminated */
+/**
+ * POST /discriminated
+ */
 export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['discriminated', '/discriminated'] as const,
@@ -114,7 +128,9 @@ export function usePostDiscriminated(options?: {
   return useMutation({ ...getPostDiscriminatedMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /composed query key */
+/**
+ * GET /composed query key
+ */
 export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
 }
@@ -160,7 +176,9 @@ export function useSuspenseComposed(options?: {
   return useSuspenseQuery({ ...getComposedQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /composed infinite query key */
+/**
+ * GET /composed infinite query key
+ */
 export function getComposedInfiniteQueryKey() {
   return ['composed', '/composed', 'infinite'] as const
 }
@@ -202,7 +220,9 @@ export function useSuspenseInfiniteComposed(options: {
   })
 }
 
-/** GET /deep-nested query key */
+/**
+ * GET /deep-nested query key
+ */
 export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
@@ -248,7 +268,9 @@ export function useSuspenseDeepNested(options?: {
   return useSuspenseQuery({ ...getDeepNestedQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /deep-nested infinite query key */
+/**
+ * GET /deep-nested infinite query key
+ */
 export function getDeepNestedInfiniteQueryKey() {
   return ['deep-nested', '/deep-nested', 'infinite'] as const
 }
@@ -290,7 +312,9 @@ export function useSuspenseInfiniteDeepNested(options: {
   })
 }
 
-/** GET /additional-props query key */
+/**
+ * GET /additional-props query key
+ */
 export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
 }
@@ -336,7 +360,9 @@ export function useSuspenseAdditionalProps(options?: {
   return useSuspenseQuery({ ...getAdditionalPropsQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /additional-props infinite query key */
+/**
+ * GET /additional-props infinite query key
+ */
 export function getAdditionalPropsInfiniteQueryKey() {
   return ['additional-props', '/additional-props', 'infinite'] as const
 }

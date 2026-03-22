@@ -11,12 +11,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /api */
+/**
+ * Key prefix for /api
+ */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/** GET /api/reverseGeocode/ query key */
+/**
+ * GET /api/reverseGeocode/ query key
+ */
 export function getApiReverseGeocodeIndexQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
@@ -72,7 +76,9 @@ export function useApiReverseGeocodeIndex(
   })
 }
 
-/** GET /api/reverseGeocode/ infinite query key */
+/**
+ * GET /api/reverseGeocode/ infinite query key
+ */
 export function getApiReverseGeocodeIndexInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
@@ -128,7 +134,9 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-/** POST /api/v2/public/booking/account/register/oauth/ */
+/**
+ * POST /api/v2/public/booking/account/register/oauth/
+ */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
@@ -176,7 +184,9 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-/** POST /api/v2/public/booking/account/register/email */
+/**
+ * POST /api/v2/public/booking/account/register/email
+ */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {

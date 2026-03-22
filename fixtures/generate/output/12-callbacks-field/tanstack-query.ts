@@ -19,17 +19,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** Key prefix for /orders */
+/**
+ * Key prefix for /orders
+ */
 export function getOrdersKey() {
   return ['orders'] as const
 }
 
-/** Key prefix for /payments */
+/**
+ * Key prefix for /payments
+ */
 export function getPaymentsKey() {
   return ['payments'] as const
 }
@@ -46,7 +52,9 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-/** POST /orders */
+/**
+ * POST /orders
+ */
 export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['orders', '/orders'] as const,
@@ -85,7 +93,9 @@ export async function postPayments(
   return await parseResponse(client.payments.$post(args, options))
 }
 
-/** POST /payments */
+/**
+ * POST /payments
+ */
 export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['payments', '/payments'] as const,
@@ -112,7 +122,9 @@ export function usePostPayments(options?: {
   return useMutation({ ...getPostPaymentsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /items query key */
+/**
+ * GET /items query key
+ */
 export function getItemsQueryKey() {
   return ['items', '/items'] as const
 }
@@ -164,7 +176,9 @@ export function useSuspenseItems(options?: {
   return useSuspenseQuery({ ...getItemsQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /items infinite query key */
+/**
+ * GET /items infinite query key
+ */
 export function getItemsInfiniteQueryKey() {
   return ['items', '/items', 'infinite'] as const
 }

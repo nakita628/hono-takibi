@@ -19,12 +19,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /subscriptions */
+/**
+ * Key prefix for /subscriptions
+ */
 export function getSubscriptionsKey() {
   return ['subscriptions'] as const
 }
 
-/** Key prefix for /webhooks */
+/**
+ * Key prefix for /webhooks
+ */
 export function getWebhooksKey() {
   return ['webhooks'] as const
 }
@@ -39,7 +43,9 @@ export async function postSubscriptions(
   return await parseResponse(client.subscriptions.$post(args, options))
 }
 
-/** POST /subscriptions */
+/**
+ * POST /subscriptions
+ */
 export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['subscriptions', '/subscriptions'] as const,
@@ -64,7 +70,9 @@ export function usePostSubscriptions(options?: {
   return useMutation({ ...getPostSubscriptionsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /subscriptions/{id} query key */
+/**
+ * GET /subscriptions/{id} query key
+ */
 export function getSubscriptionsIdQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
@@ -127,7 +135,9 @@ export function useSuspenseSubscriptionsId(
   })
 }
 
-/** GET /subscriptions/{id} infinite query key */
+/**
+ * GET /subscriptions/{id} infinite query key
+ */
 export function getSubscriptionsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
@@ -193,7 +203,9 @@ export async function deleteSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$delete(args, options))
 }
 
-/** DELETE /subscriptions/{id} */
+/**
+ * DELETE /subscriptions/{id}
+ */
 export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['subscriptions', '/subscriptions/:id'] as const,
@@ -231,7 +243,9 @@ export async function postWebhooksTest(
   return await parseResponse(client.webhooks.test.$post(args, options))
 }
 
-/** POST /webhooks/test */
+/**
+ * POST /webhooks/test
+ */
 export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['webhooks', '/webhooks/test'] as const,

@@ -79,12 +79,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /pets */
+/**
+ * Key prefix for /pets
+ */
 export function getPetsKey() {
   return ['pets'] as const
 }
 
-/** GET /pets query key */
+/**
+ * GET /pets query key
+ */
 export function getPetsQueryKey(args: InferRequestType<typeof client.pets.$get>) {
   return ['pets', '/pets', args] as const
 }
@@ -134,7 +138,9 @@ export function createPets(
   })
 }
 
-/** GET /pets infinite query key */
+/**
+ * GET /pets infinite query key
+ */
 export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pets.$get>) {
   return ['pets', '/pets', args, 'infinite'] as const
 }
@@ -184,7 +190,9 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-/** POST /pets */
+/**
+ * POST /pets
+ */
 export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets'] as const,
@@ -215,7 +223,9 @@ export function createPostPets(
   })
 }
 
-/** GET /pets/{petId} query key */
+/**
+ * GET /pets/{petId} query key
+ */
 export function getPetsPetIdQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
@@ -267,7 +277,9 @@ export function createPetsPetId(
   })
 }
 
-/** GET /pets/{petId} infinite query key */
+/**
+ * GET /pets/{petId} infinite query key
+ */
 export function getPetsPetIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
@@ -319,7 +331,9 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-/** PUT /pets/{petId} */
+/**
+ * PUT /pets/{petId}
+ */
 export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -362,7 +376,9 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-/** DELETE /pets/{petId} */
+/**
+ * DELETE /pets/{petId}
+ */
 export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -429,7 +445,9 @@ export * from './deletePetsPetId'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
-      const keysExpected = `/** Key prefix for /pets */
+      const keysExpected = `/**
+ * Key prefix for /pets
+ */
 export function getPetsKey() {
   return ['pets'] as const
 }
@@ -448,7 +466,9 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /pets query key */
+/**
+ * GET /pets query key
+ */
 export function getPetsQueryKey(args: InferRequestType<typeof client.pets.$get>) {
   return ['pets', '/pets', args] as const
 }
@@ -498,7 +518,9 @@ export function createPets(
   })
 }
 
-/** GET /pets infinite query key */
+/**
+ * GET /pets infinite query key
+ */
 export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pets.$get>) {
   return ['pets', '/pets', args, 'infinite'] as const
 }
@@ -553,7 +575,9 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /pets/{petId} query key */
+/**
+ * GET /pets/{petId} query key
+ */
 export function getPetsPetIdQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
@@ -605,7 +629,9 @@ export function createPetsPetId(
   })
 }
 
-/** GET /pets/{petId} infinite query key */
+/**
+ * GET /pets/{petId} infinite query key
+ */
 export function getPetsPetIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
@@ -667,7 +693,9 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-/** POST /pets */
+/**
+ * POST /pets
+ */
 export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets'] as const,
@@ -723,7 +751,9 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-/** PUT /pets/{petId} */
+/**
+ * PUT /pets/{petId}
+ */
 export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -779,7 +809,9 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-/** DELETE /pets/{petId} */
+/**
+ * DELETE /pets/{petId}
+ */
 export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId'] as const,
@@ -859,12 +891,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey() {
   return ['users', '/users'] as const
 }
@@ -907,7 +943,9 @@ export function createUsers(
   })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
@@ -994,12 +1032,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /ping */
+/**
+ * Key prefix for /ping
+ */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/** GET /ping query key */
+/**
+ * GET /ping query key
+ */
 export function getPingQueryKey() {
   return ['ping', '/ping'] as const
 }
@@ -1042,7 +1084,9 @@ export function createPing(
   })
 }
 
-/** GET /ping infinite query key */
+/**
+ * GET /ping infinite query key
+ */
 export function getPingInfiniteQueryKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
@@ -1085,7 +1129,9 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/** POST /ping */
+/**
+ * POST /ping
+ */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping'] as const,
@@ -1154,12 +1200,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono-x */
+/**
+ * Key prefix for /hono-x
+ */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/** GET /hono-x query key */
+/**
+ * GET /hono-x query key
+ */
 export function getHonoXQueryKey() {
   return ['hono-x', '/hono-x'] as const
 }
@@ -1202,7 +1252,9 @@ export function createHonoX(
   })
 }
 
-/** GET /hono-x infinite query key */
+/**
+ * GET /hono-x infinite query key
+ */
 export function getHonoXInfiniteQueryKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
@@ -1290,12 +1342,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users/{id} query key */
+/**
+ * GET /users/{id} query key
+ */
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
@@ -1345,7 +1401,9 @@ export function createUsersId(
   })
 }
 
-/** GET /users/{id} infinite query key */
+/**
+ * GET /users/{id} infinite query key
+ */
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
@@ -1397,7 +1455,9 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/** DELETE /users/{id} */
+/**
+ * DELETE /users/{id}
+ */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,

@@ -19,32 +19,44 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /categories */
+/**
+ * Key prefix for /categories
+ */
 export function getCategoriesKey() {
   return ['categories'] as const
 }
 
-/** Key prefix for /orders */
+/**
+ * Key prefix for /orders
+ */
 export function getOrdersKey() {
   return ['orders'] as const
 }
 
-/** Key prefix for /products */
+/**
+ * Key prefix for /products
+ */
 export function getProductsKey() {
   return ['products'] as const
 }
 
-/** Key prefix for /upload */
+/**
+ * Key prefix for /upload
+ */
 export function getUploadKey() {
   return ['upload'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -102,7 +114,9 @@ export function useSuspenseUsers(
   return useSuspenseQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -163,7 +177,9 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/** POST /users */
+/**
+ * POST /users
+ */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users'] as const,
@@ -188,7 +204,9 @@ export function usePostUsers(options?: {
   return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /users/{userId} query key */
+/**
+ * GET /users/{userId} query key
+ */
 export function getUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
@@ -248,7 +266,9 @@ export function useSuspenseUsersUserId(
   return useSuspenseQuery({ ...getUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /users/{userId} infinite query key */
+/**
+ * GET /users/{userId} infinite query key
+ */
 export function getUsersUserIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
@@ -314,7 +334,9 @@ export async function putUsersUserId(
   return await parseResponse(client.users[':userId'].$put(args, options))
 }
 
-/** PUT /users/{userId} */
+/**
+ * PUT /users/{userId}
+ */
 export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users/:userId'] as const,
@@ -349,7 +371,9 @@ export async function deleteUsersUserId(
   return await parseResponse(client.users[':userId'].$delete(args, options))
 }
 
-/** DELETE /users/{userId} */
+/**
+ * DELETE /users/{userId}
+ */
 export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users/:userId'] as const,
@@ -374,7 +398,9 @@ export function useDeleteUsersUserId(options?: {
   return useMutation({ ...getDeleteUsersUserIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /products query key */
+/**
+ * GET /products query key
+ */
 export function getProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args] as const
 }
@@ -432,7 +458,9 @@ export function useSuspenseProducts(
   return useSuspenseQuery({ ...getProductsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /products infinite query key */
+/**
+ * GET /products infinite query key
+ */
 export function getProductsInfiniteQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args, 'infinite'] as const
 }
@@ -496,7 +524,9 @@ export async function postProducts(
   return await parseResponse(client.products.$post(args, options))
 }
 
-/** POST /products */
+/**
+ * POST /products
+ */
 export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['products', '/products'] as const,
@@ -521,7 +551,9 @@ export function usePostProducts(options?: {
   return useMutation({ ...getPostProductsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /products/{productId} query key */
+/**
+ * GET /products/{productId} query key
+ */
 export function getProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
@@ -584,7 +616,9 @@ export function useSuspenseProductsProductId(
   })
 }
 
-/** GET /products/{productId} infinite query key */
+/**
+ * GET /products/{productId} infinite query key
+ */
 export function getProductsProductIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
@@ -650,7 +684,9 @@ export async function putProductsProductId(
   return await parseResponse(client.products[':productId'].$put(args, options))
 }
 
-/** PUT /products/{productId} */
+/**
+ * PUT /products/{productId}
+ */
 export function getPutProductsProductIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['products', '/products/:productId'] as const,
@@ -678,7 +714,9 @@ export function usePutProductsProductId(options?: {
   })
 }
 
-/** GET /products/{productId}/reviews query key */
+/**
+ * GET /products/{productId}/reviews query key
+ */
 export function getProductsProductIdReviewsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
@@ -744,7 +782,9 @@ export function useSuspenseProductsProductIdReviews(
   })
 }
 
-/** GET /products/{productId}/reviews infinite query key */
+/**
+ * GET /products/{productId}/reviews infinite query key
+ */
 export function getProductsProductIdReviewsInfiniteQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
@@ -813,7 +853,9 @@ export async function postProductsProductIdReviews(
   return await parseResponse(client.products[':productId'].reviews.$post(args, options))
 }
 
-/** POST /products/{productId}/reviews */
+/**
+ * POST /products/{productId}/reviews
+ */
 export function getPostProductsProductIdReviewsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['products', '/products/:productId/reviews'] as const,
@@ -843,7 +885,9 @@ export function usePostProductsProductIdReviews(options?: {
   })
 }
 
-/** GET /orders query key */
+/**
+ * GET /orders query key
+ */
 export function getOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args] as const
 }
@@ -901,7 +945,9 @@ export function useSuspenseOrders(
   return useSuspenseQuery({ ...getOrdersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /orders infinite query key */
+/**
+ * GET /orders infinite query key
+ */
 export function getOrdersInfiniteQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args, 'infinite'] as const
 }
@@ -965,7 +1011,9 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-/** POST /orders */
+/**
+ * POST /orders
+ */
 export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['orders', '/orders'] as const,
@@ -990,7 +1038,9 @@ export function usePostOrders(options?: {
   return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/** GET /orders/{orderId} query key */
+/**
+ * GET /orders/{orderId} query key
+ */
 export function getOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
@@ -1050,7 +1100,9 @@ export function useSuspenseOrdersOrderId(
   return useSuspenseQuery({ ...getOrdersOrderIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /orders/{orderId} infinite query key */
+/**
+ * GET /orders/{orderId} infinite query key
+ */
 export function getOrdersOrderIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
@@ -1106,7 +1158,9 @@ export function useSuspenseInfiniteOrdersOrderId(
   })
 }
 
-/** GET /categories query key */
+/**
+ * GET /categories query key
+ */
 export function getCategoriesQueryKey() {
   return ['categories', '/categories'] as const
 }
@@ -1152,7 +1206,9 @@ export function useSuspenseCategories(options?: {
   return useSuspenseQuery({ ...getCategoriesQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /categories infinite query key */
+/**
+ * GET /categories infinite query key
+ */
 export function getCategoriesInfiniteQueryKey() {
   return ['categories', '/categories', 'infinite'] as const
 }
@@ -1204,7 +1260,9 @@ export async function postUploadImage(
   return await parseResponse(client.upload.image.$post(args, options))
 }
 
-/** POST /upload/image */
+/**
+ * POST /upload/image
+ */
 export function getPostUploadImageMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['upload', '/upload/image'] as const,

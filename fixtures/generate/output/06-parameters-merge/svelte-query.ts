@@ -14,12 +14,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** GET /items/{itemId} query key */
+/**
+ * GET /items/{itemId} query key
+ */
 export function getItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -68,7 +72,9 @@ export function createItemsItemId(
   })
 }
 
-/** GET /items/{itemId} infinite query key */
+/**
+ * GET /items/{itemId} infinite query key
+ */
 export function getItemsItemIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -117,7 +123,9 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-/** PUT /items/{itemId} */
+/**
+ * PUT /items/{itemId}
+ */
 export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId'] as const,
@@ -156,7 +164,9 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-/** DELETE /items/{itemId} */
+/**
+ * DELETE /items/{itemId}
+ */
 export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId'] as const,
@@ -185,7 +195,9 @@ export function createDeleteItemsItemId(
   })
 }
 
-/** GET /items query key */
+/**
+ * GET /items query key
+ */
 export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
 }
@@ -231,7 +243,9 @@ export function createItems(
   })
 }
 
-/** GET /items infinite query key */
+/**
+ * GET /items infinite query key
+ */
 export function getItemsInfiniteQueryKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args, 'infinite'] as const
 }

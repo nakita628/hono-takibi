@@ -63,17 +63,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono */
+/**
+ * Key prefix for /hono
+ */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /hono query key */
+/**
+ * GET /hono query key
+ */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
@@ -123,7 +129,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/** GET /hono infinite query key */
+/**
+ * GET /hono infinite query key
+ */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
@@ -148,7 +156,9 @@ export function useInfiniteGetHono(options: {
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -210,7 +220,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -314,12 +326,16 @@ export * from './postUsers'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'swr', '_keys.ts'), 'utf-8')
-      expect(keys).toBe(`/** Key prefix for /hono */
+      expect(keys).toBe(`/**
+ * Key prefix for /hono
+ */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
@@ -336,7 +352,9 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /hono query key */
+/**
+ * GET /hono query key
+ */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
@@ -386,7 +404,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/** GET /hono infinite query key */
+/**
+ * GET /hono infinite query key
+ */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
@@ -423,7 +443,9 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -485,7 +507,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -613,12 +637,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey() {
   return ['users', '/users'] as const
 }
@@ -662,7 +690,9 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
@@ -733,12 +763,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /ping */
+/**
+ * Key prefix for /ping
+ */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/** GET /ping query key */
+/**
+ * GET /ping query key
+ */
 export function getGetPingKey() {
   return ['ping', '/ping'] as const
 }
@@ -782,7 +816,9 @@ export function useImmutableGetPing(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
-/** GET /ping infinite query key */
+/**
+ * GET /ping infinite query key
+ */
 export function getGetPingInfiniteKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
@@ -878,12 +914,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono-x */
+/**
+ * Key prefix for /hono-x
+ */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/** GET /hono-x query key */
+/**
+ * GET /hono-x query key
+ */
 export function getGetHonoXKey() {
   return ['hono-x', '/hono-x'] as const
 }
@@ -927,7 +967,9 @@ export function useImmutableGetHonoX(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 
-/** GET /hono-x infinite query key */
+/**
+ * GET /hono-x infinite query key
+ */
 export function getGetHonoXInfiniteKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
@@ -999,12 +1041,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users/{id} query key */
+/**
+ * GET /users/{id} query key
+ */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
@@ -1060,7 +1106,9 @@ export function useImmutableGetUsersId(
   }
 }
 
-/** GET /users/{id} infinite query key */
+/**
+ * GET /users/{id} infinite query key
+ */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
@@ -1193,12 +1241,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono */
+/**
+ * Key prefix for /hono
+ */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/** GET /hono query key */
+/**
+ * GET /hono query key
+ */
 export function getGetHonoKey() {
   return ['hono', '/hono'] as const
 }
@@ -1242,7 +1294,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/** GET /hono infinite query key */
+/**
+ * GET /hono infinite query key
+ */
 export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
@@ -1307,12 +1361,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getGetUsersKey() {
   return ['users', '/users'] as const
 }
@@ -1356,7 +1414,9 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }

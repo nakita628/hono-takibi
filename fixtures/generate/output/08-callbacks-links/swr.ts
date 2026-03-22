@@ -9,12 +9,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /subscriptions */
+/**
+ * Key prefix for /subscriptions
+ */
 export function getSubscriptionsKey() {
   return ['subscriptions'] as const
 }
 
-/** Key prefix for /webhooks */
+/**
+ * Key prefix for /webhooks
+ */
 export function getWebhooksKey() {
   return ['webhooks'] as const
 }
@@ -55,7 +59,9 @@ export function usePostSubscriptions(options?: {
   }
 }
 
-/** GET /subscriptions/{id} query key */
+/**
+ * GET /subscriptions/{id} query key
+ */
 export function getGetSubscriptionsIdKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
@@ -110,7 +116,9 @@ export function useImmutableGetSubscriptionsId(
   }
 }
 
-/** GET /subscriptions/{id} infinite query key */
+/**
+ * GET /subscriptions/{id} infinite query key
+ */
 export function getGetSubscriptionsIdInfiniteKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {

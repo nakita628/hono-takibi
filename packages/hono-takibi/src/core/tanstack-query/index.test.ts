@@ -72,17 +72,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono */
+/**
+ * Key prefix for /hono
+ */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /hono query key */
+/**
+ * GET /hono query key
+ */
 export function getHonoQueryKey() {
   return ['hono', '/hono'] as const
 }
@@ -140,7 +146,9 @@ export function useSuspenseHono(options?: {
   return useSuspenseQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /hono infinite query key */
+/**
+ * GET /hono infinite query key
+ */
 export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
@@ -190,7 +198,9 @@ export function useSuspenseInfiniteHono(options: {
   })
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -260,7 +270,9 @@ export function useSuspenseUsers(
   return useSuspenseQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -333,7 +345,9 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/** POST /users */
+/**
+ * POST /users
+ */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users'] as const,
@@ -396,12 +410,16 @@ export * from './postUsers'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
-      const keysExpected = `/** Key prefix for /hono */
+      const keysExpected = `/**
+ * Key prefix for /hono
+ */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
@@ -428,7 +446,9 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /hono query key */
+/**
+ * GET /hono query key
+ */
 export function getHonoQueryKey() {
   return ['hono', '/hono'] as const
 }
@@ -486,7 +506,9 @@ export function useSuspenseHono(options?: {
   return useSuspenseQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /hono infinite query key */
+/**
+ * GET /hono infinite query key
+ */
 export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
@@ -558,7 +580,9 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -628,7 +652,9 @@ export function useSuspenseUsers(
   return useSuspenseQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
@@ -711,7 +737,9 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/** POST /users */
+/**
+ * POST /users
+ */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users'] as const,
@@ -795,12 +823,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey() {
   return ['users', '/users'] as const
 }
@@ -852,7 +884,9 @@ export function useSuspenseUsers(options?: {
   return useSuspenseQuery({ ...getUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
@@ -956,12 +990,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /ping */
+/**
+ * Key prefix for /ping
+ */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/** GET /ping query key */
+/**
+ * GET /ping query key
+ */
 export function getPingQueryKey() {
   return ['ping', '/ping'] as const
 }
@@ -1013,7 +1051,9 @@ export function useSuspensePing(options?: {
   return useSuspenseQuery({ ...getPingQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /ping infinite query key */
+/**
+ * GET /ping infinite query key
+ */
 export function getPingInfiniteQueryKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
@@ -1068,7 +1108,9 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/** POST /ping */
+/**
+ * POST /ping
+ */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['ping', '/ping'] as const,
@@ -1141,12 +1183,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /hono-x */
+/**
+ * Key prefix for /hono-x
+ */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/** GET /hono-x query key */
+/**
+ * GET /hono-x query key
+ */
 export function getHonoXQueryKey() {
   return ['hono-x', '/hono-x'] as const
 }
@@ -1198,7 +1244,9 @@ export function useSuspenseHonoX(options?: {
   return useSuspenseQuery({ ...getHonoXQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /hono-x infinite query key */
+/**
+ * GET /hono-x infinite query key
+ */
 export function getHonoXInfiniteQueryKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
@@ -1303,12 +1351,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users/{id} query key */
+/**
+ * GET /users/{id} query key
+ */
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
@@ -1372,7 +1424,9 @@ export function useSuspenseUsersId(
   return useSuspenseQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
-/** GET /users/{id} infinite query key */
+/**
+ * GET /users/{id} infinite query key
+ */
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
@@ -1444,7 +1498,9 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/** DELETE /users/{id} */
+/**
+ * DELETE /users/{id}
+ */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
     mutationKey: ['users', '/users/:id'] as const,

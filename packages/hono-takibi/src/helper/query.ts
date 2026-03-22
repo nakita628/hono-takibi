@@ -179,10 +179,10 @@ function makeQueryKeyGetterCode(
   // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `/** GET ${safeCommentPath} query key */
+      return `/**\n * GET ${safeCommentPath} query key\n */
 export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
     }
-    return `/** GET ${safeCommentPathNoParam} query key */
+    return `/**\n * GET ${safeCommentPathNoParam} query key\n */
 export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
   }
 
@@ -192,10 +192,10 @@ export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
     const body = hasHeader
       ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs]as const`
       : `return['${prefix}','${honoPath}',args]as const`
-    return `/** GET ${safeCommentPath} query key */
+    return `/**\n * GET ${safeCommentPath} query key\n */
 export function ${keyGetterName}(args:${argsType}){${body}}`
   }
-  return `/** GET ${safeCommentPathNoParam} query key */
+  return `/**\n * GET ${safeCommentPathNoParam} query key\n */
 export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
 }
 
@@ -219,10 +219,10 @@ function makeInfiniteQueryKeyGetterCode(
   // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `/** GET ${safeCommentPath} infinite query key */
+      return `/**\n * GET ${safeCommentPath} infinite query key\n */
 export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
     }
-    return `/** GET ${safeCommentPathNoParam} infinite query key */
+    return `/**\n * GET ${safeCommentPathNoParam} infinite query key\n */
 export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
   }
 
@@ -231,10 +231,10 @@ export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']a
     const infBody = hasHeader
       ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs,'infinite']as const`
       : `return['${prefix}','${honoPath}',args,'infinite']as const`
-    return `/** GET ${safeCommentPath} infinite query key */
+    return `/**\n * GET ${safeCommentPath} infinite query key\n */
 export function ${keyGetterName}(args:${argsType}){${infBody}}`
   }
-  return `/** GET ${safeCommentPathNoParam} infinite query key */
+  return `/**\n * GET ${safeCommentPathNoParam} infinite query key\n */
 export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
 }
 
@@ -654,7 +654,7 @@ export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryO
  */
 function makePrefixKeyCode(prefix: string): string {
   const funcName = `get${toIdentifierPascalCase(prefix)}Key`
-  return `/** Key prefix for /${prefix} */
+  return `/**\n * Key prefix for /${prefix}\n */
 export function ${funcName}(){return['${prefix}']as const}`
 }
 
@@ -721,14 +721,14 @@ function makeMutationOptionsGetterCode(
     const returnExpr = config.hasMutationOptionsHelper
       ? `mutationOptions({${bodyContent}})`
       : `{${bodyContent}}`
-    return `/** ${methodUpper} ${safeCommentPath} */
+    return `/**\n * ${methodUpper} ${safeCommentPath}\n */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
   }
   const bodyContent = `mutationKey:${inlineKey},async mutationFn(){return ${parseResponseFuncName}(options)}`
   const returnExpr = config.hasMutationOptionsHelper
     ? `mutationOptions({${bodyContent}})`
     : `{${bodyContent}}`
-  return `/** ${methodUpper} ${safeCommentPath} */
+  return `/**\n * ${methodUpper} ${safeCommentPath}\n */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 

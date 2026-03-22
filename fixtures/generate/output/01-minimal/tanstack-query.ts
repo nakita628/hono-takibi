@@ -16,12 +16,16 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /health */
+/**
+ * Key prefix for /health
+ */
 export function getHealthKey() {
   return ['health'] as const
 }
 
-/** GET /health query key */
+/**
+ * GET /health query key
+ */
 export function getHealthQueryKey() {
   return ['health', '/health'] as const
 }
@@ -67,7 +71,9 @@ export function useSuspenseHealth(options?: {
   return useSuspenseQuery({ ...getHealthQueryOptions(clientOptions), ...queryOptions })
 }
 
-/** GET /health infinite query key */
+/**
+ * GET /health infinite query key
+ */
 export function getHealthInfiniteQueryKey() {
   return ['health', '/health', 'infinite'] as const
 }

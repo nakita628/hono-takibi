@@ -9,17 +9,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /graph */
+/**
+ * Key prefix for /graph
+ */
 export function getGraphKey() {
   return ['graph'] as const
 }
 
-/** Key prefix for /tree */
+/**
+ * Key prefix for /tree
+ */
 export function getTreeKey() {
   return ['tree'] as const
 }
 
-/** GET /tree query key */
+/**
+ * GET /tree query key
+ */
 export function getGetTreeKey() {
   return ['tree', '/tree'] as const
 }
@@ -57,7 +63,9 @@ export function useImmutableGetTree(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTree(clientOptions), restSwrOptions) }
 }
 
-/** GET /tree infinite query key */
+/**
+ * GET /tree infinite query key
+ */
 export function getGetTreeInfiniteKey() {
   return ['tree', '/tree', 'infinite'] as const
 }
@@ -114,7 +122,9 @@ export function usePostTree(options?: {
   }
 }
 
-/** GET /graph query key */
+/**
+ * GET /graph query key
+ */
 export function getGetGraphKey() {
   return ['graph', '/graph'] as const
 }
@@ -152,7 +162,9 @@ export function useImmutableGetGraph(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getGraph(clientOptions), restSwrOptions) }
 }
 
-/** GET /graph infinite query key */
+/**
+ * GET /graph infinite query key
+ */
 export function getGetGraphInfiniteKey() {
   return ['graph', '/graph', 'infinite'] as const
 }

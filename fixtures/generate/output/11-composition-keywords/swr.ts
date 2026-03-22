@@ -9,62 +9,86 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /all-of */
+/**
+ * Key prefix for /all-of
+ */
 export function getAllOfKey() {
   return ['all-of'] as const
 }
 
-/** Key prefix for /all-of-sibling */
+/**
+ * Key prefix for /all-of-sibling
+ */
 export function getAllOfSiblingKey() {
   return ['all-of-sibling'] as const
 }
 
-/** Key prefix for /any-of */
+/**
+ * Key prefix for /any-of
+ */
 export function getAnyOfKey() {
   return ['any-of'] as const
 }
 
-/** Key prefix for /any-of-ref */
+/**
+ * Key prefix for /any-of-ref
+ */
 export function getAnyOfRefKey() {
   return ['any-of-ref'] as const
 }
 
-/** Key prefix for /any-of-three */
+/**
+ * Key prefix for /any-of-three
+ */
 export function getAnyOfThreeKey() {
   return ['any-of-three'] as const
 }
 
-/** Key prefix for /not */
+/**
+ * Key prefix for /not
+ */
 export function getNotKey() {
   return ['not'] as const
 }
 
-/** Key prefix for /not-composition */
+/**
+ * Key prefix for /not-composition
+ */
 export function getNotCompositionKey() {
   return ['not-composition'] as const
 }
 
-/** Key prefix for /not-const */
+/**
+ * Key prefix for /not-const
+ */
 export function getNotConstKey() {
   return ['not-const'] as const
 }
 
-/** Key prefix for /not-enum */
+/**
+ * Key prefix for /not-enum
+ */
 export function getNotEnumKey() {
   return ['not-enum'] as const
 }
 
-/** Key prefix for /not-ref */
+/**
+ * Key prefix for /not-ref
+ */
 export function getNotRefKey() {
   return ['not-ref'] as const
 }
 
-/** Key prefix for /nullable-one-of */
+/**
+ * Key prefix for /nullable-one-of
+ */
 export function getNullableOneOfKey() {
   return ['nullable-one-of'] as const
 }
 
-/** Key prefix for /one-of */
+/**
+ * Key prefix for /one-of
+ */
 export function getOneOfKey() {
   return ['one-of'] as const
 }
@@ -213,7 +237,9 @@ export function usePostNot(options?: {
   }
 }
 
-/** GET /not-ref query key */
+/**
+ * GET /not-ref query key
+ */
 export function getGetNotRefKey() {
   return ['not-ref', '/not-ref'] as const
 }
@@ -254,7 +280,9 @@ export function useImmutableGetNotRef(options?: {
   }
 }
 
-/** GET /not-ref infinite query key */
+/**
+ * GET /not-ref infinite query key
+ */
 export function getGetNotRefInfiniteKey() {
   return ['not-ref', '/not-ref', 'infinite'] as const
 }
@@ -275,7 +303,9 @@ export function useInfiniteGetNotRef(options: {
   return useSWRInfinite(keyLoader, async () => getNotRef(clientOptions), restSwrOptions)
 }
 
-/** GET /not-enum query key */
+/**
+ * GET /not-enum query key
+ */
 export function getGetNotEnumKey() {
   return ['not-enum', '/not-enum'] as const
 }
@@ -316,7 +346,9 @@ export function useImmutableGetNotEnum(options?: {
   }
 }
 
-/** GET /not-enum infinite query key */
+/**
+ * GET /not-enum infinite query key
+ */
 export function getGetNotEnumInfiniteKey() {
   return ['not-enum', '/not-enum', 'infinite'] as const
 }
@@ -337,7 +369,9 @@ export function useInfiniteGetNotEnum(options: {
   return useSWRInfinite(keyLoader, async () => getNotEnum(clientOptions), restSwrOptions)
 }
 
-/** GET /not-const query key */
+/**
+ * GET /not-const query key
+ */
 export function getGetNotConstKey() {
   return ['not-const', '/not-const'] as const
 }
@@ -378,7 +412,9 @@ export function useImmutableGetNotConst(options?: {
   }
 }
 
-/** GET /not-const infinite query key */
+/**
+ * GET /not-const infinite query key
+ */
 export function getGetNotConstInfiniteKey() {
   return ['not-const', '/not-const', 'infinite'] as const
 }
@@ -399,7 +435,9 @@ export function useInfiniteGetNotConst(options: {
   return useSWRInfinite(keyLoader, async () => getNotConst(clientOptions), restSwrOptions)
 }
 
-/** GET /not-composition query key */
+/**
+ * GET /not-composition query key
+ */
 export function getGetNotCompositionKey() {
   return ['not-composition', '/not-composition'] as const
 }
@@ -440,7 +478,9 @@ export function useImmutableGetNotComposition(options?: {
   }
 }
 
-/** GET /not-composition infinite query key */
+/**
+ * GET /not-composition infinite query key
+ */
 export function getGetNotCompositionInfiniteKey() {
   return ['not-composition', '/not-composition', 'infinite'] as const
 }
@@ -461,7 +501,9 @@ export function useInfiniteGetNotComposition(options: {
   return useSWRInfinite(keyLoader, async () => getNotComposition(clientOptions), restSwrOptions)
 }
 
-/** GET /all-of-sibling query key */
+/**
+ * GET /all-of-sibling query key
+ */
 export function getGetAllOfSiblingKey() {
   return ['all-of-sibling', '/all-of-sibling'] as const
 }
@@ -502,7 +544,9 @@ export function useImmutableGetAllOfSibling(options?: {
   }
 }
 
-/** GET /all-of-sibling infinite query key */
+/**
+ * GET /all-of-sibling infinite query key
+ */
 export function getGetAllOfSiblingInfiniteKey() {
   return ['all-of-sibling', '/all-of-sibling', 'infinite'] as const
 }
@@ -523,7 +567,9 @@ export function useInfiniteGetAllOfSibling(options: {
   return useSWRInfinite(keyLoader, async () => getAllOfSibling(clientOptions), restSwrOptions)
 }
 
-/** GET /nullable-one-of query key */
+/**
+ * GET /nullable-one-of query key
+ */
 export function getGetNullableOneOfKey() {
   return ['nullable-one-of', '/nullable-one-of'] as const
 }
@@ -564,7 +610,9 @@ export function useImmutableGetNullableOneOf(options?: {
   }
 }
 
-/** GET /nullable-one-of infinite query key */
+/**
+ * GET /nullable-one-of infinite query key
+ */
 export function getGetNullableOneOfInfiniteKey() {
   return ['nullable-one-of', '/nullable-one-of', 'infinite'] as const
 }
@@ -585,7 +633,9 @@ export function useInfiniteGetNullableOneOf(options: {
   return useSWRInfinite(keyLoader, async () => getNullableOneOf(clientOptions), restSwrOptions)
 }
 
-/** GET /any-of-three query key */
+/**
+ * GET /any-of-three query key
+ */
 export function getGetAnyOfThreeKey() {
   return ['any-of-three', '/any-of-three'] as const
 }
@@ -626,7 +676,9 @@ export function useImmutableGetAnyOfThree(options?: {
   }
 }
 
-/** GET /any-of-three infinite query key */
+/**
+ * GET /any-of-three infinite query key
+ */
 export function getGetAnyOfThreeInfiniteKey() {
   return ['any-of-three', '/any-of-three', 'infinite'] as const
 }
@@ -647,7 +699,9 @@ export function useInfiniteGetAnyOfThree(options: {
   return useSWRInfinite(keyLoader, async () => getAnyOfThree(clientOptions), restSwrOptions)
 }
 
-/** GET /any-of-ref query key */
+/**
+ * GET /any-of-ref query key
+ */
 export function getGetAnyOfRefKey() {
   return ['any-of-ref', '/any-of-ref'] as const
 }
@@ -688,7 +742,9 @@ export function useImmutableGetAnyOfRef(options?: {
   }
 }
 
-/** GET /any-of-ref infinite query key */
+/**
+ * GET /any-of-ref infinite query key
+ */
 export function getGetAnyOfRefInfiniteKey() {
   return ['any-of-ref', '/any-of-ref', 'infinite'] as const
 }

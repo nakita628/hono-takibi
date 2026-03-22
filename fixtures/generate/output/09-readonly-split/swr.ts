@@ -9,17 +9,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /posts */
+/**
+ * Key prefix for /posts
+ */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/** Key prefix for /tags */
+/**
+ * Key prefix for /tags
+ */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/** GET /posts query key */
+/**
+ * GET /posts query key
+ */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args] as const
 }
@@ -69,7 +75,9 @@ export function useImmutableGetPosts(
   }
 }
 
-/** GET /posts infinite query key */
+/**
+ * GET /posts infinite query key
+ */
 export function getGetPostsInfiniteKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args, 'infinite'] as const
 }
@@ -129,7 +137,9 @@ export function usePostPosts(options?: {
   }
 }
 
-/** GET /posts/{id} query key */
+/**
+ * GET /posts/{id} query key
+ */
 export function getGetPostsIdKey(args: InferRequestType<(typeof client.posts)[':id']['$get']>) {
   return ['posts', '/posts/:id', args] as const
 }
@@ -179,7 +189,9 @@ export function useImmutableGetPostsId(
   }
 }
 
-/** GET /posts/{id} infinite query key */
+/**
+ * GET /posts/{id} infinite query key
+ */
 export function getGetPostsIdInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
 ) {
@@ -277,7 +289,9 @@ export function useDeletePostsId(options?: {
   }
 }
 
-/** GET /posts/{id}/comments query key */
+/**
+ * GET /posts/{id}/comments query key
+ */
 export function getGetPostsIdCommentsKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
@@ -332,7 +346,9 @@ export function useImmutableGetPostsIdComments(
   }
 }
 
-/** GET /posts/{id}/comments infinite query key */
+/**
+ * GET /posts/{id}/comments infinite query key
+ */
 export function getGetPostsIdCommentsInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
@@ -401,7 +417,9 @@ export function usePostPostsIdComments(options?: {
   }
 }
 
-/** GET /tags query key */
+/**
+ * GET /tags query key
+ */
 export function getGetTagsKey() {
   return ['tags', '/tags'] as const
 }
@@ -439,7 +457,9 @@ export function useImmutableGetTags(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/** GET /tags infinite query key */
+/**
+ * GET /tags infinite query key
+ */
 export function getGetTagsInfiniteKey() {
   return ['tags', '/tags', 'infinite'] as const
 }

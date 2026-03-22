@@ -14,17 +14,23 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/** Key prefix for /items */
+/**
+ * Key prefix for /items
+ */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/** Key prefix for /users */
+/**
+ * Key prefix for /users
+ */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/** GET /users query key */
+/**
+ * GET /users query key
+ */
 export function getUsersQueryKey() {
   return ['users', '/users'] as const
 }
@@ -67,7 +73,9 @@ export function createUsers(
   })
 }
 
-/** GET /users infinite query key */
+/**
+ * GET /users infinite query key
+ */
 export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
@@ -113,7 +121,9 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/** POST /users */
+/**
+ * POST /users
+ */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users'] as const,
@@ -144,7 +154,9 @@ export function createPostUsers(
   })
 }
 
-/** GET /users/{id} query key */
+/**
+ * GET /users/{id} query key
+ */
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
@@ -194,7 +206,9 @@ export function createUsersId(
   })
 }
 
-/** GET /users/{id} infinite query key */
+/**
+ * GET /users/{id} infinite query key
+ */
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
@@ -246,7 +260,9 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-/** PUT /users/{id} */
+/**
+ * PUT /users/{id}
+ */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id'] as const,
@@ -277,7 +293,9 @@ export function createPutUsersId(
   })
 }
 
-/** GET /items query key */
+/**
+ * GET /items query key
+ */
 export function getItemsQueryKey() {
   return ['items', '/items'] as const
 }
@@ -320,7 +338,9 @@ export function createItems(
   })
 }
 
-/** GET /items infinite query key */
+/**
+ * GET /items infinite query key
+ */
 export function getItemsInfiniteQueryKey() {
   return ['items', '/items', 'infinite'] as const
 }
