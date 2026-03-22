@@ -348,3 +348,68 @@ export function operationHasArgs(
 
   return hasParams || hasBody
 }
+
+/**
+ * Common pagination parameter names (case-insensitive matching).
+ *
+ * @see https://tanstack.com/query/latest/docs/framework/react/guides/infinite-queries
+ */
+const PAGINATION_PARAM_NAMES = new Set([
+  'page',
+  'pagesize',
+  'page_size',
+  'per_page',
+  'perpage',
+  'offset',
+  'limit',
+  'cursor',
+  'after',
+  'before',
+  'next_token',
+  'nexttoken',
+  'continuation_token',
+  'continuationtoken',
+  'starting_after',
+  'startingafter',
+  'ending_before',
+  'endingbefore',
+  'skip',
+  'take',
+  'from',
+  'size',
+  'start',
+  'count',
+  'page_token',
+  'pagetoken',
+  'marker',
+  'max_results',
+  'maxresults',
+])
+
+/**
+ * Check if operation has pagination query parameters.
+ *
+ * Used to determine whether infinite query hooks should be generated.
+ * Only generates infinite query hooks for endpoints that have
+ * pagination-related query parameters.
+ */
+export function operationHasPaginationParams(
+  item: PathItemLike,
+  op: {
+    summary?: string
+    description?: string
+    parameters?: unknown
+    requestBody?: unknown
+    responses?: unknown
+  },
+  deps: {
+    toParameterLikes: (
+      arr?: unknown,
+    ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
+  },
+): boolean {
+  const pathLevelParams = deps.toParameterLikes(item.parameters)
+  const opParams = deps.toParameterLikes(op.parameters)
+  const queryParams = [...pathLevelParams, ...opParams].filter((p) => p.in === 'query')
+  return queryParams.some((p) => PAGINATION_PARAM_NAMES.has(p.name.toLowerCase()))
+}

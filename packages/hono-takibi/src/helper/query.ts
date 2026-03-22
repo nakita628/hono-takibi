@@ -13,6 +13,7 @@ import {
   hasNoContentResponse,
   makeOperationDeps,
   operationHasArgs,
+  operationHasPaginationParams,
   parsePathItem,
   resolveSplitOutDir,
 } from './index.js'
@@ -460,7 +461,11 @@ function makeInfiniteQueryOptionsGetterCode(
   hasArgs: boolean,
   argsType: string,
   parseResponseFuncName: string,
-  config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
+  config: {
+    readonly frameworkName: string
+    readonly isVueQuery?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
+  },
 ): string {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
 
@@ -468,7 +473,10 @@ function makeInfiniteQueryOptionsGetterCode(
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
-    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return{${bodyContent}}}`
+    const returnExpr = config.hasInfiniteQueryOptionsHelper
+      ? `infiniteQueryOptions({${bodyContent}})`
+      : `{${bodyContent}}`
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
   }
 
   const fetcherCall = hasArgs
@@ -476,11 +484,14 @@ function makeInfiniteQueryOptionsGetterCode(
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
 
   const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  const returnExpr = config.hasInfiniteQueryOptionsHelper
+    ? `infiniteQueryOptions({${bodyContent}})`
+    : `{${bodyContent}}`
 
   if (hasArgs) {
-    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return{${bodyContent}}}`
+    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
   }
-  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return{${bodyContent}}}`
+  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 
 /* ─────────────────────────────── Infinite Query Hook Code ─────────────────────────────── */
@@ -674,6 +685,7 @@ function makeSWRHeader(
   hasQuery: boolean,
   hasMutation: boolean,
   hasAnyArgs: boolean,
+  hasInfiniteQuery = false,
 ): string {
   const lines: string[] = []
 
@@ -682,8 +694,10 @@ function makeSWRHeader(
     lines.push("import useSWR from'swr'")
     lines.push("import useSWRImmutable from'swr/immutable'")
     lines.push("import type{Key,SWRConfiguration}from'swr'")
-    lines.push("import useSWRInfinite from'swr/infinite'")
-    lines.push("import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'")
+    if (hasInfiniteQuery) {
+      lines.push("import useSWRInfinite from'swr/infinite'")
+      lines.push("import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'")
+    }
   } else if (hasMutation) {
     // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
@@ -791,6 +805,7 @@ function makeHookCode(
     readonly isSWR?: boolean
     readonly hasQueryOptionsHelper?: boolean
     readonly hasMutationOptionsHelper?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly suspenseQueryFn?: string
     readonly infiniteQueryFn?: string
     readonly suspenseInfiniteQueryFn?: string
@@ -801,7 +816,13 @@ function makeHookCode(
     readonly immutableQueryFn?: string
   },
   clientName: string,
-): { code: string; isQuery: boolean; hasArgs: boolean; parseResponseFuncName: string } | null {
+): {
+  code: string
+  isQuery: boolean
+  hasArgs: boolean
+  hasInfinite: boolean
+  parseResponseFuncName: string
+} | null {
   const op = item[method]
   if (!isOperationLike(op)) return null
 
@@ -813,6 +834,9 @@ function makeHookCode(
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
   const hasHeaderArgs = [...pathLevelParams, ...opParams].some((p) => p.in === 'header')
+
+  // Detect pagination parameters for conditional infinite query generation
+  const hasPagination = isQuery && operationHasPaginationParams(item, op, deps)
 
   // parseResponse function name (same naming as parseResponse/ generator)
   const parseResponseFuncName = methodPath(method, pathStr)
@@ -865,26 +889,30 @@ function makeHookCode(
             config.immutableQueryFn,
           )
         : null
-      // Infinite query support
+      // Infinite query support (only for endpoints with pagination parameters)
       const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, true)
-      const infiniteKeyGetterCode = makeInfiniteQueryKeyGetterCode(
-        infiniteKeyGetterName,
-        hasArgs,
-        argsType,
-        honoPath,
-        config,
-        hasHeaderArgs,
-      )
+      const infiniteKeyGetterCode = hasPagination
+        ? makeInfiniteQueryKeyGetterCode(
+            infiniteKeyGetterName,
+            hasArgs,
+            argsType,
+            honoPath,
+            config,
+            hasHeaderArgs,
+          )
+        : null
       const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(parseResponseFuncName)}`
-      const infiniteHookCode = makeSWRInfiniteHookCode(
-        infiniteHookName,
-        infiniteKeyGetterName,
-        hasArgs,
-        argsType,
-        responseType,
-        parseResponseFuncName,
-        config.errorType,
-      )
+      const infiniteHookCode = hasPagination
+        ? makeSWRInfiniteHookCode(
+            infiniteHookName,
+            infiniteKeyGetterName,
+            hasArgs,
+            argsType,
+            responseType,
+            parseResponseFuncName,
+            config.errorType,
+          )
+        : null
       // Order: key → wrapper → hook → immutableHook → infiniteKey → infiniteHook
       const parts = [
         keyGetterCode,
@@ -898,6 +926,7 @@ function makeHookCode(
         code: parts.join('\n\n'),
         isQuery: true,
         hasArgs,
+        hasInfinite: hasPagination,
         parseResponseFuncName,
       }
     }
@@ -919,6 +948,7 @@ function makeHookCode(
       code: `${wrapperCode}\n\n${hookCode}`,
       isQuery: false,
       hasArgs,
+      hasInfinite: false,
       parseResponseFuncName,
     }
   }
@@ -955,12 +985,12 @@ function makeHookCode(
       responseType,
       config,
     )
-    // Generate infinite query key getter (only when infinite query hooks are enabled)
+    // Generate infinite query key getter (only when infinite query hooks are enabled AND endpoint has pagination params)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
     const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
 
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
-    const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
+    const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType && hasPagination)
     const infiniteKeyGetterCode = hasInfinite
       ? makeInfiniteQueryKeyGetterCode(
           infiniteKeyGetterName,
@@ -1059,6 +1089,7 @@ function makeHookCode(
       code: parts.join('\n\n'),
       isQuery: true,
       hasArgs,
+      hasInfinite,
       parseResponseFuncName,
     }
   }
@@ -1088,6 +1119,7 @@ function makeHookCode(
     code: `${wrapperCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
     isQuery: false,
     hasArgs,
+    hasInfinite: false,
     parseResponseFuncName,
   }
 }
@@ -1110,6 +1142,7 @@ function makeHookCodes(
     readonly isSWR?: boolean
     readonly hasQueryOptionsHelper?: boolean
     readonly hasMutationOptionsHelper?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly suspenseQueryFn?: string
     readonly infiniteQueryFn?: string
     readonly suspenseInfiniteQueryFn?: string
@@ -1125,6 +1158,7 @@ function makeHookCodes(
   code: string
   isQuery: boolean
   hasArgs: boolean
+  hasInfinite: boolean
   parseResponseFuncName: string
 }[] {
   return Object.entries(paths)
@@ -1141,6 +1175,7 @@ function makeHookCodes(
                 code: result.code,
                 isQuery: result.isQuery,
                 hasArgs: result.hasArgs,
+                hasInfinite: result.hasInfinite,
                 parseResponseFuncName: result.parseResponseFuncName,
               }
             : null
@@ -1153,6 +1188,7 @@ function makeHookCodes(
             code: string
             isQuery: boolean
             hasArgs: boolean
+            hasInfinite: boolean
             parseResponseFuncName: string
           } => item !== null,
         )
@@ -1187,6 +1223,7 @@ function makeHeader(
     readonly isSWR?: boolean
     readonly hasQueryOptionsHelper?: boolean
     readonly hasMutationOptionsHelper?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly suspenseQueryFn?: string
     readonly infiniteQueryFn?: string
     readonly suspenseInfiniteQueryFn?: string
@@ -1196,19 +1233,21 @@ function makeHeader(
     readonly immutableQueryFn?: string
   },
   hasQueryWithArgs = false,
+  hasInfiniteQuery = false,
 ): string {
   // SWR has different import structure
   if (config.isSWR) {
-    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs)
+    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs, hasInfiniteQuery)
   }
 
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasQuery && config.suspenseQueryFn ? [config.suspenseQueryFn] : []),
-    ...(hasQuery && config.infiniteQueryFn ? [config.infiniteQueryFn] : []),
-    ...(hasQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
+    ...(hasInfiniteQuery && config.infiniteQueryFn ? [config.infiniteQueryFn] : []),
+    ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
     ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
+    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
 
@@ -1216,8 +1255,10 @@ function makeHeader(
   const typeImports = [
     ...(hasQuery ? [config.useQueryOptionsType, 'QueryFunctionContext'] : []),
     ...(hasQuery && config.useSuspenseQueryOptionsType ? [config.useSuspenseQueryOptionsType] : []),
-    ...(hasQuery && config.useInfiniteQueryOptionsType ? [config.useInfiniteQueryOptionsType] : []),
-    ...(hasQuery && config.useSuspenseInfiniteQueryOptionsType
+    ...(hasInfiniteQuery && config.useInfiniteQueryOptionsType
+      ? [config.useInfiniteQueryOptionsType]
+      : []),
+    ...(hasInfiniteQuery && config.useSuspenseInfiniteQueryOptionsType
       ? [config.useSuspenseInfiniteQueryOptionsType]
       : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
@@ -1281,6 +1322,7 @@ export async function makeQueryHooks(
     readonly isSWR?: boolean
     readonly hasQueryOptionsHelper?: boolean
     readonly hasMutationOptionsHelper?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly suspenseQueryFn?: string
     readonly infiniteQueryFn?: string
     readonly suspenseInfiniteQueryFn?: string
@@ -1317,6 +1359,7 @@ export async function makeQueryHooks(
     const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
     const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
     const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
+    const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
     const header = makeHeader(
       importPath,
       clientName,
@@ -1325,6 +1368,7 @@ export async function makeQueryHooks(
       hasAnyArgs,
       config,
       hasQueryWithArgs,
+      hasInfiniteQuery,
     )
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
@@ -1358,7 +1402,7 @@ export async function makeQueryHooks(
           ),
         ]
       : []),
-    ...hookCodes.map(({ parseResponseFuncName, code, isQuery, hasArgs }) => {
+    ...hookCodes.map(({ parseResponseFuncName, code, isQuery, hasArgs, hasInfinite }) => {
       const hasQueryWithArgs = isQuery && hasArgs
       const header = makeHeader(
         importPath,
@@ -1368,6 +1412,7 @@ export async function makeQueryHooks(
         hasArgs,
         config,
         hasQueryWithArgs,
+        hasInfinite,
       )
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${parseResponseFuncName}.ts`)

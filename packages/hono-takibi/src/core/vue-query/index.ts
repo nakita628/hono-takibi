@@ -39,6 +39,7 @@ export async function vueQuery(
       ? {
           infiniteQueryFn: 'useInfiniteQuery',
           useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+          hasInfiniteQueryOptionsHelper: true,
         }
       : {}),
   }

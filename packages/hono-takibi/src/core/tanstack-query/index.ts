@@ -42,6 +42,7 @@ export async function tanstackQuery(
           suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
           useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
           useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
+          hasInfiniteQueryOptionsHelper: true,
         }
       : {}),
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',

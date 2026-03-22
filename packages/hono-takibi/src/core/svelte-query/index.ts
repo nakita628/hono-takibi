@@ -41,6 +41,8 @@ export async function svelteQuery(
       ? {
           infiniteQueryFn: 'createInfiniteQuery',
           useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
+
+          hasInfiniteQueryOptionsHelper: true,
         }
       : {}),
   }
