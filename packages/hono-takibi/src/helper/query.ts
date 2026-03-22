@@ -99,12 +99,14 @@ function makeParseResponseWrapperCode(
  *
  * @param method - HTTP method
  * @param pathStr - API path
- * @param isSWR - Whether to use SWR naming (no "Query" suffix)
- * @returns Query key getter function name (e.g., "getGetUsersQueryKey" or "getGetUsersKey")
+ * @param isSWR - Whether to use SWR naming (keeps method prefix, no "Query" suffix)
+ * @returns Query key getter function name (e.g., "getUsersQueryKey" or "getGetUsersKey")
  */
 function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
-  const funcName = methodPath(method, pathStr)
-  return isSWR ? `get${capitalize(funcName)}Key` : `get${capitalize(funcName)}QueryKey`
+  if (isSWR) {
+    return `get${capitalize(methodPath(method, pathStr))}Key`
+  }
+  return `get${capitalize(methodPath('', pathStr))}QueryKey`
 }
 
 /**
@@ -112,13 +114,14 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
  *
  * @param method - HTTP method
  * @param pathStr - API path
- * @returns Infinite query key getter function name (e.g., "getGetUsersInfiniteQueryKey")
+ * @param isSWR - Whether to use SWR naming (keeps method prefix, no "QueryKey" suffix)
+ * @returns Infinite query key getter function name (e.g., "getUsersInfiniteQueryKey" or "getGetUsersInfiniteKey")
  */
 function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
-  const funcName = methodPath(method, pathStr)
-  return isSWR
-    ? `get${capitalize(funcName)}InfiniteKey`
-    : `get${capitalize(funcName)}InfiniteQueryKey`
+  if (isSWR) {
+    return `get${capitalize(methodPath(method, pathStr))}InfiniteKey`
+  }
+  return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
 }
 
 /* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
@@ -126,28 +129,24 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
 /**
  * Generates the query options getter function name.
  *
- * @param method - HTTP method
  * @param pathStr - API path
- * @returns Query options getter function name (e.g., "getGetUsersQueryOptions")
+ * @returns Query options getter function name (e.g., "getUsersQueryOptions")
  */
-function makeQueryOptionsGetterName(method: string, pathStr: string): string {
-  const funcName = methodPath(method, pathStr)
-  return `get${capitalize(funcName)}QueryOptions`
+function makeQueryOptionsGetterName(pathStr: string): string {
+  return `get${capitalize(methodPath('', pathStr))}QueryOptions`
 }
 
 /**
  * Generates query key getter function code using structured keys.
  *
- * Pattern: ['prefix', 'GET', '/full/path', args?]
+ * Pattern: ['prefix', '/full/path', args?]
  * - prefix: First path segment for prefix filtering (e.g., 'pet')
- * - method: HTTP method for method filtering (e.g., 'GET')
  * - path: Full path for uniqueness (e.g., '/pet/findByStatus')
  * - args: Request arguments when present
  *
  * This enables consistent filtering:
  * - All pet: invalidateQueries({ queryKey: ['pet'] })
- * - GET only: invalidateQueries({ queryKey: ['pet', 'GET'] })
- * - POST only: isMutating({ mutationKey: ['pet', 'POST'] })
+ * - Specific endpoint: invalidateQueries({ queryKey: ['pet', '/pet/findByStatus'] })
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
@@ -180,36 +179,24 @@ function makeQueryKeyGetterCode(
   // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `/**
- * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','GET','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
+      return `/** GET ${safeCommentPath} query key */
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
     }
-    return `/**
- * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as const}`
+    return `/** GET ${safeCommentPathNoParam} query key */
+export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
   }
 
-  // TanStack Query / Svelte Query: ['prefix', 'GET', '/path', args?]
+  // TanStack Query / Svelte Query / SWR: ['prefix', '/path', args?]
   if (hasArgs) {
     // Exclude 'header' from key per REST principle: headers are metadata, not resource identifiers
     const body = hasHeader
-      ? `const{header:_,...keyArgs}=args;return['${prefix}','GET','${honoPath}',keyArgs]as const`
-      : `return['${prefix}','GET','${honoPath}',args]as const`
-    return `/**
- * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs]as const`
+      : `return['${prefix}','${honoPath}',args]as const`
+    return `/** GET ${safeCommentPath} query key */
 export function ${keyGetterName}(args:${argsType}){${body}}`
   }
-  return `/**
- * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as const}`
+  return `/** GET ${safeCommentPathNoParam} query key */
+export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
 }
 
 /**
@@ -232,35 +219,23 @@ function makeInfiniteQueryKeyGetterCode(
   // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `/**
- * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','GET','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
+      return `/** GET ${safeCommentPath} infinite query key */
+export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
     }
-    return `/**
- * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}','infinite']as const}`
+    return `/** GET ${safeCommentPathNoParam} infinite query key */
+export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
   }
 
-  // TanStack Query / Svelte Query
+  // TanStack Query / Svelte Query / SWR
   if (hasArgs) {
     const infBody = hasHeader
-      ? `const{header:_,...keyArgs}=args;return['${prefix}','GET','${honoPath}',keyArgs,'infinite']as const`
-      : `return['${prefix}','GET','${honoPath}',args,'infinite']as const`
-    return `/**
- * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs,'infinite']as const`
+      : `return['${prefix}','${honoPath}',args,'infinite']as const`
+    return `/** GET ${safeCommentPath} infinite query key */
 export function ${keyGetterName}(args:${argsType}){${infBody}}`
   }
-  return `/**
- * Generates ${config.frameworkName} infinite query cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}','infinite']as const}`
+  return `/** GET ${safeCommentPathNoParam} infinite query key */
+export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
 }
 
 /**
@@ -308,9 +283,7 @@ function makeQueryOptionsGetterCode(
       ? `queryOptions({${bodyContent}})`
       : `{${bodyContent}}`
     return `/**
- * Returns ${config.frameworkName} query options for GET ${commentPath}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET ${commentPath} query options
  */
 export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
   }
@@ -328,16 +301,12 @@ export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?
 
   if (hasArgs) {
     return `/**
- * Returns ${config.frameworkName} query options for GET ${commentPath}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET ${commentPath} query options
  */
 export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
   }
   return `/**
- * Returns ${config.frameworkName} query options for GET ${commentPath}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET ${commentPath} query options
  */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
@@ -515,9 +484,8 @@ export function ${hookName}(${argsSig}options?:${optionsType}){const{query:query
 /**
  * Generates the infinite query options getter function name.
  */
-function makeInfiniteQueryOptionsGetterName(method: string, pathStr: string): string {
-  const funcName = methodPath(method, pathStr)
-  return `get${capitalize(funcName)}InfiniteQueryOptions`
+function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
+  return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
 }
 
 /**
@@ -549,10 +517,7 @@ function makeInfiniteQueryOptionsGetterCode(
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
     return `/**
- * Returns ${config.frameworkName} infinite query options for GET ${commentPath}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET ${commentPath} infinite query options
  */
 export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return{${bodyContent}}}`
   }
@@ -565,18 +530,12 @@ export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?
 
   if (hasArgs) {
     return `/**
- * Returns ${config.frameworkName} infinite query options for GET ${commentPath}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET ${commentPath} infinite query options
  */
 export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return{${bodyContent}}}`
   }
   return `/**
- * Returns ${config.frameworkName} infinite query options for GET ${commentPath}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET ${commentPath} infinite query options
  */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return{${bodyContent}}}`
 }
@@ -709,12 +668,7 @@ function makeMutationKeyGetterName(method: string, pathStr: string): string {
  */
 function makePrefixKeyCode(prefix: string): string {
   const funcName = `get${toIdentifierPascalCase(prefix)}Key`
-  return `/**
- * Returns key prefix for all /${prefix} related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: ${funcName}() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+  return `/** Key prefix for /${prefix} */
 export function ${funcName}(){return['${prefix}']as const}`
 }
 
@@ -760,10 +714,7 @@ function makeMutationKeyGetterCode(
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   // Extract prefix (first path segment without leading slash)
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
-  return `/**
- * Generates ${config.frameworkName} mutation key for ${methodUpper} ${safeCommentPath}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
+  return `/** ${methodUpper} ${safeCommentPath} mutation key */
 export function ${keyGetterName}(){return['${prefix}','${methodUpper}','${honoPath}']as const}`
 }
 
@@ -801,7 +752,6 @@ function makeMutationOptionsGetterName(method: string, pathStr: string): string 
  */
 function makeMutationOptionsGetterCode(
   optionsGetterName: string,
-  keyGetterName: string,
   hasArgs: boolean,
   argsType: string,
   parseResponseFuncName: string,
@@ -811,28 +761,22 @@ function makeMutationOptionsGetterCode(
 ): string {
   const methodUpper = method.toUpperCase()
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const inlineKey = `['${prefix}','${honoPath}']as const`
 
   if (hasArgs) {
-    const bodyContent = `mutationKey:${keyGetterName}(),async mutationFn(args:${argsType}){return ${parseResponseFuncName}(args,options)}`
+    const bodyContent = `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return ${parseResponseFuncName}(args,options)}`
     const returnExpr = config.hasMutationOptionsHelper
       ? `mutationOptions({${bodyContent}})`
       : `{${bodyContent}}`
-    return `/**
- * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+    return `/** ${methodUpper} ${safeCommentPath} */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
   }
-  const bodyContent = `mutationKey:${keyGetterName}(),async mutationFn(){return ${parseResponseFuncName}(options)}`
+  const bodyContent = `mutationKey:${inlineKey},async mutationFn(){return ${parseResponseFuncName}(options)}`
   const returnExpr = config.hasMutationOptionsHelper
     ? `mutationOptions({${bodyContent}})`
     : `{${bodyContent}}`
-  return `/**
- * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
+  return `/** ${methodUpper} ${safeCommentPath} */
 export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 
@@ -1089,11 +1033,11 @@ function makeHookCode(
       }
     }
     // SWR mutation
-    const keyGetterName = makeMutationKeyGetterName(method, pathStr)
-    const keyGetterCode = makeMutationKeyGetterCode(keyGetterName, honoPath, method, config)
+    const prefix = honoPath.replace(/^\//, '').split('/')[0]
+    const inlineKey = `['${prefix}','${honoPath}']as const`
     const hookCode = makeSWRMutationHookCode(
       hookName,
-      keyGetterName,
+      inlineKey,
       hasArgs,
       argsType,
       responseType,
@@ -1103,7 +1047,7 @@ function makeHookCode(
       config.errorType,
     )
     return {
-      code: `${keyGetterCode}\n\n${wrapperCode}\n\n${hookCode}`,
+      code: `${wrapperCode}\n\n${hookCode}`,
       isQuery: false,
       hasArgs,
       parseResponseFuncName,
@@ -1112,8 +1056,12 @@ function makeHookCode(
 
   // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
+    // For queries, use path-only naming (no HTTP method prefix)
+    const queryHookName = makeHookName('', pathStr, config.hookPrefix)
+    const pathFuncName = methodPath('', pathStr)
+
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
-    const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
+    const optionsGetterName = makeQueryOptionsGetterName(pathStr)
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
@@ -1132,7 +1080,7 @@ function makeHookCode(
       config,
     )
     const hookCode = makeQueryHookCode(
-      hookName,
+      queryHookName,
       optionsGetterName,
       hasArgs,
       argsType,
@@ -1142,7 +1090,7 @@ function makeHookCode(
     )
     // Generate infinite query key getter (only when infinite query hooks are enabled)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
-    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(method, pathStr)
+    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
 
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
@@ -1171,7 +1119,7 @@ function makeHookCode(
       : null
 
     // Generate suspense query hook
-    const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(parseResponseFuncName)}`
+    const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}`
     const suspenseHookCode =
       config.suspenseQueryFn && config.useSuspenseQueryOptionsType
         ? makeSuspenseQueryHookCode(
@@ -1192,7 +1140,7 @@ function makeHookCode(
         : null
 
     // Generate infinite query hook
-    const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(parseResponseFuncName)}`
+    const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}`
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
@@ -1212,7 +1160,7 @@ function makeHookCode(
       : null
 
     // Generate suspense infinite query hook
-    const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${capitalize(parseResponseFuncName)}`
+    const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}`
     const suspenseInfiniteHookCode =
       config.suspenseInfiniteQueryFn && config.useSuspenseInfiniteQueryOptionsType
         ? makeSuspenseInfiniteQueryHookCode(
@@ -1252,13 +1200,10 @@ function makeHookCode(
     }
   }
 
-  // Generate mutation key and options getters
-  const keyGetterName = makeMutationKeyGetterName(method, pathStr)
+  // Generate mutation options getter (mutation key is inlined)
   const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
-  const keyGetterCode = makeMutationKeyGetterCode(keyGetterName, honoPath, method, config)
   const optionsGetterCode = makeMutationOptionsGetterCode(
     optionsGetterName,
-    keyGetterName,
     hasArgs,
     argsType,
     parseResponseFuncName,
@@ -1276,9 +1221,9 @@ function makeHookCode(
     config,
     hasNoContent,
   )
-  // Order: key → wrapper → options → hook
+  // Order: wrapper → options → hook
   return {
-    code: `${keyGetterCode}\n\n${wrapperCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
+    code: `${wrapperCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
     isQuery: false,
     hasArgs,
     parseResponseFuncName,

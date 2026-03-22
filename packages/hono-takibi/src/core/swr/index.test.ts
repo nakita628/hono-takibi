@@ -63,32 +63,19 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /hono related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /hono */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Returns key prefix for all /users related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /users */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * Generates SWR cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /hono query key */
 export function getGetHonoKey() {
-  return ['hono', 'GET', '/hono'] as const
+  return ['hono', '/hono'] as const
 }
 
 /**
@@ -136,12 +123,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /hono infinite query key */
 export function getGetHonoInfiniteKey() {
-  return ['hono', 'GET', '/hono', 'infinite'] as const
+  return ['hono', '/hono', 'infinite'] as const
 }
 
 /**
@@ -164,12 +148,9 @@ export function useInfiniteGetHono(options: {
   return useSWRInfinite(keyLoader, async () => getHono(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /users query key */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+  return ['users', '/users', args] as const
 }
 
 /**
@@ -229,12 +210,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /users infinite query key */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
+  return ['users', '/users', args, 'infinite'] as const
 }
 
 /**
@@ -260,10 +238,7 @@ export function useInfiniteGetUsers(
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
+/** POST /users mutation key */
 export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
@@ -344,22 +319,12 @@ export * from './postUsers'
 
       // Check _keys.ts prefix key file
       const keys = fs.readFileSync(path.join(dir, 'swr', '_keys.ts'), 'utf-8')
-      expect(keys).toBe(`/**
- * Returns key prefix for all /hono related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+      expect(keys).toBe(`/** Key prefix for /hono */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Returns key prefix for all /users related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /users */
 export function getUsersKey() {
   return ['users'] as const
 }
@@ -376,12 +341,9 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates SWR cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /hono query key */
 export function getGetHonoKey() {
-  return ['hono', 'GET', '/hono'] as const
+  return ['hono', '/hono'] as const
 }
 
 /**
@@ -429,12 +391,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /hono infinite query key */
 export function getGetHonoInfiniteKey() {
-  return ['hono', 'GET', '/hono', 'infinite'] as const
+  return ['hono', '/hono', 'infinite'] as const
 }
 
 /**
@@ -469,12 +428,9 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /users query key */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+  return ['users', '/users', args] as const
 }
 
 /**
@@ -534,12 +490,9 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /users infinite query key */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
+  return ['users', '/users', args, 'infinite'] as const
 }
 
 /**
@@ -575,10 +528,7 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates SWR mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
+/** POST /users mutation key */
 export function getPostUsersMutationKey() {
   return ['users', 'POST', '/users'] as const
 }
@@ -673,22 +623,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/**
- * Returns key prefix for all /users related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /users */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /users query key */
 export function getGetUsersKey() {
-  return ['users', 'GET', '/users'] as const
+  return ['users', '/users'] as const
 }
 
 /**
@@ -730,12 +672,9 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /users infinite query key */
 export function getGetUsersInfiniteKey() {
-  return ['users', 'GET', '/users', 'infinite'] as const
+  return ['users', '/users', 'infinite'] as const
 }
 
 /**
@@ -804,22 +743,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /ping related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getPingKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /ping */
 export function getPingKey() {
   return ['ping'] as const
 }
 
-/**
- * Generates SWR cache key for GET /ping
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /ping query key */
 export function getGetPingKey() {
-  return ['ping', 'GET', '/ping'] as const
+  return ['ping', '/ping'] as const
 }
 
 /**
@@ -861,12 +792,9 @@ export function useImmutableGetPing(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getPing(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /ping
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /ping infinite query key */
 export function getGetPingInfiniteKey() {
-  return ['ping', 'GET', '/ping', 'infinite'] as const
+  return ['ping', '/ping', 'infinite'] as const
 }
 
 /**
@@ -887,10 +815,7 @@ export function useInfiniteGetPing(options: {
   return useSWRInfinite(keyLoader, async () => getPing(clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR mutation key for POST /ping
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
+/** POST /ping mutation key */
 export function getPostPingMutationKey() {
   return ['ping', 'POST', '/ping'] as const
 }
@@ -968,22 +893,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /hono-x related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoXKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /hono-x */
 export function getHonoXKey() {
   return ['hono-x'] as const
 }
 
-/**
- * Generates SWR cache key for GET /hono-x
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /hono-x query key */
 export function getGetHonoXKey() {
-  return ['hono-x', 'GET', '/hono-x'] as const
+  return ['hono-x', '/hono-x'] as const
 }
 
 /**
@@ -1025,12 +942,9 @@ export function useImmutableGetHonoX(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHonoX(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /hono-x
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /hono-x infinite query key */
 export function getGetHonoXInfiniteKey() {
-  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+  return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
 /**
@@ -1100,22 +1014,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /users related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /users */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * Generates SWR cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
+/** GET /users/{id} query key */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
-  return ['users', 'GET', '/users/:id', args] as const
+  return ['users', '/users/:id', args] as const
 }
 
 /**
@@ -1169,14 +1075,11 @@ export function useImmutableGetUsersId(
   }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
+/** GET /users/{id} infinite query key */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
 /**
@@ -1200,10 +1103,7 @@ export function useInfiniteGetUsersId(
   return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }
 
-/**
- * Generates SWR mutation key for DELETE /users/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
+/** DELETE /users/{id} mutation key */
 export function getDeleteUsersIdMutationKey() {
   return ['users', 'DELETE', '/users/:id'] as const
 }
@@ -1313,22 +1213,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /hono related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getHonoKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /hono */
 export function getHonoKey() {
   return ['hono'] as const
 }
 
-/**
- * Generates SWR cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /hono query key */
 export function getGetHonoKey() {
-  return ['hono', 'GET', '/hono'] as const
+  return ['hono', '/hono'] as const
 }
 
 /**
@@ -1370,12 +1262,9 @@ export function useImmutableGetHono(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getHono(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /hono infinite query key */
 export function getGetHonoInfiniteKey() {
-  return ['hono', 'GET', '/hono', 'infinite'] as const
+  return ['hono', '/hono', 'infinite'] as const
 }
 
 /**
@@ -1438,22 +1327,14 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Returns key prefix for all /users related queries and mutations.
- * Use for broad cache invalidation: invalidateQueries({ queryKey: getUsersKey() })
- *
- * @see https://tkdodo.eu/blog/effective-react-query-keys
- */
+/** Key prefix for /users */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
+/** GET /users query key */
 export function getGetUsersKey() {
-  return ['users', 'GET', '/users'] as const
+  return ['users', '/users'] as const
 }
 
 /**
@@ -1495,12 +1376,9 @@ export function useImmutableGetUsers(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getUsers(clientOptions), restSwrOptions) }
 }
 
-/**
- * Generates SWR infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
+/** GET /users infinite query key */
 export function getGetUsersInfiniteKey() {
-  return ['users', 'GET', '/users', 'infinite'] as const
+  return ['users', '/users', 'infinite'] as const
 }
 
 /**
