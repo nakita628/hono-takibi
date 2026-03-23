@@ -345,7 +345,8 @@ function makeSWRInfiniteHookCode(
 
 function makeQueryHookCode(
   hookName: string,
-  optionsGetterName: string,
+  keyGetterName: string,
+  parseResponseFuncName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -365,38 +366,46 @@ function makeQueryHookCode(
   const queryOptionsType = `${config.useQueryOptionsType}<${responseType},${errorType},TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
+  // Spread user options FIRST, then set concrete queryKey/queryFn AFTER.
+  // This avoids exactOptionalPropertyTypes conflicts: queryOptions() return type includes
+  // all UseQueryOptions properties (select, queryFn, etc.) as optional. Spreading two
+  // sources creates type unions that fail overload resolution. By inlining concrete
+  // queryKey/queryFn after the user spread, they always override with non-optional types.
+  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
-  // args is a getter function so $state tracking is maintained inside the thunk
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args(),clientOptions)`
-      : `${optionsGetterName}(clientOptions)`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
+    const svelteKeyCall = hasArgs ? `${keyGetterName}(args())` : `${keyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
+      : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
 
-  // Vue Query: args typed as MaybeRefOrGetter so Vue can track Ref changes in queryKey
+  // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,clientOptions)`
-      : `${optionsGetterName}(clientOptions)`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
+    const fetcherCall = hasArgs
+      ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
+      : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
 
-  // React TanStack Query: direct spread
+  // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const optionsGetterCall = hasArgs
-    ? `${optionsGetterName}(args,clientOptions)`
-    : `${optionsGetterName}(clientOptions)`
-  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
+  const fetcherCall = hasArgs
+    ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
+    : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
 /* ─────────────────────────────── Suspense Query Hook Code ─────────────────────────────── */
 
 function makeSuspenseQueryHookCode(
   hookName: string,
-  optionsGetterName: string,
+  keyGetterName: string,
+  parseResponseFuncName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -415,30 +424,34 @@ function makeSuspenseQueryHookCode(
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},${errorType},TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
 
-  // Svelte Query v5+: thunk pattern createSuspenseQuery(() => options)
+  // Same spread-first pattern as makeQueryHookCode — see comment there for rationale.
+  const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+
+  // Svelte Query v5+: thunk pattern
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args(),clientOptions)`
-      : `${optionsGetterName}(clientOptions)`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...${optionsGetterCall},...query}})}`
+    const svelteKeyCall = hasArgs ? `${keyGetterName}(args())` : `${keyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
+      : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
 
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,clientOptions)`
-      : `${optionsGetterName}(clientOptions)`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...queryOptions})}`
+    const fetcherCall = hasArgs
+      ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
+      : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
 
-  // React TanStack Query: direct spread
+  // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const optionsGetterCall = hasArgs
-    ? `${optionsGetterName}(args,clientOptions)`
-    : `${optionsGetterName}(clientOptions)`
-  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  const fetcherCall = hasArgs
+    ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
+    : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
+  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
 /* ─────────────────────────────── Infinite Query Options Getter ─────────────────────────────── */
@@ -473,14 +486,14 @@ function makeInfiniteQueryOptionsGetterCode(
 ): string {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
 
+  // infiniteQueryOptions() requires getNextPageParam + initialPageParam which the getter
+  // cannot provide (user supplies them). Return plain {queryKey, queryFn} object instead.
+
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
-    const returnExpr = config.hasInfiniteQueryOptionsHelper
-      ? `infiniteQueryOptions({${bodyContent}})`
-      : `{${bodyContent}}`
-    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return{${bodyContent}}}`
   }
 
   const fetcherCall = hasArgs
@@ -488,14 +501,11 @@ function makeInfiniteQueryOptionsGetterCode(
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
 
   const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
-  const returnExpr = config.hasInfiniteQueryOptionsHelper
-    ? `infiniteQueryOptions({${bodyContent}})`
-    : `{${bodyContent}}`
 
   if (hasArgs) {
-    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
+    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return{${bodyContent}}}`
   }
-  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
+  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return{${bodyContent}}}`
 }
 
 /* ─────────────────────────────── Infinite Query Hook Code ─────────────────────────────── */
@@ -518,13 +528,16 @@ function makeInfiniteQueryHookCode(
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
+  // Infinite options getter returns plain {queryKey, queryFn}. Spread user options FIRST
+  // (provides getNextPageParam, initialPageParam, etc.), then override with concrete queryKey/queryFn.
+
   // Svelte Query v5+: thunk pattern — createInfiniteQuery(() => options)
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
       ? `${infiniteOptionsGetterName}(args(),clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
+    return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
 
   // Vue Query: args typed as MaybeRefOrGetter
@@ -533,15 +546,15 @@ function makeInfiniteQueryHookCode(
     const optionsGetterCall = hasArgs
       ? `${infiniteOptionsGetterName}(args,clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+    return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
 
-  // React TanStack Query: direct spread
+  // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
-  return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
 }
 
 /* ─────────────────────────────── Suspense Infinite Query Hook Code ─────────────────────────────── */
@@ -564,13 +577,15 @@ function makeSuspenseInfiniteQueryHookCode(
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
 
-  // Svelte Query v5+: thunk pattern createSuspenseInfiniteQuery(() => options)
+  // Same spread-first pattern as makeInfiniteQueryHookCode.
+
+  // Svelte Query v5+: thunk pattern
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
       ? `${infiniteOptionsGetterName}(args(),clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...${optionsGetterCall},...query}})}`
+    return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
 
   // Vue Query: args typed as MaybeRefOrGetter
@@ -579,15 +594,15 @@ function makeSuspenseInfiniteQueryHookCode(
     const optionsGetterCall = hasArgs
       ? `${infiniteOptionsGetterName}(args,clientOptions)`
       : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+    return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
 
-  // React TanStack Query: direct spread
+  // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
     : `${infiniteOptionsGetterName}(clientOptions)`
-  return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...${optionsGetterCall},...queryOptions})}`
+  return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
 }
 
 /* ─────────────────────────────── Prefix Key ─────────────────────────────── */
@@ -977,7 +992,8 @@ function makeHookCode(
     )
     const hookCode = makeQueryHookCode(
       queryHookName,
-      optionsGetterName,
+      keyGetterName,
+      parseResponseFuncName,
       hasArgs,
       argsType,
       responseType,
@@ -1018,7 +1034,8 @@ function makeHookCode(
       config.suspenseQueryFn && config.useSuspenseQueryOptionsType
         ? makeSuspenseQueryHookCode(
             suspenseHookName,
-            optionsGetterName,
+            keyGetterName,
+            parseResponseFuncName,
             hasArgs,
             argsType,
             responseType,
@@ -1245,7 +1262,8 @@ function makeHeader(
     ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
     ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
-    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
+    // infiniteQueryOptions not imported — getter returns plain object since it cannot
+    // provide required getNextPageParam/initialPageParam (user supplies them)
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
 
