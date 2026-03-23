@@ -457,12 +457,12 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('rejects unknown format keys', () => {
+    it.concurrent('accepts any format value (delegated to oxfmt)', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         format: { unknownOption: true },
       })
-      expect(result.ok).toBe(false)
+      expect(result.ok).toBe(true)
     })
   })
 

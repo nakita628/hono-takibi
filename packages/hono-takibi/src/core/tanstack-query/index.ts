@@ -12,7 +12,6 @@ import type { OpenAPI } from '../../openapi/index.js'
  * @param importPath - Import path for the Hono client
  * @param split - Whether to split into multiple files (one per hook)
  * @param clientName - Name of the client export (default: 'client')
- * @param infinite - Whether to generate infinite query hooks (default: true)
  * @returns Promise resolving to success message or error
  */
 export async function tanstackQuery(
@@ -21,7 +20,6 @@ export async function tanstackQuery(
   importPath: string,
   split?: boolean,
   clientName = 'client',
-  infinite = true,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -36,15 +34,11 @@ export async function tanstackQuery(
     hasQueryOptionsHelper: true,
     hasMutationOptionsHelper: true,
     suspenseQueryFn: 'useSuspenseQuery',
-    ...(infinite
-      ? {
-          infiniteQueryFn: 'useInfiniteQuery',
-          suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
-          useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-          useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
-          hasInfiniteQueryOptionsHelper: true,
-        }
-      : {}),
+    infiniteQueryFn: 'useInfiniteQuery',
+    suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+    useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
+    hasInfiniteQueryOptionsHelper: true,
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)

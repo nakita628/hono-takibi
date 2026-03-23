@@ -12,7 +12,6 @@ import type { OpenAPI } from '../../openapi/index.js'
  * @param importPath - Import path for the Hono client
  * @param split - Whether to split into multiple files (one per hook)
  * @param clientName - Name of the client export (default: 'client')
- * @param infinite - Whether to generate infinite query hooks (default: true)
  * @returns Promise resolving to success message or error
  */
 export async function vueQuery(
@@ -21,7 +20,6 @@ export async function vueQuery(
   importPath: string,
   split?: boolean,
   clientName = 'client',
-  infinite = true,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -35,13 +33,9 @@ export async function vueQuery(
     useMutationOptionsType: 'UseMutationOptions',
     hasQueryOptionsHelper: true,
     isVueQuery: true,
-    ...(infinite
-      ? {
-          infiniteQueryFn: 'useInfiniteQuery',
-          useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-          hasInfiniteQueryOptionsHelper: true,
-        }
-      : {}),
+    infiniteQueryFn: 'useInfiniteQuery',
+    useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+    hasInfiniteQueryOptionsHelper: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }
