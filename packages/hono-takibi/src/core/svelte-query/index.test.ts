@@ -106,16 +106,22 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getPetsQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getPetsQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getPets(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -144,7 +150,7 @@ export function createInfinitePets(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getPetsInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getPetsInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
@@ -205,16 +211,22 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getPetsPetIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getPetsPetIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getPetsPetId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -245,7 +257,7 @@ export function createInfinitePetsPetId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
@@ -390,16 +402,22 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getPetsQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getPetsQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getPets(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -428,7 +446,7 @@ export function createInfinitePets(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getPetsInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getPetsInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 `
@@ -474,16 +492,22 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getPetsPetIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getPetsPetIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getPetsPetId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -514,7 +538,7 @@ export function createInfinitePetsPetId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 `
@@ -720,15 +744,21 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createUsers(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -753,7 +783,7 @@ export function createInfiniteUsers(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getUsersInfiniteQueryOptions(clientOptions) }
   })
 }
 `
@@ -831,15 +861,21 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createPing(
+export function createPing<TData = Awaited<ReturnType<typeof getPing>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getPingQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getPingQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -864,7 +900,7 @@ export function createInfinitePing(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getPingInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getPingInfiniteQueryOptions(clientOptions) }
   })
 }
 
@@ -956,15 +992,21 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createHonoX(
+export function createHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getHonoXQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getHonoXQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -989,7 +1031,7 @@ export function createInfiniteHonoX(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getHonoXInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getHonoXInfiniteQueryOptions(clientOptions) }
   })
 }
 `
@@ -1074,16 +1116,22 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsersId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -1114,7 +1162,7 @@ export function createInfiniteUsersId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
@@ -1278,16 +1326,22 @@ export function getUsersQueryOptions(
   })
 }
 
-export function createUsers(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsers(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -1316,7 +1370,7 @@ export function createInfiniteUsers(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getUsersInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 `
@@ -1399,16 +1453,22 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsersId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
@@ -1439,7 +1499,7 @@ export function createInfiniteUsersId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 `

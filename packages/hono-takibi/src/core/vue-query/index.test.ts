@@ -89,12 +89,18 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -115,7 +121,7 @@ export function useInfiniteHono(options: {
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
 export function getUsersQueryKey(
@@ -143,15 +149,21 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getUsersInfiniteQueryKey(
@@ -180,7 +192,7 @@ export function useInfiniteUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
 export async function postUsers(
@@ -284,12 +296,18 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getHonoQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -310,7 +328,7 @@ export function useInfiniteHono(options: {
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
@@ -354,15 +372,21 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getUsersInfiniteQueryKey(
@@ -391,7 +415,7 @@ export function useInfiniteUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -500,12 +524,18 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useUsers(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getUsersInfiniteQueryKey() {
@@ -526,7 +556,7 @@ export function useInfiniteUsers(options: {
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(clientOptions) })
 }
 `
       expect(code).toBe(expected)
@@ -598,12 +628,18 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePing(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function usePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getPingQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getPingInfiniteQueryKey() {
@@ -624,7 +660,7 @@ export function useInfinitePing(options: {
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getPingInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getPingInfiniteQueryOptions(clientOptions) })
 }
 
 export async function postPing(options?: ClientRequestOptions) {
@@ -711,12 +747,18 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHonoX(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getHonoXQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoXQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getHonoXInfiniteQueryKey() {
@@ -737,7 +779,7 @@ export function useInfiniteHonoX(options: {
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getHonoXInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoXInfiniteQueryOptions(clientOptions) })
 }
 `
       expect(code).toBe(expected)
@@ -820,15 +862,24 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId(
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(toValue(args), {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
+  })
 }
 
 export function getUsersIdInfiniteQueryKey(
@@ -858,8 +909,8 @@ export function useInfiniteUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
@@ -1023,15 +1074,21 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getUsersInfiniteQueryKey(
@@ -1060,7 +1117,7 @@ export function useInfiniteUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getUsersInfiniteQueryOptions(args, clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 `
       expect(getUsers).toBe(getUsersExpected)
@@ -1142,15 +1199,24 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId(
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(toValue(args), {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
+  })
 }
 
 export function getUsersIdInfiniteQueryKey(
@@ -1180,8 +1246,8 @@ export function useInfiniteUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 `
