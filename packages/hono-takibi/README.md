@@ -340,28 +340,9 @@ export default defineConfig({
   // Base path prefix for all routes
   basePath: '/api',
 
-  // oxfmt format options for generated code
-  format: {
-    printWidth: 100,
-    tabWidth: 2,
-    useTabs: false,
-    endOfLine: 'lf',
-    insertFinalNewline: true,
-    semi: true,
-    singleQuote: false,
-    jsxSingleQuote: false,
-    quoteProps: 'as-needed',
-    trailingComma: 'all',
-    bracketSpacing: true,
-    bracketSameLine: false,
-    objectWrap: 'preserve',
-    arrowParens: 'always',
-    singleAttributePerLine: false,
-    proseWrap: 'preserve',
-    htmlWhitespaceSensitivity: 'css',
-    vueIndentScriptAndStyle: false,
-    embeddedLanguageFormatting: 'auto',
-  },
+  // oxfmt FormatOptions for generated code output
+  // @see https://www.npmjs.com/package/oxfmt
+  // format: {},
 
   // Main code generation (Zod + OpenAPI + Hono)
   'zod-openapi': {
