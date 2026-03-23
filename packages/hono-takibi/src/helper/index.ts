@@ -8,7 +8,6 @@ export {
   makeOperationDeps,
   makeParseResponseType,
   operationHasArgs,
-  operationHasPaginationParams,
   parsePathItem,
   resolveSplitOutDir,
 } from './hono-rpc.js'
