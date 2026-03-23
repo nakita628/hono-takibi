@@ -12,13 +12,19 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Vue Query cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /api
  */
-export function getGetApiReverseGeocodeIndexQueryKey(
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/**
+ * GET /api/reverseGeocode/ query key
+ */
+export function getApiReverseGeocodeIndexQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args] as const
+  return ['api', '/api/reverseGeocode/', args] as const
 }
 
 /**
@@ -34,16 +40,14 @@ export async function getApiReverseGeocodeIndex(
 }
 
 /**
- * Returns Vue Query query options for GET /api/reverseGeocode/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseGeocode/ query options
  */
-export function getGetApiReverseGeocodeIndexQueryOptions(
+export function getApiReverseGeocodeIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetApiReverseGeocodeIndexQueryKey(args),
+    queryKey: getApiReverseGeocodeIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...options,
@@ -58,7 +62,7 @@ export function getGetApiReverseGeocodeIndexQueryOptions(
  *
  * Reverse geocode lookup
  */
-export function useGetApiReverseGeocodeIndex(
+export function useApiReverseGeocodeIndex(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
@@ -67,33 +71,29 @@ export function useGetApiReverseGeocodeIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
-    ...getGetApiReverseGeocodeIndexQueryOptions(args, clientOptions),
+    ...getApiReverseGeocodeIndexQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /api/reverseGeocode/ infinite query key
  */
-export function getGetApiReverseGeocodeIndexInfiniteQueryKey(
+export function getApiReverseGeocodeIndexInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args, 'infinite'] as const
+  return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /api/reverseGeocode/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseGeocode/ infinite query options
  */
-export function getGetApiReverseGeocodeIndexInfiniteQueryOptions(
+export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetApiReverseGeocodeIndexInfiniteQueryKey(args),
+    queryKey: getApiReverseGeocodeIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...options,
@@ -108,7 +108,7 @@ export function getGetApiReverseGeocodeIndexInfiniteQueryOptions(
  *
  * Reverse geocode lookup
  */
-export function useInfiniteGetApiReverseGeocodeIndex(
+export function useInfiniteApiReverseGeocodeIndex(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
@@ -117,17 +117,9 @@ export function useInfiniteGetApiReverseGeocodeIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetApiReverseGeocodeIndexInfiniteQueryOptions(args, clientOptions),
+    ...getApiReverseGeocodeIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for POST /api/v2/public/booking/account/register/oauth/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/oauth/'] as const
 }
 
 /**
@@ -143,15 +135,13 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
 }
 
 /**
- * Returns Vue Query mutation options for POST /api/v2/public/booking/account/register/oauth/
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /api/v2/public/booking/account/register/oauth/
  */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey(),
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/'] as const,
     async mutationFn(
       args: InferRequestType<
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
@@ -181,14 +171,6 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /api/v2/public/booking/account/register/email
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/email'] as const
-}
-
-/**
  * POST /api/v2/public/booking/account/register/email
  *
  * Send registration URL via email
@@ -203,15 +185,13 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
 }
 
 /**
- * Returns Vue Query mutation options for POST /api/v2/public/booking/account/register/email
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /api/v2/public/booking/account/register/email
  */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: getPostApiV2PublicBookingAccountRegisterEmailMutationKey(),
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email'] as const,
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {

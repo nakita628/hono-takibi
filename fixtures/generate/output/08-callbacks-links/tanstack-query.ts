@@ -20,11 +20,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates TanStack Query mutation key for POST /subscriptions
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /subscriptions
  */
-export function getPostSubscriptionsMutationKey() {
-  return ['subscriptions', 'POST', '/subscriptions'] as const
+export function getSubscriptionsKey() {
+  return ['subscriptions'] as const
+}
+
+/**
+ * Key prefix for /webhooks
+ */
+export function getWebhooksKey() {
+  return ['webhooks'] as const
 }
 
 /**
@@ -38,13 +44,11 @@ export async function postSubscriptions(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /subscriptions
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /subscriptions
  */
 export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostSubscriptionsMutationKey(),
+    mutationKey: ['subscriptions', '/subscriptions'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
       return postSubscriptions(args, options)
     },
@@ -67,13 +71,12 @@ export function usePostSubscriptions(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /subscriptions/{id} query key
  */
-export function getGetSubscriptionsIdQueryKey(
+export function getSubscriptionsIdQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args] as const
+  return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
 /**
@@ -87,16 +90,14 @@ export async function getSubscriptionsId(
 }
 
 /**
- * Returns TanStack Query query options for GET /subscriptions/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /subscriptions/{id} query options
  */
-export function getGetSubscriptionsIdQueryOptions(
+export function getSubscriptionsIdQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetSubscriptionsIdQueryKey(args),
+    queryKey: getSubscriptionsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -106,7 +107,7 @@ export function getGetSubscriptionsIdQueryOptions(
 /**
  * GET /subscriptions/{id}
  */
-export function useGetSubscriptionsId(
+export function useSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -114,13 +115,13 @@ export function useGetSubscriptionsId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSubscriptionsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getSubscriptionsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
  * GET /subscriptions/{id}
  */
-export function useSuspenseGetSubscriptionsId(
+export function useSuspenseSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -129,33 +130,29 @@ export function useSuspenseGetSubscriptionsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseQuery({
-    ...getGetSubscriptionsIdQueryOptions(args, clientOptions),
+    ...getSubscriptionsIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /subscriptions/{id} infinite query key
  */
-export function getGetSubscriptionsIdInfiniteQueryKey(
+export function getSubscriptionsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args, 'infinite'] as const
+  return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /subscriptions/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /subscriptions/{id} infinite query options
  */
-export function getGetSubscriptionsIdInfiniteQueryOptions(
+export function getSubscriptionsIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetSubscriptionsIdInfiniteQueryKey(args),
+    queryKey: getSubscriptionsIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -165,7 +162,7 @@ export function getGetSubscriptionsIdInfiniteQueryOptions(
 /**
  * GET /subscriptions/{id}
  */
-export function useInfiniteGetSubscriptionsId(
+export function useInfiniteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -174,7 +171,7 @@ export function useInfiniteGetSubscriptionsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
+    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -182,7 +179,7 @@ export function useInfiniteGetSubscriptionsId(
 /**
  * GET /subscriptions/{id}
  */
-export function useSuspenseInfiniteGetSubscriptionsId(
+export function useSuspenseInfiniteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -191,17 +188,9 @@ export function useSuspenseInfiniteGetSubscriptionsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
+    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates TanStack Query mutation key for DELETE /subscriptions/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteSubscriptionsIdMutationKey() {
-  return ['subscriptions', 'DELETE', '/subscriptions/:id'] as const
 }
 
 /**
@@ -215,13 +204,11 @@ export async function deleteSubscriptionsId(
 }
 
 /**
- * Returns TanStack Query mutation options for DELETE /subscriptions/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * DELETE /subscriptions/{id}
  */
 export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getDeleteSubscriptionsIdMutationKey(),
+    mutationKey: ['subscriptions', '/subscriptions/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
       return deleteSubscriptionsId(args, options)
     },
@@ -247,14 +234,6 @@ export function useDeleteSubscriptionsId(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for POST /webhooks/test
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostWebhooksTestMutationKey() {
-  return ['webhooks', 'POST', '/webhooks/test'] as const
-}
-
-/**
  * POST /webhooks/test
  */
 export async function postWebhooksTest(
@@ -265,13 +244,11 @@ export async function postWebhooksTest(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /webhooks/test
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /webhooks/test
  */
 export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostWebhooksTestMutationKey(),
+    mutationKey: ['webhooks', '/webhooks/test'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
       return postWebhooksTest(args, options)
     },

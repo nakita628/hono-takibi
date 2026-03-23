@@ -15,13 +15,19 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /api
  */
-export function getGetApiReverseGeocodeIndexQueryKey(
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/**
+ * GET /api/reverseGeocode/ query key
+ */
+export function getApiReverseGeocodeIndexQueryKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args] as const
+  return ['api', '/api/reverseGeocode/', args] as const
 }
 
 /**
@@ -37,16 +43,14 @@ export async function getApiReverseGeocodeIndex(
 }
 
 /**
- * Returns Svelte Query query options for GET /api/reverseGeocode/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseGeocode/ query options
  */
-export function getGetApiReverseGeocodeIndexQueryOptions(
+export function getApiReverseGeocodeIndexQueryOptions(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetApiReverseGeocodeIndexQueryKey(args),
+    queryKey: getApiReverseGeocodeIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseGeocodeIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -58,7 +62,7 @@ export function getGetApiReverseGeocodeIndexQueryOptions(
  *
  * Reverse geocode lookup
  */
-export function createGetApiReverseGeocodeIndex(
+export function createApiReverseGeocodeIndex(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
@@ -67,32 +71,28 @@ export function createGetApiReverseGeocodeIndex(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetApiReverseGeocodeIndexQueryOptions(args(), clientOptions), ...query }
+    return { ...getApiReverseGeocodeIndexQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /api/reverseGeocode/ infinite query key
  */
-export function getGetApiReverseGeocodeIndexInfiniteQueryKey(
+export function getApiReverseGeocodeIndexInfiniteQueryKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args, 'infinite'] as const
+  return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /api/reverseGeocode/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseGeocode/ infinite query options
  */
-export function getGetApiReverseGeocodeIndexInfiniteQueryOptions(
+export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetApiReverseGeocodeIndexInfiniteQueryKey(args),
+    queryKey: getApiReverseGeocodeIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseGeocodeIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -104,7 +104,7 @@ export function getGetApiReverseGeocodeIndexInfiniteQueryOptions(
  *
  * Reverse geocode lookup
  */
-export function createInfiniteGetApiReverseGeocodeIndex(
+export function createInfiniteApiReverseGeocodeIndex(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
@@ -113,16 +113,8 @@ export function createInfiniteGetApiReverseGeocodeIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetApiReverseGeocodeIndexInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getApiReverseGeocodeIndexInfiniteQueryOptions(args(), clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for POST /api/v2/public/booking/account/register/oauth/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/oauth/'] as const
 }
 
 /**
@@ -138,15 +130,13 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /api/v2/public/booking/account/register/oauth/
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /api/v2/public/booking/account/register/oauth/
  */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey(),
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/'] as const,
     async mutationFn(
       args: InferRequestType<
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
@@ -180,14 +170,6 @@ export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
 }
 
 /**
- * Generates Svelte Query mutation key for POST /api/v2/public/booking/account/register/email
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/email'] as const
-}
-
-/**
  * POST /api/v2/public/booking/account/register/email
  *
  * Send registration URL via email
@@ -202,15 +184,13 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /api/v2/public/booking/account/register/email
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /api/v2/public/booking/account/register/email
  */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: getPostApiV2PublicBookingAccountRegisterEmailMutationKey(),
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email'] as const,
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {

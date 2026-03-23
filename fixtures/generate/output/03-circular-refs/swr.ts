@@ -10,11 +10,24 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /tree
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /graph
+ */
+export function getGraphKey() {
+  return ['graph'] as const
+}
+
+/**
+ * Key prefix for /tree
+ */
+export function getTreeKey() {
+  return ['tree'] as const
+}
+
+/**
+ * GET /tree query key
  */
 export function getGetTreeKey() {
-  return ['tree', 'GET', '/tree'] as const
+  return ['tree', '/tree'] as const
 }
 
 /**
@@ -51,11 +64,10 @@ export function useImmutableGetTree(options?: {
 }
 
 /**
- * Generates SWR infinite query cache key for GET /tree
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tree infinite query key
  */
 export function getGetTreeInfiniteKey() {
-  return ['tree', 'GET', '/tree', 'infinite'] as const
+  return ['tree', '/tree', 'infinite'] as const
 }
 
 /**
@@ -72,14 +84,6 @@ export function useInfiniteGetTree(options: {
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetTreeInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getTree(clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for POST /tree
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostTreeMutationKey() {
-  return ['tree', 'POST', '/tree'] as const
 }
 
 /**
@@ -106,7 +110,7 @@ export function usePostTree(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostTreeMutationKey()
+  const swrKey = customKey ?? (['tree', '/tree'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -119,11 +123,10 @@ export function usePostTree(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /graph
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /graph query key
  */
 export function getGetGraphKey() {
-  return ['graph', 'GET', '/graph'] as const
+  return ['graph', '/graph'] as const
 }
 
 /**
@@ -160,11 +163,10 @@ export function useImmutableGetGraph(options?: {
 }
 
 /**
- * Generates SWR infinite query cache key for GET /graph
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /graph infinite query key
  */
 export function getGetGraphInfiniteKey() {
-  return ['graph', 'GET', '/graph', 'infinite'] as const
+  return ['graph', '/graph', 'infinite'] as const
 }
 
 /**

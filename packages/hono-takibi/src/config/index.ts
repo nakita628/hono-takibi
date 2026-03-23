@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import { type FormatOptions } from 'oxfmt'
 import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
@@ -13,96 +14,7 @@ const ConfigSchema = z
       { message: 'must be .yaml | .json | .tsp' },
     ),
     basePath: z.string().exactOptional(),
-    // oxfmt format options for generated code output
-    format: z
-      .object({
-        /** The line length that the printer will wrap on. (Default: 100) */
-        printWidth: z.number().exactOptional(),
-        /** Number of spaces per indentation-level. (Default: 2) */
-        tabWidth: z.number().exactOptional(),
-        /** Indent lines with tabs instead of spaces. (Default: false) */
-        useTabs: z.boolean().exactOptional(),
-        /** Which end of line characters to apply. (Default: "lf") */
-        endOfLine: z.enum(['lf', 'crlf', 'cr']).exactOptional(),
-        /** Whether to insert a final newline at the end of the file. (Default: true) */
-        insertFinalNewline: z.boolean().exactOptional(),
-        /** Print semicolons at the ends of statements. (Default: true) */
-        semi: z.boolean().exactOptional(),
-        /** Use single quotes instead of double quotes. (Default: false) */
-        singleQuote: z.boolean().exactOptional(),
-        /** Use single quotes in JSX. (Default: false) */
-        jsxSingleQuote: z.boolean().exactOptional(),
-        /** Change when properties in objects are quoted. (Default: "as-needed") */
-        quoteProps: z.enum(['as-needed', 'consistent', 'preserve']).exactOptional(),
-        /** Print trailing commas wherever possible. (Default: "all") */
-        trailingComma: z.enum(['all', 'es5', 'none']).exactOptional(),
-        /** Print spaces between brackets in object literals. (Default: true) */
-        bracketSpacing: z.boolean().exactOptional(),
-        /** Put the > of a multi-line HTML element at the end of the last line. (Default: false) */
-        bracketSameLine: z.boolean().exactOptional(),
-        /** How to wrap object literals. (Default: "preserve") */
-        objectWrap: z.enum(['preserve', 'collapse']).exactOptional(),
-        /** Include parentheses around a sole arrow function parameter. (Default: "always") */
-        arrowParens: z.enum(['always', 'avoid']).exactOptional(),
-        /** Enforce single attribute per line in HTML, Vue and JSX. (Default: false) */
-        singleAttributePerLine: z.boolean().exactOptional(),
-        /** How to wrap markdown text. (Default: "preserve") */
-        proseWrap: z.enum(['always', 'never', 'preserve']).exactOptional(),
-        /** How to handle whitespaces in HTML. (Default: "css") */
-        htmlWhitespaceSensitivity: z.enum(['css', 'strict', 'ignore']).exactOptional(),
-        /** Whether to indent the code inside <script> and <style> tags in Vue files. (Default: false) */
-        vueIndentScriptAndStyle: z.boolean().exactOptional(),
-        /** Control whether to format quoted code embedded in the file. (Default: "auto") */
-        embeddedLanguageFormatting: z.enum(['auto', 'off']).exactOptional(),
-        /** Experimental: Sort import statements. Disabled by default. */
-        experimentalSortImports: z
-          .object({
-            /** Partition imports by newlines. (Default: false) */
-            partitionByNewline: z.boolean().exactOptional(),
-            /** Partition imports by comments. (Default: false) */
-            partitionByComment: z.boolean().exactOptional(),
-            /** Sort side-effect imports. (Default: false) */
-            sortSideEffects: z.boolean().exactOptional(),
-            /** Sort order. (Default: "asc") */
-            order: z.enum(['asc', 'desc']).exactOptional(),
-            /** Ignore case when sorting. (Default: true) */
-            ignoreCase: z.boolean().exactOptional(),
-            /** Add newlines between import groups. (Default: true) */
-            newlinesBetween: z.boolean().exactOptional(),
-            /** Prefixes to identify internal imports. (Default: ["~/", "@/"]) */
-            internalPattern: z.array(z.string()).exactOptional(),
-            /** Groups configuration for organizing imports. */
-            groups: z.array(z.union([z.string(), z.array(z.string())])).exactOptional(),
-            /** Define custom groups for matching specific imports. */
-            customGroups: z
-              .array(z.object({ groupName: z.string(), elementNamePattern: z.array(z.string()) }))
-              .exactOptional(),
-          })
-          .strict()
-          .exactOptional(),
-        /** Experimental: Sort package.json keys. (Default: true) */
-        experimentalSortPackageJson: z.boolean().exactOptional(),
-        /** Experimental: Enable Tailwind CSS class sorting. Disabled by default. */
-        experimentalTailwindcss: z
-          .object({
-            /** Path to Tailwind config file (v3). */
-            config: z.string().exactOptional(),
-            /** Path to Tailwind stylesheet (v4). */
-            stylesheet: z.string().exactOptional(),
-            /** List of custom function names whose arguments should be sorted. */
-            functions: z.array(z.string()).exactOptional(),
-            /** List of additional HTML/JSX attributes to sort. */
-            attributes: z.array(z.string()).exactOptional(),
-            /** Preserve whitespace around classes. (Default: false) */
-            preserveWhitespace: z.boolean().exactOptional(),
-            /** Preserve duplicate classes. (Default: false) */
-            preserveDuplicates: z.boolean().exactOptional(),
-          })
-          .strict()
-          .exactOptional(),
-      })
-      .strict()
-      .exactOptional(),
+    format: z.custom<FormatOptions>(() => true).exactOptional(),
     'zod-openapi': z
       .object({
         output: z
@@ -137,7 +49,7 @@ const ConfigSchema = z
         exportMediaTypesTypes: z.boolean().exactOptional(),
         routes: z
           .object({
-            output: z.custom<string>((v) => typeof v === 'string'),
+            output: z.string(),
             split: z.boolean().exactOptional(),
             import: z.string().exactOptional(),
           })
@@ -149,7 +61,7 @@ const ConfigSchema = z
           .object({
             schemas: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -160,7 +72,7 @@ const ConfigSchema = z
               .exactOptional(),
             parameters: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -171,7 +83,7 @@ const ConfigSchema = z
               .exactOptional(),
             headers: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -182,7 +94,7 @@ const ConfigSchema = z
               .exactOptional(),
             securitySchemes: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -192,7 +104,7 @@ const ConfigSchema = z
               .exactOptional(),
             requestBodies: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -202,7 +114,7 @@ const ConfigSchema = z
               .exactOptional(),
             responses: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -212,7 +124,7 @@ const ConfigSchema = z
               .exactOptional(),
             examples: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -222,7 +134,7 @@ const ConfigSchema = z
               .exactOptional(),
             links: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -232,7 +144,7 @@ const ConfigSchema = z
               .exactOptional(),
             callbacks: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -242,7 +154,7 @@ const ConfigSchema = z
               .exactOptional(),
             pathItems: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -252,7 +164,7 @@ const ConfigSchema = z
               .exactOptional(),
             mediaTypes: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 exportTypes: z.boolean().exactOptional(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
@@ -263,7 +175,7 @@ const ConfigSchema = z
               .exactOptional(),
             webhooks: z
               .object({
-                output: z.custom<string>((v) => typeof v === 'string'),
+                output: z.string(),
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
@@ -286,7 +198,7 @@ const ConfigSchema = z
       .exactOptional(),
     rpc: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -298,7 +210,7 @@ const ConfigSchema = z
       .exactOptional(),
     swr: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -309,7 +221,7 @@ const ConfigSchema = z
       .exactOptional(),
     'tanstack-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -320,7 +232,7 @@ const ConfigSchema = z
       .exactOptional(),
     'svelte-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -331,7 +243,7 @@ const ConfigSchema = z
       .exactOptional(),
     'vue-query': z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
@@ -342,14 +254,14 @@ const ConfigSchema = z
       .exactOptional(),
     test: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
         import: z.string(),
         framework: z.enum(['vitest', 'bun']).default('vitest').exactOptional(),
       })
       .exactOptional(),
     mock: z
       .object({
-        output: z.custom<string>((v) => typeof v === 'string'),
+        output: z.string(),
       })
       .exactOptional(),
     docs: z

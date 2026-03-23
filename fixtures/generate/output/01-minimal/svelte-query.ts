@@ -9,11 +9,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /health
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /health
  */
-export function getGetHealthQueryKey() {
-  return ['health', 'GET', '/health'] as const
+export function getHealthKey() {
+  return ['health'] as const
+}
+
+/**
+ * GET /health query key
+ */
+export function getHealthQueryKey() {
+  return ['health', '/health'] as const
 }
 
 /**
@@ -24,13 +30,11 @@ export async function getHealth(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /health
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /health query options
  */
-export function getGetHealthQueryOptions(options?: ClientRequestOptions) {
+export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetHealthQueryKey(),
+    queryKey: getHealthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
@@ -40,7 +44,7 @@ export function getGetHealthQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /health
  */
-export function createGetHealth(
+export function createHealth(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
     options?: ClientRequestOptions
@@ -48,27 +52,23 @@ export function createGetHealth(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetHealthQueryOptions(clientOptions), ...query }
+    return { ...getHealthQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /health
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /health infinite query key
  */
-export function getGetHealthInfiniteQueryKey() {
-  return ['health', 'GET', '/health', 'infinite'] as const
+export function getHealthInfiniteQueryKey() {
+  return ['health', '/health', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /health
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /health infinite query options
  */
-export function getGetHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetHealthInfiniteQueryKey(),
+    queryKey: getHealthInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
@@ -78,7 +78,7 @@ export function getGetHealthInfiniteQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /health
  */
-export function createInfiniteGetHealth(
+export function createInfiniteHealth(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
     options?: ClientRequestOptions
@@ -86,6 +86,6 @@ export function createInfiniteGetHealth(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetHealthInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getHealthInfiniteQueryOptions(clientOptions), ...query }
   })
 }

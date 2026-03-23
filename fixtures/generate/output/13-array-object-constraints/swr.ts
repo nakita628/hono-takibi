@@ -10,11 +10,38 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /config
+ */
+export function getConfigKey() {
+  return ['config'] as const
+}
+
+/**
+ * Key prefix for /payment
+ */
+export function getPaymentKey() {
+  return ['payment'] as const
+}
+
+/**
+ * Key prefix for /settings
+ */
+export function getSettingsKey() {
+  return ['settings'] as const
+}
+
+/**
+ * Key prefix for /tags
+ */
+export function getTagsKey() {
+  return ['tags'] as const
+}
+
+/**
+ * GET /tags query key
  */
 export function getGetTagsKey() {
-  return ['tags', 'GET', '/tags'] as const
+  return ['tags', '/tags'] as const
 }
 
 /**
@@ -51,11 +78,10 @@ export function useImmutableGetTags(options?: {
 }
 
 /**
- * Generates SWR infinite query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tags infinite query key
  */
 export function getGetTagsInfiniteKey() {
-  return ['tags', 'GET', '/tags', 'infinite'] as const
+  return ['tags', '/tags', 'infinite'] as const
 }
 
 /**
@@ -72,14 +98,6 @@ export function useInfiniteGetTags(options: {
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetTagsInfiniteKey(), index] as const)
   return useSWRInfinite(keyLoader, async () => getTags(clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for POST /tags
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostTagsMutationKey() {
-  return ['tags', 'POST', '/tags'] as const
 }
 
 /**
@@ -106,7 +124,7 @@ export function usePostTags(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostTagsMutationKey()
+  const swrKey = customKey ?? (['tags', '/tags'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -119,11 +137,10 @@ export function usePostTags(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /settings
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /settings query key
  */
 export function getGetSettingsKey(args: InferRequestType<typeof client.settings.$get>) {
-  return ['settings', 'GET', '/settings', args] as const
+  return ['settings', '/settings', args] as const
 }
 
 /**
@@ -172,11 +189,10 @@ export function useImmutableGetSettings(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /settings
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /settings infinite query key
  */
 export function getGetSettingsInfiniteKey(args: InferRequestType<typeof client.settings.$get>) {
-  return ['settings', 'GET', '/settings', args, 'infinite'] as const
+  return ['settings', '/settings', args, 'infinite'] as const
 }
 
 /**
@@ -196,14 +212,6 @@ export function useInfiniteGetSettings(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetSettingsInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getSettings(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for PUT /settings
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutSettingsMutationKey() {
-  return ['settings', 'PUT', '/settings'] as const
 }
 
 /**
@@ -230,7 +238,7 @@ export function usePutSettings(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPutSettingsMutationKey()
+  const swrKey = customKey ?? (['settings', '/settings'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -240,14 +248,6 @@ export function usePutSettings(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /config
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostConfigMutationKey() {
-  return ['config', 'POST', '/config'] as const
 }
 
 /**
@@ -274,7 +274,7 @@ export function usePostConfig(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostConfigMutationKey()
+  const swrKey = customKey ?? (['config', '/config'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -284,14 +284,6 @@ export function usePostConfig(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /payment
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPaymentMutationKey() {
-  return ['payment', 'POST', '/payment'] as const
 }
 
 /**
@@ -318,7 +310,7 @@ export function usePostPayment(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPaymentMutationKey()
+  const swrKey = customKey ?? (['payment', '/payment'] as const)
   return {
     swrKey,
     ...useSWRMutation(

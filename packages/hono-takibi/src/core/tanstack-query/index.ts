@@ -36,9 +36,10 @@ export async function tanstackQuery(
     suspenseQueryFn: 'useSuspenseQuery',
     infiniteQueryFn: 'useInfiniteQuery',
     suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
-    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
     useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
+    hasInfiniteQueryOptionsHelper: true,
+    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

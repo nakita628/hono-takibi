@@ -5,10 +5,8 @@ import {
   capitalize,
   ensureSuffix,
   error,
-  escapeCommentEnd,
   makeBarrel,
   makeInferRequestType,
-  makeOperationDocs,
   makeSafeKey,
   methodPath,
   normalizeTypes,
@@ -362,45 +360,6 @@ export * from './user'
       ['a', 'A'],
     ])(`capitalize('%s') -> '%s'`, (input, expected) => {
       expect(capitalize(input)).toBe(expected)
-    })
-  })
-  // escapeCommentEnd
-  describe('escapeCommentEnd', () => {
-    it.concurrent.each([
-      ['path/*/file', 'path/* /file'],
-      ['/api/v1', '/api/v1'],
-      ['no comment end here', 'no comment end here'],
-      ['end of comment */', 'end of comment * /'],
-      ['multiple */ ends */ here', 'multiple * / ends * / here'],
-    ])(`escapeCommentEnd('%s') -> '%s'`, (input, expected) => {
-      expect(escapeCommentEnd(input)).toBe(expected)
-    })
-  })
-  // makeOperationDocs
-  describe('makeOperationDocs', () => {
-    it.concurrent('generates JSDoc with method and path only', () => {
-      expect(makeOperationDocs('get', '/users')).toBe('/**\n * GET /users\n */')
-    })
-
-    it.concurrent('generates JSDoc with summary', () => {
-      expect(makeOperationDocs('post', '/users', 'Create a user')).toBe(
-        '/**\n * POST /users\n *\n * Create a user\n */',
-      )
-    })
-
-    it.concurrent('generates JSDoc with summary and description', () => {
-      expect(makeOperationDocs('get', '/users/{id}', 'Get user', 'Returns a user by ID')).toBe(
-        '/**\n * GET /users/{id}\n *\n * Get user\n *\n * Returns a user by ID\n */',
-      )
-    })
-
-    it.concurrent('escapes wildcard paths', () => {
-      expect(makeOperationDocs('get', '/files/*')).toBe('/**\n * GET /files/[*]\n */')
-    })
-
-    it.concurrent('handles multiline description', () => {
-      const result = makeOperationDocs('put', '/items', undefined, 'Line 1\nLine 2')
-      expect(result).toBe('/**\n * PUT /items\n *\n * Line 1\n * Line 2\n */')
     })
   })
   // makeInferRequestType

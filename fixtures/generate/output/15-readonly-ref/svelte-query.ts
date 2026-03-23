@@ -15,11 +15,24 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /items
  */
-export function getGetUsersQueryKey() {
-  return ['users', 'GET', '/users'] as const
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/**
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
+ * GET /users query key
+ */
+export function getUsersQueryKey() {
+  return ['users', '/users'] as const
 }
 
 /**
@@ -32,13 +45,11 @@ export async function getUsers(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users query options
  */
-export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
+export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(),
+    queryKey: getUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
@@ -50,7 +61,7 @@ export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
  *
  * List users
  */
-export function createGetUsers(
+export function createUsers(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -58,27 +69,23 @@ export function createGetUsers(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetUsersQueryOptions(clientOptions), ...query }
+    return { ...getUsersQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /users infinite query key
  */
-export function getGetUsersInfiniteQueryKey() {
-  return ['users', 'GET', '/users', 'infinite'] as const
+export function getUsersInfiniteQueryKey() {
+  return ['users', '/users', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users infinite query options
  */
-export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(),
+    queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
@@ -90,7 +97,7 @@ export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) 
  *
  * List users
  */
-export function createInfiniteGetUsers(
+export function createInfiniteUsers(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
     options?: ClientRequestOptions
@@ -98,16 +105,8 @@ export function createInfiniteGetUsers(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetUsersInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getUsersInfiniteQueryOptions(clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -123,13 +122,11 @@ export async function postUsers(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /users
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /users
  */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostUsersMutationKey(),
+    mutationKey: ['users', '/users'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
@@ -158,13 +155,10 @@ export function createPostUsers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /users/{id} query key
  */
-export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
-  return ['users', 'GET', '/users/:id', args] as const
+export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
 }
 
 /**
@@ -180,16 +174,14 @@ export async function getUsersId(
 }
 
 /**
- * Returns Svelte Query query options for GET /users/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users/{id} query options
  */
-export function getGetUsersIdQueryOptions(
+export function getUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdQueryKey(args),
+    queryKey: getUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -201,7 +193,7 @@ export function getGetUsersIdQueryOptions(
  *
  * Get user by ID
  */
-export function createGetUsersId(
+export function createUsersId(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -210,32 +202,28 @@ export function createGetUsersId(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetUsersIdQueryOptions(args(), clientOptions), ...query }
+    return { ...getUsersIdQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users/{id} infinite query key
  */
-export function getGetUsersIdInfiniteQueryKey(
+export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /users/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users/{id} infinite query options
  */
-export function getGetUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -247,7 +235,7 @@ export function getGetUsersIdInfiniteQueryOptions(
  *
  * Get user by ID
  */
-export function createInfiniteGetUsersId(
+export function createInfiniteUsersId(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -256,16 +244,8 @@ export function createInfiniteGetUsersId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetUsersIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getUsersIdInfiniteQueryOptions(args(), clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for PUT /users/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutUsersIdMutationKey() {
-  return ['users', 'PUT', '/users/:id'] as const
 }
 
 /**
@@ -281,13 +261,11 @@ export async function putUsersId(
 }
 
 /**
- * Returns Svelte Query mutation options for PUT /users/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * PUT /users/{id}
  */
 export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPutUsersIdMutationKey(),
+    mutationKey: ['users', '/users/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return putUsersId(args, options)
     },
@@ -316,11 +294,10 @@ export function createPutUsersId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /items query key
  */
-export function getGetItemsQueryKey() {
-  return ['items', 'GET', '/items'] as const
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
 }
 
 /**
@@ -333,13 +310,11 @@ export async function getItems(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /items
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items query options
  */
-export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetItemsQueryKey(),
+    queryKey: getItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -351,7 +326,7 @@ export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
  *
  * List items (uses $ref response alias)
  */
-export function createGetItems(
+export function createItems(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
     options?: ClientRequestOptions
@@ -359,27 +334,23 @@ export function createGetItems(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetItemsQueryOptions(clientOptions), ...query }
+    return { ...getItemsQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /items infinite query key
  */
-export function getGetItemsInfiniteQueryKey() {
-  return ['items', 'GET', '/items', 'infinite'] as const
+export function getItemsInfiniteQueryKey() {
+  return ['items', '/items', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /items
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items infinite query options
  */
-export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetItemsInfiniteQueryKey(),
+    queryKey: getItemsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -391,7 +362,7 @@ export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) 
  *
  * List items (uses $ref response alias)
  */
-export function createInfiniteGetItems(
+export function createInfiniteItems(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
     options?: ClientRequestOptions
@@ -399,6 +370,6 @@ export function createInfiniteGetItems(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetItemsInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getItemsInfiniteQueryOptions(clientOptions), ...query }
   })
 }

@@ -10,11 +10,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR mutation key for POST /subscriptions
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /subscriptions
  */
-export function getPostSubscriptionsMutationKey() {
-  return ['subscriptions', 'POST', '/subscriptions'] as const
+export function getSubscriptionsKey() {
+  return ['subscriptions'] as const
+}
+
+/**
+ * Key prefix for /webhooks
+ */
+export function getWebhooksKey() {
+  return ['webhooks'] as const
 }
 
 /**
@@ -41,7 +47,7 @@ export function usePostSubscriptions(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostSubscriptionsMutationKey()
+  const swrKey = customKey ?? (['subscriptions', '/subscriptions'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -54,13 +60,12 @@ export function usePostSubscriptions(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /subscriptions/{id} query key
  */
 export function getGetSubscriptionsIdKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args] as const
+  return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
 /**
@@ -112,13 +117,12 @@ export function useImmutableGetSubscriptionsId(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /subscriptions/{id} infinite query key
  */
 export function getGetSubscriptionsIdInfiniteKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args, 'infinite'] as const
+  return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
 }
 
 /**
@@ -146,14 +150,6 @@ export function useInfiniteGetSubscriptionsId(
 }
 
 /**
- * Generates SWR mutation key for DELETE /subscriptions/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteSubscriptionsIdMutationKey() {
-  return ['subscriptions', 'DELETE', '/subscriptions/:id'] as const
-}
-
-/**
  * DELETE /subscriptions/{id}
  */
 export async function deleteSubscriptionsId(
@@ -177,7 +173,7 @@ export function useDeleteSubscriptionsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeleteSubscriptionsIdMutationKey()
+  const swrKey = customKey ?? (['subscriptions', '/subscriptions/:id'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -189,14 +185,6 @@ export function useDeleteSubscriptionsId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /webhooks/test
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostWebhooksTestMutationKey() {
-  return ['webhooks', 'POST', '/webhooks/test'] as const
 }
 
 /**
@@ -223,7 +211,7 @@ export function usePostWebhooksTest(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostWebhooksTestMutationKey()
+  const swrKey = customKey ?? (['webhooks', '/webhooks/test'] as const)
   return {
     swrKey,
     ...useSWRMutation(

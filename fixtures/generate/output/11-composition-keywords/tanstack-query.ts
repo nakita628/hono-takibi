@@ -20,11 +20,87 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates TanStack Query mutation key for POST /one-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /all-of
  */
-export function getPostOneOfMutationKey() {
-  return ['one-of', 'POST', '/one-of'] as const
+export function getAllOfKey() {
+  return ['all-of'] as const
+}
+
+/**
+ * Key prefix for /all-of-sibling
+ */
+export function getAllOfSiblingKey() {
+  return ['all-of-sibling'] as const
+}
+
+/**
+ * Key prefix for /any-of
+ */
+export function getAnyOfKey() {
+  return ['any-of'] as const
+}
+
+/**
+ * Key prefix for /any-of-ref
+ */
+export function getAnyOfRefKey() {
+  return ['any-of-ref'] as const
+}
+
+/**
+ * Key prefix for /any-of-three
+ */
+export function getAnyOfThreeKey() {
+  return ['any-of-three'] as const
+}
+
+/**
+ * Key prefix for /not
+ */
+export function getNotKey() {
+  return ['not'] as const
+}
+
+/**
+ * Key prefix for /not-composition
+ */
+export function getNotCompositionKey() {
+  return ['not-composition'] as const
+}
+
+/**
+ * Key prefix for /not-const
+ */
+export function getNotConstKey() {
+  return ['not-const'] as const
+}
+
+/**
+ * Key prefix for /not-enum
+ */
+export function getNotEnumKey() {
+  return ['not-enum'] as const
+}
+
+/**
+ * Key prefix for /not-ref
+ */
+export function getNotRefKey() {
+  return ['not-ref'] as const
+}
+
+/**
+ * Key prefix for /nullable-one-of
+ */
+export function getNullableOneOfKey() {
+  return ['nullable-one-of'] as const
+}
+
+/**
+ * Key prefix for /one-of
+ */
+export function getOneOfKey() {
+  return ['one-of'] as const
 }
 
 /**
@@ -38,13 +114,11 @@ export async function postOneOf(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /one-of
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /one-of
  */
 export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostOneOfMutationKey(),
+    mutationKey: ['one-of', '/one-of'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
       return postOneOf(args, options)
     },
@@ -67,14 +141,6 @@ export function usePostOneOf(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for POST /any-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostAnyOfMutationKey() {
-  return ['any-of', 'POST', '/any-of'] as const
-}
-
-/**
  * POST /any-of
  */
 export async function postAnyOf(
@@ -85,13 +151,11 @@ export async function postAnyOf(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /any-of
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /any-of
  */
 export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostAnyOfMutationKey(),
+    mutationKey: ['any-of', '/any-of'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
       return postAnyOf(args, options)
     },
@@ -114,14 +178,6 @@ export function usePostAnyOf(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for POST /all-of
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostAllOfMutationKey() {
-  return ['all-of', 'POST', '/all-of'] as const
-}
-
-/**
  * POST /all-of
  */
 export async function postAllOf(
@@ -132,13 +188,11 @@ export async function postAllOf(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /all-of
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /all-of
  */
 export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostAllOfMutationKey(),
+    mutationKey: ['all-of', '/all-of'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
       return postAllOf(args, options)
     },
@@ -161,14 +215,6 @@ export function usePostAllOf(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for POST /not
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostNotMutationKey() {
-  return ['not', 'POST', '/not'] as const
-}
-
-/**
  * POST /not
  */
 export async function postNot(
@@ -179,13 +225,11 @@ export async function postNot(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /not
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /not
  */
 export function getPostNotMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostNotMutationKey(),
+    mutationKey: ['not', '/not'] as const,
     async mutationFn(args: InferRequestType<typeof client.not.$post>) {
       return postNot(args, options)
     },
@@ -208,11 +252,10 @@ export function usePostNot(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /not-ref
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /not-ref query key
  */
-export function getGetNotRefQueryKey() {
-  return ['not-ref', 'GET', '/not-ref'] as const
+export function getNotRefQueryKey() {
+  return ['not-ref', '/not-ref'] as const
 }
 
 /**
@@ -223,13 +266,11 @@ export async function getNotRef(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /not-ref
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /not-ref query options
  */
-export function getGetNotRefQueryOptions(options?: ClientRequestOptions) {
+export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetNotRefQueryKey(),
+    queryKey: getNotRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotRef({ ...options, init: { ...options?.init, signal } })
     },
@@ -239,42 +280,38 @@ export function getGetNotRefQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /not-ref
  */
-export function useGetNotRef(options?: {
+export function useNotRef(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNotRefQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getNotRefQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-ref
  */
-export function useSuspenseGetNotRef(options?: {
+export function useSuspenseNotRef(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetNotRefQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getNotRefQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /not-ref
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /not-ref infinite query key
  */
-export function getGetNotRefInfiniteQueryKey() {
-  return ['not-ref', 'GET', '/not-ref', 'infinite'] as const
+export function getNotRefInfiniteQueryKey() {
+  return ['not-ref', '/not-ref', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /not-ref
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /not-ref infinite query options
  */
-export function getGetNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetNotRefInfiniteQueryKey(),
+    queryKey: getNotRefInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotRef({ ...options, init: { ...options?.init, signal } })
     },
@@ -284,34 +321,33 @@ export function getGetNotRefInfiniteQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /not-ref
  */
-export function useInfiniteGetNotRef(options: {
+export function useInfiniteNotRef(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetNotRefInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getNotRefInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-ref
  */
-export function useSuspenseInfiniteGetNotRef(options: {
+export function useSuspenseInfiniteNotRef(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetNotRefInfiniteQueryOptions(clientOptions),
+    ...getNotRefInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /not-enum
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /not-enum query key
  */
-export function getGetNotEnumQueryKey() {
-  return ['not-enum', 'GET', '/not-enum'] as const
+export function getNotEnumQueryKey() {
+  return ['not-enum', '/not-enum'] as const
 }
 
 /**
@@ -322,13 +358,11 @@ export async function getNotEnum(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /not-enum
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /not-enum query options
  */
-export function getGetNotEnumQueryOptions(options?: ClientRequestOptions) {
+export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetNotEnumQueryKey(),
+    queryKey: getNotEnumQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotEnum({ ...options, init: { ...options?.init, signal } })
     },
@@ -338,42 +372,38 @@ export function getGetNotEnumQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /not-enum
  */
-export function useGetNotEnum(options?: {
+export function useNotEnum(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNotEnumQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getNotEnumQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-enum
  */
-export function useSuspenseGetNotEnum(options?: {
+export function useSuspenseNotEnum(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetNotEnumQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getNotEnumQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /not-enum
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /not-enum infinite query key
  */
-export function getGetNotEnumInfiniteQueryKey() {
-  return ['not-enum', 'GET', '/not-enum', 'infinite'] as const
+export function getNotEnumInfiniteQueryKey() {
+  return ['not-enum', '/not-enum', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /not-enum
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /not-enum infinite query options
  */
-export function getGetNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetNotEnumInfiniteQueryKey(),
+    queryKey: getNotEnumInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotEnum({ ...options, init: { ...options?.init, signal } })
     },
@@ -383,34 +413,33 @@ export function getGetNotEnumInfiniteQueryOptions(options?: ClientRequestOptions
 /**
  * GET /not-enum
  */
-export function useInfiniteGetNotEnum(options: {
+export function useInfiniteNotEnum(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetNotEnumInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getNotEnumInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-enum
  */
-export function useSuspenseInfiniteGetNotEnum(options: {
+export function useSuspenseInfiniteNotEnum(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetNotEnumInfiniteQueryOptions(clientOptions),
+    ...getNotEnumInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /not-const
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /not-const query key
  */
-export function getGetNotConstQueryKey() {
-  return ['not-const', 'GET', '/not-const'] as const
+export function getNotConstQueryKey() {
+  return ['not-const', '/not-const'] as const
 }
 
 /**
@@ -421,13 +450,11 @@ export async function getNotConst(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /not-const
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /not-const query options
  */
-export function getGetNotConstQueryOptions(options?: ClientRequestOptions) {
+export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetNotConstQueryKey(),
+    queryKey: getNotConstQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotConst({ ...options, init: { ...options?.init, signal } })
     },
@@ -437,42 +464,38 @@ export function getGetNotConstQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /not-const
  */
-export function useGetNotConst(options?: {
+export function useNotConst(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNotConstQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getNotConstQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-const
  */
-export function useSuspenseGetNotConst(options?: {
+export function useSuspenseNotConst(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetNotConstQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getNotConstQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /not-const
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /not-const infinite query key
  */
-export function getGetNotConstInfiniteQueryKey() {
-  return ['not-const', 'GET', '/not-const', 'infinite'] as const
+export function getNotConstInfiniteQueryKey() {
+  return ['not-const', '/not-const', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /not-const
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /not-const infinite query options
  */
-export function getGetNotConstInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getNotConstInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetNotConstInfiniteQueryKey(),
+    queryKey: getNotConstInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotConst({ ...options, init: { ...options?.init, signal } })
     },
@@ -482,34 +505,33 @@ export function getGetNotConstInfiniteQueryOptions(options?: ClientRequestOption
 /**
  * GET /not-const
  */
-export function useInfiniteGetNotConst(options: {
+export function useInfiniteNotConst(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetNotConstInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getNotConstInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-const
  */
-export function useSuspenseInfiniteGetNotConst(options: {
+export function useSuspenseInfiniteNotConst(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetNotConstInfiniteQueryOptions(clientOptions),
+    ...getNotConstInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /not-composition
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /not-composition query key
  */
-export function getGetNotCompositionQueryKey() {
-  return ['not-composition', 'GET', '/not-composition'] as const
+export function getNotCompositionQueryKey() {
+  return ['not-composition', '/not-composition'] as const
 }
 
 /**
@@ -520,13 +542,11 @@ export async function getNotComposition(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /not-composition
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /not-composition query options
  */
-export function getGetNotCompositionQueryOptions(options?: ClientRequestOptions) {
+export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetNotCompositionQueryKey(),
+    queryKey: getNotCompositionQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotComposition({ ...options, init: { ...options?.init, signal } })
     },
@@ -536,42 +556,38 @@ export function getGetNotCompositionQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /not-composition
  */
-export function useGetNotComposition(options?: {
+export function useNotComposition(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNotCompositionQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getNotCompositionQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /not-composition
  */
-export function useSuspenseGetNotComposition(options?: {
+export function useSuspenseNotComposition(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetNotCompositionQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getNotCompositionQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /not-composition
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /not-composition infinite query key
  */
-export function getGetNotCompositionInfiniteQueryKey() {
-  return ['not-composition', 'GET', '/not-composition', 'infinite'] as const
+export function getNotCompositionInfiniteQueryKey() {
+  return ['not-composition', '/not-composition', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /not-composition
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /not-composition infinite query options
  */
-export function getGetNotCompositionInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getNotCompositionInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetNotCompositionInfiniteQueryKey(),
+    queryKey: getNotCompositionInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNotComposition({ ...options, init: { ...options?.init, signal } })
     },
@@ -581,13 +597,13 @@ export function getGetNotCompositionInfiniteQueryOptions(options?: ClientRequest
 /**
  * GET /not-composition
  */
-export function useInfiniteGetNotComposition(options: {
+export function useInfiniteNotComposition(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetNotCompositionInfiniteQueryOptions(clientOptions),
+    ...getNotCompositionInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -595,23 +611,22 @@ export function useInfiniteGetNotComposition(options: {
 /**
  * GET /not-composition
  */
-export function useSuspenseInfiniteGetNotComposition(options: {
+export function useSuspenseInfiniteNotComposition(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetNotCompositionInfiniteQueryOptions(clientOptions),
+    ...getNotCompositionInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /all-of-sibling
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /all-of-sibling query key
  */
-export function getGetAllOfSiblingQueryKey() {
-  return ['all-of-sibling', 'GET', '/all-of-sibling'] as const
+export function getAllOfSiblingQueryKey() {
+  return ['all-of-sibling', '/all-of-sibling'] as const
 }
 
 /**
@@ -622,13 +637,11 @@ export async function getAllOfSibling(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /all-of-sibling
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /all-of-sibling query options
  */
-export function getGetAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
+export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetAllOfSiblingQueryKey(),
+    queryKey: getAllOfSiblingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
     },
@@ -638,42 +651,38 @@ export function getGetAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /all-of-sibling
  */
-export function useGetAllOfSibling(options?: {
+export function useAllOfSibling(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAllOfSiblingQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getAllOfSiblingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /all-of-sibling
  */
-export function useSuspenseGetAllOfSibling(options?: {
+export function useSuspenseAllOfSibling(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetAllOfSiblingQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getAllOfSiblingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /all-of-sibling
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /all-of-sibling infinite query key
  */
-export function getGetAllOfSiblingInfiniteQueryKey() {
-  return ['all-of-sibling', 'GET', '/all-of-sibling', 'infinite'] as const
+export function getAllOfSiblingInfiniteQueryKey() {
+  return ['all-of-sibling', '/all-of-sibling', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /all-of-sibling
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /all-of-sibling infinite query options
  */
-export function getGetAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetAllOfSiblingInfiniteQueryKey(),
+    queryKey: getAllOfSiblingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
     },
@@ -683,13 +692,13 @@ export function getGetAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOp
 /**
  * GET /all-of-sibling
  */
-export function useInfiniteGetAllOfSibling(options: {
+export function useInfiniteAllOfSibling(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetAllOfSiblingInfiniteQueryOptions(clientOptions),
+    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -697,23 +706,22 @@ export function useInfiniteGetAllOfSibling(options: {
 /**
  * GET /all-of-sibling
  */
-export function useSuspenseInfiniteGetAllOfSibling(options: {
+export function useSuspenseInfiniteAllOfSibling(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetAllOfSiblingInfiniteQueryOptions(clientOptions),
+    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /nullable-one-of
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /nullable-one-of query key
  */
-export function getGetNullableOneOfQueryKey() {
-  return ['nullable-one-of', 'GET', '/nullable-one-of'] as const
+export function getNullableOneOfQueryKey() {
+  return ['nullable-one-of', '/nullable-one-of'] as const
 }
 
 /**
@@ -724,13 +732,11 @@ export async function getNullableOneOf(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /nullable-one-of
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /nullable-one-of query options
  */
-export function getGetNullableOneOfQueryOptions(options?: ClientRequestOptions) {
+export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetNullableOneOfQueryKey(),
+    queryKey: getNullableOneOfQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
     },
@@ -740,42 +746,38 @@ export function getGetNullableOneOfQueryOptions(options?: ClientRequestOptions) 
 /**
  * GET /nullable-one-of
  */
-export function useGetNullableOneOf(options?: {
+export function useNullableOneOf(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNullableOneOfQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getNullableOneOfQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /nullable-one-of
  */
-export function useSuspenseGetNullableOneOf(options?: {
+export function useSuspenseNullableOneOf(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetNullableOneOfQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getNullableOneOfQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /nullable-one-of
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /nullable-one-of infinite query key
  */
-export function getGetNullableOneOfInfiniteQueryKey() {
-  return ['nullable-one-of', 'GET', '/nullable-one-of', 'infinite'] as const
+export function getNullableOneOfInfiniteQueryKey() {
+  return ['nullable-one-of', '/nullable-one-of', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /nullable-one-of
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /nullable-one-of infinite query options
  */
-export function getGetNullableOneOfInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getNullableOneOfInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetNullableOneOfInfiniteQueryKey(),
+    queryKey: getNullableOneOfInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
     },
@@ -785,13 +787,13 @@ export function getGetNullableOneOfInfiniteQueryOptions(options?: ClientRequestO
 /**
  * GET /nullable-one-of
  */
-export function useInfiniteGetNullableOneOf(options: {
+export function useInfiniteNullableOneOf(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetNullableOneOfInfiniteQueryOptions(clientOptions),
+    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -799,23 +801,22 @@ export function useInfiniteGetNullableOneOf(options: {
 /**
  * GET /nullable-one-of
  */
-export function useSuspenseInfiniteGetNullableOneOf(options: {
+export function useSuspenseInfiniteNullableOneOf(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetNullableOneOfInfiniteQueryOptions(clientOptions),
+    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /any-of-three
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /any-of-three query key
  */
-export function getGetAnyOfThreeQueryKey() {
-  return ['any-of-three', 'GET', '/any-of-three'] as const
+export function getAnyOfThreeQueryKey() {
+  return ['any-of-three', '/any-of-three'] as const
 }
 
 /**
@@ -826,13 +827,11 @@ export async function getAnyOfThree(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /any-of-three
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /any-of-three query options
  */
-export function getGetAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
+export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetAnyOfThreeQueryKey(),
+    queryKey: getAnyOfThreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
     },
@@ -842,42 +841,38 @@ export function getGetAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /any-of-three
  */
-export function useGetAnyOfThree(options?: {
+export function useAnyOfThree(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAnyOfThreeQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getAnyOfThreeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /any-of-three
  */
-export function useSuspenseGetAnyOfThree(options?: {
+export function useSuspenseAnyOfThree(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetAnyOfThreeQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getAnyOfThreeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /any-of-three
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /any-of-three infinite query key
  */
-export function getGetAnyOfThreeInfiniteQueryKey() {
-  return ['any-of-three', 'GET', '/any-of-three', 'infinite'] as const
+export function getAnyOfThreeInfiniteQueryKey() {
+  return ['any-of-three', '/any-of-three', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /any-of-three
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /any-of-three infinite query options
  */
-export function getGetAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetAnyOfThreeInfiniteQueryKey(),
+    queryKey: getAnyOfThreeInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
     },
@@ -887,37 +882,33 @@ export function getGetAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOpti
 /**
  * GET /any-of-three
  */
-export function useInfiniteGetAnyOfThree(options: {
+export function useInfiniteAnyOfThree(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetAnyOfThreeInfiniteQueryOptions(clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getAnyOfThreeInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /any-of-three
  */
-export function useSuspenseInfiniteGetAnyOfThree(options: {
+export function useSuspenseInfiniteAnyOfThree(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetAnyOfThreeInfiniteQueryOptions(clientOptions),
+    ...getAnyOfThreeInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates TanStack Query cache key for GET /any-of-ref
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /any-of-ref query key
  */
-export function getGetAnyOfRefQueryKey() {
-  return ['any-of-ref', 'GET', '/any-of-ref'] as const
+export function getAnyOfRefQueryKey() {
+  return ['any-of-ref', '/any-of-ref'] as const
 }
 
 /**
@@ -928,13 +919,11 @@ export async function getAnyOfRef(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /any-of-ref
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /any-of-ref query options
  */
-export function getGetAnyOfRefQueryOptions(options?: ClientRequestOptions) {
+export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetAnyOfRefQueryKey(),
+    queryKey: getAnyOfRefQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
     },
@@ -944,42 +933,38 @@ export function getGetAnyOfRefQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /any-of-ref
  */
-export function useGetAnyOfRef(options?: {
+export function useAnyOfRef(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAnyOfRefQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getAnyOfRefQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /any-of-ref
  */
-export function useSuspenseGetAnyOfRef(options?: {
+export function useSuspenseAnyOfRef(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetAnyOfRefQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getAnyOfRefQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /any-of-ref
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /any-of-ref infinite query key
  */
-export function getGetAnyOfRefInfiniteQueryKey() {
-  return ['any-of-ref', 'GET', '/any-of-ref', 'infinite'] as const
+export function getAnyOfRefInfiniteQueryKey() {
+  return ['any-of-ref', '/any-of-ref', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /any-of-ref
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /any-of-ref infinite query options
  */
-export function getGetAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetAnyOfRefInfiniteQueryKey(),
+    queryKey: getAnyOfRefInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
     },
@@ -989,24 +974,24 @@ export function getGetAnyOfRefInfiniteQueryOptions(options?: ClientRequestOption
 /**
  * GET /any-of-ref
  */
-export function useInfiniteGetAnyOfRef(options: {
+export function useInfiniteAnyOfRef(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetAnyOfRefInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getAnyOfRefInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
  * GET /any-of-ref
  */
-export function useSuspenseInfiniteGetAnyOfRef(options: {
+export function useSuspenseInfiniteAnyOfRef(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetAnyOfRefInfiniteQueryOptions(clientOptions),
+    ...getAnyOfRefInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }

@@ -35,6 +35,7 @@ export async function vueQuery(
     isVueQuery: true,
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+    hasInfiniteQueryOptionsHelper: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

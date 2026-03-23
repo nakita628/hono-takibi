@@ -12,11 +12,38 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Vue Query cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /api
  */
-export function getGetApiReverseChibanIndexQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban/'] as const
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/**
+ * Key prefix for /items
+ */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/**
+ * Key prefix for /posts
+ */
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/**
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
+ * GET /api/reverseChiban/ query key
+ */
+export function getApiReverseChibanIndexQueryKey() {
+  return ['api', '/api/reverseChiban/'] as const
 }
 
 /**
@@ -29,13 +56,11 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /api/reverseChiban/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseChiban/ query options
  */
-export function getGetApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetApiReverseChibanIndexQueryKey(),
+    queryKey: getApiReverseChibanIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -47,31 +72,27 @@ export function getGetApiReverseChibanIndexQueryOptions(options?: ClientRequestO
  *
  * Reverse Chiban (trailing slash)
  */
-export function useGetApiReverseChibanIndex(options?: {
+export function useApiReverseChibanIndex(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetApiReverseChibanIndexQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getApiReverseChibanIndexQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /api/reverseChiban/ infinite query key
  */
-export function getGetApiReverseChibanIndexInfiniteQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban/', 'infinite'] as const
+export function getApiReverseChibanIndexInfiniteQueryKey() {
+  return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /api/reverseChiban/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseChiban/ infinite query options
  */
-export function getGetApiReverseChibanIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetApiReverseChibanIndexInfiniteQueryKey(),
+    queryKey: getApiReverseChibanIndexInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -83,23 +104,22 @@ export function getGetApiReverseChibanIndexInfiniteQueryOptions(options?: Client
  *
  * Reverse Chiban (trailing slash)
  */
-export function useInfiniteGetApiReverseChibanIndex(options: {
+export function useInfiniteApiReverseChibanIndex(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
+    ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /api/reverseChiban query key
  */
-export function getGetApiReverseChibanQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban'] as const
+export function getApiReverseChibanQueryKey() {
+  return ['api', '/api/reverseChiban'] as const
 }
 
 /**
@@ -112,13 +132,11 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /api/reverseChiban
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseChiban query options
  */
-export function getGetApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetApiReverseChibanQueryKey(),
+    queryKey: getApiReverseChibanQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
@@ -130,31 +148,27 @@ export function getGetApiReverseChibanQueryOptions(options?: ClientRequestOption
  *
  * Reverse Chiban (no trailing slash)
  */
-export function useGetApiReverseChiban(options?: {
+export function useApiReverseChiban(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetApiReverseChibanQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getApiReverseChibanQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /api/reverseChiban infinite query key
  */
-export function getGetApiReverseChibanInfiniteQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban', 'infinite'] as const
+export function getApiReverseChibanInfiniteQueryKey() {
+  return ['api', '/api/reverseChiban', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /api/reverseChiban
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseChiban infinite query options
  */
-export function getGetApiReverseChibanInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetApiReverseChibanInfiniteQueryKey(),
+    queryKey: getApiReverseChibanInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
@@ -166,25 +180,24 @@ export function getGetApiReverseChibanInfiniteQueryOptions(options?: ClientReque
  *
  * Reverse Chiban (no trailing slash)
  */
-export function useInfiniteGetApiReverseChiban(options: {
+export function useInfiniteApiReverseChiban(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetApiReverseChibanInfiniteQueryOptions(clientOptions),
+    ...getApiReverseChibanInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/ query key
  */
-export function getGetPostsIndexQueryKey(
+export function getPostsIndexQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
 ) {
-  return ['posts', 'GET', '/posts/', args] as const
+  return ['posts', '/posts/', args] as const
 }
 
 /**
@@ -200,16 +213,14 @@ export async function getPostsIndex(
 }
 
 /**
- * Returns Vue Query query options for GET /posts/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/ query options
  */
-export function getGetPostsIndexQueryOptions(
+export function getPostsIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIndexQueryKey(args),
+    queryKey: getPostsIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -221,7 +232,7 @@ export function getGetPostsIndexQueryOptions(
  *
  * List posts (trailing slash only)
  */
-export function useGetPostsIndex(
+export function usePostsIndex(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
@@ -229,31 +240,27 @@ export function useGetPostsIndex(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsIndexQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/ infinite query key
  */
-export function getGetPostsIndexInfiniteQueryKey(
+export function getPostsIndexInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
 ) {
-  return ['posts', 'GET', '/posts/', args, 'infinite'] as const
+  return ['posts', '/posts/', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /posts/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/ infinite query options
  */
-export function getGetPostsIndexInfiniteQueryOptions(
+export function getPostsIndexInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIndexInfiniteQueryKey(args),
+    queryKey: getPostsIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -265,7 +272,7 @@ export function getGetPostsIndexInfiniteQueryOptions(
  *
  * List posts (trailing slash only)
  */
-export function useInfiniteGetPostsIndex(
+export function useInfinitePostsIndex(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
@@ -274,17 +281,9 @@ export function useInfiniteGetPostsIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetPostsIndexInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for POST /posts/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIndexMutationKey() {
-  return ['posts', 'POST', '/posts/'] as const
 }
 
 /**
@@ -300,13 +299,11 @@ export async function postPostsIndex(
 }
 
 /**
- * Returns Vue Query mutation options for POST /posts/
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /posts/
  */
 export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostPostsIndexMutationKey(),
+    mutationKey: ['posts', '/posts/'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
       return postPostsIndex(args, options)
     },
@@ -331,13 +328,12 @@ export function usePostPostsIndex(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /users/{id}/ query key
  */
-export function getGetUsersIdIndexQueryKey(
+export function getUsersIdIndexQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id/', args] as const
+  return ['users', '/users/:id/', args] as const
 }
 
 /**
@@ -353,16 +349,14 @@ export async function getUsersIdIndex(
 }
 
 /**
- * Returns Vue Query query options for GET /users/{id}/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users/{id}/ query options
  */
-export function getGetUsersIdIndexQueryOptions(
+export function getUsersIdIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdIndexQueryKey(args),
+    queryKey: getUsersIdIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersIdIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -374,7 +368,7 @@ export function getGetUsersIdIndexQueryOptions(
  *
  * Get user (trailing slash with path param)
  */
-export function useGetUsersIdIndex(
+export function useUsersIdIndex(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
@@ -382,31 +376,27 @@ export function useGetUsersIdIndex(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersIdIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getUsersIdIndexQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users/{id}/ infinite query key
  */
-export function getGetUsersIdIndexInfiniteQueryKey(
+export function getUsersIdIndexInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
 ) {
-  return ['users', 'GET', '/users/:id/', args, 'infinite'] as const
+  return ['users', '/users/:id/', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /users/{id}/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users/{id}/ infinite query options
  */
-export function getGetUsersIdIndexInfiniteQueryOptions(
+export function getUsersIdIndexInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdIndexInfiniteQueryKey(args),
+    queryKey: getUsersIdIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersIdIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -418,7 +408,7 @@ export function getGetUsersIdIndexInfiniteQueryOptions(
  *
  * Get user (trailing slash with path param)
  */
-export function useInfiniteGetUsersIdIndex(
+export function useInfiniteUsersIdIndex(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
@@ -427,17 +417,16 @@ export function useInfiniteGetUsersIdIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetUsersIdIndexInfiniteQueryOptions(args, clientOptions),
+    ...getUsersIdIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /items/ query key
  */
-export function getGetItemsIndexQueryKey() {
-  return ['items', 'GET', '/items/'] as const
+export function getItemsIndexQueryKey() {
+  return ['items', '/items/'] as const
 }
 
 /**
@@ -450,13 +439,11 @@ export async function getItemsIndex(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /items/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items/ query options
  */
-export function getGetItemsIndexQueryOptions(options?: ClientRequestOptions) {
+export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetItemsIndexQueryKey(),
+    queryKey: getItemsIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -468,31 +455,27 @@ export function getGetItemsIndexQueryOptions(options?: ClientRequestOptions) {
  *
  * List items (trailing slash only)
  */
-export function useGetItemsIndex(options?: {
+export function useItemsIndex(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsIndexQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsIndexQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /items/ infinite query key
  */
-export function getGetItemsIndexInfiniteQueryKey() {
-  return ['items', 'GET', '/items/', 'infinite'] as const
+export function getItemsIndexInfiniteQueryKey() {
+  return ['items', '/items/', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /items/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items/ infinite query options
  */
-export function getGetItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetItemsIndexInfiniteQueryKey(),
+    queryKey: getItemsIndexInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -504,13 +487,10 @@ export function getGetItemsIndexInfiniteQueryOptions(options?: ClientRequestOpti
  *
  * List items (trailing slash only)
  */
-export function useInfiniteGetItemsIndex(options: {
+export function useInfiniteItemsIndex(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetItemsIndexInfiniteQueryOptions(clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getItemsIndexInfiniteQueryOptions(clientOptions), ...queryOptions })
 }

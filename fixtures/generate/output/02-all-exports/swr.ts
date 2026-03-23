@@ -10,11 +10,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
+ * GET /users query key
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+  return ['users', '/users', args] as const
 }
 
 /**
@@ -63,11 +69,10 @@ export function useImmutableGetUsers(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users infinite query key
  */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
+  return ['users', '/users', args, 'infinite'] as const
 }
 
 /**
@@ -87,14 +92,6 @@ export function useInfiniteGetUsers(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -121,7 +118,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostUsersMutationKey()
+  const swrKey = customKey ?? (['users', '/users'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -134,11 +131,10 @@ export function usePostUsers(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /users/{id} query key
  */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
-  return ['users', 'GET', '/users/:id', args] as const
+  return ['users', '/users/:id', args] as const
 }
 
 /**
@@ -187,13 +183,12 @@ export function useImmutableGetUsersId(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users/{id} infinite query key
  */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
 /**

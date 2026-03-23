@@ -10,11 +10,38 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Vue Query mutation key for POST /nullable
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /additional-props
  */
-export function getPostNullableMutationKey() {
-  return ['nullable', 'POST', '/nullable'] as const
+export function getAdditionalPropsKey() {
+  return ['additional-props'] as const
+}
+
+/**
+ * Key prefix for /composed
+ */
+export function getComposedKey() {
+  return ['composed'] as const
+}
+
+/**
+ * Key prefix for /deep-nested
+ */
+export function getDeepNestedKey() {
+  return ['deep-nested'] as const
+}
+
+/**
+ * Key prefix for /discriminated
+ */
+export function getDiscriminatedKey() {
+  return ['discriminated'] as const
+}
+
+/**
+ * Key prefix for /nullable
+ */
+export function getNullableKey() {
+  return ['nullable'] as const
 }
 
 /**
@@ -28,13 +55,11 @@ export async function postNullable(
 }
 
 /**
- * Returns Vue Query mutation options for POST /nullable
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /nullable
  */
 export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostNullableMutationKey(),
+    mutationKey: ['nullable', '/nullable'] as const,
     async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
       return postNullable(args, options)
     },
@@ -57,14 +82,6 @@ export function usePostNullable(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for POST /discriminated
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostDiscriminatedMutationKey() {
-  return ['discriminated', 'POST', '/discriminated'] as const
-}
-
-/**
  * POST /discriminated
  */
 export async function postDiscriminated(
@@ -75,13 +92,11 @@ export async function postDiscriminated(
 }
 
 /**
- * Returns Vue Query mutation options for POST /discriminated
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /discriminated
  */
 export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostDiscriminatedMutationKey(),
+    mutationKey: ['discriminated', '/discriminated'] as const,
     async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
       return postDiscriminated(args, options)
     },
@@ -104,11 +119,10 @@ export function usePostDiscriminated(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /composed
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /composed query key
  */
-export function getGetComposedQueryKey() {
-  return ['composed', 'GET', '/composed'] as const
+export function getComposedQueryKey() {
+  return ['composed', '/composed'] as const
 }
 
 /**
@@ -119,13 +133,11 @@ export async function getComposed(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /composed
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /composed query options
  */
-export function getGetComposedQueryOptions(options?: ClientRequestOptions) {
+export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetComposedQueryKey(),
+    queryKey: getComposedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getComposed({ ...options, init: { ...options?.init, signal } })
     },
@@ -135,31 +147,27 @@ export function getGetComposedQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /composed
  */
-export function useGetComposed(options?: {
+export function useComposed(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetComposedQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getComposedQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /composed
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /composed infinite query key
  */
-export function getGetComposedInfiniteQueryKey() {
-  return ['composed', 'GET', '/composed', 'infinite'] as const
+export function getComposedInfiniteQueryKey() {
+  return ['composed', '/composed', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /composed
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /composed infinite query options
  */
-export function getGetComposedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getComposedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetComposedInfiniteQueryKey(),
+    queryKey: getComposedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getComposed({ ...options, init: { ...options?.init, signal } })
     },
@@ -169,20 +177,19 @@ export function getGetComposedInfiniteQueryOptions(options?: ClientRequestOption
 /**
  * GET /composed
  */
-export function useInfiniteGetComposed(options: {
+export function useInfiniteComposed(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetComposedInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getComposedInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query cache key for GET /deep-nested
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /deep-nested query key
  */
-export function getGetDeepNestedQueryKey() {
-  return ['deep-nested', 'GET', '/deep-nested'] as const
+export function getDeepNestedQueryKey() {
+  return ['deep-nested', '/deep-nested'] as const
 }
 
 /**
@@ -193,13 +200,11 @@ export async function getDeepNested(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /deep-nested
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /deep-nested query options
  */
-export function getGetDeepNestedQueryOptions(options?: ClientRequestOptions) {
+export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetDeepNestedQueryKey(),
+    queryKey: getDeepNestedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
@@ -209,31 +214,27 @@ export function getGetDeepNestedQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /deep-nested
  */
-export function useGetDeepNested(options?: {
+export function useDeepNested(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetDeepNestedQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getDeepNestedQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /deep-nested
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /deep-nested infinite query key
  */
-export function getGetDeepNestedInfiniteQueryKey() {
-  return ['deep-nested', 'GET', '/deep-nested', 'infinite'] as const
+export function getDeepNestedInfiniteQueryKey() {
+  return ['deep-nested', '/deep-nested', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /deep-nested
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /deep-nested infinite query options
  */
-export function getGetDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetDeepNestedInfiniteQueryKey(),
+    queryKey: getDeepNestedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
@@ -243,23 +244,19 @@ export function getGetDeepNestedInfiniteQueryOptions(options?: ClientRequestOpti
 /**
  * GET /deep-nested
  */
-export function useInfiniteGetDeepNested(options: {
+export function useInfiniteDeepNested(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetDeepNestedInfiniteQueryOptions(clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...getDeepNestedInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query cache key for GET /additional-props
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /additional-props query key
  */
-export function getGetAdditionalPropsQueryKey() {
-  return ['additional-props', 'GET', '/additional-props'] as const
+export function getAdditionalPropsQueryKey() {
+  return ['additional-props', '/additional-props'] as const
 }
 
 /**
@@ -270,13 +267,11 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /additional-props
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /additional-props query options
  */
-export function getGetAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
+export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetAdditionalPropsQueryKey(),
+    queryKey: getAdditionalPropsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
@@ -286,31 +281,27 @@ export function getGetAdditionalPropsQueryOptions(options?: ClientRequestOptions
 /**
  * GET /additional-props
  */
-export function useGetAdditionalProps(options?: {
+export function useAdditionalProps(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAdditionalPropsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getAdditionalPropsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /additional-props
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /additional-props infinite query key
  */
-export function getGetAdditionalPropsInfiniteQueryKey() {
-  return ['additional-props', 'GET', '/additional-props', 'infinite'] as const
+export function getAdditionalPropsInfiniteQueryKey() {
+  return ['additional-props', '/additional-props', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /additional-props
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /additional-props infinite query options
  */
-export function getGetAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetAdditionalPropsInfiniteQueryKey(),
+    queryKey: getAdditionalPropsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
@@ -320,13 +311,13 @@ export function getGetAdditionalPropsInfiniteQueryOptions(options?: ClientReques
 /**
  * GET /additional-props
  */
-export function useInfiniteGetAdditionalProps(options: {
+export function useInfiniteAdditionalProps(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetAdditionalPropsInfiniteQueryOptions(clientOptions),
+    ...getAdditionalPropsInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }

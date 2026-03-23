@@ -15,11 +15,38 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /config
  */
-export function getGetTagsQueryKey() {
-  return ['tags', 'GET', '/tags'] as const
+export function getConfigKey() {
+  return ['config'] as const
+}
+
+/**
+ * Key prefix for /payment
+ */
+export function getPaymentKey() {
+  return ['payment'] as const
+}
+
+/**
+ * Key prefix for /settings
+ */
+export function getSettingsKey() {
+  return ['settings'] as const
+}
+
+/**
+ * Key prefix for /tags
+ */
+export function getTagsKey() {
+  return ['tags'] as const
+}
+
+/**
+ * GET /tags query key
+ */
+export function getTagsQueryKey() {
+  return ['tags', '/tags'] as const
 }
 
 /**
@@ -30,13 +57,11 @@ export async function getTags(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /tags
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /tags query options
  */
-export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
+export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetTagsQueryKey(),
+    queryKey: getTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -46,7 +71,7 @@ export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function createGetTags(
+export function createTags(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
     options?: ClientRequestOptions
@@ -54,27 +79,23 @@ export function createGetTags(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetTagsQueryOptions(clientOptions), ...query }
+    return { ...getTagsQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tags infinite query key
  */
-export function getGetTagsInfiniteQueryKey() {
-  return ['tags', 'GET', '/tags', 'infinite'] as const
+export function getTagsInfiniteQueryKey() {
+  return ['tags', '/tags', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /tags
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /tags infinite query options
  */
-export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetTagsInfiniteQueryKey(),
+    queryKey: getTagsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -84,7 +105,7 @@ export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function createInfiniteGetTags(
+export function createInfiniteTags(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
     options?: ClientRequestOptions
@@ -92,16 +113,8 @@ export function createInfiniteGetTags(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetTagsInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getTagsInfiniteQueryOptions(clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for POST /tags
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostTagsMutationKey() {
-  return ['tags', 'POST', '/tags'] as const
 }
 
 /**
@@ -115,13 +128,11 @@ export async function postTags(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /tags
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /tags
  */
 export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostTagsMutationKey(),
+    mutationKey: ['tags', '/tags'] as const,
     async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
       return postTags(args, options)
     },
@@ -148,11 +159,10 @@ export function createPostTags(
 }
 
 /**
- * Generates Svelte Query cache key for GET /settings
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /settings query key
  */
-export function getGetSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
-  return ['settings', 'GET', '/settings', args] as const
+export function getSettingsQueryKey(args: InferRequestType<typeof client.settings.$get>) {
+  return ['settings', '/settings', args] as const
 }
 
 /**
@@ -166,16 +176,14 @@ export async function getSettings(
 }
 
 /**
- * Returns Svelte Query query options for GET /settings
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /settings query options
  */
-export function getGetSettingsQueryOptions(
+export function getSettingsQueryOptions(
   args: InferRequestType<typeof client.settings.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetSettingsQueryKey(args),
+    queryKey: getSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -185,7 +193,7 @@ export function getGetSettingsQueryOptions(
 /**
  * GET /settings
  */
-export function createGetSettings(
+export function createSettings(
   args: () => InferRequestType<typeof client.settings.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
@@ -194,32 +202,26 @@ export function createGetSettings(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetSettingsQueryOptions(args(), clientOptions), ...query }
+    return { ...getSettingsQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /settings
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /settings infinite query key
  */
-export function getGetSettingsInfiniteQueryKey(
-  args: InferRequestType<typeof client.settings.$get>,
-) {
-  return ['settings', 'GET', '/settings', args, 'infinite'] as const
+export function getSettingsInfiniteQueryKey(args: InferRequestType<typeof client.settings.$get>) {
+  return ['settings', '/settings', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /settings
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /settings infinite query options
  */
-export function getGetSettingsInfiniteQueryOptions(
+export function getSettingsInfiniteQueryOptions(
   args: InferRequestType<typeof client.settings.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetSettingsInfiniteQueryKey(args),
+    queryKey: getSettingsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -229,7 +231,7 @@ export function getGetSettingsInfiniteQueryOptions(
 /**
  * GET /settings
  */
-export function createInfiniteGetSettings(
+export function createInfiniteSettings(
   args: () => InferRequestType<typeof client.settings.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
@@ -238,16 +240,8 @@ export function createInfiniteGetSettings(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetSettingsInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getSettingsInfiniteQueryOptions(args(), clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for PUT /settings
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutSettingsMutationKey() {
-  return ['settings', 'PUT', '/settings'] as const
 }
 
 /**
@@ -261,13 +255,11 @@ export async function putSettings(
 }
 
 /**
- * Returns Svelte Query mutation options for PUT /settings
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * PUT /settings
  */
 export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPutSettingsMutationKey(),
+    mutationKey: ['settings', '/settings'] as const,
     async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
       return putSettings(args, options)
     },
@@ -294,14 +286,6 @@ export function createPutSettings(
 }
 
 /**
- * Generates Svelte Query mutation key for POST /config
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostConfigMutationKey() {
-  return ['config', 'POST', '/config'] as const
-}
-
-/**
  * POST /config
  */
 export async function postConfig(
@@ -312,13 +296,11 @@ export async function postConfig(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /config
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /config
  */
 export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostConfigMutationKey(),
+    mutationKey: ['config', '/config'] as const,
     async mutationFn(args: InferRequestType<typeof client.config.$post>) {
       return postConfig(args, options)
     },
@@ -345,14 +327,6 @@ export function createPostConfig(
 }
 
 /**
- * Generates Svelte Query mutation key for POST /payment
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPaymentMutationKey() {
-  return ['payment', 'POST', '/payment'] as const
-}
-
-/**
  * POST /payment
  */
 export async function postPayment(
@@ -363,13 +337,11 @@ export async function postPayment(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /payment
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /payment
  */
 export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostPaymentMutationKey(),
+    mutationKey: ['payment', '/payment'] as const,
     async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
       return postPayment(args, options)
     },

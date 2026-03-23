@@ -15,11 +15,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query mutation key for POST /subscriptions
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /subscriptions
  */
-export function getPostSubscriptionsMutationKey() {
-  return ['subscriptions', 'POST', '/subscriptions'] as const
+export function getSubscriptionsKey() {
+  return ['subscriptions'] as const
+}
+
+/**
+ * Key prefix for /webhooks
+ */
+export function getWebhooksKey() {
+  return ['webhooks'] as const
 }
 
 /**
@@ -33,13 +39,11 @@ export async function postSubscriptions(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /subscriptions
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /subscriptions
  */
 export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostSubscriptionsMutationKey(),
+    mutationKey: ['subscriptions', '/subscriptions'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
       return postSubscriptions(args, options)
     },
@@ -66,13 +70,12 @@ export function createPostSubscriptions(
 }
 
 /**
- * Generates Svelte Query cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /subscriptions/{id} query key
  */
-export function getGetSubscriptionsIdQueryKey(
+export function getSubscriptionsIdQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args] as const
+  return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
 /**
@@ -86,16 +89,14 @@ export async function getSubscriptionsId(
 }
 
 /**
- * Returns Svelte Query query options for GET /subscriptions/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /subscriptions/{id} query options
  */
-export function getGetSubscriptionsIdQueryOptions(
+export function getSubscriptionsIdQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetSubscriptionsIdQueryKey(args),
+    queryKey: getSubscriptionsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -105,7 +106,7 @@ export function getGetSubscriptionsIdQueryOptions(
 /**
  * GET /subscriptions/{id}
  */
-export function createGetSubscriptionsId(
+export function createSubscriptionsId(
   args: () => InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -114,32 +115,28 @@ export function createGetSubscriptionsId(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetSubscriptionsIdQueryOptions(args(), clientOptions), ...query }
+    return { ...getSubscriptionsIdQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /subscriptions/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /subscriptions/{id} infinite query key
  */
-export function getGetSubscriptionsIdInfiniteQueryKey(
+export function getSubscriptionsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
-  return ['subscriptions', 'GET', '/subscriptions/:id', args, 'infinite'] as const
+  return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /subscriptions/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /subscriptions/{id} infinite query options
  */
-export function getGetSubscriptionsIdInfiniteQueryOptions(
+export function getSubscriptionsIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetSubscriptionsIdInfiniteQueryKey(args),
+    queryKey: getSubscriptionsIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -149,7 +146,7 @@ export function getGetSubscriptionsIdInfiniteQueryOptions(
 /**
  * GET /subscriptions/{id}
  */
-export function createInfiniteGetSubscriptionsId(
+export function createInfiniteSubscriptionsId(
   args: () => InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
@@ -158,16 +155,8 @@ export function createInfiniteGetSubscriptionsId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetSubscriptionsIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getSubscriptionsIdInfiniteQueryOptions(args(), clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for DELETE /subscriptions/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteSubscriptionsIdMutationKey() {
-  return ['subscriptions', 'DELETE', '/subscriptions/:id'] as const
 }
 
 /**
@@ -181,13 +170,11 @@ export async function deleteSubscriptionsId(
 }
 
 /**
- * Returns Svelte Query mutation options for DELETE /subscriptions/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * DELETE /subscriptions/{id}
  */
 export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getDeleteSubscriptionsIdMutationKey(),
+    mutationKey: ['subscriptions', '/subscriptions/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
       return deleteSubscriptionsId(args, options)
     },
@@ -214,14 +201,6 @@ export function createDeleteSubscriptionsId(
 }
 
 /**
- * Generates Svelte Query mutation key for POST /webhooks/test
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostWebhooksTestMutationKey() {
-  return ['webhooks', 'POST', '/webhooks/test'] as const
-}
-
-/**
  * POST /webhooks/test
  */
 export async function postWebhooksTest(
@@ -232,13 +211,11 @@ export async function postWebhooksTest(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /webhooks/test
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /webhooks/test
  */
 export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostWebhooksTestMutationKey(),
+    mutationKey: ['webhooks', '/webhooks/test'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
       return postWebhooksTest(args, options)
     },

@@ -15,11 +15,38 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /api
  */
-export function getGetApiReverseChibanIndexQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban/'] as const
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/**
+ * Key prefix for /items
+ */
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/**
+ * Key prefix for /posts
+ */
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/**
+ * Key prefix for /users
+ */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+/**
+ * GET /api/reverseChiban/ query key
+ */
+export function getApiReverseChibanIndexQueryKey() {
+  return ['api', '/api/reverseChiban/'] as const
 }
 
 /**
@@ -32,13 +59,11 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /api/reverseChiban/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseChiban/ query options
  */
-export function getGetApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetApiReverseChibanIndexQueryKey(),
+    queryKey: getApiReverseChibanIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -50,7 +75,7 @@ export function getGetApiReverseChibanIndexQueryOptions(options?: ClientRequestO
  *
  * Reverse Chiban (trailing slash)
  */
-export function createGetApiReverseChibanIndex(
+export function createApiReverseChibanIndex(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
     options?: ClientRequestOptions
@@ -58,27 +83,23 @@ export function createGetApiReverseChibanIndex(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetApiReverseChibanIndexQueryOptions(clientOptions), ...query }
+    return { ...getApiReverseChibanIndexQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /api/reverseChiban/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /api/reverseChiban/ infinite query key
  */
-export function getGetApiReverseChibanIndexInfiniteQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban/', 'infinite'] as const
+export function getApiReverseChibanIndexInfiniteQueryKey() {
+  return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /api/reverseChiban/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseChiban/ infinite query options
  */
-export function getGetApiReverseChibanIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetApiReverseChibanIndexInfiniteQueryKey(),
+    queryKey: getApiReverseChibanIndexInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -90,7 +111,7 @@ export function getGetApiReverseChibanIndexInfiniteQueryOptions(options?: Client
  *
  * Reverse Chiban (trailing slash)
  */
-export function createInfiniteGetApiReverseChibanIndex(
+export function createInfiniteApiReverseChibanIndex(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
     options?: ClientRequestOptions
@@ -98,16 +119,15 @@ export function createInfiniteGetApiReverseChibanIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetApiReverseChibanIndexInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /api/reverseChiban query key
  */
-export function getGetApiReverseChibanQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban'] as const
+export function getApiReverseChibanQueryKey() {
+  return ['api', '/api/reverseChiban'] as const
 }
 
 /**
@@ -120,13 +140,11 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /api/reverseChiban
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api/reverseChiban query options
  */
-export function getGetApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetApiReverseChibanQueryKey(),
+    queryKey: getApiReverseChibanQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
@@ -138,7 +156,7 @@ export function getGetApiReverseChibanQueryOptions(options?: ClientRequestOption
  *
  * Reverse Chiban (no trailing slash)
  */
-export function createGetApiReverseChiban(
+export function createApiReverseChiban(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
     options?: ClientRequestOptions
@@ -146,27 +164,23 @@ export function createGetApiReverseChiban(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetApiReverseChibanQueryOptions(clientOptions), ...query }
+    return { ...getApiReverseChibanQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /api/reverseChiban
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /api/reverseChiban infinite query key
  */
-export function getGetApiReverseChibanInfiniteQueryKey() {
-  return ['api', 'GET', '/api/reverseChiban', 'infinite'] as const
+export function getApiReverseChibanInfiniteQueryKey() {
+  return ['api', '/api/reverseChiban', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /api/reverseChiban
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api/reverseChiban infinite query options
  */
-export function getGetApiReverseChibanInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getApiReverseChibanInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetApiReverseChibanInfiniteQueryKey(),
+    queryKey: getApiReverseChibanInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
@@ -178,7 +192,7 @@ export function getGetApiReverseChibanInfiniteQueryOptions(options?: ClientReque
  *
  * Reverse Chiban (no trailing slash)
  */
-export function createInfiniteGetApiReverseChiban(
+export function createInfiniteApiReverseChiban(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
     options?: ClientRequestOptions
@@ -186,16 +200,15 @@ export function createInfiniteGetApiReverseChiban(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetApiReverseChibanInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getApiReverseChibanInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/ query key
  */
-export function getGetPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
-  return ['posts', 'GET', '/posts/', args] as const
+export function getPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
+  return ['posts', '/posts/', args] as const
 }
 
 /**
@@ -211,16 +224,14 @@ export async function getPostsIndex(
 }
 
 /**
- * Returns Svelte Query query options for GET /posts/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/ query options
  */
-export function getGetPostsIndexQueryOptions(
+export function getPostsIndexQueryOptions(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIndexQueryKey(args),
+    queryKey: getPostsIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -232,7 +243,7 @@ export function getGetPostsIndexQueryOptions(
  *
  * List posts (trailing slash only)
  */
-export function createGetPostsIndex(
+export function createPostsIndex(
   args: () => InferRequestType<typeof client.posts.index.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
@@ -241,32 +252,28 @@ export function createGetPostsIndex(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetPostsIndexQueryOptions(args(), clientOptions), ...query }
+    return { ...getPostsIndexQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /posts/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/ infinite query key
  */
-export function getGetPostsIndexInfiniteQueryKey(
+export function getPostsIndexInfiniteQueryKey(
   args: InferRequestType<typeof client.posts.index.$get>,
 ) {
-  return ['posts', 'GET', '/posts/', args, 'infinite'] as const
+  return ['posts', '/posts/', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /posts/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/ infinite query options
  */
-export function getGetPostsIndexInfiniteQueryOptions(
+export function getPostsIndexInfiniteQueryOptions(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIndexInfiniteQueryKey(args),
+    queryKey: getPostsIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -278,7 +285,7 @@ export function getGetPostsIndexInfiniteQueryOptions(
  *
  * List posts (trailing slash only)
  */
-export function createInfiniteGetPostsIndex(
+export function createInfinitePostsIndex(
   args: () => InferRequestType<typeof client.posts.index.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
@@ -287,16 +294,8 @@ export function createInfiniteGetPostsIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetPostsIndexInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getPostsIndexInfiniteQueryOptions(args(), clientOptions), ...query }
   })
-}
-
-/**
- * Generates Svelte Query mutation key for POST /posts/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIndexMutationKey() {
-  return ['posts', 'POST', '/posts/'] as const
 }
 
 /**
@@ -312,13 +311,11 @@ export async function postPostsIndex(
 }
 
 /**
- * Returns Svelte Query mutation options for POST /posts/
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /posts/
  */
 export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostPostsIndexMutationKey(),
+    mutationKey: ['posts', '/posts/'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
       return postPostsIndex(args, options)
     },
@@ -347,13 +344,12 @@ export function createPostPostsIndex(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /users/{id}/ query key
  */
-export function getGetUsersIdIndexQueryKey(
+export function getUsersIdIndexQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id/', args] as const
+  return ['users', '/users/:id/', args] as const
 }
 
 /**
@@ -369,16 +365,14 @@ export async function getUsersIdIndex(
 }
 
 /**
- * Returns Svelte Query query options for GET /users/{id}/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /users/{id}/ query options
  */
-export function getGetUsersIdIndexQueryOptions(
+export function getUsersIdIndexQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdIndexQueryKey(args),
+    queryKey: getUsersIdIndexQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersIdIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -390,7 +384,7 @@ export function getGetUsersIdIndexQueryOptions(
  *
  * Get user (trailing slash with path param)
  */
-export function createGetUsersIdIndex(
+export function createUsersIdIndex(
   args: () => InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
@@ -399,32 +393,28 @@ export function createGetUsersIdIndex(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetUsersIdIndexQueryOptions(args(), clientOptions), ...query }
+    return { ...getUsersIdIndexQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /users/{id}/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /users/{id}/ infinite query key
  */
-export function getGetUsersIdIndexInfiniteQueryKey(
+export function getUsersIdIndexInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id/', args, 'infinite'] as const
+  return ['users', '/users/:id/', args, 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /users/{id}/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /users/{id}/ infinite query options
  */
-export function getGetUsersIdIndexInfiniteQueryOptions(
+export function getUsersIdIndexInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdIndexInfiniteQueryKey(args),
+    queryKey: getUsersIdIndexInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersIdIndex(args, { ...options, init: { ...options?.init, signal } })
     },
@@ -436,7 +426,7 @@ export function getGetUsersIdIndexInfiniteQueryOptions(
  *
  * Get user (trailing slash with path param)
  */
-export function createInfiniteGetUsersIdIndex(
+export function createInfiniteUsersIdIndex(
   args: () => InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
@@ -445,16 +435,15 @@ export function createInfiniteGetUsersIdIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetUsersIdIndexInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...getUsersIdIndexInfiniteQueryOptions(args(), clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /items/ query key
  */
-export function getGetItemsIndexQueryKey() {
-  return ['items', 'GET', '/items/'] as const
+export function getItemsIndexQueryKey() {
+  return ['items', '/items/'] as const
 }
 
 /**
@@ -467,13 +456,11 @@ export async function getItemsIndex(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /items/
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items/ query options
  */
-export function getGetItemsIndexQueryOptions(options?: ClientRequestOptions) {
+export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetItemsIndexQueryKey(),
+    queryKey: getItemsIndexQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -485,7 +472,7 @@ export function getGetItemsIndexQueryOptions(options?: ClientRequestOptions) {
  *
  * List items (trailing slash only)
  */
-export function createGetItemsIndex(
+export function createItemsIndex(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
     options?: ClientRequestOptions
@@ -493,27 +480,23 @@ export function createGetItemsIndex(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetItemsIndexQueryOptions(clientOptions), ...query }
+    return { ...getItemsIndexQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /items/
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /items/ infinite query key
  */
-export function getGetItemsIndexInfiniteQueryKey() {
-  return ['items', 'GET', '/items/', 'infinite'] as const
+export function getItemsIndexInfiniteQueryKey() {
+  return ['items', '/items/', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /items/
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items/ infinite query options
  */
-export function getGetItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetItemsIndexInfiniteQueryKey(),
+    queryKey: getItemsIndexInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
@@ -525,7 +508,7 @@ export function getGetItemsIndexInfiniteQueryOptions(options?: ClientRequestOpti
  *
  * List items (trailing slash only)
  */
-export function createInfiniteGetItemsIndex(
+export function createInfiniteItemsIndex(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
     options?: ClientRequestOptions
@@ -533,6 +516,6 @@ export function createInfiniteGetItemsIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetItemsIndexInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getItemsIndexInfiniteQueryOptions(clientOptions), ...query }
   })
 }

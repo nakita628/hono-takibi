@@ -441,46 +441,18 @@ describe('rpc', () => {
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await client.hono.$get(undefined, options)
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- *
- * Simple ping for HonoX
- */
 export async function getHonoX(options?: ClientRequestOptions) {
   return await client['hono-x'].$get(undefined, options)
 }
 
-/**
- * GET /zod-openapi-hono
- *
- * ZodOpenAPIHono
- *
- * Simple ping for ZodOpenAPIHono
- */
 export async function getZodOpenapiHono(options?: ClientRequestOptions) {
   return await client['zod-openapi-hono'].$get(undefined, options)
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination and optional role filter.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -488,13 +460,6 @@ export async function getUsers(
   return await client.users.$get(args, options)
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -502,13 +467,6 @@ export async function postUsers(
   return await client.users.$post(args, options)
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- *
- * Retrieve a single user by ID.
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -516,13 +474,6 @@ export async function getUsersId(
   return await client.users[':id'].$get(args, options)
 }
 
-/**
- * PUT /users/{id}
- *
- * Replace user
- *
- * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
- */
 export async function putUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -530,13 +481,6 @@ export async function putUsersId(
   return await client.users[':id'].$put(args, options)
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- *
- * Delete a user by ID.
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -544,13 +488,6 @@ export async function deleteUsersId(
   return await client.users[':id'].$delete(args, options)
 }
 
-/**
- * PATCH /users/{id}
- *
- * Update user (partial)
- *
- * Partial update (PATCH). Only provided fields will be updated.
- */
 export async function patchUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$patch']>,
   options?: ClientRequestOptions,
@@ -601,13 +538,6 @@ export * from './patchUsersId'
       const deleteUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- *
- * Delete a user by ID.
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -622,13 +552,6 @@ export async function deleteUsersId(
       const getHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await client.hono.$get(undefined, options)
 }
@@ -640,13 +563,6 @@ export async function getHono(options?: ClientRequestOptions) {
       const getHonoXExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /hono-x
- *
- * HonoX
- *
- * Simple ping for HonoX
- */
 export async function getHonoX(options?: ClientRequestOptions) {
   return await client['hono-x'].$get(undefined, options)
 }
@@ -659,13 +575,6 @@ export async function getHonoX(options?: ClientRequestOptions) {
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination and optional role filter.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -681,13 +590,6 @@ export async function getUsers(
       const getUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /users/{id}
- *
- * Get user
- *
- * Retrieve a single user by ID.
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -705,13 +607,6 @@ export async function getUsersId(
       const getZodOpenapiHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * GET /zod-openapi-hono
- *
- * ZodOpenAPIHono
- *
- * Simple ping for ZodOpenAPIHono
- */
 export async function getZodOpenapiHono(options?: ClientRequestOptions) {
   return await client['zod-openapi-hono'].$get(undefined, options)
 }
@@ -723,13 +618,6 @@ export async function getZodOpenapiHono(options?: ClientRequestOptions) {
       const patchUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * PATCH /users/{id}
- *
- * Update user (partial)
- *
- * Partial update (PATCH). Only provided fields will be updated.
- */
 export async function patchUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$patch']>,
   options?: ClientRequestOptions,
@@ -743,13 +631,6 @@ export async function patchUsersId(
       const postUsersExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -764,13 +645,6 @@ export async function postUsers(
       const putUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
-/**
- * PUT /users/{id}
- *
- * Replace user
- *
- * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
- */
 export async function putUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -980,11 +854,6 @@ describe('rpc (isOptional tests)', () => {
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /items
- *
- * List items with mixed required/optional params
- */
 export async function getItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -992,11 +861,6 @@ export async function getItems(
   return await client.items.$get(args, options)
 }
 
-/**
- * GET /items/{id}
- *
- * Get item by ID
- */
 export async function getItemsId(
   args: InferRequestType<(typeof client.items)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1004,11 +868,6 @@ export async function getItemsId(
   return await client.items[':id'].$get(args, options)
 }
 
-/**
- * POST /all-required
- *
- * All required params
- */
 export async function postAllRequired(
   args: InferRequestType<(typeof client)['all-required']['$post']>,
   options?: ClientRequestOptions,
@@ -1016,11 +875,6 @@ export async function postAllRequired(
   return await client['all-required'].$post(args, options)
 }
 
-/**
- * GET /all-optional
- *
- * All optional params
- */
 export async function getAllOptional(
   args: InferRequestType<(typeof client)['all-optional']['$get']>,
   options?: ClientRequestOptions,
@@ -1054,11 +908,6 @@ export async function getAllOptional(
       const getItemsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /items
- *
- * List items with mixed required/optional params
- */
 export async function getItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -1073,11 +922,6 @@ export async function getItems(
       const getItemsIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /items/{id}
- *
- * Get item by ID
- */
 export async function getItemsId(
   args: InferRequestType<(typeof client.items)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1092,11 +936,6 @@ export async function getItemsId(
       const postAllRequiredExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * POST /all-required
- *
- * All required params
- */
 export async function postAllRequired(
   args: InferRequestType<(typeof client)['all-required']['$post']>,
   options?: ClientRequestOptions,
@@ -1111,11 +950,6 @@ export async function postAllRequired(
       const getAllOptionalExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /all-optional
- *
- * All optional params
- */
 export async function getAllOptional(
   args: InferRequestType<(typeof client)['all-optional']['$get']>,
   options?: ClientRequestOptions,
@@ -1170,11 +1004,6 @@ export * from './getAllOptional'
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { authClient } from '../api'
 
-/**
- * GET /users
- *
- * Get users
- */
 export async function getUsers(options?: ClientRequestOptions) {
   return await authClient.users.$get(undefined, options)
 }
@@ -1211,11 +1040,6 @@ export async function getUsers(options?: ClientRequestOptions) {
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
 import { adminClient } from '../api'
 
-/**
- * GET /admin/users
- *
- * Get admin users
- */
 export async function getAdminUsers(options?: ClientRequestOptions) {
   return await adminClient.admin.users.$get(undefined, options)
 }
@@ -1255,11 +1079,6 @@ describe('rpc (parseResponse: true)', () => {
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /health
- *
- * Health check
- */
 export async function getHealth(options?: ClientRequestOptions) {
   return await parseResponse(client.health.$get(undefined, options))
 }
@@ -1305,11 +1124,6 @@ export async function getHealth(options?: ClientRequestOptions) {
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /users/{id}
- *
- * Get user by ID
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1350,11 +1164,6 @@ export async function getUsersId(
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /health
- *
- * Health check
- */
 export async function getHealth(options?: ClientRequestOptions) {
   return await parseResponse(client.health.$get(undefined, options))
 }
@@ -1414,29 +1223,14 @@ describe('rpc (trailing slash)', () => {
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
   return await client.api.reverseChiban.index.$get(undefined, options)
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export async function getApiReverseChiban(options?: ClientRequestOptions) {
   return await client.api.reverseChiban.$get(undefined, options)
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash)
- */
 export async function getPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
@@ -1479,11 +1273,6 @@ export * from './getPostsIndex'
       const trailingExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
   return await client.api.reverseChiban.index.$get(undefined, options)
 }
@@ -1494,11 +1283,6 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
       const normalExpected = `import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export async function getApiReverseChiban(options?: ClientRequestOptions) {
   return await client.api.reverseChiban.$get(undefined, options)
 }
@@ -1509,11 +1293,6 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
       const postsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash)
- */
 export async function getPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,

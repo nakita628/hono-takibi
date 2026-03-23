@@ -189,24 +189,6 @@ export function capitalize(text: string): string {
 }
 
 /**
- * Escapes comment closing sequence in JSDoc comments.
- *
- * Replaces `* /` with `* /` (with space) to prevent premature comment termination.
- *
- * @param text - The string to escape.
- * @returns The string with escaped comment closings.
- *
- * @example
- * ```ts
- * escapeCommentEnd('path/* /file')  // → 'path/* /file' (with space)
- * escapeCommentEnd('/api/v1')       // → '/api/v1' (unchanged)
- * ```
- */
-export function escapeCommentEnd(text: string): string {
-  return text.replace(/\*\//g, '* /')
-}
-
-/**
  * Appends a suffix to a string unconditionally.
  *
  * Always concatenates the suffix to ensure unique variable names even when
@@ -290,31 +272,6 @@ export function makeBarrel(value: { readonly [k: string]: unknown }): string {
     .sort()
     .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
     .join('\n')}\n`
-}
-
-/**
- * Build JSDoc comment block for an operation.
- */
-export function makeOperationDocs(
-  method: string,
-  pathStr: string,
-  summary?: string,
-  description?: string,
-): string {
-  const formatJsDocLines = (text: string): readonly string[] => {
-    return text
-      .trimEnd()
-      .split('\n')
-      .map((line) => ` * ${line}`)
-  }
-  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
-  return [
-    '/**',
-    ` * ${method.toUpperCase()} ${safePathStr}`,
-    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
-    ...(description ? [' *', ...formatJsDocLines(description)] : []),
-    ' */',
-  ].join('\n')
 }
 
 /**

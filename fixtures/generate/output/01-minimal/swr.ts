@@ -8,11 +8,17 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /health
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /health
+ */
+export function getHealthKey() {
+  return ['health'] as const
+}
+
+/**
+ * GET /health query key
  */
 export function getGetHealthKey() {
-  return ['health', 'GET', '/health'] as const
+  return ['health', '/health'] as const
 }
 
 /**
@@ -52,11 +58,10 @@ export function useImmutableGetHealth(options?: {
 }
 
 /**
- * Generates SWR infinite query cache key for GET /health
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /health infinite query key
  */
 export function getGetHealthInfiniteKey() {
-  return ['health', 'GET', '/health', 'infinite'] as const
+  return ['health', '/health', 'infinite'] as const
 }
 
 /**

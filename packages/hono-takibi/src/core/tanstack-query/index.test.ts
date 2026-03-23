@@ -72,140 +72,95 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetHonoQueryKey() {
-  return ['hono', 'GET', '/hono'] as const
+export function getHonoKey() {
+  return ['hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getHonoQueryKey() {
+  return ['hono', '/hono'] as const
+}
+
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /hono
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
+export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetHonoQueryKey(),
+    queryKey: getHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useGetHono(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseGetHono(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useSuspenseHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function getGetHonoInfiniteQueryKey() {
-  return ['hono', 'GET', '/hono', 'infinite'] as const
+export function getHonoInfiniteQueryKey() {
+  return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /hono
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetHonoInfiniteQueryKey(),
+    queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useInfiniteGetHono(options: {
+export function useInfiniteHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseInfiniteGetHono(options: {
+export function useSuspenseInfiniteHono(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetHonoInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getHonoInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * Generates TanStack Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -213,93 +168,69 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetUsersQueryOptions(
+export function getUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(args),
+    queryKey: getUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useGetUsers(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseGetUsers(
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersInfiniteQueryOptions(
+export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useInfiniteGetUsers(
+export function useInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -307,20 +238,10 @@ export function useInfiniteGetUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseInfiniteGetUsers(
+export function useSuspenseInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -329,26 +250,11 @@ export function useSuspenseInfiniteGetUsers(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * Generates TanStack Query mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
-}
-
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -356,27 +262,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /users
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostUsersMutationKey(),
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   })
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
@@ -414,15 +308,28 @@ describe('tanstackQuery (split mode)', () => {
 
       // Check index.ts barrel file
       const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './getHono'
+      const indexExpected = `export * from './_keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `
       expect(index).toBe(indexExpected)
 
+      // Check _keys.ts prefix key file
+      const keys = fs.readFileSync(path.join(dir, 'hooks', '_keys.ts'), 'utf-8')
+      const keysExpected = `export function getHonoKey() {
+  return ['hono'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+`
+      expect(keys).toBe(keysExpected)
+
       // Check GET hook file without args
-      const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import {
+      const useHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
+      const useHonoExpected = `import {
   useQuery,
   useSuspenseQuery,
   useInfiniteQuery,
@@ -440,130 +347,88 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetHonoQueryKey() {
-  return ['hono', 'GET', '/hono'] as const
+export function getHonoQueryKey() {
+  return ['hono', '/hono'] as const
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
 export async function getHono(options?: ClientRequestOptions) {
   return await parseResponse(client.hono.$get(undefined, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /hono
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetHonoQueryOptions(options?: ClientRequestOptions) {
+export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetHonoQueryKey(),
+    queryKey: getHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useGetHono(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseGetHono(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useSuspenseHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /hono
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function getGetHonoInfiniteQueryKey() {
-  return ['hono', 'GET', '/hono', 'infinite'] as const
+export function getHonoInfiniteQueryKey() {
+  return ['hono', '/hono', 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /hono
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetHonoInfiniteQueryKey(),
+    queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useInfiniteGetHono(options: {
+export function useInfiniteHono(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetHonoInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /hono
- *
- * Hono
- *
- * Simple ping for Hono
- */
-export function useSuspenseInfiniteGetHono(options: {
+export function useSuspenseInfiniteHono(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetHonoInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getHonoInfiniteQueryOptions(clientOptions),
   })
 }
 `
-      expect(useGetHono).toBe(useGetHonoExpected)
+      expect(useHono).toBe(useHonoExpected)
 
       // Check GET hook file with args
-      const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import {
+      const useUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
+      const useUsersExpected = `import {
   useQuery,
   useSuspenseQuery,
   useInfiniteQuery,
@@ -581,21 +446,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -603,93 +457,69 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetUsersQueryOptions(
+export function getUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(args),
+    queryKey: getUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useGetUsers(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseGetUsers(
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args, 'infinite'] as const
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersInfiniteQueryOptions(
+export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(args),
+    queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useInfiniteGetUsers(
+export function useInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -697,20 +527,10 @@ export function useInfiniteGetUsers(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-/**
- * GET /users
- *
- * List users
- *
- * List users with pagination.
- */
-export function useSuspenseInfiniteGetUsers(
+export function useSuspenseInfiniteUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
@@ -719,12 +539,12 @@ export function useSuspenseInfiniteGetUsers(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
   })
 }
 `
-      expect(useGetUsers).toBe(useGetUsersExpected)
+      expect(useUsers).toBe(useUsersExpected)
 
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
@@ -734,21 +554,6 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query mutation key for POST /users
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostUsersMutationKey() {
-  return ['users', 'POST', '/users'] as const
-}
-
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -756,27 +561,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /users
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostUsersMutationKey(),
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   })
 }
 
-/**
- * POST /users
- *
- * Create user
- *
- * Create a new user.
- */
 export function usePostUsers(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
@@ -844,112 +637,84 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
-/**
- * Generates TanStack Query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetUsersQueryKey() {
-  return ['users', 'GET', '/users'] as const
+export function getUsersKey() {
+  return ['users'] as const
 }
 
-/**
- * GET /users
- *
- * Get users
- */
+export function getUsersQueryKey() {
+  return ['users', '/users'] as const
+}
+
 export async function getUsers(options?: ClientRequestOptions) {
   return await parseResponse(authClient.users.$get(undefined, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /users
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetUsersQueryOptions(options?: ClientRequestOptions) {
+export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetUsersQueryKey(),
+    queryKey: getUsersQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /users
- *
- * Get users
- */
-export function useGetUsers(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users
- *
- * Get users
- */
-export function useSuspenseGetUsers(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /users
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function getGetUsersInfiniteQueryKey() {
-  return ['users', 'GET', '/users', 'infinite'] as const
+export function getUsersInfiniteQueryKey() {
+  return ['users', '/users', 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /users
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetUsersInfiniteQueryKey(),
+    queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /users
- *
- * Get users
- */
-export function useInfiniteGetUsers(options: {
+export function useInfiniteUsers(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetUsersInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /users
- *
- * Get users
- */
-export function useSuspenseInfiniteGetUsers(options: {
+export function useSuspenseInfiniteUsers(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getUsersInfiniteQueryOptions(clientOptions),
   })
 }
 `
@@ -1011,151 +776,100 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /ping
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetPingQueryKey() {
-  return ['ping', 'GET', '/ping'] as const
+export function getPingKey() {
+  return ['ping'] as const
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
+export function getPingQueryKey() {
+  return ['ping', '/ping'] as const
+}
+
 export async function getPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$get(undefined, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /ping
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetPingQueryOptions(options?: ClientRequestOptions) {
+export function getPingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetPingQueryKey(),
+    queryKey: getPingQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
-export function useGetPing(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function usePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
-export function useSuspenseGetPing(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function useSuspensePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetPingQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getPingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /ping
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function getGetPingInfiniteQueryKey() {
-  return ['ping', 'GET', '/ping', 'infinite'] as const
+export function getPingInfiniteQueryKey() {
+  return ['ping', '/ping', 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /ping
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetPingInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetPingInfiniteQueryKey(),
+    queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
-export function useInfiniteGetPing(options: {
+export function useInfinitePing(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetPingInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getPingInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /ping
- *
- * Ping
- */
-export function useSuspenseInfiniteGetPing(options: {
+export function useSuspenseInfinitePing(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetPingInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getPingInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * Generates TanStack Query mutation key for POST /ping
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPingMutationKey() {
-  return ['ping', 'POST', '/ping'] as const
-}
-
-/**
- * POST /ping
- *
- * Post ping
- */
 export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-/**
- * Returns TanStack Query mutation options for POST /ping
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
 export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostPingMutationKey(),
+    mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
       return postPing(options)
     },
   })
 }
 
-/**
- * POST /ping
- *
- * Post ping
- */
 export function usePostPing(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
   options?: ClientRequestOptions
@@ -1214,112 +928,84 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /hono-x
- * Returns structured key ['prefix', 'method', 'path'] for filtering
- */
-export function getGetHonoXQueryKey() {
-  return ['hono-x', 'GET', '/hono-x'] as const
+export function getHonoXKey() {
+  return ['hono-x'] as const
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
+export function getHonoXQueryKey() {
+  return ['hono-x', '/hono-x'] as const
+}
+
 export async function getHonoX(options?: ClientRequestOptions) {
   return await parseResponse(client['hono-x'].$get(undefined, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /hono-x
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetHonoXQueryOptions(options?: ClientRequestOptions) {
+export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetHonoXQueryKey(),
+    queryKey: getHonoXQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useGetHonoX(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoXQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useSuspenseGetHonoX(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useSuspenseHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getHonoXQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /hono-x
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
- */
-export function getGetHonoXInfiniteQueryKey() {
-  return ['hono-x', 'GET', '/hono-x', 'infinite'] as const
+export function getHonoXInfiniteQueryKey() {
+  return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /hono-x
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetHonoXInfiniteQueryKey(),
+    queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useInfiniteGetHonoX(options: {
+export function useInfiniteHonoX(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetHonoXInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHonoXInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /hono-x
- *
- * HonoX
- */
-export function useSuspenseInfiniteGetHonoX(options: {
+export function useSuspenseInfiniteHonoX(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetHonoXInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getHonoXInfiniteQueryOptions(clientOptions),
   })
 }
 `
@@ -1382,21 +1068,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-/**
- * Generates TanStack Query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
- */
-export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
-  return ['users', 'GET', '/users/:id', args] as const
+export function getUsersKey() {
+  return ['users'] as const
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
+export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
+}
+
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -1404,89 +1083,71 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * Returns TanStack Query query options for GET /users/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
- */
-export function getGetUsersIdQueryOptions(
+export function getUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetUsersIdQueryKey(args),
+    queryKey: getUsersIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useGetUsersId(
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useSuspenseGetUsersId(
+export function useSuspenseUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * Generates TanStack Query infinite query cache key for GET /users/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
- */
-export function getGetUsersIdInfiniteQueryKey(
+export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * Returns TanStack Query infinite query options for GET /users/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
- */
-export function getGetUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetUsersIdInfiniteQueryKey(args),
+    queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useInfiniteGetUsersId(
+export function useInfiniteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -1495,17 +1156,12 @@ export function useInfiniteGetUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /users/{id}
- *
- * Get user
- */
-export function useSuspenseInfiniteGetUsersId(
+export function useSuspenseInfiniteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
@@ -1514,24 +1170,11 @@ export function useSuspenseInfiniteGetUsersId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetUsersIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * Generates TanStack Query mutation key for DELETE /users/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeleteUsersIdMutationKey() {
-  return ['users', 'DELETE', '/users/:id'] as const
-}
-
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export async function deleteUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -1539,25 +1182,15 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-/**
- * Returns TanStack Query mutation options for DELETE /users/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
- */
 export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getDeleteUsersIdMutationKey(),
+    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return deleteUsersId(args, options)
     },
   })
 }
 
-/**
- * DELETE /users/{id}
- *
- * Delete user
- */
 export function useDeleteUsersId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1571,6 +1204,445 @@ export function useDeleteUsersId(options?: {
 }
 `
       expect(code).toBe(expected)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('tanstackQuery (split mode - CRUD)', () => {
+  it('should generate correct split files for full CRUD resource', async () => {
+    const openapiCrud: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+          post: {
+            summary: 'Create user',
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+        '/users/{id}': {
+          get: {
+            summary: 'Get user',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+          put: {
+            summary: 'Update user',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+          delete: {
+            summary: 'Delete user',
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '204': { description: 'No Content' } },
+          },
+        },
+      },
+    }
+
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-crud-'))
+    try {
+      const out = path.join(dir, 'hooks', 'index.ts')
+      const result = await tanstackQuery(openapiCrud, out, '../client', true)
+
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated tanstack-query hooks written to ${path.join(dir, 'hooks')}/*.ts (index.ts included)`,
+      })
+
+      const hooksDir = path.join(dir, 'hooks')
+      const files = fs.readdirSync(hooksDir).sort()
+      expect(files).toStrictEqual([
+        '_keys.ts',
+        'deleteUsersId.ts',
+        'getUsers.ts',
+        'getUsersId.ts',
+        'index.ts',
+        'postUsers.ts',
+        'putUsersId.ts',
+      ])
+
+      const indexContent = fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(`export * from './_keys'
+export * from './getUsers'
+export * from './postUsers'
+export * from './getUsersId'
+export * from './putUsersId'
+export * from './deleteUsersId'
+`)
+
+      const keysContent = fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')
+      expect(keysContent).toBe(`export function getUsersKey() {
+  return ['users'] as const
+}
+`)
+
+      const postUsersContent = fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')
+      expect(postUsersContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return postUsers(args, options)
+    },
+  })
+}
+
+export function usePostUsers(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const putUsersIdContent = fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')
+      expect(putUsersIdContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export async function putUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$put(args, options))
+}
+
+export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
+      return putUsersId(args, options)
+    },
+  })
+}
+
+export function usePutUsersId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putUsersId>>,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$put']>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPutUsersIdMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const deleteUsersIdContent = fs.readFileSync(path.join(hooksDir, 'deleteUsersId.ts'), 'utf-8')
+      expect(deleteUsersIdContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export async function deleteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$delete(args, options))
+}
+
+export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
+  return mutationOptions({
+    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
+      return deleteUsersId(args, options)
+    },
+  })
+}
+
+export function useDeleteUsersId(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteUsersId>> | undefined,
+    Error,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getDeleteUsersIdMutationOptions(clientOptions), ...mutationOptions })
+}
+`)
+
+      const getUsersIdContent = fs.readFileSync(path.join(hooksDir, 'getUsersId.ts'), 'utf-8')
+      expect(getUsersIdContent).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['users', '/users/:id', args] as const
+}
+
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
+}
+
+export function getUsersIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function useSuspenseUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function getUsersIdInfiniteQueryKey(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+) {
+  return ['users', '/users/:id', args, 'infinite'] as const
+}
+
+export function getUsersIdInfiniteQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersIdInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersId(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+export function useInfiniteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
+  })
+}
+
+export function useSuspenseInfiniteUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOptions,
+    ...getUsersIdInfiniteQueryOptions(args, clientOptions),
+  })
+}
+`)
+
+      const getUsersContent = fs.readFileSync(path.join(hooksDir, 'getUsers.ts'), 'utf-8')
+      expect(getUsersContent).toBe(`import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  queryOptions,
+} from '@tanstack/react-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+} from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
+}
+
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
+}
+
+export function getUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+export function useInfiniteUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
+}
+
+export function useSuspenseInfiniteUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOptions,
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
+  })
+}
+`)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

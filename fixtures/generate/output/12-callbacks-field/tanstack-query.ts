@@ -20,11 +20,24 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates TanStack Query mutation key for POST /orders
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ * Key prefix for /items
  */
-export function getPostOrdersMutationKey() {
-  return ['orders', 'POST', '/orders'] as const
+export function getItemsKey() {
+  return ['items'] as const
+}
+
+/**
+ * Key prefix for /orders
+ */
+export function getOrdersKey() {
+  return ['orders'] as const
+}
+
+/**
+ * Key prefix for /payments
+ */
+export function getPaymentsKey() {
+  return ['payments'] as const
 }
 
 /**
@@ -40,13 +53,11 @@ export async function postOrders(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /orders
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /orders
  */
 export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostOrdersMutationKey(),
+    mutationKey: ['orders', '/orders'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
       return postOrders(args, options)
     },
@@ -71,14 +82,6 @@ export function usePostOrders(options?: {
 }
 
 /**
- * Generates TanStack Query mutation key for POST /payments
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPaymentsMutationKey() {
-  return ['payments', 'POST', '/payments'] as const
-}
-
-/**
  * POST /payments
  *
  * Create a payment with multiple callbacks
@@ -91,13 +94,11 @@ export async function postPayments(
 }
 
 /**
- * Returns TanStack Query mutation options for POST /payments
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /payments
  */
 export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: getPostPaymentsMutationKey(),
+    mutationKey: ['payments', '/payments'] as const,
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
       return postPayments(args, options)
     },
@@ -122,11 +123,10 @@ export function usePostPayments(options?: {
 }
 
 /**
- * Generates TanStack Query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /items query key
  */
-export function getGetItemsQueryKey() {
-  return ['items', 'GET', '/items'] as const
+export function getItemsQueryKey() {
+  return ['items', '/items'] as const
 }
 
 /**
@@ -139,13 +139,11 @@ export async function getItems(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns TanStack Query query options for GET /items
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /items query options
  */
-export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetItemsQueryKey(),
+    queryKey: getItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -157,12 +155,12 @@ export function getGetItemsQueryOptions(options?: ClientRequestOptions) {
  *
  * List items (no callbacks)
  */
-export function useGetItems(options?: {
+export function useItems(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getItemsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -170,31 +168,27 @@ export function useGetItems(options?: {
  *
  * List items (no callbacks)
  */
-export function useSuspenseGetItems(options?: {
+export function useSuspenseItems(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getGetItemsQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({ ...getItemsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates TanStack Query infinite query cache key for GET /items
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /items infinite query key
  */
-export function getGetItemsInfiniteQueryKey() {
-  return ['items', 'GET', '/items', 'infinite'] as const
+export function getItemsInfiniteQueryKey() {
+  return ['items', '/items', 'infinite'] as const
 }
 
 /**
- * Returns TanStack Query infinite query options for GET /items
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /items infinite query options
  */
-export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetItemsInfiniteQueryKey(),
+    queryKey: getItemsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
@@ -206,12 +200,12 @@ export function getGetItemsInfiniteQueryOptions(options?: ClientRequestOptions) 
  *
  * List items (no callbacks)
  */
-export function useInfiniteGetItems(options: {
+export function useInfiniteItems(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetItemsInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getItemsInfiniteQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -219,13 +213,13 @@ export function useInfiniteGetItems(options: {
  *
  * List items (no callbacks)
  */
-export function useSuspenseInfiniteGetItems(options: {
+export function useSuspenseInfiniteItems(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getGetItemsInfiniteQueryOptions(clientOptions),
+    ...getItemsInfiniteQueryOptions(clientOptions),
     ...queryOptions,
   })
 }

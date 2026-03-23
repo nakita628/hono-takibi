@@ -10,11 +10,24 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /posts
+ */
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/**
+ * Key prefix for /tags
+ */
+export function getTagsKey() {
+  return ['tags'] as const
+}
+
+/**
+ * GET /posts query key
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', 'GET', '/posts', args] as const
+  return ['posts', '/posts', args] as const
 }
 
 /**
@@ -63,11 +76,10 @@ export function useImmutableGetPosts(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts infinite query key
  */
 export function getGetPostsInfiniteKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', 'GET', '/posts', args, 'infinite'] as const
+  return ['posts', '/posts', args, 'infinite'] as const
 }
 
 /**
@@ -87,14 +99,6 @@ export function useInfiniteGetPosts(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetPostsInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getPosts(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for POST /posts
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsMutationKey() {
-  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -121,7 +125,7 @@ export function usePostPosts(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPostsMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -134,11 +138,10 @@ export function usePostPosts(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/{id} query key
  */
 export function getGetPostsIdKey(args: InferRequestType<(typeof client.posts)[':id']['$get']>) {
-  return ['posts', 'GET', '/posts/:id', args] as const
+  return ['posts', '/posts/:id', args] as const
 }
 
 /**
@@ -187,13 +190,12 @@ export function useImmutableGetPostsId(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/{id} infinite query key
  */
 export function getGetPostsIdInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id', args, 'infinite'] as const
+  return ['posts', '/posts/:id', args, 'infinite'] as const
 }
 
 /**
@@ -213,14 +215,6 @@ export function useInfiniteGetPostsId(
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetPostsIdInfiniteKey(args), index] as const)
   return useSWRInfinite(keyLoader, async () => getPostsId(args, clientOptions), restSwrOptions)
-}
-
-/**
- * Generates SWR mutation key for PUT /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutPostsIdMutationKey() {
-  return ['posts', 'PUT', '/posts/:id'] as const
 }
 
 /**
@@ -247,7 +241,7 @@ export function usePutPostsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPutPostsIdMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts/:id'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -257,14 +251,6 @@ export function usePutPostsId(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for DELETE /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeletePostsIdMutationKey() {
-  return ['posts', 'DELETE', '/posts/:id'] as const
 }
 
 /**
@@ -291,7 +277,7 @@ export function useDeletePostsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeletePostsIdMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts/:id'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -304,13 +290,12 @@ export function useDeletePostsId(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/{id}/comments query key
  */
 export function getGetPostsIdCommentsKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args] as const
+  return ['posts', '/posts/:id/comments', args] as const
 }
 
 /**
@@ -362,13 +347,12 @@ export function useImmutableGetPostsIdComments(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/{id}/comments infinite query key
  */
 export function getGetPostsIdCommentsInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args, 'infinite'] as const
+  return ['posts', '/posts/:id/comments', args, 'infinite'] as const
 }
 
 /**
@@ -396,14 +380,6 @@ export function useInfiniteGetPostsIdComments(
 }
 
 /**
- * Generates SWR mutation key for POST /posts/{id}/comments
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIdCommentsMutationKey() {
-  return ['posts', 'POST', '/posts/:id/comments'] as const
-}
-
-/**
  * POST /posts/{id}/comments
  */
 export async function postPostsIdComments(
@@ -427,7 +403,7 @@ export function usePostPostsIdComments(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPostsIdCommentsMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts/:id/comments'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -442,11 +418,10 @@ export function usePostPostsIdComments(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /tags query key
  */
 export function getGetTagsKey() {
-  return ['tags', 'GET', '/tags'] as const
+  return ['tags', '/tags'] as const
 }
 
 /**
@@ -483,11 +458,10 @@ export function useImmutableGetTags(options?: {
 }
 
 /**
- * Generates SWR infinite query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tags infinite query key
  */
 export function getGetTagsInfiniteKey() {
-  return ['tags', 'GET', '/tags', 'infinite'] as const
+  return ['tags', '/tags', 'infinite'] as const
 }
 
 /**

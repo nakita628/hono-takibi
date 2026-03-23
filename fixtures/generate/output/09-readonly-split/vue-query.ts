@@ -12,13 +12,26 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Vue Query cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /posts
  */
-export function getGetPostsQueryKey(
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+/**
+ * Key prefix for /tags
+ */
+export function getTagsKey() {
+  return ['tags'] as const
+}
+
+/**
+ * GET /posts query key
+ */
+export function getPostsQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
 ) {
-  return ['posts', 'GET', '/posts', args] as const
+  return ['posts', '/posts', args] as const
 }
 
 /**
@@ -32,16 +45,14 @@ export async function getPosts(
 }
 
 /**
- * Returns Vue Query query options for GET /posts
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts query options
  */
-export function getGetPostsQueryOptions(
+export function getPostsQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsQueryKey(args),
+    queryKey: getPostsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPosts(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -51,7 +62,7 @@ export function getGetPostsQueryOptions(
 /**
  * GET /posts
  */
-export function useGetPosts(
+export function usePosts(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -59,31 +70,27 @@ export function useGetPosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /posts
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts infinite query key
  */
-export function getGetPostsInfiniteQueryKey(
+export function getPostsInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
 ) {
-  return ['posts', 'GET', '/posts', args, 'infinite'] as const
+  return ['posts', '/posts', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /posts
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts infinite query options
  */
-export function getGetPostsInfiniteQueryOptions(
+export function getPostsInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsInfiniteQueryKey(args),
+    queryKey: getPostsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPosts(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -93,7 +100,7 @@ export function getGetPostsInfiniteQueryOptions(
 /**
  * GET /posts
  */
-export function useInfiniteGetPosts(
+export function useInfinitePosts(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
@@ -101,18 +108,7 @@ export function useInfiniteGetPosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...getGetPostsInfiniteQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
-}
-
-/**
- * Generates Vue Query mutation key for POST /posts
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsMutationKey() {
-  return ['posts', 'POST', '/posts'] as const
+  return useInfiniteQuery({ ...getPostsInfiniteQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -126,13 +122,11 @@ export async function postPosts(
 }
 
 /**
- * Returns Vue Query mutation options for POST /posts
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /posts
  */
 export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostPostsMutationKey(),
+    mutationKey: ['posts', '/posts'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
       return postPosts(args, options)
     },
@@ -155,13 +149,12 @@ export function usePostPosts(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/{id} query key
  */
-export function getGetPostsIdQueryKey(
+export function getPostsIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
 ) {
-  return ['posts', 'GET', '/posts/:id', args] as const
+  return ['posts', '/posts/:id', args] as const
 }
 
 /**
@@ -175,16 +168,14 @@ export async function getPostsId(
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{id}
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/{id} query options
  */
-export function getGetPostsIdQueryOptions(
+export function getPostsIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIdQueryKey(args),
+    queryKey: getPostsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -194,7 +185,7 @@ export function getGetPostsIdQueryOptions(
 /**
  * GET /posts/{id}
  */
-export function useGetPostsId(
+export function usePostsId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -202,31 +193,27 @@ export function useGetPostsId(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /posts/{id}
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/{id} infinite query key
  */
-export function getGetPostsIdInfiniteQueryKey(
+export function getPostsIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
 ) {
-  return ['posts', 'GET', '/posts/:id', args, 'infinite'] as const
+  return ['posts', '/posts/:id', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /posts/{id}
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/{id} infinite query options
  */
-export function getGetPostsIdInfiniteQueryOptions(
+export function getPostsIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIdInfiniteQueryKey(args),
+    queryKey: getPostsIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -236,7 +223,7 @@ export function getGetPostsIdInfiniteQueryOptions(
 /**
  * GET /posts/{id}
  */
-export function useInfiniteGetPostsId(
+export function useInfinitePostsId(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
@@ -245,17 +232,9 @@ export function useInfiniteGetPostsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetPostsIdInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for PUT /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPutPostsIdMutationKey() {
-  return ['posts', 'PUT', '/posts/:id'] as const
 }
 
 /**
@@ -269,13 +248,11 @@ export async function putPostsId(
 }
 
 /**
- * Returns Vue Query mutation options for PUT /posts/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * PUT /posts/{id}
  */
 export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPutPostsIdMutationKey(),
+    mutationKey: ['posts', '/posts/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
       return putPostsId(args, options)
     },
@@ -298,14 +275,6 @@ export function usePutPostsId(options?: {
 }
 
 /**
- * Generates Vue Query mutation key for DELETE /posts/{id}
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getDeletePostsIdMutationKey() {
-  return ['posts', 'DELETE', '/posts/:id'] as const
-}
-
-/**
  * DELETE /posts/{id}
  */
 export async function deletePostsId(
@@ -316,13 +285,11 @@ export async function deletePostsId(
 }
 
 /**
- * Returns Vue Query mutation options for DELETE /posts/{id}
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * DELETE /posts/{id}
  */
 export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getDeletePostsIdMutationKey(),
+    mutationKey: ['posts', '/posts/:id'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
       return deletePostsId(args, options)
     },
@@ -345,13 +312,12 @@ export function useDeletePostsId(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * GET /posts/{id}/comments query key
  */
-export function getGetPostsIdCommentsQueryKey(
+export function getPostsIdCommentsQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args] as const
+  return ['posts', '/posts/:id/comments', args] as const
 }
 
 /**
@@ -365,16 +331,14 @@ export async function getPostsIdComments(
 }
 
 /**
- * Returns Vue Query query options for GET /posts/{id}/comments
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /posts/{id}/comments query options
  */
-export function getGetPostsIdCommentsQueryOptions(
+export function getPostsIdCommentsQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
-    queryKey: getGetPostsIdCommentsQueryKey(args),
+    queryKey: getPostsIdCommentsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -384,7 +348,7 @@ export function getGetPostsIdCommentsQueryOptions(
 /**
  * GET /posts/{id}/comments
  */
-export function useGetPostsIdComments(
+export function usePostsIdComments(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -392,31 +356,27 @@ export function useGetPostsIdComments(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({ ...getPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /posts/{id}/comments
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /posts/{id}/comments infinite query key
  */
-export function getGetPostsIdCommentsInfiniteQueryKey(
+export function getPostsIdCommentsInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
 ) {
-  return ['posts', 'GET', '/posts/:id/comments', args, 'infinite'] as const
+  return ['posts', '/posts/:id/comments', args, 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /posts/{id}/comments
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /posts/{id}/comments infinite query options
  */
-export function getGetPostsIdCommentsInfiniteQueryOptions(
+export function getPostsIdCommentsInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getGetPostsIdCommentsInfiniteQueryKey(args),
+    queryKey: getPostsIdCommentsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
@@ -426,7 +386,7 @@ export function getGetPostsIdCommentsInfiniteQueryOptions(
 /**
  * GET /posts/{id}/comments
  */
-export function useInfiniteGetPostsIdComments(
+export function useInfinitePostsIdComments(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
@@ -435,17 +395,9 @@ export function useInfiniteGetPostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getGetPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
+    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
   })
-}
-
-/**
- * Generates Vue Query mutation key for POST /posts/{id}/comments
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostPostsIdCommentsMutationKey() {
-  return ['posts', 'POST', '/posts/:id/comments'] as const
 }
 
 /**
@@ -459,13 +411,11 @@ export async function postPostsIdComments(
 }
 
 /**
- * Returns Vue Query mutation options for POST /posts/{id}/comments
- *
- * Use with useMutation, setMutationDefaults, or isMutating.
+ * POST /posts/{id}/comments
  */
 export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: getPostPostsIdCommentsMutationKey(),
+    mutationKey: ['posts', '/posts/:id/comments'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
       return postPostsIdComments(args, options)
     },
@@ -491,11 +441,10 @@ export function usePostPostsIdComments(options?: {
 }
 
 /**
- * Generates Vue Query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /tags query key
  */
-export function getGetTagsQueryKey() {
-  return ['tags', 'GET', '/tags'] as const
+export function getTagsQueryKey() {
+  return ['tags', '/tags'] as const
 }
 
 /**
@@ -506,13 +455,11 @@ export async function getTags(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Vue Query query options for GET /tags
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /tags query options
  */
-export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
+export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetTagsQueryKey(),
+    queryKey: getTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -522,31 +469,27 @@ export function getGetTagsQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function useGetTags(options?: {
+export function useTags(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTagsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
- * Generates Vue Query infinite query cache key for GET /tags
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /tags infinite query key
  */
-export function getGetTagsInfiniteQueryKey() {
-  return ['tags', 'GET', '/tags', 'infinite'] as const
+export function getTagsInfiniteQueryKey() {
+  return ['tags', '/tags', 'infinite'] as const
 }
 
 /**
- * Returns Vue Query infinite query options for GET /tags
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /tags infinite query options
  */
-export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetTagsInfiniteQueryKey(),
+    queryKey: getTagsInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
@@ -556,10 +499,10 @@ export function getGetTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /tags
  */
-export function useInfiniteGetTags(options: {
+export function useInfiniteTags(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getGetTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...getTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
 }

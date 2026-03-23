@@ -10,13 +10,19 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates SWR cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ * Key prefix for /api
+ */
+export function getApiKey() {
+  return ['api'] as const
+}
+
+/**
+ * GET /api/reverseGeocode/ query key
  */
 export function getGetApiReverseGeocodeIndexKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args] as const
+  return ['api', '/api/reverseGeocode/', args] as const
 }
 
 /**
@@ -78,13 +84,12 @@ export function useImmutableGetApiReverseGeocodeIndex(
 }
 
 /**
- * Generates SWR infinite query cache key for GET /api/reverseGeocode/
- * Returns structured key ['prefix', 'method', 'path', args, 'infinite'] for filtering
+ * GET /api/reverseGeocode/ infinite query key
  */
 export function getGetApiReverseGeocodeIndexInfiniteKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
-  return ['api', 'GET', '/api/reverseGeocode/', args, 'infinite'] as const
+  return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
 /**
@@ -114,14 +119,6 @@ export function useInfiniteGetApiReverseGeocodeIndex(
 }
 
 /**
- * Generates SWR mutation key for POST /api/v2/public/booking/account/register/oauth/
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/oauth/'] as const
-}
-
-/**
  * POST /api/v2/public/booking/account/register/oauth/
  */
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
@@ -147,7 +144,7 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostApiV2PublicBookingAccountRegisterOauthIndexMutationKey()
+  const swrKey = customKey ?? (['api', '/api/v2/public/booking/account/register/oauth/'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -165,14 +162,6 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
       restMutationOptions,
     ),
   }
-}
-
-/**
- * Generates SWR mutation key for POST /api/v2/public/booking/account/register/email
- * Returns key ['prefix', 'method', 'path'] for mutation state tracking
- */
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationKey() {
-  return ['api', 'POST', '/api/v2/public/booking/account/register/email'] as const
 }
 
 /**
@@ -205,7 +194,7 @@ export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostApiV2PublicBookingAccountRegisterEmailMutationKey()
+  const swrKey = customKey ?? (['api', '/api/v2/public/booking/account/register/email'] as const)
   return {
     swrKey,
     ...useSWRMutation(

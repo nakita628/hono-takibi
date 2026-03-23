@@ -9,11 +9,52 @@ import { parseResponse } from 'hono/client'
 import { client } from './client'
 
 /**
- * Generates Svelte Query cache key for GET /public
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * Key prefix for /api-key-protected
  */
-export function getGetPublicQueryKey() {
-  return ['public', 'GET', '/public'] as const
+export function getApiKeyProtectedKey() {
+  return ['api-key-protected'] as const
+}
+
+/**
+ * Key prefix for /basic-protected
+ */
+export function getBasicProtectedKey() {
+  return ['basic-protected'] as const
+}
+
+/**
+ * Key prefix for /bearer-protected
+ */
+export function getBearerProtectedKey() {
+  return ['bearer-protected'] as const
+}
+
+/**
+ * Key prefix for /multi-auth
+ */
+export function getMultiAuthKey() {
+  return ['multi-auth'] as const
+}
+
+/**
+ * Key prefix for /oauth-protected
+ */
+export function getOauthProtectedKey() {
+  return ['oauth-protected'] as const
+}
+
+/**
+ * Key prefix for /public
+ */
+export function getPublicKey() {
+  return ['public'] as const
+}
+
+/**
+ * GET /public query key
+ */
+export function getPublicQueryKey() {
+  return ['public', '/public'] as const
 }
 
 /**
@@ -24,13 +65,11 @@ export async function getPublic(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /public
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /public query options
  */
-export function getGetPublicQueryOptions(options?: ClientRequestOptions) {
+export function getPublicQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetPublicQueryKey(),
+    queryKey: getPublicQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPublic({ ...options, init: { ...options?.init, signal } })
     },
@@ -40,7 +79,7 @@ export function getGetPublicQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /public
  */
-export function createGetPublic(
+export function createPublic(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
     options?: ClientRequestOptions
@@ -48,27 +87,23 @@ export function createGetPublic(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetPublicQueryOptions(clientOptions), ...query }
+    return { ...getPublicQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /public
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /public infinite query key
  */
-export function getGetPublicInfiniteQueryKey() {
-  return ['public', 'GET', '/public', 'infinite'] as const
+export function getPublicInfiniteQueryKey() {
+  return ['public', '/public', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /public
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /public infinite query options
  */
-export function getGetPublicInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getPublicInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetPublicInfiniteQueryKey(),
+    queryKey: getPublicInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPublic({ ...options, init: { ...options?.init, signal } })
     },
@@ -78,7 +113,7 @@ export function getGetPublicInfiniteQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /public
  */
-export function createInfiniteGetPublic(
+export function createInfinitePublic(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
     options?: ClientRequestOptions
@@ -86,16 +121,15 @@ export function createInfiniteGetPublic(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetPublicInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getPublicInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /bearer-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /bearer-protected query key
  */
-export function getGetBearerProtectedQueryKey() {
-  return ['bearer-protected', 'GET', '/bearer-protected'] as const
+export function getBearerProtectedQueryKey() {
+  return ['bearer-protected', '/bearer-protected'] as const
 }
 
 /**
@@ -106,13 +140,11 @@ export async function getBearerProtected(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /bearer-protected
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /bearer-protected query options
  */
-export function getGetBearerProtectedQueryOptions(options?: ClientRequestOptions) {
+export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetBearerProtectedQueryKey(),
+    queryKey: getBearerProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -122,7 +154,7 @@ export function getGetBearerProtectedQueryOptions(options?: ClientRequestOptions
 /**
  * GET /bearer-protected
  */
-export function createGetBearerProtected(
+export function createBearerProtected(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
     options?: ClientRequestOptions
@@ -130,27 +162,23 @@ export function createGetBearerProtected(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetBearerProtectedQueryOptions(clientOptions), ...query }
+    return { ...getBearerProtectedQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /bearer-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /bearer-protected infinite query key
  */
-export function getGetBearerProtectedInfiniteQueryKey() {
-  return ['bearer-protected', 'GET', '/bearer-protected', 'infinite'] as const
+export function getBearerProtectedInfiniteQueryKey() {
+  return ['bearer-protected', '/bearer-protected', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /bearer-protected
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /bearer-protected infinite query options
  */
-export function getGetBearerProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getBearerProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetBearerProtectedInfiniteQueryKey(),
+    queryKey: getBearerProtectedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -160,7 +188,7 @@ export function getGetBearerProtectedInfiniteQueryOptions(options?: ClientReques
 /**
  * GET /bearer-protected
  */
-export function createInfiniteGetBearerProtected(
+export function createInfiniteBearerProtected(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
     options?: ClientRequestOptions
@@ -168,16 +196,15 @@ export function createInfiniteGetBearerProtected(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetBearerProtectedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getBearerProtectedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-key-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /api-key-protected query key
  */
-export function getGetApiKeyProtectedQueryKey() {
-  return ['api-key-protected', 'GET', '/api-key-protected'] as const
+export function getApiKeyProtectedQueryKey() {
+  return ['api-key-protected', '/api-key-protected'] as const
 }
 
 /**
@@ -188,13 +215,11 @@ export async function getApiKeyProtected(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /api-key-protected
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /api-key-protected query options
  */
-export function getGetApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
+export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetApiKeyProtectedQueryKey(),
+    queryKey: getApiKeyProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -204,7 +229,7 @@ export function getGetApiKeyProtectedQueryOptions(options?: ClientRequestOptions
 /**
  * GET /api-key-protected
  */
-export function createGetApiKeyProtected(
+export function createApiKeyProtected(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
     options?: ClientRequestOptions
@@ -212,27 +237,23 @@ export function createGetApiKeyProtected(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetApiKeyProtectedQueryOptions(clientOptions), ...query }
+    return { ...getApiKeyProtectedQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /api-key-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /api-key-protected infinite query key
  */
-export function getGetApiKeyProtectedInfiniteQueryKey() {
-  return ['api-key-protected', 'GET', '/api-key-protected', 'infinite'] as const
+export function getApiKeyProtectedInfiniteQueryKey() {
+  return ['api-key-protected', '/api-key-protected', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /api-key-protected
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /api-key-protected infinite query options
  */
-export function getGetApiKeyProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getApiKeyProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetApiKeyProtectedInfiniteQueryKey(),
+    queryKey: getApiKeyProtectedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -242,7 +263,7 @@ export function getGetApiKeyProtectedInfiniteQueryOptions(options?: ClientReques
 /**
  * GET /api-key-protected
  */
-export function createInfiniteGetApiKeyProtected(
+export function createInfiniteApiKeyProtected(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
     options?: ClientRequestOptions
@@ -250,16 +271,15 @@ export function createInfiniteGetApiKeyProtected(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetApiKeyProtectedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getApiKeyProtectedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /basic-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /basic-protected query key
  */
-export function getGetBasicProtectedQueryKey() {
-  return ['basic-protected', 'GET', '/basic-protected'] as const
+export function getBasicProtectedQueryKey() {
+  return ['basic-protected', '/basic-protected'] as const
 }
 
 /**
@@ -270,13 +290,11 @@ export async function getBasicProtected(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /basic-protected
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /basic-protected query options
  */
-export function getGetBasicProtectedQueryOptions(options?: ClientRequestOptions) {
+export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetBasicProtectedQueryKey(),
+    queryKey: getBasicProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -286,7 +304,7 @@ export function getGetBasicProtectedQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /basic-protected
  */
-export function createGetBasicProtected(
+export function createBasicProtected(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
     options?: ClientRequestOptions
@@ -294,27 +312,23 @@ export function createGetBasicProtected(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetBasicProtectedQueryOptions(clientOptions), ...query }
+    return { ...getBasicProtectedQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /basic-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /basic-protected infinite query key
  */
-export function getGetBasicProtectedInfiniteQueryKey() {
-  return ['basic-protected', 'GET', '/basic-protected', 'infinite'] as const
+export function getBasicProtectedInfiniteQueryKey() {
+  return ['basic-protected', '/basic-protected', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /basic-protected
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /basic-protected infinite query options
  */
-export function getGetBasicProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getBasicProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetBasicProtectedInfiniteQueryKey(),
+    queryKey: getBasicProtectedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -324,7 +338,7 @@ export function getGetBasicProtectedInfiniteQueryOptions(options?: ClientRequest
 /**
  * GET /basic-protected
  */
-export function createInfiniteGetBasicProtected(
+export function createInfiniteBasicProtected(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
     options?: ClientRequestOptions
@@ -332,16 +346,15 @@ export function createInfiniteGetBasicProtected(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetBasicProtectedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getBasicProtectedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth-protected
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /oauth-protected query key
  */
-export function getGetOauthProtectedQueryKey() {
-  return ['oauth-protected', 'GET', '/oauth-protected'] as const
+export function getOauthProtectedQueryKey() {
+  return ['oauth-protected', '/oauth-protected'] as const
 }
 
 /**
@@ -352,13 +365,11 @@ export async function getOauthProtected(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /oauth-protected
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /oauth-protected query options
  */
-export function getGetOauthProtectedQueryOptions(options?: ClientRequestOptions) {
+export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetOauthProtectedQueryKey(),
+    queryKey: getOauthProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -368,7 +379,7 @@ export function getGetOauthProtectedQueryOptions(options?: ClientRequestOptions)
 /**
  * GET /oauth-protected
  */
-export function createGetOauthProtected(
+export function createOauthProtected(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
     options?: ClientRequestOptions
@@ -376,27 +387,23 @@ export function createGetOauthProtected(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetOauthProtectedQueryOptions(clientOptions), ...query }
+    return { ...getOauthProtectedQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /oauth-protected
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /oauth-protected infinite query key
  */
-export function getGetOauthProtectedInfiniteQueryKey() {
-  return ['oauth-protected', 'GET', '/oauth-protected', 'infinite'] as const
+export function getOauthProtectedInfiniteQueryKey() {
+  return ['oauth-protected', '/oauth-protected', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /oauth-protected
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /oauth-protected infinite query options
  */
-export function getGetOauthProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getOauthProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetOauthProtectedInfiniteQueryKey(),
+    queryKey: getOauthProtectedInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
@@ -406,7 +413,7 @@ export function getGetOauthProtectedInfiniteQueryOptions(options?: ClientRequest
 /**
  * GET /oauth-protected
  */
-export function createInfiniteGetOauthProtected(
+export function createInfiniteOauthProtected(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
     options?: ClientRequestOptions
@@ -414,16 +421,15 @@ export function createInfiniteGetOauthProtected(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetOauthProtectedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getOauthProtectedInfiniteQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query cache key for GET /multi-auth
- * Returns structured key ['prefix', 'method', 'path'] for filtering
+ * GET /multi-auth query key
  */
-export function getGetMultiAuthQueryKey() {
-  return ['multi-auth', 'GET', '/multi-auth'] as const
+export function getMultiAuthQueryKey() {
+  return ['multi-auth', '/multi-auth'] as const
 }
 
 /**
@@ -434,13 +440,11 @@ export async function getMultiAuth(options?: ClientRequestOptions) {
 }
 
 /**
- * Returns Svelte Query query options for GET /multi-auth
- *
- * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ * GET /multi-auth query options
  */
-export function getGetMultiAuthQueryOptions(options?: ClientRequestOptions) {
+export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
-    queryKey: getGetMultiAuthQueryKey(),
+    queryKey: getMultiAuthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
@@ -450,7 +454,7 @@ export function getGetMultiAuthQueryOptions(options?: ClientRequestOptions) {
 /**
  * GET /multi-auth
  */
-export function createGetMultiAuth(
+export function createMultiAuth(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
     options?: ClientRequestOptions
@@ -458,27 +462,23 @@ export function createGetMultiAuth(
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getGetMultiAuthQueryOptions(clientOptions), ...query }
+    return { ...getMultiAuthQueryOptions(clientOptions), ...query }
   })
 }
 
 /**
- * Generates Svelte Query infinite query cache key for GET /multi-auth
- * Returns structured key ['prefix', 'method', 'path', 'infinite'] for filtering
+ * GET /multi-auth infinite query key
  */
-export function getGetMultiAuthInfiniteQueryKey() {
-  return ['multi-auth', 'GET', '/multi-auth', 'infinite'] as const
+export function getMultiAuthInfiniteQueryKey() {
+  return ['multi-auth', '/multi-auth', 'infinite'] as const
 }
 
 /**
- * Returns Svelte Query infinite query options for GET /multi-auth
- *
- * Use with prefetchInfiniteQuery, ensureInfiniteQueryData, or useInfiniteQuery.
- * Requires initialPageParam and getNextPageParam to be provided separately.
+ * GET /multi-auth infinite query options
  */
-export function getGetMultiAuthInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getMultiAuthInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
-    queryKey: getGetMultiAuthInfiniteQueryKey(),
+    queryKey: getMultiAuthInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
@@ -488,7 +488,7 @@ export function getGetMultiAuthInfiniteQueryOptions(options?: ClientRequestOptio
 /**
  * GET /multi-auth
  */
-export function createInfiniteGetMultiAuth(
+export function createInfiniteMultiAuth(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
     options?: ClientRequestOptions
@@ -496,6 +496,6 @@ export function createInfiniteGetMultiAuth(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getGetMultiAuthInfiniteQueryOptions(clientOptions), ...query }
+    return { ...getMultiAuthInfiniteQueryOptions(clientOptions), ...query }
   })
 }
