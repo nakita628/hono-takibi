@@ -1138,16 +1138,12 @@ describe('tanstackQuery (split mode - CRUD)', () => {
         '/users/{id}': {
           get: {
             summary: 'Get user',
-            parameters: [
-              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-            ],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
             responses: { '200': { description: 'OK' } },
           },
           put: {
             summary: 'Update user',
-            parameters: [
-              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-            ],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
             requestBody: {
               required: true,
               content: { 'application/json': { schema: { type: 'object' } } },
@@ -1156,9 +1152,7 @@ describe('tanstackQuery (split mode - CRUD)', () => {
           },
           delete: {
             summary: 'Delete user',
-            parameters: [
-              { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-            ],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
             responses: { '204': { description: 'No Content' } },
           },
         },
@@ -1203,7 +1197,8 @@ export * from './deleteUsersId'
 `)
 
       const postUsersContent = fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')
-      expect(postUsersContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+      expect(postUsersContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1239,7 +1234,8 @@ export function usePostUsers(options?: {
 `)
 
       const putUsersIdContent = fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')
-      expect(putUsersIdContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+      expect(putUsersIdContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1274,11 +1270,9 @@ export function usePutUsersId(options?: {
 }
 `)
 
-      const deleteUsersIdContent = fs.readFileSync(
-        path.join(hooksDir, 'deleteUsersId.ts'),
-        'utf-8',
-      )
-      expect(deleteUsersIdContent).toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
+      const deleteUsersIdContent = fs.readFileSync(path.join(hooksDir, 'deleteUsersId.ts'), 'utf-8')
+      expect(deleteUsersIdContent)
+        .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'

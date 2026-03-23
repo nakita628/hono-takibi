@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type FormatOptions } from 'oxfmt'
 
+import { type FormatOptions } from 'oxfmt'
 import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 

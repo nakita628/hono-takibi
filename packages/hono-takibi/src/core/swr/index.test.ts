@@ -939,13 +939,15 @@ describe('swr (split mode with full CRUD resource)', () => {
       ])
 
       // _keys.ts
-      expect(fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8')).toBe(`export function getUsersKey() {
+      expect(fs.readFileSync(path.join(hooksDir, '_keys.ts'), 'utf-8'))
+        .toBe(`export function getUsersKey() {
   return ['users'] as const
 }
 `)
 
       // getUsers.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'getUsers.ts'), 'utf-8')).toBe(`import useSWR from 'swr'
+      expect(fs.readFileSync(path.join(hooksDir, 'getUsers.ts'), 'utf-8'))
+        .toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
@@ -1016,7 +1018,8 @@ export function useInfiniteGetUsers(
 `)
 
       // getUsersId.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'getUsersId.ts'), 'utf-8')).toBe(`import useSWR from 'swr'
+      expect(fs.readFileSync(path.join(hooksDir, 'getUsersId.ts'), 'utf-8'))
+        .toBe(`import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
@@ -1089,7 +1092,8 @@ export function useInfiniteGetUsersId(
 `)
 
       // postUsers.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+      expect(fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8'))
+        .toBe(`import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1128,7 +1132,8 @@ export function usePostUsers(options?: {
 `)
 
       // putUsersId.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+      expect(fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8'))
+        .toBe(`import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1167,7 +1172,8 @@ export function usePutUsersId(options?: {
 `)
 
       // deleteUsersId.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'deleteUsersId.ts'), 'utf-8')).toBe(`import type { Key } from 'swr'
+      expect(fs.readFileSync(path.join(hooksDir, 'deleteUsersId.ts'), 'utf-8'))
+        .toBe(`import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1206,7 +1212,8 @@ export function useDeleteUsersId(options?: {
 `)
 
       // index.ts
-      expect(fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8')).toBe(`export * from './_keys'
+      expect(fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8'))
+        .toBe(`export * from './_keys'
 export * from './getUsers'
 export * from './postUsers'
 export * from './getUsersId'

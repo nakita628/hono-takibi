@@ -2,11 +2,7 @@ import path from 'node:path'
 
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import {
-  capitalize,
-  methodPath,
-  toIdentifierPascalCase,
-} from '../utils/index.js'
+import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
 import {
   core,
   formatPath,
@@ -854,7 +850,6 @@ function makeHookCode(
   const opParams = deps.toParameterLikes(op.parameters)
   const hasHeaderArgs = [...pathLevelParams, ...opParams].some((p) => p.in === 'header')
 
-
   // parseResponse function name (same naming as parseResponse/ generator)
   const parseResponseFuncName = methodPath(method, pathStr)
   const argsType = makeArgsType(clientName, method, pathStr)
@@ -1252,7 +1247,14 @@ function makeHeader(
 ): string {
   // SWR has different import structure
   if (config.isSWR) {
-    return makeSWRHeader(importPath, clientName, hasQuery, hasMutation, hasAnyArgs, hasInfiniteQuery)
+    return makeSWRHeader(
+      importPath,
+      clientName,
+      hasQuery,
+      hasMutation,
+      hasAnyArgs,
+      hasInfiniteQuery,
+    )
   }
 
   const queryImports = [

@@ -348,4 +348,3 @@ export function operationHasArgs(
 
   return hasParams || hasBody
 }
-
