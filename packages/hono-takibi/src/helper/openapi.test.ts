@@ -271,7 +271,6 @@ describe('openapi helper', () => {
       const result = makeLinkOrReference({
         operationId: 'getUser',
         server: { url: 'https://api.example.com' },
-        // biome-ignore lint: test
       } as any)
       expect(result).toBe('{operationId:"getUser",server:{"url":"https://api.example.com"}}')
     })
@@ -297,7 +296,6 @@ describe('openapi helper', () => {
         description: 'Full link',
         server: { url: 'https://api.example.com' },
         summary: 'Summary',
-        // biome-ignore lint: test
       } as any)
       expect(result).toBe(
         '{operationRef:"#/paths/users/get",operationId:"getUser",parameters:{"id":"123"},requestBody:{"name":"test"},description:"Full link",server:{"url":"https://api.example.com"},summary:"Summary"}',
@@ -1175,6 +1173,304 @@ describe('openapi helper', () => {
       expect(result).toBe(
         '[{"name":"filter","in":"query","schema":{"type":"object","properties":{"status":{"type":"string"}}}}]',
       )
+    })
+  })
+
+  describe('readonly propagation', () => {
+    describe('makeMedia with readonly', () => {
+      it.concurrent('adds .readonly() to object schema', () => {
+        const result = makeMedia(
+          { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
+          true,
+        )
+        expect(result).toBe('{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}')
+      })
+
+      it.concurrent('adds .readonly() to array schema', () => {
+        const result = makeMedia(
+          { schema: { type: 'array', items: { type: 'string' } } },
+          true,
+        )
+        expect(result).toBe('{schema:z.array(z.string()).readonly()}')
+      })
+
+      it.concurrent('does not add .readonly() when readonly is false', () => {
+        const result = makeMedia(
+          { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
+          false,
+        )
+        expect(result).toBe('{schema:z.object({name:z.string()}).openapi({"required":["name"]})}')
+      })
+
+      it.concurrent('does not add .readonly() when readonly is undefined', () => {
+        const result = makeMedia({ schema: { type: 'array', items: { type: 'string' } } })
+        expect(result).toBe('{schema:z.array(z.string())}')
+      })
+
+      it.concurrent('adds .readonly() to nested array items object', () => {
+        const result = makeMedia(
+          {
+            schema: {
+              type: 'array',
+              items: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] },
+            },
+          },
+          true,
+        )
+        expect(result).toBe(
+          '{schema:z.array(z.object({id:z.int()}).readonly().openapi({"required":["id"]})).readonly()}',
+        )
+      })
+    })
+
+    describe('makeContent with readonly', () => {
+      it.concurrent('propagates readonly to media schema', () => {
+        const result = makeContent(
+          { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+          true,
+        )
+        expect(result).toStrictEqual([
+          `'application/json':{schema:z.object({status:z.string()}).readonly().openapi({"required":["status"]})}`,
+        ])
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeContent(
+          { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+          false,
+        )
+        expect(result).toStrictEqual([
+          `'application/json':{schema:z.object({status:z.string()}).openapi({"required":["status"]})}`,
+        ])
+      })
+    })
+
+    describe('makeResponses with readonly', () => {
+      it.concurrent('propagates readonly to content schema', () => {
+        const result = makeResponses(
+          {
+            description: 'OK',
+            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] } } },
+          },
+          true,
+        )
+        expect(result).toBe(
+          `{description:"OK",content:{'application/json':{schema:z.object({id:z.int()}).readonly().openapi({"required":["id"]})}}}`,
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeResponses(
+          {
+            description: 'OK',
+            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] } } },
+          },
+          false,
+        )
+        expect(result).toBe(
+          `{description:"OK",content:{'application/json':{schema:z.object({id:z.int()}).openapi({"required":["id"]})}}}`,
+        )
+      })
+    })
+
+    describe('makeOperationResponses with readonly', () => {
+      it.concurrent('propagates readonly through responses', () => {
+        const result = makeOperationResponses(
+          { 200: { description: 'OK', content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } } },
+          true,
+        )
+        expect(result).toBe(
+          `{200:{description:"OK",content:{'application/json':{schema:z.array(z.string()).readonly()}}}}`,
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeOperationResponses(
+          { 200: { description: 'OK', content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } } },
+          false,
+        )
+        expect(result).toBe(
+          `{200:{description:"OK",content:{'application/json':{schema:z.array(z.string())}}}}`,
+        )
+      })
+    })
+
+    describe('makeRequestBody with readonly', () => {
+      it.concurrent('propagates readonly to request body content', () => {
+        const result = makeRequestBody(
+          {
+            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+            required: true,
+          },
+          true,
+        )
+        expect(result).toBe(
+          `{content:{'application/json':{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}},required:true}`,
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeRequestBody(
+          {
+            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+            required: true,
+          },
+          false,
+        )
+        expect(result).toBe(
+          `{content:{'application/json':{schema:z.object({name:z.string()}).openapi({"required":["name"]})}},required:true}`,
+        )
+      })
+    })
+
+    describe('makeRequest with readonly', () => {
+      it.concurrent('propagates readonly to body content', () => {
+        const result = makeRequest(
+          undefined,
+          { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } } },
+          true,
+        )
+        expect(result).toBe(
+          `{body:{content:{'application/json':{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}}}}`,
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeRequest(
+          undefined,
+          { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } } },
+          false,
+        )
+        expect(result).toBe(
+          `{body:{content:{'application/json':{schema:z.object({name:z.string()}).openapi({"required":["name"]})}}}}`,
+        )
+      })
+    })
+
+    describe('makeOperation with readonly', () => {
+      it.concurrent('propagates readonly to responses', () => {
+        const result = makeOperation(
+          {
+            operationId: 'getHealth',
+            responses: {
+              200: {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+              },
+            },
+          },
+          true,
+        )
+        expect(result).toBe(
+          `{operationId:"getHealth",responses:{200:{description:"OK",content:{'application/json':{schema:z.object({status:z.string()}).readonly().openapi({"required":["status"]})}}}}}`,
+        )
+      })
+
+      it.concurrent('propagates readonly to requestBody', () => {
+        const result = makeOperation(
+          {
+            requestBody: {
+              content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+              required: true,
+            },
+            responses: { 201: { description: 'Created' } },
+          },
+          true,
+        )
+        expect(result).toBe(
+          `{requestBody:{content:{'application/json':{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}},required:true},responses:{201:{description:"Created"}}}`,
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeOperation(
+          {
+            responses: {
+              200: {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+              },
+            },
+          },
+          false,
+        )
+        expect(result).toBe(
+          `{responses:{200:{description:"OK",content:{'application/json':{schema:z.object({status:z.string()}).openapi({"required":["status"]})}}}}}`,
+        )
+      })
+    })
+
+    describe('makeHeadersAndReferences with readonly', () => {
+      it.concurrent('propagates readonly to header schema', () => {
+        const result = makeHeadersAndReferences(
+          { schema: { type: 'object', properties: { count: { type: 'integer' } }, required: ['count'] } },
+          true,
+        )
+        expect(result).toBe(
+          '{schema:z.object({count:z.int()}).readonly().exactOptional().openapi({"required":["count"]})}',
+        )
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeHeadersAndReferences(
+          { schema: { type: 'object', properties: { count: { type: 'integer' } }, required: ['count'] } },
+          false,
+        )
+        expect(result).toBe(
+          '{schema:z.object({count:z.int()}).exactOptional().openapi({"required":["count"]})}',
+        )
+      })
+    })
+
+    describe('makeParameters with readonly', () => {
+      it.concurrent('propagates readonly to parameter schema', () => {
+        const result = makeParameters(
+          [{ name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'string' } } }],
+          true,
+        )
+        expect(result).toStrictEqual({
+          query: {
+            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+          },
+        })
+      })
+
+      it.concurrent('does not add readonly when flag is false', () => {
+        const result = makeParameters(
+          [{ name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'string' } } }],
+          false,
+        )
+        expect(result).toStrictEqual({
+          query: {
+            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+          },
+        })
+      })
+    })
+
+    describe('makeCallbacks with readonly', () => {
+      it.concurrent('propagates readonly to callback operations', () => {
+        const result = makeCallbacks(
+          {
+            onEvent: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  responses: {
+                    200: {
+                      description: 'OK',
+                      content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] } } },
+                    },
+                  },
+                },
+              },
+            },
+          } as any,
+          true,
+        )
+        expect(result).toBe(
+          `"onEvent":{"{$request.body#/callbackUrl}":{post:{responses:{200:{description:"OK",content:{'application/json':{schema:z.object({ok:z.boolean()}).readonly().openapi({"required":["ok"]})}}}}}}}`,
+        )
+      })
     })
   })
 })

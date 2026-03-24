@@ -95,4 +95,72 @@ describe('createWebhook', () => {
     const expected = `export const newOrderPostWebhook={method:'post',path:'/newOrder',summary:"New order webhook",description:"Called when a new order is created",operationId:'handleNewOrder',request:{body:{content:{'application/json':{schema:z.object({orderId:z.string(),amount:z.number()}).openapi({"required":["orderId","amount"]})}},required:true}},responses:{200:{description:"Webhook received successfully"}}}`
     expect(result).toBe(expected)
   })
+
+  it.concurrent('creates webhook with readonly and as const', () => {
+    const result = createWebhook(
+      'orderUpdate',
+      'post',
+      {
+        operationId: 'handleOrderUpdate',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { orderId: { type: 'string' } },
+                required: ['orderId'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+              },
+            },
+          },
+        },
+      },
+      true,
+    )
+    expect(result).toBe(
+      `export const orderUpdatePostWebhook={method:'post',path:'/orderUpdate',operationId:'handleOrderUpdate',request:{body:{content:{'application/json':{schema:z.object({orderId:z.string()}).readonly().openapi({"required":["orderId"]})}},required:true}},responses:{200:{description:"OK",content:{'application/json':{schema:z.object({ok:z.boolean()}).readonly().openapi({"required":["ok"]})}}}}} as const`,
+    )
+  })
+
+  it.concurrent('creates webhook with deprecated and security', () => {
+    const result = createWebhook('legacyHook', 'post', {
+      operationId: 'legacyWebhook',
+      deprecated: true,
+      security: [{ apiKey: [] }] as any,
+      responses: { '200': { description: 'OK' } },
+    })
+    expect(result).toBe(
+      `export const legacyHookPostWebhook={method:'post',path:'/legacyHook',operationId:'legacyWebhook',responses:{200:{description:"OK"}},deprecated:true,security:[{"apiKey":[]}]}`,
+    )
+  })
+
+  it.concurrent('creates webhook with externalDocs', () => {
+    const result = createWebhook('event', 'post', {
+      operationId: 'handleEvent',
+      externalDocs: { url: 'https://docs.example.com' },
+      responses: { '200': { description: 'OK' } },
+    })
+    expect(result).toBe(
+      `export const eventPostWebhook={method:'post',path:'/event',externalDocs:{"url":"https://docs.example.com"},operationId:'handleEvent',responses:{200:{description:"OK"}}}`,
+    )
+  })
+
+  it.concurrent('creates minimal webhook without optional fields', () => {
+    const result = createWebhook('simple', 'post', {
+      responses: { '200': { description: 'OK' } },
+    })
+    expect(result).toBe(
+      `export const simplePostWebhook={method:'post',path:'/simple',responses:{200:{description:"OK"}}}`,
+    )
+  })
 })

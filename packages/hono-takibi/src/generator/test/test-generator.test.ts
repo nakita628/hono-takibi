@@ -472,4 +472,734 @@ describe('makeHandlerTestCode', () => {
       "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
+
+  it('with security — bearer auth generates 401 test', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Auth Handler API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'listUsers',
+            summary: 'List users',
+            tags: ['users'],
+            security: [{ bearerAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app')
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Users',()=>{describe('GET /users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/users`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n",
+    )
+  })
+})
+
+// ─── extractTestCases (security schemes) ────────────────────────
+
+describe('extractTestCases - security schemes', () => {
+  it('basic auth security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Basic Auth API', version: '1.0.0' },
+      paths: {
+        '/secure': {
+          get: {
+            operationId: 'getSecure',
+            security: [{ basicAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          basicAuth: { type: 'http', scheme: 'basic' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'basic', name: 'Authorization' }])
+  })
+
+  it('apiKey security in header', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'ApiKey API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            security: [{ apiKeyAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKeyAuth: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([
+      { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+    ])
+  })
+
+  it('apiKey security in query', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'ApiKey Query API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            security: [{ apiKeyQuery: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKeyQuery: { type: 'apiKey', name: 'api_key', in: 'query' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([
+      { type: 'apiKey', name: 'api_key', in: 'query' },
+    ])
+  })
+
+  it('oauth2 security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'OAuth2 API', version: '1.0.0' },
+      paths: {
+        '/protected': {
+          get: {
+            operationId: 'getProtected',
+            security: [{ oauth2: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: { implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'oauth2', name: 'Authorization' }])
+  })
+
+  it('global security is used when operation has no security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Global Auth API', version: '1.0.0' },
+      security: [{ bearerAuth: [] }],
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'listItems',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'bearer', name: 'Authorization' }])
+  })
+
+  it('operation security overrides global security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Override Auth API', version: '1.0.0' },
+      security: [{ bearerAuth: [] }],
+      paths: {
+        '/public': {
+          get: {
+            operationId: 'getPublic',
+            security: [{ basicAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+          basicAuth: { type: 'http', scheme: 'basic' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'basic', name: 'Authorization' }])
+  })
+})
+
+// ─── extractTestCases (header parameters) ───────────────────────
+
+describe('extractTestCases - header parameters', () => {
+  it('header parameters are extracted', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Header API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            parameters: [
+              {
+                name: 'X-Request-Id',
+                in: 'header',
+                required: true,
+                schema: { type: 'string', format: 'uuid' },
+              },
+              {
+                name: 'X-Correlation-Id',
+                in: 'header',
+                required: false,
+                schema: { type: 'string' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].headerParams).toStrictEqual([
+      { name: 'X-Request-Id', fakerCode: 'faker.string.uuid()', required: true },
+      {
+        name: 'X-Correlation-Id',
+        fakerCode: 'faker.string.alpha({ length: { min: 5, max: 20 } })',
+        required: false,
+      },
+    ])
+  })
+})
+
+// ─── extractTestCases ($ref parameters) ─────────────────────────
+
+describe('extractTestCases - $ref parameters', () => {
+  it('$ref query parameter is resolved from components', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'RefQuery API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'listItems',
+            parameters: [
+              { $ref: '#/components/parameters/PageSize', name: '', in: 'query', schema: {} },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          PageSize: {
+            name: 'pageSize',
+            in: 'query',
+            required: false,
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].queryParams).toStrictEqual([
+      {
+        name: 'pageSize',
+        fakerCode: 'faker.number.int({ min: 1, max: 100 })',
+        required: false,
+      },
+    ])
+  })
+})
+
+// ─── extractTestCases (usedSchemaRefs) ──────────────────────────
+
+describe('extractTestCases - usedSchemaRefs', () => {
+  it('request body with $ref schema collects schema refs', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Ref Body API', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          post: {
+            operationId: 'createOrder',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Order' },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Order: {
+            type: 'object',
+            required: ['item'],
+            properties: {
+              item: { $ref: '#/components/schemas/Item' },
+            },
+          },
+          Item: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['Order', 'Item'])
+    expect(result[0].requestBody).toStrictEqual({
+      fakerCode: 'mockOrder()',
+      contentType: 'application/json',
+    })
+  })
+})
+
+// ─── makeTestFile (security — makeAuthHeader indirectly) ────────
+
+describe('makeTestFile - security auth headers', () => {
+  it('basic auth — generates Authorization Basic header and 401 test', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Basic API', version: '1.0.0' },
+      paths: {
+        '/secure': {
+          get: {
+            operationId: 'getSecure',
+            summary: 'Secure endpoint',
+            security: [{ basicAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          basicAuth: { type: 'http', scheme: 'basic' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Basic API',()=>{describe('default',()=>{describe('GET /secure',()=>{it('should return 200 - Secure endpoint',async()=>{\nconst res=await app.request(`/secure`,{method:'GET',headers:{'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/secure`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+
+  it('apiKey in header — generates X-API-Key header and 401 test', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'ApiKey API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            summary: 'Get data',
+            security: [{ apiKeyAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKeyAuth: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('ApiKey API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-API-Key':faker.string.alphanumeric(32)}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+
+  it('oauth2 — generates Bearer token header and 401 test', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'OAuth2 API', version: '1.0.0' },
+      paths: {
+        '/profile': {
+          get: {
+            operationId: 'getProfile',
+            summary: 'Get profile',
+            security: [{ oauth2: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: { implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('OAuth2 API',()=>{describe('default',()=>{describe('GET /profile',()=>{it('should return 200 - Get profile',async()=>{\nconst res=await app.request(`/profile`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/profile`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (path params with 404 — getNonExistentValue) ──
+
+describe('makeTestFile - getNonExistentValue for 404 tests', () => {
+  it('uuid path param — uses zero UUID for 404', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'UUID API', version: '1.0.0' },
+      paths: {
+        '/items/{itemId}': {
+          get: {
+            operationId: 'getItem',
+            summary: 'Get item',
+            tags: ['items'],
+            parameters: [
+              {
+                name: 'itemId',
+                in: 'path',
+                required: true,
+                schema: { type: 'string', format: 'uuid' },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+              '404': { description: 'Not found' },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('UUID API',()=>{describe('items',()=>{describe('GET /items/{itemId}',()=>{it('should return 200 - Get item',async()=>{const itemId=faker.string.uuid()\nconst res=await app.request(`/items/${itemId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/items/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+
+  it('string path param without format — uses __non_existent__', () => {
+    const result = makeTestFile(pathParamSpec)
+    // Already tested above, verify the 404 path uses __non_existent__
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('PathParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+
+  it('integer path param — uses -1 for 404', () => {
+    const result = makeTestFile(deleteSpec)
+    // Already tested above, verify the 404 path uses -1
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Delete API',()=>{describe('tasks',()=>{describe('DELETE /tasks/{id}',()=>{it('should return 204 - Delete task',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst res=await app.request(`/tasks/${id}`,{method:'DELETE'})\nexpect(res.status).toBe(204)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/-1`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile ($ref request body — makeMockFunctions) ───────
+
+describe('makeTestFile - $ref request body with mock functions', () => {
+  it('generates mock functions for $ref schemas in topological order', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mock API', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          post: {
+            operationId: 'createOrder',
+            summary: 'Create order',
+            tags: ['orders'],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Order' },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          Order: {
+            type: 'object',
+            required: ['item'],
+            properties: {
+              item: { $ref: '#/components/schemas/Item' },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockItem() {\n  return {\n    name: faker.person.fullName()\n  }\n}\n\nfunction mockOrder() {\n  return {\n    item: mockItem()\n  }\n}\n\ndescribe('Mock API',()=>{describe('orders',()=>{describe('POST /orders',()=>{it('should return 201 - Create order',async()=>{const body=mockOrder()\nconst res=await app.request(`/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (circular schema references) ─────────────────
+
+describe('makeTestFile - circular schema references', () => {
+  it('circular self-reference adds : any return type', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Circular API', version: '1.0.0' },
+      paths: {
+        '/nodes': {
+          post: {
+            operationId: 'createNode',
+            summary: 'Create node',
+            tags: ['nodes'],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/TreeNode' },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          TreeNode: {
+            type: 'object',
+            required: ['value'],
+            properties: {
+              value: { type: 'string' },
+              children: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/TreeNode' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return {\n    value: faker.string.alpha({ length: { min: 5, max: 20 } }),\n    children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTreeNode())), undefined])\n  }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+    )
+  })
+
+  it('mutual circular reference adds : any return type', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mutual Circular API', version: '1.0.0' },
+      paths: {
+        '/a': {
+          post: {
+            operationId: 'createA',
+            summary: 'Create A',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/A' },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          A: {
+            type: 'object',
+            required: ['b'],
+            properties: {
+              b: { $ref: '#/components/schemas/B' },
+            },
+          },
+          B: {
+            type: 'object',
+            required: ['a'],
+            properties: {
+              a: { $ref: '#/components/schemas/A' },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    // Both A and B are circular; no faker.* calls so no faker import
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return {\n    a: mockA()\n  }\n}\n\nfunction mockA(): any {\n  return {\n    b: mockB()\n  }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (basePath with various paths) ─────────────────
+
+describe('makeTestFile - basePath variations', () => {
+  it('basePath /api/v1 — deeply nested prefix', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Nested BasePath API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'listUsers',
+            summary: 'List users',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/api/v1')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Nested BasePath API',()=>{describe('default',()=>{describe('GET /api/v1/users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/api/v1/users`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (bun framework with faker) ────────────────────
+
+describe('makeTestFile - bun framework with faker', () => {
+  it('bun framework with request body imports faker from @faker-js/faker', () => {
+    const result = makeTestFile(postSpec, './app', '/', 'bun')
+    expect(result).toBe(
+      "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Post API',()=>{describe('tasks',()=>{describe('POST /tasks',()=>{it('should return 201 - Create task',async()=>{const body={\n    title: faker.lorem.sentence(),\n    done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])\n  }\nconst res=await app.request(`/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (header params in output) ─────────────────────
+
+describe('makeTestFile - header parameters in output', () => {
+  it('required header params appear in request headers', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Header Test API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            summary: 'Get data',
+            parameters: [
+              {
+                name: 'X-Request-Id',
+                in: 'header',
+                required: true,
+                schema: { type: 'string', format: 'uuid' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+    const expected = "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
+    expect(result).toBe(expected)
+  })
+})
+
+// ─── makeTestFile (security with request body and headers) ──────
+
+describe('makeTestFile - security combined with body and headers', () => {
+  it('security + request body generates both auth header and content-type', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Combo API', version: '1.0.0' },
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'createItem',
+            summary: 'Create item',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['name'],
+                    properties: { name: { type: 'string' } },
+                  },
+                },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Combo API',()=>{describe('default',()=>{describe('POST /items',()=>{it('should return 201 - Create item',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${faker.string.alphanumeric(32)}`},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})\nit('should return 401 without auth',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile (no operationId fallback) ─────────────────────
+
+describe('makeTestFile - operationId fallback', () => {
+  it('generates operationId from method+path when not provided', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'NoOpId API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].operationId).toBe('get_health')
+  })
 })
