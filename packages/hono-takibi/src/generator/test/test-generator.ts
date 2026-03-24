@@ -291,10 +291,8 @@ function makeAuthHeader(sec: SecurityRequirement): string {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: generating template literal code
       return "'Authorization':`Bearer ${faker.string.alphanumeric(32)}`"
     case 'basic':
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: generating template literal code
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') return `'${sec.name}':faker.string.alphanumeric(32)`

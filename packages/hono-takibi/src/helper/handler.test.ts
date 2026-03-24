@@ -128,4 +128,93 @@ describe('makeHandlerFileName', () => {
   it.concurrent('should handle deeply nested path using only first segment', () => {
     expect(makeHandlerFileName('/v1/a/b/c/d/e/f')).toBe('v1.ts')
   })
+
+  // Edge case: numeric-only first segment
+  it.concurrent('should handle purely numeric first segment /42', () => {
+    expect(makeHandlerFileName('/42')).toBe('42.ts')
+  })
+
+  it.concurrent('should handle numeric first segment with nested path /404/error', () => {
+    expect(makeHandlerFileName('/404/error')).toBe('404.ts')
+  })
+
+  // Edge case: special characters replaced with underscore then collapsed
+  it.concurrent('should sanitize @ symbol in path /user@domain', () => {
+    expect(makeHandlerFileName('/user@domain')).toBe('userDomain.ts')
+  })
+
+  it.concurrent('should sanitize + symbol in path /a+b', () => {
+    expect(makeHandlerFileName('/a+b')).toBe('aB.ts')
+  })
+
+  it.concurrent('should sanitize ~ symbol in path /home~user', () => {
+    expect(makeHandlerFileName('/home~user')).toBe('homeUser.ts')
+  })
+
+  it.concurrent('should sanitize ! symbol in path /alert!', () => {
+    expect(makeHandlerFileName('/alert!')).toBe('alert.ts')
+  })
+
+  // Edge case: brace parameter mixed with text in first segment
+  it.concurrent('should handle brace parameter mixed with text /v{version}', () => {
+    expect(makeHandlerFileName('/v{version}')).toBe('vversion.ts')
+  })
+
+  it.concurrent('should handle text before and after brace /pre{mid}post', () => {
+    expect(makeHandlerFileName('/pre{mid}post')).toBe('premidpost.ts')
+  })
+
+  // Edge case: multiple brace parameters in first segment
+  it.concurrent('should handle multiple brace params /{a}{b}', () => {
+    expect(makeHandlerFileName('/{a}{b}')).toBe('ab.ts')
+  })
+
+  // Edge case: trailing slash with no other content
+  it.concurrent('should return __root.ts for trailing slash only //', () => {
+    expect(makeHandlerFileName('//')).toBe('__root.ts')
+  })
+
+  // Edge case: first segment has only special chars that all get stripped
+  it.concurrent('should return __root.ts when first segment is all special chars /!@#$/foo', () => {
+    expect(makeHandlerFileName('/!@#$/foo')).toBe('__root.ts')
+  })
+
+  // Edge case: underscore between words should camelCase
+  it.concurrent('should camelCase underscore-separated words /get_all_users', () => {
+    expect(makeHandlerFileName('/get_all_users')).toBe('getAllUsers.ts')
+  })
+
+  // Edge case: mixed separators in first segment
+  it.concurrent('should camelCase mixed separators /get-all_users.list', () => {
+    expect(makeHandlerFileName('/get-all_users.list')).toBe('getAllUsersList.ts')
+  })
+
+  // Edge case: single special char paths
+  it.concurrent('should return __root.ts for single dot path /.', () => {
+    expect(makeHandlerFileName('/.')).toBe('__root.ts')
+  })
+
+  it.concurrent('should return __root.ts for single hyphen path /-', () => {
+    expect(makeHandlerFileName('/-')).toBe('__root.ts')
+  })
+
+  // Edge case: whitespace in path (replaced with _)
+  it.concurrent('should sanitize space in path /my path', () => {
+    expect(makeHandlerFileName('/my path')).toBe('myPath.ts')
+  })
+
+  // Edge case: very long first segment still works
+  it.concurrent('should handle long first segment', () => {
+    expect(makeHandlerFileName('/abcdefghijklmnopqrstuvwxyz')).toBe('abcdefghijklmnopqrstuvwxyz.ts')
+  })
+
+  // Edge case: first segment starting with number then hyphen
+  it.concurrent('should handle segment starting with number then hyphen /1-test', () => {
+    expect(makeHandlerFileName('/1-test')).toBe('1Test.ts')
+  })
+
+  // Edge case: multiple consecutive underscores collapsed
+  it.concurrent('should collapse multiple special chars into single camelCase /a@@b', () => {
+    expect(makeHandlerFileName('/a@@b')).toBe('aB.ts')
+  })
 })

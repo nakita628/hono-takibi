@@ -190,7 +190,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
   })
 
   it('should extract schema from content when schema is not provided', () => {
-    const components: Components = {
+    const components = {
       parameters: {
         filter: {
           name: 'filter',
@@ -202,7 +202,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
           },
         },
       },
-    }
+    } as unknown as Components
     const result = parametersCode(components, true, false)
     expect(result).toBe(
       `export const FilterParamsSchema=z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}}}})`,
@@ -210,14 +210,14 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
   })
 
   it('should fall back to z.any() when neither schema nor content is provided', () => {
-    const components: Components = {
+    const components = {
       parameters: {
         unknown: {
           name: 'unknown',
           in: 'query',
         },
       },
-    }
+    } as unknown as Components
     const result = parametersCode(components, true, false)
     expect(result).toBe(`export const UnknownParamsSchema=z.any()`)
   })

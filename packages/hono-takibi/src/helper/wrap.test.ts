@@ -185,7 +185,6 @@ describe('wrap', () => {
         parameters: {
           name: 'id',
           in: 'path',
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -206,7 +205,6 @@ describe('wrap', () => {
         parameters: {
           name: 'q',
           in: 'query',
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -228,7 +226,6 @@ describe('wrap', () => {
           name: 'q',
           in: 'query',
           required: true,
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -241,7 +238,6 @@ describe('wrap', () => {
     const result = wrap(
       'z.string()',
       { type: 'string' },
-      // biome-ignore lint: test
       { parameters: { name: 'x', in: 'header' } as any },
     )
     const expected = 'z.string().exactOptional().openapi({param:{"name":"x","in":"header"}})'
@@ -249,11 +245,7 @@ describe('wrap', () => {
   })
 
   it('should return examples', () => {
-    const result = wrap(
-      'z.string()',
-      // biome-ignore lint/suspicious/noExplicitAny: test data
-      { type: 'string', examples: ['example1', 'example2'] } as any,
-    )
+    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
     const expected = 'z.string().openapi({"examples":["example1","example2"]})'
     expect(result).toBe(expected)
   })

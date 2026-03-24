@@ -68,6 +68,7 @@ const createMockViteDevServer = (configuration: unknown) => {
 
 vi.mock('../core/index.js', () => ({
   callbacks: vi.fn(async () => ({ ok: true, value: 'callbacks' })),
+  docs: vi.fn(async () => ({ ok: true, value: 'docs' })),
   examples: vi.fn(async () => ({ ok: true, value: 'examples' })),
   headers: vi.fn(async () => ({ ok: true, value: 'headers' })),
   links: vi.fn(async () => ({ ok: true, value: 'links' })),
@@ -109,6 +110,7 @@ vi.mock('../core/index.js', () => ({
   }),
   takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
   tanstackQuery: vi.fn(async () => ({ ok: true, value: 'tanstackQuery' })),
+  template: vi.fn(async () => ({ ok: true, value: 'template' })),
   test: vi.fn(async () => ({ ok: true, value: 'test' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
   vueQuery: vi.fn(async () => ({ ok: true, value: 'vueQuery' })),
@@ -130,6 +132,7 @@ vi.mock('../openapi/index.js', () => ({
 
 vi.mock('../format/index.js', () => ({
   fmt: vi.fn(async (source: string) => ({ ok: true as const, value: String(source) })),
+  setFormatOptions: vi.fn(),
 }))
 vi.mock('../fsp/index.js', () => ({
   mkdir: vi.fn(async () => ({ ok: true })),
@@ -234,6 +237,63 @@ describe('honoTakibiVite', () => {
     expect(typeof plugin.configureServer).toBe('function')
   })
 
+  it('has buildStart method', () => {
+    const plugin = honoTakibiVite()
+    expect(typeof plugin.buildStart).toBe('function')
+  })
+
+  it('handleHotUpdate returns empty array for config file changes', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    const plugin = honoTakibiVite()
+
+    plugin.configureServer(server)
+    await reloaded
+
+    const reloadDeferred = createDeferred<void>()
+    const originalSend = server.ws.send
+    server.ws.send = (payload: { type: string; [key: string]: unknown }) => {
+      originalSend(payload)
+      if (payload?.type === 'full-reload') reloadDeferred.resolve()
+    }
+
+    const result = plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
+    expect(result).toStrictEqual([])
+
+    await reloadDeferred.promise
+  })
+
+  it('handleHotUpdate returns undefined for non-config files', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    const plugin = honoTakibiVite()
+
+    plugin.configureServer(server)
+    await reloaded
+
+    const result = plugin.handleHotUpdate({ file: 'some-other-file.ts', server })
+    expect(result).toBe(undefined)
+  })
+
+  it('creates independent plugin instances', () => {
+    const plugin1 = honoTakibiVite()
+    const plugin2 = honoTakibiVite()
+    expect(plugin1).not.toBe(plugin2)
+    expect(plugin1.name).toBe(plugin2.name)
+  })
+
   it('cleans up stale directories when config changes', async () => {
     await fsp.mkdir('out/stale-schema', { recursive: true })
     await fsp.writeFile('out/stale-schema/User.ts', '// stale', 'utf8')
@@ -297,5 +357,68 @@ describe('honoTakibiVite', () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
 
     expect(fs.existsSync('out/stale-schema')).toBe(false)
+  })
+
+  it('watcher.add is called during configureServer', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const addSpy = vi.fn()
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    server.watcher.add = addSpy
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(addSpy).toHaveBeenCalled()
+  })
+
+  it('watcher.on is called to register file change handler', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const onSpy = vi.fn()
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    server.watcher.on = onSpy
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(onSpy).toHaveBeenCalledTimes(1)
+    expect(onSpy.mock.calls[0][0]).toBe('all')
+    expect(typeof onSpy.mock.calls[0][1]).toBe('function')
+  })
+
+  it('sends full-reload via ws after generation', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const sendSpy = vi.fn()
+    const reloadedDeferred = createDeferred<void>()
+    const { server } = createMockViteDevServer(configuration)
+    server.ws.send = (payload: { type: string }) => {
+      sendSpy(payload)
+      if (payload?.type === 'full-reload') reloadedDeferred.resolve()
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloadedDeferred.promise
+
+    expect(sendSpy).toHaveBeenCalledWith({ type: 'full-reload' })
   })
 })

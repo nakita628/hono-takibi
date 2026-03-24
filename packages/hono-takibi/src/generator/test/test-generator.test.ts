@@ -354,7 +354,6 @@ describe('makeTestFile', () => {
   it('GET with path params — 404 test generated', () => {
     const result = makeTestFile(pathParamSpec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('PathParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -362,7 +361,6 @@ describe('makeTestFile', () => {
   it('GET with query params — URL-encoded query string', () => {
     const result = makeTestFile(queryParamSpec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Query API',()=>{describe('tasks',()=>{describe('GET /tasks',()=>{it('should return 200 - List tasks',async()=>{const status=faker.helpers.arrayElement([\"pending\", \"done\"] as const)\nconst limit=faker.number.int({ min: 1, max: 100 })\nconst res=await app.request(`/tasks?status=${encodeURIComponent(String(status))}&limit=${encodeURIComponent(String(limit))}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
@@ -370,7 +368,6 @@ describe('makeTestFile', () => {
   it('Bearer auth — 401 unauthorized test', () => {
     const result = makeTestFile(bearerSpec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Auth API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200 - Get current user',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
@@ -385,7 +382,6 @@ describe('makeTestFile', () => {
   it('DELETE 204 — integer path param, 404 with -1', () => {
     const result = makeTestFile(deleteSpec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Delete API',()=>{describe('tasks',()=>{describe('DELETE /tasks/{id}',()=>{it('should return 204 - Delete task',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst res=await app.request(`/tasks/${id}`,{method:'DELETE'})\nexpect(res.status).toBe(204)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/-1`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -428,7 +424,6 @@ describe('makeTestFile', () => {
   it('$ref path parameter — resolved and substituted', () => {
     const result = makeTestFile(refParamSpec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('RefParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -447,7 +442,6 @@ describe('makeHandlerTestCode', () => {
   it('matching handler — tasks', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app')
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
@@ -460,7 +454,6 @@ describe('makeHandlerTestCode', () => {
   it('with basePath', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app', '/api')
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /api/tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/api/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/api/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
@@ -468,7 +461,6 @@ describe('makeHandlerTestCode', () => {
   it('framework bun — import from bun:test', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/tasks.ts', [], '../app', '/', 'bun')
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
@@ -496,7 +488,6 @@ describe('makeHandlerTestCode', () => {
     }
     const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app')
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Users',()=>{describe('GET /users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/users`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n",
     )
   })
@@ -807,7 +798,6 @@ describe('makeTestFile - security auth headers', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Basic API',()=>{describe('default',()=>{describe('GET /secure',()=>{it('should return 200 - Secure endpoint',async()=>{\nconst res=await app.request(`/secure`,{method:'GET',headers:{'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/secure`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
@@ -863,7 +853,6 @@ describe('makeTestFile - security auth headers', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('OAuth2 API',()=>{describe('default',()=>{describe('GET /profile',()=>{it('should return 200 - Get profile',async()=>{\nconst res=await app.request(`/profile`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/profile`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
@@ -900,7 +889,6 @@ describe('makeTestFile - getNonExistentValue for 404 tests', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('UUID API',()=>{describe('items',()=>{describe('GET /items/{itemId}',()=>{it('should return 200 - Get item',async()=>{const itemId=faker.string.uuid()\nconst res=await app.request(`/items/${itemId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/items/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -909,7 +897,6 @@ describe('makeTestFile - getNonExistentValue for 404 tests', () => {
     const result = makeTestFile(pathParamSpec)
     // Already tested above, verify the 404 path uses __non_existent__
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('PathParam API',()=>{describe('tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -918,7 +905,6 @@ describe('makeTestFile - getNonExistentValue for 404 tests', () => {
     const result = makeTestFile(deleteSpec)
     // Already tested above, verify the 404 path uses -1
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Delete API',()=>{describe('tasks',()=>{describe('DELETE /tasks/{id}',()=>{it('should return 204 - Delete task',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst res=await app.request(`/tasks/${id}`,{method:'DELETE'})\nexpect(res.status).toBe(204)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/-1`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
     )
   })
@@ -1131,7 +1117,6 @@ describe('makeTestFile - header parameters in output', () => {
       },
     }
     const result = makeTestFile(spec)
-    // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
     const expected =
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
     expect(result).toBe(expected)
@@ -1175,7 +1160,6 @@ describe('makeTestFile - security combined with body and headers', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Combo API',()=>{describe('default',()=>{describe('POST /items',()=>{it('should return 201 - Create item',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${faker.string.alphanumeric(32)}`},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})\nit('should return 401 without auth',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })

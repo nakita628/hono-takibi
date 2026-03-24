@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vite-plus/test'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
@@ -50,7 +50,7 @@ describe('fsp', () => {
   })
 
   describe('readdir', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       await fsp.mkdir(TEST_DIR, { recursive: true })
       await fsp.writeFile(path.join(TEST_DIR, 'a.txt'), 'A')
       await fsp.writeFile(path.join(TEST_DIR, 'b.txt'), 'B')

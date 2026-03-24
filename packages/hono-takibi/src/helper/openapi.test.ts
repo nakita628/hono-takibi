@@ -390,7 +390,6 @@ describe('openapi helper', () => {
       const result = makeMedia({
         schema: { type: 'array', items: { type: 'string' } },
         itemSchema: { type: 'string' },
-        // biome-ignore lint: test
       } as any)
       expect(result).toBe('{schema:z.array(z.string()),itemSchema:z.string()}')
     })
@@ -512,7 +511,6 @@ describe('openapi helper', () => {
           name: 'filter',
           in: 'query',
           content: { 'application/json': { schema: { type: 'object' } } },
-          // biome-ignore lint: test
         } as any,
       ])
       expect(result.query.filter).toBe(
@@ -520,7 +518,6 @@ describe('openapi helper', () => {
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
-      // biome-ignore lint: test
       const result = makeParameters([{ name: 'unknown', in: 'query' }] as any)
       expect(result.query.unknown).toBe('z.any()')
     })
