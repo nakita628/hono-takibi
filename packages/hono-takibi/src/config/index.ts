@@ -305,13 +305,45 @@ const ConfigSchema = z
             routes: normalize(config['zod-openapi'].routes),
           }),
           ...(config['zod-openapi'].components && {
-            components: Object.fromEntries(
-              Object.entries(config['zod-openapi'].components).flatMap(([k, v]) =>
-                v === undefined || typeof v !== 'object' || v === null
-                  ? []
-                  : [[k, normalize(v satisfies { output: string; split?: boolean })]],
-              ),
-            ),
+            components: {
+              ...config['zod-openapi'].components,
+              ...(config['zod-openapi'].components.schemas && {
+                schemas: normalize(config['zod-openapi'].components.schemas),
+              }),
+              ...(config['zod-openapi'].components.parameters && {
+                parameters: normalize(config['zod-openapi'].components.parameters),
+              }),
+              ...(config['zod-openapi'].components.headers && {
+                headers: normalize(config['zod-openapi'].components.headers),
+              }),
+              ...(config['zod-openapi'].components.securitySchemes && {
+                securitySchemes: normalize(config['zod-openapi'].components.securitySchemes),
+              }),
+              ...(config['zod-openapi'].components.requestBodies && {
+                requestBodies: normalize(config['zod-openapi'].components.requestBodies),
+              }),
+              ...(config['zod-openapi'].components.responses && {
+                responses: normalize(config['zod-openapi'].components.responses),
+              }),
+              ...(config['zod-openapi'].components.examples && {
+                examples: normalize(config['zod-openapi'].components.examples),
+              }),
+              ...(config['zod-openapi'].components.links && {
+                links: normalize(config['zod-openapi'].components.links),
+              }),
+              ...(config['zod-openapi'].components.callbacks && {
+                callbacks: normalize(config['zod-openapi'].components.callbacks),
+              }),
+              ...(config['zod-openapi'].components.pathItems && {
+                pathItems: normalize(config['zod-openapi'].components.pathItems),
+              }),
+              ...(config['zod-openapi'].components.mediaTypes && {
+                mediaTypes: normalize(config['zod-openapi'].components.mediaTypes),
+              }),
+              ...(config['zod-openapi'].components.webhooks && {
+                webhooks: normalize(config['zod-openapi'].components.webhooks),
+              }),
+            },
           }),
         },
       }),
@@ -344,8 +376,8 @@ export function parseConfig(
  * Using an indirect call prevents the warning since Vite only analyzes
  * direct `import()` expressions.
  */
-// eslint-disable-next-line typescript-eslint/no-implied-eval
 const dynamicImport = (specifier: string): Promise<{ readonly default: unknown }> =>
+  // eslint-disable-next-line typescript-eslint/no-implied-eval
   new Function('specifier', 'return import(specifier)')(specifier)
 
 /**
