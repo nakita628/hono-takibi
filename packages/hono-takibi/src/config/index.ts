@@ -1,4 +1,9 @@
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
+
 import { type FormatOptions } from 'oxfmt'
+import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
 const ConfigSchema = z
@@ -300,44 +305,13 @@ const ConfigSchema = z
             routes: normalize(config['zod-openapi'].routes),
           }),
           ...(config['zod-openapi'].components && {
-            components: {
-              ...(config['zod-openapi'].components.schemas && {
-                schemas: normalize(config['zod-openapi'].components.schemas),
-              }),
-              ...(config['zod-openapi'].components.parameters && {
-                parameters: normalize(config['zod-openapi'].components.parameters),
-              }),
-              ...(config['zod-openapi'].components.headers && {
-                headers: normalize(config['zod-openapi'].components.headers),
-              }),
-              ...(config['zod-openapi'].components.securitySchemes && {
-                securitySchemes: normalize(config['zod-openapi'].components.securitySchemes),
-              }),
-              ...(config['zod-openapi'].components.requestBodies && {
-                requestBodies: normalize(config['zod-openapi'].components.requestBodies),
-              }),
-              ...(config['zod-openapi'].components.responses && {
-                responses: normalize(config['zod-openapi'].components.responses),
-              }),
-              ...(config['zod-openapi'].components.examples && {
-                examples: normalize(config['zod-openapi'].components.examples),
-              }),
-              ...(config['zod-openapi'].components.links && {
-                links: normalize(config['zod-openapi'].components.links),
-              }),
-              ...(config['zod-openapi'].components.callbacks && {
-                callbacks: normalize(config['zod-openapi'].components.callbacks),
-              }),
-              ...(config['zod-openapi'].components.pathItems && {
-                pathItems: normalize(config['zod-openapi'].components.pathItems),
-              }),
-              ...(config['zod-openapi'].components.mediaTypes && {
-                mediaTypes: normalize(config['zod-openapi'].components.mediaTypes),
-              }),
-              ...(config['zod-openapi'].components.webhooks && {
-                webhooks: normalize(config['zod-openapi'].components.webhooks),
-              }),
-            },
+            components: Object.fromEntries(
+              Object.entries(config['zod-openapi'].components).flatMap(([k, v]) =>
+                v === undefined || typeof v !== 'object' || v === null
+                  ? []
+                  : [[k, normalize(v satisfies { output: string; split?: boolean })]],
+              ),
+            ),
           }),
         },
       }),
@@ -362,6 +336,39 @@ export function parseConfig(
     return { ok: false, error: `Invalid config: ${path}${issue.message}` }
   }
   return { ok: true, value: result.data }
+}
+
+/**
+ * Dynamic import wrapper that avoids Vite's static analysis.
+ * Vite warns about dynamic imports it cannot analyze at build time.
+ * Using an indirect call prevents the warning since Vite only analyzes
+ * direct `import()` expressions.
+ */
+// eslint-disable-next-line typescript-eslint/no-implied-eval
+const dynamicImport = new Function('specifier', 'return import(specifier)') as (
+  specifier: string,
+) => Promise<{ readonly default: unknown }>
+
+/**
+ * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
+ */
+export async function readConfig(): Promise<
+  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
+> {
+  const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
+  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
+
+  try {
+    register()
+    const url = pathToFileURL(abs).href
+    const mod = await dynamicImport(url)
+    if (!('default' in mod) || mod.default === undefined)
+      return { ok: false, error: 'Config must export default object' }
+
+    return parseConfig(mod.default)
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
 }
 
 /**

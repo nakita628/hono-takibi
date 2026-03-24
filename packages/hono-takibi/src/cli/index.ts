@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-import { readConfig } from '../config/read.js'
+import { readConfig } from '../config/index.js'
 import {
   callbacks,
   docs,
