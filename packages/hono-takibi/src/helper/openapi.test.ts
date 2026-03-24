@@ -561,6 +561,54 @@ describe('openapi helper', () => {
         'z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"}}})',
       )
     })
+
+    it.concurrent('applies coercion for nested integers in query object parameter', () => {
+      const result = makeParameters([
+        {
+          name: 'filter',
+          in: 'query',
+          schema: {
+            type: 'object',
+            properties: {
+              count: { type: 'integer' },
+              active: { type: 'boolean' },
+            },
+          },
+        },
+      ])
+      expect(result.query.filter).toBe(
+        'z.object({count:z.coerce.number().pipe(z.int()).exactOptional(),active:z.stringbool().exactOptional()}).exactOptional().openapi({param:{"name":"filter","in":"query","schema":{"type":"object","properties":{"count":{"type":"integer"},"active":{"type":"boolean"}}}}})',
+      )
+    })
+
+    it.concurrent('applies coercion for nested numbers in query array parameter', () => {
+      const result = makeParameters([
+        {
+          name: 'ids',
+          in: 'query',
+          schema: {
+            type: 'array',
+            items: { type: 'number' },
+          },
+        },
+      ])
+      expect(result.query.ids).toBe(
+        'z.array(z.coerce.number().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})',
+      )
+    })
+
+    it.concurrent('applies stringbool replacement with default true in query boolean', () => {
+      const result = makeParameters([
+        {
+          name: 'verbose',
+          in: 'query',
+          schema: { type: 'boolean', default: 'true' },
+        },
+      ])
+      expect(result.query.verbose).toBe(
+        'z.stringbool().default(true).exactOptional().openapi({param:{"name":"verbose","in":"query","schema":{"type":"boolean","default":"true"}}})',
+      )
+    })
   })
 
   describe('makeOperationResponses', () => {
@@ -1077,6 +1125,51 @@ describe('openapi helper', () => {
       const result = makeOperation({} as any)
       expect(result).toBe('{}')
     })
+
+    it.concurrent('generates operation with callbacks', () => {
+      const result = makeOperation({
+        operationId: 'subscribe',
+        callbacks: {
+          onEvent: {
+            '{$request.body#/callbackUrl}': {
+              post: {
+                responses: { 200: { description: 'OK' } },
+              },
+            },
+          },
+        } as any,
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe(
+        '{operationId:"subscribe",responses:{200:{description:"OK"}},callbacks:{"onEvent":{"{$request.body#/callbackUrl}":{post:{responses:{200:{description:"OK"}}}}}}}',
+      )
+    })
+
+    it.concurrent('generates operation with parameters', () => {
+      const result = makeOperation({
+        parameters: [{ $ref: '#/components/parameters/UserId' }] as any,
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{parameters:[UserIdParamsSchema],responses:{200:{description:"OK"}}}')
+    })
+
+    it.concurrent('generates operation with requestBody', () => {
+      const result = makeOperation({
+        operationId: 'createUser',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+            },
+          },
+        },
+        responses: { 201: { description: 'Created' } },
+      })
+      expect(result).toBe(
+        `{operationId:"createUser",requestBody:{content:{'application/json':{schema:z.object({name:z.string().exactOptional()})}},required:true},responses:{201:{description:"Created"}}}`,
+      )
+    })
   })
 
   describe('makePathItem', () => {
@@ -1128,6 +1221,31 @@ describe('openapi helper', () => {
     it.concurrent('generates empty pathItem', () => {
       const result = makePathItem({})
       expect(result).toBe('{}')
+    })
+
+    it.concurrent('generates pathItem with additionalOperations', () => {
+      const result = makePathItem({
+        get: { responses: { 200: { description: 'OK' } } },
+        additionalOperations: {
+          'x-custom-op': {
+            operationId: 'customOp',
+            responses: { 200: { description: 'Custom' } },
+          },
+        },
+      })
+      expect(result).toBe(
+        '{get:{responses:{200:{description:"OK"}}},additionalOperations:{"x-custom-op":{operationId:"customOp",responses:{200:{description:"Custom"}}}}}',
+      )
+    })
+
+    it.concurrent('generates pathItem with parameters array', () => {
+      const result = makePathItem({
+        parameters: [{ $ref: '#/components/parameters/UserId' }],
+        get: { responses: { 200: { description: 'OK' } } },
+      })
+      expect(result).toBe(
+        '{get:{responses:{200:{description:"OK"}}},parameters:[UserIdParamsSchema]}',
+      )
     })
   })
 
