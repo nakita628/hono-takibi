@@ -548,9 +548,7 @@ describe('extractTestCases - security schemes', () => {
       },
     }
     const result = extractTestCases(spec)
-    expect(result[0].security).toStrictEqual([
-      { type: 'apiKey', name: 'X-API-Key', in: 'header' },
-    ])
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-API-Key', in: 'header' }])
   })
 
   it('apiKey security in query', () => {
@@ -573,9 +571,7 @@ describe('extractTestCases - security schemes', () => {
       },
     }
     const result = extractTestCases(spec)
-    expect(result[0].security).toStrictEqual([
-      { type: 'apiKey', name: 'api_key', in: 'query' },
-    ])
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'api_key', in: 'query' }])
   })
 
   it('oauth2 security', () => {
@@ -1136,7 +1132,8 @@ describe('makeTestFile - header parameters in output', () => {
     }
     const result = makeTestFile(spec)
     // biome-ignore lint/suspicious/noTemplateCurlyInString: expected output contains template literals
-    const expected = "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
+    const expected =
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
     expect(result).toBe(expected)
   })
 })

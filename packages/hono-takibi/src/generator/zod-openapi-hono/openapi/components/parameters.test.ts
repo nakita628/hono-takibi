@@ -219,9 +219,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
       },
     }
     const result = parametersCode(components, true, false)
-    expect(result).toBe(
-      `export const UnknownParamsSchema=z.any()`,
-    )
+    expect(result).toBe(`export const UnknownParamsSchema=z.any()`)
   })
 
   it('should add readonly modifier when readonly option is true', () => {

@@ -119,7 +119,11 @@ describe('createWebhook', () => {
             description: 'OK',
             content: {
               'application/json': {
-                schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] },
+                schema: {
+                  type: 'object',
+                  properties: { ok: { type: 'boolean' } },
+                  required: ['ok'],
+                },
               },
             },
           },

@@ -1180,23 +1180,34 @@ describe('openapi helper', () => {
     describe('makeMedia with readonly', () => {
       it.concurrent('adds .readonly() to object schema', () => {
         const result = makeMedia(
-          { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
+          {
+            schema: {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              required: ['name'],
+            },
+          },
           true,
         )
-        expect(result).toBe('{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}')
+        expect(result).toBe(
+          '{schema:z.object({name:z.string()}).readonly().openapi({"required":["name"]})}',
+        )
       })
 
       it.concurrent('adds .readonly() to array schema', () => {
-        const result = makeMedia(
-          { schema: { type: 'array', items: { type: 'string' } } },
-          true,
-        )
+        const result = makeMedia({ schema: { type: 'array', items: { type: 'string' } } }, true)
         expect(result).toBe('{schema:z.array(z.string()).readonly()}')
       })
 
       it.concurrent('does not add .readonly() when readonly is false', () => {
         const result = makeMedia(
-          { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
+          {
+            schema: {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              required: ['name'],
+            },
+          },
           false,
         )
         expect(result).toBe('{schema:z.object({name:z.string()}).openapi({"required":["name"]})}')
@@ -1226,7 +1237,15 @@ describe('openapi helper', () => {
     describe('makeContent with readonly', () => {
       it.concurrent('propagates readonly to media schema', () => {
         const result = makeContent(
-          { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+          {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { status: { type: 'string' } },
+                required: ['status'],
+              },
+            },
+          },
           true,
         )
         expect(result).toStrictEqual([
@@ -1236,7 +1255,15 @@ describe('openapi helper', () => {
 
       it.concurrent('does not add readonly when flag is false', () => {
         const result = makeContent(
-          { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+          {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { status: { type: 'string' } },
+                required: ['status'],
+              },
+            },
+          },
           false,
         )
         expect(result).toStrictEqual([
@@ -1250,7 +1277,15 @@ describe('openapi helper', () => {
         const result = makeResponses(
           {
             description: 'OK',
-            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'integer' } },
+                  required: ['id'],
+                },
+              },
+            },
           },
           true,
         )
@@ -1263,7 +1298,15 @@ describe('openapi helper', () => {
         const result = makeResponses(
           {
             description: 'OK',
-            content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } }, required: ['id'] } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { id: { type: 'integer' } },
+                  required: ['id'],
+                },
+              },
+            },
           },
           false,
         )
@@ -1276,7 +1319,14 @@ describe('openapi helper', () => {
     describe('makeOperationResponses with readonly', () => {
       it.concurrent('propagates readonly through responses', () => {
         const result = makeOperationResponses(
-          { 200: { description: 'OK', content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } } },
+          {
+            200: {
+              description: 'OK',
+              content: {
+                'application/json': { schema: { type: 'array', items: { type: 'string' } } },
+              },
+            },
+          },
           true,
         )
         expect(result).toBe(
@@ -1286,7 +1336,14 @@ describe('openapi helper', () => {
 
       it.concurrent('does not add readonly when flag is false', () => {
         const result = makeOperationResponses(
-          { 200: { description: 'OK', content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } } },
+          {
+            200: {
+              description: 'OK',
+              content: {
+                'application/json': { schema: { type: 'array', items: { type: 'string' } } },
+              },
+            },
+          },
           false,
         )
         expect(result).toBe(
@@ -1299,7 +1356,15 @@ describe('openapi helper', () => {
       it.concurrent('propagates readonly to request body content', () => {
         const result = makeRequestBody(
           {
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                  required: ['name'],
+                },
+              },
+            },
             required: true,
           },
           true,
@@ -1312,7 +1377,15 @@ describe('openapi helper', () => {
       it.concurrent('does not add readonly when flag is false', () => {
         const result = makeRequestBody(
           {
-            content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                  required: ['name'],
+                },
+              },
+            },
             required: true,
           },
           false,
@@ -1327,7 +1400,17 @@ describe('openapi helper', () => {
       it.concurrent('propagates readonly to body content', () => {
         const result = makeRequest(
           undefined,
-          { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } } },
+          {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                  required: ['name'],
+                },
+              },
+            },
+          },
           true,
         )
         expect(result).toBe(
@@ -1338,7 +1421,17 @@ describe('openapi helper', () => {
       it.concurrent('does not add readonly when flag is false', () => {
         const result = makeRequest(
           undefined,
-          { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } } },
+          {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: { name: { type: 'string' } },
+                  required: ['name'],
+                },
+              },
+            },
+          },
           false,
         )
         expect(result).toBe(
@@ -1355,7 +1448,15 @@ describe('openapi helper', () => {
             responses: {
               200: {
                 description: 'OK',
-                content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { status: { type: 'string' } },
+                      required: ['status'],
+                    },
+                  },
+                },
               },
             },
           },
@@ -1370,7 +1471,15 @@ describe('openapi helper', () => {
         const result = makeOperation(
           {
             requestBody: {
-              content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } } },
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { name: { type: 'string' } },
+                    required: ['name'],
+                  },
+                },
+              },
               required: true,
             },
             responses: { 201: { description: 'Created' } },
@@ -1388,7 +1497,15 @@ describe('openapi helper', () => {
             responses: {
               200: {
                 description: 'OK',
-                content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } }, required: ['status'] } } },
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { status: { type: 'string' } },
+                      required: ['status'],
+                    },
+                  },
+                },
               },
             },
           },
@@ -1403,7 +1520,13 @@ describe('openapi helper', () => {
     describe('makeHeadersAndReferences with readonly', () => {
       it.concurrent('propagates readonly to header schema', () => {
         const result = makeHeadersAndReferences(
-          { schema: { type: 'object', properties: { count: { type: 'integer' } }, required: ['count'] } },
+          {
+            schema: {
+              type: 'object',
+              properties: { count: { type: 'integer' } },
+              required: ['count'],
+            },
+          },
           true,
         )
         expect(result).toBe(
@@ -1413,7 +1536,13 @@ describe('openapi helper', () => {
 
       it.concurrent('does not add readonly when flag is false', () => {
         const result = makeHeadersAndReferences(
-          { schema: { type: 'object', properties: { count: { type: 'integer' } }, required: ['count'] } },
+          {
+            schema: {
+              type: 'object',
+              properties: { count: { type: 'integer' } },
+              required: ['count'],
+            },
+          },
           false,
         )
         expect(result).toBe(
@@ -1458,7 +1587,15 @@ describe('openapi helper', () => {
                   responses: {
                     200: {
                       description: 'OK',
-                      content: { 'application/json': { schema: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'] } } },
+                      content: {
+                        'application/json': {
+                          schema: {
+                            type: 'object',
+                            properties: { ok: { type: 'boolean' } },
+                            required: ['ok'],
+                          },
+                        },
+                      },
                     },
                   },
                 },

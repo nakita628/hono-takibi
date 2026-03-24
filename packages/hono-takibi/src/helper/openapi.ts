@@ -205,10 +205,7 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
 }
 
 /** Generates code for a header or header reference. */
-export function makeHeadersAndReferences(
-  headers: Header | Reference,
-  readonly?: boolean,
-) {
+export function makeHeadersAndReferences(headers: Header | Reference, readonly?: boolean) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
   }
@@ -461,9 +458,7 @@ export function makeMedia(media: Media, readonly?: boolean) {
     media.prefixEncoding
       ? `prefixEncoding:{${makeEncoding(media.prefixEncoding, readonly)}}`
       : undefined,
-    media.itemEncoding
-      ? `itemEncoding:{${makeEncoding(media.itemEncoding, readonly)}}`
-      : undefined,
+    media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding, readonly)}}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
