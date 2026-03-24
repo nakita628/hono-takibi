@@ -80,4 +80,41 @@ export type User=z.infer<typeof UserSchema>`,
 export type Test=z.infer<typeof TestSchema>`,
     )
   })
+
+  it('should generate schema with readonly', () => {
+    const components: Components = {
+      schemas: {
+        Item: {
+          type: 'object',
+          required: ['id'],
+          properties: {
+            id: { type: 'integer' },
+          },
+        },
+      },
+    }
+    const result = schemasCode(components, true, false, true)
+    expect(result).toBe(
+      `export const ItemSchema=z.object({id:z.int()}).readonly().openapi({"required":["id"]}).openapi('Item')`,
+    )
+  })
+
+  it('should generate schema with readonly and type export', () => {
+    const components: Components = {
+      schemas: {
+        Item: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      },
+    }
+    const result = schemasCode(components, true, true, true)
+    expect(result).toBe(
+      `export const ItemSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('Item')
+
+export type Item=z.infer<typeof ItemSchema>`,
+    )
+  })
 })

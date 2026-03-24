@@ -77,8 +77,7 @@ describe('callbacksCode', () => {
         },
       },
     }
-    const result = callbacksCode(components, true, true)
-    expect(result).toBe(
+    expect(callbacksCode(components, true, true)).toBe(
       `export const OnDataCallback={"{callback}":{post:{responses:{200:{description:"OK"}}}}} as const`,
     )
   })
@@ -89,8 +88,7 @@ describe('callbacksCode', () => {
         refCallback: { $ref: '#/components/callbacks/Shared' },
       },
     }
-    const result = callbacksCode(components, true)
-    expect(result).toBe('')
+    expect(callbacksCode(components, true)).toBe('')
   })
 
   it('should handle mix of $ref and real callbacks', () => {
@@ -106,8 +104,8 @@ describe('callbacksCode', () => {
         },
       },
     }
-    const result = callbacksCode(components, true)
-    expect(result.includes('OnDataCallback')).toBe(true)
-    expect(result.includes('refCallback')).toBe(false)
+    expect(callbacksCode(components, true)).toBe(
+      `export const OnDataCallback={"{callback}":{post:{responses:{200:{description:"OK"}}}}}`,
+    )
   })
 })

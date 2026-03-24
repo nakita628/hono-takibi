@@ -72,8 +72,9 @@ describe('securitySchemes', () => {
         ok: true,
         value: `Generated securitySchemes code written to ${output}`,
       })
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.includes('as const')).toBe(true)
+      expect(fs.readFileSync(output, 'utf-8')).toBe(
+        `export const BearerAuthSecurityScheme = {\n  type: 'http',\n  scheme: 'bearer',\n  bearerFormat: 'JWT',\n} as const\n`,
+      )
     })
   })
 

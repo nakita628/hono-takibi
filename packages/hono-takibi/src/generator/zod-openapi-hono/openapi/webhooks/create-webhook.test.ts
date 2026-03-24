@@ -183,9 +183,9 @@ describe('createWebhook', () => {
       } as any,
       responses: { '200': { description: 'OK' } },
     })
-    // makeCallbacks returns inline entries (not wrapped with callbacks:{})
-    expect(result.includes('"statusUpdate"')).toBe(true)
-    expect(result.includes('onStatusUpdate')).toBe(true)
+    expect(result).toBe(
+      `export const orderPostWebhook={method:'post',path:'/order',operationId:'handleOrder',responses:{200:{description:"OK"}},"statusUpdate":{"{$request.body#/callbackUrl}":{post:{operationId:"onStatusUpdate",responses:{200:{description:"OK"}}}}}}`,
+    )
   })
 
   it.concurrent('creates webhook with servers', () => {

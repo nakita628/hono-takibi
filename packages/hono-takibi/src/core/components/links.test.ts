@@ -70,8 +70,9 @@ describe('links', () => {
         ok: true,
         value: `Generated links code written to ${output}`,
       })
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.includes('as const')).toBe(true)
+      expect(fs.readFileSync(output, 'utf-8')).toBe(
+        `export const GetUserByIdLink = {\n  operationId: 'getUser',\n  parameters: { userId: '$response.body#/id' },\n} as const\n`,
+      )
     })
   })
 

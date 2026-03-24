@@ -188,4 +188,13 @@ describe('createRoute', () => {
       `export const getPingRoute=createRoute({method:'get',path:'/ping',responses:{200:{description:"Pong"}}})`,
     )
   })
+
+  it.concurrent('creates route without responses', () => {
+    const result = createRoute('/events', 'post', {
+      operationId: 'sendEvent',
+    })
+    expect(result).toBe(
+      `export const postEventsRoute=createRoute({method:'post',path:'/events',operationId:'sendEvent'})`,
+    )
+  })
 })

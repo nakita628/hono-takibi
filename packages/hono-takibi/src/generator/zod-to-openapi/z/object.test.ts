@@ -619,27 +619,28 @@ describe('object', () => {
 
   describe('combinator delegation', () => {
     it.concurrent('delegates oneOf to zodToOpenAPI', () => {
-      const result = object({
-        oneOf: [{ type: 'string' }, { type: 'number' }],
-      })
-      expect(result.includes('z.')).toBe(true)
+      expect(object({ oneOf: [{ type: 'string' }, { type: 'number' }] })).toBe(
+        'z.xor([z.string(),z.number()])',
+      )
     })
 
     it.concurrent('delegates anyOf to zodToOpenAPI', () => {
-      const result = object({
-        anyOf: [{ type: 'string' }, { type: 'integer' }],
-      })
-      expect(result.includes('z.')).toBe(true)
+      expect(object({ anyOf: [{ type: 'string' }, { type: 'integer' }] })).toBe(
+        'z.union([z.string(),z.int()])',
+      )
     })
 
     it.concurrent('delegates allOf to zodToOpenAPI', () => {
-      const result = object({
-        allOf: [
-          { type: 'object', properties: { a: { type: 'string' } } },
-          { type: 'object', properties: { b: { type: 'number' } } },
-        ],
-      })
-      expect(result.includes('z.')).toBe(true)
+      expect(
+        object({
+          allOf: [
+            { type: 'object', properties: { a: { type: 'string' } } },
+            { type: 'object', properties: { b: { type: 'number' } } },
+          ],
+        }),
+      ).toBe(
+        'z.object({a:z.string().exactOptional()}).and(z.object({b:z.number().exactOptional()}))',
+      )
     })
   })
 })

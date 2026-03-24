@@ -150,8 +150,9 @@ describe('callbacks', () => {
         ok: true,
         value: `Generated callbacks code written to ${output}`,
       })
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.includes('as const')).toBe(true)
+      expect(fs.readFileSync(output, 'utf-8')).toBe(
+        `export const OnEventCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n} as const\n`,
+      )
     })
   })
 
@@ -166,7 +167,6 @@ describe('callbacks', () => {
         output,
         false,
       )
-      // All entries are $ref, so the code is empty but still generates
       expect(result.ok).toBe(true)
     })
   })
@@ -199,8 +199,9 @@ describe('callbacks', () => {
         ok: true,
         value: `Generated callbacks code written to ${output}`,
       })
-      const content = fs.readFileSync(output, 'utf-8')
-      expect(content.includes('onPayment') || content.includes('OnPayment')).toBe(true)
+      expect(fs.readFileSync(output, 'utf-8')).toBe(
+        `export const OnPaymentCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n\nexport const OnShipmentCallback = {\n  '{$request.body#/shipmentUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n`,
+      )
     })
   })
 })

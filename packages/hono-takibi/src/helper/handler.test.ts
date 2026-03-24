@@ -258,19 +258,15 @@ describe('zodOpenAPIHonoHandler', () => {
   it('generates inline stub handler files', async () => {
     const result = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`)
 
-    expect(result.ok).toBe(true)
-    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
-    expect(fs.existsSync(`${testDir}/handlers/index.ts`)).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
 
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent).toStrictEqual(expect.any(String))
-    // Inline stub: should contain OpenAPIHono and .openapi() chain
-    expect(handlerContent.includes('OpenAPIHono')).toBe(true)
-    expect(handlerContent.includes('getUsersRoute')).toBe(true)
-    expect(handlerContent.includes('postUsersRoute')).toBe(true)
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
+    )
 
-    const barrelContent = fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')
-    expect(barrelContent.includes('users')).toBe(true)
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './users'\n`,
+    )
   })
 
   it('generates routeHandler stub files with RouteHandler type', async () => {
@@ -283,11 +279,10 @@ describe('zodOpenAPIHonoHandler', () => {
       true,
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    // routeHandler=true: should import RouteHandler type
-    expect(handlerContent.includes('RouteHandler')).toBe(true)
-    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute, postUsersRoute } from '../routes'\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}\n\nexport const postUsersRouteHandler: RouteHandler<typeof postUsersRoute> = async (c) => {}\n`,
+    )
   })
 
   it('generates handler files with path alias', async () => {
@@ -298,9 +293,10 @@ describe('zodOpenAPIHonoHandler', () => {
       '@/routes',
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('@/routes')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '@/routes/routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
+    )
   })
 
   it('generates handler files with routeImport override', async () => {
@@ -312,9 +308,10 @@ describe('zodOpenAPIHonoHandler', () => {
       '@/custom-routes',
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('@/custom-routes')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, postUsersRoute } from '@/custom-routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, (c) => {}).openapi(postUsersRoute, (c) => {})\n`,
+    )
   })
 
   it('merges handlers for routes with the same first path segment', async () => {
@@ -339,11 +336,10 @@ describe('zodOpenAPIHonoHandler', () => {
 
     const result = await zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`)
 
-    expect(result.ok).toBe(true)
-    // Both routes go to users.ts (same first path segment)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('getUsersRoute')).toBe(true)
-    expect(handlerContent.includes('getUsersIdRoute')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute, getUsersIdRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app\n  .openapi(getUsersRoute, (c) => {})\n  .openapi(getUsersIdRoute, (c) => {})\n`,
+    )
   })
 
   it('generates test files when test option is true', async () => {
@@ -481,12 +477,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
       false,
     )
 
-    expect(result.ok).toBe(true)
-    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
-
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('faker')).toBe(true)
-    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
+    )
   })
 
   it('generates routeHandler mock files with RouteHandler type', async () => {
@@ -499,10 +493,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
       true,
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('RouteHandler')).toBe(true)
-    expect(handlerContent.includes('faker')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getUsersRoute } from '../routes'\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n}\n`,
+    )
   })
 
   it('generates mock handler with 204 No Content for operations without response schema', async () => {
@@ -521,9 +515,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('204')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { deleteUsersIdRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(deleteUsersIdRoute, async (_c) => {\n  return new Response(null, { status: 204 })\n})\n`,
+    )
   })
 
   it('generates mock handler with test files', async () => {
@@ -545,9 +540,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
       '@/routes/',
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
-    expect(handlerContent.includes('@/routes')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '@/routes/routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
+    )
   })
 
   it('generates barrel file with correct exports', async () => {
@@ -566,10 +562,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
 
-    expect(result.ok).toBe(true)
-    const barrelContent = fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')
-    expect(barrelContent.includes('users')).toBe(true)
-    expect(barrelContent.includes('posts')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './users'\nexport * from './posts'\n`,
+    )
   })
 
   it('handles operations without responses gracefully', async () => {
@@ -646,11 +642,10 @@ describe('mockZodOpenAPIHonoHandler', () => {
       true,
     )
 
-    expect(result.ok).toBe(true)
-    const handlerContent = fs.readFileSync(`${testDir}/handlers/orders.ts`, 'utf-8')
-    // Should contain mock functions for referenced schemas
-    expect(handlerContent.includes('mockOrder')).toBe(true)
-    expect(handlerContent.includes('mockUser')).toBe(true)
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/orders.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getOrdersRoute } from '../routes'\n\nfunction mockOrder() {\n  return {\n    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),\n    total: faker.helpers.arrayElement([\n      faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),\n      undefined,\n    ]),\n  }\n}\n\nfunction mockUser() {\n  return {\n    name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),\n  }\n}\n\nexport const getOrdersRouteHandler: RouteHandler<typeof getOrdersRoute> = async (c) => {\n  return c.json(\n    {\n      items: faker.helpers.arrayElement([\n        Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockOrder()),\n        undefined,\n      ]),\n      user: faker.helpers.arrayElement([mockUser(), undefined]),\n    },\n    200,\n  )\n}\n`,
+    )
   })
 
   it('removes stale files on re-generation', async () => {

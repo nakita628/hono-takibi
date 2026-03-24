@@ -186,6 +186,17 @@ export const XRateLimitHeaderSchema=z.int().exactOptional()`,
     )
   })
 
+  it('should skip header with no schema, content, or $ref', () => {
+    const components: Components = {
+      headers: {
+        XEmpty: {
+          description: 'An empty header with no schema',
+        },
+      },
+    }
+    expect(headersCode(components, true, false)).toBe('')
+  })
+
   it('should generate multiple headers with export and type', () => {
     const components: Components = {
       headers: {
