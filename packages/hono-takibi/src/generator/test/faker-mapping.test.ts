@@ -321,6 +321,244 @@ describe('schemaToFaker', () => {
     })
   })
 
+  describe('example values (additional)', () => {
+    it.concurrent('uses boolean example', () => {
+      expect(
+        schemaToFaker({ type: 'boolean', example: false }, undefined, { useExamples: true }),
+      ).toBe('false')
+    })
+
+    it.concurrent('uses null example', () => {
+      expect(
+        schemaToFaker({ type: 'string', example: null, nullable: true }, undefined, {
+          useExamples: true,
+        }),
+      ).toBe('null')
+    })
+
+    it.concurrent('uses object example', () => {
+      expect(
+        schemaToFaker({ type: 'object', example: { key: 'value' } }, undefined, {
+          useExamples: true,
+        }),
+      ).toBe('{"key":"value"}')
+    })
+
+    it.concurrent('uses array example', () => {
+      expect(
+        schemaToFaker({ type: 'array', example: [1, 2, 3] }, undefined, { useExamples: true }),
+      ).toBe('[1,2,3]')
+    })
+  })
+
+  describe('const values (additional)', () => {
+    it.concurrent('handles null const', () => {
+      expect(schemaToFaker({ const: null })).toBe('null as const')
+    })
+  })
+
+  describe('allOf with sibling properties', () => {
+    it.concurrent('merges allOf refs with sibling required property', () => {
+      expect(
+        schemaToFaker({
+          allOf: [{ $ref: '#/components/schemas/Base' }],
+          properties: { extra: { type: 'string' } },
+          required: ['extra'],
+        }),
+      ).toBe('{ ...mockBase(), extra: faker.string.alpha({ length: { min: 5, max: 20 } }) }')
+    })
+
+    it.concurrent('merges allOf refs with sibling optional property', () => {
+      expect(
+        schemaToFaker({
+          allOf: [{ $ref: '#/components/schemas/Base' }],
+          properties: { note: { type: 'string' } },
+        }),
+      ).toBe(
+        '{ ...mockBase(), note: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]) }',
+      )
+    })
+
+    it.concurrent('merges allOf refs with sibling nullable property', () => {
+      expect(
+        schemaToFaker({
+          allOf: [{ $ref: '#/components/schemas/Base' }],
+          properties: { tag: { type: 'string', nullable: true } },
+        }),
+      ).toBe(
+        '{ ...mockBase(), tag: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
+      )
+    })
+  })
+
+  describe('oneOf / anyOf (additional)', () => {
+    it.concurrent('picks random from oneOf with $ref variants', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([mockCat(), mockDog()])')
+    })
+
+    it.concurrent('picks random from anyOf with mixed types', () => {
+      expect(
+        schemaToFaker({
+          anyOf: [{ type: 'integer' }, { $ref: '#/components/schemas/Custom' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([faker.number.int({ min: 1, max: 1000 }), mockCustom()])')
+    })
+  })
+
+  describe('object with additionalProperties only', () => {
+    it.concurrent('returns empty object when no explicit properties', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          additionalProperties: { type: 'string' },
+        }),
+      ).toBe('{}')
+    })
+
+    it.concurrent('returns empty object for additionalProperties true', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          additionalProperties: true,
+        }),
+      ).toBe('{}')
+    })
+  })
+
+  describe('string constraints (partial)', () => {
+    it.concurrent('uses only minLength with default max', () => {
+      expect(schemaToFaker({ type: 'string', minLength: 10 })).toBe(
+        'faker.string.alpha({ length: { min: 10, max: 20 } })',
+      )
+    })
+
+    it.concurrent('uses only maxLength with default min', () => {
+      expect(schemaToFaker({ type: 'string', maxLength: 50 })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 50 } })',
+      )
+    })
+  })
+
+  describe('number/integer constraints (partial)', () => {
+    it.concurrent('uses only minimum with default max for integer', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 100 })).toBe(
+        'faker.number.int({ min: 100, max: 1000 })',
+      )
+    })
+
+    it.concurrent('uses only maximum with default min for integer', () => {
+      expect(schemaToFaker({ type: 'integer', maximum: 50 })).toBe(
+        'faker.number.int({ min: 1, max: 50 })',
+      )
+    })
+
+    it.concurrent('uses only minimum with default max for number', () => {
+      expect(schemaToFaker({ type: 'number', minimum: 10 })).toBe(
+        'faker.number.float({ min: 10, max: 1000, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('uses only maximum with default min for number', () => {
+      expect(schemaToFaker({ type: 'number', maximum: 500 })).toBe(
+        'faker.number.float({ min: 1, max: 500, fractionDigits: 2 })',
+      )
+    })
+  })
+
+  describe('property name heuristics (additional conflicts)', () => {
+    it.concurrent('skips number hint for price when type is string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'price')).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('skips number hint for quantity when type is string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'quantity')).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('skips number hint for age when type is string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'age')).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('uses string hint for title when type is string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'title')).toBe('faker.lorem.sentence()')
+    })
+
+    it.concurrent('uses string hint for description when type is string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'description')).toBe('faker.lorem.paragraph()')
+    })
+
+    it.concurrent('ignores property name when name is not in map', () => {
+      expect(schemaToFaker({ type: 'string' }, 'unknownProp')).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+  })
+
+  describe('array with tuple-style items', () => {
+    it.concurrent('uses first item from tuple-style items array', () => {
+      const schema = {
+        type: 'array' as const,
+        items: [{ type: 'string' as const }, { type: 'integer' as const }],
+      }
+      expect(schemaToFaker(schema)).toBe(
+        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
+      )
+    })
+
+    it.concurrent('returns empty array for empty tuple items', () => {
+      const schema = {
+        type: 'array' as const,
+        items: [] as readonly [],
+      }
+      expect(schemaToFaker(schema)).toBe('[]')
+    })
+  })
+
+  describe('object with nullable required property', () => {
+    it.concurrent('generates nullable for required nullable property', () => {
+      const result = schemaToFaker({
+        type: 'object',
+        properties: { label: { type: 'string', nullable: true } },
+        required: ['label'],
+      })
+      expect(result).toBe(
+        '{\n    label: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
+      )
+    })
+  })
+
+  describe('object with multiple properties', () => {
+    it.concurrent('generates object with required, optional, and nullable properties', () => {
+      const result = schemaToFaker({
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          bio: { type: 'string', nullable: true },
+        },
+        required: ['id', 'name'],
+      })
+      expect(result).toBe(
+        '{\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n    bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
+      )
+    })
+  })
+
+  describe('null type', () => {
+    it.concurrent('returns null for null type', () => {
+      expect(schemaToFaker({ type: 'null' })).toBe('null')
+    })
+  })
+
   describe('fallback', () => {
     it.concurrent('returns undefined for empty schema', () => {
       expect(schemaToFaker({})).toBe('undefined')
@@ -328,6 +566,10 @@ describe('schemaToFaker', () => {
 
     it.concurrent('returns boolean for boolean type', () => {
       expect(schemaToFaker({ type: 'boolean' })).toBe('faker.datatype.boolean()')
+    })
+
+    it.concurrent('returns undefined for unknown type', () => {
+      expect(schemaToFaker({ type: 'date' })).toBe('undefined')
     })
   })
 })

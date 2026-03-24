@@ -381,11 +381,13 @@ function makeSchemaTypeString(
       .join('|')
   }
   if (schema.const !== undefined) {
-    return typeof schema.const === 'string'
-      ? `'${String(schema.const).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
-      : typeof schema.const === 'object'
-        ? JSON.stringify(schema.const)
-        : String(schema.const as string | number | boolean)
+    if (typeof schema.const === 'string') {
+      return `'${schema.const.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+    }
+    if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
+      return String(schema.const)
+    }
+    return JSON.stringify(schema.const)
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')

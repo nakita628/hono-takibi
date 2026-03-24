@@ -9,93 +9,54 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /all-of
- */
 export function getAllOfKey() {
   return ['all-of'] as const
 }
 
-/**
- * Key prefix for /all-of-sibling
- */
 export function getAllOfSiblingKey() {
   return ['all-of-sibling'] as const
 }
 
-/**
- * Key prefix for /any-of
- */
 export function getAnyOfKey() {
   return ['any-of'] as const
 }
 
-/**
- * Key prefix for /any-of-ref
- */
 export function getAnyOfRefKey() {
   return ['any-of-ref'] as const
 }
 
-/**
- * Key prefix for /any-of-three
- */
 export function getAnyOfThreeKey() {
   return ['any-of-three'] as const
 }
 
-/**
- * Key prefix for /not
- */
 export function getNotKey() {
   return ['not'] as const
 }
 
-/**
- * Key prefix for /not-composition
- */
 export function getNotCompositionKey() {
   return ['not-composition'] as const
 }
 
-/**
- * Key prefix for /not-const
- */
 export function getNotConstKey() {
   return ['not-const'] as const
 }
 
-/**
- * Key prefix for /not-enum
- */
 export function getNotEnumKey() {
   return ['not-enum'] as const
 }
 
-/**
- * Key prefix for /not-ref
- */
 export function getNotRefKey() {
   return ['not-ref'] as const
 }
 
-/**
- * Key prefix for /nullable-one-of
- */
 export function getNullableOneOfKey() {
   return ['nullable-one-of'] as const
 }
 
-/**
- * Key prefix for /one-of
- */
 export function getOneOfKey() {
   return ['one-of'] as const
 }
 
-/**
- * POST /one-of
- */
 export async function postOneOf(
   args: InferRequestType<(typeof client)['one-of']['$post']>,
   options?: ClientRequestOptions,
@@ -103,21 +64,15 @@ export async function postOneOf(
   return await parseResponse(client['one-of'].$post(args, options))
 }
 
-/**
- * POST /one-of
- */
 export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['one-of', '/one-of'] as const,
+    mutationKey: ['one-of', '/one-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
       return postOneOf(args, options)
     },
   }
 }
 
-/**
- * POST /one-of
- */
 export function usePostOneOf(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postOneOf>>,
@@ -130,9 +85,6 @@ export function usePostOneOf(options?: {
   return useMutation({ ...getPostOneOfMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * POST /any-of
- */
 export async function postAnyOf(
   args: InferRequestType<(typeof client)['any-of']['$post']>,
   options?: ClientRequestOptions,
@@ -140,21 +92,15 @@ export async function postAnyOf(
   return await parseResponse(client['any-of'].$post(args, options))
 }
 
-/**
- * POST /any-of
- */
 export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['any-of', '/any-of'] as const,
+    mutationKey: ['any-of', '/any-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
       return postAnyOf(args, options)
     },
   }
 }
 
-/**
- * POST /any-of
- */
 export function usePostAnyOf(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postAnyOf>>,
@@ -167,9 +113,6 @@ export function usePostAnyOf(options?: {
   return useMutation({ ...getPostAnyOfMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * POST /all-of
- */
 export async function postAllOf(
   args: InferRequestType<(typeof client)['all-of']['$post']>,
   options?: ClientRequestOptions,
@@ -177,21 +120,15 @@ export async function postAllOf(
   return await parseResponse(client['all-of'].$post(args, options))
 }
 
-/**
- * POST /all-of
- */
 export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['all-of', '/all-of'] as const,
+    mutationKey: ['all-of', '/all-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
       return postAllOf(args, options)
     },
   }
 }
 
-/**
- * POST /all-of
- */
 export function usePostAllOf(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postAllOf>>,
@@ -204,9 +141,6 @@ export function usePostAllOf(options?: {
   return useMutation({ ...getPostAllOfMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * POST /not
- */
 export async function postNot(
   args: InferRequestType<typeof client.not.$post>,
   options?: ClientRequestOptions,
@@ -214,21 +148,15 @@ export async function postNot(
   return await parseResponse(client.not.$post(args, options))
 }
 
-/**
- * POST /not
- */
 export function getPostNotMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['not', '/not'] as const,
+    mutationKey: ['not', '/not', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.not.$post>) {
       return postNot(args, options)
     },
   }
 }
 
-/**
- * POST /not
- */
 export function usePostNot(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postNot>>,
@@ -241,23 +169,14 @@ export function usePostNot(options?: {
   return useMutation({ ...getPostNotMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * GET /not-ref query key
- */
 export function getNotRefQueryKey() {
   return ['not-ref', '/not-ref'] as const
 }
 
-/**
- * GET /not-ref
- */
 export async function getNotRef(options?: ClientRequestOptions) {
   return await parseResponse(client['not-ref'].$get(undefined, options))
 }
 
-/**
- * GET /not-ref query options
- */
 export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotRefQueryKey(),
@@ -267,27 +186,24 @@ export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /not-ref
- */
-export function useNotRef(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
+export function useNotRef<TData = Awaited<ReturnType<typeof getNotRef>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getNotRefQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getNotRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /not-ref infinite query key
- */
 export function getNotRefInfiniteQueryKey() {
   return ['not-ref', '/not-ref', 'infinite'] as const
 }
 
-/**
- * GET /not-ref infinite query options
- */
 export function getNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNotRefInfiniteQueryKey(),
@@ -297,34 +213,22 @@ export function getNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /not-ref
- */
 export function useInfiniteNotRef(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getNotRefInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getNotRefInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /not-enum query key
- */
 export function getNotEnumQueryKey() {
   return ['not-enum', '/not-enum'] as const
 }
 
-/**
- * GET /not-enum
- */
 export async function getNotEnum(options?: ClientRequestOptions) {
   return await parseResponse(client['not-enum'].$get(undefined, options))
 }
 
-/**
- * GET /not-enum query options
- */
 export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotEnumQueryKey(),
@@ -334,27 +238,24 @@ export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /not-enum
- */
-export function useNotEnum(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
+export function useNotEnum<TData = Awaited<ReturnType<typeof getNotEnum>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getNotEnumQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getNotEnumQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /not-enum infinite query key
- */
 export function getNotEnumInfiniteQueryKey() {
   return ['not-enum', '/not-enum', 'infinite'] as const
 }
 
-/**
- * GET /not-enum infinite query options
- */
 export function getNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNotEnumInfiniteQueryKey(),
@@ -364,34 +265,22 @@ export function getNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /not-enum
- */
 export function useInfiniteNotEnum(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getNotEnumInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getNotEnumInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /not-const query key
- */
 export function getNotConstQueryKey() {
   return ['not-const', '/not-const'] as const
 }
 
-/**
- * GET /not-const
- */
 export async function getNotConst(options?: ClientRequestOptions) {
   return await parseResponse(client['not-const'].$get(undefined, options))
 }
 
-/**
- * GET /not-const query options
- */
 export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotConstQueryKey(),
@@ -401,27 +290,24 @@ export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /not-const
- */
-export function useNotConst(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
+export function useNotConst<TData = Awaited<ReturnType<typeof getNotConst>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getNotConstQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getNotConstQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /not-const infinite query key
- */
 export function getNotConstInfiniteQueryKey() {
   return ['not-const', '/not-const', 'infinite'] as const
 }
 
-/**
- * GET /not-const infinite query options
- */
 export function getNotConstInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNotConstInfiniteQueryKey(),
@@ -431,34 +317,22 @@ export function getNotConstInfiniteQueryOptions(options?: ClientRequestOptions) 
   }
 }
 
-/**
- * GET /not-const
- */
 export function useInfiniteNotConst(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getNotConstInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getNotConstInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /not-composition query key
- */
 export function getNotCompositionQueryKey() {
   return ['not-composition', '/not-composition'] as const
 }
 
-/**
- * GET /not-composition
- */
 export async function getNotComposition(options?: ClientRequestOptions) {
   return await parseResponse(client['not-composition'].$get(undefined, options))
 }
 
-/**
- * GET /not-composition query options
- */
 export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotCompositionQueryKey(),
@@ -468,27 +342,24 @@ export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /not-composition
- */
-export function useNotComposition(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
+export function useNotComposition<TData = Awaited<ReturnType<typeof getNotComposition>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getNotCompositionQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getNotCompositionQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /not-composition infinite query key
- */
 export function getNotCompositionInfiniteQueryKey() {
   return ['not-composition', '/not-composition', 'infinite'] as const
 }
 
-/**
- * GET /not-composition infinite query options
- */
 export function getNotCompositionInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNotCompositionInfiniteQueryKey(),
@@ -498,37 +369,25 @@ export function getNotCompositionInfiniteQueryOptions(options?: ClientRequestOpt
   }
 }
 
-/**
- * GET /not-composition
- */
 export function useInfiniteNotComposition(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getNotCompositionInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getNotCompositionInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /all-of-sibling query key
- */
 export function getAllOfSiblingQueryKey() {
   return ['all-of-sibling', '/all-of-sibling'] as const
 }
 
-/**
- * GET /all-of-sibling
- */
 export async function getAllOfSibling(options?: ClientRequestOptions) {
   return await parseResponse(client['all-of-sibling'].$get(undefined, options))
 }
 
-/**
- * GET /all-of-sibling query options
- */
 export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAllOfSiblingQueryKey(),
@@ -538,27 +397,24 @@ export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /all-of-sibling
- */
-export function useAllOfSibling(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
+export function useAllOfSibling<TData = Awaited<ReturnType<typeof getAllOfSibling>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getAllOfSiblingQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getAllOfSiblingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /all-of-sibling infinite query key
- */
 export function getAllOfSiblingInfiniteQueryKey() {
   return ['all-of-sibling', '/all-of-sibling', 'infinite'] as const
 }
 
-/**
- * GET /all-of-sibling infinite query options
- */
 export function getAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAllOfSiblingInfiniteQueryKey(),
@@ -568,37 +424,25 @@ export function getAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptio
   }
 }
 
-/**
- * GET /all-of-sibling
- */
 export function useInfiniteAllOfSibling(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /nullable-one-of query key
- */
 export function getNullableOneOfQueryKey() {
   return ['nullable-one-of', '/nullable-one-of'] as const
 }
 
-/**
- * GET /nullable-one-of
- */
 export async function getNullableOneOf(options?: ClientRequestOptions) {
   return await parseResponse(client['nullable-one-of'].$get(undefined, options))
 }
 
-/**
- * GET /nullable-one-of query options
- */
 export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNullableOneOfQueryKey(),
@@ -608,27 +452,24 @@ export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /nullable-one-of
- */
-export function useNullableOneOf(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
+export function useNullableOneOf<TData = Awaited<ReturnType<typeof getNullableOneOf>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getNullableOneOfQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getNullableOneOfQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /nullable-one-of infinite query key
- */
 export function getNullableOneOfInfiniteQueryKey() {
   return ['nullable-one-of', '/nullable-one-of', 'infinite'] as const
 }
 
-/**
- * GET /nullable-one-of infinite query options
- */
 export function getNullableOneOfInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNullableOneOfInfiniteQueryKey(),
@@ -638,37 +479,25 @@ export function getNullableOneOfInfiniteQueryOptions(options?: ClientRequestOpti
   }
 }
 
-/**
- * GET /nullable-one-of
- */
 export function useInfiniteNullableOneOf(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /any-of-three query key
- */
 export function getAnyOfThreeQueryKey() {
   return ['any-of-three', '/any-of-three'] as const
 }
 
-/**
- * GET /any-of-three
- */
 export async function getAnyOfThree(options?: ClientRequestOptions) {
   return await parseResponse(client['any-of-three'].$get(undefined, options))
 }
 
-/**
- * GET /any-of-three query options
- */
 export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfThreeQueryKey(),
@@ -678,27 +507,24 @@ export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /any-of-three
- */
-export function useAnyOfThree(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
+export function useAnyOfThree<TData = Awaited<ReturnType<typeof getAnyOfThree>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getAnyOfThreeQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getAnyOfThreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /any-of-three infinite query key
- */
 export function getAnyOfThreeInfiniteQueryKey() {
   return ['any-of-three', '/any-of-three', 'infinite'] as const
 }
 
-/**
- * GET /any-of-three infinite query options
- */
 export function getAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAnyOfThreeInfiniteQueryKey(),
@@ -708,34 +534,22 @@ export function getAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions
   }
 }
 
-/**
- * GET /any-of-three
- */
 export function useInfiniteAnyOfThree(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getAnyOfThreeInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getAnyOfThreeInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /any-of-ref query key
- */
 export function getAnyOfRefQueryKey() {
   return ['any-of-ref', '/any-of-ref'] as const
 }
 
-/**
- * GET /any-of-ref
- */
 export async function getAnyOfRef(options?: ClientRequestOptions) {
   return await parseResponse(client['any-of-ref'].$get(undefined, options))
 }
 
-/**
- * GET /any-of-ref query options
- */
 export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfRefQueryKey(),
@@ -745,27 +559,24 @@ export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /any-of-ref
- */
-export function useAnyOfRef(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
+export function useAnyOfRef<TData = Awaited<ReturnType<typeof getAnyOfRef>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getAnyOfRefQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getAnyOfRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /any-of-ref infinite query key
- */
 export function getAnyOfRefInfiniteQueryKey() {
   return ['any-of-ref', '/any-of-ref', 'infinite'] as const
 }
 
-/**
- * GET /any-of-ref infinite query options
- */
 export function getAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAnyOfRefInfiniteQueryKey(),
@@ -775,13 +586,10 @@ export function getAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) 
   }
 }
 
-/**
- * GET /any-of-ref
- */
 export function useInfiniteAnyOfRef(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getAnyOfRefInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getAnyOfRefInfiniteQueryOptions(clientOptions) })
 }

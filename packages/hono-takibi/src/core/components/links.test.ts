@@ -51,6 +51,31 @@ describe('links', () => {
     })
   })
 
+  describe('non-split mode with readonly', () => {
+    it('writes single file with as const', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
+      const output = path.join(tmpDir, 'links.ts')
+      const result = await links(
+        {
+          GetUserById: {
+            operationId: 'getUser',
+            parameters: { userId: '$response.body#/id' },
+          },
+        },
+        output,
+        false,
+        true,
+      )
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated links code written to ${output}`,
+      })
+      expect(fs.readFileSync(output, 'utf-8')).toBe(
+        `export const GetUserByIdLink = {\n  operationId: 'getUser',\n  parameters: { userId: '$response.body#/id' },\n} as const\n`,
+      )
+    })
+  })
+
   describe('split mode', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
@@ -73,6 +98,24 @@ describe('links', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'getUserById.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'getPostById.ts'))).toBe(true)
+    })
+
+    it('writes split files with readonly', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
+      const output = path.join(tmpDir, 'links')
+      const result = await links(
+        {
+          GetUserById: {
+            operationId: 'getUser',
+            parameters: { userId: '$response.body#/id' },
+          },
+        },
+        output,
+        true,
+        true,
+      )
+      expect(result.ok).toBe(true)
+      expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
   })
 })

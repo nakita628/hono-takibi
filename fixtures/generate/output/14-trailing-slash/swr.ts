@@ -9,55 +9,30 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api
- */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/**
- * Key prefix for /items
- */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/**
- * Key prefix for /posts
- */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /api/reverseChiban/ query key
- */
 export function getGetApiReverseChibanIndexKey() {
   return ['api', '/api/reverseChiban/'] as const
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
   return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export function useGetApiReverseChibanIndex(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -71,11 +46,6 @@ export function useGetApiReverseChibanIndex(options?: {
   }
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export function useImmutableGetApiReverseChibanIndex(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -89,18 +59,10 @@ export function useImmutableGetApiReverseChibanIndex(options?: {
   }
 }
 
-/**
- * GET /api/reverseChiban/ infinite query key
- */
 export function getGetApiReverseChibanIndexInfiniteKey() {
   return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export function useInfiniteGetApiReverseChibanIndex(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -119,27 +81,14 @@ export function useInfiniteGetApiReverseChibanIndex(options: {
   )
 }
 
-/**
- * GET /api/reverseChiban query key
- */
 export function getGetApiReverseChibanKey() {
   return ['api', '/api/reverseChiban'] as const
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export async function getApiReverseChiban(options?: ClientRequestOptions) {
   return await parseResponse(client.api.reverseChiban.$get(undefined, options))
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export function useGetApiReverseChiban(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -153,11 +102,6 @@ export function useGetApiReverseChiban(options?: {
   }
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export function useImmutableGetApiReverseChiban(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -171,18 +115,10 @@ export function useImmutableGetApiReverseChiban(options?: {
   }
 }
 
-/**
- * GET /api/reverseChiban infinite query key
- */
 export function getGetApiReverseChibanInfiniteKey() {
   return ['api', '/api/reverseChiban', 'infinite'] as const
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export function useInfiniteGetApiReverseChiban(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiReverseChiban>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -196,18 +132,10 @@ export function useInfiniteGetApiReverseChiban(options: {
   return useSWRInfinite(keyLoader, async () => getApiReverseChiban(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /posts/ query key
- */
 export function getGetPostsIndexKey(args: InferRequestType<typeof client.posts.index.$get>) {
   return ['posts', '/posts/', args] as const
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export async function getPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
@@ -215,11 +143,6 @@ export async function getPostsIndex(
   return await parseResponse(client.posts.index.$get(args, options))
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export function useGetPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: {
@@ -236,11 +159,6 @@ export function useGetPostsIndex(
   }
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export function useImmutableGetPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: {
@@ -257,20 +175,12 @@ export function useImmutableGetPostsIndex(
   }
 }
 
-/**
- * GET /posts/ infinite query key
- */
 export function getGetPostsIndexInfiniteKey(
   args: InferRequestType<typeof client.posts.index.$get>,
 ) {
   return ['posts', '/posts/', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export function useInfiniteGetPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options: {
@@ -287,11 +197,6 @@ export function useInfiniteGetPostsIndex(
   return useSWRInfinite(keyLoader, async () => getPostsIndex(args, clientOptions), restSwrOptions)
 }
 
-/**
- * POST /posts/
- *
- * Create post (trailing slash only)
- */
 export async function postPostsIndex(
   args: InferRequestType<typeof client.posts.index.$post>,
   options?: ClientRequestOptions,
@@ -299,11 +204,6 @@ export async function postPostsIndex(
   return await parseResponse(client.posts.index.$post(args, options))
 }
 
-/**
- * POST /posts/
- *
- * Create post (trailing slash only)
- */
 export function usePostPostsIndex(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPostsIndex>>,
@@ -315,7 +215,7 @@ export function usePostPostsIndex(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['posts', '/posts/'] as const)
+  const swrKey = customKey ?? (['posts', '/posts/', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -327,20 +227,12 @@ export function usePostPostsIndex(options?: {
   }
 }
 
-/**
- * GET /users/{id}/ query key
- */
 export function getGetUsersIdIndexKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
   return ['users', '/users/:id/', args] as const
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export async function getUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
@@ -348,11 +240,6 @@ export async function getUsersIdIndex(
   return await parseResponse(client.users[':id'].index.$get(args, options))
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export function useGetUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: {
@@ -369,11 +256,6 @@ export function useGetUsersIdIndex(
   }
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export function useImmutableGetUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: {
@@ -390,20 +272,12 @@ export function useImmutableGetUsersIdIndex(
   }
 }
 
-/**
- * GET /users/{id}/ infinite query key
- */
 export function getGetUsersIdIndexInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
   return ['users', '/users/:id/', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export function useInfiniteGetUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options: {
@@ -420,27 +294,14 @@ export function useInfiniteGetUsersIdIndex(
   return useSWRInfinite(keyLoader, async () => getUsersIdIndex(args, clientOptions), restSwrOptions)
 }
 
-/**
- * GET /items/ query key
- */
 export function getGetItemsIndexKey() {
   return ['items', '/items/'] as const
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export async function getItemsIndex(options?: ClientRequestOptions) {
   return await parseResponse(client.items.index.$get(undefined, options))
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export function useGetItemsIndex(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -451,11 +312,6 @@ export function useGetItemsIndex(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getItemsIndex(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export function useImmutableGetItemsIndex(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -469,18 +325,10 @@ export function useImmutableGetItemsIndex(options?: {
   }
 }
 
-/**
- * GET /items/ infinite query key
- */
 export function getGetItemsIndexInfiniteKey() {
   return ['items', '/items/', 'infinite'] as const
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export function useInfiniteGetItemsIndex(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItemsIndex>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader

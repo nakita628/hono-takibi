@@ -115,9 +115,14 @@ export const getItemsRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.array(
-            z.object({ id: z.string(), name: z.string() }).openapi({ required: ['id', 'name'] }),
-          ),
+          schema: z
+            .array(
+              z
+                .object({ id: z.string(), name: z.string() })
+                .readonly()
+                .openapi({ required: ['id', 'name'] }),
+            )
+            .readonly(),
         },
       },
     },

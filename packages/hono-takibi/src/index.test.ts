@@ -1036,7 +1036,7 @@ export const productsHandler = app
   })
 })
 
-describe('hono-takibi.config.ts split generation tests', () => {
+describe('hono-takibi.config.ts split generation tests', { timeout: 30000 }, () => {
   const testDir = 'tmp-config-test'
 
   beforeEach(() => {

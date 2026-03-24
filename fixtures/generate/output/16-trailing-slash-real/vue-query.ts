@@ -11,27 +11,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api
- */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/**
- * GET /api/reverseGeocode/ query key
- */
 export function getApiReverseGeocodeIndexQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export async function getApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
@@ -39,9 +28,6 @@ export async function getApiReverseGeocodeIndex(
   return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
 }
 
-/**
- * GET /api/reverseGeocode/ query options
- */
 export function getApiReverseGeocodeIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: ClientRequestOptions,
@@ -57,37 +43,34 @@ export function getApiReverseGeocodeIndexQueryOptions(
   })
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
-export function useApiReverseGeocodeIndex(
+export function useApiReverseGeocodeIndex<
+  TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
-    ...getApiReverseGeocodeIndexQueryOptions(args, clientOptions),
     ...queryOptions,
+    queryKey: getApiReverseGeocodeIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseGeocodeIndex(toValue(args), {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
-/**
- * GET /api/reverseGeocode/ infinite query key
- */
 export function getApiReverseGeocodeIndexInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
 ) {
   return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
-/**
- * GET /api/reverseGeocode/ infinite query options
- */
 export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: ClientRequestOptions,
@@ -103,11 +86,6 @@ export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export function useInfiniteApiReverseGeocodeIndex(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options: {
@@ -117,14 +95,11 @@ export function useInfiniteApiReverseGeocodeIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getApiReverseGeocodeIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getApiReverseGeocodeIndexInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
   options?: ClientRequestOptions,
@@ -134,14 +109,11 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/'] as const,
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
     async mutationFn(
       args: InferRequestType<
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
@@ -152,9 +124,6 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
   }
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
@@ -170,11 +139,6 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   })
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export async function postApiV2PublicBookingAccountRegisterEmail(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
   options?: ClientRequestOptions,
@@ -184,14 +148,11 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: ['api', '/api/v2/public/booking/account/register/email'] as const,
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {
@@ -200,11 +161,6 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   }
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,

@@ -10,6 +10,7 @@ export const postJsonRoute = createRoute({
         'application/json': {
           schema: z
             .object({ name: z.string(), value: z.int() })
+            .readonly()
             .openapi({ required: ['name', 'value'] }),
         },
       },
@@ -21,7 +22,10 @@ export const postJsonRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ id: z.int(), name: z.string() }).openapi({ required: ['id', 'name'] }),
+          schema: z
+            .object({ id: z.int(), name: z.string() })
+            .readonly()
+            .openapi({ required: ['id', 'name'] }),
         },
       },
     },
@@ -38,6 +42,7 @@ export const postFormRoute = createRoute({
         'application/x-www-form-urlencoded': {
           schema: z
             .object({ username: z.string(), password: z.string() })
+            .readonly()
             .openapi({ required: ['username', 'password'] }),
         },
       },
@@ -49,7 +54,10 @@ export const postFormRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ success: z.boolean() }).openapi({ required: ['success'] }),
+          schema: z
+            .object({ success: z.boolean() })
+            .readonly()
+            .openapi({ required: ['success'] }),
         },
       },
     },
@@ -66,6 +74,7 @@ export const postUploadRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({ file: z.file(), description: z.string().exactOptional() })
+            .readonly()
             .openapi({ required: ['file'] }),
         },
       },
@@ -77,7 +86,10 @@ export const postUploadRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ url: z.string() }).openapi({ required: ['url'] }),
+          schema: z
+            .object({ url: z.string() })
+            .readonly()
+            .openapi({ required: ['url'] }),
         },
       },
     },
@@ -100,10 +112,16 @@ export const postMultiContentRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
         'application/x-www-form-urlencoded': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
       required: true,
@@ -114,7 +132,10 @@ export const postMultiContentRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ received: z.boolean() }).openapi({ required: ['received'] }),
+          schema: z
+            .object({ received: z.boolean() })
+            .readonly()
+            .openapi({ required: ['received'] }),
         },
       },
     },

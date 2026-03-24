@@ -9,16 +9,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /items
- */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/**
- * GET /items/{itemId} query key
- */
 export function getGetItemsItemIdKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -26,9 +20,6 @@ export function getGetItemsItemIdKey(
   return ['items', '/items/:itemId', keyArgs] as const
 }
 
-/**
- * GET /items/{itemId}
- */
 export async function getItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
@@ -36,9 +27,6 @@ export async function getItemsItemId(
   return await parseResponse(client.items[':itemId'].$get(args, options))
 }
 
-/**
- * GET /items/{itemId}
- */
 export function useGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
@@ -55,9 +43,6 @@ export function useGetItemsItemId(
   }
 }
 
-/**
- * GET /items/{itemId}
- */
 export function useImmutableGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
@@ -74,9 +59,6 @@ export function useImmutableGetItemsItemId(
   }
 }
 
-/**
- * GET /items/{itemId} infinite query key
- */
 export function getGetItemsItemIdInfiniteKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -84,9 +66,6 @@ export function getGetItemsItemIdInfiniteKey(
   return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
 }
 
-/**
- * GET /items/{itemId}
- */
 export function useInfiniteGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options: {
@@ -103,9 +82,6 @@ export function useInfiniteGetItemsItemId(
   return useSWRInfinite(keyLoader, async () => getItemsItemId(args, clientOptions), restSwrOptions)
 }
 
-/**
- * PUT /items/{itemId}
- */
 export async function putItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
   options?: ClientRequestOptions,
@@ -113,9 +89,6 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-/**
- * PUT /items/{itemId}
- */
 export function usePutItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putItemsItemId>>,
@@ -127,7 +100,7 @@ export function usePutItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['items', '/items/:itemId'] as const)
+  const swrKey = customKey ?? (['items', '/items/:itemId', 'PUT'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -141,9 +114,6 @@ export function usePutItemsItemId(options?: {
   }
 }
 
-/**
- * DELETE /items/{itemId}
- */
 export async function deleteItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
   options?: ClientRequestOptions,
@@ -151,9 +121,6 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-/**
- * DELETE /items/{itemId}
- */
 export function useDeleteItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
@@ -165,7 +132,7 @@ export function useDeleteItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['items', '/items/:itemId'] as const)
+  const swrKey = customKey ?? (['items', '/items/:itemId', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -179,16 +146,10 @@ export function useDeleteItemsItemId(options?: {
   }
 }
 
-/**
- * GET /items query key
- */
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
 }
 
-/**
- * GET /items
- */
 export async function getItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -196,9 +157,6 @@ export async function getItems(
   return await parseResponse(client.items.$get(args, options))
 }
 
-/**
- * GET /items
- */
 export function useGetItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
@@ -212,9 +170,6 @@ export function useGetItems(
   return { swrKey, ...useSWR(swrKey, async () => getItems(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /items
- */
 export function useImmutableGetItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
@@ -231,16 +186,10 @@ export function useImmutableGetItems(
   }
 }
 
-/**
- * GET /items infinite query key
- */
 export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args, 'infinite'] as const
 }
 
-/**
- * GET /items
- */
 export function useInfiniteGetItems(
   args: InferRequestType<typeof client.items.$get>,
   options: {

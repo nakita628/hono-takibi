@@ -64,4 +64,48 @@ describe('callbacksCode', () => {
       `const SimpleCallbackCallback={"{url}":{get:{responses:{200:{description:"Success"}}}}}`,
     )
   })
+
+  it('should generate callback with readonly (as const)', () => {
+    const components: Components = {
+      callbacks: {
+        onData: {
+          '{callback}': {
+            post: {
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+        },
+      },
+    }
+    expect(callbacksCode(components, true, true)).toBe(
+      `export const OnDataCallback={"{callback}":{post:{responses:{200:{description:"OK"}}}}} as const`,
+    )
+  })
+
+  it('should skip $ref entries', () => {
+    const components: Components = {
+      callbacks: {
+        refCallback: { $ref: '#/components/callbacks/Shared' },
+      },
+    }
+    expect(callbacksCode(components, true)).toBe('')
+  })
+
+  it('should handle mix of $ref and real callbacks', () => {
+    const components: Components = {
+      callbacks: {
+        refCallback: { $ref: '#/components/callbacks/Shared' },
+        onData: {
+          '{callback}': {
+            post: {
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+        },
+      },
+    }
+    expect(callbacksCode(components, true)).toBe(
+      `export const OnDataCallback={"{callback}":{post:{responses:{200:{description:"OK"}}}}}`,
+    )
+  })
 })

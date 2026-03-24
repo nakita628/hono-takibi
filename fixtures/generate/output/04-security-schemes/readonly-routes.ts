@@ -30,7 +30,10 @@ export const getPublicRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string() }).openapi({ required: ['message'] }),
+          schema: z
+            .object({ message: z.string() })
+            .readonly()
+            .openapi({ required: ['message'] }),
         },
       },
     },
@@ -46,7 +49,10 @@ export const getBearerProtectedRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
     },
@@ -63,7 +69,10 @@ export const getApiKeyProtectedRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
     },
@@ -80,7 +89,10 @@ export const getBasicProtectedRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
     },
@@ -97,7 +109,10 @@ export const getOauthProtectedRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
     },
@@ -114,7 +129,10 @@ export const getMultiAuthRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ data: z.string() }).openapi({ required: ['data'] }),
+          schema: z
+            .object({ data: z.string() })
+            .readonly()
+            .openapi({ required: ['data'] }),
         },
       },
     },

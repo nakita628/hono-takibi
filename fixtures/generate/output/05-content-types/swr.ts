@@ -5,44 +5,26 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /form
- */
 export function getFormKey() {
   return ['form'] as const
 }
 
-/**
- * Key prefix for /json
- */
 export function getJsonKey() {
   return ['json'] as const
 }
 
-/**
- * Key prefix for /multi-content
- */
 export function getMultiContentKey() {
   return ['multi-content'] as const
 }
 
-/**
- * Key prefix for /text
- */
 export function getTextKey() {
   return ['text'] as const
 }
 
-/**
- * Key prefix for /upload
- */
 export function getUploadKey() {
   return ['upload'] as const
 }
 
-/**
- * POST /json
- */
 export async function postJson(
   args: InferRequestType<typeof client.json.$post>,
   options?: ClientRequestOptions,
@@ -50,9 +32,6 @@ export async function postJson(
   return await parseResponse(client.json.$post(args, options))
 }
 
-/**
- * POST /json
- */
 export function usePostJson(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postJson>>,
@@ -64,7 +43,7 @@ export function usePostJson(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['json', '/json'] as const)
+  const swrKey = customKey ?? (['json', '/json', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -76,9 +55,6 @@ export function usePostJson(options?: {
   }
 }
 
-/**
- * POST /form
- */
 export async function postForm(
   args: InferRequestType<typeof client.form.$post>,
   options?: ClientRequestOptions,
@@ -86,9 +62,6 @@ export async function postForm(
   return await parseResponse(client.form.$post(args, options))
 }
 
-/**
- * POST /form
- */
 export function usePostForm(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postForm>>,
@@ -100,7 +73,7 @@ export function usePostForm(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['form', '/form'] as const)
+  const swrKey = customKey ?? (['form', '/form', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -112,9 +85,6 @@ export function usePostForm(options?: {
   }
 }
 
-/**
- * POST /upload
- */
 export async function postUpload(
   args: InferRequestType<typeof client.upload.$post>,
   options?: ClientRequestOptions,
@@ -122,9 +92,6 @@ export async function postUpload(
   return await parseResponse(client.upload.$post(args, options))
 }
 
-/**
- * POST /upload
- */
 export function usePostUpload(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUpload>>,
@@ -136,7 +103,7 @@ export function usePostUpload(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['upload', '/upload'] as const)
+  const swrKey = customKey ?? (['upload', '/upload', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -148,9 +115,6 @@ export function usePostUpload(options?: {
   }
 }
 
-/**
- * POST /text
- */
 export async function postText(
   args: InferRequestType<typeof client.text.$post>,
   options?: ClientRequestOptions,
@@ -158,9 +122,6 @@ export async function postText(
   return await parseResponse(client.text.$post(args, options))
 }
 
-/**
- * POST /text
- */
 export function usePostText(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postText>>,
@@ -172,7 +133,7 @@ export function usePostText(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['text', '/text'] as const)
+  const swrKey = customKey ?? (['text', '/text', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -184,9 +145,6 @@ export function usePostText(options?: {
   }
 }
 
-/**
- * POST /multi-content
- */
 export async function postMultiContent(
   args: InferRequestType<(typeof client)['multi-content']['$post']>,
   options?: ClientRequestOptions,
@@ -194,9 +152,6 @@ export async function postMultiContent(
   return await parseResponse(client['multi-content'].$post(args, options))
 }
 
-/**
- * POST /multi-content
- */
 export function usePostMultiContent(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postMultiContent>>,
@@ -208,7 +163,7 @@ export function usePostMultiContent(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['multi-content', '/multi-content'] as const)
+  const swrKey = customKey ?? (['multi-content', '/multi-content', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(

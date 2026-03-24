@@ -14,44 +14,26 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /additional-props
- */
 export function getAdditionalPropsKey() {
   return ['additional-props'] as const
 }
 
-/**
- * Key prefix for /composed
- */
 export function getComposedKey() {
   return ['composed'] as const
 }
 
-/**
- * Key prefix for /deep-nested
- */
 export function getDeepNestedKey() {
   return ['deep-nested'] as const
 }
 
-/**
- * Key prefix for /discriminated
- */
 export function getDiscriminatedKey() {
   return ['discriminated'] as const
 }
 
-/**
- * Key prefix for /nullable
- */
 export function getNullableKey() {
   return ['nullable'] as const
 }
 
-/**
- * POST /nullable
- */
 export async function postNullable(
   args: InferRequestType<typeof client.nullable.$post>,
   options?: ClientRequestOptions,
@@ -59,21 +41,15 @@ export async function postNullable(
   return await parseResponse(client.nullable.$post(args, options))
 }
 
-/**
- * POST /nullable
- */
 export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['nullable', '/nullable'] as const,
+    mutationKey: ['nullable', '/nullable', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
       return postNullable(args, options)
     },
   }
 }
 
-/**
- * POST /nullable
- */
 export function createPostNullable(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -90,9 +66,6 @@ export function createPostNullable(
   })
 }
 
-/**
- * POST /discriminated
- */
 export async function postDiscriminated(
   args: InferRequestType<typeof client.discriminated.$post>,
   options?: ClientRequestOptions,
@@ -100,21 +73,15 @@ export async function postDiscriminated(
   return await parseResponse(client.discriminated.$post(args, options))
 }
 
-/**
- * POST /discriminated
- */
 export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['discriminated', '/discriminated'] as const,
+    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
       return postDiscriminated(args, options)
     },
   }
 }
 
-/**
- * POST /discriminated
- */
 export function createPostDiscriminated(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -131,23 +98,14 @@ export function createPostDiscriminated(
   })
 }
 
-/**
- * GET /composed query key
- */
 export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
 }
 
-/**
- * GET /composed
- */
 export async function getComposed(options?: ClientRequestOptions) {
   return await parseResponse(client.composed.$get(undefined, options))
 }
 
-/**
- * GET /composed query options
- */
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getComposedQueryKey(),
@@ -157,31 +115,28 @@ export function getComposedQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /composed
- */
-export function createComposed(
+export function createComposed<TData = Awaited<ReturnType<typeof getComposed>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getComposedQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getComposedQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /composed infinite query key
- */
 export function getComposedInfiniteQueryKey() {
   return ['composed', '/composed', 'infinite'] as const
 }
 
-/**
- * GET /composed infinite query options
- */
 export function getComposedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getComposedInfiniteQueryKey(),
@@ -191,9 +146,6 @@ export function getComposedInfiniteQueryOptions(options?: ClientRequestOptions) 
   }
 }
 
-/**
- * GET /composed
- */
 export function createInfiniteComposed(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
@@ -202,27 +154,18 @@ export function createInfiniteComposed(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getComposedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getComposedInfiniteQueryOptions(clientOptions) }
   })
 }
 
-/**
- * GET /deep-nested query key
- */
 export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
 
-/**
- * GET /deep-nested
- */
 export async function getDeepNested(options?: ClientRequestOptions) {
   return await parseResponse(client['deep-nested'].$get(undefined, options))
 }
 
-/**
- * GET /deep-nested query options
- */
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getDeepNestedQueryKey(),
@@ -232,31 +175,28 @@ export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /deep-nested
- */
-export function createDeepNested(
+export function createDeepNested<TData = Awaited<ReturnType<typeof getDeepNested>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getDeepNestedQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getDeepNestedQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /deep-nested infinite query key
- */
 export function getDeepNestedInfiniteQueryKey() {
   return ['deep-nested', '/deep-nested', 'infinite'] as const
 }
 
-/**
- * GET /deep-nested infinite query options
- */
 export function getDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getDeepNestedInfiniteQueryKey(),
@@ -266,9 +206,6 @@ export function getDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions
   }
 }
 
-/**
- * GET /deep-nested
- */
 export function createInfiniteDeepNested(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
@@ -277,27 +214,18 @@ export function createInfiniteDeepNested(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getDeepNestedInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getDeepNestedInfiniteQueryOptions(clientOptions) }
   })
 }
 
-/**
- * GET /additional-props query key
- */
 export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
 }
 
-/**
- * GET /additional-props
- */
 export async function getAdditionalProps(options?: ClientRequestOptions) {
   return await parseResponse(client['additional-props'].$get(undefined, options))
 }
 
-/**
- * GET /additional-props query options
- */
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAdditionalPropsQueryKey(),
@@ -307,31 +235,28 @@ export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /additional-props
- */
-export function createAdditionalProps(
+export function createAdditionalProps<TData = Awaited<ReturnType<typeof getAdditionalProps>>>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getAdditionalPropsQueryOptions(clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getAdditionalPropsQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /additional-props infinite query key
- */
 export function getAdditionalPropsInfiniteQueryKey() {
   return ['additional-props', '/additional-props', 'infinite'] as const
 }
 
-/**
- * GET /additional-props infinite query options
- */
 export function getAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAdditionalPropsInfiniteQueryKey(),
@@ -341,9 +266,6 @@ export function getAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOp
   }
 }
 
-/**
- * GET /additional-props
- */
 export function createInfiniteAdditionalProps(
   options: () => {
     query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
@@ -352,6 +274,6 @@ export function createInfiniteAdditionalProps(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getAdditionalPropsInfiniteQueryOptions(clientOptions), ...query }
+    return { ...query, ...getAdditionalPropsInfiniteQueryOptions(clientOptions) }
   })
 }

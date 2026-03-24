@@ -113,7 +113,12 @@ export const postWebhooksTestRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: z.object({ url: z.url() }).openapi({ required: ['url'] }) },
+        'application/json': {
+          schema: z
+            .object({ url: z.url() })
+            .readonly()
+            .openapi({ required: ['url'] }),
+        },
       },
       required: true,
     },
@@ -123,7 +128,10 @@ export const postWebhooksTestRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ sent: z.boolean() }).openapi({ required: ['sent'] }),
+          schema: z
+            .object({ sent: z.boolean() })
+            .readonly()
+            .openapi({ required: ['sent'] }),
         },
       },
     },

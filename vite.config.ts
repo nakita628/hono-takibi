@@ -9,7 +9,7 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/dist/**', 'apps/**'],
     coverage: {
       include: ['packages/hono-takibi/src/**/*.ts'],
-      exclude: ['**/*.test.ts', '**/*.d.ts', '**/node_modules/**', '**/dist/**', '**/index.ts'],
+      exclude: ['**/*.test.ts', '**/*.d.ts', '**/node_modules/**', '**/dist/**'],
       reporter: ['text', 'text-summary'],
     },
   },

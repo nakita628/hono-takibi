@@ -9,27 +9,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api
- */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/**
- * GET /api/reverseGeocode/ query key
- */
 export function getGetApiReverseGeocodeIndexKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export async function getApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
@@ -37,11 +26,6 @@ export async function getApiReverseGeocodeIndex(
   return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export function useGetApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: {
@@ -58,11 +42,6 @@ export function useGetApiReverseGeocodeIndex(
   }
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export function useImmutableGetApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: {
@@ -83,20 +62,12 @@ export function useImmutableGetApiReverseGeocodeIndex(
   }
 }
 
-/**
- * GET /api/reverseGeocode/ infinite query key
- */
 export function getGetApiReverseGeocodeIndexInfiniteKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
   return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export function useInfiniteGetApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options: {
@@ -118,9 +89,6 @@ export function useInfiniteGetApiReverseGeocodeIndex(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
   options?: ClientRequestOptions,
@@ -130,9 +98,6 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
@@ -144,7 +109,8 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['api', '/api/v2/public/booking/account/register/oauth/'] as const)
+  const swrKey =
+    customKey ?? (['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -164,11 +130,6 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
   }
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export async function postApiV2PublicBookingAccountRegisterEmail(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
   options?: ClientRequestOptions,
@@ -178,11 +139,6 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
@@ -194,7 +150,8 @@ export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['api', '/api/v2/public/booking/account/register/email'] as const)
+  const swrKey =
+    customKey ?? (['api', '/api/v2/public/booking/account/register/email', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(

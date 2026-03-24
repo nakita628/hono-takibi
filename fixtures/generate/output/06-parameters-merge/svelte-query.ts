@@ -14,16 +14,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /items
- */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/**
- * GET /items/{itemId} query key
- */
 export function getItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -31,9 +25,6 @@ export function getItemsItemIdQueryKey(
   return ['items', '/items/:itemId', keyArgs] as const
 }
 
-/**
- * GET /items/{itemId}
- */
 export async function getItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
@@ -41,9 +32,6 @@ export async function getItemsItemId(
   return await parseResponse(client.items[':itemId'].$get(args, options))
 }
 
-/**
- * GET /items/{itemId} query options
- */
 export function getItemsItemIdQueryOptions(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
@@ -56,25 +44,28 @@ export function getItemsItemIdQueryOptions(
   })
 }
 
-/**
- * GET /items/{itemId}
- */
-export function createItemsItemId(
+export function createItemsItemId<TData = Awaited<ReturnType<typeof getItemsItemId>>>(
   args: () => InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getItemsItemIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getItemsItemIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getItemsItemId(args(), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        })
+      },
+    }
   })
 }
 
-/**
- * GET /items/{itemId} infinite query key
- */
 export function getItemsItemIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
@@ -82,9 +73,6 @@ export function getItemsItemIdInfiniteQueryKey(
   return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
 }
 
-/**
- * GET /items/{itemId} infinite query options
- */
 export function getItemsItemIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
@@ -97,9 +85,6 @@ export function getItemsItemIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /items/{itemId}
- */
 export function createInfiniteItemsItemId(
   args: () => InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options: () => {
@@ -109,13 +94,10 @@ export function createInfiniteItemsItemId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getItemsItemIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getItemsItemIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
-/**
- * PUT /items/{itemId}
- */
 export async function putItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
   options?: ClientRequestOptions,
@@ -123,21 +105,15 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-/**
- * PUT /items/{itemId}
- */
 export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['items', '/items/:itemId'] as const,
+    mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
       return putItemsItemId(args, options)
     },
   }
 }
 
-/**
- * PUT /items/{itemId}
- */
 export function createPutItemsItemId(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -154,9 +130,6 @@ export function createPutItemsItemId(
   })
 }
 
-/**
- * DELETE /items/{itemId}
- */
 export async function deleteItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
   options?: ClientRequestOptions,
@@ -164,21 +137,15 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-/**
- * DELETE /items/{itemId}
- */
 export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['items', '/items/:itemId'] as const,
+    mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
       return deleteItemsItemId(args, options)
     },
   }
 }
 
-/**
- * DELETE /items/{itemId}
- */
 export function createDeleteItemsItemId(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -195,16 +162,10 @@ export function createDeleteItemsItemId(
   })
 }
 
-/**
- * GET /items query key
- */
 export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
 }
 
-/**
- * GET /items
- */
 export async function getItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -212,9 +173,6 @@ export async function getItems(
   return await parseResponse(client.items.$get(args, options))
 }
 
-/**
- * GET /items query options
- */
 export function getItemsQueryOptions(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -227,32 +185,29 @@ export function getItemsQueryOptions(
   })
 }
 
-/**
- * GET /items
- */
-export function createItems(
+export function createItems<TData = Awaited<ReturnType<typeof getItems>>>(
   args: () => InferRequestType<typeof client.items.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getItemsQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getItemsQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getItems(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /items infinite query key
- */
 export function getItemsInfiniteQueryKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args, 'infinite'] as const
 }
 
-/**
- * GET /items infinite query options
- */
 export function getItemsInfiniteQueryOptions(
   args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
@@ -265,9 +220,6 @@ export function getItemsInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /items
- */
 export function createInfiniteItems(
   args: () => InferRequestType<typeof client.items.$get>,
   options: () => {
@@ -277,6 +229,6 @@ export function createInfiniteItems(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getItemsInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getItemsInfiniteQueryOptions(args(), clientOptions) }
   })
 }

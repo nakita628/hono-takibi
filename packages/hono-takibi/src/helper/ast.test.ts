@@ -137,6 +137,24 @@ export const TestSchema = z.string()`
     // const should come before type
     expect(result.indexOf('const TestSchema')).toBeLessThan(result.indexOf('type TestSchema'))
   })
+
+  it.concurrent('should sort const followed by its type alias', () => {
+    const input = `export type User = z.infer<typeof UserSchema>
+export const UserSchema = z.object({ id: z.string(), name: z.string() })`
+    const result = ast(input)
+    expect(result).toBe(`export const UserSchema = z.object({ id: z.string(), name: z.string() })
+
+export type User = z.infer<typeof UserSchema>`)
+  })
+
+  it.concurrent('should preserve order when no dependencies exist', () => {
+    const input = `const ASchema = z.string()
+const BSchema = z.number()`
+    const result = ast(input)
+    expect(result).toBe(`const ASchema = z.string()
+
+const BSchema = z.number()`)
+  })
 })
 
 describe('analyzeCircularSchemas', () => {

@@ -97,7 +97,8 @@ export const getPostsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ posts: z.array(PostSchema), total: z.int() })
+            .object({ posts: z.array(PostSchema).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['posts', 'total'] }),
         },
       },
@@ -184,7 +185,10 @@ export const getPostsIdCommentsRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: z.array(CommentSchema) } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.array(CommentSchema).readonly() } },
+    },
   },
 } as const)
 
@@ -212,6 +216,9 @@ export const getTagsRoute = createRoute({
   path: '/tags',
   operationId: 'listTags',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: z.array(TagSchema) } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.array(TagSchema).readonly() } },
+    },
   },
 } as const)

@@ -185,7 +185,6 @@ describe('wrap', () => {
         parameters: {
           name: 'id',
           in: 'path',
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -206,7 +205,6 @@ describe('wrap', () => {
         parameters: {
           name: 'q',
           in: 'query',
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -228,7 +226,6 @@ describe('wrap', () => {
           name: 'q',
           in: 'query',
           required: true,
-          // biome-ignore lint: test
         } as any,
       },
     )
@@ -241,7 +238,6 @@ describe('wrap', () => {
     const result = wrap(
       'z.string()',
       { type: 'string' },
-      // biome-ignore lint: test
       { parameters: { name: 'x', in: 'header' } as any },
     )
     const expected = 'z.string().exactOptional().openapi({param:{"name":"x","in":"header"}})'
@@ -249,11 +245,7 @@ describe('wrap', () => {
   })
 
   it('should return examples', () => {
-    const result = wrap(
-      'z.string()',
-      // biome-ignore lint/suspicious/noExplicitAny: test data
-      { type: 'string', examples: ['example1', 'example2'] } as any,
-    )
+    const result = wrap('z.string()', { type: 'string', examples: ['example1', 'example2'] } as any)
     const expected = 'z.string().openapi({"examples":["example1","example2"]})'
     expect(result).toBe(expected)
   })
@@ -610,6 +602,55 @@ describe('wrap', () => {
   describe('nullable with type null', () => {
     it.concurrent('should handle type null as standalone', () => {
       expect(wrap('z.null()', { type: 'null' })).toBe('z.null().nullable()')
+    })
+  })
+
+  describe('items filtering', () => {
+    it.concurrent('should filter out boolean items schema', () => {
+      const schema = {
+        type: 'array',
+        items: true,
+        description: 'Array with boolean items',
+      } as unknown as Schema
+      const result = wrap('z.array(z.string())', schema)
+      expect(result).toBe('z.array(z.string()).openapi({"description":"Array with boolean items"})')
+    })
+
+    it.concurrent('should filter out array-type items (tuple items)', () => {
+      const schema = {
+        type: 'array',
+        items: [{ type: 'string' }, { type: 'number' }],
+        description: 'Tuple array',
+      } as unknown as Schema
+      const result = wrap('z.array(z.string())', schema)
+      expect(result).toBe('z.array(z.string()).openapi({"description":"Tuple array"})')
+    })
+  })
+
+  describe('not.not filtering', () => {
+    it.concurrent('should filter out nested not.not with boolean value', () => {
+      const schema = {
+        type: 'string',
+        not: { not: true },
+        description: 'Schema with nested not',
+      } as unknown as Schema
+      const result = wrap('z.string()', schema)
+      expect(result).toBe('z.string().openapi({"description":"Schema with nested not"})')
+    })
+
+    it.concurrent('should keep not.not when inner not is object (not boolean)', () => {
+      // not is in zodExpressedProps so it's excluded from .openapi() args,
+      // but the filterUnsupportedProps function still needs to handle non-boolean not.not
+      const schema = {
+        type: 'string',
+        not: { not: { type: 'number' } },
+        description: 'Schema with non-boolean nested not',
+      } as unknown as Schema
+      const result = wrap('z.string()', schema)
+      // not is filtered by zodExpressedProps, only description remains
+      expect(result).toBe(
+        'z.string().openapi({"description":"Schema with non-boolean nested not"})',
+      )
     })
   })
 

@@ -150,13 +150,14 @@ export function makeExamples(examples: {
 /** Generates code for an operation's responses object. */
 export function makeOperationResponses(
   responses: Operation['responses'] | { readonly [k: string]: unknown },
+  readonly?: boolean,
 ) {
   const isResponse = (v: unknown): v is Responses =>
     typeof v === 'object' && v !== null && !Array.isArray(v)
   const result = Object.entries(responses)
     .map(([statusCode, res]) => {
       if (!isResponse(res)) return undefined
-      return `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res)}`
+      return `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly)}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -164,15 +165,18 @@ export function makeOperationResponses(
 }
 
 /** Generates a Zod object schema for response headers. */
-export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
+export function makeHeaderResponses(
+  headers: { readonly [k: string]: Header | Reference },
+  readonly?: boolean,
+) {
   const result = Object.entries(headers)
-    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header)}`)
+    .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header, readonly)}`)
     .join(',')
   return `z.object({${result}})`
 }
 
 /** Generates code for a single response object (handles `$ref` and inline). */
-export function makeResponses(responses: Responses) {
+export function makeResponses(responses: Responses, readonly?: boolean) {
   if (responses.$ref) {
     return makeRef(responses.$ref)
   }
@@ -181,8 +185,10 @@ export function makeResponses(responses: Responses) {
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
     `description:${JSON.stringify(responses.description || '')}`,
-    responses.headers ? `headers:${makeHeaderResponses(responses.headers)}` : undefined,
-    responses.content ? `content:{${makeContent(responses.content).join(',')}}` : undefined,
+    responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
+    responses.content
+      ? `content:{${makeContent(responses.content, readonly).join(',')}}`
+      : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
           .map(([key, link]) =>
@@ -199,7 +205,7 @@ export function makeResponses(responses: Responses) {
 }
 
 /** Generates code for a header or header reference. */
-export function makeHeadersAndReferences(headers: Header | Reference) {
+export function makeHeadersAndReferences(headers: Header | Reference, readonly?: boolean) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
   }
@@ -222,10 +228,10 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
     'schema' in headers && headers.schema
-      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers })}`
+      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly)}`
       : undefined,
     'content' in headers && headers.content
-      ? `content:${makeContent(headers.content).join(',')}`
+      ? `content:${makeContent(headers.content, readonly).join(',')}`
       : undefined,
   ]
     .filter((v) => v !== undefined)
@@ -313,6 +319,7 @@ export function makeCallbacks(
           readonly description?: string
         }
       },
+  readonly?: boolean,
 ): string {
   const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
   const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
@@ -320,7 +327,7 @@ export function makeCallbacks(
       .map((method) => {
         const operation = record[method]
         if (!isOperation(operation)) return undefined
-        const result = makeOperation(operation)
+        const result = makeOperation(operation, readonly)
         return `${method}:${result}`
       })
       .filter((v) => v !== undefined)
@@ -358,6 +365,7 @@ export function makeCallbacks(
 /** Generates code for an OpenAPI content object. */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
+  readonly?: boolean,
 ): string[] {
   const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
 
@@ -369,7 +377,7 @@ export function makeContent(
       }
       // Media
       if (isMedia(mediaOrRef)) {
-        return `'${contentType}':${makeMedia(mediaOrRef)}`
+        return `'${contentType}':${makeMedia(mediaOrRef, readonly)}`
       }
       return undefined
     })
@@ -399,14 +407,14 @@ export function makeContent(
  * // → '{content:{"application/json":{schema:...}},required:true}'
  * ```
  */
-export function makeRequestBody(body: RequestBody | Reference) {
+export function makeRequestBody(body: RequestBody | Reference, readonly?: boolean) {
   if ('$ref' in body && body.$ref) {
     return makeRef(body.$ref)
   }
   const result = [
     body.description ? `description:${JSON.stringify(body.description)}` : undefined,
     'content' in body && body.content
-      ? `content:{${makeContent(body.content).join(',')}}`
+      ? `content:{${makeContent(body.content, readonly).join(',')}}`
       : undefined,
     'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
   ]
@@ -433,20 +441,24 @@ export function makeRequestBody(body: RequestBody | Reference) {
  * // → '{schema:z.object({name:z.string()}),example:{"name":"John"}}'
  * ```
  */
-export function makeMedia(media: Media) {
+export function makeMedia(media: Media, readonly?: boolean) {
   const encodingCode = media.encoding
     ? Object.entries(media.encoding)
-        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
         .join(',')
     : undefined
   const result = [
-    media.schema ? `schema:${zodToOpenAPI(media.schema)}` : undefined,
-    media.itemSchema ? `itemSchema:${zodToOpenAPI(media.itemSchema)}` : undefined,
+    media.schema ? `schema:${zodToOpenAPI(media.schema, undefined, readonly)}` : undefined,
+    media.itemSchema
+      ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly)}`
+      : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
     encodingCode ? `encoding:{${encodingCode}}` : undefined,
-    media.prefixEncoding ? `prefixEncoding:{${makeEncoding(media.prefixEncoding)}}` : undefined,
-    media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding)}}` : undefined,
+    media.prefixEncoding
+      ? `prefixEncoding:{${makeEncoding(media.prefixEncoding, readonly)}}`
+      : undefined,
+    media.itemEncoding ? `itemEncoding:{${makeEncoding(media.itemEncoding, readonly)}}` : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -471,16 +483,19 @@ export function makeMedia(media: Media) {
  * // → 'contentType:"image/png",headers:{"X-Custom":{schema:z.string()}}'
  * ```
  */
-export function makeEncoding(encoding: Encoding): string {
+export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
   const nestedEncoding = encoding.encoding
     ? Object.entries(encoding.encoding)
-        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding)}}`)
+        .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
         .join(',')
     : undefined
 
   const headersCode = encoding.headers
     ? Object.entries(encoding.headers)
-        .map(([name, header]) => `${JSON.stringify(name)}:${makeHeadersAndReferences(header)}`)
+        .map(
+          ([name, header]) =>
+            `${JSON.stringify(name)}:${makeHeadersAndReferences(header, readonly)}`,
+        )
         .join(',')
     : undefined
 
@@ -489,9 +504,11 @@ export function makeEncoding(encoding: Encoding): string {
     headersCode ? `headers:{${headersCode}}` : undefined,
     nestedEncoding ? `encoding:{${nestedEncoding}}` : undefined,
     encoding.prefixEncoding
-      ? `prefixEncoding:{${makeEncoding(encoding.prefixEncoding)}}`
+      ? `prefixEncoding:{${makeEncoding(encoding.prefixEncoding, readonly)}}`
       : undefined,
-    encoding.itemEncoding ? `itemEncoding:{${makeEncoding(encoding.itemEncoding)}}` : undefined,
+    encoding.itemEncoding
+      ? `itemEncoding:{${makeEncoding(encoding.itemEncoding, readonly)}}`
+      : undefined,
   ]
     .filter((v) => v !== undefined)
     .join(',')
@@ -506,12 +523,13 @@ export function makeEncoding(encoding: Encoding): string {
 export function makeRequest(
   parameters: readonly Parameter[] | undefined,
   requestBody: RequestBody | Reference | undefined,
+  readonly?: boolean,
 ) {
   const result = [
-    parameters && parameters.length > 0 ? makeRequestParams(parameters) : undefined,
+    parameters && parameters.length > 0 ? makeRequestParams(parameters, readonly) : undefined,
     (requestBody && '$ref' in requestBody && requestBody.$ref) ||
     (requestBody && 'content' in requestBody && requestBody.content)
-      ? `body:${makeRequestBody(requestBody)}`
+      ? `body:${makeRequestBody(requestBody, readonly)}`
       : undefined,
   ]
     .filter((v) => v !== undefined)
@@ -540,7 +558,10 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
  * - Supports parameters with content instead of schema (OpenAPI 3.x).
  * - Applies coercion for query parameters with number/boolean/date types.
  */
-export function makeParameters(parameters: readonly Parameter[]): {
+export function makeParameters(
+  parameters: readonly Parameter[],
+  readonly?: boolean,
+): {
   [section: string]: { readonly [k: string]: string }
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
@@ -560,7 +581,7 @@ export function makeParameters(parameters: readonly Parameter[]): {
       return acc
     }
 
-    const baseSchema = zodToOpenAPI(schema, { parameters: param })
+    const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
 
     // Apply coercion for query parameters
     const z =
@@ -597,8 +618,8 @@ export function makeParameters(parameters: readonly Parameter[]): {
  * @param parameters - Array of OpenAPI parameter objects.
  * @returns Comma-separated parameter code string or undefined if empty.
  */
-export function makeRequestParams(parameters: readonly Parameter[]) {
-  const paramsObject = makeParameters(parameters)
+export function makeRequestParams(parameters: readonly Parameter[], readonly?: boolean) {
+  const paramsObject = makeParameters(parameters, readonly)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
@@ -648,20 +669,23 @@ export function makePathParameters(parameters: readonly (Parameter | Reference)[
   return `[${items.join(',')}]`
 }
 
-function makeOperationParameters(parameters: readonly (Parameter | Reference)[]): string {
+function makeOperationParameters(
+  parameters: readonly (Parameter | Reference)[],
+  readonly?: boolean,
+): string {
   const items = parameters.map((param) => {
     if (isRefObject(param)) {
       return makeRef(param.$ref)
     }
     if (isParameter(param) && param.schema) {
-      return zodToOpenAPI(param.schema, { parameters: param })
+      return zodToOpenAPI(param.schema, { parameters: param }, readonly)
     }
     return JSON.stringify(param)
   })
   return `[${items.join(',')}]`
 }
 
-export function makeOperation(operation: Operation) {
+export function makeOperation(operation: Operation, readonly?: boolean) {
   const result = [
     operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
     operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
@@ -669,11 +693,15 @@ export function makeOperation(operation: Operation) {
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
     operation.parameters
-      ? `parameters:${makeOperationParameters(operation.parameters)}`
+      ? `parameters:${makeOperationParameters(operation.parameters, readonly)}`
       : undefined,
-    operation.requestBody ? `requestBody:${makeRequestBody(operation.requestBody)}` : undefined,
-    operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
-    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.requestBody
+      ? `requestBody:${makeRequestBody(operation.requestBody, readonly)}`
+      : undefined,
+    operation.responses
+      ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+      : undefined,
+    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}` : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
     operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
     operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,

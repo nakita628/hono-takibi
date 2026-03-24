@@ -140,7 +140,10 @@ export const getItemsRoute = createRoute({
   summary: 'List items (uses $ref response alias)',
   operationId: 'listItems',
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: z.array(ItemSchema) } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.array(ItemSchema).readonly() } },
+    },
     500: ServerErrorResponse,
   },
 } as const)

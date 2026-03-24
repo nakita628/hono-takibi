@@ -9,30 +9,18 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /posts
- */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/**
- * Key prefix for /tags
- */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/**
- * GET /posts query key
- */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args] as const
 }
 
-/**
- * GET /posts
- */
 export async function getPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
@@ -40,9 +28,6 @@ export async function getPosts(
   return await parseResponse(client.posts.$get(args, options))
 }
 
-/**
- * GET /posts
- */
 export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
@@ -56,9 +41,6 @@ export function useGetPosts(
   return { swrKey, ...useSWR(swrKey, async () => getPosts(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /posts
- */
 export function useImmutableGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
@@ -75,16 +57,10 @@ export function useImmutableGetPosts(
   }
 }
 
-/**
- * GET /posts infinite query key
- */
 export function getGetPostsInfiniteKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args, 'infinite'] as const
 }
 
-/**
- * GET /posts
- */
 export function useInfiniteGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options: {
@@ -101,9 +77,6 @@ export function useInfiniteGetPosts(
   return useSWRInfinite(keyLoader, async () => getPosts(args, clientOptions), restSwrOptions)
 }
 
-/**
- * POST /posts
- */
 export async function postPosts(
   args: InferRequestType<typeof client.posts.$post>,
   options?: ClientRequestOptions,
@@ -111,9 +84,6 @@ export async function postPosts(
   return await parseResponse(client.posts.$post(args, options))
 }
 
-/**
- * POST /posts
- */
 export function usePostPosts(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPosts>>,
@@ -125,7 +95,7 @@ export function usePostPosts(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['posts', '/posts'] as const)
+  const swrKey = customKey ?? (['posts', '/posts', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -137,16 +107,10 @@ export function usePostPosts(options?: {
   }
 }
 
-/**
- * GET /posts/{id} query key
- */
 export function getGetPostsIdKey(args: InferRequestType<(typeof client.posts)[':id']['$get']>) {
   return ['posts', '/posts/:id', args] as const
 }
 
-/**
- * GET /posts/{id}
- */
 export async function getPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -154,9 +118,6 @@ export async function getPostsId(
   return await parseResponse(client.posts[':id'].$get(args, options))
 }
 
-/**
- * GET /posts/{id}
- */
 export function useGetPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
@@ -170,9 +131,6 @@ export function useGetPostsId(
   return { swrKey, ...useSWR(swrKey, async () => getPostsId(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /posts/{id}
- */
 export function useImmutableGetPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
@@ -189,18 +147,12 @@ export function useImmutableGetPostsId(
   }
 }
 
-/**
- * GET /posts/{id} infinite query key
- */
 export function getGetPostsIdInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
 ) {
   return ['posts', '/posts/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/{id}
- */
 export function useInfiniteGetPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options: {
@@ -217,9 +169,6 @@ export function useInfiniteGetPostsId(
   return useSWRInfinite(keyLoader, async () => getPostsId(args, clientOptions), restSwrOptions)
 }
 
-/**
- * PUT /posts/{id}
- */
 export async function putPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -227,9 +176,6 @@ export async function putPostsId(
   return await parseResponse(client.posts[':id'].$put(args, options))
 }
 
-/**
- * PUT /posts/{id}
- */
 export function usePutPostsId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putPostsId>>,
@@ -241,7 +187,7 @@ export function usePutPostsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['posts', '/posts/:id'] as const)
+  const swrKey = customKey ?? (['posts', '/posts/:id', 'PUT'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -253,9 +199,6 @@ export function usePutPostsId(options?: {
   }
 }
 
-/**
- * DELETE /posts/{id}
- */
 export async function deletePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -263,9 +206,6 @@ export async function deletePostsId(
   return await parseResponse(client.posts[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /posts/{id}
- */
 export function useDeletePostsId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deletePostsId>> | undefined,
@@ -277,7 +217,7 @@ export function useDeletePostsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['posts', '/posts/:id'] as const)
+  const swrKey = customKey ?? (['posts', '/posts/:id', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -289,18 +229,12 @@ export function useDeletePostsId(options?: {
   }
 }
 
-/**
- * GET /posts/{id}/comments query key
- */
 export function getGetPostsIdCommentsKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
   return ['posts', '/posts/:id/comments', args] as const
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export async function getPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
@@ -308,9 +242,6 @@ export async function getPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$get(args, options))
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export function useGetPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
@@ -327,9 +258,6 @@ export function useGetPostsIdComments(
   }
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export function useImmutableGetPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
@@ -346,18 +274,12 @@ export function useImmutableGetPostsIdComments(
   }
 }
 
-/**
- * GET /posts/{id}/comments infinite query key
- */
 export function getGetPostsIdCommentsInfiniteKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
   return ['posts', '/posts/:id/comments', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export function useInfiniteGetPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options: {
@@ -379,9 +301,6 @@ export function useInfiniteGetPostsIdComments(
   )
 }
 
-/**
- * POST /posts/{id}/comments
- */
 export async function postPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>,
   options?: ClientRequestOptions,
@@ -389,9 +308,6 @@ export async function postPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$post(args, options))
 }
 
-/**
- * POST /posts/{id}/comments
- */
 export function usePostPostsIdComments(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPostsIdComments>>,
@@ -403,7 +319,7 @@ export function usePostPostsIdComments(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['posts', '/posts/:id/comments'] as const)
+  const swrKey = customKey ?? (['posts', '/posts/:id/comments', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -417,23 +333,14 @@ export function usePostPostsIdComments(options?: {
   }
 }
 
-/**
- * GET /tags query key
- */
 export function getGetTagsKey() {
   return ['tags', '/tags'] as const
 }
 
-/**
- * GET /tags
- */
 export async function getTags(options?: ClientRequestOptions) {
   return await parseResponse(client.tags.$get(undefined, options))
 }
 
-/**
- * GET /tags
- */
 export function useGetTags(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -444,9 +351,6 @@ export function useGetTags(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tags
- */
 export function useImmutableGetTags(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -457,16 +361,10 @@ export function useImmutableGetTags(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tags infinite query key
- */
 export function getGetTagsInfiniteKey() {
   return ['tags', '/tags', 'infinite'] as const
 }
 
-/**
- * GET /tags
- */
 export function useInfiniteGetTags(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getTags>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader

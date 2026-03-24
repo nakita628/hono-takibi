@@ -19,30 +19,18 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /posts
- */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/**
- * Key prefix for /tags
- */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/**
- * GET /posts query key
- */
 export function getPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args] as const
 }
 
-/**
- * GET /posts
- */
 export async function getPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
@@ -50,9 +38,6 @@ export async function getPosts(
   return await parseResponse(client.posts.$get(args, options))
 }
 
-/**
- * GET /posts query options
- */
 export function getPostsQueryOptions(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
@@ -65,44 +50,44 @@ export function getPostsQueryOptions(
   })
 }
 
-/**
- * GET /posts
- */
-export function usePosts(
+export function usePosts<TData = Awaited<ReturnType<typeof getPosts>>>(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPostsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPosts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts
- */
-export function useSuspensePosts(
+export function useSuspensePosts<TData = Awaited<ReturnType<typeof getPosts>>>(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPosts>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getPostsQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getPostsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPosts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts infinite query key
- */
 export function getPostsInfiniteQueryKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['posts', '/posts', args, 'infinite'] as const
 }
 
-/**
- * GET /posts infinite query options
- */
 export function getPostsInfiniteQueryOptions(
   args: InferRequestType<typeof client.posts.$get>,
   options?: ClientRequestOptions,
@@ -115,9 +100,6 @@ export function getPostsInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /posts
- */
 export function useInfinitePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options: {
@@ -126,12 +108,9 @@ export function useInfinitePosts(
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getPostsInfiniteQueryOptions(args, clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getPostsInfiniteQueryOptions(args, clientOptions) })
 }
 
-/**
- * GET /posts
- */
 export function useSuspenseInfinitePosts(
   args: InferRequestType<typeof client.posts.$get>,
   options: {
@@ -141,14 +120,11 @@ export function useSuspenseInfinitePosts(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getPostsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * POST /posts
- */
 export async function postPosts(
   args: InferRequestType<typeof client.posts.$post>,
   options?: ClientRequestOptions,
@@ -156,21 +132,15 @@ export async function postPosts(
   return await parseResponse(client.posts.$post(args, options))
 }
 
-/**
- * POST /posts
- */
 export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['posts', '/posts'] as const,
+    mutationKey: ['posts', '/posts', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
       return postPosts(args, options)
     },
   })
 }
 
-/**
- * POST /posts
- */
 export function usePostPosts(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPosts>>,
@@ -183,16 +153,10 @@ export function usePostPosts(options?: {
   return useMutation({ ...getPostPostsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * GET /posts/{id} query key
- */
 export function getPostsIdQueryKey(args: InferRequestType<(typeof client.posts)[':id']['$get']>) {
   return ['posts', '/posts/:id', args] as const
 }
 
-/**
- * GET /posts/{id}
- */
 export async function getPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -200,9 +164,6 @@ export async function getPostsId(
   return await parseResponse(client.posts[':id'].$get(args, options))
 }
 
-/**
- * GET /posts/{id} query options
- */
 export function getPostsIdQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -215,46 +176,46 @@ export function getPostsIdQueryOptions(
   })
 }
 
-/**
- * GET /posts/{id}
- */
-export function usePostsId(
+export function usePostsId<TData = Awaited<ReturnType<typeof getPostsId>>>(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPostsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts/{id}
- */
-export function useSuspensePostsId(
+export function useSuspensePostsId<TData = Awaited<ReturnType<typeof getPostsId>>>(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getPostsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getPostsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts/{id} infinite query key
- */
 export function getPostsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
 ) {
   return ['posts', '/posts/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/{id} infinite query options
- */
 export function getPostsIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -267,9 +228,6 @@ export function getPostsIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /posts/{id}
- */
 export function useInfinitePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options: {
@@ -279,14 +237,11 @@ export function useInfinitePostsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /posts/{id}
- */
 export function useSuspenseInfinitePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$get']>,
   options: {
@@ -296,14 +251,11 @@ export function useSuspenseInfinitePostsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * PUT /posts/{id}
- */
 export async function putPostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$put']>,
   options?: ClientRequestOptions,
@@ -311,21 +263,15 @@ export async function putPostsId(
   return await parseResponse(client.posts[':id'].$put(args, options))
 }
 
-/**
- * PUT /posts/{id}
- */
 export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['posts', '/posts/:id'] as const,
+    mutationKey: ['posts', '/posts/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
       return putPostsId(args, options)
     },
   })
 }
 
-/**
- * PUT /posts/{id}
- */
 export function usePutPostsId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putPostsId>>,
@@ -338,9 +284,6 @@ export function usePutPostsId(options?: {
   return useMutation({ ...getPutPostsIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * DELETE /posts/{id}
- */
 export async function deletePostsId(
   args: InferRequestType<(typeof client.posts)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -348,21 +291,15 @@ export async function deletePostsId(
   return await parseResponse(client.posts[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /posts/{id}
- */
 export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['posts', '/posts/:id'] as const,
+    mutationKey: ['posts', '/posts/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
       return deletePostsId(args, options)
     },
   })
 }
 
-/**
- * DELETE /posts/{id}
- */
 export function useDeletePostsId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deletePostsId>> | undefined,
@@ -375,18 +312,12 @@ export function useDeletePostsId(options?: {
   return useMutation({ ...getDeletePostsIdMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * GET /posts/{id}/comments query key
- */
 export function getPostsIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
   return ['posts', '/posts/:id/comments', args] as const
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export async function getPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
@@ -394,9 +325,6 @@ export async function getPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$get(args, options))
 }
 
-/**
- * GET /posts/{id}/comments query options
- */
 export function getPostsIdCommentsQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
@@ -409,49 +337,52 @@ export function getPostsIdCommentsQueryOptions(
   })
 }
 
-/**
- * GET /posts/{id}/comments
- */
-export function usePostsIdComments(
+export function usePostsIdComments<TData = Awaited<ReturnType<typeof getPostsIdComments>>>(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getPostsIdCommentsQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPostsIdCommentsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsIdComments(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
+  })
 }
 
-/**
- * GET /posts/{id}/comments
- */
-export function useSuspensePostsIdComments(
+export function useSuspensePostsIdComments<TData = Awaited<ReturnType<typeof getPostsIdComments>>>(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseQuery({
-    ...getPostsIdCommentsQueryOptions(args, clientOptions),
     ...queryOptions,
+    queryKey: getPostsIdCommentsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsIdComments(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
-/**
- * GET /posts/{id}/comments infinite query key
- */
 export function getPostsIdCommentsInfiniteQueryKey(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
 ) {
   return ['posts', '/posts/:id/comments', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/{id}/comments infinite query options
- */
 export function getPostsIdCommentsInfiniteQueryOptions(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options?: ClientRequestOptions,
@@ -464,9 +395,6 @@ export function getPostsIdCommentsInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export function useInfinitePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options: {
@@ -476,14 +404,11 @@ export function useInfinitePostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /posts/{id}/comments
- */
 export function useSuspenseInfinitePostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$get']>,
   options: {
@@ -493,14 +418,11 @@ export function useSuspenseInfinitePostsIdComments(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIdCommentsInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * POST /posts/{id}/comments
- */
 export async function postPostsIdComments(
   args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>,
   options?: ClientRequestOptions,
@@ -508,21 +430,15 @@ export async function postPostsIdComments(
   return await parseResponse(client.posts[':id'].comments.$post(args, options))
 }
 
-/**
- * POST /posts/{id}/comments
- */
 export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['posts', '/posts/:id/comments'] as const,
+    mutationKey: ['posts', '/posts/:id/comments', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
       return postPostsIdComments(args, options)
     },
   })
 }
 
-/**
- * POST /posts/{id}/comments
- */
 export function usePostPostsIdComments(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPostsIdComments>>,
@@ -538,23 +454,14 @@ export function usePostPostsIdComments(options?: {
   })
 }
 
-/**
- * GET /tags query key
- */
 export function getTagsQueryKey() {
   return ['tags', '/tags'] as const
 }
 
-/**
- * GET /tags
- */
 export async function getTags(options?: ClientRequestOptions) {
   return await parseResponse(client.tags.$get(undefined, options))
 }
 
-/**
- * GET /tags query options
- */
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTagsQueryKey(),
@@ -564,38 +471,38 @@ export function getTagsQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /tags
- */
-export function useTags(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+export function useTags<TData = Awaited<ReturnType<typeof getTags>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getTagsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /tags
- */
-export function useSuspenseTags(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+export function useSuspenseTags<TData = Awaited<ReturnType<typeof getTags>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getTagsQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getTagsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /tags infinite query key
- */
 export function getTagsInfiniteQueryKey() {
   return ['tags', '/tags', 'infinite'] as const
 }
 
-/**
- * GET /tags infinite query options
- */
 export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTagsInfiniteQueryKey(),
@@ -605,27 +512,21 @@ export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /tags
- */
 export function useInfiniteTags(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getTagsInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getTagsInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /tags
- */
 export function useSuspenseInfiniteTags(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getTagsInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getTagsInfiniteQueryOptions(clientOptions),
   })
 }

@@ -14,23 +14,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users query key
- */
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -38,9 +29,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users query options
- */
 export function getUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -53,32 +41,29 @@ export function getUsersQueryOptions(
   })
 }
 
-/**
- * GET /users
- */
-export function createUsers(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsers(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /users infinite query key
- */
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users infinite query options
- */
 export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -91,9 +76,6 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users
- */
 export function createInfiniteUsers(
   args: () => InferRequestType<typeof client.users.$get>,
   options: () => {
@@ -103,13 +85,10 @@ export function createInfiniteUsers(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getUsersInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
-/**
- * POST /users
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -117,21 +96,15 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
 export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
-    mutationKey: ['users', '/users'] as const,
+    mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return postUsers(args, options)
     },
   }
 }
 
-/**
- * POST /users
- */
 export function createPostUsers(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -148,16 +121,10 @@ export function createPostUsers(
   })
 }
 
-/**
- * GET /users/{id} query key
- */
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -165,9 +132,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id} query options
- */
 export function getUsersIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -180,34 +144,31 @@ export function getUsersIdQueryOptions(
   })
 }
 
-/**
- * GET /users/{id}
- */
-export function createUsersId(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getUsersIdQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getUsersIdQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getUsersId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+      },
+    }
   })
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id} infinite query options
- */
 export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -220,9 +181,6 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users/{id}
- */
 export function createInfiniteUsersId(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
@@ -232,6 +190,6 @@ export function createInfiniteUsersId(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getUsersIdInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }

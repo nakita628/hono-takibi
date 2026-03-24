@@ -754,7 +754,6 @@ const cleanupStaleOutputs = async (
   return cleanupResults.filter((result) => result !== null)
 }
 
-// biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
   const pluginState: {
     current: Config | null

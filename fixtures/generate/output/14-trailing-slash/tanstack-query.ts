@@ -19,53 +19,30 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api
- */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/**
- * Key prefix for /items
- */
 export function getItemsKey() {
   return ['items'] as const
 }
 
-/**
- * Key prefix for /posts
- */
 export function getPostsKey() {
   return ['posts'] as const
 }
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /api/reverseChiban/ query key
- */
 export function getApiReverseChibanIndexQueryKey() {
   return ['api', '/api/reverseChiban/'] as const
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
   return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
 }
 
-/**
- * GET /api/reverseChiban/ query options
- */
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanIndexQueryKey(),
@@ -75,45 +52,52 @@ export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOpti
   })
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
-export function useApiReverseChibanIndex(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
+export function useApiReverseChibanIndex<
+  TData = Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getApiReverseChibanIndexQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getApiReverseChibanIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseChibanIndex({
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
+  })
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
-export function useSuspenseApiReverseChibanIndex(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
+export function useSuspenseApiReverseChibanIndex<
+  TData = Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+    Error,
+    TData
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseQuery({
-    ...getApiReverseChibanIndexQueryOptions(clientOptions),
     ...queryOptions,
+    queryKey: getApiReverseChibanIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseChibanIndex({
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
-/**
- * GET /api/reverseChiban/ infinite query key
- */
 export function getApiReverseChibanIndexInfiniteQueryKey() {
   return ['api', '/api/reverseChiban/', 'infinite'] as const
 }
 
-/**
- * GET /api/reverseChiban/ infinite query options
- */
 export function getApiReverseChibanIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanIndexInfiniteQueryKey(),
@@ -123,27 +107,17 @@ export function getApiReverseChibanIndexInfiniteQueryOptions(options?: ClientReq
   }
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export function useInfiniteApiReverseChibanIndex(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /api/reverseChiban/
- *
- * Reverse Chiban (trailing slash)
- */
 export function useSuspenseInfiniteApiReverseChibanIndex(options: {
   query: UseSuspenseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
@@ -153,30 +127,19 @@ export function useSuspenseInfiniteApiReverseChibanIndex(options: {
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getApiReverseChibanIndexInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /api/reverseChiban query key
- */
 export function getApiReverseChibanQueryKey() {
   return ['api', '/api/reverseChiban'] as const
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export async function getApiReverseChiban(options?: ClientRequestOptions) {
   return await parseResponse(client.api.reverseChiban.$get(undefined, options))
 }
 
-/**
- * GET /api/reverseChiban query options
- */
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanQueryKey(),
@@ -186,42 +149,42 @@ export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) 
   })
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
-export function useApiReverseChiban(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
+export function useApiReverseChiban<
+  TData = Awaited<ReturnType<typeof getApiReverseChiban>>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getApiReverseChibanQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getApiReverseChibanQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
-export function useSuspenseApiReverseChiban(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
+export function useSuspenseApiReverseChiban<
+  TData = Awaited<ReturnType<typeof getApiReverseChiban>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getApiReverseChibanQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getApiReverseChibanQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /api/reverseChiban infinite query key
- */
 export function getApiReverseChibanInfiniteQueryKey() {
   return ['api', '/api/reverseChiban', 'infinite'] as const
 }
 
-/**
- * GET /api/reverseChiban infinite query options
- */
 export function getApiReverseChibanInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanInfiniteQueryKey(),
@@ -231,50 +194,32 @@ export function getApiReverseChibanInfiniteQueryOptions(options?: ClientRequestO
   }
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export function useInfiniteApiReverseChiban(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getApiReverseChibanInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getApiReverseChibanInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /api/reverseChiban
- *
- * Reverse Chiban (no trailing slash)
- */
 export function useSuspenseInfiniteApiReverseChiban(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getApiReverseChibanInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getApiReverseChibanInfiniteQueryOptions(clientOptions),
   })
 }
 
-/**
- * GET /posts/ query key
- */
 export function getPostsIndexQueryKey(args: InferRequestType<typeof client.posts.index.$get>) {
   return ['posts', '/posts/', args] as const
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export async function getPostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
@@ -282,9 +227,6 @@ export async function getPostsIndex(
   return await parseResponse(client.posts.index.$get(args, options))
 }
 
-/**
- * GET /posts/ query options
- */
 export function getPostsIndexQueryOptions(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
@@ -297,50 +239,46 @@ export function getPostsIndexQueryOptions(
   })
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
-export function usePostsIndex(
+export function usePostsIndex<TData = Awaited<ReturnType<typeof getPostsIndex>>>(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getPostsIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getPostsIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
-export function useSuspensePostsIndex(
+export function useSuspensePostsIndex<TData = Awaited<ReturnType<typeof getPostsIndex>>>(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getPostsIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getPostsIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPostsIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /posts/ infinite query key
- */
 export function getPostsIndexInfiniteQueryKey(
   args: InferRequestType<typeof client.posts.index.$get>,
 ) {
   return ['posts', '/posts/', args, 'infinite'] as const
 }
 
-/**
- * GET /posts/ infinite query options
- */
 export function getPostsIndexInfiniteQueryOptions(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
@@ -353,11 +291,6 @@ export function getPostsIndexInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export function useInfinitePostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options: {
@@ -367,16 +300,11 @@ export function useInfinitePostsIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getPostsIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIndexInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /posts/
- *
- * List posts (trailing slash only)
- */
 export function useSuspenseInfinitePostsIndex(
   args: InferRequestType<typeof client.posts.index.$get>,
   options: {
@@ -386,16 +314,11 @@ export function useSuspenseInfinitePostsIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getPostsIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getPostsIndexInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * POST /posts/
- *
- * Create post (trailing slash only)
- */
 export async function postPostsIndex(
   args: InferRequestType<typeof client.posts.index.$post>,
   options?: ClientRequestOptions,
@@ -403,23 +326,15 @@ export async function postPostsIndex(
   return await parseResponse(client.posts.index.$post(args, options))
 }
 
-/**
- * POST /posts/
- */
 export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['posts', '/posts/'] as const,
+    mutationKey: ['posts', '/posts/', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
       return postPostsIndex(args, options)
     },
   })
 }
 
-/**
- * POST /posts/
- *
- * Create post (trailing slash only)
- */
 export function usePostPostsIndex(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPostsIndex>>,
@@ -432,20 +347,12 @@ export function usePostPostsIndex(options?: {
   return useMutation({ ...getPostPostsIndexMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * GET /users/{id}/ query key
- */
 export function getUsersIdIndexQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
   return ['users', '/users/:id/', args] as const
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export async function getUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
@@ -453,9 +360,6 @@ export async function getUsersIdIndex(
   return await parseResponse(client.users[':id'].index.$get(args, options))
 }
 
-/**
- * GET /users/{id}/ query options
- */
 export function getUsersIdIndexQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
@@ -468,50 +372,46 @@ export function getUsersIdIndexQueryOptions(
   })
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
-export function useUsersIdIndex(
+export function useUsersIdIndex<TData = Awaited<ReturnType<typeof getUsersIdIndex>>>(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getUsersIdIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersIdIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersIdIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
-export function useSuspenseUsersIdIndex(
+export function useSuspenseUsersIdIndex<TData = Awaited<ReturnType<typeof getUsersIdIndex>>>(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getUsersIdIndexQueryOptions(args, clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersIdIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsersIdIndex(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /users/{id}/ infinite query key
- */
 export function getUsersIdIndexInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
   return ['users', '/users/:id/', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id}/ infinite query options
- */
 export function getUsersIdIndexInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
@@ -524,11 +424,6 @@ export function getUsersIdIndexInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export function useInfiniteUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options: {
@@ -538,16 +433,11 @@ export function useInfiniteUsersIdIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getUsersIdIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdIndexInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /users/{id}/
- *
- * Get user (trailing slash with path param)
- */
 export function useSuspenseInfiniteUsersIdIndex(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options: {
@@ -557,30 +447,19 @@ export function useSuspenseInfiniteUsersIdIndex(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getUsersIdIndexInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getUsersIdIndexInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /items/ query key
- */
 export function getItemsIndexQueryKey() {
   return ['items', '/items/'] as const
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export async function getItemsIndex(options?: ClientRequestOptions) {
   return await parseResponse(client.items.index.$get(undefined, options))
 }
 
-/**
- * GET /items/ query options
- */
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsIndexQueryKey(),
@@ -590,42 +469,38 @@ export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
-export function useItemsIndex(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
+export function useItemsIndex<TData = Awaited<ReturnType<typeof getItemsIndex>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getItemsIndexQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getItemsIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
-export function useSuspenseItemsIndex(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
+export function useSuspenseItemsIndex<TData = Awaited<ReturnType<typeof getItemsIndex>>>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({ ...getItemsIndexQueryOptions(clientOptions), ...queryOptions })
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getItemsIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /items/ infinite query key
- */
 export function getItemsIndexInfiniteQueryKey() {
   return ['items', '/items/', 'infinite'] as const
 }
 
-/**
- * GET /items/ infinite query options
- */
 export function getItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsIndexInfiniteQueryKey(),
@@ -635,31 +510,21 @@ export function getItemsIndexInfiniteQueryOptions(options?: ClientRequestOptions
   }
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export function useInfiniteItemsIndex(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getItemsIndexInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getItemsIndexInfiniteQueryOptions(clientOptions) })
 }
 
-/**
- * GET /items/
- *
- * List items (trailing slash only)
- */
 export function useSuspenseInfiniteItemsIndex(options: {
   query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getItemsIndexInfiniteQueryOptions(clientOptions),
     ...queryOptions,
+    ...getItemsIndexInfiniteQueryOptions(clientOptions),
   })
 }

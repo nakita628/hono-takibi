@@ -306,6 +306,7 @@ const ConfigSchema = z
           }),
           ...(config['zod-openapi'].components && {
             components: {
+              ...config['zod-openapi'].components,
               ...(config['zod-openapi'].components.schemas && {
                 schemas: normalize(config['zod-openapi'].components.schemas),
               }),
@@ -351,7 +352,7 @@ const ConfigSchema = z
   })
   .readonly()
 
-type Config = z.infer<typeof ConfigSchema>
+export type Config = z.infer<typeof ConfigSchema>
 type ConfigInput = z.input<typeof ConfigSchema>
 
 /**
@@ -370,6 +371,16 @@ export function parseConfig(
 }
 
 /**
+ * Dynamic import wrapper that avoids Vite's static analysis.
+ * Vite warns about dynamic imports it cannot analyze at build time.
+ * Using an indirect call prevents the warning since Vite only analyzes
+ * direct `import()` expressions.
+ */
+const dynamicImport = (specifier: string): Promise<{ readonly default: unknown }> =>
+  // eslint-disable-next-line typescript-eslint/no-implied-eval
+  new Function('specifier', 'return import(specifier)')(specifier)
+
+/**
  * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
  */
 export async function readConfig(): Promise<
@@ -381,7 +392,7 @@ export async function readConfig(): Promise<
   try {
     register()
     const url = pathToFileURL(abs).href
-    const mod: { readonly default: unknown } = await import(/* @vite-ignore */ url)
+    const mod = await dynamicImport(url)
     if (!('default' in mod) || mod.default === undefined)
       return { ok: false, error: 'Config must export default object' }
 

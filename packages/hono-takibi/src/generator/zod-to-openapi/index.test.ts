@@ -899,7 +899,6 @@ describe('zodToOpenAPI', () => {
 
       // array
       describe('array', () => {
-        // biome-ignore lint: test
         it.concurrent.each<[any, string]>([
           [{ type: 'array', items: { type: 'string' } }, 'z.array(z.string())'],
           [{ type: 'array', items: { type: 'number' } }, 'z.array(z.number())'],
@@ -946,7 +945,6 @@ describe('zodToOpenAPI', () => {
 
       // any
       describe('any', () => {
-        // biome-ignore lint: test
         it.concurrent.each<[any, string]>([
           [{ type: 'any' }, 'z.any()'],
           [{ type: 'any', nullable: true }, 'z.any().nullable()'],
@@ -1097,7 +1095,6 @@ describe('zodToOpenAPI', () => {
 
       // x-*-message on array (min → x-minimum-message, max → x-maximum-message, length → x-size-message)
       describe('x-*-message on array', () => {
-        // biome-ignore lint: test
         it.concurrent.each<[any, string]>([
           // x-minimum-message on .min()
           [

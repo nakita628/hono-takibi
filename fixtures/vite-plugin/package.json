@@ -1,0 +1,26 @@
+{
+  "name": "@fixtures/vite-plugin",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host",
+    "tsp": "tsp compile ./main.tsp --emit @typespec/openapi3"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.0",
+    "hono": "^4.9.6",
+    "vite": "^7.1.4"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.2",
+    "@hono/vite-dev-server": "^0.24.1",
+    "@types/node": "^24.2.1",
+    "@typespec/compiler": "^1.10.0",
+    "@typespec/http": "^1.10.0",
+    "@typespec/openapi": "^1.10.0",
+    "@typespec/openapi3": "^1.10.0",
+    "@typespec/rest": "^0.80.0",
+    "@typespec/versioning": "^0.80.0",
+    "hono-takibi": "workspace:^"
+  }
+}

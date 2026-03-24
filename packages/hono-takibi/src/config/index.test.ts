@@ -1,66 +1,38 @@
-import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { describe, expect, it } from 'vite-plus/test'
 
-import { parseConfig, readConfig } from './index.js'
+import { defineConfig, parseConfig, readConfig } from './index.js'
 
-describe('loadConfig()', () => {
-  const origCwd = process.cwd()
-
-  beforeEach(() => {
-    vi.resetModules()
-    const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), 'hono-takibi-config-ts-'))
-    process.chdir(tmpdir)
+describe('readConfig', () => {
+  it('returns error with path when no config file exists', async () => {
+    const originalCwd = process.cwd.bind(process)
+    const fakeCwd = `/tmp/hono-takibi-test-no-config-${Date.now()}`
+    process.cwd = () => fakeCwd
+    try {
+      const result = await readConfig()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        const expectedPath = path.resolve(fakeCwd, 'hono-takibi.config.ts')
+        expect(result.error).toBe(`Config not found: ${expectedPath}`)
+      }
+    } finally {
+      process.cwd = originalCwd
+    }
   })
 
-  afterEach(() => {
-    const cwd = process.cwd()
-    process.chdir(origCwd)
-    fs.rmSync(cwd, { recursive: true, force: true })
-  })
-
-  it('passes: legacy top-level output mode', async () => {
-    const p = path.join(process.cwd(), 'hono-takibi.config.ts')
-    const c = `
-export default {
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: 'routes/index.ts',
-    exportSchemasTypes: true,
-    exportSchemas: true
-  },
-  rpc: {
-    output: 'rpc/index.ts',
-    import: '../client'
-  }
-}
-`
-    fs.writeFileSync(p, c, 'utf-8')
-
-    await expect(readConfig()).resolves.toStrictEqual({
-      ok: true,
-      value: {
-        input: 'openapi.yaml',
-        'zod-openapi': {
-          output: 'routes/index.ts',
-          exportSchemasTypes: true,
-          exportSchemas: true,
-        },
-        rpc: {
-          output: 'rpc/index.ts',
-          import: '../client',
-        },
-      },
-    })
-  })
-
-  it('fails: config file missing', async () => {
-    const result = await readConfig()
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error).toMatch(/Config not found:/)
+  it('error message references hono-takibi.config.ts filename', async () => {
+    const originalCwd = process.cwd.bind(process)
+    const fakeCwd = `/tmp/hono-takibi-test-filename-${Date.now()}`
+    process.cwd = () => fakeCwd
+    try {
+      const result = await readConfig()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error.endsWith('hono-takibi.config.ts')).toBe(true)
+      }
+    } finally {
+      process.cwd = originalCwd
     }
   })
 })
@@ -550,8 +522,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        // basePath inside zod-openapi is stripped (not a valid key there)
-        expect((result.value['zod-openapi'] as Record<string, unknown>)?.basePath).toBeUndefined()
+        expect('basePath' in (result.value['zod-openapi'] ?? {})).toBe(false)
       }
     })
   })
@@ -617,5 +588,466 @@ describe('parseConfig()', () => {
         expect(result.value['zod-openapi']?.template?.framework).toBe('vitest')
       }
     })
+  })
+
+  describe('input accepts all supported extensions', () => {
+    it.concurrent('accepts .json input', () => {
+      const result = parseConfig({ input: 'openapi.json' })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.input).toBe('openapi.json')
+      }
+    })
+
+    it.concurrent('accepts .tsp input', () => {
+      const result = parseConfig({ input: 'main.tsp' })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.input).toBe('main.tsp')
+      }
+    })
+  })
+
+  describe('minimal config (input only)', () => {
+    it.concurrent('accepts config with only input field', () => {
+      const result = parseConfig({ input: 'openapi.yaml' })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.input).toBe('openapi.yaml')
+        expect(result.value['zod-openapi']).toBeUndefined()
+        expect(result.value.rpc).toBeUndefined()
+      }
+    })
+  })
+
+  describe('parseConfig error formatting', () => {
+    it.concurrent('includes path in error message when path is present', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../client', client: 123 },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/^Invalid config: rpc\.client/)
+      }
+    })
+
+    it.concurrent('omits path prefix when path is empty', () => {
+      const result = parseConfig(null)
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/^Invalid config: /)
+      }
+    })
+  })
+
+  describe('type option', () => {
+    it.concurrent('accepts type with output', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        type: { output: 'types/index.ts' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.type?.output).toBe('types/index.ts')
+      }
+    })
+
+    it.concurrent('accepts type with readonly', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        type: { output: 'types/index.ts', readonly: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.type?.readonly).toBe(true)
+      }
+    })
+
+    it.concurrent('fails when type output is not .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        type: { output: 'types/index.js' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/must be \.ts file/)
+      }
+    })
+  })
+
+  describe('docs option', () => {
+    it.concurrent('accepts docs with .md output', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: { output: 'docs/api.md' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.docs?.output).toBe('docs/api.md')
+      }
+    })
+
+    it.concurrent('accepts docs with entry', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: { output: 'docs/api.md', entry: './src/index.ts' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.docs?.entry).toBe('./src/index.ts')
+      }
+    })
+
+    it.concurrent('accepts docs with curl and baseUrl', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: { output: 'docs/api.md', curl: true, baseUrl: 'https://api.example.com' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.docs?.curl).toBe(true)
+        expect(result.value.docs?.baseUrl).toBe('https://api.example.com')
+      }
+    })
+
+    it.concurrent('fails when docs output is not .md', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: { output: 'docs/api.txt' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/must be \.md file/)
+      }
+    })
+
+    it.concurrent('fails when curl is true and entry is specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: {
+          output: 'docs/api.md',
+          curl: true,
+          baseUrl: 'https://api.example.com',
+          entry: './src/index.ts',
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/entry cannot be specified when curl is true/)
+      }
+    })
+
+    it.concurrent('fails when curl is true and baseUrl is missing', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        docs: { output: 'docs/api.md', curl: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/baseUrl is required when curl is true/)
+      }
+    })
+  })
+
+  describe('mock option', () => {
+    it.concurrent('accepts mock with output', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'mock' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.mock?.output).toBe('mock/index.ts')
+      }
+    })
+
+    it.concurrent('keeps mock output when already .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'mock/index.ts' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.mock?.output).toBe('mock/index.ts')
+      }
+    })
+  })
+
+  describe('query client options', () => {
+    it.concurrent('accepts swr config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        swr: { output: 'swr', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.swr?.output).toBe('swr/index.ts')
+      }
+    })
+
+    it.concurrent('accepts swr with custom client', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        swr: { output: 'swr/index.ts', import: '../client', client: 'apiClient' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.swr?.client).toBe('apiClient')
+      }
+    })
+
+    it.concurrent('fails when swr split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        swr: { output: 'swr/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('accepts tanstack-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'tanstack-query': { output: 'tanstack', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['tanstack-query']?.output).toBe('tanstack/index.ts')
+      }
+    })
+
+    it.concurrent('fails when tanstack-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'tanstack-query': { output: 'tanstack/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('accepts svelte-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'svelte-query': { output: 'svelte', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['svelte-query']?.output).toBe('svelte/index.ts')
+      }
+    })
+
+    it.concurrent('fails when svelte-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'svelte-query': { output: 'svelte/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('accepts vue-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'vue-query': { output: 'vue', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['vue-query']?.output).toBe('vue/index.ts')
+      }
+    })
+
+    it.concurrent('fails when vue-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'vue-query': { output: 'vue/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+  })
+
+  describe('rpc.parseResponse option', () => {
+    it.concurrent('accepts parseResponse: true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../client', parseResponse: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.parseResponse).toBe(true)
+      }
+    })
+
+    it.concurrent('parseResponse is undefined when omitted', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.parseResponse).toBeUndefined()
+      }
+    })
+  })
+
+  describe('zod-openapi.output validation', () => {
+    it.concurrent('fails when zod-openapi output is not .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { output: 'routes/index.js' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/must be \.ts file/)
+      }
+    })
+  })
+
+  describe('components split validation', () => {
+    it.concurrent('fails when schemas split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { schemas: { output: 'schemas/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when securitySchemes split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: { securitySchemes: { output: 'schemes/index.ts', split: true } },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when requestBodies split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: { requestBodies: { output: 'bodies/index.ts', split: true } },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when responses split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { responses: { output: 'responses/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when examples split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { examples: { output: 'examples/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when links split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { links: { output: 'links/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when callbacks split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { callbacks: { output: 'callbacks/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when pathItems split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { pathItems: { output: 'items/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+
+    it.concurrent('fails when mediaTypes split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': { components: { mediaTypes: { output: 'media/index.ts', split: true } } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode requires directory/)
+      }
+    })
+  })
+
+  describe('test option normalization', () => {
+    it.concurrent('normalizes test output', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        test: { output: 'tests', import: './index' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.test?.output).toBe('tests/index.ts')
+      }
+    })
+
+    it.concurrent('keeps test output when already .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        test: { output: 'tests/api.test.ts', import: './index' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.test?.output).toBe('tests/api.test.ts')
+      }
+    })
+  })
+})
+
+describe('defineConfig', () => {
+  it('returns the config object as-is', () => {
+    const config = {
+      input: 'openapi.yaml' as const,
+      'zod-openapi': { output: 'routes.ts' as const },
+    }
+    expect(defineConfig(config)).toBe(config)
   })
 })

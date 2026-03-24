@@ -10,7 +10,10 @@ export const getApiReverseChibanIndexRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ result: z.string() }).openapi({ required: ['result'] }),
+          schema: z
+            .object({ result: z.string() })
+            .readonly()
+            .openapi({ required: ['result'] }),
         },
       },
     },
@@ -27,7 +30,10 @@ export const getApiReverseChibanRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ result: z.string() }).openapi({ required: ['result'] }),
+          schema: z
+            .object({ result: z.string() })
+            .readonly()
+            .openapi({ required: ['result'] }),
         },
       },
     },
@@ -56,7 +62,8 @@ export const getPostsIndexRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ items: z.array(z.string()), total: z.int() })
+            .object({ items: z.array(z.string()).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['items', 'total'] }),
         },
       },
@@ -73,7 +80,10 @@ export const postPostsIndexRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z.object({ title: z.string() }).openapi({ required: ['title'] }),
+          schema: z
+            .object({ title: z.string() })
+            .readonly()
+            .openapi({ required: ['title'] }),
         },
       },
       required: true,
@@ -86,6 +96,7 @@ export const postPostsIndexRoute = createRoute({
         'application/json': {
           schema: z
             .object({ id: z.int(), title: z.string() })
+            .readonly()
             .openapi({ required: ['id', 'title'] }),
         },
       },
@@ -112,6 +123,7 @@ export const getUsersIdIndexRoute = createRoute({
         'application/json': {
           schema: z
             .object({ id: z.string(), name: z.string() })
+            .readonly()
             .openapi({ required: ['id', 'name'] }),
         },
       },
@@ -129,7 +141,10 @@ export const getItemsIndexRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ items: z.array(z.string()) }).openapi({ required: ['items'] }),
+          schema: z
+            .object({ items: z.array(z.string()).readonly() })
+            .readonly()
+            .openapi({ required: ['items'] }),
         },
       },
     },
