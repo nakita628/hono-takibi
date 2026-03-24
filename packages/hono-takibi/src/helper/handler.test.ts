@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vite-plus/test'
+import fs from 'node:fs'
 
-import { makeHandlerFileName } from './handler.js'
+import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
+
+import type { OpenAPI } from '../openapi/index.js'
+import { makeHandlerFileName, mockZodOpenAPIHonoHandler, zodOpenAPIHonoHandler } from './handler.js'
+
+/* ─────────────────────────────── makeHandlerFileName ─────────────────────────────── */
 
 describe('makeHandlerFileName', () => {
   it('should convert simple path to filename', () => {
@@ -41,17 +46,23 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: first segment is a brace parameter
-  it.concurrent('should strip braces when first segment is a brace parameter like /{orgId}/users', () => {
-    expect(makeHandlerFileName('/{orgId}/users')).toBe('orgId.ts')
-  })
+  it.concurrent(
+    'should strip braces when first segment is a brace parameter like /{orgId}/users',
+    () => {
+      expect(makeHandlerFileName('/{orgId}/users')).toBe('orgId.ts')
+    },
+  )
 
   it.concurrent('should strip braces for a lone parameter path /{id}', () => {
     expect(makeHandlerFileName('/{id}')).toBe('id.ts')
   })
 
-  it.concurrent('should strip braces and camelCase hyphenated parameter /{org-name}/repos', () => {
-    expect(makeHandlerFileName('/{org-name}/repos')).toBe('orgName.ts')
-  })
+  it.concurrent(
+    'should strip braces and camelCase hyphenated parameter /{org-name}/repos',
+    () => {
+      expect(makeHandlerFileName('/{org-name}/repos')).toBe('orgName.ts')
+    },
+  )
 
   // Edge case: multiple hyphens/dots in sequence
   it.concurrent('should handle consecutive hyphens between words', () => {
@@ -104,9 +115,12 @@ describe('makeHandlerFileName', () => {
     expect(makeHandlerFileName('/{userId}')).toBe('userId.ts')
   })
 
-  it.concurrent('should handle brace parameter with underscores /{user_id} and camelCase it', () => {
-    expect(makeHandlerFileName('/{user_id}')).toBe('userId.ts')
-  })
+  it.concurrent(
+    'should handle brace parameter with underscores /{user_id} and camelCase it',
+    () => {
+      expect(makeHandlerFileName('/{user_id}')).toBe('userId.ts')
+    },
+  )
 
   // Additional edge cases
   it.concurrent('should strip trailing dots from first segment', () => {
@@ -117,9 +131,12 @@ describe('makeHandlerFileName', () => {
     expect(makeHandlerFileName('/trailing---/rest')).toBe('trailing.ts')
   })
 
-  it.concurrent('should return __root.ts when first segment is only dots and hyphens', () => {
-    expect(makeHandlerFileName('/.-.-./rest')).toBe('__root.ts')
-  })
+  it.concurrent(
+    'should return __root.ts when first segment is only dots and hyphens',
+    () => {
+      expect(makeHandlerFileName('/.-.-./rest')).toBe('__root.ts')
+    },
+  )
 
   it.concurrent('should handle single character path /a', () => {
     expect(makeHandlerFileName('/a')).toBe('a.ts')
@@ -175,9 +192,12 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: first segment has only special chars that all get stripped
-  it.concurrent('should return __root.ts when first segment is all special chars /!@#$/foo', () => {
-    expect(makeHandlerFileName('/!@#$/foo')).toBe('__root.ts')
-  })
+  it.concurrent(
+    'should return __root.ts when first segment is all special chars /!@#$/foo',
+    () => {
+      expect(makeHandlerFileName('/!@#$/foo')).toBe('__root.ts')
+    },
+  )
 
   // Edge case: underscore between words should camelCase
   it.concurrent('should camelCase underscore-separated words /get_all_users', () => {
@@ -205,7 +225,9 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: very long first segment still works
   it.concurrent('should handle long first segment', () => {
-    expect(makeHandlerFileName('/abcdefghijklmnopqrstuvwxyz')).toBe('abcdefghijklmnopqrstuvwxyz.ts')
+    expect(makeHandlerFileName('/abcdefghijklmnopqrstuvwxyz')).toBe(
+      'abcdefghijklmnopqrstuvwxyz.ts',
+    )
   })
 
   // Edge case: first segment starting with number then hyphen
@@ -216,5 +238,493 @@ describe('makeHandlerFileName', () => {
   // Edge case: multiple consecutive underscores collapsed
   it.concurrent('should collapse multiple special chars into single camelCase /a@@b', () => {
     expect(makeHandlerFileName('/a@@b')).toBe('aB.ts')
+  })
+})
+
+/* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
+
+describe('zodOpenAPIHonoHandler', () => {
+  const testDir = 'tmp-handler-test'
+
+  beforeEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+    fs.mkdirSync(testDir, { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+  })
+
+  const simpleOpenAPI: OpenAPI = {
+    openapi: '3.1.0',
+    info: { title: 'Test', version: '1.0.0' },
+    paths: {
+      '/users': {
+        get: {
+          operationId: 'getUsers',
+          responses: { 200: { description: 'OK' } },
+        },
+        post: {
+          operationId: 'createUser',
+          responses: { 201: { description: 'Created' } },
+        },
+      },
+    },
+  } as OpenAPI
+
+  it('generates inline stub handler files', async () => {
+    const result = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`)
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/index.ts`)).toBe(true)
+
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent).toStrictEqual(expect.any(String))
+    // Inline stub: should contain OpenAPIHono and .openapi() chain
+    expect(handlerContent.includes('OpenAPIHono')).toBe(true)
+    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+    expect(handlerContent.includes('postUsersRoute')).toBe(true)
+
+    const barrelContent = fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')
+    expect(barrelContent.includes('users')).toBe(true)
+  })
+
+  it('generates routeHandler stub files with RouteHandler type', async () => {
+    const result = await zodOpenAPIHonoHandler(
+      simpleOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    // routeHandler=true: should import RouteHandler type
+    expect(handlerContent.includes('RouteHandler')).toBe(true)
+    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+  })
+
+  it('generates handler files with path alias', async () => {
+    const result = await zodOpenAPIHonoHandler(
+      simpleOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      '@/routes',
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('@/routes')).toBe(true)
+  })
+
+  it('generates handler files with routeImport override', async () => {
+    const result = await zodOpenAPIHonoHandler(
+      simpleOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      '@/custom-routes',
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('@/custom-routes')).toBe(true)
+  })
+
+  it('merges handlers for routes with the same first path segment', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/users/{id}': {
+          get: {
+            operationId: 'getUserById',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    const result = await zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`)
+
+    expect(result.ok).toBe(true)
+    // Both routes go to users.ts (same first path segment)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+    expect(handlerContent.includes('getUsersIdRoute')).toBe(true)
+  })
+
+  it('generates test files when test option is true', async () => {
+    const result = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, true)
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/users.test.ts`)).toBe(true)
+  })
+
+  it('handles output path with dot prefix', async () => {
+    const result = await zodOpenAPIHonoHandler(simpleOpenAPI, './')
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync('handlers/users.ts')).toBe(true)
+    expect(fs.existsSync('handlers/index.ts')).toBe(true)
+
+    // Cleanup
+    fs.rmSync('handlers', { recursive: true, force: true })
+  })
+
+  it('handles output path with index.ts suffix', async () => {
+    const result = await zodOpenAPIHonoHandler(
+      simpleOpenAPI,
+      `${testDir}/src/routes/index.ts`,
+    )
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
+  })
+
+  it('removes stale handler files on re-generation', async () => {
+    // First generation with /users and /posts
+    const firstOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+        '/posts': {
+          get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    await zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`)
+    expect(fs.existsSync(`${testDir}/handlers/posts.ts`)).toBe(true)
+
+    // Second generation without /posts
+    const secondOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    await zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`)
+    // posts.ts should be removed as stale
+    expect(fs.existsSync(`${testDir}/handlers/posts.ts`)).toBe(false)
+    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+  })
+
+  it('generates handler for root path', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/': {
+          get: { operationId: 'getRoot', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    const result = await zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`)
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/__root.ts`)).toBe(true)
+  })
+})
+
+/* ─────────────────────────────── mockZodOpenAPIHonoHandler ─────────────────────────── */
+
+describe('mockZodOpenAPIHonoHandler', () => {
+  const testDir = 'tmp-mock-handler-test'
+
+  beforeEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+    fs.mkdirSync(testDir, { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+  })
+
+  const openAPIWithResponses: OpenAPI = {
+    openapi: '3.1.0',
+    info: { title: 'Test', version: '1.0.0' },
+    paths: {
+      '/users': {
+        get: {
+          operationId: 'getUsers',
+          responses: {
+            200: {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'array',
+                    items: { $ref: '#/components/schemas/User' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+          required: ['id', 'name'],
+        },
+      },
+    },
+  } as OpenAPI
+
+  it('generates inline mock handler files with faker', async () => {
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPIWithResponses,
+      `${testDir}/routes.ts`,
+      false,
+    )
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('faker')).toBe(true)
+    expect(handlerContent.includes('getUsersRoute')).toBe(true)
+  })
+
+  it('generates routeHandler mock files with RouteHandler type', async () => {
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPIWithResponses,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('RouteHandler')).toBe(true)
+    expect(handlerContent.includes('faker')).toBe(true)
+  })
+
+  it('generates mock handler with 204 No Content for operations without response schema', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users/{id}': {
+          delete: {
+            operationId: 'deleteUser',
+            responses: { 204: { description: 'No Content' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('204')).toBe(true)
+  })
+
+  it('generates mock handler with test files', async () => {
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPIWithResponses,
+      `${testDir}/routes.ts`,
+      true,
+    )
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/users.test.ts`)).toBe(true)
+  })
+
+  it('generates mock handler with path alias', async () => {
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPIWithResponses,
+      `${testDir}/routes.ts`,
+      false,
+      '@/routes/',
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+    expect(handlerContent.includes('@/routes')).toBe(true)
+  })
+
+  it('generates barrel file with correct exports', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+        '/posts': {
+          get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
+
+    expect(result.ok).toBe(true)
+    const barrelContent = fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')
+    expect(barrelContent.includes('users')).toBe(true)
+    expect(barrelContent.includes('posts')).toBe(true)
+  })
+
+  it('handles operations without responses gracefully', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(`${testDir}/handlers/health.ts`)).toBe(true)
+  })
+
+  it('handles schemas with $ref for mock generation', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          get: {
+            operationId: 'getOrders',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        items: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
+                        user: { $ref: '#/components/schemas/User' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Order: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              total: { type: 'number' },
+            },
+          },
+          User: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result.ok).toBe(true)
+    const handlerContent = fs.readFileSync(`${testDir}/handlers/orders.ts`, 'utf-8')
+    // Should contain mock functions for referenced schemas
+    expect(handlerContent.includes('mockOrder')).toBe(true)
+    expect(handlerContent.includes('mockUser')).toBe(true)
+  })
+
+  it('removes stale files on re-generation', async () => {
+    const firstOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+        '/legacy': {
+          get: { operationId: 'getLegacy', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    await mockZodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, false)
+    expect(fs.existsSync(`${testDir}/handlers/legacy.ts`)).toBe(true)
+
+    const secondOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    await mockZodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, false)
+    expect(fs.existsSync(`${testDir}/handlers/legacy.ts`)).toBe(false)
+    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+  })
+
+  it('preserves existing handler content on re-generation (merge)', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    // First generation
+    await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
+    const firstContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+
+    // Second generation (should merge, not overwrite custom code)
+    await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
+    const secondContent = fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')
+
+    // Content should be stable (no drift on re-generation)
+    expect(secondContent).toBe(firstContent)
   })
 })

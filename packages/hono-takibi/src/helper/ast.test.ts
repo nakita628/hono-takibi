@@ -137,6 +137,42 @@ export const TestSchema = z.string()`
     // const should come before type
     expect(result.indexOf('const TestSchema')).toBeLessThan(result.indexOf('type TestSchema'))
   })
+
+  it.concurrent('should handle interface declarations', () => {
+    const input = `interface User {
+  id: string
+  name: string
+}
+
+interface Profile {
+  user: User
+  bio: string
+}`
+    const result = ast(input)
+    // Both interfaces should be present
+    expect(result.includes('interface User')).toBe(true)
+    expect(result.includes('interface Profile')).toBe(true)
+  })
+
+  it.concurrent('should handle mixed const, type, and interface declarations', () => {
+    const input = `const UserSchema = z.object({ id: z.string() })
+type User = z.infer<typeof UserSchema>
+interface UserConfig {
+  timeout: number
+}`
+    const result = ast(input)
+    expect(result.includes('const UserSchema')).toBe(true)
+    expect(result.includes('type User')).toBe(true)
+    expect(result.includes('interface UserConfig')).toBe(true)
+  })
+
+  it.concurrent('should skip unrecognized statements gracefully', () => {
+    const input = `function helper() { return 1 }
+const SchemaA = z.string()`
+    const result = ast(input)
+    // Function declarations are not tracked, but code should not crash
+    expect(result.includes('SchemaA')).toBe(true)
+  })
 })
 
 describe('analyzeCircularSchemas', () => {

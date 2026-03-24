@@ -61,7 +61,7 @@ export function makeTypeString(
       ? `'${schema.const}'`
       : typeof schema.const === 'object'
         ? JSON.stringify(schema.const)
-        : String(schema.const as string | number | boolean)
+        : String(schema.const)
   }
 
   const types = normalizeType(schema)

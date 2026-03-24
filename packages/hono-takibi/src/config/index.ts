@@ -345,9 +345,8 @@ export function parseConfig(
  * direct `import()` expressions.
  */
 // eslint-disable-next-line typescript-eslint/no-implied-eval
-const dynamicImport = new Function('specifier', 'return import(specifier)') as (
-  specifier: string,
-) => Promise<{ readonly default: unknown }>
+const dynamicImport = (specifier: string): Promise<{ readonly default: unknown }> =>
+  new Function('specifier', 'return import(specifier)')(specifier)
 
 /**
  * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.

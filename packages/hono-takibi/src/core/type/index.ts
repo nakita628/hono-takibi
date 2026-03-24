@@ -385,7 +385,7 @@ function makeSchemaTypeString(
       ? `'${String(schema.const).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
       : typeof schema.const === 'object'
         ? JSON.stringify(schema.const)
-        : String(schema.const as string | number | boolean)
+        : String(schema.const)
   }
   const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')
