@@ -1,9 +1,4 @@
-import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
-
 import { type FormatOptions } from 'oxfmt'
-import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
 const ConfigSchema = z
@@ -351,7 +346,7 @@ const ConfigSchema = z
   })
   .readonly()
 
-type Config = z.infer<typeof ConfigSchema>
+export type Config = z.infer<typeof ConfigSchema>
 type ConfigInput = z.input<typeof ConfigSchema>
 
 /**
@@ -367,28 +362,6 @@ export function parseConfig(
     return { ok: false, error: `Invalid config: ${path}${issue.message}` }
   }
   return { ok: true, value: result.data }
-}
-
-/**
- * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
- */
-export async function readConfig(): Promise<
-  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
-> {
-  const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
-  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
-
-  try {
-    register()
-    const url = pathToFileURL(abs).href
-    const mod: { readonly default: unknown } = await import(/* @vite-ignore */ url)
-    if (!('default' in mod) || mod.default === undefined)
-      return { ok: false, error: 'Config must export default object' }
-
-    return parseConfig(mod.default)
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
 }
 
 /**

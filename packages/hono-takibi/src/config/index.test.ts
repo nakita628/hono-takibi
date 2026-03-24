@@ -4,7 +4,8 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import { parseConfig, readConfig } from './index.js'
+import { parseConfig } from './index.js'
+import { readConfig } from './read.js'
 
 describe('loadConfig()', () => {
   const origCwd = process.cwd()
