@@ -52,6 +52,31 @@ describe('securitySchemes', () => {
     })
   })
 
+  describe('non-split mode with readonly', () => {
+    it('writes single file with as const', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
+      const output = path.join(tmpDir, 'securitySchemes.ts')
+      const result = await securitySchemes(
+        {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+        output,
+        false,
+        true,
+      )
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated securitySchemes code written to ${output}`,
+      })
+      const content = fs.readFileSync(output, 'utf-8')
+      expect(content.includes('as const')).toBe(true)
+    })
+  })
+
   describe('split mode', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
@@ -76,6 +101,24 @@ describe('securitySchemes', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'bearerAuth.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'apiKey.ts'))).toBe(true)
+    })
+
+    it('writes split files with readonly', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-securitySchemes-'))
+      const output = path.join(tmpDir, 'securitySchemes')
+      const result = await securitySchemes(
+        {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+          },
+        },
+        output,
+        true,
+        true,
+      )
+      expect(result.ok).toBe(true)
+      expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
   })
 })

@@ -725,7 +725,12 @@ describe('parseConfig()', () => {
     it.concurrent('fails when curl is true and entry is specified', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
-        docs: { output: 'docs/api.md', curl: true, baseUrl: 'https://api.example.com', entry: './src/index.ts' },
+        docs: {
+          output: 'docs/api.md',
+          curl: true,
+          baseUrl: 'https://api.example.com',
+          entry: './src/index.ts',
+        },
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
@@ -922,7 +927,9 @@ describe('parseConfig()', () => {
     it.concurrent('fails when securitySchemes split is true but output ends with .ts', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
-        'zod-openapi': { components: { securitySchemes: { output: 'schemes/index.ts', split: true } } },
+        'zod-openapi': {
+          components: { securitySchemes: { output: 'schemes/index.ts', split: true } },
+        },
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
@@ -933,7 +940,9 @@ describe('parseConfig()', () => {
     it.concurrent('fails when requestBodies split is true but output ends with .ts', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
-        'zod-openapi': { components: { requestBodies: { output: 'bodies/index.ts', split: true } } },
+        'zod-openapi': {
+          components: { requestBodies: { output: 'bodies/index.ts', split: true } },
+        },
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {

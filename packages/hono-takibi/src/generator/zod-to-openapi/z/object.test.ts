@@ -616,4 +616,30 @@ describe('object', () => {
       expect(object(input)).toBe(expected)
     })
   })
+
+  describe('combinator delegation', () => {
+    it.concurrent('delegates oneOf to zodToOpenAPI', () => {
+      const result = object({
+        oneOf: [{ type: 'string' }, { type: 'number' }],
+      })
+      expect(result.includes('z.')).toBe(true)
+    })
+
+    it.concurrent('delegates anyOf to zodToOpenAPI', () => {
+      const result = object({
+        anyOf: [{ type: 'string' }, { type: 'integer' }],
+      })
+      expect(result.includes('z.')).toBe(true)
+    })
+
+    it.concurrent('delegates allOf to zodToOpenAPI', () => {
+      const result = object({
+        allOf: [
+          { type: 'object', properties: { a: { type: 'string' } } },
+          { type: 'object', properties: { b: { type: 'number' } } },
+        ],
+      })
+      expect(result.includes('z.')).toBe(true)
+    })
+  })
 })

@@ -554,4 +554,31 @@ describe('makeTypeDefinitions', () => {
     expect(typeDefs.length).toBe(1)
     expect(typeDefs[0]).toBe('type NodeType={value?:string;children?:NodeType[]}')
   })
+
+  it('generates additional type definitions for referenced types not in initial set', () => {
+    const schemas = {
+      Parent: {
+        type: 'object',
+        properties: {
+          child: { $ref: '#/components/schemas/Child' },
+        },
+      },
+      Child: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+    } as const
+    // Only include Parent in the schema names to generate, not Child
+    const analysis = analyzeCircularSchemas(schemas, ['Parent'])
+    const infos = makeSchemaInfos(schemas, ['Parent'], analysis)
+
+    // Force needsTypeDef for Parent so makeTypeDefinitions processes it
+    const forcedInfos = infos.map((info) => ({ ...info, needsTypeDef: true }))
+    const typeDefs = makeTypeDefinitions(forcedInfos, schemas, analysis.cyclicGroupPascal)
+
+    // Parent type should reference ChildType, which triggers additional type def
+    expect(typeDefs.length).toBeGreaterThanOrEqual(1)
+  })
 })

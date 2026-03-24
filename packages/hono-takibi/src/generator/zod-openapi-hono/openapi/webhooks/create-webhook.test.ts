@@ -167,4 +167,35 @@ describe('createWebhook', () => {
       `export const simplePostWebhook={method:'post',path:'/simple',responses:{200:{description:"OK"}}}`,
     )
   })
+
+  it.concurrent('creates webhook with callbacks', () => {
+    const result = createWebhook('order', 'post', {
+      operationId: 'handleOrder',
+      callbacks: {
+        statusUpdate: {
+          '{$request.body#/callbackUrl}': {
+            post: {
+              operationId: 'onStatusUpdate',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as any,
+      responses: { '200': { description: 'OK' } },
+    })
+    // makeCallbacks returns inline entries (not wrapped with callbacks:{})
+    expect(result.includes('"statusUpdate"')).toBe(true)
+    expect(result.includes('onStatusUpdate')).toBe(true)
+  })
+
+  it.concurrent('creates webhook with servers', () => {
+    const result = createWebhook('event', 'post', {
+      operationId: 'handleEvent',
+      servers: [{ url: 'https://webhook.example.com' }],
+      responses: { '200': { description: 'OK' } },
+    })
+    expect(result).toBe(
+      `export const eventPostWebhook={method:'post',path:'/event',operationId:'handleEvent',responses:{200:{description:"OK"}},servers:[{"url":"https://webhook.example.com"}]}`,
+    )
+  })
 })

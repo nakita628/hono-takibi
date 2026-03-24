@@ -10,6 +10,7 @@ describe('_enum', () => {
     [{ enum: [true, false] }, 'z.union([z.literal(true),z.literal(false)])'],
     [{ enum: [null] }, 'z.literal(null)'],
     [{ enum: ['abc'] }, `z.literal('abc')`],
+    [{ enum: [{ key: 'value' }] }, `z.custom<{"key":"value"}>()`],
     [{ type: 'array', enum: [[1, 2]] }, 'z.tuple([z.literal(1),z.literal(2)])'],
     [
       {

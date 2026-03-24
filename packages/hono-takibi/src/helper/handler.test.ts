@@ -46,23 +46,17 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: first segment is a brace parameter
-  it.concurrent(
-    'should strip braces when first segment is a brace parameter like /{orgId}/users',
-    () => {
-      expect(makeHandlerFileName('/{orgId}/users')).toBe('orgId.ts')
-    },
-  )
+  it.concurrent('should strip braces when first segment is a brace parameter like /{orgId}/users', () => {
+    expect(makeHandlerFileName('/{orgId}/users')).toBe('orgId.ts')
+  })
 
   it.concurrent('should strip braces for a lone parameter path /{id}', () => {
     expect(makeHandlerFileName('/{id}')).toBe('id.ts')
   })
 
-  it.concurrent(
-    'should strip braces and camelCase hyphenated parameter /{org-name}/repos',
-    () => {
-      expect(makeHandlerFileName('/{org-name}/repos')).toBe('orgName.ts')
-    },
-  )
+  it.concurrent('should strip braces and camelCase hyphenated parameter /{org-name}/repos', () => {
+    expect(makeHandlerFileName('/{org-name}/repos')).toBe('orgName.ts')
+  })
 
   // Edge case: multiple hyphens/dots in sequence
   it.concurrent('should handle consecutive hyphens between words', () => {
@@ -115,12 +109,9 @@ describe('makeHandlerFileName', () => {
     expect(makeHandlerFileName('/{userId}')).toBe('userId.ts')
   })
 
-  it.concurrent(
-    'should handle brace parameter with underscores /{user_id} and camelCase it',
-    () => {
-      expect(makeHandlerFileName('/{user_id}')).toBe('userId.ts')
-    },
-  )
+  it.concurrent('should handle brace parameter with underscores /{user_id} and camelCase it', () => {
+    expect(makeHandlerFileName('/{user_id}')).toBe('userId.ts')
+  })
 
   // Additional edge cases
   it.concurrent('should strip trailing dots from first segment', () => {
@@ -131,12 +122,9 @@ describe('makeHandlerFileName', () => {
     expect(makeHandlerFileName('/trailing---/rest')).toBe('trailing.ts')
   })
 
-  it.concurrent(
-    'should return __root.ts when first segment is only dots and hyphens',
-    () => {
-      expect(makeHandlerFileName('/.-.-./rest')).toBe('__root.ts')
-    },
-  )
+  it.concurrent('should return __root.ts when first segment is only dots and hyphens', () => {
+    expect(makeHandlerFileName('/.-.-./rest')).toBe('__root.ts')
+  })
 
   it.concurrent('should handle single character path /a', () => {
     expect(makeHandlerFileName('/a')).toBe('a.ts')
@@ -192,12 +180,9 @@ describe('makeHandlerFileName', () => {
   })
 
   // Edge case: first segment has only special chars that all get stripped
-  it.concurrent(
-    'should return __root.ts when first segment is all special chars /!@#$/foo',
-    () => {
-      expect(makeHandlerFileName('/!@#$/foo')).toBe('__root.ts')
-    },
-  )
+  it.concurrent('should return __root.ts when first segment is all special chars /!@#$/foo', () => {
+    expect(makeHandlerFileName('/!@#$/foo')).toBe('__root.ts')
+  })
 
   // Edge case: underscore between words should camelCase
   it.concurrent('should camelCase underscore-separated words /get_all_users', () => {
@@ -225,9 +210,7 @@ describe('makeHandlerFileName', () => {
 
   // Edge case: very long first segment still works
   it.concurrent('should handle long first segment', () => {
-    expect(makeHandlerFileName('/abcdefghijklmnopqrstuvwxyz')).toBe(
-      'abcdefghijklmnopqrstuvwxyz.ts',
-    )
+    expect(makeHandlerFileName('/abcdefghijklmnopqrstuvwxyz')).toBe('abcdefghijklmnopqrstuvwxyz.ts')
   })
 
   // Edge case: first segment starting with number then hyphen
@@ -382,10 +365,7 @@ describe('zodOpenAPIHonoHandler', () => {
   })
 
   it('handles output path with index.ts suffix', async () => {
-    const result = await zodOpenAPIHonoHandler(
-      simpleOpenAPI,
-      `${testDir}/src/routes/index.ts`,
-    )
+    const result = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/src/routes/index.ts`)
 
     expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
