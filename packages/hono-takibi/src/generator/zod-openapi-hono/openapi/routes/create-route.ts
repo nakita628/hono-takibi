@@ -43,11 +43,15 @@ export function createRoute(
     operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
     operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
-    makeRequest(operation.parameters, operation.requestBody)
-      ? `request:${makeRequest(operation.parameters, operation.requestBody)}`
+    makeRequest(operation.parameters, operation.requestBody, readonly)
+      ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
       : undefined,
-    operation.responses ? `responses:${makeOperationResponses(operation.responses)}` : undefined,
-    operation.callbacks ? `callbacks:{${makeCallbacks(operation.callbacks)}}` : undefined,
+    operation.responses
+      ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+      : undefined,
+    operation.callbacks
+      ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
+      : undefined,
     operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
     operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
     operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,

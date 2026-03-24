@@ -9,51 +9,30 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /config
- */
 export function getConfigKey() {
   return ['config'] as const
 }
 
-/**
- * Key prefix for /payment
- */
 export function getPaymentKey() {
   return ['payment'] as const
 }
 
-/**
- * Key prefix for /settings
- */
 export function getSettingsKey() {
   return ['settings'] as const
 }
 
-/**
- * Key prefix for /tags
- */
 export function getTagsKey() {
   return ['tags'] as const
 }
 
-/**
- * GET /tags query key
- */
 export function getGetTagsKey() {
   return ['tags', '/tags'] as const
 }
 
-/**
- * GET /tags
- */
 export async function getTags(options?: ClientRequestOptions) {
   return await parseResponse(client.tags.$get(undefined, options))
 }
 
-/**
- * GET /tags
- */
 export function useGetTags(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -64,9 +43,6 @@ export function useGetTags(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tags
- */
 export function useImmutableGetTags(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -77,16 +53,10 @@ export function useImmutableGetTags(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tags infinite query key
- */
 export function getGetTagsInfiniteKey() {
   return ['tags', '/tags', 'infinite'] as const
 }
 
-/**
- * GET /tags
- */
 export function useInfiniteGetTags(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getTags>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -100,9 +70,6 @@ export function useInfiniteGetTags(options: {
   return useSWRInfinite(keyLoader, async () => getTags(clientOptions), restSwrOptions)
 }
 
-/**
- * POST /tags
- */
 export async function postTags(
   args: InferRequestType<typeof client.tags.$post>,
   options?: ClientRequestOptions,
@@ -110,9 +77,6 @@ export async function postTags(
   return await parseResponse(client.tags.$post(args, options))
 }
 
-/**
- * POST /tags
- */
 export function usePostTags(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postTags>>,
@@ -124,7 +88,7 @@ export function usePostTags(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['tags', '/tags'] as const)
+  const swrKey = customKey ?? (['tags', '/tags', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -136,16 +100,10 @@ export function usePostTags(options?: {
   }
 }
 
-/**
- * GET /settings query key
- */
 export function getGetSettingsKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args] as const
 }
 
-/**
- * GET /settings
- */
 export async function getSettings(
   args: InferRequestType<typeof client.settings.$get>,
   options?: ClientRequestOptions,
@@ -153,9 +111,6 @@ export async function getSettings(
   return await parseResponse(client.settings.$get(args, options))
 }
 
-/**
- * GET /settings
- */
 export function useGetSettings(
   args: InferRequestType<typeof client.settings.$get>,
   options?: {
@@ -169,9 +124,6 @@ export function useGetSettings(
   return { swrKey, ...useSWR(swrKey, async () => getSettings(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /settings
- */
 export function useImmutableGetSettings(
   args: InferRequestType<typeof client.settings.$get>,
   options?: {
@@ -188,16 +140,10 @@ export function useImmutableGetSettings(
   }
 }
 
-/**
- * GET /settings infinite query key
- */
 export function getGetSettingsInfiniteKey(args: InferRequestType<typeof client.settings.$get>) {
   return ['settings', '/settings', args, 'infinite'] as const
 }
 
-/**
- * GET /settings
- */
 export function useInfiniteGetSettings(
   args: InferRequestType<typeof client.settings.$get>,
   options: {
@@ -214,9 +160,6 @@ export function useInfiniteGetSettings(
   return useSWRInfinite(keyLoader, async () => getSettings(args, clientOptions), restSwrOptions)
 }
 
-/**
- * PUT /settings
- */
 export async function putSettings(
   args: InferRequestType<typeof client.settings.$put>,
   options?: ClientRequestOptions,
@@ -224,9 +167,6 @@ export async function putSettings(
   return await parseResponse(client.settings.$put(args, options))
 }
 
-/**
- * PUT /settings
- */
 export function usePutSettings(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putSettings>>,
@@ -238,7 +178,7 @@ export function usePutSettings(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['settings', '/settings'] as const)
+  const swrKey = customKey ?? (['settings', '/settings', 'PUT'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -250,9 +190,6 @@ export function usePutSettings(options?: {
   }
 }
 
-/**
- * POST /config
- */
 export async function postConfig(
   args: InferRequestType<typeof client.config.$post>,
   options?: ClientRequestOptions,
@@ -260,9 +197,6 @@ export async function postConfig(
   return await parseResponse(client.config.$post(args, options))
 }
 
-/**
- * POST /config
- */
 export function usePostConfig(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postConfig>>,
@@ -274,7 +208,7 @@ export function usePostConfig(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['config', '/config'] as const)
+  const swrKey = customKey ?? (['config', '/config', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -286,9 +220,6 @@ export function usePostConfig(options?: {
   }
 }
 
-/**
- * POST /payment
- */
 export async function postPayment(
   args: InferRequestType<typeof client.payment.$post>,
   options?: ClientRequestOptions,
@@ -296,9 +227,6 @@ export async function postPayment(
   return await parseResponse(client.payment.$post(args, options))
 }
 
-/**
- * POST /payment
- */
 export function usePostPayment(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPayment>>,
@@ -310,7 +238,7 @@ export function usePostPayment(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['payment', '/payment'] as const)
+  const swrKey = customKey ?? (['payment', '/payment', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(

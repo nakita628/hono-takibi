@@ -149,7 +149,8 @@ export const getItemsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ items: z.array(ItemSchema), total: z.int() })
+            .object({ items: z.array(ItemSchema).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['items', 'total'] }),
         },
       },

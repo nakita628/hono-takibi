@@ -7,65 +7,38 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api-key-protected
- */
 export function getApiKeyProtectedKey() {
   return ['api-key-protected'] as const
 }
 
-/**
- * Key prefix for /basic-protected
- */
 export function getBasicProtectedKey() {
   return ['basic-protected'] as const
 }
 
-/**
- * Key prefix for /bearer-protected
- */
 export function getBearerProtectedKey() {
   return ['bearer-protected'] as const
 }
 
-/**
- * Key prefix for /multi-auth
- */
 export function getMultiAuthKey() {
   return ['multi-auth'] as const
 }
 
-/**
- * Key prefix for /oauth-protected
- */
 export function getOauthProtectedKey() {
   return ['oauth-protected'] as const
 }
 
-/**
- * Key prefix for /public
- */
 export function getPublicKey() {
   return ['public'] as const
 }
 
-/**
- * GET /public query key
- */
 export function getGetPublicKey() {
   return ['public', '/public'] as const
 }
 
-/**
- * GET /public
- */
 export async function getPublic(options?: ClientRequestOptions) {
   return await parseResponse(client.public.$get(undefined, options))
 }
 
-/**
- * GET /public
- */
 export function useGetPublic(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -76,9 +49,6 @@ export function useGetPublic(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getPublic(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /public
- */
 export function useImmutableGetPublic(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -92,16 +62,10 @@ export function useImmutableGetPublic(options?: {
   }
 }
 
-/**
- * GET /public infinite query key
- */
 export function getGetPublicInfiniteKey() {
   return ['public', '/public', 'infinite'] as const
 }
 
-/**
- * GET /public
- */
 export function useInfiniteGetPublic(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPublic>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -115,23 +79,14 @@ export function useInfiniteGetPublic(options: {
   return useSWRInfinite(keyLoader, async () => getPublic(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /bearer-protected query key
- */
 export function getGetBearerProtectedKey() {
   return ['bearer-protected', '/bearer-protected'] as const
 }
 
-/**
- * GET /bearer-protected
- */
 export async function getBearerProtected(options?: ClientRequestOptions) {
   return await parseResponse(client['bearer-protected'].$get(undefined, options))
 }
 
-/**
- * GET /bearer-protected
- */
 export function useGetBearerProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -145,9 +100,6 @@ export function useGetBearerProtected(options?: {
   }
 }
 
-/**
- * GET /bearer-protected
- */
 export function useImmutableGetBearerProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -161,16 +113,10 @@ export function useImmutableGetBearerProtected(options?: {
   }
 }
 
-/**
- * GET /bearer-protected infinite query key
- */
 export function getGetBearerProtectedInfiniteKey() {
   return ['bearer-protected', '/bearer-protected', 'infinite'] as const
 }
 
-/**
- * GET /bearer-protected
- */
 export function useInfiniteGetBearerProtected(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getBearerProtected>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -184,23 +130,14 @@ export function useInfiniteGetBearerProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBearerProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /api-key-protected query key
- */
 export function getGetApiKeyProtectedKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
 
-/**
- * GET /api-key-protected
- */
 export async function getApiKeyProtected(options?: ClientRequestOptions) {
   return await parseResponse(client['api-key-protected'].$get(undefined, options))
 }
 
-/**
- * GET /api-key-protected
- */
 export function useGetApiKeyProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -214,9 +151,6 @@ export function useGetApiKeyProtected(options?: {
   }
 }
 
-/**
- * GET /api-key-protected
- */
 export function useImmutableGetApiKeyProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -230,16 +164,10 @@ export function useImmutableGetApiKeyProtected(options?: {
   }
 }
 
-/**
- * GET /api-key-protected infinite query key
- */
 export function getGetApiKeyProtectedInfiniteKey() {
   return ['api-key-protected', '/api-key-protected', 'infinite'] as const
 }
 
-/**
- * GET /api-key-protected
- */
 export function useInfiniteGetApiKeyProtected(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiKeyProtected>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -253,23 +181,14 @@ export function useInfiniteGetApiKeyProtected(options: {
   return useSWRInfinite(keyLoader, async () => getApiKeyProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /basic-protected query key
- */
 export function getGetBasicProtectedKey() {
   return ['basic-protected', '/basic-protected'] as const
 }
 
-/**
- * GET /basic-protected
- */
 export async function getBasicProtected(options?: ClientRequestOptions) {
   return await parseResponse(client['basic-protected'].$get(undefined, options))
 }
 
-/**
- * GET /basic-protected
- */
 export function useGetBasicProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -280,9 +199,6 @@ export function useGetBasicProtected(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getBasicProtected(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /basic-protected
- */
 export function useImmutableGetBasicProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -296,16 +212,10 @@ export function useImmutableGetBasicProtected(options?: {
   }
 }
 
-/**
- * GET /basic-protected infinite query key
- */
 export function getGetBasicProtectedInfiniteKey() {
   return ['basic-protected', '/basic-protected', 'infinite'] as const
 }
 
-/**
- * GET /basic-protected
- */
 export function useInfiniteGetBasicProtected(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getBasicProtected>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -319,23 +229,14 @@ export function useInfiniteGetBasicProtected(options: {
   return useSWRInfinite(keyLoader, async () => getBasicProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /oauth-protected query key
- */
 export function getGetOauthProtectedKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
 
-/**
- * GET /oauth-protected
- */
 export async function getOauthProtected(options?: ClientRequestOptions) {
   return await parseResponse(client['oauth-protected'].$get(undefined, options))
 }
 
-/**
- * GET /oauth-protected
- */
 export function useGetOauthProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -346,9 +247,6 @@ export function useGetOauthProtected(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getOauthProtected(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /oauth-protected
- */
 export function useImmutableGetOauthProtected(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -362,16 +260,10 @@ export function useImmutableGetOauthProtected(options?: {
   }
 }
 
-/**
- * GET /oauth-protected infinite query key
- */
 export function getGetOauthProtectedInfiniteKey() {
   return ['oauth-protected', '/oauth-protected', 'infinite'] as const
 }
 
-/**
- * GET /oauth-protected
- */
 export function useInfiniteGetOauthProtected(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getOauthProtected>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -385,23 +277,14 @@ export function useInfiniteGetOauthProtected(options: {
   return useSWRInfinite(keyLoader, async () => getOauthProtected(clientOptions), restSwrOptions)
 }
 
-/**
- * GET /multi-auth query key
- */
 export function getGetMultiAuthKey() {
   return ['multi-auth', '/multi-auth'] as const
 }
 
-/**
- * GET /multi-auth
- */
 export async function getMultiAuth(options?: ClientRequestOptions) {
   return await parseResponse(client['multi-auth'].$get(undefined, options))
 }
 
-/**
- * GET /multi-auth
- */
 export function useGetMultiAuth(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -412,9 +295,6 @@ export function useGetMultiAuth(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getMultiAuth(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /multi-auth
- */
 export function useImmutableGetMultiAuth(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -428,16 +308,10 @@ export function useImmutableGetMultiAuth(options?: {
   }
 }
 
-/**
- * GET /multi-auth infinite query key
- */
 export function getGetMultiAuthInfiniteKey() {
   return ['multi-auth', '/multi-auth', 'infinite'] as const
 }
 
-/**
- * GET /multi-auth
- */
 export function useInfiniteGetMultiAuth(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getMultiAuth>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader

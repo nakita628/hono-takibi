@@ -9,7 +9,10 @@ export const getHealthRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ status: z.string() }).openapi({ required: ['status'] }),
+          schema: z
+            .object({ status: z.string() })
+            .readonly()
+            .openapi({ required: ['status'] }),
         },
       },
     },

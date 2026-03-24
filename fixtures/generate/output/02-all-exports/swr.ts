@@ -9,23 +9,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /users
- */
 export function getUsersKey() {
   return ['users'] as const
 }
 
-/**
- * GET /users query key
- */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
 
-/**
- * GET /users
- */
 export async function getUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
@@ -33,9 +24,6 @@ export async function getUsers(
   return await parseResponse(client.users.$get(args, options))
 }
 
-/**
- * GET /users
- */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -49,9 +37,6 @@ export function useGetUsers(
   return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users
- */
 export function useImmutableGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -68,16 +53,10 @@ export function useImmutableGetUsers(
   }
 }
 
-/**
- * GET /users infinite query key
- */
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args, 'infinite'] as const
 }
 
-/**
- * GET /users
- */
 export function useInfiniteGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options: {
@@ -94,9 +73,6 @@ export function useInfiniteGetUsers(
   return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }
 
-/**
- * POST /users
- */
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -104,9 +80,6 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-/**
- * POST /users
- */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
@@ -118,7 +91,7 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users'] as const)
+  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -130,16 +103,10 @@ export function usePostUsers(options?: {
   }
 }
 
-/**
- * GET /users/{id} query key
- */
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
 }
 
-/**
- * GET /users/{id}
- */
 export async function getUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -147,9 +114,6 @@ export async function getUsersId(
   return await parseResponse(client.users[':id'].$get(args, options))
 }
 
-/**
- * GET /users/{id}
- */
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -163,9 +127,6 @@ export function useGetUsersId(
   return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /users/{id}
- */
 export function useImmutableGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -182,18 +143,12 @@ export function useImmutableGetUsersId(
   }
 }
 
-/**
- * GET /users/{id} infinite query key
- */
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /users/{id}
- */
 export function useInfiniteGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {

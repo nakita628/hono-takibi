@@ -223,7 +223,8 @@ export const getUsersRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ users: z.array(UserSchema), total: z.int() })
+            .object({ users: z.array(UserSchema).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['users', 'total'] }),
         },
       },
@@ -328,7 +329,8 @@ export const getProductsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ products: z.array(ProductSchema), total: z.int() })
+            .object({ products: z.array(ProductSchema).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['products', 'total'] }),
         },
       },
@@ -402,7 +404,10 @@ export const getProductsProductIdReviewsRoute = createRoute({
     }),
   },
   responses: {
-    200: { description: 'OK', content: { 'application/json': { schema: z.array(ReviewSchema) } } },
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.array(ReviewSchema).readonly() } },
+    },
   },
 } as const)
 
@@ -455,7 +460,8 @@ export const getOrdersRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ orders: z.array(OrderSchema), total: z.int() })
+            .object({ orders: z.array(OrderSchema).readonly(), total: z.int() })
+            .readonly()
             .openapi({ required: ['orders', 'total'] }),
         },
       },
@@ -504,7 +510,7 @@ export const getCategoriesRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.array(CategorySchema) } },
+      content: { 'application/json': { schema: z.array(CategorySchema).readonly() } },
     },
   },
 } as const)
@@ -519,6 +525,7 @@ export const postUploadImageRoute = createRoute({
         'multipart/form-data': {
           schema: z
             .object({ image: z.file(), alt: z.string().exactOptional() })
+            .readonly()
             .openapi({ required: ['image'] }),
         },
       },
@@ -532,6 +539,7 @@ export const postUploadImageRoute = createRoute({
         'application/json': {
           schema: z
             .object({ url: z.url(), width: z.int(), height: z.int() })
+            .readonly()
             .openapi({ required: ['url', 'width', 'height'] }),
         },
       },

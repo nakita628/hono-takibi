@@ -9,37 +9,22 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /graph
- */
 export function getGraphKey() {
   return ['graph'] as const
 }
 
-/**
- * Key prefix for /tree
- */
 export function getTreeKey() {
   return ['tree'] as const
 }
 
-/**
- * GET /tree query key
- */
 export function getGetTreeKey() {
   return ['tree', '/tree'] as const
 }
 
-/**
- * GET /tree
- */
 export async function getTree(options?: ClientRequestOptions) {
   return await parseResponse(client.tree.$get(undefined, options))
 }
 
-/**
- * GET /tree
- */
 export function useGetTree(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -50,9 +35,6 @@ export function useGetTree(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getTree(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tree
- */
 export function useImmutableGetTree(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -63,16 +45,10 @@ export function useImmutableGetTree(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTree(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /tree infinite query key
- */
 export function getGetTreeInfiniteKey() {
   return ['tree', '/tree', 'infinite'] as const
 }
 
-/**
- * GET /tree
- */
 export function useInfiniteGetTree(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getTree>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader
@@ -86,9 +62,6 @@ export function useInfiniteGetTree(options: {
   return useSWRInfinite(keyLoader, async () => getTree(clientOptions), restSwrOptions)
 }
 
-/**
- * POST /tree
- */
 export async function postTree(
   args: InferRequestType<typeof client.tree.$post>,
   options?: ClientRequestOptions,
@@ -96,9 +69,6 @@ export async function postTree(
   return await parseResponse(client.tree.$post(args, options))
 }
 
-/**
- * POST /tree
- */
 export function usePostTree(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postTree>>,
@@ -110,7 +80,7 @@ export function usePostTree(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['tree', '/tree'] as const)
+  const swrKey = customKey ?? (['tree', '/tree', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -122,23 +92,14 @@ export function usePostTree(options?: {
   }
 }
 
-/**
- * GET /graph query key
- */
 export function getGetGraphKey() {
   return ['graph', '/graph'] as const
 }
 
-/**
- * GET /graph
- */
 export async function getGraph(options?: ClientRequestOptions) {
   return await parseResponse(client.graph.$get(undefined, options))
 }
 
-/**
- * GET /graph
- */
 export function useGetGraph(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -149,9 +110,6 @@ export function useGetGraph(options?: {
   return { swrKey, ...useSWR(swrKey, async () => getGraph(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /graph
- */
 export function useImmutableGetGraph(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -162,16 +120,10 @@ export function useImmutableGetGraph(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getGraph(clientOptions), restSwrOptions) }
 }
 
-/**
- * GET /graph infinite query key
- */
 export function getGetGraphInfiniteKey() {
   return ['graph', '/graph', 'infinite'] as const
 }
 
-/**
- * GET /graph
- */
 export function useInfiniteGetGraph(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getGraph>>, Error> & {
     swrKey?: SWRInfiniteKeyLoader

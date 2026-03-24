@@ -19,23 +19,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /subscriptions
- */
 export function getSubscriptionsKey() {
   return ['subscriptions'] as const
 }
 
-/**
- * Key prefix for /webhooks
- */
 export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
-/**
- * POST /subscriptions
- */
 export async function postSubscriptions(
   args: InferRequestType<typeof client.subscriptions.$post>,
   options?: ClientRequestOptions,
@@ -43,21 +34,15 @@ export async function postSubscriptions(
   return await parseResponse(client.subscriptions.$post(args, options))
 }
 
-/**
- * POST /subscriptions
- */
 export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['subscriptions', '/subscriptions'] as const,
+    mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
       return postSubscriptions(args, options)
     },
   })
 }
 
-/**
- * POST /subscriptions
- */
 export function usePostSubscriptions(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postSubscriptions>>,
@@ -70,18 +55,12 @@ export function usePostSubscriptions(options?: {
   return useMutation({ ...getPostSubscriptionsMutationOptions(clientOptions), ...mutationOptions })
 }
 
-/**
- * GET /subscriptions/{id} query key
- */
 export function getSubscriptionsIdQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export async function getSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -89,9 +68,6 @@ export async function getSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$get(args, options))
 }
 
-/**
- * GET /subscriptions/{id} query options
- */
 export function getSubscriptionsIdQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -104,49 +80,52 @@ export function getSubscriptionsIdQueryOptions(
   })
 }
 
-/**
- * GET /subscriptions/{id}
- */
-export function useSubscriptionsId(
+export function useSubscriptionsId<TData = Awaited<ReturnType<typeof getSubscriptionsId>>>(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getSubscriptionsIdQueryOptions(args, clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSubscriptionsId(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
+  })
 }
 
-/**
- * GET /subscriptions/{id}
- */
-export function useSuspenseSubscriptionsId(
+export function useSuspenseSubscriptionsId<TData = Awaited<ReturnType<typeof getSubscriptionsId>>>(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseQuery({
-    ...getSubscriptionsIdQueryOptions(args, clientOptions),
     ...queryOptions,
+    queryKey: getSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSubscriptionsId(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
-/**
- * GET /subscriptions/{id} infinite query key
- */
 export function getSubscriptionsIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /subscriptions/{id} infinite query options
- */
 export function getSubscriptionsIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -159,9 +138,6 @@ export function getSubscriptionsIdInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export function useInfiniteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: {
@@ -171,14 +147,11 @@ export function useInfiniteSubscriptionsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
-    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export function useSuspenseInfiniteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: {
@@ -188,14 +161,11 @@ export function useSuspenseInfiniteSubscriptionsId(
 ) {
   const { query: queryOptions, options: clientOptions } = options
   return useSuspenseInfiniteQuery({
-    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
     ...queryOptions,
+    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
   })
 }
 
-/**
- * DELETE /subscriptions/{id}
- */
 export async function deleteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -203,21 +173,15 @@ export async function deleteSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /subscriptions/{id}
- */
 export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['subscriptions', '/subscriptions/:id'] as const,
+    mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
       return deleteSubscriptionsId(args, options)
     },
   })
 }
 
-/**
- * DELETE /subscriptions/{id}
- */
 export function useDeleteSubscriptionsId(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
@@ -233,9 +197,6 @@ export function useDeleteSubscriptionsId(options?: {
   })
 }
 
-/**
- * POST /webhooks/test
- */
 export async function postWebhooksTest(
   args: InferRequestType<typeof client.webhooks.test.$post>,
   options?: ClientRequestOptions,
@@ -243,21 +204,15 @@ export async function postWebhooksTest(
   return await parseResponse(client.webhooks.test.$post(args, options))
 }
 
-/**
- * POST /webhooks/test
- */
 export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return mutationOptions({
-    mutationKey: ['webhooks', '/webhooks/test'] as const,
+    mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
       return postWebhooksTest(args, options)
     },
   })
 }
 
-/**
- * POST /webhooks/test
- */
 export function usePostWebhooksTest(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postWebhooksTest>>,

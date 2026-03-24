@@ -149,18 +149,22 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
           schema: z
             .object({
               status: z.enum(['success', 'zero results', 'error']),
-              results: z.array(
-                z
-                  .object({
-                    region: z.string(),
-                    city: z.string(),
-                    code: z.string(),
-                    lat: z.string(),
-                    lon: z.string(),
-                  })
-                  .openapi({ required: ['region', 'city', 'code', 'lat', 'lon'] }),
-              ),
+              results: z
+                .array(
+                  z
+                    .object({
+                      region: z.string(),
+                      city: z.string(),
+                      code: z.string(),
+                      lat: z.string(),
+                      lon: z.string(),
+                    })
+                    .readonly()
+                    .openapi({ required: ['region', 'city', 'code', 'lat', 'lon'] }),
+                )
+                .readonly(),
             })
+            .readonly()
             .openapi({ required: ['status', 'results'] }),
         },
       },
@@ -178,7 +182,8 @@ export const postApiV2PublicBookingAccountRegisterOauthIndexRoute = createRoute(
       content: {
         'application/json': {
           schema: z
-            .object({ account: z.object({}), profile: z.object({}) })
+            .object({ account: z.object({}).readonly(), profile: z.object({}).readonly() })
+            .readonly()
             .openapi({ required: ['account', 'profile'] }),
         },
       },
@@ -192,6 +197,7 @@ export const postApiV2PublicBookingAccountRegisterOauthIndexRoute = createRoute(
         'application/json': {
           schema: z
             .object({ message: z.string(), provisionalId: z.string().exactOptional() })
+            .readonly()
             .openapi({ required: ['message'] }),
         },
       },
@@ -202,6 +208,7 @@ export const postApiV2PublicBookingAccountRegisterOauthIndexRoute = createRoute(
         'application/json': {
           schema: z
             .object({ message: z.string(), provisionalId: z.string().exactOptional() })
+            .readonly()
             .openapi({ required: ['message'] }),
         },
       },
@@ -219,7 +226,10 @@ export const postApiV2PublicBookingAccountRegisterEmailRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: z.object({ email: z.email() }).openapi({ required: ['email'] }),
+          schema: z
+            .object({ email: z.email() })
+            .readonly()
+            .openapi({ required: ['email'] }),
         },
       },
       required: true,
@@ -230,7 +240,10 @@ export const postApiV2PublicBookingAccountRegisterEmailRoute = createRoute({
       description: 'Default Response',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string() }).openapi({ required: ['message'] }),
+          schema: z
+            .object({ message: z.string() })
+            .readonly()
+            .openapi({ required: ['message'] }),
         },
       },
     },

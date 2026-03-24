@@ -9,23 +9,14 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /subscriptions
- */
 export function getSubscriptionsKey() {
   return ['subscriptions'] as const
 }
 
-/**
- * Key prefix for /webhooks
- */
 export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
-/**
- * POST /subscriptions
- */
 export async function postSubscriptions(
   args: InferRequestType<typeof client.subscriptions.$post>,
   options?: ClientRequestOptions,
@@ -33,9 +24,6 @@ export async function postSubscriptions(
   return await parseResponse(client.subscriptions.$post(args, options))
 }
 
-/**
- * POST /subscriptions
- */
 export function usePostSubscriptions(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postSubscriptions>>,
@@ -47,7 +35,7 @@ export function usePostSubscriptions(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['subscriptions', '/subscriptions'] as const)
+  const swrKey = customKey ?? (['subscriptions', '/subscriptions', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -59,18 +47,12 @@ export function usePostSubscriptions(options?: {
   }
 }
 
-/**
- * GET /subscriptions/{id} query key
- */
 export function getGetSubscriptionsIdKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export async function getSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
@@ -78,9 +60,6 @@ export async function getSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$get(args, options))
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export function useGetSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
@@ -97,9 +76,6 @@ export function useGetSubscriptionsId(
   }
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export function useImmutableGetSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: {
@@ -116,18 +92,12 @@ export function useImmutableGetSubscriptionsId(
   }
 }
 
-/**
- * GET /subscriptions/{id} infinite query key
- */
 export function getGetSubscriptionsIdInfiniteKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
 }
 
-/**
- * GET /subscriptions/{id}
- */
 export function useInfiniteGetSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options: {
@@ -149,9 +119,6 @@ export function useInfiniteGetSubscriptionsId(
   )
 }
 
-/**
- * DELETE /subscriptions/{id}
- */
 export async function deleteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -159,9 +126,6 @@ export async function deleteSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$delete(args, options))
 }
 
-/**
- * DELETE /subscriptions/{id}
- */
 export function useDeleteSubscriptionsId(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
@@ -173,7 +137,7 @@ export function useDeleteSubscriptionsId(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['subscriptions', '/subscriptions/:id'] as const)
+  const swrKey = customKey ?? (['subscriptions', '/subscriptions/:id', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -187,9 +151,6 @@ export function useDeleteSubscriptionsId(options?: {
   }
 }
 
-/**
- * POST /webhooks/test
- */
 export async function postWebhooksTest(
   args: InferRequestType<typeof client.webhooks.test.$post>,
   options?: ClientRequestOptions,
@@ -197,9 +158,6 @@ export async function postWebhooksTest(
   return await parseResponse(client.webhooks.test.$post(args, options))
 }
 
-/**
- * POST /webhooks/test
- */
 export function usePostWebhooksTest(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postWebhooksTest>>,
@@ -211,7 +169,7 @@ export function usePostWebhooksTest(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['webhooks', '/webhooks/test'] as const)
+  const swrKey = customKey ?? (['webhooks', '/webhooks/test', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(

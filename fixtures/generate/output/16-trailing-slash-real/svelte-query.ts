@@ -14,27 +14,16 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /api
- */
 export function getApiKey() {
   return ['api'] as const
 }
 
-/**
- * GET /api/reverseGeocode/ query key
- */
 export function getApiReverseGeocodeIndexQueryKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export async function getApiReverseGeocodeIndex(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
@@ -42,9 +31,6 @@ export async function getApiReverseGeocodeIndex(
   return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
 }
 
-/**
- * GET /api/reverseGeocode/ query options
- */
 export function getApiReverseGeocodeIndexQueryOptions(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
@@ -57,36 +43,36 @@ export function getApiReverseGeocodeIndexQueryOptions(
   })
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
-export function createApiReverseGeocodeIndex(
+export function createApiReverseGeocodeIndex<
+  TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+>(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error, TData>
     options?: ClientRequestOptions
   },
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...getApiReverseGeocodeIndexQueryOptions(args(), clientOptions), ...query }
+    return {
+      ...query,
+      queryKey: getApiReverseGeocodeIndexQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return getApiReverseGeocodeIndex(args(), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        })
+      },
+    }
   })
 }
 
-/**
- * GET /api/reverseGeocode/ infinite query key
- */
 export function getApiReverseGeocodeIndexInfiniteQueryKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
   return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
 }
 
-/**
- * GET /api/reverseGeocode/ infinite query options
- */
 export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
@@ -99,11 +85,6 @@ export function getApiReverseGeocodeIndexInfiniteQueryOptions(
   }
 }
 
-/**
- * GET /api/reverseGeocode/
- *
- * Reverse geocode lookup
- */
 export function createInfiniteApiReverseGeocodeIndex(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options: () => {
@@ -113,13 +94,10 @@ export function createInfiniteApiReverseGeocodeIndex(
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options()
-    return { ...getApiReverseGeocodeIndexInfiniteQueryOptions(args(), clientOptions), ...query }
+    return { ...query, ...getApiReverseGeocodeIndexInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
   options?: ClientRequestOptions,
@@ -129,14 +107,11 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/'] as const,
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
     async mutationFn(
       args: InferRequestType<
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
@@ -147,9 +122,6 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
   }
 }
 
-/**
- * POST /api/v2/public/booking/account/register/oauth/
- */
 export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -169,11 +141,6 @@ export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
   })
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export async function postApiV2PublicBookingAccountRegisterEmail(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
   options?: ClientRequestOptions,
@@ -183,14 +150,11 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- */
 export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    mutationKey: ['api', '/api/v2/public/booking/account/register/email'] as const,
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {
@@ -199,11 +163,6 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   }
 }
 
-/**
- * POST /api/v2/public/booking/account/register/email
- *
- * Send registration URL via email
- */
 export function createPostApiV2PublicBookingAccountRegisterEmail(
   options?: () => {
     mutation?: CreateMutationOptions<

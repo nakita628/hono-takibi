@@ -8,30 +8,18 @@ import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-/**
- * Key prefix for /health
- */
 export function getHealthKey() {
   return ['health'] as const
 }
 
-/**
- * GET /health query key
- */
 export function getHealthQueryKey() {
   return ['health', '/health'] as const
 }
 
-/**
- * GET /health
- */
 export async function getHealth(options?: ClientRequestOptions) {
   return await parseResponse(client.health.$get(undefined, options))
 }
 
-/**
- * GET /health query options
- */
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHealthQueryKey(),
@@ -41,27 +29,24 @@ export function getHealthQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-/**
- * GET /health
- */
-export function useHealth(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+export function useHealth<TData = Awaited<ReturnType<typeof getHealth>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({ ...getHealthQueryOptions(clientOptions), ...queryOptions })
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
-/**
- * GET /health infinite query key
- */
 export function getHealthInfiniteQueryKey() {
   return ['health', '/health', 'infinite'] as const
 }
 
-/**
- * GET /health infinite query options
- */
 export function getHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHealthInfiniteQueryKey(),
@@ -71,13 +56,10 @@ export function getHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-/**
- * GET /health
- */
 export function useInfiniteHealth(options: {
   query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...getHealthInfiniteQueryOptions(clientOptions), ...queryOptions })
+  return useInfiniteQuery({ ...queryOptions, ...getHealthInfiniteQueryOptions(clientOptions) })
 }
