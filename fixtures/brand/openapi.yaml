@@ -1,0 +1,150 @@
+openapi: '3.1.0'
+info:
+  title: Brand Test API
+  version: '1.0.0'
+  description: OpenAPI spec with x-brand vendor extension for branded types
+paths:
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{userId}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /posts:
+    post:
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePost'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+components:
+  schemas:
+    # Branded string (UUID)
+    UserId:
+      type: string
+      format: uuid
+      x-brand: UserId
+    # Branded string (UUID) - different brand
+    PostId:
+      type: string
+      format: uuid
+      x-brand: PostId
+    # Branded string (email)
+    Email:
+      type: string
+      format: email
+      x-brand: Email
+    # Branded number
+    Price:
+      type: number
+      minimum: 0
+      x-brand: Price
+    # Branded integer
+    Quantity:
+      type: integer
+      minimum: 0
+      x-brand: Quantity
+    # Branded string with constraints
+    Username:
+      type: string
+      minLength: 3
+      maxLength: 20
+      x-brand: Username
+    # Branded array
+    Tags:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 10
+      x-brand: Tags
+    # Object using branded types
+    CreateUser:
+      type: object
+      required:
+        - email
+        - username
+        - price
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+        username:
+          $ref: '#/components/schemas/Username'
+        price:
+          $ref: '#/components/schemas/Price'
+        tags:
+          $ref: '#/components/schemas/Tags'
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - username
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        email:
+          $ref: '#/components/schemas/Email'
+        username:
+          $ref: '#/components/schemas/Username'
+    CreatePost:
+      type: object
+      required:
+        - authorId
+        - title
+        - quantity
+      properties:
+        authorId:
+          $ref: '#/components/schemas/UserId'
+        title:
+          type: string
+        quantity:
+          $ref: '#/components/schemas/Quantity'
+    Post:
+      type: object
+      required:
+        - id
+        - authorId
+        - title
+      properties:
+        id:
+          $ref: '#/components/schemas/PostId'
+        authorId:
+          $ref: '#/components/schemas/UserId'
+        title:
+          type: string
