@@ -735,4 +735,66 @@ describe('wrap', () => {
       )
     })
   })
+
+  describe('x-brand', () => {
+    it.concurrent('adds .brand<"X">() for string with x-brand', () => {
+      expect(wrap('z.string()', { type: 'string', 'x-brand': 'UserId' })).toBe(
+        'z.string().brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('adds .brand<"X">() for string with format and x-brand', () => {
+      expect(
+        wrap('z.string().uuid()', { type: 'string', format: 'uuid', 'x-brand': 'UserId' }),
+      ).toBe('z.string().uuid().brand<"UserId">()')
+    })
+
+    it.concurrent('adds .brand<"X">() after .nullable()', () => {
+      expect(wrap('z.string()', { type: 'string', nullable: true, 'x-brand': 'UserId' })).toBe(
+        'z.string().nullable().brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('adds .brand<"X">() after .default()', () => {
+      expect(wrap('z.string()', { type: 'string', default: 'test', 'x-brand': 'UserId' })).toBe(
+        'z.string().default("test").brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('adds .brand<"X">() with .openapi()', () => {
+      expect(
+        wrap('z.string()', {
+          type: 'string',
+          'x-brand': 'UserId',
+          description: 'User identifier',
+        }),
+      ).toBe('z.string().brand<"UserId">().openapi({"description":"User identifier"})')
+    })
+
+    it.concurrent('adds .brand<"X">() for number type', () => {
+      expect(wrap('z.number()', { type: 'number', 'x-brand': 'Price' })).toBe(
+        'z.number().brand<"Price">()',
+      )
+    })
+
+    it.concurrent('adds .brand<"X">() for integer type', () => {
+      expect(wrap('z.number().int()', { type: 'integer', 'x-brand': 'Count' })).toBe(
+        'z.number().int().brand<"Count">()',
+      )
+    })
+
+    it.concurrent('does not add .brand() when x-brand is not set', () => {
+      expect(wrap('z.string()', { type: 'string' })).toBe('z.string()')
+    })
+
+    it.concurrent('x-brand is not included in .openapi() metadata', () => {
+      expect(
+        wrap('z.string()', {
+          type: 'string',
+          'x-brand': 'UserId',
+          title: 'User ID',
+        }),
+      ).toBe('z.string().brand<"UserId">().openapi({"title":"User ID"})')
+    })
+  })
 })

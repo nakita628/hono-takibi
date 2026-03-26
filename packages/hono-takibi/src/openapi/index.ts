@@ -500,6 +500,8 @@ export type Schema = {
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
   readonly 'x-enum-error-messages'?: { readonly [k: string]: string }
+  // Vendor extension for branded types
+  readonly 'x-brand'?: string
 }
 
 export type Parameter = {
