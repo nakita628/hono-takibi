@@ -3162,4 +3162,190 @@ export const getItemsRoute = createRoute({
 `)
     })
   })
+
+  describe('x-brand', () => {
+    it('generates .brand<"X">() for schemas with x-brand', () => {
+      const brandSchema = {
+        openapi: '3.1.0',
+        info: { title: 'Brand API', version: '1.0.0' },
+        paths: {
+          '/users': {
+            post: {
+              operationId: 'createUser',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/CreateUser' },
+                  },
+                },
+              },
+              responses: {
+                201: {
+                  description: 'Created',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            UserId: { type: 'string', format: 'uuid', 'x-brand': 'UserId' },
+            Email: { type: 'string', format: 'email', 'x-brand': 'Email' },
+            Price: { type: 'number', minimum: 0, 'x-brand': 'Price' },
+            Quantity: { type: 'integer', minimum: 0, 'x-brand': 'Quantity' },
+            Username: {
+              type: 'string',
+              minLength: 3,
+              maxLength: 20,
+              'x-brand': 'Username',
+            },
+            Tags: {
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 1,
+              maxItems: 10,
+              'x-brand': 'Tags',
+            },
+            CreateUser: {
+              type: 'object',
+              required: ['email', 'username', 'price'],
+              properties: {
+                email: { $ref: '#/components/schemas/Email' },
+                username: { $ref: '#/components/schemas/Username' },
+                price: { $ref: '#/components/schemas/Price' },
+                tags: { $ref: '#/components/schemas/Tags' },
+              },
+            },
+            User: {
+              type: 'object',
+              required: ['id', 'email', 'username'],
+              properties: {
+                id: { $ref: '#/components/schemas/UserId' },
+                email: { $ref: '#/components/schemas/Email' },
+                username: { $ref: '#/components/schemas/Username' },
+              },
+            },
+          },
+        },
+      }
+      fs.writeFileSync(`${testDir}/brand.json`, JSON.stringify(brandSchema))
+      execSync(
+        `node ${path.resolve('packages/hono-takibi/dist/index.js')} brand.json -o brand-output.ts`,
+        { cwd: path.resolve(testDir) },
+      )
+      const result = fs.readFileSync(`${testDir}/brand-output.ts`, { encoding: 'utf-8' })
+      // Verify branded schemas are generated with .brand<"X">()
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+const UserIdSchema = z.uuid().brand<'UserId'>().openapi('UserId')
+
+const EmailSchema = z.email().brand<'Email'>().openapi('Email')
+
+const PriceSchema = z.number().min(0).brand<'Price'>().openapi('Price')
+
+const QuantitySchema = z.int().min(0).brand<'Quantity'>().openapi('Quantity')
+
+const UsernameSchema = z.string().min(3).max(20).brand<'Username'>().openapi('Username')
+
+const TagsSchema = z.array(z.string()).min(1).max(10).brand<'Tags'>().openapi('Tags')
+
+const CreateUserSchema = z
+  .object({
+    email: EmailSchema,
+    username: UsernameSchema,
+    price: PriceSchema,
+    tags: TagsSchema.exactOptional(),
+  })
+  .openapi({ required: ['email', 'username', 'price'] })
+  .openapi('CreateUser')
+
+const UserSchema = z
+  .object({ id: UserIdSchema, email: EmailSchema, username: UsernameSchema })
+  .openapi({ required: ['id', 'email', 'username'] })
+  .openapi('User')
+
+export const postUsersRoute = createRoute({
+  method: 'post',
+  path: '/users',
+  operationId: 'createUser',
+  request: {
+    body: { content: { 'application/json': { schema: CreateUserSchema } }, required: true },
+  },
+  responses: {
+    201: { description: 'Created', content: { 'application/json': { schema: UserSchema } } },
+  },
+})
+`)
+    })
+
+    it('generates .brand<"X">() with config file', () => {
+      const brandConfigSchema = {
+        openapi: '3.1.0',
+        info: { title: 'Brand Config API', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                200: {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Item' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            ItemId: { type: 'string', format: 'uuid', 'x-brand': 'ItemId' },
+            Item: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: {
+                id: { $ref: '#/components/schemas/ItemId' },
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+      }
+      fs.writeFileSync(`${testDir}/brand-config.json`, JSON.stringify(brandConfigSchema))
+      fs.writeFileSync(
+        `${testDir}/hono-takibi.config.ts`,
+        `export default { input: 'brand-config.json', 'zod-openapi': { output: 'brand-config-output.ts', exportSchemas: true } }`,
+      )
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+      const result = fs.readFileSync(`${testDir}/brand-config-output.ts`, { encoding: 'utf-8' })
+      expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const ItemIdSchema = z.uuid().brand<'ItemId'>().openapi('ItemId')
+
+export const ItemSchema = z
+  .object({ id: ItemIdSchema, name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+  .openapi('Item')
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
+    })
+  })
 })

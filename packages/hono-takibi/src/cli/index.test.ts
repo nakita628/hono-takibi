@@ -223,3 +223,84 @@ Options:
     })
   })
 })
+
+describe('honoTakibi x-brand', () => {
+  beforeAll(() => {
+    process.argv = [
+      '*/*/bin/node',
+      '*/dist/index.js',
+      'brand-test.json',
+      '-o',
+      'brand-test-output.ts',
+    ]
+    fs.writeFileSync(
+      'brand-test.json',
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Brand Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                200: {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Item' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            ItemId: { type: 'string', format: 'uuid', 'x-brand': 'ItemId' },
+            Item: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: {
+                id: { $ref: '#/components/schemas/ItemId' },
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+      }),
+    )
+  })
+  afterAll(() => {
+    fs.rmSync('brand-test.json', { force: true })
+    fs.rmSync('brand-test-output.ts', { force: true })
+  })
+
+  it('generates branded types with .brand<"X">()', async () => {
+    const result = await honoTakibi()
+    expect(result).toEqual({
+      ok: true,
+      value: '🔥 Generated code written to brand-test-output.ts',
+    })
+
+    const generatedCode = fs.readFileSync('brand-test-output.ts', 'utf-8')
+    expect(generatedCode).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+const ItemIdSchema = z.uuid().brand<'ItemId'>().openapi('ItemId')
+
+const ItemSchema = z
+  .object({ id: ItemIdSchema, name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+  .openapi('Item')
+
+export const getItemsRoute = createRoute({
+  method: 'get',
+  path: '/items',
+  operationId: 'getItems',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ItemSchema } } },
+  },
+})
+`)
+  })
+})
