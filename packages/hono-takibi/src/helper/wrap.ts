@@ -149,7 +149,10 @@ export function wrap(
   const n = isNullable ? `${zod}.nullable()` : zod
 
   /* why schema.default !== undefined: because schema.default === 0 is falsy */
-  const z = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+  const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+
+  /* Apply .brand() for branded types */
+  const z = schema['x-brand'] ? `${d}.brand<"${schema['x-brand']}">()` : d
 
   // zod method chain already expressed properties (to prevent double management)
   const zodExpressedProps = new Set([
@@ -196,6 +199,7 @@ export function wrap(
     'x-oneOf-message',
     'x-not-message',
     'x-enum-error-messages',
+    'x-brand',
   ])
 
   const baseArgs = Object.fromEntries(

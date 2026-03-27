@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.1",
-    "vite-plus": "^0.1.13"
+    "vite-plus": "^0.1.14"
   },
   "packageManager": "pnpm@10.32.1"
 }

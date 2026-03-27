@@ -134,6 +134,38 @@ z.string({ error: 'Name is required' }).min(1, { error: 'Name cannot be empty' }
 | `x-propertyNames-message`     | `propertyNames`                                                   |
 | `x-dependentRequired-message` | `dependentRequired`                                               |
 
+## Branded Types
+
+Use the `x-brand` vendor extension to generate [Zod branded types](https://zod.dev/api?id=branded-types), creating nominal types that are structurally identical but semantically distinct:
+
+```yaml
+components:
+  schemas:
+    Cat:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      x-brand: Cat
+    Dog:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      x-brand: Dog
+```
+
+```ts
+// Generated output
+const CatSchema = z.object({ name: z.string() }).brand<'Cat'>().openapi('Cat')
+
+const DogSchema = z.object({ name: z.string() }).brand<'Dog'>().openapi('Dog')
+```
+
 ## Vite Plugin
 
 Watches your OpenAPI spec and `hono-takibi.config.ts` for changes, then auto-regenerates code on save.

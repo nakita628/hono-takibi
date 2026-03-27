@@ -1453,4 +1453,117 @@ describe('zodToOpenAPI', () => {
       expect(zodToOpenAPI({ type: 'null' })).toBe('z.null().nullable()')
     })
   })
+
+  describe('x-brand', () => {
+    it.concurrent('string with x-brand', () => {
+      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' } as Schema)).toBe(
+        'z.string().brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('string with format uuid and x-brand', () => {
+      expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-brand': 'UserId' } as Schema)).toBe(
+        'z.uuid().brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('number with x-brand', () => {
+      expect(zodToOpenAPI({ type: 'number', 'x-brand': 'Price' } as Schema)).toBe(
+        'z.number().brand<"Price">()',
+      )
+    })
+
+    it.concurrent('integer with x-brand', () => {
+      expect(zodToOpenAPI({ type: 'integer', 'x-brand': 'Count' } as Schema)).toBe(
+        'z.int().brand<"Count">()',
+      )
+    })
+
+    it.concurrent('string with email format, min/max and x-brand', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'string',
+          format: 'email',
+          minLength: 5,
+          maxLength: 100,
+          'x-brand': 'Email',
+        } as Schema),
+      ).toBe('z.email().min(5).max(100).brand<"Email">()')
+    })
+
+    it.concurrent('string with x-brand and description (openapi metadata)', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'string',
+          'x-brand': 'UserId',
+          description: 'Unique user identifier',
+        } as Schema),
+      ).toBe('z.string().brand<"UserId">().openapi({"description":"Unique user identifier"})')
+    })
+
+    it.concurrent('nullable string with x-brand', () => {
+      expect(zodToOpenAPI({ type: 'string', nullable: true, 'x-brand': 'UserId' } as Schema)).toBe(
+        'z.string().nullable().brand<"UserId">()',
+      )
+    })
+
+    it.concurrent('boolean with x-brand', () => {
+      expect(zodToOpenAPI({ type: 'boolean', 'x-brand': 'Flag' } as Schema)).toBe(
+        'z.boolean().brand<"Flag">()',
+      )
+    })
+
+    it.concurrent('array with x-brand', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'array',
+          items: { type: 'string' },
+          'x-brand': 'Tags',
+        } as Schema),
+      ).toBe('z.array(z.string()).brand<"Tags">()')
+    })
+
+    it.concurrent('object with x-brand', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'object',
+          properties: {
+            street: { type: 'string' },
+            city: { type: 'string' },
+          },
+          required: ['street', 'city'],
+          'x-brand': 'Address',
+        } as Schema),
+      ).toBe(
+        'z.object({street:z.string(),city:z.string()}).brand<"Address">().openapi({"required":["street","city"]})',
+      )
+    })
+
+    it.concurrent('object with x-brand and optional property', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+          required: ['id'],
+          'x-brand': 'User',
+        } as Schema),
+      ).toBe(
+        'z.object({id:z.string(),name:z.string().exactOptional()}).brand<"User">().openapi({"required":["id"]})',
+      )
+    })
+
+    it.concurrent('array with minItems and x-brand', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 1,
+          'x-brand': 'Scores',
+        } as Schema),
+      ).toBe('z.array(z.number()).min(1).brand<"Scores">()')
+    })
+  })
 })
