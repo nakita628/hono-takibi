@@ -1321,137 +1321,6 @@ hono request \
 This operation does not require authentication
 </aside>
 
-<h1 id="opennext-twitter-clone-api-register">register</h1>
-
-## postRegister
-
-<a id="opIdpostRegister"></a>
-
-> Code samples
-
-```bash
-hono request \
-  -X POST \
-  -P /api/register \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' \
-  -d '{
-    "email": "user@example.com",
-    "name": "string",
-    "username": "string",
-    "password": "string"
-  }' \
-  src/app/api/[[...route]]/route.ts
-```
-
-`POST /register`
-
-> Body parameter
-
-```json
-{
-  "email": "user@example.com",
-  "name": "string",
-  "username": "string",
-  "password": "string"
-}
-```
-
-<h3 id="postregister-parameters">Parameters</h3>
-
-| Name       | In   | Type                                      | Required | Description |
-| ---------- | ---- | ----------------------------------------- | -------- | ----------- |
-| body       | body | [RegisterRequest](#schemaregisterrequest) | true     | none        |
-| » email    | body | string(email)                             | true     | none        |
-| » name     | body | string                                    | true     | none        |
-| » username | body | string                                    | true     | none        |
-| » password | body | string                                    | true     | none        |
-
-> Example responses
-
-> 201 Response
-
-```json
-{
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "email": "user@example.com",
-  "emailVerified": "1970-01-01T00:00:00Z",
-  "hasNotification": true
-}
-```
-
-> 404 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 409 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 422 Response
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unprocessable Content",
-  "status": 422,
-  "detail": "Request validation failed",
-  "errors": [
-    {
-      "pointer": "string",
-      "detail": "string"
-    }
-  ]
-}
-```
-
-> 500 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 503 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-<h3 id="postregister-responses">Responses</h3>
-
-| Status | Meaning               | Description                                                                | Schema                                    |
-| ------ | --------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| 201    | Created               | The request has succeeded and a new resource has been created as a result. | [User](#schemauser)                       |
-| 404    | Not Found             | The server cannot find the requested resource.                             | [MessageResponse](#schemamessageresponse) |
-| 409    | Conflict              | The request conflicts with the current state of the server.                | [MessageResponse](#schemamessageresponse) |
-| 422    | Unprocessable Entity  | Client error                                                               | [ValidationError](#schemavalidationerror) |
-| 500    | Internal Server Error | Server error                                                               | [MessageResponse](#schemamessageresponse) |
-| 503    | Service Unavailable   | Service unavailable.                                                       | [MessageResponse](#schemamessageresponse) |
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
 <h1 id="opennext-twitter-clone-api-search">search</h1>
 
 ## getSearch
@@ -1484,40 +1353,29 @@ hono request \
 
 ```json
 {
-  "posts": {
-    "data": [
-      {
+  "posts": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
         "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "user": {
-          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-          "name": "string",
-          "username": "string",
-          "bio": "string",
-          "image": "http://example.com",
-          "coverImage": "http://example.com",
-          "profileImage": "http://example.com",
-          "createdAt": "1970-01-01T00:00:00Z",
-          "updatedAt": "1970-01-01T00:00:00Z"
-        },
-        "commentCount": 0,
-        "likeCount": 0
-      }
-    ],
-    "meta": {
-      "page": 0,
-      "limit": 0,
-      "total": 0,
-      "totalPages": 0
+        "updatedAt": "1970-01-01T00:00:00Z"
+      },
+      "commentCount": 0,
+      "likeCount": 0
     }
-  },
-  "users": {
-    "data": [{}],
-    "meta": {}
-  }
+  ],
+  "users": [{}]
 }
 ```
 
@@ -2437,69 +2295,6 @@ This operation does not require authentication
 | likes     | [object]                                    | true     | none         | none        |
 | \_count   | object                                      | true     | none         | none        |
 
-<h2 id="tocS_RegisterRequest">RegisterRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemaregisterrequest"></a>
-<a id="schema_RegisterRequest"></a>
-<a id="tocSregisterrequest"></a>
-<a id="tocsregisterrequest"></a>
-
-```json
-{
-  "email": "user@example.com",
-  "name": "string",
-  "username": "string",
-  "password": "string"
-}
-```
-
-### Properties
-
-| Name     | Type          | Required | Restrictions | Description |
-| -------- | ------------- | -------- | ------------ | ----------- |
-| email    | string(email) | true     | none         | none        |
-| name     | string        | true     | none         | none        |
-| username | string        | true     | none         | none        |
-| password | string        | true     | none         | none        |
-
-<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
-<!-- backwards compatibility -->
-<a id="schemapaginatedusers"></a>
-<a id="schema_PaginatedUsers"></a>
-<a id="tocSpaginatedusers"></a>
-<a id="tocspaginatedusers"></a>
-
-```json
-{
-  "data": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z"
-    }
-  ],
-  "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
-  }
-}
-```
-
-### Properties
-
-| Name | Type                                    | Required | Restrictions | Description |
-| ---- | --------------------------------------- | -------- | ------------ | ----------- |
-| data | [[PublicUser](#schemapublicuser)]       | true     | none         | none        |
-| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
-
 <h2 id="tocS_SearchResults">SearchResults</h2>
 <!-- backwards compatibility -->
 <a id="schemasearchresults"></a>
@@ -2509,49 +2304,38 @@ This operation does not require authentication
 
 ```json
 {
-  "posts": {
-    "data": [
-      {
+  "posts": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "body": "string",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z",
+      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "user": {
         "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
+        "name": "string",
+        "username": "string",
+        "bio": "string",
+        "image": "http://example.com",
+        "coverImage": "http://example.com",
+        "profileImage": "http://example.com",
         "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "user": {
-          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-          "name": "string",
-          "username": "string",
-          "bio": "string",
-          "image": "http://example.com",
-          "coverImage": "http://example.com",
-          "profileImage": "http://example.com",
-          "createdAt": "1970-01-01T00:00:00Z",
-          "updatedAt": "1970-01-01T00:00:00Z"
-        },
-        "commentCount": 0,
-        "likeCount": 0
-      }
-    ],
-    "meta": {
-      "page": 0,
-      "limit": 0,
-      "total": 0,
-      "totalPages": 0
+        "updatedAt": "1970-01-01T00:00:00Z"
+      },
+      "commentCount": 0,
+      "likeCount": 0
     }
-  },
-  "users": {
-    "data": [{}],
-    "meta": {}
-  }
+  ],
+  "users": [{}]
 }
 ```
 
 ### Properties
 
-| Name  | Type                                    | Required | Restrictions | Description |
-| ----- | --------------------------------------- | -------- | ------------ | ----------- |
-| posts | [PaginatedPosts](#schemapaginatedposts) | true     | none         | none        |
-| users | [PaginatedUsers](#schemapaginatedusers) | true     | none         | none        |
+| Name  | Type                                | Required | Restrictions | Description |
+| ----- | ----------------------------------- | -------- | ------------ | ----------- |
+| posts | [[PostSummary](#schemapostsummary)] | true     | none         | none        |
+| users | [[PublicUser](#schemapublicuser)]   | true     | none         | none        |
 
 <h2 id="tocS_UserWithFollowCount">UserWithFollowCount</h2>
 <!-- backwards compatibility -->
@@ -2592,6 +2376,44 @@ This operation does not require authentication
 | createdAt    | string(date-time) | true     | none         | none        |
 | updatedAt    | string(date-time) | true     | none         | none        |
 | \_count      | object            | true     | none         | none        |
+
+<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedusers"></a>
+<a id="schema_PaginatedUsers"></a>
+<a id="tocSpaginatedusers"></a>
+<a id="tocspaginatedusers"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "name": "string",
+      "username": "string",
+      "bio": "string",
+      "image": "http://example.com",
+      "coverImage": "http://example.com",
+      "profileImage": "http://example.com",
+      "createdAt": "1970-01-01T00:00:00Z",
+      "updatedAt": "1970-01-01T00:00:00Z"
+    }
+  ],
+  "meta": {
+    "page": 0,
+    "limit": 0,
+    "total": 0,
+    "totalPages": 0
+  }
+}
+```
+
+### Properties
+
+| Name | Type                                    | Required | Restrictions | Description |
+| ---- | --------------------------------------- | -------- | ------------ | ----------- |
+| data | [[PublicUser](#schemapublicuser)]       | true     | none         | none        |
+| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
 
 <h2 id="tocS_PostWithDetails">PostWithDetails</h2>
 <!-- backwards compatibility -->

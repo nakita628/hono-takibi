@@ -15,7 +15,7 @@ model MessageResponse {
 }
 
 model PublicUser {
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") id: string;
   name: string;
   username: string;
   bio?: string | null;
@@ -28,17 +28,17 @@ model PublicUser {
 
 model User {
   ...PublicUser;
-  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
+  @format("email") @extension("x-error-message", "Must be a valid email address") @extension("x-brand", "Email") email: string;
   @extension("x-error-message", "Email verified date must be a valid datetime") emailVerified: utcDateTime | null;
   hasNotification?: boolean | null;
 }
 
 model CurrentUser {
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") id: string;
   name: string;
   username: string;
   bio?: string | null;
-  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
+  @format("email") @extension("x-error-message", "Must be a valid email address") @extension("x-brand", "Email") email: string;
   @extension("x-error-message", "Image must be a valid URL") image: url | null;
   @extension("x-error-message", "Cover image must be a valid URL") coverImage: url | null;
   @extension("x-error-message", "Profile image must be a valid URL") profileImage: url | null;
@@ -58,70 +58,70 @@ model UserWithFollowCount {
 }
 
 model Follow {
-  @format("uuid") @extension("x-error-message", "Follower ID must be a valid UUID") followerId: string;
-  @format("uuid") @extension("x-error-message", "Following ID must be a valid UUID") followingId: string;
+  @format("uuid") @extension("x-error-message", "Follower ID must be a valid UUID") @extension("x-brand", "UserId") followerId: string;
+  @format("uuid") @extension("x-error-message", "Following ID must be a valid UUID") @extension("x-brand", "UserId") followingId: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
 model Comment {
-  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") @extension("x-brand", "CommentId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") postId: string;
 }
 
 model CommentWithUser {
-  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Comment ID must be a valid UUID") @extension("x-brand", "CommentId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") postId: string;
   user: PublicUser;
 }
 
 model Like {
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") postId: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
 model Post {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
 }
 
 model PostWithLikes {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
   likes: Like[];
 }
 
 model PostWithDetails {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
   user: PublicUser;
   comments: Comment[];
   likes: Like[];
 }
 
 model PostSummary {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
   user: PublicUser;
   commentCount: numeric;
   likeCount: numeric;
@@ -145,15 +145,15 @@ model PaginatedUsers {
 }
 
 model PostDetail {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") id: string;
   body: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
   @extension("x-error-message", "Updated date must be a valid datetime") updatedAt: utcDateTime;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
   user: PublicUser;
   comments: CommentWithUser[];
   likes: {
-    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID")
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId")
     userId: string;
   }[];
   _count: {
@@ -162,9 +162,9 @@ model PostDetail {
 }
 
 model Notification {
-  @format("uuid") @extension("x-error-message", "Notification ID must be a valid UUID") id: string;
+  @format("uuid") @extension("x-error-message", "Notification ID must be a valid UUID") @extension("x-brand", "NotificationId") id: string;
   body: string;
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
   @extension("x-error-message", "Created date must be a valid datetime") createdAt: utcDateTime;
 }
 
@@ -185,18 +185,11 @@ model EditUserRequest {
 }
 
 model FollowUserRequest {
-  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") userId: string;
+  @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") userId: string;
 }
 
 model LikePostRequest {
-  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") postId: string;
-}
-
-model RegisterRequest {
-  @format("email") @extension("x-error-message", "Must be a valid email address") email: string;
-  @minLength(1) @extension("x-minimum-message", "Name must not be empty") name: string;
-  @minLength(1) @extension("x-minimum-message", "Username must not be empty") username: string;
-  @minLength(1) @extension("x-minimum-message", "Password must not be empty") password: string;
+  @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") postId: string;
 }
 
 model SearchResults {
@@ -403,26 +396,6 @@ op getPostsPostId(...Parameters.PostIdPath): PostDetail | {
   @body body: MessageResponse;
 };
 
-@tag("register")
-@route("/register")
-@post
-op postRegister(@body body: RegisterRequest): {
-  @statusCode statusCode: 201;
-  @body body: User;
-} | (NotFoundResponse & MessageResponse) | {
-  @statusCode statusCode: 409;
-  @body body: MessageResponse;
-} | {
-  @statusCode statusCode: 422;
-  @body body: ValidationError;
-} | {
-  @statusCode statusCode: 500;
-  @body body: MessageResponse;
-} | {
-  @statusCode statusCode: 503;
-  @body body: MessageResponse;
-};
-
 @tag("search")
 @route("/search")
 @get
@@ -465,16 +438,16 @@ op getUsers(...Parameters.PaginationQuery): PaginatedUsers | {
 
 namespace Parameters {
   model PostIdPath {
-    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @path postId: string;
+    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") @path postId: string;
   }
   model PostIdQuery {
-    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @query(#{ explode: true }) postId: string;
+    @format("uuid") @extension("x-error-message", "Post ID must be a valid UUID") @extension("x-brand", "PostId") @query(#{ explode: true }) postId: string;
   }
   model UserIdPath {
-    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @path userId: string;
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") @path userId: string;
   }
   model UserIdQuery {
-    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @query(#{ explode: true }) userId?: string;
+    @format("uuid") @extension("x-error-message", "User ID must be a valid UUID") @extension("x-brand", "UserId") @query(#{ explode: true }) userId?: string;
   }
   model SearchQuery {
     @minLength(1) @extension("x-minimum-message", "Search query must not be empty") @query(#{ explode: true }) q: string;

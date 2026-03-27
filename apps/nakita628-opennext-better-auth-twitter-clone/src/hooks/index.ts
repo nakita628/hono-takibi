@@ -1,70 +1,49 @@
-/**
- * Auto-generated SWR Hooks (Hono RPC Client)
- *
- * This file provides type-safe data fetching hooks for every API endpoint.
- * Each endpoint has 3 parts:
- *   1. getXxxKey()   — Returns the SWR cache key (a tuple)
- *   2. xxxFetcher()  — The raw fetch function (calls Hono RPC client)
- *   3. useXxx()      — The SWR hook (wraps fetcher + key)
- *
- * ||| SWR Key Pattern |||
- *
- *   Key = [resource, method, path, args?]
- *
- *   Examples:
- *     ['posts',   'GET',  '/posts',         { query }]  ← list (with params)
- *     ['posts',   'GET',  '/posts/:postId', { param }]  ← detail (with param)
- *     ['posts',   'POST', '/posts']                     ← mutation (no args in key)
- *     ['current', 'GET',  '/current']                   ← singleton (no args)
- *
- * ||| Why Keys Matter |||
- *
- *   SWR uses the key to:
- *     - Cache data: same key = same cached data
- *     - Revalidate: mutate(key) refetches data for that key
- *     - Deduplicate: multiple components using the same key share one request
- *
- * ||| GET hooks (useSWR) vs Mutation hooks (useSWRMutation) |||
- *
- *   GET hooks:
- *     - Auto-fetch on mount (unless enabled=false)
- *     - Return { data, error, isLoading }
- *     - Revalidate on focus/reconnect by default
- *
- *   Mutation hooks:
- *     - Manual trigger: call trigger(args) to execute
- *     - Return { trigger, isMutating }
- *     - After mutation, call mutate(key) to refresh related GET data
- *
- * ||| Cache Invalidation Map |||
- *
- *   After action...        Invalidate these keys:
- *   ────────────────────────────────────────────────
- *   Create post            → posts infinite key
- *   Create comment         → posts/:postId + posts infinite key
- *   Like / Unlike          → posts/:postId
- *   Follow / Unfollow      → current + users/:userId
- *   Edit profile           → current + posts infinite + users + users/:userId
- *   Login / Register       → all keys (global mutate)
- *   Sign out               → current (set to undefined)
- *   Mark notifications read → current
- */
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRImmutable from 'swr/immutable'
+import useSWRInfinite from 'swr/infinite'
+import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 
 import { client } from '@/lib'
 
-// ──────────────────────────────────────
-// Comments — POST /comments
-// Mutation: creates a comment on a post
-// After success: invalidate posts/:postId + posts infinite key
-// ──────────────────────────────────────
-export function getPostCommentsMutationKey() {
-  return ['comments', 'POST', '/comments'] as const
+export function getCommentsKey() {
+  return ['comments'] as const
+}
+
+export function getCurrentKey() {
+  return ['current'] as const
+}
+
+export function getEditKey() {
+  return ['edit'] as const
+}
+
+export function getFollowKey() {
+  return ['follow'] as const
+}
+
+export function getLikeKey() {
+  return ['like'] as const
+}
+
+export function getNotificationsKey() {
+  return ['notifications'] as const
+}
+
+export function getPostsKey() {
+  return ['posts'] as const
+}
+
+export function getSearchKey() {
+  return ['search'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
 }
 
 export async function postComments(
@@ -81,11 +60,11 @@ export function usePostComments(options?: {
     Key,
     InferRequestType<typeof client.comments.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostCommentsMutationKey()
+  const swrKey = customKey ?? (['comments', '/comments', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -97,14 +76,8 @@ export function usePostComments(options?: {
   }
 }
 
-// ──────────────────────────────────────
-// Current User — GET /current
-// Fetches the logged-in user's profile with followers/following lists.
-// Key has no args — there's only one "current user" per session.
-// This is the most frequently used hook (almost every component).
-// ──────────────────────────────────────
 export function getGetCurrentKey() {
-  return ['current', 'GET', '/current'] as const
+  return ['current', '/current'] as const
 }
 
 export async function getCurrent(options?: ClientRequestOptions) {
@@ -113,24 +86,42 @@ export async function getCurrent(options?: ClientRequestOptions) {
 
 export function useGetCurrent(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetCurrentKey()) : null
+  return { swrKey, ...useSWR(swrKey, async () => getCurrent(clientOptions), restSwrOptions) }
+}
+
+export function useImmutableGetCurrent(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetCurrentKey()) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getCurrent(clientOptions), restSwrOptions),
+    ...useSWRImmutable(swrKey, async () => getCurrent(clientOptions), restSwrOptions),
   }
 }
 
-// ──────────────────────────────────────
-// Edit Profile — PATCH /edit
-// Mutation: updates user name, username, bio, and images.
-// After success: invalidate current + posts infinite + users + users/:userId
-// ──────────────────────────────────────
-export function getPatchEditMutationKey() {
-  return ['edit', 'PATCH', '/edit'] as const
+export function getGetCurrentInfiniteKey() {
+  return ['current', '/current', 'infinite'] as const
+}
+
+export function useInfiniteGetCurrent(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getCurrent>>, Error> & {
+    swrKey?: SWRInfiniteKeyLoader
+  }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetCurrentInfiniteKey(), index] as const)
+  return useSWRInfinite(keyLoader, async () => getCurrent(clientOptions), restSwrOptions)
 }
 
 export async function patchEdit(
@@ -147,11 +138,11 @@ export function usePatchEdit(options?: {
     Key,
     InferRequestType<typeof client.edit.$patch>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPatchEditMutationKey()
+  const swrKey = customKey ?? (['edit', '/edit', 'PATCH'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -161,15 +152,6 @@ export function usePatchEdit(options?: {
       restMutationOptions,
     ),
   }
-}
-
-// ──────────────────────────────────────
-// Follow — POST /follow
-// Mutation: follow another user
-// After success: invalidate current + users/:userId
-// ──────────────────────────────────────
-export function getPostFollowMutationKey() {
-  return ['follow', 'POST', '/follow'] as const
 }
 
 export async function postFollow(
@@ -186,11 +168,11 @@ export function usePostFollow(options?: {
     Key,
     InferRequestType<typeof client.follow.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostFollowMutationKey()
+  const swrKey = customKey ?? (['follow', '/follow', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -200,15 +182,6 @@ export function usePostFollow(options?: {
       restMutationOptions,
     ),
   }
-}
-
-// ──────────────────────────────────────
-// Unfollow — DELETE /follow
-// Mutation: unfollow a user
-// After success: invalidate current + users/:userId
-// ──────────────────────────────────────
-export function getDeleteFollowMutationKey() {
-  return ['follow', 'DELETE', '/follow'] as const
 }
 
 export async function deleteFollow(
@@ -225,11 +198,11 @@ export function useDeleteFollow(options?: {
     Key,
     InferRequestType<typeof client.follow.$delete>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeleteFollowMutationKey()
+  const swrKey = customKey ?? (['follow', '/follow', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -239,15 +212,6 @@ export function useDeleteFollow(options?: {
       restMutationOptions,
     ),
   }
-}
-
-// ──────────────────────────────────────
-// Like — POST /like
-// Mutation: like a post
-// After success: invalidate posts/:postId
-// ──────────────────────────────────────
-export function getPostLikeMutationKey() {
-  return ['like', 'POST', '/like'] as const
 }
 
 export async function postLike(
@@ -264,11 +228,11 @@ export function usePostLike(options?: {
     Key,
     InferRequestType<typeof client.like.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostLikeMutationKey()
+  const swrKey = customKey ?? (['like', '/like', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -278,15 +242,6 @@ export function usePostLike(options?: {
       restMutationOptions,
     ),
   }
-}
-
-// ──────────────────────────────────────
-// Unlike — DELETE /like
-// Mutation: remove a like from a post
-// After success: invalidate posts/:postId
-// ──────────────────────────────────────
-export function getDeleteLikeMutationKey() {
-  return ['like', 'DELETE', '/like'] as const
 }
 
 export async function deleteLike(
@@ -303,11 +258,11 @@ export function useDeleteLike(options?: {
     Key,
     InferRequestType<typeof client.like.$delete>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getDeleteLikeMutationKey()
+  const swrKey = customKey ?? (['like', '/like', 'DELETE'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -319,16 +274,10 @@ export function useDeleteLike(options?: {
   }
 }
 
-// ──────────────────────────────────────
-// Notifications — GET /notifications/:userId
-// Fetches the notification list for a specific user.
-// Key includes args (userId) — different users have different notifications.
-// Only enabled when currentUser exists.
-// ──────────────────────────────────────
 export function getGetNotificationsUserIdKey(
   args: InferRequestType<(typeof client.notifications)[':userId']['$get']>,
 ) {
-  return ['notifications', 'GET', '/notifications/:userId', args] as const
+  return ['notifications', '/notifications/:userId', args] as const
 }
 
 export async function getNotificationsUserId(
@@ -342,10 +291,10 @@ export function useGetNotificationsUserId(
   args: InferRequestType<(typeof client.notifications)[':userId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetNotificationsUserIdKey(args)) : null
   return {
@@ -354,13 +303,51 @@ export function useGetNotificationsUserId(
   }
 }
 
-// ──────────────────────────────────────
-// Mark Notifications Read — POST /notifications
-// Mutation: marks all notifications as read (hasNotification = false)
-// After success: invalidate current (to clear notification badge)
-// ──────────────────────────────────────
-export function getPostNotificationsMutationKey() {
-  return ['notifications', 'POST', '/notifications'] as const
+export function useImmutableGetNotificationsUserId(
+  args: InferRequestType<(typeof client.notifications)[':userId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetNotificationsUserIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
+      swrKey,
+      async () => getNotificationsUserId(args, clientOptions),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function getGetNotificationsUserIdInfiniteKey(
+  args: InferRequestType<(typeof client.notifications)[':userId']['$get']>,
+) {
+  return ['notifications', '/notifications/:userId', args, 'infinite'] as const
+}
+
+export function useInfiniteGetNotificationsUserId(
+  args: InferRequestType<(typeof client.notifications)[':userId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getNotificationsUserId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ??
+    ((index: number) => [...getGetNotificationsUserIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => getNotificationsUserId(args, clientOptions),
+    restSwrOptions,
+  )
 }
 
 export async function postNotifications(
@@ -377,11 +364,11 @@ export function usePostNotifications(options?: {
     Key,
     InferRequestType<typeof client.notifications.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostNotificationsMutationKey()
+  const swrKey = customKey ?? (['notifications', '/notifications', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -393,13 +380,8 @@ export function usePostNotifications(options?: {
   }
 }
 
-// ──────────────────────────────────────
-// Posts List — GET /posts
-// Fetches paginated post feed. Key includes query args (page, userId).
-// Used with useSWRInfinite in PostFeed for infinite scrolling.
-// ──────────────────────────────────────
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', 'GET', '/posts', args] as const
+  return ['posts', '/posts', args] as const
 }
 
 export async function getPosts(
@@ -413,25 +395,49 @@ export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetPostsKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getPosts(args, clientOptions), restSwrOptions) }
+}
+
+export function useImmutableGetPosts(
+  args: InferRequestType<typeof client.posts.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetPostsKey(args)) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getPosts(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(swrKey, async () => getPosts(args, clientOptions), restSwrOptions),
   }
 }
 
-// ──────────────────────────────────────
-// Create Post — POST /posts
-// Mutation: creates a new post (tweet)
-// After success: invalidate posts infinite key
-// ──────────────────────────────────────
-export function getPostPostsMutationKey() {
-  return ['posts', 'POST', '/posts'] as const
+export function getGetPostsInfiniteKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['posts', '/posts', args, 'infinite'] as const
+}
+
+export function useInfiniteGetPosts(
+  args: InferRequestType<typeof client.posts.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPosts>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetPostsInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getPosts(args, clientOptions), restSwrOptions)
 }
 
 export async function postPosts(
@@ -448,11 +454,11 @@ export function usePostPosts(options?: {
     Key,
     InferRequestType<typeof client.posts.$post>
   > & { swrKey?: Key }
-  client?: ClientRequestOptions
+  options?: ClientRequestOptions
 }) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostPostsMutationKey()
+  const swrKey = customKey ?? (['posts', '/posts', 'POST'] as const)
   return {
     swrKey,
     ...useSWRMutation(
@@ -464,15 +470,10 @@ export function usePostPosts(options?: {
   }
 }
 
-// ──────────────────────────────────────
-// Post Detail — GET /posts/:postId
-// Fetches a single post with comments and likes.
-// Key includes args (postId) — each post has its own cache entry.
-// ──────────────────────────────────────
 export function getGetPostsPostIdKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['posts', 'GET', '/posts/:postId', args] as const
+  return ['posts', '/posts/:postId', args] as const
 }
 
 export async function getPostsPostId(
@@ -486,10 +487,10 @@ export function useGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetPostsPostIdKey(args)) : null
   return {
@@ -498,53 +499,46 @@ export function useGetPostsPostId(
   }
 }
 
-// ──────────────────────────────────────
-// Register — POST /register
-// Mutation: creates a new user account + profile
-// After success: auto-login via Better Auth, then global mutate
-// ──────────────────────────────────────
-export function getPostRegisterMutationKey() {
-  return ['register', 'POST', '/register'] as const
-}
-
-export async function postRegister(
-  args: InferRequestType<typeof client.register.$post>,
-  options?: ClientRequestOptions,
+export function useImmutableGetPostsPostId(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
 ) {
-  return await parseResponse(client.register.$post(args, options))
-}
-
-export function usePostRegister(options?: {
-  mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postRegister>>,
-    Error,
-    Key,
-    InferRequestType<typeof client.register.$post>
-  > & { swrKey?: Key }
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? getPostRegisterMutationKey()
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetPostsPostIdKey(args)) : null
   return {
     swrKey,
-    ...useSWRMutation(
-      swrKey,
-      async (_: Key, { arg }: { arg: InferRequestType<typeof client.register.$post> }) =>
-        postRegister(arg, clientOptions),
-      restMutationOptions,
-    ),
+    ...useSWRImmutable(swrKey, async () => getPostsPostId(args, clientOptions), restSwrOptions),
   }
 }
 
-// ──────────────────────────────────────
-// Search — GET /search
-// Fetches search results (posts + users matching query).
-// Key includes query args — different search terms get different cache.
-// Only enabled when query string is non-empty.
-// ──────────────────────────────────────
+export function getGetPostsPostIdInfiniteKey(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+) {
+  return ['posts', '/posts/:postId', args, 'infinite'] as const
+}
+
+export function useInfiniteGetPostsPostId(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPostsPostId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetPostsPostIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getPostsPostId(args, clientOptions), restSwrOptions)
+}
+
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['search', 'GET', '/search', args] as const
+  return ['search', '/search', args] as const
 }
 
 export async function getSearch(
@@ -558,27 +552,55 @@ export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetSearchKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getSearch(args, clientOptions), restSwrOptions) }
+}
+
+export function useImmutableGetSearch(
+  args: InferRequestType<typeof client.search.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetSearchKey(args)) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getSearch(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(swrKey, async () => getSearch(args, clientOptions), restSwrOptions),
   }
 }
 
-// ──────────────────────────────────────
-// User Detail — GET /users/:userId
-// Fetches a user's profile with follower/following counts.
-// Key includes args (userId) — each user has their own cache entry.
-// ──────────────────────────────────────
+export function getGetSearchInfiniteKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['search', '/search', args, 'infinite'] as const
+}
+
+export function useInfiniteGetSearch(
+  args: InferRequestType<typeof client.search.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getSearch>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetSearchInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getSearch(args, clientOptions), restSwrOptions)
+}
+
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['users', 'GET', '/users/:userId', args] as const
+  return ['users', '/users/:userId', args] as const
 }
 
 export async function getUsersUserId(
@@ -592,10 +614,10 @@ export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdKey(args)) : null
   return {
@@ -604,13 +626,46 @@ export function useGetUsersUserId(
   }
 }
 
-// ──────────────────────────────────────
-// Users List — GET /users
-// Fetches paginated user list for "Who to follow" sidebar.
-// Key includes query args (page, limit).
-// ──────────────────────────────────────
+export function useImmutableGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(swrKey, async () => getUsersUserId(args, clientOptions), restSwrOptions),
+  }
+}
+
+export function getGetUsersUserIdInfiniteKey(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+) {
+  return ['users', '/users/:userId', args, 'infinite'] as const
+}
+
+export function useInfiniteGetUsersUserId(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersUserId>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersUserIdInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsersUserId(args, clientOptions), restSwrOptions)
+}
+
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', 'GET', '/users', args] as const
+  return ['users', '/users', args] as const
 }
 
 export async function getUsers(
@@ -624,14 +679,47 @@ export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    client?: ClientRequestOptions
+    options?: ClientRequestOptions
   },
 ) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+}
+
+export function useImmutableGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
   }
+}
+
+export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
+}
+
+export function useInfiniteGetUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+      swrKey?: SWRInfiniteKeyLoader
+    }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
+  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
 }

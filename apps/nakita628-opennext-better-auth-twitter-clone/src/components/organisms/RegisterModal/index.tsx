@@ -6,31 +6,14 @@ import { useSWRConfig } from 'swr'
 
 import { Input } from '@/components/atoms/Input'
 import { Modal } from '@/components/molecules/Modal'
-import { usePostRegister } from '@/hooks'
+import { usePatchEdit } from '@/hooks'
 import { authClient } from '@/infra/auth-client'
 import { useLoginModal, useRegisterModal } from '@/stores'
 
-/**
- * RegisterModal — New user registration form
- *
- * ||| Registration Flow |||
- *
- *   1. User enters email, name, username, password
- *   2. register({ json: { email, username, name, password } })
- *      → POST /api/register (creates user + profile in DB)
- *   3. authClient.signIn.email({ email, password })
- *      → Auto-login after registration (sets session cookie)
- *   4. mutate(() => true)
- *      → Global revalidation (same as LoginModal)
- *
- * ||| Modal Toggle |||
- *
- *   "Sign in" link → closes RegisterModal, opens LoginModal
- */
 export function RegisterModal() {
   const loginModal = useLoginModal()
   const registerModal = useRegisterModal()
-  const { trigger: register } = usePostRegister()
+  const { trigger: edit } = usePatchEdit()
   const { mutate } = useSWRConfig()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
@@ -48,11 +31,13 @@ export function RegisterModal() {
     try {
       setIsLoading(true)
 
-      await register({
-        json: { email, username, name, password },
-      })
+      const result = await authClient.signUp.email({ email, password, name })
+      if (!result.data) {
+        toast.error('Failed to create account')
+        return
+      }
 
-      await authClient.signIn.email({ email, password })
+      await edit({ json: { username, name } })
       toast.success('Account created')
       await mutate(() => true)
 
@@ -62,7 +47,7 @@ export function RegisterModal() {
     } finally {
       setIsLoading(false)
     }
-  }, [email, username, name, password, register, registerModal, mutate])
+  }, [email, username, name, password, edit, registerModal, mutate])
 
   const bodyContent = (
     <div className="flex flex-col gap-4">

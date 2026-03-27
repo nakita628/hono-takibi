@@ -7,12 +7,12 @@ export default defineConfig({
     jsxSingleQuote: true,
   },
   'zod-openapi': {
-    output: 'src/backend/routes/index.ts',
+    output: 'src/server/routes/index.ts',
     exportSchemas: true,
     template: {
       test: true,
       routeHandler: true,
-      pathAlias: '@/backend',
+      pathAlias: '@/server',
     },
   },
   docs: {
