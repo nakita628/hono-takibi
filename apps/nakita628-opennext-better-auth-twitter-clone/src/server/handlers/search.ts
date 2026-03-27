@@ -1,6 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
-
 import { AuthType, DBLive } from '@/infra'
 import type { getSearchRoute } from '@/server/routes'
 import * as SearchTransaction from '@/server/transactions/search'

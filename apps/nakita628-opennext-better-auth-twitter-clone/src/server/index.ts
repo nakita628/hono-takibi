@@ -1,5 +1,4 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-
 import { auth, type AuthType } from '@/infra'
 import {
   deleteFollowRouteHandler,
