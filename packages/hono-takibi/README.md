@@ -142,18 +142,28 @@ Use the `x-brand` vendor extension to generate [Zod branded types](https://zod.d
 components:
   schemas:
     Cat:
-      type: string
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
       x-brand: Cat
     Dog:
-      type: string
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
       x-brand: Dog
 ```
 
 ```ts
 // Generated output
-const CatSchema = z.string().brand<'Cat'>().openapi('Cat')
+const CatSchema = z.object({ name: z.string() }).brand<'Cat'>().openapi('Cat')
 
-const DogSchema = z.string().brand<'Dog'>().openapi('Dog')
+const DogSchema = z.object({ name: z.string() }).brand<'Dog'>().openapi('Dog')
 ```
 
 ## Vite Plugin
