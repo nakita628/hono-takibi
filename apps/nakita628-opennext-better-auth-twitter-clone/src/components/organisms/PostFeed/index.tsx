@@ -37,7 +37,7 @@ type Props = {
  * ||| SWR Key for Each Page |||
  *
  *   Page 0 → ['posts', 'GET', '/posts', { query: { page: 1 } }]
- *   Page 1 → ['posts', 'GET', '/posts', { query: { page: 2 } }]
+ *   Page 1 → ['posts', '/posts', { query: { page: 2 } }]
  *   ...
  *   Last   → null (when page >= totalPages)
  *
@@ -55,7 +55,7 @@ export function PostFeed({ userId }: Props) {
 
   const { data, isLoading, size, setSize } = useSWRInfinite(
     getKey,
-    async ([, , , args]) => getPosts(args),
+    async ([, , args]) => getPosts(args),
     { revalidateFirstPage: true },
   )
 

@@ -28,7 +28,7 @@ const ConfigSchema = z
             test: z.boolean().default(false),
             routeHandler: z.boolean().default(false),
             pathAlias: z.string().exactOptional(),
-            framework: z.enum(['vitest', 'bun']).default('vitest').exactOptional(),
+            framework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
           .exactOptional(),
         // OpenAPI Components Object order
@@ -256,7 +256,7 @@ const ConfigSchema = z
       .object({
         output: z.string(),
         import: z.string(),
-        framework: z.enum(['vitest', 'bun']).default('vitest').exactOptional(),
+        framework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
       })
       .exactOptional(),
     mock: z

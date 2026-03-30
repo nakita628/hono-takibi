@@ -1,6 +1,14 @@
 import type { Schema } from '../../openapi/index.js'
 
 /**
+ * Sanitize a schema name for use as a JavaScript identifier in mock function names.
+ * Removes dots from namespace-qualified names (e.g., "Auth.SignupRequest" → "AuthSignupRequest")
+ */
+export function sanitizeMockName(name: string): string {
+  return name.replace(/\./g, '')
+}
+
+/**
  * OpenAPI format to faker method mapping
  */
 export const FORMAT_TO_FAKER: { [key: string]: string } = {
@@ -135,7 +143,7 @@ export function schemaToFaker(
   // 3. Handle $ref
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
-    return `mock${refName}()`
+    return `mock${sanitizeMockName(refName)}()`
   }
 
   // 4. Handle array

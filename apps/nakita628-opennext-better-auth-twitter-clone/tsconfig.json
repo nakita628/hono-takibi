@@ -31,5 +31,5 @@
     "**/*.ts",
     "**/*.tsx"
   ],
-  "exclude": ["node_modules", "playwright.config.ts", "e2e"]
+  "exclude": ["node_modules", "playwright.config.ts", "e2e", "drizzle.config.ts"]
 }

@@ -466,7 +466,7 @@ export async function zodOpenAPIHonoHandler(
   routeImport: string | undefined = undefined,
   routeHandler = false,
   basePath = '/',
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -590,7 +590,7 @@ export async function mockZodOpenAPIHonoHandler(
   routeImport: string | undefined = undefined,
   routeHandler = false,
   basePath = '/',
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {

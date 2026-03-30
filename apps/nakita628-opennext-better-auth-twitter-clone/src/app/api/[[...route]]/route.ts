@@ -1,6 +1,6 @@
 import { handle } from 'hono/vercel'
 
-import app from '@/backend'
+import app from '@/server'
 
 export const dynamic = 'force-dynamic'
 

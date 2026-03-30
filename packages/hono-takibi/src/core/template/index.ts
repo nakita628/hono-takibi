@@ -20,7 +20,7 @@ export async function template(
   pathAlias: string | undefined,
   routeImport: string | undefined,
   routeHandler: boolean,
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

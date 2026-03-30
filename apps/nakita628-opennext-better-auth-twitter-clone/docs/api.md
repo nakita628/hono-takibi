@@ -19,7 +19,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "body": "string"
+    "body": "Great post! Thanks for sharing."
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -30,7 +30,7 @@ hono request \
 
 ```json
 {
-  "body": "string"
+  "body": "Great post! Thanks for sharing."
 }
 ```
 
@@ -48,12 +48,12 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "body": "Great post! Thanks for sharing.",
+  "createdAt": "2025-03-20T14:30:00Z",
+  "updatedAt": "2025-03-20T14:30:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 }
 ```
 
@@ -61,7 +61,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -75,8 +75,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -86,7 +86,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -94,7 +94,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -136,25 +136,19 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "email": "user@example.com",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "followers": [
-    {
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
-  ],
-  "following": [{}],
-  "hasNotification": true
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "email": "john@example.com",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
+  "followers": [],
+  "following": [],
+  "hasNotification": false
 }
 ```
 
@@ -162,7 +156,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -170,7 +164,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -178,7 +172,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -210,11 +204,11 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com"
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png"
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -225,11 +219,11 @@ hono request \
 
 ```json
 {
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com"
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png"
 }
 ```
 
@@ -250,17 +244,17 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "email": "user@example.com",
-  "emailVerified": "1970-01-01T00:00:00Z",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
+  "email": "john@example.com",
+  "emailVerified": "2025-01-15T09:05:00Z",
   "hasNotification": true
 }
 ```
@@ -269,7 +263,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -277,7 +271,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -291,8 +285,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -302,7 +296,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -310,7 +304,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -344,7 +338,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -355,7 +349,7 @@ hono request \
 
 ```json
 {
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 }
 ```
 
@@ -372,7 +366,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -380,7 +374,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -388,7 +382,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -396,7 +390,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -410,8 +404,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -421,7 +415,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -429,7 +423,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -462,7 +456,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -473,7 +467,7 @@ hono request \
 
 ```json
 {
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 }
 ```
 
@@ -490,7 +484,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -498,7 +492,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -512,8 +506,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -523,7 +517,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -531,7 +525,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -564,7 +558,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -575,7 +569,7 @@ hono request \
 
 ```json
 {
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 }
 ```
 
@@ -592,16 +586,16 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "likes": [
     {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
+      "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "createdAt": "2025-03-20T15:00:00Z"
     }
   ]
 }
@@ -611,7 +605,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -619,7 +613,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -627,7 +621,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -641,8 +635,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -652,7 +646,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -660,7 +654,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -693,7 +687,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -704,7 +698,7 @@ hono request \
 
 ```json
 {
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 }
 ```
 
@@ -721,16 +715,16 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "likes": [
     {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
+      "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "createdAt": "2025-03-20T15:00:00Z"
     }
   ]
 }
@@ -740,7 +734,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -748,7 +742,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -762,8 +756,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -773,7 +767,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -781,7 +775,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -831,10 +825,10 @@ hono request \
 ```json
 [
   {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "body": "string",
-    "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "createdAt": "1970-01-01T00:00:00Z"
+    "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+    "body": "John Doe liked your post",
+    "userId": "550e8400-e29b-41d4-a716-446655440000",
+    "createdAt": "2025-03-20T16:00:00Z"
   }
 ]
 ```
@@ -843,7 +837,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -857,8 +851,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -868,7 +862,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -876,7 +870,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -928,7 +922,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -936,7 +930,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -950,8 +944,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -961,7 +955,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -969,7 +963,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1021,31 +1015,32 @@ hono request \
 {
   "data": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "body": "Just shipped a new feature! Check it out.",
+      "createdAt": "2025-03-20T10:00:00Z",
+      "updatedAt": "2025-03-20T10:00:00Z",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
       "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z"
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "John Doe",
+        "username": "johndoe",
+        "bio": "Software developer",
+        "image": "https://example.com/images/johndoe.png",
+        "coverImage": "https://example.com/covers/johndoe.png",
+        "profileImage": "https://example.com/profiles/johndoe.png",
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-03-20T12:30:00Z"
       },
-      "commentCount": 0,
-      "likeCount": 0
+      "commentCount": 3,
+      "likeCount": 12,
+      "hasLiked": true
     }
   ],
   "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
   }
 }
 ```
@@ -1060,8 +1055,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1071,7 +1066,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1079,7 +1074,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1109,7 +1104,7 @@ hono request \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
   -d '{
-    "body": "string"
+    "body": "Just shipped a new feature! Check it out."
   }' \
   src/app/api/[[...route]]/route.ts
 ```
@@ -1120,7 +1115,7 @@ hono request \
 
 ```json
 {
-  "body": "string"
+  "body": "Just shipped a new feature! Check it out."
 }
 ```
 
@@ -1137,11 +1132,11 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -1149,7 +1144,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1163,8 +1158,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1174,7 +1169,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1182,7 +1177,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1228,40 +1223,30 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "user": {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "1970-01-01T00:00:00Z",
-    "updatedAt": "1970-01-01T00:00:00Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "image": "https://example.com/images/johndoe.png",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png",
+    "createdAt": "2025-01-15T09:00:00Z",
+    "updatedAt": "2025-03-20T12:30:00Z"
   },
-  "comments": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {}
-    }
-  ],
+  "comments": [],
   "likes": [
     {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+      "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
     }
   ],
   "_count": {
-    "likes": 0
+    "likes": 1
   }
 }
 ```
@@ -1270,7 +1255,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1284,8 +1269,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1295,7 +1280,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1303,7 +1288,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1316,137 +1301,6 @@ hono request \
 | 422    | Unprocessable Entity  | Client error                                   | [ValidationError](#schemavalidationerror) |
 | 500    | Internal Server Error | Server error                                   | [MessageResponse](#schemamessageresponse) |
 | 503    | Service Unavailable   | Service unavailable.                           | [MessageResponse](#schemamessageresponse) |
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-<h1 id="opennext-twitter-clone-api-register">register</h1>
-
-## postRegister
-
-<a id="opIdpostRegister"></a>
-
-> Code samples
-
-```bash
-hono request \
-  -X POST \
-  -P /api/register \
-  -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' \
-  -d '{
-    "email": "user@example.com",
-    "name": "string",
-    "username": "string",
-    "password": "string"
-  }' \
-  src/app/api/[[...route]]/route.ts
-```
-
-`POST /register`
-
-> Body parameter
-
-```json
-{
-  "email": "user@example.com",
-  "name": "string",
-  "username": "string",
-  "password": "string"
-}
-```
-
-<h3 id="postregister-parameters">Parameters</h3>
-
-| Name       | In   | Type                                      | Required | Description |
-| ---------- | ---- | ----------------------------------------- | -------- | ----------- |
-| body       | body | [RegisterRequest](#schemaregisterrequest) | true     | none        |
-| » email    | body | string(email)                             | true     | none        |
-| » name     | body | string                                    | true     | none        |
-| » username | body | string                                    | true     | none        |
-| » password | body | string                                    | true     | none        |
-
-> Example responses
-
-> 201 Response
-
-```json
-{
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "email": "user@example.com",
-  "emailVerified": "1970-01-01T00:00:00Z",
-  "hasNotification": true
-}
-```
-
-> 404 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 409 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 422 Response
-
-```json
-{
-  "type": "about:blank",
-  "title": "Unprocessable Content",
-  "status": 422,
-  "detail": "Request validation failed",
-  "errors": [
-    {
-      "pointer": "string",
-      "detail": "string"
-    }
-  ]
-}
-```
-
-> 500 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-> 503 Response
-
-```json
-{
-  "message": "string"
-}
-```
-
-<h3 id="postregister-responses">Responses</h3>
-
-| Status | Meaning               | Description                                                                | Schema                                    |
-| ------ | --------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| 201    | Created               | The request has succeeded and a new resource has been created as a result. | [User](#schemauser)                       |
-| 404    | Not Found             | The server cannot find the requested resource.                             | [MessageResponse](#schemamessageresponse) |
-| 409    | Conflict              | The request conflicts with the current state of the server.                | [MessageResponse](#schemamessageresponse) |
-| 422    | Unprocessable Entity  | Client error                                                               | [ValidationError](#schemavalidationerror) |
-| 500    | Internal Server Error | Server error                                                               | [MessageResponse](#schemamessageresponse) |
-| 503    | Service Unavailable   | Service unavailable.                                                       | [MessageResponse](#schemamessageresponse) |
 
 <aside class="success">
 This operation does not require authentication
@@ -1484,40 +1338,42 @@ hono request \
 
 ```json
 {
-  "posts": {
-    "data": [
-      {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
-        "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "user": {
-          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-          "name": "string",
-          "username": "string",
-          "bio": "string",
-          "image": "http://example.com",
-          "coverImage": "http://example.com",
-          "profileImage": "http://example.com",
-          "createdAt": "1970-01-01T00:00:00Z",
-          "updatedAt": "1970-01-01T00:00:00Z"
-        },
-        "commentCount": 0,
-        "likeCount": 0
-      }
-    ],
-    "meta": {
-      "page": 0,
-      "limit": 0,
-      "total": 0,
-      "totalPages": 0
+  "posts": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "body": "Just shipped a new feature! Check it out.",
+      "createdAt": "2025-03-20T10:00:00Z",
+      "updatedAt": "2025-03-20T10:00:00Z",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "user": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "John Doe",
+        "username": "johndoe",
+        "bio": "Software developer",
+        "image": "https://example.com/images/johndoe.png",
+        "coverImage": "https://example.com/covers/johndoe.png",
+        "profileImage": "https://example.com/profiles/johndoe.png",
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-03-20T12:30:00Z"
+      },
+      "commentCount": 3,
+      "likeCount": 12,
+      "hasLiked": true
     }
-  },
-  "users": {
-    "data": [{}],
-    "meta": {}
-  }
+  ],
+  "users": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "John Doe",
+      "username": "johndoe",
+      "bio": "Software developer",
+      "image": "https://example.com/images/johndoe.png",
+      "coverImage": "https://example.com/covers/johndoe.png",
+      "profileImage": "https://example.com/profiles/johndoe.png",
+      "createdAt": "2025-01-15T09:00:00Z",
+      "updatedAt": "2025-03-20T12:30:00Z"
+    }
+  ]
 }
 ```
 
@@ -1531,8 +1387,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1542,7 +1398,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1550,7 +1406,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1597,18 +1453,18 @@ hono request \
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
   "_count": {
-    "followers": 0,
-    "following": 0
+    "followers": 42,
+    "following": 15
   }
 }
 ```
@@ -1617,7 +1473,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1631,8 +1487,8 @@ hono request \
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1642,7 +1498,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1650,7 +1506,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1699,22 +1555,22 @@ hono request \
 {
   "data": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z"
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "John Doe",
+      "username": "johndoe",
+      "bio": "Software developer",
+      "image": "https://example.com/images/johndoe.png",
+      "coverImage": "https://example.com/covers/johndoe.png",
+      "profileImage": "https://example.com/profiles/johndoe.png",
+      "createdAt": "2025-01-15T09:00:00Z",
+      "updatedAt": "2025-03-20T12:30:00Z"
     }
   ],
   "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
   }
 }
 ```
@@ -1723,7 +1579,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1731,7 +1587,7 @@ hono request \
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1758,12 +1614,12 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "body": "Great post! Thanks for sharing.",
+  "createdAt": "2025-03-20T14:30:00Z",
+  "updatedAt": "2025-03-20T14:30:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 }
 ```
 
@@ -1787,7 +1643,7 @@ This operation does not require authentication
 
 ```json
 {
-  "message": "string"
+  "message": "Operation completed successfully"
 }
 ```
 
@@ -1806,8 +1662,8 @@ This operation does not require authentication
 
 ```json
 {
-  "pointer": "string",
-  "detail": "string"
+  "pointer": "/email",
+  "detail": "Must be a valid email address"
 }
 ```
 
@@ -1833,8 +1689,8 @@ This operation does not require authentication
   "detail": "Request validation failed",
   "errors": [
     {
-      "pointer": "string",
-      "detail": "string"
+      "pointer": "/email",
+      "detail": "Must be a valid email address"
     }
   ]
 }
@@ -1868,7 +1724,7 @@ This operation does not require authentication
 
 ```json
 {
-  "body": "string"
+  "body": "Great post! Thanks for sharing."
 }
 ```
 
@@ -1887,9 +1743,9 @@ This operation does not require authentication
 
 ```json
 {
-  "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "createdAt": "1970-01-01T00:00:00Z"
+  "followerId": "550e8400-e29b-41d4-a716-446655440000",
+  "followingId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+  "createdAt": "2025-03-01T10:00:00Z"
 }
 ```
 
@@ -1910,25 +1766,19 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "email": "user@example.com",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "followers": [
-    {
-      "followerId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "followingId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
-  ],
-  "following": [{}],
-  "hasNotification": true
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "email": "john@example.com",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
+  "followers": [],
+  "following": [],
+  "hasNotification": false
 }
 ```
 
@@ -1959,17 +1809,17 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "email": "user@example.com",
-  "emailVerified": "1970-01-01T00:00:00Z",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
+  "email": "john@example.com",
+  "emailVerified": "2025-01-15T09:05:00Z",
   "hasNotification": true
 }
 ```
@@ -2000,11 +1850,11 @@ This operation does not require authentication
 
 ```json
 {
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com"
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png"
 }
 ```
 
@@ -2027,7 +1877,7 @@ This operation does not require authentication
 
 ```json
 {
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 }
 ```
 
@@ -2046,9 +1896,9 @@ This operation does not require authentication
 
 ```json
 {
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "createdAt": "1970-01-01T00:00:00Z"
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "createdAt": "2025-03-20T15:00:00Z"
 }
 ```
 
@@ -2069,16 +1919,16 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "likes": [
     {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
+      "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "createdAt": "2025-03-20T15:00:00Z"
     }
   ]
 }
@@ -2104,7 +1954,7 @@ This operation does not require authentication
 
 ```json
 {
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
 }
 ```
 
@@ -2123,10 +1973,10 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "createdAt": "1970-01-01T00:00:00Z"
+  "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "body": "John Doe liked your post",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "createdAt": "2025-03-20T16:00:00Z"
 }
 ```
 
@@ -2148,15 +1998,15 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z"
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z"
 }
 ```
 
@@ -2183,39 +2033,41 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "user": {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "1970-01-01T00:00:00Z",
-    "updatedAt": "1970-01-01T00:00:00Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "image": "https://example.com/images/johndoe.png",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png",
+    "createdAt": "2025-01-15T09:00:00Z",
+    "updatedAt": "2025-03-20T12:30:00Z"
   },
-  "commentCount": 0,
-  "likeCount": 0
+  "commentCount": 3,
+  "likeCount": 12,
+  "hasLiked": true
 }
 ```
 
 ### Properties
 
-| Name         | Type                            | Required | Restrictions | Description |
-| ------------ | ------------------------------- | -------- | ------------ | ----------- |
-| id           | string(uuid)                    | true     | none         | none        |
-| body         | string                          | true     | none         | none        |
-| createdAt    | string(date-time)               | true     | none         | none        |
-| updatedAt    | string(date-time)               | true     | none         | none        |
-| userId       | string(uuid)                    | true     | none         | none        |
-| user         | [PublicUser](#schemapublicuser) | true     | none         | none        |
-| commentCount | number                          | true     | none         | none        |
-| likeCount    | number                          | true     | none         | none        |
+| Name         | Type                            | Required | Restrictions | Description                                  |
+| ------------ | ------------------------------- | -------- | ------------ | -------------------------------------------- |
+| id           | string(uuid)                    | true     | none         | none                                         |
+| body         | string                          | true     | none         | none                                         |
+| createdAt    | string(date-time)               | true     | none         | none                                         |
+| updatedAt    | string(date-time)               | true     | none         | none                                         |
+| userId       | string(uuid)                    | true     | none         | none                                         |
+| user         | [PublicUser](#schemapublicuser) | true     | none         | none                                         |
+| commentCount | number                          | true     | none         | none                                         |
+| likeCount    | number                          | true     | none         | none                                         |
+| hasLiked     | boolean                         | true     | none         | Whether the current user has liked this post |
 
 <h2 id="tocS_PaginationMeta">PaginationMeta</h2>
 <!-- backwards compatibility -->
@@ -2226,10 +2078,10 @@ This operation does not require authentication
 
 ```json
 {
-  "page": 0,
-  "limit": 0,
-  "total": 0,
-  "totalPages": 0
+  "page": 1,
+  "limit": 20,
+  "total": 150,
+  "totalPages": 8
 }
 ```
 
@@ -2253,31 +2105,32 @@ This operation does not require authentication
 {
   "data": [
     {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "body": "Just shipped a new feature! Check it out.",
+      "createdAt": "2025-03-20T10:00:00Z",
+      "updatedAt": "2025-03-20T10:00:00Z",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
       "user": {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "name": "string",
-        "username": "string",
-        "bio": "string",
-        "image": "http://example.com",
-        "coverImage": "http://example.com",
-        "profileImage": "http://example.com",
-        "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z"
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "John Doe",
+        "username": "johndoe",
+        "bio": "Software developer",
+        "image": "https://example.com/images/johndoe.png",
+        "coverImage": "https://example.com/covers/johndoe.png",
+        "profileImage": "https://example.com/profiles/johndoe.png",
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-03-20T12:30:00Z"
       },
-      "commentCount": 0,
-      "likeCount": 0
+      "commentCount": 3,
+      "likeCount": 12,
+      "hasLiked": true
     }
   ],
   "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
   }
 }
 ```
@@ -2298,11 +2151,11 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
@@ -2325,7 +2178,7 @@ This operation does not require authentication
 
 ```json
 {
-  "body": "string"
+  "body": "Just shipped a new feature! Check it out."
 }
 ```
 
@@ -2344,22 +2197,22 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "body": "Great post! Thanks for sharing.",
+  "createdAt": "2025-03-20T14:30:00Z",
+  "updatedAt": "2025-03-20T14:30:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
+  "postId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   "user": {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "1970-01-01T00:00:00Z",
-    "updatedAt": "1970-01-01T00:00:00Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "image": "https://example.com/images/johndoe.png",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png",
+    "createdAt": "2025-01-15T09:00:00Z",
+    "updatedAt": "2025-03-20T12:30:00Z"
   }
 }
 ```
@@ -2385,40 +2238,30 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "user": {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "1970-01-01T00:00:00Z",
-    "updatedAt": "1970-01-01T00:00:00Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "image": "https://example.com/images/johndoe.png",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png",
+    "createdAt": "2025-01-15T09:00:00Z",
+    "updatedAt": "2025-03-20T12:30:00Z"
   },
-  "comments": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "user": {}
-    }
-  ],
+  "comments": [],
   "likes": [
     {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+      "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
     }
   ],
   "_count": {
-    "likes": 0
+    "likes": 1
   }
 }
 ```
@@ -2437,69 +2280,6 @@ This operation does not require authentication
 | likes     | [object]                                    | true     | none         | none        |
 | \_count   | object                                      | true     | none         | none        |
 
-<h2 id="tocS_RegisterRequest">RegisterRequest</h2>
-<!-- backwards compatibility -->
-<a id="schemaregisterrequest"></a>
-<a id="schema_RegisterRequest"></a>
-<a id="tocSregisterrequest"></a>
-<a id="tocsregisterrequest"></a>
-
-```json
-{
-  "email": "user@example.com",
-  "name": "string",
-  "username": "string",
-  "password": "string"
-}
-```
-
-### Properties
-
-| Name     | Type          | Required | Restrictions | Description |
-| -------- | ------------- | -------- | ------------ | ----------- |
-| email    | string(email) | true     | none         | none        |
-| name     | string        | true     | none         | none        |
-| username | string        | true     | none         | none        |
-| password | string        | true     | none         | none        |
-
-<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
-<!-- backwards compatibility -->
-<a id="schemapaginatedusers"></a>
-<a id="schema_PaginatedUsers"></a>
-<a id="tocSpaginatedusers"></a>
-<a id="tocspaginatedusers"></a>
-
-```json
-{
-  "data": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "name": "string",
-      "username": "string",
-      "bio": "string",
-      "image": "http://example.com",
-      "coverImage": "http://example.com",
-      "profileImage": "http://example.com",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z"
-    }
-  ],
-  "meta": {
-    "page": 0,
-    "limit": 0,
-    "total": 0,
-    "totalPages": 0
-  }
-}
-```
-
-### Properties
-
-| Name | Type                                    | Required | Restrictions | Description |
-| ---- | --------------------------------------- | -------- | ------------ | ----------- |
-| data | [[PublicUser](#schemapublicuser)]       | true     | none         | none        |
-| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
-
 <h2 id="tocS_SearchResults">SearchResults</h2>
 <!-- backwards compatibility -->
 <a id="schemasearchresults"></a>
@@ -2509,49 +2289,51 @@ This operation does not require authentication
 
 ```json
 {
-  "posts": {
-    "data": [
-      {
-        "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "body": "string",
-        "createdAt": "1970-01-01T00:00:00Z",
-        "updatedAt": "1970-01-01T00:00:00Z",
-        "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-        "user": {
-          "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-          "name": "string",
-          "username": "string",
-          "bio": "string",
-          "image": "http://example.com",
-          "coverImage": "http://example.com",
-          "profileImage": "http://example.com",
-          "createdAt": "1970-01-01T00:00:00Z",
-          "updatedAt": "1970-01-01T00:00:00Z"
-        },
-        "commentCount": 0,
-        "likeCount": 0
-      }
-    ],
-    "meta": {
-      "page": 0,
-      "limit": 0,
-      "total": 0,
-      "totalPages": 0
+  "posts": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "body": "Just shipped a new feature! Check it out.",
+      "createdAt": "2025-03-20T10:00:00Z",
+      "updatedAt": "2025-03-20T10:00:00Z",
+      "userId": "550e8400-e29b-41d4-a716-446655440000",
+      "user": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "John Doe",
+        "username": "johndoe",
+        "bio": "Software developer",
+        "image": "https://example.com/images/johndoe.png",
+        "coverImage": "https://example.com/covers/johndoe.png",
+        "profileImage": "https://example.com/profiles/johndoe.png",
+        "createdAt": "2025-01-15T09:00:00Z",
+        "updatedAt": "2025-03-20T12:30:00Z"
+      },
+      "commentCount": 3,
+      "likeCount": 12,
+      "hasLiked": true
     }
-  },
-  "users": {
-    "data": [{}],
-    "meta": {}
-  }
+  ],
+  "users": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "John Doe",
+      "username": "johndoe",
+      "bio": "Software developer",
+      "image": "https://example.com/images/johndoe.png",
+      "coverImage": "https://example.com/covers/johndoe.png",
+      "profileImage": "https://example.com/profiles/johndoe.png",
+      "createdAt": "2025-01-15T09:00:00Z",
+      "updatedAt": "2025-03-20T12:30:00Z"
+    }
+  ]
 }
 ```
 
 ### Properties
 
-| Name  | Type                                    | Required | Restrictions | Description |
-| ----- | --------------------------------------- | -------- | ------------ | ----------- |
-| posts | [PaginatedPosts](#schemapaginatedposts) | true     | none         | none        |
-| users | [PaginatedUsers](#schemapaginatedusers) | true     | none         | none        |
+| Name  | Type                                | Required | Restrictions | Description |
+| ----- | ----------------------------------- | -------- | ------------ | ----------- |
+| posts | [[PostSummary](#schemapostsummary)] | true     | none         | none        |
+| users | [[PublicUser](#schemapublicuser)]   | true     | none         | none        |
 
 <h2 id="tocS_UserWithFollowCount">UserWithFollowCount</h2>
 <!-- backwards compatibility -->
@@ -2562,18 +2344,18 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "name": "string",
-  "username": "string",
-  "bio": "string",
-  "image": "http://example.com",
-  "coverImage": "http://example.com",
-  "profileImage": "http://example.com",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "name": "John Doe",
+  "username": "johndoe",
+  "bio": "Software developer",
+  "image": "https://example.com/images/johndoe.png",
+  "coverImage": "https://example.com/covers/johndoe.png",
+  "profileImage": "https://example.com/profiles/johndoe.png",
+  "createdAt": "2025-01-15T09:00:00Z",
+  "updatedAt": "2025-03-20T12:30:00Z",
   "_count": {
-    "followers": 0,
-    "following": 0
+    "followers": 42,
+    "following": 15
   }
 }
 ```
@@ -2593,6 +2375,44 @@ This operation does not require authentication
 | updatedAt    | string(date-time) | true     | none         | none        |
 | \_count      | object            | true     | none         | none        |
 
+<h2 id="tocS_PaginatedUsers">PaginatedUsers</h2>
+<!-- backwards compatibility -->
+<a id="schemapaginatedusers"></a>
+<a id="schema_PaginatedUsers"></a>
+<a id="tocSpaginatedusers"></a>
+<a id="tocspaginatedusers"></a>
+
+```json
+{
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "name": "John Doe",
+      "username": "johndoe",
+      "bio": "Software developer",
+      "image": "https://example.com/images/johndoe.png",
+      "coverImage": "https://example.com/covers/johndoe.png",
+      "profileImage": "https://example.com/profiles/johndoe.png",
+      "createdAt": "2025-01-15T09:00:00Z",
+      "updatedAt": "2025-03-20T12:30:00Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+```
+
+### Properties
+
+| Name | Type                                    | Required | Restrictions | Description |
+| ---- | --------------------------------------- | -------- | ------------ | ----------- |
+| data | [[PublicUser](#schemapublicuser)]       | true     | none         | none        |
+| meta | [PaginationMeta](#schemapaginationmeta) | true     | none         | none        |
+
 <h2 id="tocS_PostWithDetails">PostWithDetails</h2>
 <!-- backwards compatibility -->
 <a id="schemapostwithdetails"></a>
@@ -2602,39 +2422,24 @@ This operation does not require authentication
 
 ```json
 {
-  "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-  "body": "string",
-  "createdAt": "1970-01-01T00:00:00Z",
-  "updatedAt": "1970-01-01T00:00:00Z",
-  "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "body": "Just shipped a new feature! Check it out.",
+  "createdAt": "2025-03-20T10:00:00Z",
+  "updatedAt": "2025-03-20T10:00:00Z",
+  "userId": "550e8400-e29b-41d4-a716-446655440000",
   "user": {
-    "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-    "name": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "http://example.com",
-    "coverImage": "http://example.com",
-    "profileImage": "http://example.com",
-    "createdAt": "1970-01-01T00:00:00Z",
-    "updatedAt": "1970-01-01T00:00:00Z"
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "John Doe",
+    "username": "johndoe",
+    "bio": "Software developer",
+    "image": "https://example.com/images/johndoe.png",
+    "coverImage": "https://example.com/covers/johndoe.png",
+    "profileImage": "https://example.com/profiles/johndoe.png",
+    "createdAt": "2025-01-15T09:00:00Z",
+    "updatedAt": "2025-03-20T12:30:00Z"
   },
-  "comments": [
-    {
-      "id": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "body": "string",
-      "createdAt": "1970-01-01T00:00:00Z",
-      "updatedAt": "1970-01-01T00:00:00Z",
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08"
-    }
-  ],
-  "likes": [
-    {
-      "userId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "postId": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
-      "createdAt": "1970-01-01T00:00:00Z"
-    }
-  ]
+  "comments": [],
+  "likes": []
 }
 ```
 

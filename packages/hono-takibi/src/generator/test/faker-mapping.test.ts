@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import {
   FORMAT_TO_FAKER,
   PROPERTY_NAME_TO_FAKER,
+  sanitizeMockName,
   schemaToFaker,
   TYPE_TO_FAKER,
 } from './faker-mapping.js'
@@ -171,6 +172,22 @@ describe('schemaToFaker', () => {
 
     it.concurrent('handles nested $ref path', () => {
       expect(schemaToFaker({ $ref: '#/components/schemas/OrderItem' })).toBe('mockOrderItem()')
+    })
+
+    it.concurrent('sanitizes dotted $ref name (TypeSpec namespace)', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/Auth.SignupRequest' })).toBe(
+        'mockAuthSignupRequest()',
+      )
+    })
+
+    it.concurrent('sanitizes multiple dots in $ref name', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/Api.V1.CreateUser' })).toBe(
+        'mockApiV1CreateUser()',
+      )
+    })
+
+    it.concurrent('$ref without dots is unchanged', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/UserId' })).toBe('mockUserId()')
     })
   })
 
@@ -571,5 +588,41 @@ describe('schemaToFaker', () => {
     it.concurrent('returns undefined for unknown type', () => {
       expect(schemaToFaker({ type: 'date' })).toBe('undefined')
     })
+  })
+})
+
+/* ═══════════════════════════════════ sanitizeMockName ═══════════════════════════════════ */
+
+describe('sanitizeMockName', () => {
+  it.concurrent('removes single dot (TypeSpec namespace)', () => {
+    expect(sanitizeMockName('Auth.SignupRequest')).toBe('AuthSignupRequest')
+  })
+
+  it.concurrent('removes multiple dots (deeply nested namespace)', () => {
+    expect(sanitizeMockName('Api.V1.Models.User')).toBe('ApiV1ModelsUser')
+  })
+
+  it.concurrent('returns unchanged when no dots', () => {
+    expect(sanitizeMockName('UserId')).toBe('UserId')
+  })
+
+  it.concurrent('handles empty string', () => {
+    expect(sanitizeMockName('')).toBe('')
+  })
+
+  it.concurrent('handles single character', () => {
+    expect(sanitizeMockName('A')).toBe('A')
+  })
+
+  it.concurrent('handles leading dot', () => {
+    expect(sanitizeMockName('.Hidden')).toBe('Hidden')
+  })
+
+  it.concurrent('handles trailing dot', () => {
+    expect(sanitizeMockName('Trailing.')).toBe('Trailing')
+  })
+
+  it.concurrent('handles consecutive dots', () => {
+    expect(sanitizeMockName('A..B')).toBe('AB')
   })
 })
