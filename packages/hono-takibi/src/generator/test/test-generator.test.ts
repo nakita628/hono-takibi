@@ -2047,7 +2047,7 @@ describe('extractTestCases - components/parameters $ref resolution', () => {
         '/users/{userId}': {
           get: {
             operationId: 'getUser',
-            parameters: [{ $ref: '#/components/parameters/UserIdParam' }],
+            parameters: [{ $ref: '#/components/parameters/UserIdParam' } as never],
             responses: { '200': { description: 'OK' } },
           },
         },
@@ -2120,11 +2120,7 @@ describe('extractTestCases - mixed path, query, header $ref params', () => {
       },
     }
     const result = extractTestCases(spec)
-    expect(result[0].usedSchemaRefs).toStrictEqual([
-      'UserId',
-      'PostStatus',
-      'CorrelationId',
-    ])
+    expect(result[0].usedSchemaRefs).toStrictEqual(['UserId', 'PostStatus', 'CorrelationId'])
   })
 })
 
