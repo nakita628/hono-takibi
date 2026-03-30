@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Effect } from 'effect'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { ConflictError, ContractViolationError, DatabaseError, NotFoundError } from '@/errors'
 import app from '@/server'
 import * as FollowTransaction from '@/server/transactions/follow'

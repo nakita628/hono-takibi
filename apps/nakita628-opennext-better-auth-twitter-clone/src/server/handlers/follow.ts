@@ -1,5 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import { AuthType, DBLive } from '@/infra'
 import type { deleteFollowRoute, postFollowRoute } from '@/server/routes'
 import * as FollowTransaction from '@/server/transactions/follow'

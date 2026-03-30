@@ -1,5 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import { ContractViolationError, DatabaseError, UnauthorizedError } from '@/errors'
 import { AuthType, DBLive } from '@/infra'
 import type { getCurrentRoute } from '@/server/routes'

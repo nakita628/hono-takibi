@@ -1,5 +1,6 @@
 import type { RouteHandler } from '@hono/zod-openapi'
 import { Effect } from 'effect'
+
 import { AuthType, DBLive } from '@/infra'
 import type { getNotificationsUserIdRoute, postNotificationsRoute } from '@/server/routes'
 import * as NotificationsTransaction from '@/server/transactions/notifications'

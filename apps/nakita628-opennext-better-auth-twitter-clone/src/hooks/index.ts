@@ -1,12 +1,13 @@
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import useSWR from 'swr'
-import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
+import useSWRImmutable from 'swr/immutable'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
+
 import { client } from '@/lib'
 
 export function getCommentsKey() {
