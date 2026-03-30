@@ -11,7 +11,7 @@ export async function test(
   output: string,
   importPath: string,
   basePath = '/',
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {

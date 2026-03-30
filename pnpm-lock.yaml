@@ -920,6 +920,49 @@ importers:
         specifier: workspace:^
         version: link:../../packages/hono-takibi
 
+  fixtures/x-clone:
+    dependencies:
+      '@hono/zod-openapi':
+        specifier: ^1.2.1
+        version: 1.2.3(hono@4.12.9)(zod@4.3.6)
+      hono:
+        specifier: ^4.11.7
+        version: 4.12.9
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
+    devDependencies:
+      '@faker-js/faker':
+        specifier: ^9.8.0
+        version: 9.9.0
+      '@types/node':
+        specifier: ^25.0.2
+        version: 25.5.0
+      '@typespec/compiler':
+        specifier: ^1.9.0
+        version: 1.10.0(@types/node@25.5.0)
+      '@typespec/http':
+        specifier: ^1.9.0
+        version: 1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0))
+      '@typespec/openapi':
+        specifier: ^1.9.0
+        version: 1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0))(@typespec/http@1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0)))
+      '@typespec/openapi3':
+        specifier: ^1.9.0
+        version: 1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0))(@typespec/http@1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0)))(@typespec/openapi@1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0))(@typespec/http@1.10.0(@typespec/compiler@1.10.0(@types/node@25.5.0))))(@typespec/versioning@0.80.0(@typespec/compiler@1.10.0(@types/node@25.5.0)))
+      hono-takibi:
+        specifier: workspace:^
+        version: link:../../packages/hono-takibi
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.1.2(@opentelemetry/api@1.9.1)(@types/node@25.5.0)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+
   packages/hono-takibi:
     dependencies:
       '@apidevtools/swagger-parser':
@@ -11231,7 +11274,7 @@ snapshots:
 
   '@types/node-fetch@2.6.13':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 25.5.0
       form-data: 4.0.5
 
   '@types/node@18.19.130':

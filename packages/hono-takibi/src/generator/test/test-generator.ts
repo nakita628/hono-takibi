@@ -6,7 +6,7 @@ import {
   isSecurityScheme,
 } from '../../guard/index.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
-import { schemaToFaker } from './faker-mapping.js'
+import { sanitizeMockName, schemaToFaker } from './faker-mapping.js'
 
 /**
  * Recursively collect all schema $ref names from a schema and its nested properties
@@ -286,7 +286,7 @@ function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string 
   return sorted
     .map((name) => {
       const returnType = circular.has(name) ? ': any' : ''
-      return `function mock${name}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+      return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
     })
     .join('\n\n')
 }
@@ -387,11 +387,17 @@ function escapeString(s: string): string {
   return s.replace(/'/g, "\\'").replace(/\n/g, ' ')
 }
 
+const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
+  vitest: 'vitest',
+  'vite-plus': 'vite-plus/test',
+  bun: 'bun:test',
+}
+
 export function makeTestFile(
   spec: OpenAPI,
   appImportPath: string = './app',
   basePath = '/',
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): string {
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
@@ -415,7 +421,7 @@ export function makeTestFile(
   const body = `${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = framework === 'bun' ? 'bun:test' : 'vitest'
+  const testImportSource = TEST_IMPORT_SOURCE[framework]
   const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${appImportPath}'\n`
   return `${imports}\n${body}`
 }
@@ -441,7 +447,7 @@ export function makeHandlerTestCode(
   _routeNames: string[],
   importFrom: string,
   basePath = '/',
-  framework: 'vitest' | 'bun' = 'vitest',
+  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): string {
   // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
@@ -464,7 +470,7 @@ export function makeHandlerTestCode(
   const body = `${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = framework === 'bun' ? 'bun:test' : 'vitest'
+  const testImportSource = TEST_IMPORT_SOURCE[framework]
   const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${importFrom}'\n`
   return `${imports}\n${body}`
 }

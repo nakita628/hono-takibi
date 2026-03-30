@@ -8,7 +8,7 @@ import {
 } from '../../guard/index.js'
 import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import { methodPath } from '../../utils/index.js'
-import { schemaToFaker } from '../test/faker-mapping.js'
+import { sanitizeMockName, schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
@@ -132,7 +132,7 @@ function generateMockFunction(
 ): string {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${name}()${returnType} {\n  return ${mockBody}\n}`
+  return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${mockBody}\n}`
 }
 
 /* ── Security helpers ──────────────────────────────────────────────── */
