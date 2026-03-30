@@ -1808,3 +1808,382 @@ describe('makeTestFile - namespace-qualified schema names', () => {
     )
   })
 })
+
+// ─── Edge cases ────────────────────────────────────────────────
+
+describe('extractTestCases - query param $ref', () => {
+  it('collects schema refs from $ref query parameters', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Query Ref API', version: '1.0.0' },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              {
+                name: 'status',
+                in: 'query',
+                required: false,
+                schema: { $ref: '#/components/schemas/Status' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Status: { type: 'string', enum: ['active', 'inactive'] },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['Status'])
+  })
+})
+
+describe('makeTestFile - $ref path param with basePath', () => {
+  it('basePath is prepended to $ref path param URL in 200 and 404 tests', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'BP Ref API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUser',
+            tags: ['users'],
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+              '404': { description: 'Not found' },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/api')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('BP Ref API',()=>{describe('users',()=>{describe('GET /api/users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/api/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/api/users/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - $ref path param with security', () => {
+  it('generates 200 with auth + 401 without auth + 404 tests for secured $ref endpoint', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Secured Ref API', version: '1.0.0' },
+      paths: {
+        '/posts/{postId}': {
+          delete: {
+            operationId: 'deletePost',
+            tags: ['posts'],
+            security: [{ bearerAuth: [] }],
+            parameters: [
+              {
+                name: 'postId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/PostId' },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+              '401': { description: 'Unauthorized' },
+              '404': { description: 'Not found' },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          PostId: { type: 'string', format: 'uuid' },
+        },
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Secured Ref API',()=>{describe('posts',()=>{describe('DELETE /posts/{postId}',()=>{it('should return 200',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE'})\nexpect(res.status).toBe(401)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/posts/00000000-0000-0000-0000-000000000000`,{method:'DELETE',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - multiple endpoints sharing same $ref param', () => {
+  it('generates mock function once even when shared across endpoints', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Shared Ref API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUser',
+            tags: ['users'],
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+          delete: {
+            operationId: 'deleteUser',
+            tags: ['users'],
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Shared Ref API',()=>{describe('users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\ndescribe('DELETE /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'DELETE'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeHandlerTestCode - no matching routes returns empty', () => {
+  it('returns empty string for handler with no matching endpoints', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mismatch API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUser',
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = makeHandlerTestCode(spec, 'handlers/posts.ts', [], '../app')
+    expect(result).toBe('')
+  })
+})
+
+// ─── Header/query $ref and components/parameters $ref ──────────
+
+describe('extractTestCases - header param $ref', () => {
+  it('collects schema refs from $ref header parameters', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Header Ref API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            parameters: [
+              {
+                name: 'X-Request-Id',
+                in: 'header',
+                required: true,
+                schema: { $ref: '#/components/schemas/RequestId' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          RequestId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['RequestId'])
+  })
+})
+
+describe('extractTestCases - components/parameters $ref resolution', () => {
+  it('resolves parameter-level $ref and collects schema refs from it', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Param Ref API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}': {
+          get: {
+            operationId: 'getUser',
+            parameters: [{ $ref: '#/components/parameters/UserIdParam' }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          UserIdParam: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { $ref: '#/components/schemas/UserId' },
+          },
+        },
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['UserId'])
+    expect(result[0].pathParams).toStrictEqual([
+      {
+        name: 'userId',
+        fakerCode: 'mockUserId()',
+        schema: { $ref: '#/components/schemas/UserId' },
+      },
+    ])
+  })
+})
+
+describe('extractTestCases - mixed path, query, header $ref params', () => {
+  it('collects all $ref schemas from path, query and header params combined', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'All Param Ref API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}/posts': {
+          get: {
+            operationId: 'getUserPosts',
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+              {
+                name: 'status',
+                in: 'query',
+                required: false,
+                schema: { $ref: '#/components/schemas/PostStatus' },
+              },
+              {
+                name: 'X-Correlation-Id',
+                in: 'header',
+                required: false,
+                schema: { $ref: '#/components/schemas/CorrelationId' },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+          PostStatus: { type: 'string', enum: ['draft', 'published'] },
+          CorrelationId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual([
+      'UserId',
+      'PostStatus',
+      'CorrelationId',
+    ])
+  })
+})
+
+describe('makeTestFile - no components/schemas defined', () => {
+  it('generates test without mock functions when no schemas exist', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'No Schema API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'getHealth',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('No Schema API',()=>{describe('default',()=>{describe('GET /health',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/health`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - multiple path params with mixed $ref and inline', () => {
+  it('generates mock only for $ref params, inline params use faker directly', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mixed Param API', version: '1.0.0' },
+      paths: {
+        '/orgs/{orgId}/users/{userId}': {
+          get: {
+            operationId: 'getOrgUser',
+            tags: ['orgs'],
+            parameters: [
+              { name: 'orgId', in: 'path', required: true, schema: { type: 'integer' } },
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { $ref: '#/components/schemas/UserId' },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+              '404': { description: 'Not found' },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          UserId: { type: 'string', format: 'uuid' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Mixed Param API',()=>{describe('orgs',()=>{describe('GET /orgs/{orgId}/users/{userId}',()=>{it('should return 200',async()=>{const orgId=faker.number.int({ min: 1, max: 1000 })\nconst userId=mockUserId()\nconst res=await app.request(`/orgs/${orgId}/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/orgs/-1/users/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+})
