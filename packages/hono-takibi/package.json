@@ -78,17 +78,17 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.10.0",
     "@typespec/openapi3": "^1.10.0",
-    "oxfmt": "^0.42.0",
+    "oxfmt": "^0.43.0",
     "ts-morph": "^27.0.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "@typespec/http": "^1.10.0",
     "@typespec/rest": "^0.80.0",
     "@typespec/versioning": "^0.80.0",
-    "tsdown": "0.21.5"
+    "tsdown": "0.21.7"
   }
 }

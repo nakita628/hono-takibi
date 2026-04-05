@@ -3188,4 +3188,132 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 `)
     })
   })
+
+  describe('mergeTestFile: test framework switching', () => {
+    it('switches from vitest to bun:test', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'bun:test'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toBe(`import app from '..'
+import { describe, expect, it } from 'bun:test'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`)
+    })
+
+    it('switches from vitest to vite-plus/test', () => {
+      const existing = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toBe(`import app from '..'
+import { describe, expect, it } from 'vite-plus/test'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`)
+    })
+
+    it('switches from bun:test to vitest', () => {
+      const existing = `import { describe, it, expect } from 'bun:test'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const generated = `import { describe, it, expect } from 'vitest'
+import app from '..'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`
+
+      const result = mergeTestFile(existing, generated)
+      expect(result).toBe(`import app from '..'
+import { describe, expect, it } from 'vitest'
+
+describe('Users', () => {
+  describe('GET /users', () => {
+    it('List users', async () => {
+      const res = await app.request('/users', { method: 'GET' })
+      expect(res.status).toBe(200)
+    })
+  })
+})
+`)
+    })
+  })
 })

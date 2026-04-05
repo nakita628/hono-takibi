@@ -7,6 +7,8 @@ export default defineConfig({
     output: 'src/routes.ts',
     template: {
       routeHandler: true,
+      test: true,
+      framework: 'vite-plus',
     },
   },
   docs: {

@@ -521,6 +521,18 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
   const mergedImports = mergeImports(existingFile, generatedFile)
 
+  const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
+  const generatedTestModule = generatedFile
+    .getImportDeclarations()
+    .map((d) => d.getModuleSpecifierValue())
+    .find((spec) => TEST_FRAMEWORK_MODULES.has(spec))
+  const filteredImports = generatedTestModule
+    ? mergedImports.filter((line) => {
+        const spec = line.match(/from\s+'([^']+)'/)?.[1] ?? ''
+        return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
+      })
+    : mergedImports
+
   // 5. Find body start (after imports) in existing code
   const bodyStart = getBodyStart(existingFile)
 
@@ -543,7 +555,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
 
   if (newBlocks.length === 0) {
     const parts = [
-      mergedImports.length > 0 ? mergedImports.join('\n') : '',
+      filteredImports.length > 0 ? filteredImports.join('\n') : '',
       bodyWithRemovals.trim(),
     ].filter(Boolean)
     return `${parts.join('\n\n')}\n`
@@ -564,7 +576,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
       : [...lines, '', ...newBlocks]
 
   const body = modifiedLines.join('\n').trim()
-  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body].filter(Boolean)
+  const parts = [filteredImports.length > 0 ? filteredImports.join('\n') : '', body].filter(Boolean)
   return `${parts.join('\n\n')}\n`
 }
 

@@ -704,7 +704,7 @@ export function makeOperation(operation: Operation, readonly?: boolean) {
 
 export function makePathItem(pathItem: PathItem) {
   // Generate additionalOperations code
-  const additionalOpsCode = pathItem.additionalOperations
+  const additionalOperationsCode = pathItem.additionalOperations
     ? Object.entries(pathItem.additionalOperations)
         .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
         .join(',')
@@ -723,7 +723,7 @@ export function makePathItem(pathItem: PathItem) {
     pathItem.patch ? `patch:${makeOperation(pathItem.patch)}` : undefined,
     pathItem.trace ? `trace:${makeOperation(pathItem.trace)}` : undefined,
     pathItem.query ? `query:${makeOperation(pathItem.query)}` : undefined,
-    additionalOpsCode ? `additionalOperations:{${additionalOpsCode}}` : undefined,
+    additionalOperationsCode ? `additionalOperations:{${additionalOperationsCode}}` : undefined,
     pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
     // OpenAPI spec: parameters is [Parameter Object | Reference Object]
     pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
