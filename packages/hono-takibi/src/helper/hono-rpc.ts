@@ -28,10 +28,10 @@ export function formatPath(
   p: string,
   hasBasePath?: boolean,
 ): {
-  runtimePath: string
-  typeofPrefix: string
-  bracketSuffix: string
-  hasBracket: boolean
+  readonly runtimePath: string
+  readonly typeofPrefix: string
+  readonly bracketSuffix: string
+  readonly hasBracket: boolean
 } {
   if (p === '/') {
     if (hasBasePath) {
@@ -49,11 +49,8 @@ export function formatPath(
       hasBracket: false,
     }
   }
-
-  const hasTrailingSlash = p !== '/' && p.endsWith('/')
-
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
-  if (hasTrailingSlash) segs.push('index')
+  if (p !== '/' && p.endsWith('/')) segs.push('index')
   const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
 
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
@@ -115,64 +112,44 @@ function makeResolveParameter(componentsParameters: { readonly [k: string]: unkn
 function makeToParameterLikes(
   resolveParam: (p: unknown) =>
     | {
-        name: string
-        in: 'path' | 'query' | 'header' | 'cookie'
-        required?: boolean
+        readonly name: string
+        readonly in: 'path' | 'query' | 'header' | 'cookie'
+        readonly required?: boolean
       }
     | undefined,
 ) {
   return (
     arr?: unknown,
-  ): readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[] =>
+  ): readonly {
+    readonly name: string
+    readonly in: 'path' | 'query' | 'header' | 'cookie'
+    readonly required?: boolean
+  }[] =>
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
 }
-
-/* ─────────────────────────────── Operation types ─────────────────────────────── */
-
-const NO_CONTENT_STATUS_CODES = [204, 205]
 
 /**
  * Check if operation has No Content response (204 or 205).
  */
 export function hasNoContentResponse(op: {
-  summary?: string
-  description?: string
-  parameters?: unknown
-  requestBody?: unknown
-  responses?: unknown
+  readonly summary?: string
+  readonly description?: string
+  readonly parameters?: unknown
+  readonly requestBody?: unknown
+  readonly responses?: unknown
 }): boolean {
   const responses = op.responses
   if (!isRecord(responses)) return false
-
   return Object.keys(responses).some((status) => {
     const code = Number.parseInt(status, 10)
-    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code)
+    return !Number.isNaN(code) && [204, 205].includes(code)
   })
 }
 
 /**
- * OpenAPI path item with operations.
- */
-export type PathItemLike = {
-  parameters?: unknown
-} & {
-  [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
-    | {
-        summary?: string
-        description?: string
-        parameters?: unknown
-        requestBody?: unknown
-        responses?: unknown
-      }
-    | undefined
-}
-
-/* ─────────────────────────────── RequestBody ─────────────────────────────── */
-
-/**
  * All body info grouped by type.
  */
-export type AllBodyInfo = { form: { contentType: string }[]; json: { contentType: string }[] }
+// export type AllBodyInfo = { form: { contentType: string }[]; json: { contentType: string }[] }
 
 /**
  * Extract requestBody name from $ref.
@@ -223,11 +200,16 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
     parameters?: unknown
     requestBody?: unknown
     responses?: unknown
-  }): AllBodyInfo | undefined => {
-    const rb = op.requestBody
-    if (!isRecord(rb)) return undefined
+  }):
+    | {
+        readonly form: readonly { readonly contentType: string }[]
+        readonly json: readonly { readonly contentType: string }[]
+      }
+    | undefined => {
+    const requestBody = op.requestBody
+    if (!isRecord(requestBody)) return undefined
 
-    const refName = refRequestBodyName(rb)
+    const refName = refRequestBodyName(requestBody)
     if (refName) {
       const resolved = componentsRequestBodies[refName]
       if (isRecord(resolved) && isRecord(resolved.content)) {
@@ -237,7 +219,7 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
       return undefined
     }
 
-    return pickAllBodyInfoFromContent(rb.content)
+    return pickAllBodyInfoFromContent(requestBody.content)
   }
 }
 
@@ -247,8 +229,7 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
  * Resolve output directory for split mode.
  */
 export function resolveSplitOutDir(output: string) {
-  const looksLikeFile = output.endsWith('.ts')
-  const outDir = looksLikeFile ? path.dirname(output) : output
+  const outDir = output.endsWith('.ts') ? path.dirname(output) : output
   const indexPath = path.join(outDir, 'index.ts')
   return { outDir, indexPath }
 }
@@ -258,7 +239,19 @@ export function resolveSplitOutDir(output: string) {
 /**
  * Parse raw path item to PathItemLike.
  */
-export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike {
+export function parsePathItem(rawItem: { [key: string]: unknown }): {
+  parameters?: unknown
+} & {
+  readonly [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly parameters?: unknown
+        readonly requestBody?: unknown
+        readonly responses?: unknown
+      }
+    | undefined
+} {
   return {
     parameters: rawItem.parameters,
     get: isOperationLike(rawItem.get) ? rawItem.get : undefined,
@@ -278,10 +271,10 @@ export function parsePathItem(rawItem: { [key: string]: unknown }): PathItemLike
 export function makeParseResponseType(
   clientName: string,
   pathResult: {
-    runtimePath: string
-    typeofPrefix: string
-    bracketSuffix: string
-    hasBracket: boolean
+    readonly runtimePath: string
+    readonly typeofPrefix: string
+    readonly bracketSuffix: string
+    readonly hasBracket: boolean
   },
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
 ): string {
@@ -297,11 +290,10 @@ export function makeParseResponseType(
  */
 export function makeOperationDeps(
   clientName: string,
-  componentsParameters: { [key: string]: unknown },
-  componentsRequestBodies: { [key: string]: unknown },
+  componentsParameters: { readonly [k: string]: unknown },
+  componentsRequestBodies: { readonly [k: string]: unknown },
 ) {
-  const resolveParameter = makeResolveParameter(componentsParameters)
-  const toParameterLikes = makeToParameterLikes(resolveParameter)
+  const toParameterLikes = makeToParameterLikes(makeResolveParameter(componentsParameters))
   const pickAllBodyInfo = makePickAllBodyInfo(componentsRequestBodies)
   return { client: clientName, toParameterLikes, pickAllBodyInfo }
 }
@@ -310,41 +302,56 @@ export function makeOperationDeps(
  * Check if operation has arguments (parameters or body).
  */
 export function operationHasArgs(
-  item: PathItemLike,
-  op: {
-    summary?: string
-    description?: string
+  item: {
     parameters?: unknown
-    requestBody?: unknown
-    responses?: unknown
+  } & {
+    [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly parameters?: unknown
+          readonly requestBody?: unknown
+          readonly responses?: unknown
+        }
+      | undefined
+  },
+  op: {
+    readonly summary?: string
+    readonly description?: string
+    readonly parameters?: unknown
+    readonly requestBody?: unknown
+    readonly responses?: unknown
   },
   deps: {
-    client: string
-    toParameterLikes: (
+    readonly client: string
+    readonly toParameterLikes: (
       arr?: unknown,
     ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
     pickAllBodyInfo: (op: {
-      summary?: string
-      description?: string
-      parameters?: unknown
-      requestBody?: unknown
-      responses?: unknown
-    }) => AllBodyInfo | undefined
+      readonly summary?: string
+      readonly description?: string
+      readonly parameters?: unknown
+      readonly requestBody?: unknown
+      readonly responses?: unknown
+    }) =>
+      | {
+          readonly form: readonly { readonly contentType: string }[]
+          readonly json: readonly { readonly contentType: string }[]
+        }
+      | undefined
   },
 ): boolean {
-  const pathLevelParams = deps.toParameterLikes(item.parameters)
-  const opParams = deps.toParameterLikes(op.parameters)
-  const allParams = [...pathLevelParams, ...opParams]
-
+  const allParams = [
+    ...deps.toParameterLikes(item.parameters),
+    ...deps.toParameterLikes(op.parameters),
+  ]
   const hasParams =
     allParams.filter((p) => p.in === 'path').length > 0 ||
     allParams.filter((p) => p.in === 'query').length > 0 ||
     allParams.filter((p) => p.in === 'header').length > 0 ||
     allParams.filter((p) => p.in === 'cookie').length > 0
-
   const allBodyInfo = deps.pickAllBodyInfo(op)
   const hasBody =
     allBodyInfo !== undefined && (allBodyInfo.form.length > 0 || allBodyInfo.json.length > 0)
-
   return hasParams || hasBody
 }

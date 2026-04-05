@@ -314,7 +314,7 @@ export async function honoTakibi(): Promise<
           config.test.output,
           config.test.import,
           config.basePath ?? '/',
-          config.test.framework,
+          config.test.testFramework,
         )
       : Promise.resolve(undefined),
     config.mock
@@ -344,7 +344,7 @@ export async function honoTakibi(): Promise<
         config['zod-openapi']?.template.pathAlias,
         config['zod-openapi']?.routes?.import,
         config['zod-openapi']?.template.routeHandler,
-        config['zod-openapi']?.template.framework,
+        config['zod-openapi']?.template.testFramework,
       )
     })(),
   ])

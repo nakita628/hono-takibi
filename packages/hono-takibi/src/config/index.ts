@@ -28,7 +28,7 @@ const ConfigSchema = z
             test: z.boolean().default(false),
             routeHandler: z.boolean().default(false),
             pathAlias: z.string().exactOptional(),
-            framework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
           .exactOptional(),
         // OpenAPI Components Object order
@@ -256,7 +256,7 @@ const ConfigSchema = z
       .object({
         output: z.string(),
         import: z.string(),
-        framework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+        testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
       })
       .exactOptional(),
     mock: z
@@ -402,9 +402,6 @@ export async function readConfig(): Promise<
   }
 }
 
-/**
- * Helper to define a config with full type completion.
- */
 export function defineConfig(config: ConfigInput) {
   return config
 }

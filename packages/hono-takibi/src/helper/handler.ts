@@ -466,7 +466,7 @@ export async function zodOpenAPIHonoHandler(
   routeImport: string | undefined = undefined,
   routeHandler = false,
   basePath = '/',
-  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -521,7 +521,7 @@ export async function zodOpenAPIHonoHandler(
           [...handler.routeNames],
           testImportFrom,
           basePath,
-          framework,
+          testFramework,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -571,8 +571,6 @@ export async function zodOpenAPIHonoHandler(
   return { ok: true, value: undefined }
 }
 
-/* ─────────────────────────────── Mock Handlers (Main) ─────────────────────────────── */
-
 /**
  * Generates mock handler files with faker.js responses for a Hono app.
  *
@@ -590,7 +588,7 @@ export async function mockZodOpenAPIHonoHandler(
   routeImport: string | undefined = undefined,
   routeHandler = false,
   basePath = '/',
-  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
@@ -646,7 +644,7 @@ export async function mockZodOpenAPIHonoHandler(
           [...handler.routeNames],
           testImportFrom,
           basePath,
-          framework,
+          testFramework,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)

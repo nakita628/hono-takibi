@@ -63,15 +63,6 @@ type ViteDevServer = {
  * ────────────────────────────────────────────────────────────── */
 
 /**
- * Type guard for configuration objects.
- *
- * @param value - Value to check
- * @returns True if value is a valid configuration object
- */
-const isConfiguration = (value: unknown): value is Config =>
-  typeof value === 'object' && value !== null
-
-/**
  * Converts a relative path to an absolute path.
  *
  * @param relativePath - Relative path
@@ -114,56 +105,15 @@ const readConfigurationWithHotReload = async (
 
     const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
     const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
-    if (!isConfiguration(defaultExport))
+    if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
       return { ok: false, error: 'Config must export default object' }
+    }
     const parsed = parseConfig(defaultExport)
     return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
-
-/* ──────────────────────────────────────────────────────────────
- * Purge helpers (shallow .ts file cleanup)
- * ────────────────────────────────────────────────────────────── */
-
-/**
- * Lists TypeScript files in a directory (shallow, non-recursive).
- *
- * @param directoryPath - Directory path to scan
- * @returns Promise resolving to array of absolute file paths
- */
-const listTypeScriptFilesShallow = async (directoryPath: string): Promise<string[]> =>
-  fsp
-    .stat(directoryPath)
-    .then((fileStats) =>
-      fileStats.isDirectory()
-        ? fsp
-            .readdir(directoryPath, { withFileTypes: true })
-            .then((directoryEntries) =>
-              directoryEntries
-                .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
-                .map((entry) => path.join(directoryPath, entry.name)),
-            )
-        : [],
-    )
-    .catch((): string[] => [])
-
-/**
- * Deletes specified TypeScript files.
- *
- * @param filePaths - Array of file paths to delete
- * @returns Promise resolving to array of deleted file paths
- */
-const deleteTypeScriptFiles = async (filePaths: string[]): Promise<string[]> =>
-  Promise.all(
-    filePaths.map((filePath) =>
-      fsp
-        .unlink(filePath)
-        .then(() => filePath)
-        .catch(() => null),
-    ),
-  ).then((results) => results.filter((result) => result !== null))
 
 /**
  * Creates a debounced version of a function.
@@ -219,6 +169,32 @@ const runAllGenerationTasks = async (
   ): Promise<string> => {
     const absOutput = toAbsolutePath(output)
     if (isSplit) {
+      const listTypeScriptFilesShallow = async (directoryPath: string): Promise<string[]> =>
+        fsp
+          .stat(directoryPath)
+          .then((fileStats) =>
+            fileStats.isDirectory()
+              ? fsp
+                  .readdir(directoryPath, { withFileTypes: true })
+                  .then((directoryEntries) =>
+                    directoryEntries
+                      .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
+                      .map((entry) => path.join(directoryPath, entry.name)),
+                  )
+              : [],
+          )
+          .catch((): string[] => [])
+
+      const deleteTypeScriptFiles = async (filePaths: string[]): Promise<string[]> =>
+        Promise.all(
+          filePaths.map((filePath) =>
+            fsp
+              .unlink(filePath)
+              .then(() => filePath)
+              .catch(() => null),
+          ),
+        ).then((results) => results.filter((result) => result !== null))
+
       const beforeFiles = await listTypeScriptFilesShallow(absOutput)
       await deleteTypeScriptFiles(beforeFiles)
     }
@@ -532,7 +508,7 @@ const runAllGenerationTasks = async (
         outputPath,
         config.test?.import ?? '',
         config.basePath ?? '/',
-        config.test?.framework,
+        config.test?.testFramework,
       )
       return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
@@ -584,7 +560,7 @@ const runAllGenerationTasks = async (
         tmpl.pathAlias,
         config['zod-openapi']?.routes?.import,
         tmpl.routeHandler,
-        tmpl.framework,
+        tmpl.testFramework,
       )
       return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
     })()
@@ -620,22 +596,6 @@ const runAllGenerationTasks = async (
   return Promise.all(generationJobs).then((logs) => ({ logs }))
 }
 
-/* ──────────────────────────────────────────────────────────────
- * Watch helpers
- * ────────────────────────────────────────────────────────────── */
-
-/**
- * Checks if a file path matches input file patterns.
- *
- * @param filePath - Absolute path to check
- * @param inputDirectory - Directory containing input files
- * @returns True if the file is an input file (yaml/json/tsp)
- */
-const isInputFile = (filePath: string, inputDirectory: string): boolean => {
-  if (!filePath.startsWith(inputDirectory)) return false
-  return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
-}
-
 /**
  * Adds glob patterns to the Vite file watcher.
  *
@@ -657,10 +617,6 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
   server.watcher.add(watchPatterns)
   return inputDirectory
 }
-
-/* ──────────────────────────────────────────────────────────────
- * Plugin
- * ────────────────────────────────────────────────────────────── */
 
 /**
  * Creates a Vite plugin for hono-takibi code generation.
@@ -687,7 +643,7 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
  * @param config - The configuration object
  * @returns Array of absolute output paths
  */
-const extractOutputPaths = (config: Config): string[] => {
+const extractOutputPaths = (config: Config): readonly string[] => {
   return [
     config['zod-openapi']?.output,
     config['zod-openapi']?.components?.schemas?.output,
@@ -715,43 +671,6 @@ const extractOutputPaths = (config: Config): string[] => {
   ]
     .filter((outputPath) => outputPath !== undefined)
     .map(toAbsolutePath)
-}
-
-/**
- * Cleans up output paths that exist in previous config but not in current config.
- *
- * When an output path is removed from the configuration, this function
- * removes the corresponding file or directory completely.
- *
- * @param previousConfiguration - Previous configuration
- * @param currentConfiguration - Current configuration
- * @returns Array of cleaned up paths
- */
-const cleanupStaleOutputs = async (
-  previousConfiguration: Config,
-  currentConfiguration: Config,
-): Promise<string[]> => {
-  const previousPaths = new Set(extractOutputPaths(previousConfiguration))
-  const currentPaths = new Set(extractOutputPaths(currentConfiguration))
-  const stalePaths = [...previousPaths].filter((stalePath) => !currentPaths.has(stalePath))
-
-  const cleanupResults = await Promise.all(
-    stalePaths.map(async (stalePath): Promise<string | null> => {
-      const fileStats = await fsp.stat(stalePath).catch(() => null)
-      if (!fileStats) return null
-
-      if (fileStats.isDirectory()) {
-        await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
-        return stalePath
-      }
-      if (fileStats.isFile() && (stalePath.endsWith('.ts') || stalePath.endsWith('.md'))) {
-        await fsp.unlink(stalePath).catch(() => {})
-        return stalePath
-      }
-      return null
-    }),
-  )
-  return cleanupResults.filter((result) => result !== null)
 }
 
 export function honoTakibiVite(): any {
@@ -786,6 +705,32 @@ export function honoTakibiVite(): any {
     }
 
     if (pluginState.current) {
+      const cleanupStaleOutputs = async (
+        previousConfiguration: Config,
+        currentConfiguration: Config,
+      ): Promise<string[]> => {
+        const previousPaths = new Set(extractOutputPaths(previousConfiguration))
+        const currentPaths = new Set(extractOutputPaths(currentConfiguration))
+        const stalePaths = [...previousPaths].filter((stalePath) => !currentPaths.has(stalePath))
+
+        const cleanupResults = await Promise.all(
+          stalePaths.map(async (stalePath): Promise<string | null> => {
+            const fileStats = await fsp.stat(stalePath).catch(() => null)
+            if (!fileStats) return null
+
+            if (fileStats.isDirectory()) {
+              await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
+              return stalePath
+            }
+            if (fileStats.isFile() && (stalePath.endsWith('.ts') || stalePath.endsWith('.md'))) {
+              await fsp.unlink(stalePath).catch(() => {})
+              return stalePath
+            }
+            return null
+          }),
+        )
+        return cleanupResults.filter((result) => result !== null)
+      }
       const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
       for (const cleanedPath of cleanedPaths) console.log(`✅ cleanup: ${cleanedPath}`)
     }
@@ -846,7 +791,10 @@ export function honoTakibiVite(): any {
           }
           if (
             pluginState.inputDirectory &&
-            isInputFile(absoluteChangedPath, pluginState.inputDirectory)
+            absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
+            (absoluteChangedPath.endsWith('.yaml') ||
+              absoluteChangedPath.endsWith('.json') ||
+              absoluteChangedPath.endsWith('.tsp'))
           ) {
             debouncedRunGeneration()
           }

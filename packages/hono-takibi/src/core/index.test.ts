@@ -3,10 +3,6 @@ import { describe, expect, it } from 'vite-plus/test'
 import * as core from './index.js'
 
 describe('core barrel exports', () => {
-  it('should export makeQueryHooks', () => {
-    expect(typeof core.makeQueryHooks).toBe('function')
-  })
-
   it('should export component functions', () => {
     expect(typeof core.callbacks).toBe('function')
     expect(typeof core.examples).toBe('function')

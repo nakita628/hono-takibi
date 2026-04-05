@@ -1,15 +1,13 @@
-const constraintPattern =
-  /^(?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*/
-
-function pipeCoerce(coerceBase: string, typeBase: string, baseSchema: string): string {
-  const afterType = baseSchema.slice(typeBase.length)
-  const match = afterType.match(constraintPattern)
-  const constraints = match ? match[0] : ''
-  const rest = afterType.slice(constraints.length)
-  return `${coerceBase}.pipe(${typeBase}${constraints})${rest}`
-}
-
-export function applyNumberCoerce(baseSchema: string, schemaType: string, format?: string): string {
+export function coerce(baseSchema: string, schemaType: string, format?: string): string {
+  const pipeCoerce = (coerceBase: string, typeBase: string, baseSchema: string) => {
+    const afterType = baseSchema.slice(typeBase.length)
+    const match = afterType.match(
+      /^(?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*/,
+    )
+    const constraints = match ? match[0] : ''
+    const rest = afterType.slice(constraints.length)
+    return `${coerceBase}.pipe(${typeBase}${constraints})${rest}`
+  }
   if (schemaType === 'number') {
     if (format === 'float' || format === 'float32')
       return pipeCoerce('z.coerce.number()', 'z.float32()', baseSchema)

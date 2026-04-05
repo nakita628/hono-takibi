@@ -149,22 +149,15 @@ function makeSingleTypeString(
   return 'unknown'
 }
 
-/**
- * Wraps a type in parentheses if it needs grouping for array syntax.
- *
- * When an inner type starts with 'readonly ' (for readonly arrays),
- * we need to wrap it in parentheses to avoid invalid syntax like
- * `readonly readonly T[][]`. Instead, we get `readonly (readonly T[])[]`.
- */
-const wrapForArrayElement = (type: string): string =>
-  type.startsWith('readonly ') ? `(${type})` : type
-
 function makeArrayTypeString(
   schema: Schema,
   selfTypeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ): string {
+  const wrapForArrayElement = (type: string): string =>
+    type.startsWith('readonly ') ? `(${type})` : type
+
   const prefix = readonly ? 'readonly ' : ''
   if (!schema.items) return `${prefix}unknown[]`
 
