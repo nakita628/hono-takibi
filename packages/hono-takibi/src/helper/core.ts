@@ -1,7 +1,6 @@
 import { fmt } from '../format/index.js'
 import { mkdir, writeFile } from '../fsp/index.js'
 
-/** Formats code, creates directory, and writes the file. */
 export async function core(
   code: string,
   dir: string,

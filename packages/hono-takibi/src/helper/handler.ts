@@ -571,8 +571,6 @@ export async function zodOpenAPIHonoHandler(
   return { ok: true, value: undefined }
 }
 
-/* ─────────────────────────────── Mock Handlers (Main) ─────────────────────────────── */
-
 /**
  * Generates mock handler files with faker.js responses for a Hono app.
  *

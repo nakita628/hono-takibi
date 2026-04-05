@@ -1,4 +1,4 @@
-import { applyNumberCoerce } from '../../../../helper/coerce.js'
+import { coerce } from '../../../../helper/index.js'
 import type { Components, Content, Schema } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
@@ -50,7 +50,7 @@ export function parametersCode(
       // Apply coercion for query parameters
       const z =
         parameter.in === 'query' && (schema?.type === 'number' || schema?.type === 'integer')
-          ? applyNumberCoerce(baseSchema, schema.type, schema.format)
+          ? coerce(baseSchema, schema.type, schema.format)
           : parameter.in === 'query' && schema?.type === 'boolean'
             ? baseSchema.replace('boolean', 'stringbool')
             : parameter.in === 'query' && schema?.type === 'date'

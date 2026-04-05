@@ -669,7 +669,7 @@ function makeMutationOptionsGetterCode(
   parseResponseFuncName: string,
   method: string,
   honoPath: string,
-  config: { frameworkName: string; hasMutationOptionsHelper?: boolean },
+  config: { readonly frameworkName: string; readonly hasMutationOptionsHelper?: boolean },
 ): string {
   const methodUpper = method.toUpperCase()
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
@@ -832,11 +832,11 @@ function makeHookCode(
   },
   clientName: string,
 ): {
-  code: string
-  isQuery: boolean
-  hasArgs: boolean
-  hasInfinite: boolean
-  parseResponseFuncName: string
+  readonly code: string
+  readonly isQuery: boolean
+  readonly hasArgs: boolean
+  readonly hasInfinite: boolean
+  readonly parseResponseFuncName: string
 } | null {
   const op = item[method]
   if (!isOperationLike(op)) return null
@@ -1163,13 +1163,13 @@ function makeHookCodes(
     readonly immutableQueryFn?: string
   },
   clientName: string,
-): {
-  hookName: string
-  code: string
-  isQuery: boolean
-  hasArgs: boolean
-  hasInfinite: boolean
-  parseResponseFuncName: string
+): readonly {
+  readonly hookName: string
+  readonly code: string
+  readonly isQuery: boolean
+  readonly hasArgs: boolean
+  readonly hasInfinite: boolean
+  readonly parseResponseFuncName: string
 }[] {
   return Object.entries(paths)
     .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))

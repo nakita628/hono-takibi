@@ -21,7 +21,7 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { applyNumberCoerce } from './coerce.js'
+import { coerce } from './../helper/index.js'
 
 /**
  * Converts an OpenAPI `$ref` string to a variable name with the appropriate suffix.
@@ -340,18 +340,16 @@ export function makeCallbacks(
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
-      const pathItemRecord: { [k: string]: unknown } = pathItem
       // Try direct pathItem (pathExpression → {method: operation})
-      const pathItemCode = makeMethodsCode(pathItemRecord)
+      const pathItemCode = makeMethodsCode(pathItem)
       if (pathItemCode) {
         return `${JSON.stringify(callbackKey)}:{${pathItemCode}}`
       }
       // Fallback: callbackName → pathExpression → {method: operation}
-      const nestedCode = Object.entries(pathItemRecord)
+      const nestedCode = Object.entries(pathItem)
         .map(([pathExpr, inner]) => {
           if (!isRecord(inner)) return undefined
-          const innerRecord: { [k: string]: unknown } = inner
-          const code = makeMethodsCode(innerRecord)
+          const code = makeMethodsCode(inner)
           return code ? `${JSON.stringify(pathExpr)}:{${code}}` : undefined
         })
         .filter((v) => v !== undefined)
@@ -586,7 +584,7 @@ export function makeParameters(
     // Apply coercion for query parameters
     const z =
       param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
-        ? applyNumberCoerce(baseSchema, schema.type, schema.format)
+        ? coerce(baseSchema, schema.type, schema.format)
         : param.in === 'query' && schema.type === 'boolean'
           ? baseSchema
               .replace('boolean', 'stringbool')
@@ -643,15 +641,8 @@ export function makePathParameters(parameters: readonly (Parameter | Reference)[
     if (value === undefined) return 'undefined'
     if (typeof value === 'string') return JSON.stringify(value)
     if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-
-    if (Array.isArray(value)) {
-      return `[${value.map(serializeValue).join(',')}]`
-    }
-
-    if (isRefObject(value)) {
-      return makeRef(value.$ref)
-    }
-
+    if (Array.isArray(value)) return `[${value.map(serializeValue).join(',')}]`
+    if (isRefObject(value)) return makeRef(value.$ref)
     if (isRecord(value)) {
       const entries = Object.entries(value)
         .map(([k, v]) => `${JSON.stringify(k)}:${serializeValue(v)}`)

@@ -1,7 +1,5 @@
 import { Project, type SourceFile, type VariableStatement } from 'ts-morph'
 
-// ─── Shared utilities ───
-
 /**
  * Finds the end position of a balanced expression.
  *
@@ -100,8 +98,6 @@ function collectHandlerMap(file: SourceFile): Map<string, VariableStatement> {
   return map
 }
 
-// ─── mergeHandlerFile ───
-
 /**
  * Merges generated handler code with existing handler code.
  *
@@ -129,18 +125,15 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   const existingHandlers = collectHandlerMap(existingFile)
   const generatedHandlers = collectHandlerMap(generatedFile)
 
-  // Body operations: [start, end, replacement]
-  type BodyOp = readonly [number, number, string]
-
   // Delete operations: handlers in existing but not in generated
-  const deleteOps: BodyOp[] = [...existingHandlers.entries()]
+  const deleteOps = [...existingHandlers.entries()]
     .filter(([name]) => !generatedHandlers.has(name))
-    .map(([, stmt]): BodyOp => [stmt.getFullStart(), stmt.getEnd(), ''])
+    .map(([, stmt]): readonly [number, number, string] => [stmt.getFullStart(), stmt.getEnd(), ''])
 
   // Chain-merge operations: inline handlers in both — merge .openapi() calls
-  const mergeOps: BodyOp[] = [...existingHandlers.entries()]
+  const mergeOps: readonly [number, number, string][] = [...existingHandlers.entries()]
     .filter(([name]) => isInlineHandlerName(name) && generatedHandlers.has(name))
-    .flatMap(([name, stmt]): BodyOp[] => {
+    .flatMap(([name, stmt]): readonly [number, number, string][] => {
       const genStmt = generatedHandlers.get(name)
       if (!genStmt) return []
       const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
@@ -171,8 +164,6 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
 
   return `${parts.join('\n\n')}\n`
 }
-
-// ─── mergeAppFile ───
 
 /**
  * Merges generated app file (index.ts) with existing user-modified version.
@@ -238,8 +229,6 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
 
   return `${parts.join('\n\n')}\n`
 }
-
-// ─── mergeImports ───
 
 /**
  * Merges import declarations from two source files.
@@ -382,8 +371,6 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
     .filter((line): line is string => line !== undefined)
 }
 
-// ─── Chain prefix / inline handler helpers ───
-
 /**
  * Extracts the method chain between `app` and the first `.openapi(`/`.route(` call.
  *
@@ -448,8 +435,6 @@ function mergeInlineHandler(existingText: string, generatedText: string): string
   return `${prefix}\n${mergedCalls.join('\n')}`
 }
 
-// ─── Test file helpers ───
-
 /**
  * Extracts `function mockXxx(...)` definitions from test code.
  *
@@ -497,8 +482,6 @@ function extractRouteDescribeBlocks(
       }),
   )
 }
-
-// ─── mergeTestFile ───
 
 /**
  * Merges generated test file with existing user-modified test file.
@@ -585,8 +568,6 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
   return `${parts.join('\n\n')}\n`
 }
 
-// ─── mergeBarrelFile ───
-
 /**
  * Syncs barrel file (index.ts) with the generated version.
  *
@@ -600,8 +581,6 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
 export function mergeBarrelFile(_existingCode: string, generatedCode: string): string {
   return generatedCode
 }
-
-// ─── insertMissingMocks ───
 
 /**
  * Inserts missing mock function definitions into the test body.

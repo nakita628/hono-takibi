@@ -1,5 +1,6 @@
 export * from './ast.js'
 export * from './code.js'
+export * from './coerce.js'
 export * from './core.js'
 export * from './exports.js'
 export * from './hono-rpc.js'

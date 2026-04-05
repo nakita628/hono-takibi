@@ -47,16 +47,14 @@ const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readon
 // Circular dependency analysis (Tarjan's algorithm)
 // =============================================================================
 
-type TarjanState = {
+const createInitialState = (): {
   readonly indices: Map<string, number>
   readonly lowLinks: Map<string, number>
   readonly onStack: Set<string>
   readonly stack: readonly string[]
   readonly sccs: readonly (readonly string[])[]
   readonly index: number
-}
-
-const createInitialState = (): TarjanState => ({
+} => ({
   indices: new Map<string, number>(),
   lowLinks: new Map<string, number>(),
   onStack: new Set<string>(),
@@ -86,15 +84,36 @@ const tarjanConnect = (
   name: string,
   deps: ReadonlyMap<string, readonly string[]>,
   var2name: ReadonlyMap<string, string>,
-  state: TarjanState,
-): TarjanState => {
+  state: {
+    readonly indices: Map<string, number>
+    readonly lowLinks: Map<string, number>
+    readonly onStack: Set<string>
+    readonly stack: readonly string[]
+    readonly sccs: readonly (readonly string[])[]
+    readonly index: number
+  },
+): {
+  readonly indices: Map<string, number>
+  readonly lowLinks: Map<string, number>
+  readonly onStack: Set<string>
+  readonly stack: readonly string[]
+  readonly sccs: readonly (readonly string[])[]
+  readonly index: number
+} => {
   const currentIndex = state.index
   const indices = new Map(state.indices).set(name, currentIndex)
   const lowLinks = new Map(state.lowLinks).set(name, currentIndex)
   const stack: readonly string[] = [...state.stack, name]
   const onStack = new Set([...state.onStack, name])
 
-  const initialState: TarjanState = {
+  const initialState: {
+    readonly indices: Map<string, number>
+    readonly lowLinks: Map<string, number>
+    readonly onStack: Set<string>
+    readonly stack: readonly string[]
+    readonly sccs: readonly (readonly string[])[]
+    readonly index: number
+  } = {
     ...state,
     indices,
     lowLinks,
@@ -103,7 +122,14 @@ const tarjanConnect = (
     index: currentIndex + 1,
   }
 
-  const afterDeps = (deps.get(name) ?? []).reduce<TarjanState>((s, depVar) => {
+  const afterDeps = (deps.get(name) ?? []).reduce<{
+    readonly indices: Map<string, number>
+    readonly lowLinks: Map<string, number>
+    readonly onStack: Set<string>
+    readonly stack: readonly string[]
+    readonly sccs: readonly (readonly string[])[]
+    readonly index: number
+  }>((s, depVar) => {
     const depName = var2name.get(depVar)
     if (depName === undefined) return s
 
@@ -114,7 +140,14 @@ const tarjanConnect = (
         afterConnect.lowLinks.get(depName) ?? 0,
       )
       const updatedLowLinks = new Map(afterConnect.lowLinks).set(name, newLowLink)
-      const result: TarjanState = { ...afterConnect, lowLinks: updatedLowLinks }
+      const result: {
+        readonly indices: Map<string, number>
+        readonly lowLinks: Map<string, number>
+        readonly onStack: Set<string>
+        readonly stack: readonly string[]
+        readonly sccs: readonly (readonly string[])[]
+        readonly index: number
+      } = { ...afterConnect, lowLinks: updatedLowLinks }
       return result
     }
     if (s.onStack.has(depName)) {
@@ -243,13 +276,11 @@ export function analyzeCircularSchemas(
 // AST-based dependency sorting
 // =============================================================================
 
-type DeclarationKind = 'variable' | 'type' | 'interface'
-
 const createDeclaration = (
   name: string,
   fullText: string,
   refs: readonly string[],
-  kind: DeclarationKind,
+  kind: 'variable' | 'type' | 'interface',
 ) => ({
   name,
   fullText,
@@ -271,7 +302,9 @@ const getDeclarationName = (statement: ts.Statement): string | undefined => {
   return undefined
 }
 
-const getDeclarationKind = (statement: ts.Statement): DeclarationKind | undefined => {
+const getDeclarationKind = (
+  statement: ts.Statement,
+): 'variable' | 'type' | 'interface' | undefined => {
   if (ts.isVariableStatement(statement)) return 'variable'
   if (ts.isTypeAliasDeclaration(statement)) return 'type'
   if (ts.isInterfaceDeclaration(statement)) return 'interface'
@@ -291,7 +324,7 @@ const getStatementReferences = (
   statement: ts.Statement,
   declNames: ReadonlySet<string>,
   selfName: string,
-  selfKind: DeclarationKind,
+  selfKind: 'variable' | 'type' | 'interface',
 ): readonly string[] => {
   if (isLazySchema(statement)) return []
 
@@ -346,7 +379,8 @@ const topoSort = (
   decls: readonly ReturnType<typeof createDeclaration>[],
 ): readonly ReturnType<typeof createDeclaration>[] => {
   // Use composite key (kind:name) to distinguish const and type with same name
-  const makeKey = (kind: DeclarationKind, name: string): string => `${kind}:${name}`
+  const makeKey = (kind: 'variable' | 'type' | 'interface', name: string): string =>
+    `${kind}:${name}`
   const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
 
   // For dependency resolution, prefer variable declarations (since types reference variables)
