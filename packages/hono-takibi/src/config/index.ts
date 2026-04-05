@@ -402,9 +402,6 @@ export async function readConfig(): Promise<
   }
 }
 
-/**
- * Helper to define a config with full type completion.
- */
 export function defineConfig(config: ConfigInput) {
   return config
 }
