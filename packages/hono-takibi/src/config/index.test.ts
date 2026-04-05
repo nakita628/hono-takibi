@@ -527,55 +527,55 @@ describe('parseConfig()', () => {
     })
   })
 
-  describe('framework option', () => {
-    it.concurrent('accepts test.framework: bun', () => {
+  describe('testFramework option', () => {
+    it.concurrent('accepts test.testFramework: bun', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
-        test: { output: 'src/index.test.ts', import: './index', framework: 'bun' },
+        test: { output: 'src/index.test.ts', import: './index', testFramework: 'bun' },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.test?.framework).toBe('bun')
+        expect(result.value.test?.testFramework).toBe('bun')
       }
     })
 
-    it.concurrent('accepts test.framework: vitest', () => {
+    it.concurrent('accepts test.testFramework: vitest', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
-        test: { output: 'src/index.test.ts', import: './index', framework: 'vitest' },
+        test: { output: 'src/index.test.ts', import: './index', testFramework: 'vitest' },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.test?.framework).toBe('vitest')
+        expect(result.value.test?.testFramework).toBe('vitest')
       }
     })
 
-    it.concurrent('test.framework defaults to vitest when omitted', () => {
+    it.concurrent('test.testFramework defaults to vitest when omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         test: { output: 'src/index.test.ts', import: './index' },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.test?.framework).toBe('vitest')
+        expect(result.value.test?.testFramework).toBe('vitest')
       }
     })
 
-    it.concurrent('accepts template.framework: bun', () => {
+    it.concurrent('accepts template.testFramework: bun', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
           output: 'src/routes.ts',
-          template: { test: true, framework: 'bun' },
+          template: { test: true, testFramework: 'bun' },
         },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value['zod-openapi']?.template?.framework).toBe('bun')
+        expect(result.value['zod-openapi']?.template?.testFramework).toBe('bun')
       }
     })
 
-    it.concurrent('template.framework defaults to vitest when omitted', () => {
+    it.concurrent('template.testFramework defaults to vitest when omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
@@ -585,7 +585,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value['zod-openapi']?.template?.framework).toBe('vitest')
+        expect(result.value['zod-openapi']?.template?.testFramework).toBe('vitest')
       }
     })
   })

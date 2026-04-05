@@ -397,7 +397,7 @@ export function makeTestFile(
   spec: OpenAPI,
   appImportPath: string = './app',
   basePath = '/',
-  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): string {
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
@@ -421,7 +421,7 @@ export function makeTestFile(
   const body = `${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = TEST_IMPORT_SOURCE[framework]
+  const testImportSource = TEST_IMPORT_SOURCE[testFramework]
   const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${appImportPath}'\n`
   return `${imports}\n${body}`
 }
@@ -447,7 +447,7 @@ export function makeHandlerTestCode(
   _routeNames: string[],
   importFrom: string,
   basePath = '/',
-  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): string {
   // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
@@ -470,7 +470,7 @@ export function makeHandlerTestCode(
   const body = `${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
-  const testImportSource = TEST_IMPORT_SOURCE[framework]
+  const testImportSource = TEST_IMPORT_SOURCE[testFramework]
   const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${importFrom}'\n`
   return `${imports}\n${body}`
 }

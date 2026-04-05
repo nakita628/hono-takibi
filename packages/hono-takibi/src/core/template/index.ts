@@ -20,7 +20,7 @@ export async function template(
   pathAlias: string | undefined,
   routeImport: string | undefined,
   routeHandler: boolean,
-  framework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -38,7 +38,7 @@ export async function template(
       routeImport,
       routeHandler,
       basePath,
-      framework,
+      testFramework,
     ),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error }

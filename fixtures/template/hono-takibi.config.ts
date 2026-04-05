@@ -8,7 +8,7 @@ export default defineConfig({
     template: {
       routeHandler: true,
       test: true,
-      framework: 'vite-plus',
+      testFramework: 'vite-plus',
     },
   },
   docs: {

@@ -508,7 +508,7 @@ const runAllGenerationTasks = async (
         outputPath,
         config.test?.import ?? '',
         config.basePath ?? '/',
-        config.test?.framework,
+        config.test?.testFramework,
       )
       return result.ok ? `✅ test -> ${outputPath}` : `❌ test: ${result.error}`
     })()
@@ -560,7 +560,7 @@ const runAllGenerationTasks = async (
         tmpl.pathAlias,
         config['zod-openapi']?.routes?.import,
         tmpl.routeHandler,
-        tmpl.framework,
+        tmpl.testFramework,
       )
       return result.ok ? `✅ template -> ${absPath}` : `❌ template: ${result.error}`
     })()
