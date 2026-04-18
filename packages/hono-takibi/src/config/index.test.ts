@@ -391,17 +391,17 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('accepts format with experimental options', () => {
+    it.concurrent('accepts format with sort options', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         format: {
-          experimentalSortImports: {
+          sortImports: {
             order: 'asc',
             newlinesBetween: true,
             ignoreCase: true,
           },
-          experimentalSortPackageJson: true,
-          experimentalTailwindcss: {
+          sortPackageJson: true,
+          sortTailwindcss: {
             functions: ['clsx', 'cva'],
             attributes: ['myClass'],
           },
@@ -409,12 +409,17 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.format?.experimentalSortImports?.order).toBe('asc')
-        expect(result.value.format?.experimentalSortPackageJson).toBe(true)
-        expect(result.value.format?.experimentalTailwindcss?.functions).toStrictEqual([
-          'clsx',
-          'cva',
-        ])
+        expect(
+          typeof result.value.format?.sortImports === 'object'
+            ? result.value.format.sortImports.order
+            : undefined,
+        ).toBe('asc')
+        expect(result.value.format?.sortPackageJson).toBe(true)
+        expect(
+          typeof result.value.format?.sortTailwindcss === 'object'
+            ? result.value.format.sortTailwindcss.functions
+            : undefined,
+        ).toStrictEqual(['clsx', 'cva'])
       }
     })
 
