@@ -386,8 +386,10 @@ export function makeMock(
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
+
 export const api = app
   ${appSetup}
+
 export default app`
   return [
     imports,
