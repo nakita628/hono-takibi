@@ -316,7 +316,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.routes: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -327,7 +329,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: rpc: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -337,7 +341,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/must be \.yaml \| \.json \| \.tsp/)
+        expect(result.error).toBe('Invalid config: input: must be .yaml | .json | .tsp')
       }
     })
 
@@ -359,7 +363,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/rpc\.client.*expected string/)
+        expect(result.error).toBe(
+          'Invalid config: rpc.client: Invalid input: expected string, received number',
+        )
       }
     })
   })
@@ -454,7 +460,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/output and routes are mutually exclusive/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi: output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
+        )
       }
     })
 
@@ -633,7 +641,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/^Invalid config: rpc\.client/)
+        expect(result.error).toBe(
+          'Invalid config: rpc.client: Invalid input: expected string, received number',
+        )
       }
     })
 
@@ -641,7 +651,7 @@ describe('parseConfig()', () => {
       const result = parseConfig(null)
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/^Invalid config: /)
+        expect(result.error).toBe('Invalid config: Invalid input: expected object, received null')
       }
     })
   })
@@ -676,7 +686,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/must be \.ts file/)
+        expect(result.error).toBe('Invalid config: type.output: must be .ts file')
       }
     })
   })
@@ -723,7 +733,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/must be \.md file/)
+        expect(result.error).toBe('Invalid config: docs.output: must be .md file')
       }
     })
 
@@ -739,7 +749,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/entry cannot be specified when curl is true/)
+        expect(result.error).toBe(
+          'Invalid config: docs: entry cannot be specified when curl is true',
+        )
       }
     })
 
@@ -750,7 +762,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/baseUrl is required when curl is true/)
+        expect(result.error).toBe('Invalid config: docs: baseUrl is required when curl is true')
       }
     })
   })
@@ -809,7 +821,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: swr: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -831,7 +845,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: tanstack-query: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -853,7 +869,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: svelte-query: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -875,7 +893,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: vue-query: split mode requires directory, not .ts file',
+        )
       }
     })
   })
@@ -912,7 +932,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/must be \.ts file/)
+        expect(result.error).toBe('Invalid config: zod-openapi.output: must be .ts file')
       }
     })
   })
@@ -925,7 +945,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.schemas: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -938,7 +960,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.securitySchemes: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -951,7 +975,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.requestBodies: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -962,7 +988,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.responses: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -973,7 +1001,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.examples: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -984,7 +1014,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.links: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -995,7 +1027,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.callbacks: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -1006,7 +1040,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.pathItems: split mode requires directory, not .ts file',
+        )
       }
     })
 
@@ -1017,7 +1053,9 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
-        expect(result.error).toMatch(/split mode requires directory/)
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components.mediaTypes: split mode requires directory, not .ts file',
+        )
       }
     })
   })
