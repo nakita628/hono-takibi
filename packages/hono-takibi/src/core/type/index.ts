@@ -23,10 +23,6 @@ import type {
 } from '../../openapi/index.js'
 import { makeSafeKey } from '../../utils/index.js'
 
-// ============================================================================
-// Main Export
-// ============================================================================
-
 /**
  * DeepReadonly utility type that recursively makes all properties readonly.
  */
@@ -58,11 +54,7 @@ export async function type(
     : { ok: false, error: coreResult.error }
 }
 
-// ============================================================================
-// Schema Building
-// ============================================================================
-
-function makeHonoSchemaType(openAPI: OpenAPI): string {
+function makeHonoSchemaType(openAPI: OpenAPI) {
   const { paths, components } = openAPI
   const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
     const honoPath = makeHonoPath(openApiPath)
@@ -85,7 +77,7 @@ function makeHonoSchemaType(openAPI: OpenAPI): string {
     : pathEntries.map(({ path: p, methods }) => `{'${p}':{${methods}}}`).join('&')
 }
 
-function makeHonoPath(openApiPath: string): string {
+function makeHonoPath(openApiPath: string) {
   return openApiPath.replace(/\{([^}]+)\}/g, ':$1')
 }
 
@@ -94,7 +86,7 @@ function makeMethodType(
   openApiPath: string,
   components: Components | undefined,
   pathLevelParams: readonly Parameter[] | readonly Reference[],
-): string {
+) {
   const inputType = makeInputType(operation, openApiPath, components, pathLevelParams)
   const outputTypes = makeOutputTypes(operation.responses, components, inputType)
   return outputTypes.length === 0
@@ -104,16 +96,12 @@ function makeMethodType(
       : outputTypes.join('|')
 }
 
-// ============================================================================
-// Input Type Building
-// ============================================================================
-
 function makeInputType(
   operation: Operation,
   openApiPath: string,
   components: Components | undefined,
   pathLevelParams: readonly Parameter[] | readonly Reference[],
-): string {
+) {
   const pathLevelResolved = pathLevelParams
     .map((p) => makeResolvedParameter(p, components))
     .filter((p): p is Parameter => p !== undefined)
@@ -125,7 +113,6 @@ function makeInputType(
     ...operationLevelResolved,
     ...pathLevelResolved.filter((p) => !operationParamNames.has(p.name)),
   ]
-
   const pathParams = makePathParams(openApiPath)
   const paramPart =
     pathParams.length > 0
@@ -147,7 +134,6 @@ function makeInputType(
     components,
   )
   const bodyParts = makeBodyParts(operation.requestBody, components)
-
   const parts = [paramPart, queryPart, headerPart, cookiePart, ...bodyParts].filter(
     (p): p is string => p !== undefined,
   )
@@ -169,10 +155,7 @@ function makeParamPart(
   return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
-function makeQueryPart(
-  params: readonly Parameter[],
-  components: Components | undefined,
-): string | undefined {
+function makeQueryPart(params: readonly Parameter[], components: Components | undefined) {
   const props = params.map((p) => {
     const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
     const safeKey = makeSafeKey(p.name)
@@ -181,10 +164,7 @@ function makeQueryPart(
   return props.length > 0 ? `{query:{${props.join(';')}}}` : undefined
 }
 
-function makeHeaderPart(
-  params: readonly Parameter[],
-  components: Components | undefined,
-): string | undefined {
+function makeHeaderPart(params: readonly Parameter[], components: Components | undefined) {
   const props = params.map((p) => {
     const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
     const safeKey = makeSafeKey(p.name)
@@ -193,10 +173,7 @@ function makeHeaderPart(
   return props.length > 0 ? `{header:{${props.join(';')}}}` : undefined
 }
 
-function makeCookiePart(
-  params: readonly Parameter[],
-  components: Components | undefined,
-): string | undefined {
+function makeCookiePart(params: readonly Parameter[], components: Components | undefined) {
   const props = params.map((p) => {
     const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
     const safeKey = makeSafeKey(p.name)
@@ -249,10 +226,6 @@ function makeBodyParts(
   return [jsonPart, formPart].filter((p): p is string => p !== undefined)
 }
 
-// ============================================================================
-// Output Type Building
-// ============================================================================
-
 function makeOutputTypes(
   responses: Operation['responses'],
   components: Components | undefined,
@@ -274,7 +247,7 @@ function makeOutputTypes(
   })
 }
 
-function makeStatusCode(statusCode: string): number {
+function makeStatusCode(statusCode: string) {
   return statusCode === 'default'
     ? 200
     : statusCode.toUpperCase().endsWith('XX')
@@ -290,31 +263,26 @@ function isJsonMediaType(mediaType: string): boolean {
   return mediaType === 'application/json' || mediaType.endsWith('+json')
 }
 
-// ============================================================================
-// Resolution Helpers
-// ============================================================================
-
-function makeResolvedParameter(
-  p: unknown,
-  components: Components | undefined,
-): Parameter | undefined {
-  if (isParameter(p)) return p
-  if (typeof p === 'object' && p !== null && isStringRef(p) && components?.parameters) {
-    const refName = p.$ref.split('/').at(-1)
+function makeResolvedParameter(parameter: unknown, components: Components | undefined) {
+  if (isParameter(parameter)) return parameter
+  if (
+    typeof parameter === 'object' &&
+    parameter !== null &&
+    isStringRef(parameter) &&
+    components?.parameters
+  ) {
+    const refName = parameter.$ref.split('/').at(-1)
     const resolved = refName ? components.parameters[refName] : undefined
     return resolved && isParameter(resolved) ? resolved : undefined
   }
   return undefined
 }
 
-function makeResolvedRequestBody(
-  rb: unknown,
-  components: Components | undefined,
-): RequestBody | undefined {
-  if (!rb || typeof rb !== 'object') return undefined
-  if (isRequestBody(rb) && !isStringRef(rb)) return rb
-  if (isStringRef(rb) && components?.requestBodies) {
-    const refName = rb.$ref.split('/').at(-1)
+function makeResolvedRequestBody(requestBody: unknown, components: Components | undefined) {
+  if (!requestBody || typeof requestBody !== 'object') return undefined
+  if (isRequestBody(requestBody) && !isStringRef(requestBody)) return requestBody
+  if (isStringRef(requestBody) && components?.requestBodies) {
+    const refName = requestBody.$ref.split('/').at(-1)
     const resolved = refName ? components.requestBodies[refName] : undefined
     return resolved && isRequestBody(resolved) ? resolved : undefined
   }
@@ -330,7 +298,7 @@ function makeResolvedResponse(response: Responses, components: Components | unde
   return response
 }
 
-function makeResolvedSchema(schema: Schema, components: Components | undefined): Schema {
+function makeResolvedSchema(schema: Schema, components: Components | undefined) {
   if (schema.$ref && components) {
     const refName = schema.$ref.split('/').at(-1)
     return refName && components.schemas?.[refName] ? components.schemas[refName] : schema
@@ -338,20 +306,15 @@ function makeResolvedSchema(schema: Schema, components: Components | undefined):
   return schema
 }
 
-function makeParameterSchema(p: Parameter): Schema {
-  // content takes precedence over schema (OpenAPI 3.0 spec)
-  if (p.content) {
-    const firstKey = Object.keys(p.content)[0]
-    if (firstKey && p.content[firstKey]?.schema) {
-      return p.content[firstKey].schema
+function makeParameterSchema(parameter: Parameter) {
+  if (parameter.content) {
+    const firstKey = Object.keys(parameter.content)[0]
+    if (firstKey && parameter.content[firstKey]?.schema) {
+      return parameter.content[firstKey].schema
     }
   }
-  return p.schema ?? {}
+  return parameter.schema ?? {}
 }
-
-// ============================================================================
-// Schema Type String Generation
-// ============================================================================
 
 function makeSchemaTypeString(
   schema: Schema,
@@ -405,7 +368,7 @@ function makeBaseTypeString(
   types: readonly string[],
   components: Components | undefined,
   visited: Set<string>,
-): string {
+) {
   return types.length > 1
     ? types.map((t) => makeSingleTypeString(schema, t, components, visited)).join('|')
     : makeSingleTypeString(schema, types[0] ?? 'object', components, visited)
@@ -421,7 +384,7 @@ function makeSingleTypeString(
   type: string,
   components: Components | undefined,
   visited: Set<string>,
-): string {
+) {
   if (type === 'string') return schema.format === 'binary' ? 'File' : 'string'
   if (type === 'number' || type === 'integer') {
     return schema.format === 'int64' || schema.format === 'bigint' ? 'bigint' : 'number'
@@ -431,11 +394,7 @@ function makeSingleTypeString(
   return PRIMITIVE_TYPE_MAP[type] ?? 'unknown'
 }
 
-function makeRefTypeString(
-  ref: string,
-  components: Components | undefined,
-  visited: Set<string>,
-): string {
+function makeRefTypeString(ref: string, components: Components | undefined, visited: Set<string>) {
   if (!components) return 'unknown'
   const parts = ref.split('/')
   const componentType = parts[2]
@@ -448,15 +407,11 @@ function makeRefTypeString(
   return 'unknown'
 }
 
-// ============================================================================
-// Complex Type String Generation
-// ============================================================================
-
 function makeAllOfTypeString(
   allOf: readonly Schema[],
   components: Components | undefined,
   visited: Set<string>,
-): string {
+) {
   const mergedProps = allOf.reduce((acc, subSchema) => {
     const newProps = makePropertyMap(subSchema, components, visited)
     const result = new Map(acc)
@@ -510,7 +465,7 @@ function makeArrayTypeString(
   schema: Schema,
   components: Components | undefined,
   visited: Set<string>,
-): string {
+) {
   if (!schema.items) return 'unknown[]'
   const items = schema.items
   if (isSchemaArray(items)) {
@@ -531,7 +486,7 @@ function makeObjectTypeString(
   schema: Schema,
   components: Components | undefined,
   visited: Set<string>,
-): string {
+) {
   const { properties, additionalProperties, required } = schema
   if (!properties || Object.keys(properties).length === 0) {
     if (additionalProperties === false) return '{}'

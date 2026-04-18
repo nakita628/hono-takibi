@@ -351,7 +351,7 @@ const ConfigSchema = z
   })
   .readonly()
 
-export type Config = z.infer<typeof ConfigSchema>
+type Config = z.infer<typeof ConfigSchema>
 type ConfigInput = z.input<typeof ConfigSchema>
 
 export function parseConfig(
@@ -366,26 +366,18 @@ export function parseConfig(
   return { ok: true, value: result.data }
 }
 
-/**
- * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
- */
 export async function readConfig(): Promise<
   { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
-
   try {
     register()
     const url = pathToFileURL(abs).href
-    // Indirect `import()` via `new Function` avoids Vite's static analysis warning.
     // eslint-disable-next-line typescript-eslint/no-implied-eval
-    const mod = (await new Function('specifier', 'return import(specifier)')(url)) as {
-      readonly default: unknown
-    }
-    if (!('default' in mod) || mod.default === undefined)
+    const mod = await new Function('specifier', 'return import(specifier)')(url)
+    if (typeof mod !== 'object' || mod === null || !('default' in mod) || mod.default === undefined)
       return { ok: false, error: 'Config must export default object' }
-
     return parseConfig(mod.default)
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

@@ -53,30 +53,21 @@ export async function pathItems(
 > {
   if (!pathItemsConfig?.output) return { ok: false, error: 'pathItems.output is required' }
   if (!components.pathItems) return { ok: false, error: 'No pathItems found' }
-
   const keys = Object.keys(components.pathItems)
   if (keys.length === 0) return { ok: true, value: 'No pathItems found' }
-
   const { output, split = false } = pathItemsConfig
   const pathItemsSrc = pathItemsCode(components, true, readonly)
-
   if (!pathItemsSrc) return { ok: true, value: 'No pathItems found' }
-
-  // Write a single pathItem file
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, componentsConfig)
     const result = await core(code, path.dirname(filePath), filePath)
     return result.ok ? { ok: true as const, value: filePath } : result
   }
-
-  // Non-split mode: single file
   if (!split) {
     const result = await writeFile(output, pathItemsSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` }
   }
-
-  // Split mode: extract pathItem blocks from source
   const outDir = output.replace(/\.ts$/, '')
   const hits = Array.from(
     pathItemsSrc.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem\s*=/g),
@@ -87,15 +78,11 @@ export async function pathItems(
     name: h.name,
     block: pathItemsSrc.slice(h.start, hits[i + 1]?.start ?? pathItemsSrc.length).trim(),
   }))
-
-  // No blocks found: write as single file
   if (blocks.length === 0) {
     const result = await writeFile(String(output), pathItemsSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` }
   }
-
-  // Write each pathItem block and barrel file in parallel
   const allResults = await Promise.all([
     ...blocks.map(({ name, block }) =>
       writeFile(`${outDir}/${uncapitalize(name)}PathItem.ts`, block),
@@ -106,10 +93,8 @@ export async function pathItems(
       `${outDir}/index.ts`,
     ),
   ])
-
-  const firstError = allResults.find((r) => !r.ok)
+  const firstError = allResults.find((result) => !result.ok)
   if (firstError) return firstError
-
   return {
     ok: true,
     value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,

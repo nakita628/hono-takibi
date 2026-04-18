@@ -10,10 +10,9 @@ export const getUsersRoute = createRoute({
   operationId: 'listUsers',
   request: {
     query: z.object({
-      limit: z
-        .int()
-        .min(1)
-        .max(200)
+      limit: z.coerce
+        .number()
+        .pipe(z.int().min(1).max(200))
         .default(20)
         .exactOptional()
         .openapi({
@@ -25,9 +24,9 @@ export const getUsersRoute = createRoute({
             description: 'Items per page.',
           },
         }),
-      offset: z
-        .int()
-        .min(0)
+      offset: z.coerce
+        .number()
+        .pipe(z.int().min(0))
         .default(0)
         .exactOptional()
         .openapi({

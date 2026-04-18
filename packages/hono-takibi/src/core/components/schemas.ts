@@ -48,10 +48,8 @@ export async function schemas(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!schemas) return { ok: false, error: 'No schemas found' }
-
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' }
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
     const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
@@ -72,7 +70,7 @@ export async function schemas(
       core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
     ])
 
-    const firstError = allResults.find((r) => !r.ok)
+    const firstError = allResults.find((result) => !result.ok)
     if (firstError) return firstError
 
     return {
@@ -80,7 +78,6 @@ export async function schemas(
       value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const schemaDefinitions = schemasCode({ schemas }, true, exportType, readonly)
   const sorted = ast(schemaDefinitions)

@@ -53,16 +53,12 @@ export async function parameters(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!parameters) return { ok: false, error: 'No parameters found' }
-
   const parameterNames = Object.keys(parameters)
   if (parameterNames.length === 0) return { ok: true, value: 'No parameters found' }
-
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-
     const allResults = await Promise.all([
       ...parameterNames.map((parameterName) => {
         const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }
@@ -72,16 +68,13 @@ export async function parameters(
       }),
       core(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
     ])
-
-    const firstError = allResults.find((r) => !r.ok)
+    const firstError = allResults.find((result) => !result.ok)
     if (firstError) return firstError
-
     return {
       ok: true,
       value: `Generated parameters code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
   const coreResult = await core(
     toFileCode(parameterDefinitions, output),
