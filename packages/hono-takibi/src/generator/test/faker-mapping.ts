@@ -1,14 +1,6 @@
 import type { Schema } from '../../openapi/index.js'
 
 /**
- * Sanitize a schema name for use as a JavaScript identifier in mock function names.
- * Removes dots from namespace-qualified names (e.g., "Auth.SignupRequest" → "AuthSignupRequest")
- */
-export function sanitizeMockName(name: string): string {
-  return name.replace(/\./g, '')
-}
-
-/**
  * OpenAPI format to faker method mapping
  */
 const FORMAT_TO_FAKER: { [k: string]: string } = {
@@ -97,13 +89,6 @@ const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
-export type SchemaToFakerOptions = {
-  /** Use example values from OpenAPI schema when available */
-  useExamples?: boolean
-  /** Resolved schemas map for $ref resolution */
-  schemas?: { [key: string]: Schema }
-}
-
 /**
  * Generate faker code string for a given OpenAPI schema
  *
@@ -115,7 +100,12 @@ export type SchemaToFakerOptions = {
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
-  options: SchemaToFakerOptions = {},
+  options: {
+    /** Use example values from OpenAPI schema when available */
+    readonly useExamples?: boolean
+    /** Resolved schemas map for $ref resolution */
+    readonly schemas?: { readonly [k: string]: Schema }
+  } = {},
 ): string {
   // 1. If example is provided and useExamples is true
   if (options.useExamples && schema.example !== undefined) {
@@ -133,7 +123,7 @@ export function schemaToFaker(
   // 3. Handle $ref
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
-    return `mock${sanitizeMockName(refName)}()`
+    return `mock${refName.replace(/\./g, '')}()`
   }
   // 4. Handle array
   if (schema.type === 'array' && schema.items) {
@@ -189,10 +179,14 @@ export function schemaToFaker(
     return `{ ${merged.map((m) => `...${m}`).join(', ')} }`
   }
   // 7. Handle oneOf/anyOf (union - pick random)
-  if ((schema.oneOf && schema.oneOf.length > 0) || (schema.anyOf && schema.anyOf.length > 0)) {
-    const variants = (schema.oneOf || schema.anyOf || []).map((s) =>
-      schemaToFaker(s, propertyName, options),
-    )
+  const union =
+    schema.oneOf && schema.oneOf.length > 0
+      ? schema.oneOf
+      : schema.anyOf && schema.anyOf.length > 0
+        ? schema.anyOf
+        : undefined
+  if (union) {
+    const variants = union.map((s) => schemaToFaker(s, propertyName, options))
     return `faker.helpers.arrayElement([${variants.join(', ')}])`
   }
   // 8. Check format mapping (prioritize over property name)
@@ -210,7 +204,6 @@ export function schemaToFaker(
   }
   // 10. Check type mapping
   if (schema.type && typeof schema.type === 'string' && TYPE_TO_FAKER[schema.type]) {
-    // Handle string with constraints
     if (schema.type === 'string') {
       if (schema.pattern) {
         return `faker.helpers.fromRegExp(/${schema.pattern}/)`
@@ -219,7 +212,6 @@ export function schemaToFaker(
       const max = schema.maxLength ?? 20
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
     }
-    // Handle number/integer with constraints
     if (schema.type === 'integer' || schema.type === 'number') {
       const min = schema.minimum ?? 1
       const max = schema.maximum ?? 1000

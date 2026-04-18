@@ -31,7 +31,6 @@ import { error } from '../../../utils/index.js'
  * ```
  */
 export function _enum(schema: Schema): string {
-  /* ht */
   const ht = (t: string): boolean =>
     schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
   /* isPrimitive - check if value is a valid z.literal primitive */
@@ -71,13 +70,11 @@ export function _enum(schema: Schema): string {
       ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
       : `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
-  /* boolean enum */
   if (ht('boolean')) {
     return schema.enum.length > 1
       ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
       : `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
-  /* array enum */
   if (ht('array')) {
     if (schema.enum.length === 1 && Array.isArray(schema.enum[0])) {
       return tuple(schema.enum[0])
@@ -87,7 +84,6 @@ export function _enum(schema: Schema): string {
     )
     return `z.union([${parts.join(',')}]${errArg})`
   }
-  /* string enum */
   if (schema.enum.every((v) => typeof v === 'string')) {
     if (schema.enum.length > 1) {
       if (enumMessages) {

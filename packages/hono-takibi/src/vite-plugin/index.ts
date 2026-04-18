@@ -32,17 +32,8 @@ import { setFormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
-/**
- * Parsed configuration type extracted from parseConfig result.
- */
 type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
-/**
- * Minimal Vite dev-server interface.
- *
- * Defines only the surface area needed by this plugin, avoiding
- * direct dependency on Vite's types for better compatibility.
- */
 type ViteDevServer = {
   watcher: {
     add: (paths: string | readonly string[]) => void
@@ -58,31 +49,10 @@ type ViteDevServer = {
   ssrLoadModule: (moduleId: string) => Promise<unknown>
 }
 
-/**
- * Converts a relative path to an absolute path.
- *
- * @param relativePath - Relative path
- * @returns Absolute path resolved from current working directory
- */
 const toAbsolutePath = (relativePath: string) => path.resolve(process.cwd(), relativePath)
 
-/**
- * Type guard for TypeScript file paths.
- *
- * @param filePath - Path to check
- * @returns True if path ends with .ts
- */
 const isTypeScriptFile = (filePath: string): filePath is `${string}.ts` => filePath.endsWith('.ts')
 
-/**
- * Hot-loads the hono-takibi configuration file.
- *
- * Invalidates the module cache and reloads the config file to pick up
- * changes during development. Uses Vite's SSR module loading.
- *
- * @param server - Vite dev server instance
- * @returns Promise resolving to parsed config or error
- */
 const readConfigurationWithHotReload = async (
   server: ViteDevServer,
 ): Promise<
@@ -145,7 +115,6 @@ const runAllGenerationTasks = async (
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
-
   /**
    * Runs a generation job with split-mode file cleanup.
    */

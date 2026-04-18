@@ -8,7 +8,7 @@ import {
 } from '../../guard/index.js'
 import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import { methodPath } from '../../utils/index.js'
-import { sanitizeMockName, schemaToFaker } from '../test/faker-mapping.js'
+import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
@@ -53,10 +53,8 @@ function collectAllDependencies(
 ): Set<string> {
   if (visited.has(refName)) return visited
   visited.add(refName)
-
   const schema = schemas[refName]
   if (!schema) return visited
-
   const deps = collectRefs(schema)
   for (const dep of deps) {
     collectAllDependencies(dep, schemas, visited)
@@ -111,7 +109,11 @@ function detectCircularSchemas(schemas: { readonly [k: string]: Schema }): Set<s
         if (visited.has(current)) continue
         visited.add(current)
         const s = schemas[current]
-        if (s) for (const r of collectRefs(s)) stack.push(r)
+        if (s) {
+          for (const r of collectRefs(s)) {
+            stack.push(r)
+          }
+        }
       }
       if (circular.has(name)) break
     }
@@ -127,7 +129,7 @@ function makeMockFunction(
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${mockBody}\n}`
+  return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${mockBody}\n}`
 }
 
 function extractSecurityInfo(
@@ -267,9 +269,6 @@ function makeAuthCheck(
   return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, ${401})\n  }\n  `
 }
 
-/**
- * Generates the response body code for a handler.
- */
 function makeHandlerBody(
   statusCode: number,
   jsonSchema: Schema | undefined,
@@ -298,15 +297,12 @@ export function makeMock(
     readonly readonly?: boolean
   } = {},
 ): string {
-  // Filter to JSON-only content types to work around @hono/zod-openapi issue
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
   const securitySchemes = openapi.components?.securitySchemes
   const componentResponses = openapi.components?.responses
-  // Collect all refs used in responses
   const allRefs = new Set<string>()
-  // Process each path/method into route entries and handler code
   const processed = Object.entries(paths).flatMap(([p, pathItem]) =>
     Object.entries(pathItem).flatMap(
       ([method, operation]): readonly {
@@ -357,22 +353,17 @@ export function makeMock(
   )
   const routeEntries = processed.map(({ entry }) => entry)
   const handlers = processed.map(({ handler }) => handler)
-  // Collect all dependencies recursively
   const allDeps = new Set<string>()
   for (const ref of allRefs) {
     collectAllDependencies(ref, schemas, allDeps)
   }
-  // Sort by dependency order
   const sortedRefs = topologicalSort(allDeps, schemas)
-  // Detect circular schemas for return type annotation
   const circularSchemas = detectCircularSchemas(schemas)
-  // Generate mock functions in dependency order
   const mockFunctions = sortedRefs
     .filter((refName) => schemas[refName])
     .map((refName) =>
       makeMockFunction(refName, schemas[refName], schemas, circularSchemas.has(refName)),
     )
-  // Generate components code (schemas)
   const components = openapi.components
     ? componentsCode(openapi.components, {
         exportSchemasTypes: false,
@@ -393,13 +384,10 @@ export function makeMock(
         ...(options.readonly !== undefined ? { readonly: options.readonly } : {}),
       })
     : ''
-  // Generate routes code (using filtered openapi with JSON-only content types)
   const routes = routeCode(filteredOpenapi, options.readonly)
-  // Generate app setup
   const appSetup = routeEntries
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
     .join('\n  ')
-  // Build the final file
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}

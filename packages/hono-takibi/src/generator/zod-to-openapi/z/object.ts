@@ -35,11 +35,11 @@ import { zodToOpenAPI } from '../index.js'
  * ```
  */
 export function object(schema: Schema, readonly?: boolean): string {
-  // Delegate combinators to zodToOpenAPI
+  /* Delegate combinators to zodToOpenAPI */
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
     return zodToOpenAPI(schema, undefined, readonly)
   }
-  // Read vendor extensions for error messages
+  /* Read vendor extensions for error messages */
   const errorMessage = schema['x-error-message']
   const errorErrArg = errorMessage ? `,${error(errorMessage)}` : ''
   const minimumMessage = schema['x-minimum-message']
@@ -52,7 +52,6 @@ export function object(schema: Schema, readonly?: boolean): string {
   const propNamesErrArg = propNamesMsg ? `,${error(propNamesMsg)}` : patternErrArg
   const depReqMsg = schema['x-dependentRequired-message']
   const depReqErrArg = depReqMsg ? `,${error(depReqMsg)}` : errorErrArg
-  // additionalProperties as Schema → record type
   if (typeof schema.additionalProperties === 'object') {
     const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly)})`
     const recordPatternProps = schema.patternProperties
@@ -68,14 +67,12 @@ export function object(schema: Schema, readonly?: boolean): string {
       : ''
     return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
   }
-  // Determine object type based on additionalProperties boolean
   const objectType =
     schema.additionalProperties === true
       ? 'looseObject'
       : schema.additionalProperties === false
         ? 'strictObject'
         : 'object'
-  // Build properties code if present
   const propertiesCode = schema.properties
     ? Object.entries(schema.properties)
         .map(([key, propSchema]) => {
@@ -99,13 +96,11 @@ export function object(schema: Schema, readonly?: boolean): string {
     typeof schema.maxProperties === 'number'
       ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties}${maxErrArg})`
       : ''
-  // propertyNames: validate that all keys match the given schema constraints
   const propNames = schema.propertyNames?.pattern
     ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k))${propNamesErrArg})`
     : schema.propertyNames?.enum
       ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k))${propNamesErrArg})`
       : ''
-  // patternProperties: validate values match schema per key pattern
   const patternProps = schema.patternProperties
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
@@ -114,7 +109,6 @@ export function object(schema: Schema, readonly?: boolean): string {
         })
         .join('')
     : ''
-  // dependentRequired: if key present, dependent keys must also be present
   const depReq = schema.dependentRequired
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {

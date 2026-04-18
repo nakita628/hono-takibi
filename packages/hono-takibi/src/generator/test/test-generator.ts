@@ -6,298 +6,229 @@ import {
   isSecurityScheme,
 } from '../../guard/index.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
-import { sanitizeMockName, schemaToFaker } from './faker-mapping.js'
+import { schemaToFaker } from './faker-mapping.js'
 
-/**
- * Recursively collect all schema $ref names from a schema and its nested properties
- * Returns unique schema names that need mock functions generated
- */
 function collectSchemaRefs(
   schema: Schema,
   schemas?: { [key: string]: Schema },
-  visited = new Set<string>(),
+  visited: Set<string> = new Set<string>(),
 ): string[] {
-  const refs: string[] = []
-  // Handle direct $ref
   if (schema.$ref) {
     const refName = schema.$ref.replace('#/components/schemas/', '')
-    if (!visited.has(refName)) {
-      visited.add(refName)
-      refs.push(refName)
-      // Recursively collect refs from the referenced schema
-      const referencedSchema = schemas?.[refName]
-      if (referencedSchema) {
-        refs.push(...collectSchemaRefs(referencedSchema, schemas, visited))
-      }
-    }
-    return refs
+    if (visited.has(refName)) return []
+    visited.add(refName)
+    const referenced = schemas?.[refName]
+    return [refName, ...(referenced ? collectSchemaRefs(referenced, schemas, visited) : [])]
   }
-  // Handle object properties
-  if (schema.properties) {
-    for (const prop of Object.values(schema.properties)) {
-      refs.push(...collectSchemaRefs(prop, schemas, visited))
-    }
-  }
-  // Handle array items
-  if (schema.items) {
-    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
-    for (const item of items) {
-      refs.push(...collectSchemaRefs(item, schemas, visited))
-    }
-  }
-  // Handle allOf/oneOf/anyOf
-  for (const compositeKey of ['allOf', 'oneOf', 'anyOf'] as const) {
-    const composite = schema[compositeKey]
-    if (composite) {
-      for (const subSchema of composite) {
-        refs.push(...collectSchemaRefs(subSchema, schemas, visited))
-      }
-    }
-  }
-  return refs
+  const propRefs = schema.properties
+    ? Object.values(schema.properties).flatMap((p) => collectSchemaRefs(p, schemas, visited))
+    : []
+  const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
+  const itemRefs = items.flatMap((item) => collectSchemaRefs(item, schemas, visited))
+  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((key) => {
+    const composite = schema[key]
+    return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
+  })
+  return [...propRefs, ...itemRefs, ...compositeRefs]
 }
 
 function extractSecurityRequirements(
   opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
-  securitySchemes: { [key: string]: unknown } | undefined,
-) {
+  securitySchemes: { readonly [k: string]: unknown } | undefined,
+): readonly {
+  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+  readonly name: string
+  readonly in?: 'header' | 'query' | 'cookie'
+}[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
-  const requirements: {
-    type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-    name: string
-    in?: 'header' | 'query' | 'cookie'
-  }[] = []
-  for (const secDef of securityDefs) {
-    for (const schemeName of Object.keys(secDef)) {
-      const scheme = securitySchemes?.[schemeName]
-      if (!(scheme && isSecurityScheme(scheme))) continue
-      if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-        requirements.push({ type: 'bearer', name: 'Authorization' })
-      } else if (scheme.type === 'http' && scheme.scheme === 'basic') {
-        requirements.push({ type: 'basic', name: 'Authorization' })
-      } else if (scheme.type === 'apiKey') {
-        const inLocation =
-          scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
-            ? scheme.in
-            : 'header'
-        requirements.push({ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation })
-      } else if (scheme.type === 'oauth2') {
-        requirements.push({ type: 'oauth2', name: 'Authorization' })
-      }
-    }
-  }
-  return requirements
+  return securityDefs.flatMap((secDef) =>
+    Object.keys(secDef).flatMap(
+      (
+        schemeName,
+      ): {
+        type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+        name: string
+        in?: 'header' | 'query' | 'cookie'
+      }[] => {
+        const scheme = securitySchemes?.[schemeName]
+        if (!(scheme && isSecurityScheme(scheme))) return []
+        if (scheme.type === 'http' && scheme.scheme === 'bearer') {
+          return [{ type: 'bearer', name: 'Authorization' }]
+        }
+        if (scheme.type === 'http' && scheme.scheme === 'basic') {
+          return [{ type: 'basic', name: 'Authorization' }]
+        }
+        if (scheme.type === 'apiKey') {
+          const inLocation =
+            scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+              ? scheme.in
+              : 'header'
+          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }]
+        }
+        if (scheme.type === 'oauth2') {
+          return [{ type: 'oauth2', name: 'Authorization' }]
+        }
+        return []
+      },
+    ),
+  )
 }
 
 export function extractTestCases(spec: OpenAPI) {
-  const testCases: {
-    operationId: string
-    method: string
-    path: string
-    summary: string
-    description: string
-    tag: string | undefined
-    pathParams: { name: string; fakerCode: string; schema?: Schema }[]
-    queryParams: { name: string; fakerCode: string; required: boolean }[]
-    headerParams: { name: string; fakerCode: string; required: boolean }[]
-    requestBody: { fakerCode: string; contentType: string } | undefined
-    successStatus: number
-    errorStatuses: number[]
-    security: {
-      type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-      name: string
-      in?: 'header' | 'query' | 'cookie'
-    }[]
-    usedSchemaRefs: string[]
-  }[] = []
   const securitySchemes = spec.components?.securitySchemes
-  for (const [path, pathItem] of Object.entries(spec.paths)) {
-    for (const [method, operation] of Object.entries(pathItem)) {
-      if (!(isHttpMethod(method) && isOperation(operation))) continue
-      const op = operation
-      const pathParams: { name: string; fakerCode: string; schema?: Schema }[] = []
-      const queryParams: { name: string; fakerCode: string; required: boolean }[] = []
-      const headerParams: { name: string; fakerCode: string; required: boolean }[] = []
-      for (const rawParam of op.parameters || []) {
-        // Resolve $ref parameters from components
+  return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
+    Object.entries(pathItem).flatMap(([method, operation]) => {
+      if (!(isHttpMethod(method) && isOperation(operation))) return []
+      const resolvedParams = (operation.parameters || []).flatMap((rawParam) => {
         const param = rawParam.$ref
           ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
             rawParam)
           : rawParam
-        if (!param) continue
-        const schema = param.schema || { type: 'string' }
-        const fakerCode = schemaToFaker(schema, param.name)
-        if (param.in === 'path') {
-          pathParams.push({ name: param.name, fakerCode, schema })
-        } else if (param.in === 'query') {
-          queryParams.push({ name: param.name, fakerCode, required: param.required ?? false })
-        } else if (param.in === 'header') {
-          headerParams.push({ name: param.name, fakerCode, required: param.required ?? false })
-        }
-      }
-      const requestBody = (() => {
-        if (!(op.requestBody && isContentBody(op.requestBody))) return undefined
-        const jsonContent = op.requestBody.content?.['application/json']
-        if (jsonContent?.schema)
-          return { fakerCode: schemaToFaker(jsonContent.schema), contentType: 'application/json' }
-        return undefined
-      })()
-      const usedSchemaRefs: string[] = (() => {
-        const refs: string[] = []
-        // Collect from request body
-        if (op.requestBody && isContentBody(op.requestBody)) {
-          const jsonContent = op.requestBody.content?.['application/json']
-          if (jsonContent?.schema) {
-            refs.push(...collectSchemaRefs(jsonContent.schema, spec.components?.schemas))
-          }
-        }
-        // Collect from parameter schemas (path, query, header)
-        for (const rawParam of op.parameters || []) {
-          const param = rawParam.$ref
-            ? (spec.components?.parameters?.[
-                rawParam.$ref.replace('#/components/parameters/', '')
-              ] ?? rawParam)
-            : rawParam
-          if (param?.schema) {
-            refs.push(...collectSchemaRefs(param.schema, spec.components?.schemas))
-          }
-        }
-        return [...new Set(refs)]
-      })()
-      const responseKeys = Object.keys(op.responses || {})
-      // Extract success status (2xx), sort to get lowest, default to 200 if none defined
+        if (!param) return []
+        const schema = param.schema || { type: 'string' as const }
+        return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }]
+      })
+      const pathParams = resolvedParams
+        .filter((p) => p.param.in === 'path')
+        .map((p) => ({ name: p.param.name, fakerCode: p.fakerCode, schema: p.schema }))
+      const queryParams = resolvedParams
+        .filter((p) => p.param.in === 'query')
+        .map((p) => ({
+          name: p.param.name,
+          fakerCode: p.fakerCode,
+          required: p.param.required ?? false,
+        }))
+      const headerParams = resolvedParams
+        .filter((p) => p.param.in === 'header')
+        .map((p) => ({
+          name: p.param.name,
+          fakerCode: p.fakerCode,
+          required: p.param.required ?? false,
+        }))
+      const jsonBodySchema =
+        operation.requestBody && isContentBody(operation.requestBody)
+          ? operation.requestBody.content?.['application/json']?.schema
+          : undefined
+      const requestBody = jsonBodySchema
+        ? { fakerCode: schemaToFaker(jsonBodySchema), contentType: 'application/json' }
+        : undefined
+      const bodyRefs = jsonBodySchema
+        ? collectSchemaRefs(jsonBodySchema, spec.components?.schemas)
+        : []
+      const paramRefs = resolvedParams.flatMap((p) =>
+        collectSchemaRefs(p.schema, spec.components?.schemas),
+      )
+      const usedSchemaRefs = [...new Set([...bodyRefs, ...paramRefs])]
+      const responseKeys = Object.keys(operation.responses || {})
       const successStatus =
         responseKeys
           .filter((s) => s.startsWith('2'))
           .map((s) => Number.parseInt(s, 10))
-          .sort((a, b) => a - b)[0] ?? 200
-      // Extract error statuses (4xx client errors, 5xx server errors), exclude 'default' which is a wildcard in OpenAPI
+          .toSorted((a, b) => a - b)[0] ?? 200
       const errorStatuses = responseKeys
-        .filter((s) => s.startsWith('4') || s.startsWith('5'))
-        .filter((s) => s !== 'default')
+        .filter((s) => (s.startsWith('4') || s.startsWith('5')) && s !== 'default')
         .map((s) => Number.parseInt(s, 10))
-        .sort((a, b) => a - b)
+        .toSorted((a, b) => a - b)
       const security = extractSecurityRequirements(
-        isSecurityArray(op.security) ? op.security : undefined,
+        isSecurityArray(operation.security) ? operation.security : undefined,
         isSecurityArray(spec.security) ? spec.security : undefined,
         securitySchemes,
       )
-      testCases.push({
-        operationId: op.operationId || `${method}${path.replace(/\//g, '_')}`,
-        method: method.toUpperCase(),
-        path,
-        summary: op.summary || '',
-        description: op.description || '',
-        tag: op.tags?.[0],
-        pathParams,
-        queryParams,
-        headerParams,
-        requestBody,
-        successStatus,
-        errorStatuses,
-        security,
-        usedSchemaRefs,
-      })
-    }
-  }
-  return testCases
+      return [
+        {
+          operationId: operation.operationId || `${method}${path.replace(/\//g, '_')}`,
+          method: method.toUpperCase(),
+          path,
+          summary: operation.summary || '',
+          description: operation.description || '',
+          tag: operation.tags?.[0],
+          pathParams,
+          queryParams,
+          headerParams,
+          requestBody,
+          successStatus,
+          errorStatuses,
+          security,
+          usedSchemaRefs,
+        },
+      ]
+    }),
+  )
 }
 
-/**
- * Shallow ref collection: extract $ref names from schema structure without following into definitions
- */
 function shallowRefs(schema: Schema): string[] {
-  const refs: string[] = []
-  if (schema.$ref) {
-    const name = schema.$ref.replace('#/components/schemas/', '')
-    refs.push(name)
-  }
-  if (schema.properties) {
-    for (const prop of Object.values(schema.properties)) refs.push(...shallowRefs(prop))
-  }
-  if (schema.items) {
-    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
-    for (const item of items) refs.push(...shallowRefs(item))
-  }
-  for (const key of ['allOf', 'oneOf', 'anyOf'] as const) {
-    if (schema[key]) for (const s of schema[key]) refs.push(...shallowRefs(s))
-  }
-  return refs
+  const selfRef = schema.$ref ? [schema.$ref.replace('#/components/schemas/', '')] : []
+  const propRefs = schema.properties ? Object.values(schema.properties).flatMap(shallowRefs) : []
+  const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
+  const itemRefs = items.flatMap(shallowRefs)
+  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((key) => {
+    const composite = schema[key]
+    return composite ? composite.flatMap(shallowRefs) : []
+  })
+  return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs]
+}
+
+function reachesSelf(
+  start: string,
+  target: string,
+  schemas: { [key: string]: Schema },
+  visited: Set<string> = new Set<string>(),
+): boolean {
+  if (start === target) return true
+  if (visited.has(start)) return false
+  visited.add(start)
+  const schema = schemas[start]
+  if (!schema) return false
+  return shallowRefs(schema).some((dep) => reachesSelf(dep, target, schemas, visited))
 }
 
 function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
-  const circular = new Set<string>()
-  for (const name of Object.keys(schemas)) {
+  return new Set(
+    Object.keys(schemas).filter((name) => {
+      const schema = schemas[name]
+      if (!schema) return false
+      return shallowRefs(schema).some((dep) => reachesSelf(dep, name, schemas))
+    }),
+  )
+}
+
+function topologicalOrder(
+  usedSchemaNames: Set<string>,
+  schemas: { [key: string]: Schema },
+): string[] {
+  const visit = (name: string, visited: Set<string>, visiting: Set<string>): string[] => {
+    if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return []
+    const nextVisiting = new Set(visiting).add(name)
     const schema = schemas[name]
-    if (!schema) continue
-    for (const dep of shallowRefs(schema)) {
-      if (dep === name) {
-        circular.add(name)
-        break
-      }
-      const visited = new Set<string>()
-      const stack = [dep]
-      while (stack.length > 0) {
-        const current = stack.pop()
-        if (current === undefined) break
-        if (current === name) {
-          circular.add(name)
-          break
-        }
-        if (visited.has(current)) continue
-        visited.add(current)
-        const s = schemas[current]
-        if (s) for (const r of shallowRefs(s)) stack.push(r)
-      }
-      if (circular.has(name)) break
-    }
+    const depOrder = schema
+      ? collectSchemaRefs(schema, schemas, new Set([name])).flatMap((dep) => {
+          const subOrder = visit(dep, visited, nextVisiting)
+          for (const n of subOrder) visited.add(n)
+          return subOrder
+        })
+      : []
+    visited.add(name)
+    return [...depOrder, name]
   }
-  return circular
+  const visited = new Set<string>()
+  return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))
 }
 
 function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
   const circular = detectCircularSchemas(schemas)
-  // Topological sort: generate dependencies first
-  const sorted: string[] = []
-  const visiting = new Set<string>()
-  const visited = new Set<string>()
-  const visit = (name: string) => {
-    if (visited.has(name) || !usedSchemaNames.has(name)) return
-    if (visiting.has(name)) return // circular dependency, skip
-    visiting.add(name)
-    const schema = schemas[name]
-    if (schema) {
-      // Find direct dependencies of this schema
-      const deps = collectSchemaRefs(schema, schemas, new Set([name]))
-      for (const dep of deps) {
-        visit(dep)
-      }
-    }
-    visiting.delete(name)
-    visited.add(name)
-    sorted.push(name)
-  }
-  for (const name of usedSchemaNames) {
-    visit(name)
-  }
-  return sorted
+  return topologicalOrder(usedSchemaNames, schemas)
     .map((name) => {
       const returnType = circular.has(name) ? ': any' : ''
-      return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+      return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
     })
     .join('\n\n')
 }
 
-/**
- * Generate a non-existent value for 404 testing based on the schema type
- * Returns raw value without quotes (for URL path insertion)
- */
 function getNonExistentValue(schema?: Schema, schemas?: { [key: string]: Schema }): string {
   if (!schema) return '__non_existent__'
-  // Resolve $ref to the actual schema definition
   const resolved =
     schema.$ref && schemas
       ? (schemas[schema.$ref.replace('#/components/schemas/', '')] ?? schema)
@@ -321,32 +252,11 @@ function makeAuthHeader(sec: {
     case 'apiKey':
       if (sec.in === 'header') return `'${sec.name}':faker.string.alphanumeric(32)`
       return ''
-    default:
-      return ''
   }
 }
 
 function makeTestCase(
-  tc: {
-    operationId: string
-    method: string
-    path: string
-    summary: string
-    description: string
-    tag: string | undefined
-    pathParams: { name: string; fakerCode: string; schema?: Schema }[]
-    queryParams: { name: string; fakerCode: string; required: boolean }[]
-    headerParams: { name: string; fakerCode: string; required: boolean }[]
-    requestBody: { fakerCode: string; contentType: string } | undefined
-    successStatus: number
-    errorStatuses: number[]
-    security: {
-      type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-      name: string
-      in?: 'header' | 'query' | 'cookie'
-    }[]
-    usedSchemaRefs: string[]
-  },
+  tc: ReturnType<typeof extractTestCases>[number],
   basePath = '/',
   schemas?: { [k: string]: Schema },
 ): string {
@@ -358,7 +268,6 @@ function makeTestCase(
     fullPath,
   )
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  // Include all query parameters (both required and optional) for comprehensive testing
   const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const queryParts = tc.queryParams.map(
     (param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`,
@@ -389,7 +298,6 @@ function makeTestCase(
     tc.security.length > 0
       ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
       : ''
-  // Generate 404 test if: has path params AND 404 is defined in OpenAPI responses
   const notFoundTest =
     tc.pathParams.length > 0 && tc.errorStatuses.includes(404)
       ? (() => {
@@ -429,35 +337,10 @@ export function makeTestFile(
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
-  const byTag = testCases.reduce(
-    (acc, tc) => {
-      const tag = tc.tag || 'default'
-      return acc.set(tag, [...(acc.get(tag) || []), tc])
-    },
-    new Map<
-      string,
-      {
-        operationId: string
-        method: string
-        path: string
-        summary: string
-        description: string
-        tag: string | undefined
-        pathParams: { name: string; fakerCode: string; schema?: Schema }[]
-        queryParams: { name: string; fakerCode: string; required: boolean }[]
-        headerParams: { name: string; fakerCode: string; required: boolean }[]
-        requestBody: { fakerCode: string; contentType: string } | undefined
-        successStatus: number
-        errorStatuses: number[]
-        security: {
-          type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-          name: string
-          in?: 'header' | 'query' | 'cookie'
-        }[]
-        usedSchemaRefs: string[]
-      }[]
-    >(),
-  )
+  const byTag = testCases.reduce((acc, tc) => {
+    const tag = tc.tag || 'default'
+    return acc.set(tag, [...(acc.get(tag) || []), tc])
+  }, new Map<string, ReturnType<typeof extractTestCases>>())
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
   const tagDescribes = Array.from(byTag.entries())
     .map(([tag, cases]) => {
@@ -478,10 +361,6 @@ export function makeTestFile(
   return `${imports}\n${body}`
 }
 
-/**
- * Extract the first path segment from an API path.
- * e.g., "/users/{id}" → "users", "/products" → "products", "/" → "__root"
- */
 function getPathFirstSegment(path: string): string {
   const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
   const sanitized = rawSegment
@@ -501,14 +380,9 @@ export function makeHandlerTestCode(
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ): string {
-  // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
   const testCases = extractTestCases(spec)
-  // Filter test cases by matching the first path segment with handler file name
-  const relevantCases = testCases.filter((tc) => {
-    const pathSegment = getPathFirstSegment(tc.path)
-    return pathSegment === handlerFileName
-  })
+  const relevantCases = testCases.filter((tc) => getPathFirstSegment(tc.path) === handlerFileName)
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
@@ -516,7 +390,6 @@ export function makeHandlerTestCode(
     .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  // Capitalize resource name for describe block (e.g., "users" → "Users")
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
   const body = `${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
   const needsFaker = body.includes('faker.')

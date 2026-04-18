@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { sanitizeMockName, schemaToFaker } from './faker-mapping.js'
+import { schemaToFaker } from './faker-mapping.js'
 
 describe('schemaToFaker', () => {
   describe('example values', () => {
@@ -74,6 +74,34 @@ describe('schemaToFaker', () => {
 
     it.concurrent('$ref without dots is unchanged', () => {
       expect(schemaToFaker({ $ref: '#/components/schemas/UserId' })).toBe('mockUserId()')
+    })
+
+    it.concurrent('$ref with trailing slash falls back to mockunknown()', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/' })).toBe('mockunknown()')
+    })
+  })
+
+  describe('oneOf vs anyOf precedence', () => {
+    it.concurrent('prefers oneOf over anyOf when both are present', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [{ type: 'boolean' }],
+          anyOf: [{ type: 'integer' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([faker.datatype.boolean()])')
+    })
+
+    it.concurrent('falls back to anyOf when oneOf is empty', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [],
+          anyOf: [{ type: 'integer' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([faker.number.int({ min: 1, max: 1000 })])')
+    })
+
+    it.concurrent('returns undefined when both oneOf and anyOf are empty', () => {
+      expect(schemaToFaker({ oneOf: [], anyOf: [] })).toBe('undefined')
     })
   })
 
@@ -474,41 +502,5 @@ describe('schemaToFaker', () => {
     it.concurrent('returns undefined for unknown type', () => {
       expect(schemaToFaker({ type: 'date' })).toBe('undefined')
     })
-  })
-})
-
-/* ═══════════════════════════════════ sanitizeMockName ═══════════════════════════════════ */
-
-describe('sanitizeMockName', () => {
-  it.concurrent('removes single dot (TypeSpec namespace)', () => {
-    expect(sanitizeMockName('Auth.SignupRequest')).toBe('AuthSignupRequest')
-  })
-
-  it.concurrent('removes multiple dots (deeply nested namespace)', () => {
-    expect(sanitizeMockName('Api.V1.Models.User')).toBe('ApiV1ModelsUser')
-  })
-
-  it.concurrent('returns unchanged when no dots', () => {
-    expect(sanitizeMockName('UserId')).toBe('UserId')
-  })
-
-  it.concurrent('handles empty string', () => {
-    expect(sanitizeMockName('')).toBe('')
-  })
-
-  it.concurrent('handles single character', () => {
-    expect(sanitizeMockName('A')).toBe('A')
-  })
-
-  it.concurrent('handles leading dot', () => {
-    expect(sanitizeMockName('.Hidden')).toBe('Hidden')
-  })
-
-  it.concurrent('handles trailing dot', () => {
-    expect(sanitizeMockName('Trailing.')).toBe('Trailing')
-  })
-
-  it.concurrent('handles consecutive dots', () => {
-    expect(sanitizeMockName('A..B')).toBe('AB')
   })
 })

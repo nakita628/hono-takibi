@@ -53,9 +53,6 @@ export function isStringRef(p: object): p is { readonly $ref: string } {
   return '$ref' in p && typeof p.$ref === 'string'
 }
 
-/**
- * Type guard for parameter objects (lightweight, unknown input).
- */
 export function isParameterObject(v: unknown): v is {
   readonly name: string
   readonly in: 'path' | 'query' | 'header' | 'cookie'
@@ -68,9 +65,6 @@ export function isParameterObject(v: unknown): v is {
   return pos === 'path' || pos === 'query' || pos === 'header' || pos === 'cookie'
 }
 
-/**
- * Type guard for OpenAPI Parameter objects.
- */
 export function isParameter(p: unknown): p is Parameter {
   return (
     typeof p === 'object' &&

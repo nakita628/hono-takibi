@@ -1,11 +1,5 @@
 import fsp from 'node:fs/promises'
 
-/**
- * Removes a file. Returns ok if the file was deleted or did not exist.
- *
- * @param path - File path to remove.
- * @returns A `Result` that is `ok` on success (including ENOENT), otherwise an error message.
- */
 export async function unlink(path: string): Promise<
   | {
       readonly ok: true
@@ -27,12 +21,6 @@ export async function unlink(path: string): Promise<
   }
 }
 
-/**
- * Creates a directory if it does not already exist.
- *
- * @param dir - Directory path to create.
- * @returns A `Result` that is `ok` on success, otherwise an error message.
- */
 export async function mkdir(dir: string): Promise<
   | {
       readonly ok: false
@@ -57,14 +45,6 @@ export async function mkdir(dir: string): Promise<
   }
 }
 
-/**
- * Reads the contents of a directory.
- *
- * @param dir - Directory to read.
- * @returns A `Result` with the file list on success, otherwise an error message.
- *   When the directory does not exist (ENOENT), the error result includes `notFound: true`
- *   so callers can distinguish missing directories from other failures (e.g., EACCES).
- */
 export async function readdir(dir: string): Promise<
   | {
       readonly ok: false
@@ -90,12 +70,6 @@ export async function readdir(dir: string): Promise<
   }
 }
 
-/**
- * Reads UTF-8 text from a file.
- *
- * @param path - File path to read.
- * @returns A `Result` with the file content on success, `null` if the file does not exist, or an error message.
- */
 export async function readFile(path: string): Promise<
   | {
       readonly ok: true
@@ -117,14 +91,6 @@ export async function readFile(path: string): Promise<
   }
 }
 
-/**
- * Writes UTF-8 text to a file, creating it if necessary.
- * Skips writing if the file already exists with identical content.
- *
- * @param path - File path to write.
- * @param data - Text data to write.
- * @returns A `Result` that is `ok` on success, otherwise an error message.
- */
 export async function writeFile(
   path: string,
   data: string,
