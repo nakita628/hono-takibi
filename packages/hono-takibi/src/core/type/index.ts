@@ -17,7 +17,6 @@ import type {
   Operation,
   Parameter,
   Reference,
-  RequestBody,
   Responses,
   Schema,
 } from '../../openapi/index.js'
@@ -188,11 +187,9 @@ function makeBodyParts(
 ): readonly string[] {
   const resolved = requestBody ? makeResolvedRequestBody(requestBody, components) : undefined
   if (!resolved?.content) return []
-
   const mediaEntries = Object.entries(resolved.content).filter(
     (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
   )
-
   const jsonTypes = [
     ...new Set(
       mediaEntries
@@ -213,7 +210,6 @@ function makeBodyParts(
     ),
   ]
   const classified = { jsonTypes, formTypes }
-
   const jsonPart =
     classified.jsonTypes.length > 0
       ? `{json:${classified.jsonTypes.length === 1 ? classified.jsonTypes[0] : `(${classified.jsonTypes.join('|')})`}}`
@@ -222,7 +218,6 @@ function makeBodyParts(
     classified.formTypes.length > 0
       ? `{form:${classified.formTypes.length === 1 ? classified.formTypes[0] : `(${classified.formTypes.join('|')})`}}`
       : undefined
-
   return [jsonPart, formPart].filter((p): p is string => p !== undefined)
 }
 
