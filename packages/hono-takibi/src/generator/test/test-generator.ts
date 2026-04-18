@@ -55,7 +55,7 @@ function collectSchemaRefs(
 function extractSecurityRequirements(
   opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
-  securitySchemes: { [key: string]: unknown } | undefined,
+  securitySchemes: { readonly [k: string]: unknown } | undefined,
 ) {
   const securityDefs = opSecurity ?? globalSecurity ?? []
   const requirements: {
@@ -247,7 +247,6 @@ function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string 
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
   const circular = detectCircularSchemas(schemas)
-  // Topological sort: generate dependencies first
   const sorted: string[] = []
   const visiting = new Set<string>()
   const visited = new Set<string>()
@@ -257,7 +256,6 @@ function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string 
     visiting.add(name)
     const schema = schemas[name]
     if (schema) {
-      // Find direct dependencies of this schema
       const deps = collectSchemaRefs(schema, schemas, new Set([name]))
       for (const dep of deps) {
         visit(dep)

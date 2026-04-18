@@ -31,10 +31,6 @@ type Endpoint = {
 
 const MAX_SCHEMA_DEPTH = 50
 
-/**
- * Converts text to a widdershins-compatible slug for HTML id attributes.
- * Lowercases ASCII, keeps non-ASCII (e.g. Japanese), removes special chars.
- */
 function toSlug(text: string): string {
   const str = typeof text === 'string' ? text : String(text ?? '')
   return str
@@ -43,9 +39,6 @@ function toSlug(text: string): string {
     .replace(/\s+/g, '-')
 }
 
-/**
- * Converts an API title to a widdershins-style anchor slug.
- */
 function toTitleSlug(title: string): string {
   const str = typeof title === 'string' ? title : String(title ?? '')
   return str
@@ -53,10 +46,6 @@ function toTitleSlug(title: string): string {
     .replace(/[^a-z0-9 -]/g, '')
     .replace(/\s+/g, '-')
 }
-
-// ---------------------------------------------------------------------------
-// $ref resolution
-// ---------------------------------------------------------------------------
 
 function lookupComponentSection(
   components: Components,
@@ -111,10 +100,6 @@ function resolveResponse(response: Responses, components: Components | undefined
   return isResponses(resolved) ? resolved : response
 }
 
-// ---------------------------------------------------------------------------
-// Schema type formatting (widdershins-compatible)
-// ---------------------------------------------------------------------------
-
 /**
  * Formats a schema type string as widdershins does.
  * Examples: "string(email)", "integer(int64)", "[User](#schemauser)", "[[User](#schemauser)]"
@@ -137,10 +122,6 @@ function formatSchemaType(schema: Schema, _components: Components | undefined): 
   if (schema.format) return `${baseType}(${schema.format})`
   return baseType
 }
-
-// ---------------------------------------------------------------------------
-// Example generation (widdershins-compatible defaults)
-// ---------------------------------------------------------------------------
 
 /**
  * Returns a default example string for the given OpenAPI string format.
@@ -260,9 +241,6 @@ function extractSecurityRequirements(
   return security
 }
 
-/**
- * Builds the `# Authentication` section from securitySchemes.
- */
 function makeAuthenticationSection(
   securitySchemes: Components['securitySchemes'] | undefined,
 ): string[] {
@@ -449,10 +427,6 @@ function makeCodeSampleBody(
   return JSON.stringify(example, null, 2)
 }
 
-/**
- * Re-indents a JSON body so it sits properly inside a curl/hono -d flag.
- * Adds 2-space base indent to all lines after the first (opening brace).
- */
 function indentJsonBody(body: string): string {
   const lines = body.split('\n')
   if (lines.length <= 1) return body
@@ -556,9 +530,6 @@ function getPathParameters(openAPI: OpenAPI, pathStr: string): readonly Paramete
   })
 }
 
-/**
- * Generates body parameter rows with `»` nesting (widdershins format).
- */
 function isSchemaLike(value: unknown): value is Schema {
   return typeof value === 'object' && value !== null
 }

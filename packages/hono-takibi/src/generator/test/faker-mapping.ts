@@ -125,7 +125,7 @@ export function schemaToFaker(
   // 3. Handle $ref
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
-    return refName.replace(/\./g, '')
+    return `mock${refName.replace(/\./g, '')}()`
   }
   // 4. Handle array
   if (schema.type === 'array' && schema.items) {
