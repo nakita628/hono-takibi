@@ -1142,7 +1142,10 @@ type TagGroup = {
   endpoints: Endpoint[]
 }
 
-function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly {
+function groupByTag(
+  endpoints: readonly Endpoint[],
+  openAPI: OpenAPI,
+): readonly {
   name: string
   description?: string
   endpoints: Endpoint[]
