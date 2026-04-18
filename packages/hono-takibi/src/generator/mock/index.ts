@@ -8,7 +8,7 @@ import {
 } from '../../guard/index.js'
 import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import { methodPath } from '../../utils/index.js'
-import { sanitizeMockName, schemaToFaker } from '../test/faker-mapping.js'
+import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
@@ -53,10 +53,8 @@ function collectAllDependencies(
 ): Set<string> {
   if (visited.has(refName)) return visited
   visited.add(refName)
-
   const schema = schemas[refName]
   if (!schema) return visited
-
   const deps = collectRefs(schema)
   for (const dep of deps) {
     collectAllDependencies(dep, schemas, visited)
@@ -111,7 +109,11 @@ function detectCircularSchemas(schemas: { readonly [k: string]: Schema }): Set<s
         if (visited.has(current)) continue
         visited.add(current)
         const s = schemas[current]
-        if (s) for (const r of collectRefs(s)) stack.push(r)
+        if (s) {
+          for (const r of collectRefs(s)) {
+            stack.push(r)
+          }
+        }
       }
       if (circular.has(name)) break
     }
@@ -127,7 +129,7 @@ function makeMockFunction(
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${mockBody}\n}`
+  return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${mockBody}\n}`
 }
 
 function extractSecurityInfo(

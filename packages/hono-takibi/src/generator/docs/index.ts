@@ -531,13 +531,13 @@ function resolveOperationParameters(
   components: Components | undefined,
 ): readonly Parameter[] {
   if (!operation.parameters) return []
-  return operation.parameters.flatMap((p) => {
-    if ('$ref' in p && p.$ref) {
-      const resolved = resolveRef(p.$ref, components)
+  return operation.parameters.flatMap((parameter) => {
+    if ('$ref' in parameter && parameter.$ref) {
+      const resolved = resolveRef(parameter.$ref, components)
       if (isParameter(resolved)) return [resolved]
       return []
     }
-    return [p]
+    return [parameter]
   })
 }
 
@@ -545,13 +545,13 @@ function getPathParameters(openAPI: OpenAPI, pathStr: string): readonly Paramete
   const pathItem = openAPI.paths?.[pathStr]
   if (!pathItem?.parameters) return []
   const params: readonly (Parameter | { readonly $ref?: string })[] = pathItem.parameters
-  return params.flatMap((p): Parameter[] => {
-    if ('$ref' in p && p.$ref) {
-      const resolved = resolveRef(p.$ref, openAPI.components)
+  return params.flatMap((parameter): Parameter[] => {
+    if ('$ref' in parameter && parameter.$ref) {
+      const resolved = resolveRef(parameter.$ref, openAPI.components)
       if (isParameter(resolved)) return [resolved]
       return []
     }
-    if (isParameter(p)) return [p]
+    if (isParameter(parameter)) return [parameter]
     return []
   })
 }
@@ -570,8 +570,8 @@ function resolveArrayItem(
 ): Schema {
   if (itemSchema.$ref && !visited.has(itemSchema.$ref)) {
     visited.add(itemSchema.$ref)
-    const r = resolveRef(itemSchema.$ref, components)
-    if (isSchemaLike(r)) return r
+    const ref = resolveRef(itemSchema.$ref, components)
+    if (isSchemaLike(ref)) return ref
   }
   return itemSchema
 }
@@ -606,7 +606,6 @@ function flattenBodyParams(
         required: requiredSet.has(key),
         description: propSchema.description ?? 'none',
       }
-      // Recurse into nested objects
       if (propSchema.type === 'object' && propSchema.properties) {
         const nextPrefix = prefix ? `${prefix}»` : '»»'
         return [
@@ -680,11 +679,8 @@ function makeParametersTable(
       description: p.description ?? 'none',
     })
   }
-
-  // Request body parameters (widdershins format with body/$ref row + `»` fields)
   const bodySchema = getBodySchema(operation.requestBody, components)
   if (bodySchema) {
-    // Top-level body row
     const bodyTypeStr = bodySchema.$ref ? formatSchemaType(bodySchema, components) : 'object'
     const isRequired =
       operation.requestBody &&
@@ -710,12 +706,9 @@ function makeParametersTable(
       })
     }
   }
-
   if (rows.length === 0) return []
-
   const heading = operation.summary ?? operation.operationId ?? ''
   const slugBase = toSlug(heading)
-
   return [
     `<h3 id="${slugBase}-parameters">Parameters</h3>`,
     '',
@@ -733,11 +726,8 @@ function makeResponsesTable(operation: Operation, components: Components | undef
 
   for (const [statusCode, response] of Object.entries(operation.responses)) {
     const resolvedResponse = resolveResponse(response, components)
-
     const meaningStr = STATUS_CODES[statusCode] ?? statusCode
     const description = resolvedResponse.description ?? ''
-
-    // Determine schema column
     const jsonMedia = resolvedResponse.content?.['application/json']
     const schemaStr =
       jsonMedia && isMedia(jsonMedia) && jsonMedia.schema
@@ -748,7 +738,6 @@ function makeResponsesTable(operation: Operation, components: Components | undef
 
     rows.push(`|${statusCode}|${meaningStr}|${description}|${schemaStr}|`)
   }
-
   return [
     `<h3 id="${slugBase}-responses">Responses</h3>`,
     '',
@@ -759,9 +748,6 @@ function makeResponsesTable(operation: Operation, components: Components | undef
   ]
 }
 
-/**
- * Flattens response schema fields with `»` nesting for the Response Schema section.
- */
 function flattenResponseSchemaFields(
   schema: Schema,
   components: Components | undefined,
@@ -786,7 +772,6 @@ function flattenResponseSchemaFields(
     }
     return []
   }
-
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
@@ -798,7 +783,6 @@ function flattenResponseSchemaFields(
         restrictions: 'none',
         description: propSchema.description ?? 'none',
       }
-      // Recurse
       const nextPrefix = prefix ? `${prefix}»` : '»'
       const nestedPrefix = nextPrefix.replace(/»/g, '» ').trimEnd()
       if (propSchema.type === 'object' && propSchema.properties) {
@@ -873,7 +857,6 @@ function flattenResponseSchemaFields(
       return [anonRow]
     }
   }
-
   return []
 }
 
@@ -884,23 +867,17 @@ function makeResponseSchemaSection(
   const heading = operation.summary ?? operation.operationId ?? ''
   const slugBase = toSlug(heading)
   const lines: string[] = []
-
   for (const [statusCode, response] of Object.entries(operation.responses)) {
     const resolvedResponse = resolveResponse(response, components)
-
     const content = resolvedResponse.content
     if (!content) continue
     const jsonMedia = content['application/json']
     if (!jsonMedia) continue
     if (!isMedia(jsonMedia)) continue
     if (!jsonMedia.schema) continue
-
-    // Only show Response Schema for inline schemas (not direct $ref)
     if (jsonMedia.schema.$ref) continue
-
     const fields = flattenResponseSchemaFields(jsonMedia.schema, components, '')
     if (fields.length === 0) continue
-
     lines.push(
       `<h3 id="${slugBase}-responseschema">Response Schema</h3>`,
       '',
@@ -924,14 +901,12 @@ function makeResponseExamples(
   const lines: string[] = []
   for (const [statusCode, response] of Object.entries(responses)) {
     const resolvedResponse = resolveResponse(response, components)
-
     const content = resolvedResponse.content
     if (!content) continue
     const jsonMedia = content['application/json']
     if (!jsonMedia) continue
     if (!isMedia(jsonMedia)) continue
     if (!jsonMedia.schema) continue
-
     const mediaExample = extractMediaExample(jsonMedia)
     const example =
       mediaExample !== undefined
@@ -962,8 +937,6 @@ function collectEnumeratedValues(
   type EnumValue = Schema['enum'] extends readonly (infer T)[] | undefined ? T : never
   type EnumRow = { param: string; value: EnumValue }
   const rows: EnumRow[] = []
-
-  // From parameters
   if (operation.parameters) {
     for (const p of operation.parameters) {
       if ('$ref' in p && p.$ref) continue
@@ -974,8 +947,6 @@ function collectEnumeratedValues(
       }
     }
   }
-
-  // From body schema
   const bodySchema = getBodySchema(operation.requestBody, components)
   if (bodySchema) {
     const resolvedRef = bodySchema.$ref ? resolveRef(bodySchema.$ref, components) : undefined
@@ -990,9 +961,7 @@ function collectEnumeratedValues(
       }
     }
   }
-
   if (rows.length === 0) return []
-
   return [
     '#### Enumerated Values',
     '',
@@ -1017,7 +986,6 @@ function flattenSchemaProperties(
   description: string
 }[] {
   if (depth > MAX_SCHEMA_DEPTH) return []
-
   if (schema.$ref) {
     if (visited.has(schema.$ref)) return []
     visited.add(schema.$ref)
@@ -1027,7 +995,6 @@ function flattenSchemaProperties(
     }
     return []
   }
-
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
@@ -1043,7 +1010,6 @@ function flattenSchemaProperties(
       ]
     })
   }
-
   return []
 }
 
@@ -1070,13 +1036,9 @@ function makeSchemasSection(
   components: Components | undefined,
 ): string[] {
   if (!schemas || Object.keys(schemas).length === 0) return []
-
   const lines: string[] = ['# Schemas', '']
-
   for (const [name, schema] of Object.entries(schemas)) {
     const nameLower = name.toLowerCase()
-
-    // Schema heading with backwards-compatibility anchors
     lines.push(
       `<h2 id="tocS_${name}">${name}</h2>`,
       '<!-- backwards compatibility -->',
@@ -1086,13 +1048,9 @@ function makeSchemasSection(
       `<a id="tocs${nameLower}"></a>`,
       '',
     )
-
-    // JSON example
     const example = makeExampleFromSchema(schema, components)
     const json = JSON.stringify(example, null, 2)
     lines.push('```json', json, '```', '')
-
-    // Properties table
     const fields = flattenSchemaProperties(schema, components, '')
     if (fields.length > 0) {
       lines.push(
@@ -1106,8 +1064,6 @@ function makeSchemasSection(
         '',
       )
     }
-
-    // Enumerated values
     const enumRows = collectSchemaEnumeratedValues(schema)
     if (enumRows.length > 0) {
       lines.push(
@@ -1120,7 +1076,6 @@ function makeSchemasSection(
       )
     }
   }
-
   return lines
 }
 
@@ -1192,10 +1147,6 @@ function groupByTag(
     })
 }
 
-/**
- * Makes API reference Markdown from an OpenAPI specification.
- * Output format matches Widdershins v4.0.1, with hono request instead of curl.
- */
 export function makeDocs(
   openAPI: OpenAPI,
   entry = 'src/index.ts',
