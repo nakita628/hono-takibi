@@ -35,27 +35,21 @@ export function makeTypeString(
   readonly?: boolean,
 ): string {
   if (!schema) return 'unknown'
-
   if (schema.$ref) {
     return makeRefTypeString(schema.$ref, selfTypeName)
   }
-
   if (schema.oneOf && schema.oneOf.length > 0) {
     return makeUnionTypeString(schema.oneOf, selfTypeName, cyclicGroup, '|', readonly)
   }
-
   if (schema.anyOf && schema.anyOf.length > 0) {
     return makeUnionTypeString(schema.anyOf, selfTypeName, cyclicGroup, '|', readonly)
   }
-
   if (schema.allOf && schema.allOf.length > 0) {
     return makeUnionTypeString(schema.allOf, selfTypeName, cyclicGroup, '&', readonly)
   }
-
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum.map((v) => (typeof v === 'string' ? `'${v}'` : String(v))).join('|')
   }
-
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {
       return `'${schema.const}'`
@@ -65,12 +59,10 @@ export function makeTypeString(
     }
     return JSON.stringify(schema.const)
   }
-
   const types = normalizeType(schema)
   const isNullable = schema.nullable === true || types.includes('null')
   const nonNullTypes = types.filter((t) => t !== 'null')
   const baseType = makeBaseTypeString(schema, nonNullTypes, selfTypeName, cyclicGroup, readonly)
-
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
@@ -145,7 +137,6 @@ function makeSingleTypeString(
   if (type === 'null') return 'null'
   if (type === 'array') return makeArrayTypeString(schema, selfTypeName, cyclicGroup, readonly)
   if (type === 'object') return makeObjectTypeString(schema, selfTypeName, cyclicGroup, readonly)
-
   return 'unknown'
 }
 
@@ -157,16 +148,12 @@ function makeArrayTypeString(
 ): string {
   const wrapForArrayElement = (type: string): string =>
     type.startsWith('readonly ') ? `(${type})` : type
-
   const prefix = readonly ? 'readonly ' : ''
   if (!schema.items) return `${prefix}unknown[]`
-
   const items = schema.items
-
   // Handle array of Schemas (tuple style)
   if (isSchemaArray(items)) {
     const firstItem = items[0]
-
     if (items.length > 1) {
       const tupleTypes = items
         .filter(Boolean)
@@ -174,15 +161,12 @@ function makeArrayTypeString(
         .join(',')
       return readonly ? `readonly [${tupleTypes}]` : `[${tupleTypes}]`
     }
-
     if (firstItem !== undefined) {
       const innerType = makeTypeString(firstItem, selfTypeName, cyclicGroup, readonly)
       return `${prefix}${wrapForArrayElement(innerType)}[]`
     }
-
     return `${prefix}unknown[]`
   }
-
   // Handle single Schema (OpenAPI 3.0+ style)
   if (items.$ref) {
     const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
@@ -214,7 +198,6 @@ function makeObjectTypeString(
 ): string {
   const { properties, additionalProperties, required } = schema
   const readonlyPrefix = readonly ? 'readonly ' : ''
-
   if (!properties || Object.keys(properties).length === 0) {
     if (additionalProperties === true) {
       return `{${readonlyPrefix}[key:string]:unknown}`
@@ -225,15 +208,12 @@ function makeObjectTypeString(
     }
     return `{${readonlyPrefix}[key:string]:unknown}`
   }
-
   const requiredSet = new Set(Array.isArray(required) ? required : [])
-
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
     const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup, readonly)
     const isRequired = requiredSet.has(key)
     const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
     return `${readonlyPrefix}${safeKey}${isRequired ? '' : '?'}:${propType}`
   })
-
   return `{${propertyStrings.join(';')}}`
 }

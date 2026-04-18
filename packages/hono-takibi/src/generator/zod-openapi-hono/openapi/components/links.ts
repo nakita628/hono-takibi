@@ -22,14 +22,9 @@ import type { Components } from '../../../../openapi/index.js'
  * // → 'export const GetUserByIdLink = { operationId: "getUser", parameters: { userId: "$response.body#/id" } } as const'
  * ```
  */
-export function linksCode(
-  components: Components,
-  exportLinks: boolean,
-  readonly?: boolean,
-): string {
+export function linksCode(components: Components, exportLinks: boolean, readonly?: boolean) {
   const { links } = components
   if (!links) return ''
-
   const asConst = readonly ? ' as const' : ''
   return Object.entries(links)
     .map(([k, link]) => {

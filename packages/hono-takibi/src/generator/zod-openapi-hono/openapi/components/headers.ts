@@ -33,14 +33,11 @@ export function headersCode(
 ) {
   const { headers } = components
   if (!headers) return ''
-
   const isHeader = (v: unknown): v is Header =>
     typeof v === 'object' && v !== null && !('$ref' in v)
-
   return Object.entries(headers)
     .map(([k, header]) => {
       const schemaName = toIdentifierPascalCase(ensureSuffix(k, 'HeaderSchema'))
-
       if ('$ref' in header) {
         const refName = makeRef(header.$ref)
         return zodToOpenAPISchema(

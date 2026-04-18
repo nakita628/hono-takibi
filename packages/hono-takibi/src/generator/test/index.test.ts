@@ -1,31 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import {
-  extractTestCases,
-  FORMAT_TO_FAKER,
-  makeHandlerTestCode,
-  makeTestFile,
-  PROPERTY_NAME_TO_FAKER,
-  schemaToFaker,
-  TYPE_TO_FAKER,
-} from './index.js'
+import { extractTestCases, makeHandlerTestCode, makeTestFile, schemaToFaker } from './index.js'
 
 describe('generator/test barrel exports', () => {
-  it('should export FORMAT_TO_FAKER', () => {
-    expect(FORMAT_TO_FAKER).toBeDefined()
-    expect(typeof FORMAT_TO_FAKER).toBe('object')
-  })
-
-  it('should export PROPERTY_NAME_TO_FAKER', () => {
-    expect(PROPERTY_NAME_TO_FAKER).toBeDefined()
-    expect(typeof PROPERTY_NAME_TO_FAKER).toBe('object')
-  })
-
-  it('should export TYPE_TO_FAKER', () => {
-    expect(TYPE_TO_FAKER).toBeDefined()
-    expect(typeof TYPE_TO_FAKER).toBe('object')
-  })
-
   it('should export schemaToFaker as function', () => {
     expect(typeof schemaToFaker).toBe('function')
   })

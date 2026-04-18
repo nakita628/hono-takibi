@@ -20,7 +20,7 @@ export function wrap(
     isOptional?: boolean
   },
 ): string {
-  // Properties not supported or causing type issues with zod-to-openapi
+  /* Properties not supported or causing type issues with zod-to-openapi */
   const unsupportedProps = new Set([
     'contains',
     'minContains',
@@ -42,12 +42,10 @@ export function wrap(
     'min_items',
     'max_items',
   ])
-
-  // Type guard for objects with 'not' property
+  /* Type guard for objects with 'not' property */
   const hasNotProperty = (v: unknown): v is { not: unknown } =>
     typeof v === 'object' && v !== null && 'not' in v
-
-  // Type guard for makeExamples parameter (record of non-array objects)
+  /* Type guard for makeExamples parameter (record of non-array objects) */
   const isExamplesInput = (
     v: unknown,
   ): v is {
@@ -83,7 +81,6 @@ export function wrap(
     Object.values(v).every(
       (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
     )
-
   const filterUnsupportedProps = (obj: unknown): unknown => {
     if (obj === null || typeof obj !== 'object') {
       return obj
@@ -140,21 +137,16 @@ export function wrap(
     /* other */
     return JSON.stringify(v)
   }
-
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-
   /* Apply .nullable() before .default() so that .default(null) is valid on nullable types */
   const n = isNullable ? `${zod}.nullable()` : zod
-
   /* why schema.default !== undefined: because schema.default === 0 is falsy */
   const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
-
   /* Apply .brand() for branded types */
   const z = schema['x-brand'] ? `${d}.brand<"${schema['x-brand']}">()` : d
-
-  // zod method chain already expressed properties (to prevent double management)
+  /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',
     'format',
@@ -201,14 +193,12 @@ export function wrap(
     'x-enum-error-messages',
     'x-brand',
   ])
-
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
       ([k, v]) => !(zodExpressedProps.has(k) || (k === 'required' && typeof v === 'boolean')),
     ),
   )
   const args = filterUnsupportedProps(baseArgs)
-
   const headerMetaProps = meta?.headers
     ? [
         meta.headers.description
@@ -257,20 +247,14 @@ export function wrap(
     const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
   }
-
-  /**
-   * Serializes content object with examples handled as code references.
-   */
+  /* Serializes content object with examples handled as code references. */
   const serializeContent = (content: { readonly [k: string]: unknown }): string => {
     const entries = Object.entries(content).map(
       ([mediaType, mediaObj]) => `${JSON.stringify(mediaType)}:${serializeMedia(mediaObj)}`,
     )
     return `{${entries.join(',')}}`
   }
-
-  /**
-   * Serializes parameter object with examples as code references (not JSON strings).
-   */
+  /* Serializes parameter object with examples as code references (not JSON strings). */
   const serializeParam = (param: Parameter): string => {
     const entries = Object.entries(param).map(([key, value]) => {
       if (key === 'examples' && isExamplesInput(value)) {
@@ -283,14 +267,12 @@ export function wrap(
     })
     return `{${entries.join(',')}}`
   }
-
   const openapiProps = [
     meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
     ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
-
-  // https://github.com/OAI/OpenAPI-Specification/issues/2385
+  /* https://github.com/OAI/OpenAPI-Specification/issues/2385 */
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
       return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
@@ -299,7 +281,7 @@ export function wrap(
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
   }
-  // Handle optional object properties
+  /* Handle optional object properties */
   if (meta?.isOptional === true) {
     return openapiProps.length === 0
       ? `${z}.exactOptional()`

@@ -3,18 +3,10 @@ import { componentsCode } from './components/index.js'
 import { routeCode } from './routes/index.js'
 import { webhookCode } from './webhooks/index.js'
 
-/**
- * Generates Hono-compatible TypeScript code from an OpenAPI specification.
- *
- * @param openapi - The OpenAPI specification object
- * @param options - Export flags for each component kind
- * @returns The generated TypeScript code string
- */
 export function zodOpenAPIHono(
   openapi: OpenAPI,
   options: {
     readonly readonly?: boolean
-    // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean
     readonly exportResponses: boolean

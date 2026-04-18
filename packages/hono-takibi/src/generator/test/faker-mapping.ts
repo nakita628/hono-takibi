@@ -11,12 +11,11 @@ export function sanitizeMockName(name: string): string {
 /**
  * OpenAPI format to faker method mapping
  */
-export const FORMAT_TO_FAKER: { [key: string]: string } = {
+const FORMAT_TO_FAKER: { [k: string]: string } = {
   // Date/Time
   date: 'faker.date.past().toISOString().slice(0, 10)',
   'date-time': 'faker.date.past().toISOString()',
   time: 'faker.date.past().toISOString().slice(11, 19)',
-
   // Network
   uri: 'faker.internet.url()',
   url: 'faker.internet.url()',
@@ -24,17 +23,14 @@ export const FORMAT_TO_FAKER: { [key: string]: string } = {
   ipv4: 'faker.internet.ipv4()',
   ipv6: 'faker.internet.ipv6()',
   hostname: 'faker.internet.domainName()',
-
   // Identity
   uuid: 'faker.string.uuid()',
   password: 'faker.internet.password()',
-
   // Location
   city: 'faker.location.city()',
   country: 'faker.location.country()',
   streetName: 'faker.location.street()',
   zipCode: 'faker.location.zipCode()',
-
   // Person
   firstName: 'faker.person.firstName()',
   lastName: 'faker.person.lastName()',
@@ -42,15 +38,12 @@ export const FORMAT_TO_FAKER: { [key: string]: string } = {
   phoneNumber: 'faker.phone.number()',
   jobTitle: 'faker.person.jobTitle()',
   gender: 'faker.person.gender()',
-
   // Finance
   bic: 'faker.finance.bic()',
   iban: 'faker.finance.iban()',
-
   // Binary
   binary: 'new Blob([faker.string.alphanumeric(100)])',
   byte: 'btoa(faker.string.alphanumeric(10))',
-
   // Number formats
   int32: 'faker.number.int({ min: -2147483648, max: 2147483647 })',
   int64: 'faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER })',
@@ -61,7 +54,7 @@ export const FORMAT_TO_FAKER: { [key: string]: string } = {
 /**
  * OpenAPI type to faker method mapping (fallback when no format specified)
  */
-export const TYPE_TO_FAKER: { [key: string]: string } = {
+const TYPE_TO_FAKER: { [k: string]: string } = {
   string: 'faker.string.alpha({ length: { min: 5, max: 20 } })',
   number: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
   integer: 'faker.number.int({ min: 1, max: 1000 })',
@@ -72,7 +65,7 @@ export const TYPE_TO_FAKER: { [key: string]: string } = {
 /**
  * Property name heuristics (when property name suggests a format)
  */
-export const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
+const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
   id: 'faker.number.int({ min: 1, max: 99999 })',
   uuid: 'faker.string.uuid()',
   email: 'faker.internet.email()',
@@ -128,24 +121,20 @@ export function schemaToFaker(
   if (options.useExamples && schema.example !== undefined) {
     return JSON.stringify(schema.example)
   }
-
   // 2. Handle const (OpenAPI 3.1) - use 'as const' to preserve literal type
   if (schema.const !== undefined) {
     return `${JSON.stringify(schema.const)} as const`
   }
-
   // 3. Handle enum
   if (schema.enum && schema.enum.length > 0) {
     const enumValues = schema.enum.map((v) => JSON.stringify(v)).join(', ')
     return `faker.helpers.arrayElement([${enumValues}] as const)`
   }
-
   // 3. Handle $ref
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
     return `mock${sanitizeMockName(refName)}()`
   }
-
   // 4. Handle array
   if (schema.type === 'array' && schema.items) {
     // Handle tuple types (readonly Schema[]) - use first item
@@ -154,7 +143,6 @@ export function schemaToFaker(
     const itemFaker = schemaToFaker(itemSchema, undefined, options)
     return `Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (${itemFaker}))`
   }
-
   // 5. Handle object
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required || [])
@@ -173,12 +161,10 @@ export function schemaToFaker(
       .join(',\n    ')
     return `{\n    ${props}\n  }`
   }
-
   // 5b. Handle object with only additionalProperties (no explicit properties)
   if (schema.type === 'object' && !schema.properties && schema.additionalProperties) {
     return '{}'
   }
-
   // 6. Handle allOf (intersection)
   if (schema.allOf && schema.allOf.length > 0) {
     const merged = schema.allOf.map((s) => schemaToFaker(s, propertyName, options))
@@ -202,7 +188,6 @@ export function schemaToFaker(
     }
     return `{ ${merged.map((m) => `...${m}`).join(', ')} }`
   }
-
   // 7. Handle oneOf/anyOf (union - pick random)
   if ((schema.oneOf && schema.oneOf.length > 0) || (schema.anyOf && schema.anyOf.length > 0)) {
     const variants = (schema.oneOf || schema.anyOf || []).map((s) =>
@@ -210,12 +195,10 @@ export function schemaToFaker(
     )
     return `faker.helpers.arrayElement([${variants.join(', ')}])`
   }
-
   // 8. Check format mapping (prioritize over property name)
   if (schema.format && FORMAT_TO_FAKER[schema.format]) {
     return FORMAT_TO_FAKER[schema.format]
   }
-
   // 9. Check property name heuristics (skip when type conflicts)
   if (propertyName && PROPERTY_NAME_TO_FAKER[propertyName]) {
     const hint = PROPERTY_NAME_TO_FAKER[propertyName]
@@ -225,7 +208,6 @@ export function schemaToFaker(
       return hint
     }
   }
-
   // 10. Check type mapping
   if (schema.type && typeof schema.type === 'string' && TYPE_TO_FAKER[schema.type]) {
     // Handle string with constraints
@@ -237,7 +219,6 @@ export function schemaToFaker(
       const max = schema.maxLength ?? 20
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
     }
-
     // Handle number/integer with constraints
     if (schema.type === 'integer' || schema.type === 'number') {
       const min = schema.minimum ?? 1
@@ -247,10 +228,8 @@ export function schemaToFaker(
       }
       return `faker.number.float({ min: ${min}, max: ${max}, fractionDigits: 2 })`
     }
-
     return TYPE_TO_FAKER[schema.type]
   }
-
   // 11. Default fallback
   return 'undefined'
 }

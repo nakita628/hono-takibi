@@ -37,17 +37,14 @@ export function integer(schema: Schema): string {
         : schema.format === 'bigint'
           ? `z.bigint(${baseErrorArg})`
           : `z.int(${baseErrorArg})`
-
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`
     if (schema.format === 'int64') return `${n}n`
     return `${n}`
   }
-
   const minimumMessage = schema['x-minimum-message']
   const minErrArg = minimumMessage ? error(minimumMessage) : ''
   const minErrPart = minErrArg ? `,${minErrArg}` : ''
-
   const minimum = (() => {
     if (schema.minimum === undefined && schema.exclusiveMinimum === undefined) {
       return undefined
@@ -70,11 +67,9 @@ export function integer(schema: Schema): string {
     }
     return undefined
   })()
-
   const maximumMessage = schema['x-maximum-message']
   const maxErrArg = maximumMessage ? error(maximumMessage) : ''
   const maxErrPart = maxErrArg ? `,${maxErrArg}` : ''
-
   const maximum = (() => {
     if (schema.maximum === undefined && schema.exclusiveMaximum === undefined) {
       return undefined
@@ -97,7 +92,6 @@ export function integer(schema: Schema): string {
     }
     return undefined
   })()
-
   const multipleOfMsg = schema['x-multipleOf-message']
   const multipleOfErrArg = multipleOfMsg
     ? `,${error(multipleOfMsg)}`
@@ -108,6 +102,5 @@ export function integer(schema: Schema): string {
     schema.multipleOf !== undefined && typeof schema.multipleOf === 'number'
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrArg})`
       : undefined
-
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

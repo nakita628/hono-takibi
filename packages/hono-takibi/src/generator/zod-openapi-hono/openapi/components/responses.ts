@@ -25,10 +25,9 @@ export function responsesCode(
   components: Components,
   exportResponses: boolean,
   readonly?: boolean,
-): string {
+) {
   const { responses } = components
   if (!responses) return ''
-
   const asConst = readonly ? ' as const' : ''
   return Object.keys(responses)
     .map((k) => {

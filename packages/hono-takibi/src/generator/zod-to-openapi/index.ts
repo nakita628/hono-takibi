@@ -63,16 +63,13 @@ export function zodToOpenAPI(
   if (schema.$ref !== undefined) {
     return wrap(makeRef(schema.$ref), schema, meta)
   }
-
   // Helper: Check if schema is null type
   const isNullType = (s: Schema) =>
     s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
-
   // Helper: Check if schema is a bare $ref (no other properties)
   // Used to optimize $ref handling - when $ref is the only property,
   // we can use makeRef() directly instead of recursing
   const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
-
   /* combinators */
   /** allOf */
   if (schema.allOf !== undefined) {
@@ -89,15 +86,12 @@ export function zodToOpenAPI(
           ]
         : schema.allOf
     if (!effectiveAllOf.length) return wrap('z.any()', schema, meta)
-
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
       effectiveAllOf.some(isNullType)
-
     const nonNull = effectiveAllOf.filter((s) => !isNullType(s))
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
-
     const schemas = nonNull.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
     )
@@ -106,7 +100,6 @@ export function zodToOpenAPI(
       nonNull.every(isRefOnly) &&
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
     if (isBareRef) return nullable ? `${schemas[0]}.nullable()` : schemas[0]
-
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     return wrap(z, { ...schema, nullable }, meta)
   }

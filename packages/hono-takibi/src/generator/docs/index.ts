@@ -31,10 +31,6 @@ type Endpoint = {
 
 const MAX_SCHEMA_DEPTH = 50
 
-// ---------------------------------------------------------------------------
-// Slug / anchor helpers
-// ---------------------------------------------------------------------------
-
 /**
  * Converts text to a widdershins-compatible slug for HTML id attributes.
  * Lowercases ASCII, keeps non-ASCII (e.g. Japanese), removes special chars.
@@ -526,39 +522,27 @@ function makeCodeSampleCurl(
   const fullPath = `${basePathPrefix}${pathStr}`
   const body = makeCodeSampleBody(operation, components)
   const isGet = method === 'get'
-
   // Quote URL if it contains path parameters (curly braces)
   const url = fullPath.includes('{') ? `'${baseUrl}${fullPath}'` : `${baseUrl}${fullPath}`
-
   const remaining: string[] = []
-
   // Omit -X for GET (curl default)
   if (!isGet) {
     remaining.push(`  -X ${method.toUpperCase()}`)
   }
-
   remaining.push(...headers)
-
   if (body) {
     remaining.push(`  -d '${indentJsonBody(body)}'`)
   }
-
   if (remaining.length === 0) {
     return ['> Code samples', '', '```bash', `curl ${url}`, '```']
   }
-
   const cmdParts = [
     `curl ${url} \\`,
     ...remaining.slice(0, -1).map((r) => `${r} \\`),
     remaining[remaining.length - 1],
   ]
-
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }
-
-// ---------------------------------------------------------------------------
-// Parameters / Responses / Schema tables (widdershins format)
-// ---------------------------------------------------------------------------
 
 function isParameter(value: unknown): value is Parameter {
   return typeof value === 'object' && value !== null && 'name' in value && 'in' in value
@@ -960,10 +944,6 @@ function makeResponseSchemaSection(
   return lines
 }
 
-// ---------------------------------------------------------------------------
-// Response examples
-// ---------------------------------------------------------------------------
-
 function makeResponseExamples(
   responses: Operation['responses'],
   components: Components | undefined,
@@ -990,10 +970,6 @@ function makeResponseExamples(
   return lines
 }
 
-// ---------------------------------------------------------------------------
-// Body parameter helpers
-// ---------------------------------------------------------------------------
-
 function getBodySchema(
   requestBody: Operation['requestBody'] | undefined,
   components: Components | undefined,
@@ -1005,10 +981,6 @@ function getBodySchema(
   if (!(mediaEntry && isMedia(mediaEntry) && mediaEntry.schema)) return undefined
   return mediaEntry.schema
 }
-
-// ---------------------------------------------------------------------------
-// Enumerated values
-// ---------------------------------------------------------------------------
 
 function collectEnumeratedValues(
   operation: Operation,
@@ -1057,10 +1029,6 @@ function collectEnumeratedValues(
     '',
   ]
 }
-
-// ---------------------------------------------------------------------------
-// Schemas section (end of document)
-// ---------------------------------------------------------------------------
 
 function flattenSchemaProperties(
   schema: Schema,
@@ -1182,10 +1150,6 @@ function makeSchemasSection(
 
   return lines
 }
-
-// ---------------------------------------------------------------------------
-// Endpoint collection & grouping
-// ---------------------------------------------------------------------------
 
 function collectEndpoints(openAPI: OpenAPI): readonly Endpoint[] {
   if (!openAPI.paths) return []
