@@ -35,11 +35,9 @@ export function number(schema: Schema): string {
       : schema.format === 'float64'
         ? `z.float64(${baseErrorArg})`
         : `z.number(${baseErrorArg})`
-
   const minimumMessage = schema['x-minimum-message']
   const minErrArg = minimumMessage ? error(minimumMessage) : ''
   const minErrPart = minErrArg ? `,${minErrArg}` : ''
-
   const minimum = (() => {
     if (schema.minimum !== undefined) {
       if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
@@ -58,11 +56,9 @@ export function number(schema: Schema): string {
     }
     return undefined
   })()
-
   const maximumMessage = schema['x-maximum-message']
   const maxErrArg = maximumMessage ? error(maximumMessage) : ''
   const maxErrPart = maxErrArg ? `,${maxErrArg}` : ''
-
   const maximum = (() => {
     if (schema.maximum !== undefined) {
       if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
@@ -81,7 +77,6 @@ export function number(schema: Schema): string {
     }
     return undefined
   })()
-
   const multipleOfMsg = schema['x-multipleOf-message']
   const multipleOfErrArg = multipleOfMsg
     ? `,${error(multipleOfMsg)}`
@@ -92,6 +87,5 @@ export function number(schema: Schema): string {
     schema.multipleOf !== undefined
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrArg})`
       : undefined
-
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

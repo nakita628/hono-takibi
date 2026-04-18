@@ -31,7 +31,7 @@ export function parametersCode(
   exportParameters: boolean,
   exportParametersTypes: boolean,
   readonly?: boolean,
-): string {
+) {
   const { parameters } = components
   if (!parameters) return ''
 
@@ -46,7 +46,6 @@ export function parametersCode(
       // Handle parameters with content instead of schema (OpenAPI 3.x)
       const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
       const baseSchema = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
-
       // Apply coercion for query parameters
       const z =
         parameter.in === 'query' && (schema?.type === 'number' || schema?.type === 'integer')

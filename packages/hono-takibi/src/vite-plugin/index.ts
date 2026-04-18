@@ -58,10 +58,6 @@ type ViteDevServer = {
   ssrLoadModule: (moduleId: string) => Promise<unknown>
 }
 
-/* ──────────────────────────────────────────────────────────────
- * Small helpers (no `as` cast)
- * ────────────────────────────────────────────────────────────── */
-
 /**
  * Converts a relative path to an absolute path.
  *
@@ -135,10 +131,6 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
   return wrappedFunction
 }
 
-/* ──────────────────────────────────────────────────────────────
- * Run generation with current config
- * ────────────────────────────────────────────────────────────── */
-
 /**
  * Runs all code generation tasks in parallel based on the provided configuration.
  *
@@ -203,8 +195,6 @@ const runAllGenerationTasks = async (
     return `✅ ${name}${isSplit ? '(split)' : ''} -> ${absOutput}`
   }
 
-  // --- zod-openapi (monolithic output) ---
-
   const makeZodOpenAPIJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.output) return undefined
     const outputPath = toAbsolutePath(config['zod-openapi']?.output)
@@ -234,8 +224,6 @@ const runAllGenerationTasks = async (
       return result.ok ? `✅ zod-openapi -> ${outputPath}` : `❌ zod-openapi: ${result.error}`
     })()
   }
-
-  // --- Component jobs ---
 
   const makeSchemaJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.components?.schemas) return undefined
@@ -437,8 +425,6 @@ const runAllGenerationTasks = async (
     )
   }
 
-  // --- Routes ---
-
   const makeRoutesJob = (): Promise<string> | undefined => {
     if (!config['zod-openapi']?.routes) return undefined
     return runSplitAwareJob(
@@ -455,8 +441,6 @@ const runAllGenerationTasks = async (
     )
   }
 
-  // --- Type ---
-
   const makeTypeJob = (): Promise<string> | undefined => {
     if (!config.type) return undefined
     return (async () => {
@@ -466,8 +450,6 @@ const runAllGenerationTasks = async (
       return result.ok ? `✅ type -> ${outputPath}` : `❌ type: ${result.error}`
     })()
   }
-
-  // --- RPC ---
 
   const makeRpcJob = (): Promise<string> | undefined => {
     if (!config.rpc) return undefined
@@ -484,8 +466,6 @@ const runAllGenerationTasks = async (
     )
   }
 
-  // --- Query clients ---
-
   const makeQueryJob = (
     name: string,
     cfg: typeof config.swr,
@@ -496,8 +476,6 @@ const runAllGenerationTasks = async (
       fn(openAPI, out, cfg.import, cfg.split === true, cfg.client ?? 'client'),
     )
   }
-
-  // --- Test & Mock ---
 
   const makeTestJob = (): Promise<string> | undefined => {
     if (!config.test) return undefined
@@ -566,7 +544,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const generationJobs = [
+  const jobs = [
     makeZodOpenAPIJob(),
     makeSchemaJob(),
     makeParametersJob(),
@@ -593,7 +571,7 @@ const runAllGenerationTasks = async (
     makeTemplateJob(),
   ].filter((job) => job !== undefined)
 
-  return Promise.all(generationJobs).then((logs) => ({ logs }))
+  return Promise.all(jobs).then((logs) => ({ logs }))
 }
 
 /**
@@ -618,31 +596,6 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
   return inputDirectory
 }
 
-/**
- * Creates a Vite plugin for hono-takibi code generation.
- *
- * Watches OpenAPI spec and config files for changes and
- * automatically regenerates TypeScript code with hot reload.
- *
- * @returns Vite plugin object
- *
- * @example
- * ```ts
- * // vite.config.ts
- * import { honoTakibiVite } from 'hono-takibi/vite-plugin'
- *
- * export default defineConfig({
- *   plugins: [honoTakibiVite()]
- * })
- * ```
- */
-
-/**
- * Extracts all output paths from a configuration.
- *
- * @param config - The configuration object
- * @returns Array of absolute output paths
- */
 const extractOutputPaths = (config: Config): readonly string[] => {
   return [
     config['zod-openapi']?.output,
@@ -684,26 +637,22 @@ export function honoTakibiVite(): any {
     inputDirectory: null,
   }
   const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
-
   const runGeneration = async () => {
     if (!pluginState.current) return
     console.log('🔥 hono-takibi')
     const { logs } = await runAllGenerationTasks(pluginState.current)
     for (const logMessage of logs) console.log(logMessage)
   }
-
   const runGenerationAndReload = async (server?: ViteDevServer) => {
     await runGeneration()
     if (server) server.ws.send({ type: 'full-reload' })
   }
-
   const handleConfigurationChange = async (server: ViteDevServer) => {
     const nextConfiguration = await readConfigurationWithHotReload(server)
     if (!nextConfiguration.ok) {
       console.error(`❌ config: ${nextConfiguration.error}`)
       return
     }
-
     if (pluginState.current) {
       const cleanupStaleOutputs = async (
         previousConfiguration: Config,
@@ -734,7 +683,6 @@ export function honoTakibiVite(): any {
       const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
       for (const cleanedPath of cleanedPaths) console.log(`✅ cleanup: ${cleanedPath}`)
     }
-
     pluginState.previous = pluginState.current
     pluginState.current = nextConfiguration.value
     pluginState.inputDirectory = addInputGlobsToWatcher(
@@ -743,10 +691,8 @@ export function honoTakibiVite(): any {
     )
     await runGenerationAndReload(server)
   }
-
   const vitePlugin = {
     name: 'hono-takibi-vite',
-
     handleHotUpdate(context: { file: string; server: ViteDevServer }) {
       const absoluteFilePath = path.resolve(context.file)
       if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
@@ -758,11 +704,9 @@ export function honoTakibiVite(): any {
       }
       return
     },
-
     async buildStart() {
       // Dev-only: handled by configureServer
     },
-
     configureServer(server: ViteDevServer) {
       ;(async () => {
         const initialConfiguration = await readConfigurationWithHotReload(server)
@@ -777,7 +721,6 @@ export function honoTakibiVite(): any {
           toAbsolutePath(pluginState.current.input),
         )
         server.watcher.add(absoluteConfigFilePath)
-
         // 200ms debounce: editors emit multiple fs events on save, and batch file changes
         // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
         const debouncedRunGeneration = debounce(200, () => void runGenerationAndReload(server))
@@ -804,6 +747,5 @@ export function honoTakibiVite(): any {
       })().catch((error) => console.error('❌ watch error:', error))
     },
   }
-
   return vitePlugin
 }

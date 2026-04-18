@@ -26,14 +26,12 @@ export function pathItemsCode(
   components: Components,
   exportPathItems: boolean,
   readonly?: boolean,
-): string {
+) {
   const { pathItems } = components
   if (!pathItems) return ''
-
   const asConst = readonly ? ' as const' : ''
   const isPathItem = (v: unknown): v is PathItem =>
     typeof v === 'object' && v !== null && !('$ref' in v)
-
   return Object.entries(pathItems)
     .map(([k, pathItemOrRef]) => {
       if (!isPathItem(pathItemOrRef)) return undefined

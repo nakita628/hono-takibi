@@ -49,16 +49,12 @@ export async function requestBodies(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!requestBodies) return { ok: false, error: 'No requestBodies found' }
-
   const bodyNames = Object.keys(requestBodies)
   if (bodyNames.length === 0) return { ok: true, value: 'No requestBodies found' }
-
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-
     const allResults = await Promise.all([
       ...bodyNames.map((bodyName) => {
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
@@ -68,16 +64,13 @@ export async function requestBodies(
       }),
       core(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
     ])
-
-    const firstError = allResults.find((r) => !r.ok)
+    const firstError = allResults.find((result) => !result.ok)
     if (firstError) return firstError
-
     return {
       ok: true,
       value: `Generated requestBodies code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
   const coreResult = await core(toFileCode(bodyDefinitions, output), path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

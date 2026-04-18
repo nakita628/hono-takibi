@@ -49,16 +49,12 @@ export async function responses(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!responses) return { ok: false, error: 'No responses found' }
-
   const responseNames = Object.keys(responses)
   if (responseNames.length === 0) return { ok: true, value: 'No responses found' }
-
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-
     const allResults = await Promise.all([
       ...responseNames.map((responseName) => {
         const singleComponent = { responses: { [responseName]: responses[responseName] } }
@@ -68,16 +64,13 @@ export async function responses(
       }),
       core(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
-
-    const firstError = allResults.find((r) => !r.ok)
+    const firstError = allResults.find((result) => !result.ok)
     if (firstError) return firstError
-
     return {
       ok: true,
       value: `Generated responses code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const responseDefinitions = responsesCode({ responses }, true, readonly)
   const coreResult = await core(
     toFileCode(responseDefinitions, output),

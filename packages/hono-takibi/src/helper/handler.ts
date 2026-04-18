@@ -7,8 +7,6 @@ import { mergeBarrelFile, mergeHandlerFile, mergeTestFile } from '../merge/index
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 
-/* ─────────────────────────────── Ref Collection ─────────────────────────────── */
-
 function makeRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop()
@@ -26,18 +24,22 @@ function makeRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
     }
   }
   if (schema.allOf) {
-    for (const s of schema.allOf) makeRefs(s, refs)
+    for (const s of schema.allOf) {
+      makeRefs(s, refs)
+    }
   }
   if (schema.oneOf) {
-    for (const s of schema.oneOf) makeRefs(s, refs)
+    for (const s of schema.oneOf) {
+      makeRefs(s, refs)
+    }
   }
   if (schema.anyOf) {
-    for (const s of schema.anyOf) makeRefs(s, refs)
+    for (const s of schema.anyOf) {
+      makeRefs(s, refs)
+    }
   }
   return refs
 }
-
-/* ─────────────────────────────── Mock Generation ─────────────────────────────── */
 
 function makeMockFunction(
   name: string,
@@ -72,7 +74,6 @@ function makeMockHandlerCode(
   readonly usedRefs: ReadonlySet<string>
 } {
   const { schema: responseSchema, statusCode } = makeResponseInfo(operation)
-
   if (responseSchema) {
     const usedRefs = makeRefs(responseSchema)
     const mockData = schemaToFaker(responseSchema, undefined, { schemas })
@@ -84,7 +85,6 @@ function makeMockHandlerCode(
       usedRefs,
     }
   }
-
   // 204 No Content
   return {
     content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(_c)=>{
@@ -95,13 +95,9 @@ function makeMockHandlerCode(
   }
 }
 
-/* ─────────────────────────────── Stub Generation ─────────────────────────────── */
-
 function makeStubHandlerCode(routeId: string): string {
   return `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`
 }
-
-/* ─────────────────────────────── Path Utilities ─────────────────────────────── */
 
 export function makeHandlerFileName(path: string): `${string}.ts` {
   const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
@@ -122,7 +118,7 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
 function makePaths(
   output: string,
   pathAlias: string | undefined,
-  routeImport: string | undefined = undefined,
+  routeImport?: string,
 ): {
   readonly handlerPath: string
   readonly importFrom: string
@@ -146,8 +142,6 @@ function makePaths(
   const testImportFrom = aliasPrefix ?? '..'
   return { handlerPath, importFrom, testImportFrom }
 }
-
-/* ─────────────────────────────── Inline Stub/Mock (routeHandler: false) ─── */
 
 function makeInlineStubContent(routeId: string): string {
   return `.openapi(${routeId}Route,(c)=>{})`
@@ -228,8 +222,6 @@ function makeInlineMockHandlerInfo(
   }
 }
 
-/* ─────────────────────────────── Inline File Content ─────────────────────── */
-
 function makeInlineStubFileContent(
   handler: {
     readonly fileName: `${string}.ts`
@@ -262,22 +254,17 @@ function makeInlineMockFileContent(
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
-
   const mockFunctions = Array.from(handler.usedRefs)
     .filter((refName) => schemas[refName])
     .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
     .join('\n\n')
-
   const appDecl = 'const app = new OpenAPIHono()'
   const chain = handler.contents.join('\n')
   const body = `export const ${exportName} = app\n${chain}`
-
   return mockFunctions
     ? `${importStatements}\n\n${appDecl}\n\n${mockFunctions}\n\n${body}`
     : `${importStatements}\n\n${appDecl}\n\n${body}`
 }
-
-/* ─────────────────────────────── Handler Info ─────────────────────────────── */
 
 function makeStubHandlerInfo(
   path: string,
@@ -358,8 +345,6 @@ function makeMergedHandlers<
   return Array.from(handlerMap.values())
 }
 
-/* ─────────────────────────────── File Content ─────────────────────────────── */
-
 function makeStubFileContent(
   handler: {
     readonly contents: readonly string[]
@@ -387,12 +372,10 @@ function makeMockFileContent(
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${fakerImport}${importRouteTypes}`
-
   const mockFunctions = Array.from(handler.usedRefs)
     .filter((refName) => schemas[refName])
     .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
     .join('\n\n')
-
   return mockFunctions
     ? `${importStatements}\n\n${mockFunctions}\n\n${handler.contents.join('\n\n')}`
     : `${importStatements}\n\n${handler.contents.join('\n\n')}`
@@ -401,8 +384,6 @@ function makeMockFileContent(
 function makeBarrelContent(fileNames: readonly string[]): string {
   return fileNames.map((h) => `export * from './${h.replace(/\.ts$/, '')}'`).join('\n')
 }
-
-/* ─────────────────────────────── Stale File Cleanup ─────────────────────────────── */
 
 /**
  * Removes handler files (and their test files) that are no longer in the OpenAPI spec.
@@ -426,7 +407,6 @@ async function removeStaleFiles(
     // Other errors (e.g., EACCES): propagate so callers are aware
     return { ok: false, error: readdirResult.error }
   }
-
   const staleFiles = readdirResult.value.filter(
     (file) =>
       file.endsWith('.ts') &&
@@ -434,7 +414,6 @@ async function removeStaleFiles(
       file !== 'index.ts' &&
       !generatedFileNames.has(file),
   )
-
   const results = await Promise.all(
     staleFiles.flatMap((file) => [
       unlink(`${handlerPath}/${file}`),
@@ -448,8 +427,6 @@ async function removeStaleFiles(
   return { ok: true, value: undefined }
 }
 
-/* ─────────────────────────────── Stub Handlers (Main) ─────────────────────────────── */
-
 /**
  * Generates empty stub handler files for a Hono app.
  *
@@ -462,8 +439,8 @@ export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
-  pathAlias: string | undefined = undefined,
-  routeImport: string | undefined = undefined,
+  pathAlias?: string,
+  routeImport?: string,
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
@@ -471,7 +448,6 @@ export async function zodOpenAPIHonoHandler(
   { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
 > {
   const paths = openapi.paths
-
   const handlers = makeMergedHandlers(
     Object.entries(paths).flatMap(([path, pathItem]) =>
       Object.entries(pathItem)
@@ -485,12 +461,9 @@ export async function zodOpenAPIHonoHandler(
         ),
     ),
   )
-
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
-
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
@@ -498,22 +471,17 @@ export async function zodOpenAPIHonoHandler(
         : makeInlineStubFileContent(handler, importFrom)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-
       const filePath = `${handlerPath}/${handler.fileName}`
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-
       const merged =
         existingResult.value !== null
           ? mergeHandlerFile(existingResult.value, fmtResult.value)
           : fmtResult.value
-
       const finalFmtResult = await fmt(merged)
       const content = finalFmtResult.ok ? finalFmtResult.value : merged
-
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-
       if (test) {
         const testContent = makeHandlerTestCode(
           openapi,
@@ -544,30 +512,25 @@ export async function zodOpenAPIHonoHandler(
     (async () => {
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-
       const barrelPath = `${handlerPath}/index.ts`
       const existingResult = await readFile(barrelPath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-
       const content =
         existingResult.value !== null
           ? mergeBarrelFile(existingResult.value, fmtResult.value)
           : fmtResult.value
-
       const writeResult = await writeFile(barrelPath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
       return { ok: true, value: undefined } as const
     })(),
   ])
 
-  const firstError = results.find((r) => !r.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-
   // Remove stale handler files (deleted from OpenAPI)
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
   if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
-
   return { ok: true, value: undefined }
 }
 
@@ -584,8 +547,8 @@ export async function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
-  pathAlias: string | undefined = undefined,
-  routeImport: string | undefined = undefined,
+  pathAlias?: string,
+  routeImport?: string,
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
@@ -594,7 +557,6 @@ export async function mockZodOpenAPIHonoHandler(
 > {
   const paths = openapi.paths
   const schemas = openapi.components?.schemas ?? {}
-
   const handlers = makeMergedHandlers(
     Object.entries(paths).flatMap(([path, pathItem]) =>
       Object.entries(pathItem)
@@ -608,12 +570,9 @@ export async function mockZodOpenAPIHonoHandler(
         ),
     ),
   )
-
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
-
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
@@ -621,22 +580,17 @@ export async function mockZodOpenAPIHonoHandler(
         : makeInlineMockFileContent(handler, importFrom, schemas)
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-
       const filePath = `${handlerPath}/${handler.fileName}`
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-
       const merged =
         existingResult.value !== null
           ? mergeHandlerFile(existingResult.value, fmtResult.value)
           : fmtResult.value
-
       const finalFmtResult = await fmt(merged)
       const content = finalFmtResult.ok ? finalFmtResult.value : merged
-
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-
       if (test) {
         const testContent = makeHandlerTestCode(
           openapi,
@@ -667,29 +621,23 @@ export async function mockZodOpenAPIHonoHandler(
     (async () => {
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-
       const barrelPath = `${handlerPath}/index.ts`
       const existingResult = await readFile(barrelPath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-
       const content =
         existingResult.value !== null
           ? mergeBarrelFile(existingResult.value, fmtResult.value)
           : fmtResult.value
-
       const writeResult = await writeFile(barrelPath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
       return { ok: true, value: undefined } as const
     })(),
   ])
-
-  const firstError = results.find((r) => !r.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-
   // Remove stale handler files (deleted from OpenAPI)
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
   if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
-
   return { ok: true, value: undefined }
 }

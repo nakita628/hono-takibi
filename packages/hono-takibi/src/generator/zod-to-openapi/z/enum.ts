@@ -43,7 +43,6 @@ export function _enum(schema: Schema): string {
     if (v === undefined) return 'undefined'
     if (typeof v === 'string') return `'${v.replace(/'/g, "\\'")}'`
     if (typeof v === 'number' || typeof v === 'boolean') return String(v)
-    // For arrays and objects, use JSON.stringify
     return JSON.stringify(v)
   }
   /* x-error-message (shared across all branches) */

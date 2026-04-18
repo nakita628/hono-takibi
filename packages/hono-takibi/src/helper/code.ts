@@ -200,7 +200,6 @@ export function makeImports(
   split = false,
 ): string {
   const fallbackPrefix = split ? '..' : '.'
-
   // Resolve import path for a component type
   const resolvePath = (key: string): string => {
     const target = components?.[key]
@@ -208,19 +207,16 @@ export function makeImports(
       target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${key}`)
     )
   }
-
   // Find locally defined exports to exclude from imports
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
-
   // Build @hono/zod-openapi import
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-
   // Build component imports in OpenAPI order
   const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
     const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
@@ -228,6 +224,5 @@ export function makeImports(
       .sort()
     return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []
   })
-
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }

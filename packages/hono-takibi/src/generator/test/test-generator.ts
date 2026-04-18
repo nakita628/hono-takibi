@@ -57,36 +57,17 @@ function collectSchemaRefs(
   return refs
 }
 
-type SecurityRequirement = {
-  type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  name: string
-  in?: 'header' | 'query' | 'cookie'
-}
-
-type TestCase = {
-  operationId: string
-  method: string
-  path: string
-  summary: string
-  description: string
-  tag: string | undefined
-  pathParams: { name: string; fakerCode: string; schema?: Schema }[]
-  queryParams: { name: string; fakerCode: string; required: boolean }[]
-  headerParams: { name: string; fakerCode: string; required: boolean }[]
-  requestBody: { fakerCode: string; contentType: string } | undefined
-  successStatus: number
-  errorStatuses: number[]
-  security: SecurityRequirement[]
-  usedSchemaRefs: string[]
-}
-
 function extractSecurityRequirements(
   opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { [key: string]: unknown } | undefined,
-): SecurityRequirement[] {
+) {
   const securityDefs = opSecurity ?? globalSecurity ?? []
-  const requirements: SecurityRequirement[] = []
+  const requirements: {
+    type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+    name: string
+    in?: 'header' | 'query' | 'cookie'
+  }[] = []
   for (const secDef of securityDefs) {
     for (const schemeName of Object.keys(secDef)) {
       const scheme = securitySchemes?.[schemeName]
@@ -109,8 +90,27 @@ function extractSecurityRequirements(
   return requirements
 }
 
-export function extractTestCases(spec: OpenAPI): TestCase[] {
-  const testCases: TestCase[] = []
+export function extractTestCases(spec: OpenAPI) {
+  const testCases: {
+    operationId: string
+    method: string
+    path: string
+    summary: string
+    description: string
+    tag: string | undefined
+    pathParams: { name: string; fakerCode: string; schema?: Schema }[]
+    queryParams: { name: string; fakerCode: string; required: boolean }[]
+    headerParams: { name: string; fakerCode: string; required: boolean }[]
+    requestBody: { fakerCode: string; contentType: string } | undefined
+    successStatus: number
+    errorStatuses: number[]
+    security: {
+      type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+      name: string
+      in?: 'header' | 'query' | 'cookie'
+    }[]
+    usedSchemaRefs: string[]
+  }[] = []
   const securitySchemes = spec.components?.securitySchemes
   for (const [path, pathItem] of Object.entries(spec.paths)) {
     for (const [method, operation] of Object.entries(pathItem)) {
@@ -136,7 +136,7 @@ export function extractTestCases(spec: OpenAPI): TestCase[] {
           headerParams.push({ name: param.name, fakerCode, required: param.required ?? false })
         }
       }
-      const requestBody: TestCase['requestBody'] = (() => {
+      const requestBody = (() => {
         if (!(op.requestBody && isContentBody(op.requestBody))) return undefined
         const jsonContent = op.requestBody.content?.['application/json']
         if (jsonContent?.schema)
@@ -307,7 +307,11 @@ function getNonExistentValue(schema?: Schema, schemas?: { [key: string]: Schema 
   return '__non_existent__'
 }
 
-function makeAuthHeader(sec: SecurityRequirement): string {
+function makeAuthHeader(sec: {
+  type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+  name: string
+  in?: 'header' | 'query' | 'cookie'
+}): string {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
@@ -322,7 +326,30 @@ function makeAuthHeader(sec: SecurityRequirement): string {
   }
 }
 
-function makeTestCase(tc: TestCase, basePath = '/', schemas?: { [key: string]: Schema }): string {
+function makeTestCase(
+  tc: {
+    operationId: string
+    method: string
+    path: string
+    summary: string
+    description: string
+    tag: string | undefined
+    pathParams: { name: string; fakerCode: string; schema?: Schema }[]
+    queryParams: { name: string; fakerCode: string; required: boolean }[]
+    headerParams: { name: string; fakerCode: string; required: boolean }[]
+    requestBody: { fakerCode: string; contentType: string } | undefined
+    successStatus: number
+    errorStatuses: number[]
+    security: {
+      type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+      name: string
+      in?: 'header' | 'query' | 'cookie'
+    }[]
+    usedSchemaRefs: string[]
+  },
+  basePath = '/',
+  schemas?: { [k: string]: Schema },
+): string {
   const basePathPrefix = basePath !== '/' ? basePath : ''
   const fullPath =
     tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
@@ -402,10 +429,35 @@ export function makeTestFile(
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
-  const byTag = testCases.reduce((acc, tc) => {
-    const tag = tc.tag || 'default'
-    return acc.set(tag, [...(acc.get(tag) || []), tc])
-  }, new Map<string, TestCase[]>())
+  const byTag = testCases.reduce(
+    (acc, tc) => {
+      const tag = tc.tag || 'default'
+      return acc.set(tag, [...(acc.get(tag) || []), tc])
+    },
+    new Map<
+      string,
+      {
+        operationId: string
+        method: string
+        path: string
+        summary: string
+        description: string
+        tag: string | undefined
+        pathParams: { name: string; fakerCode: string; schema?: Schema }[]
+        queryParams: { name: string; fakerCode: string; required: boolean }[]
+        headerParams: { name: string; fakerCode: string; required: boolean }[]
+        requestBody: { fakerCode: string; contentType: string } | undefined
+        successStatus: number
+        errorStatuses: number[]
+        security: {
+          type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+          name: string
+          in?: 'header' | 'query' | 'cookie'
+        }[]
+        usedSchemaRefs: string[]
+      }[]
+    >(),
+  )
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
   const tagDescribes = Array.from(byTag.entries())
     .map(([tag, cases]) => {
@@ -451,7 +503,6 @@ export function makeHandlerTestCode(
 ): string {
   // Extract handler name from path (e.g., "handlers/users.ts" → "users")
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
-
   const testCases = extractTestCases(spec)
   // Filter test cases by matching the first path segment with handler file name
   const relevantCases = testCases.filter((tc) => {

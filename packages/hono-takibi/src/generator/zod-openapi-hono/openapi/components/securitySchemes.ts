@@ -25,10 +25,9 @@ export function securitySchemesCode(
   components: Components,
   exportSecuritySchemes: boolean,
   readonly?: boolean,
-): string {
+) {
   const { securitySchemes } = components
   if (!securitySchemes) return ''
-
   const asConst = readonly ? ' as const' : ''
   return Object.keys(securitySchemes)
     .map((k) => {

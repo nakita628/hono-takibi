@@ -13,8 +13,6 @@ import {
   resolveSplitOutDir,
 } from './index.js'
 
-/* ─────────────────────────────── Hook Name Generation ─────────────────────────────── */
-
 /**
  * Convert method + path to hook name.
  *
@@ -27,8 +25,6 @@ function makeHookName(method: string, pathStr: string, prefix: string): string {
   const funcName = methodPath(method, pathStr)
   return `${prefix}${capitalize(funcName)}`
 }
-
-/* ─────────────────────────────── Type Helpers ─────────────────────────────── */
 
 /**
  * Creates a response type from parseResponse function name.
@@ -52,8 +48,6 @@ function makeArgsType(clientName: string, method: string, pathStr: string): stri
   return `InferRequestType<${typeAccess}>`
 }
 
-/* ─────────────────────────────── Inline parseResponse Wrapper ─────────────────────────────── */
-
 /**
  * Generates inline parseResponse wrapper function code.
  *
@@ -76,16 +70,12 @@ function makeParseResponseWrapperCode(
 ): string {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
-
   if (hasArgs) {
     const argsType = makeArgsType(clientName, method, pathStr)
     return `export async function ${parseResponseFuncName}(args:${argsType},options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(args,options))}`
   }
-
   return `export async function ${parseResponseFuncName}(options?:ClientRequestOptions){return await parseResponse(${runtimeAccess}(undefined,options))}`
 }
-
-/* ─────────────────────────────── Query Key Getter ─────────────────────────────── */
 
 /**
  * Generates the query key getter function name.
@@ -116,8 +106,6 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
   }
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
 }
-
-/* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
 
 /**
  * Generates the query options getter function name.
@@ -165,7 +153,6 @@ function makeQueryKeyGetterCode(
   // Extract prefix (first path segment without leading slash)
   // e.g., '/pet/findByStatus' → 'pet', '/store/inventory' → 'store'
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
-
   // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
@@ -173,7 +160,6 @@ function makeQueryKeyGetterCode(
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
   }
-
   // TanStack Query / Svelte Query / SWR: ['prefix', '/path', args?]
   if (hasArgs) {
     // Exclude 'header' from key per REST principle: headers are metadata, not resource identifiers
@@ -207,7 +193,6 @@ function makeInfiniteQueryKeyGetterCode(
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
   }
-
   // TanStack Query / Svelte Query / SWR
   if (hasArgs) {
     const infBody = hasHeader
@@ -248,7 +233,6 @@ function makeQueryOptionsGetterCode(
   },
 ): string {
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
@@ -258,25 +242,20 @@ function makeQueryOptionsGetterCode(
       : `{${bodyContent}}`
     return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
   }
-
   // Build fetcher call using parseResponse function
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
-
   // queryOptions() wrap for type safety with TanStack Query
   const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
   const returnExpr = config.hasQueryOptionsHelper
     ? `queryOptions({${bodyContent}})`
     : `{${bodyContent}}`
-
   if (hasArgs) {
     return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
   }
   return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
-
-/* ─────────────────────────────── SWR Query Hook Code ─────────────────────────────── */
 
 /**
  * Generates SWR query hook code.
@@ -297,12 +276,10 @@ function makeSWRQueryHookCode(
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
   const optionsSig = `options?:{swr?:${swrConfigType};options?:ClientRequestOptions}`
-
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,clientOptions)`
     : `${parseResponseFuncName}(clientOptions)`
-
   return `export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
@@ -328,16 +305,12 @@ function makeSWRInfiniteHookCode(
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = `SWRInfiniteConfiguration<${responseType},${errorType}>&{swrKey?:SWRInfiniteKeyLoader}`
   const optionsSig = `options:{swr?:${swrConfigType};options?:ClientRequestOptions}`
-
   const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,clientOptions)`
     : `${parseResponseFuncName}(clientOptions)`
-
   return `export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
 }
-
-/* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
 
 function makeQueryHookCode(
   hookName: string,
@@ -355,20 +328,17 @@ function makeQueryHookCode(
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
-
   // TData generic enables type-safe `select` option:
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
   const tDataGeneric = `<TData=${responseType}>`
   const queryOptionsType = `${config.useQueryOptionsType}<${responseType},${errorType},TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
-
   // Spread user options FIRST, then set concrete queryKey/queryFn AFTER.
   // This avoids exactOptionalPropertyTypes conflicts: queryOptions() return type includes
   // all UseQueryOptions properties (select, queryFn, etc.) as optional. Spreading two
   // sources creates type unions that fail overload resolution. By inlining concrete
   // queryKey/queryFn after the user spread, they always override with non-optional types.
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
@@ -378,7 +348,6 @@ function makeQueryHookCode(
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
     return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
-
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
@@ -387,7 +356,6 @@ function makeQueryHookCode(
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
     return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
-
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
@@ -395,8 +363,6 @@ function makeQueryHookCode(
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
   return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
-
-/* ─────────────────────────────── Suspense Query Hook Code ─────────────────────────────── */
 
 function makeSuspenseQueryHookCode(
   hookName: string,
@@ -414,15 +380,12 @@ function makeSuspenseQueryHookCode(
   },
 ): string {
   const errorType = config.errorType ?? 'Error'
-
   // TData generic enables type-safe `select` option
   const tDataGeneric = `<TData=${responseType}>`
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},${errorType},TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
-
   // Same spread-first pattern as makeQueryHookCode — see comment there for rationale.
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-
   // Svelte Query v5+: thunk pattern
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
@@ -432,7 +395,6 @@ function makeSuspenseQueryHookCode(
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
     return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
-
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
@@ -441,7 +403,6 @@ function makeSuspenseQueryHookCode(
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
     return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
-
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
@@ -449,8 +410,6 @@ function makeSuspenseQueryHookCode(
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
   return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
-
-/* ─────────────────────────────── Infinite Query Options Getter ─────────────────────────────── */
 
 /**
  * Generates the infinite query options getter function name.
@@ -481,30 +440,23 @@ function makeInfiniteQueryOptionsGetterCode(
   },
 ): string {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-
   // infiniteQueryOptions() requires getNextPageParam + initialPageParam which the getter
   // cannot provide (user supplies them). Return plain {queryKey, queryFn} object instead.
-
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
     return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return{${bodyContent}}}`
   }
-
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
-
   const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
-
   if (hasArgs) {
     return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return{${bodyContent}}}`
   }
   return `export function ${optionsGetterName}(options?:ClientRequestOptions){return{${bodyContent}}}`
 }
-
-/* ─────────────────────────────── Infinite Query Hook Code ─────────────────────────────── */
 
 function makeInfiniteQueryHookCode(
   hookName: string,
@@ -523,10 +475,8 @@ function makeInfiniteQueryHookCode(
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
-
   // Infinite options getter returns plain {queryKey, queryFn}. Spread user options FIRST
   // (provides getNextPageParam, initialPageParam, etc.), then override with concrete queryKey/queryFn.
-
   // Svelte Query v5+: thunk pattern — createInfiniteQuery(() => options)
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
@@ -535,7 +485,6 @@ function makeInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
-
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
@@ -544,7 +493,6 @@ function makeInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
-
   // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
@@ -552,8 +500,6 @@ function makeInfiniteQueryHookCode(
     : `${infiniteOptionsGetterName}(clientOptions)`
   return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
 }
-
-/* ─────────────────────────────── Suspense Infinite Query Hook Code ─────────────────────────────── */
 
 function makeSuspenseInfiniteQueryHookCode(
   hookName: string,
@@ -572,9 +518,7 @@ function makeSuspenseInfiniteQueryHookCode(
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
-
   // Same spread-first pattern as makeInfiniteQueryHookCode.
-
   // Svelte Query v5+: thunk pattern
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
@@ -583,7 +527,6 @@ function makeSuspenseInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
-
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
@@ -592,7 +535,6 @@ function makeSuspenseInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
-
   // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
@@ -600,8 +542,6 @@ function makeSuspenseInfiniteQueryHookCode(
     : `${infiniteOptionsGetterName}(clientOptions)`
   return `export function ${hookName}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
 }
-
-/* ─────────────────────────────── Prefix Key ─────────────────────────────── */
 
 /**
  * Generates prefix key getter function code.
@@ -674,7 +614,6 @@ function makeMutationOptionsGetterCode(
   const methodUpper = method.toUpperCase()
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
-
   if (hasArgs) {
     const bodyContent = `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return ${parseResponseFuncName}(args,options)}`
     const returnExpr = config.hasMutationOptionsHelper
@@ -689,8 +628,6 @@ function makeMutationOptionsGetterCode(
   return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 
-/* ─────────────────────────────── SWR Header ─────────────────────────────── */
-
 /**
  * Generates the import header for SWR hook files.
  */
@@ -703,7 +640,6 @@ function makeSWRHeader(
   hasInfiniteQuery = false,
 ): string {
   const lines: string[] = []
-
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
     lines.push("import useSWR from'swr'")
@@ -721,17 +657,13 @@ function makeSWRHeader(
     lines.push("import useSWRMutation from'swr/mutation'")
     lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
   }
-
   // Hono client imports
   const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
   lines.push(`import type{${honoTypeImports.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")
   lines.push(`import{${clientName}}from'${importPath}'`)
-
   return `${lines.join('\n')}\n\n`
 }
-
-/* ─────────────────────────────── SWR Mutation Hook Code ─────────────────────────────── */
 
 /**
  * Generates SWR mutation hook code.
@@ -754,12 +686,10 @@ function makeSWRMutationHookCode(
   const variablesType = hasArgs ? argsType : 'undefined'
   const responseTypeWithUndefined = hasNoContent ? `${responseType}|undefined` : responseType
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},${errorType},Key,${variablesType}>`
-
   if (hasArgs) {
     const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
     return `export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>${parseResponseFuncName}(arg,clientOptions),restMutationOptions)}}`
   }
-
   // No args - simpler pattern
   const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
   return `export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
@@ -783,25 +713,19 @@ function makeMutationHookCode(
 ): string {
   const variablesType = hasArgs ? argsType : 'void'
   const errorType = config.errorType ?? 'Error'
-
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-
   // Use official TanStack Query mutation options type
   const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},${errorType},${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
-
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
     return `export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...${optionsGetterName}(clientOptions),...mutation}})}`
   }
-
   // React TanStack Query / Vue Query: direct spread
   return `export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...${optionsGetterName}(clientOptions),...mutationOptions})}`
 }
-
-/* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
 
 function makeHookCode(
   pathStr: string,
@@ -840,26 +764,21 @@ function makeHookCode(
 } | null {
   const op = item[method]
   if (!isOperationLike(op)) return null
-
   const hookName = makeHookName(method, pathStr, config.hookPrefix)
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
-
   // Detect header parameters for key exclusion (REST: headers are metadata, not resource identifiers)
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
   const hasHeaderArgs = [...pathLevelParams, ...opParams].some((p) => p.in === 'header')
-
   // parseResponse function name (same naming as parseResponse/ generator)
   const parseResponseFuncName = methodPath(method, pathStr)
   const argsType = makeArgsType(clientName, method, pathStr)
   const responseType = makeResponseType(parseResponseFuncName)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
-
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
-
   // Generate inline parseResponse wrapper function
   const wrapperCode = makeParseResponseWrapperCode(
     parseResponseFuncName,
@@ -868,7 +787,6 @@ function makeHookCode(
     hasArgs,
     clientName,
   )
-
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -960,13 +878,11 @@ function makeHookCode(
       parseResponseFuncName,
     }
   }
-
   // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
     // For queries, use path-only naming (no HTTP method prefix)
     const queryHookName = makeHookName('', pathStr, config.hookPrefix)
     const pathFuncName = methodPath('', pathStr)
-
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
     const optionsGetterName = makeQueryOptionsGetterName(pathStr)
     const keyGetterCode = makeQueryKeyGetterCode(
@@ -997,7 +913,6 @@ function makeHookCode(
     // Generate infinite query key getter (only when infinite query hooks are enabled AND endpoint has pagination params)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
     const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
-
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
     const infiniteKeyGetterCode = hasInfinite
@@ -1010,7 +925,6 @@ function makeHookCode(
           hasHeaderArgs,
         )
       : null
-
     // Generate infinite query options getter
     const infiniteOptionsGetterCode = hasInfinite
       ? makeInfiniteQueryOptionsGetterCode(
@@ -1022,7 +936,6 @@ function makeHookCode(
           config,
         )
       : null
-
     // Generate suspense query hook
     const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}`
     const suspenseHookCode =
@@ -1043,7 +956,6 @@ function makeHookCode(
             },
           )
         : null
-
     // Generate infinite query hook
     const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}`
     const infiniteHookCode = hasInfinite
@@ -1062,7 +974,6 @@ function makeHookCode(
           },
         )
       : null
-
     // Generate suspense infinite query hook (only when infinite query is enabled for this endpoint)
     const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}`
     const suspenseInfiniteHookCode =
@@ -1082,7 +993,6 @@ function makeHookCode(
             },
           )
         : null
-
     // Order: key → wrapper → options → hook → suspenseHook → infiniteKey → infiniteOptions → infiniteHook → suspenseInfiniteHook
     const parts = [
       keyGetterCode,
@@ -1103,7 +1013,6 @@ function makeHookCode(
       parseResponseFuncName,
     }
   }
-
   // Generate mutation options getter (mutation key is inlined)
   const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
   const optionsGetterCode = makeMutationOptionsGetterCode(
@@ -1134,9 +1043,6 @@ function makeHookCode(
   }
 }
 
-/**
- * Builds hook codes from OpenAPI paths.
- */
 function makeHookCodes(
   paths: OpenAPIPaths,
   deps: ReturnType<typeof makeOperationDeps>,
@@ -1205,8 +1111,6 @@ function makeHookCodes(
     })
 }
 
-/* ─────────────────────────────── Header ─────────────────────────────── */
-
 /**
  * Generates the import header for Query hook files.
  *
@@ -1256,7 +1160,6 @@ function makeHeader(
       hasInfiniteQuery,
     )
   }
-
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasQuery && config.suspenseQueryFn ? [config.suspenseQueryFn] : []),
@@ -1268,7 +1171,6 @@ function makeHeader(
     // provide required getNextPageParam/initialPageParam (user supplies them)
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
-
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
   const typeImports = [
     ...(hasQuery ? [config.useQueryOptionsType, 'QueryFunctionContext'] : []),
@@ -1281,14 +1183,11 @@ function makeHeader(
       : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
-
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args
   // (used in makeQueryKeyGetterCode for args:MaybeRefOrGetter<...> and toValue(args))
   const needsVueImports = config.isVueQuery && hasQueryWithArgs
-
   // Hono client imports
   const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
-
   const lines = [
     ...(queryImports.length > 0
       ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
@@ -1306,8 +1205,6 @@ function makeHeader(
   ]
   return `${lines.join('\n')}\n\n`
 }
-
-/* ─────────────────────────────── Entry ─────────────────────────────── */
 
 /**
  * Generates Query hooks from OpenAPI specification.
@@ -1359,17 +1256,12 @@ export async function makeQueryHooks(
   if (!isOpenAPIPaths(pathsMaybe)) {
     return { ok: false, error: 'Invalid OpenAPI paths' }
   }
-
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-
   const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
   const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
-
   const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
-
-  // Non-split: write single file
   if (!split) {
     const prefixBody = prefixKeyCodes.join('\n\n')
     const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
@@ -1396,10 +1288,7 @@ export async function makeQueryHooks(
       value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
     }
   }
-
-  // Split: write each file + index.ts (barrel) in parallel
   const { outDir, indexPath } = resolveSplitOutDir(output)
-
   const prefixKeyFileName = '_keys'
   const exportLines = Array.from(
     new Set([
@@ -1408,7 +1297,6 @@ export async function makeQueryHooks(
     ]),
   )
   const index = `${exportLines.join('\n')}\n`
-
   const allResults = await Promise.all([
     // Prefix key file (no imports needed — pure functions returning string literals)
     ...(prefixKeyCodes.length > 0
@@ -1438,8 +1326,7 @@ export async function makeQueryHooks(
     }),
     core(index, path.dirname(indexPath), indexPath),
   ])
-
-  const firstError = allResults.find((r) => !r.ok)
+  const firstError = allResults.find((result) => !result.ok)
   if (firstError) return firstError
   return {
     ok: true,

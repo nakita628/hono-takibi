@@ -31,13 +31,11 @@ export function mediaTypesCode(
   exportMediaTypes: boolean,
   exportMediaTypesTypes: boolean,
   readonly?: boolean,
-): string {
+) {
   const { mediaTypes } = components
   if (!mediaTypes) return ''
-
   const entries = Object.entries(mediaTypes)
   if (entries.length === 0) return ''
-
   return entries
     .map(([k, v]) => {
       if (!isMedia(v)) return undefined

@@ -36,7 +36,6 @@ const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 Options:
   -h, --help                  display help for command`
 
-/** Parses raw CLI arguments into `{ input, output }`. */
 function parseCli(args: readonly string[]):
   | {
       readonly ok: true
@@ -52,7 +51,6 @@ function parseCli(args: readonly string[]):
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
-  /** yaml or json or tsp */
   const isYamlOrJsonOrTsp = (
     i: string,
   ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
@@ -80,9 +78,7 @@ export async function honoTakibi(): Promise<
   if (args.length === 1 && (args[0] === '--help' || args[0] === '-h')) {
     return { ok: true, value: HELP_TEXT }
   }
-
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
-
   if (!existsSync(abs)) {
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
@@ -111,24 +107,19 @@ export async function honoTakibi(): Promise<
     if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
     return { ok: true, value: takibiResult.value }
   }
-
   const readConfigResult = await readConfig()
   if (!readConfigResult.ok) return { ok: false, error: readConfigResult.error }
   const config = readConfigResult.value
-
   if (config.format) setFormatOptions(config.format)
-
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
   const openAPI = openAPIResult.value
-
   const results = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, {
           ...(config['zod-openapi'].readonly !== undefined
             ? { readonly: config['zod-openapi'].readonly }
             : {}),
-          // OpenAPI Components Object order
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
           exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
           exportResponses: config['zod-openapi'].exportResponses ?? false,
@@ -348,12 +339,10 @@ export async function honoTakibi(): Promise<
       )
     })(),
   ])
-
   const values: string[] = []
-  for (const r of results) {
-    if (r && !r.ok) return { ok: false, error: r.error }
-    if (r?.ok) values.push(r.value)
+  for (const result of results) {
+    if (result && !result.ok) return { ok: false, error: result.error }
+    if (result?.ok) values.push(result.value)
   }
-
   return { ok: true, value: values.join('\n') }
 }

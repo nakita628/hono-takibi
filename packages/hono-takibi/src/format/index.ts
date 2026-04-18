@@ -1,12 +1,12 @@
-import { type FormatOptions, format } from 'oxfmt'
+import { type FormatConfig, format } from 'oxfmt'
 
-const defaultOptions: FormatOptions = {
+const defaultOptions = {
   printWidth: 100,
   singleQuote: true,
   semi: false,
 }
 
-let currentOptions: FormatOptions = defaultOptions
+let currentOptions = defaultOptions
 
 /**
  * Sets the format options for all subsequent `fmt()` calls.
@@ -19,7 +19,7 @@ let currentOptions: FormatOptions = defaultOptions
  * setFormatOptions({ printWidth: 80, semi: true })
  * ```
  */
-export function setFormatOptions(opts: FormatOptions): void {
+export function setFormatOptions(opts: FormatConfig): void {
   currentOptions = { ...defaultOptions, ...opts }
 }
 

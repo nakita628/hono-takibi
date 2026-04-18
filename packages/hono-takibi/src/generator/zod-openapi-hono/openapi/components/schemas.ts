@@ -32,16 +32,13 @@ export function schemasCode(
   exportSchemas: boolean,
   exportSchemasTypes: boolean,
   readonly?: boolean,
-): string {
+) {
   const { schemas } = components
   if (!schemas) return ''
-
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return ''
-
   const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
   const infos = makeSchemaInfos(schemas, schemaNames, analysis)
-
   const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, readonly)
   const schemaBlocks = infos.map((info) =>
     makeSchemaCode(info, {
@@ -50,9 +47,7 @@ export function schemasCode(
       ...(readonly !== undefined ? { readonly } : {}),
     }),
   )
-
   const typeDefsBlock = typeDefs.join('\n\n')
   const schemasBlock = schemaBlocks.join('\n\n')
-
   return typeDefsBlock ? `${typeDefsBlock}\n\n${schemasBlock}` : schemasBlock
 }

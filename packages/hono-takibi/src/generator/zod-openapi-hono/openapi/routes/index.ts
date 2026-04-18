@@ -1,5 +1,6 @@
-import type { OpenAPI, Parameter, PathItem } from '../../../../openapi/index.js'
-import { createRoute } from './create-route.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
+import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
+import { methodPath } from '../../../../utils/index.js'
 
 /**
  * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
@@ -18,11 +19,41 @@ import { createRoute } from './create-route.js'
  * ```
  */
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
+  const makeRoute = (path: string,
+    method: string,
+    operation: Operation,
+    readonly?: boolean,) => {
+      const properties = [
+          `method:'${method}'`,
+          `path:'${path}'`,
+          operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+          operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+          operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+          operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
+          operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+          makeRequest(operation.parameters, operation.requestBody, readonly)
+            ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
+            : undefined,
+          operation.responses
+            ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+            : undefined,
+          operation.callbacks
+            ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
+            : undefined,
+          operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+          operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+          operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+        ]
+          .filter((v) => v !== undefined)
+          .join(',')
+      
+        const asConst = readonly ? ' as const' : ''
+        return `export const ${methodPath(method, path)}Route=createRoute({${properties}}${asConst})`
+    }
   const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
     r.startsWith('#/components/parameters/')
   const isPathItemRef = (r: string): r is `#/components/pathItems/${string}` =>
     r.startsWith('#/components/pathItems/')
-
   const resolveParameter = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
     if ('name' in p && 'in' in p) return p
     const ref = '$ref' in p ? p.$ref : undefined
@@ -32,7 +63,6 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     // Preserve original $ref in resolved parameter for schema reference generation
     return { ...resolved, $ref: ref }
   }
-
   const resolvePathItem = (pathItem: PathItem): PathItem => {
     // If pathItem has $ref to components/pathItems, resolve it
     if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
@@ -46,7 +76,6 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     }
     return pathItem
   }
-
   return Object.entries(openapi.paths)
     .flatMap(([path, pathItem]) => {
       if (!pathItem) return []
@@ -58,7 +87,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
           const params = [...(resolved.parameters ?? []), ...(operation.parameters ?? [])]
             .map(resolveParameter)
             .filter((p) => p !== undefined)
-          return createRoute(
+          return makeRoute(
             path,
             method,
             params.length > 0 ? { ...operation, parameters: params } : operation,

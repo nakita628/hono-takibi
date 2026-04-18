@@ -53,11 +53,9 @@ export function makeRef($ref: string): string {
     { prefix: '#/components/pathItems/', suffix: 'PathItem' },
     { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
   ]
-
   /** Converts name to PascalCase variable name with suffix */
   const toVariableName = (name: string, suffix: string): string =>
     toIdentifierPascalCase(ensureSuffix(name, suffix))
-
   // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
   // These are self-referential and reference the parent schema with z.lazy()
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
@@ -65,11 +63,9 @@ export function makeRef($ref: string): string {
     const parentSchema = toVariableName(decodeURIComponent(propertiesMatch[1]), 'Schema')
     return `z.lazy(()=>${parentSchema})`
   }
-
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodeURIComponent(rawRef)
-
   // Find matching component type and apply corresponding suffix
   const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
   return toVariableName(decodedRef, match?.suffix ?? 'Schema')
@@ -147,7 +143,6 @@ export function makeExamples(examples: {
   return `{${result}}`
 }
 
-/** Generates code for an operation's responses object. */
 export function makeOperationResponses(
   responses: Operation['responses'] | { readonly [k: string]: unknown },
   readonly?: boolean,
@@ -164,7 +159,6 @@ export function makeOperationResponses(
   return `{${result}}`
 }
 
-/** Generates a Zod object schema for response headers. */
 export function makeHeaderResponses(
   headers: { readonly [k: string]: Header | Reference },
   readonly?: boolean,
@@ -175,12 +169,10 @@ export function makeHeaderResponses(
   return `z.object({${result}})`
 }
 
-/** Generates code for a single response object (handles `$ref` and inline). */
 export function makeResponses(responses: Responses, readonly?: boolean) {
   if (responses.$ref) {
     return makeRef(responses.$ref)
   }
-
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
@@ -204,7 +196,6 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
   return `{${result}}`
 }
 
-/** Generates code for a header or header reference. */
 export function makeHeadersAndReferences(headers: Header | Reference, readonly?: boolean) {
   if ('$ref' in headers && headers.$ref) {
     return makeRef(headers.$ref)
@@ -239,7 +230,6 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
   return `{${result}}`
 }
 
-/** Generates code for a link or link reference. */
 export function makeLinkOrReference(linkOrReference: Link | Reference) {
   const result = [
     'operationRef' in linkOrReference
@@ -248,7 +238,6 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
     'operationId' in linkOrReference
       ? `operationId:${JSON.stringify(linkOrReference.operationId)}`
       : undefined,
-    // parameters is an object with string keys and unknown values
     'parameters' in linkOrReference
       ? `parameters:${JSON.stringify(linkOrReference.parameters)}`
       : undefined,
@@ -269,7 +258,6 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   return `{${result}}`
 }
 
-/** Generates callbacks code for an operation. */
 export function makeOperationCallbacks(
   callbacks: Operation['callbacks'] | { readonly [k: string]: unknown } | undefined,
 ) {
@@ -295,7 +283,6 @@ export function makeOperationCallbacks(
   return `{${result}}`
 }
 
-/** Generates code for an OpenAPI callbacks object. */
 export function makeCallback(callback: Callbacks): string {
   return Object.entries(callback)
     .map(([callbackKey, pathItem]) => {
@@ -332,7 +319,6 @@ export function makeCallbacks(
       })
       .filter((v) => v !== undefined)
       .join(',')
-
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
       // Handle $ref to components/callbacks
@@ -360,13 +346,11 @@ export function makeCallbacks(
     .join(',')
 }
 
-/** Generates code for an OpenAPI content object. */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
   readonly?: boolean,
 ): string[] {
   const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
-
   return Object.entries(content)
     .map(([contentType, mediaOrRef]) => {
       // Reference
@@ -487,7 +471,6 @@ export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
         .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
         .join(',')
     : undefined
-
   const headersCode = encoding.headers
     ? Object.entries(encoding.headers)
         .map(
@@ -496,7 +479,6 @@ export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
         )
         .join(',')
     : undefined
-
   return [
     encoding.contentType ? `contentType:${JSON.stringify(encoding.contentType)}` : undefined,
     headersCode ? `headers:{${headersCode}}` : undefined,
@@ -535,9 +517,6 @@ export function makeRequest(
   return result.length > 0 ? `{${result}}` : undefined
 }
 
-/**
- * Extracts schema from parameter content (for parameters using content instead of schema)
- */
 function getSchemaFromContent(content: Content | undefined): Schema | undefined {
   if (!content) return undefined
   const firstKey = Object.keys(content)[0]
@@ -565,22 +544,18 @@ export function makeParameters(
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     // Initialize section if needed
     if (!acc[param.in]) acc[param.in] = {}
-
     // Handle $ref
     if (param.$ref) {
       acc[param.in][makeSafeKey(param.name)] = makeRef(param.$ref)
       return acc
     }
-
     // Handle parameters with content instead of schema (OpenAPI 3.x)
     const schema = param.schema ?? getSchemaFromContent(param.content)
     if (!schema) {
       acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
-
     const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
-
     // Apply coercion for query parameters
     const z =
       param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
@@ -604,7 +579,6 @@ export function makeParameters(
                   .replace(/z\.boolean\(\)/g, 'z.stringbool()')
                   .replace(/z\.date\(\)/g, 'z.coerce.date()')
               : baseSchema
-
     acc[param.in][makeSafeKey(param.name)] = z
     return acc
   }, {})
@@ -703,13 +677,11 @@ export function makeOperation(operation: Operation, readonly?: boolean) {
 }
 
 export function makePathItem(pathItem: PathItem) {
-  // Generate additionalOperations code
   const additionalOperationsCode = pathItem.additionalOperations
     ? Object.entries(pathItem.additionalOperations)
         .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
         .join(',')
     : undefined
-
   const results = [
     pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
     pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
@@ -725,7 +697,6 @@ export function makePathItem(pathItem: PathItem) {
     pathItem.query ? `query:${makeOperation(pathItem.query)}` : undefined,
     additionalOperationsCode ? `additionalOperations:{${additionalOperationsCode}}` : undefined,
     pathItem.servers ? `servers:${JSON.stringify(pathItem.servers)}` : undefined,
-    // OpenAPI spec: parameters is [Parameter Object | Reference Object]
     pathItem.parameters ? `parameters:${makePathParameters(pathItem.parameters)}` : undefined,
   ]
     .filter((v) => v !== undefined)

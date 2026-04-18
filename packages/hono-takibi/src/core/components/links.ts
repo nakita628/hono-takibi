@@ -40,16 +40,13 @@ export async function links(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!links) return { ok: false, error: 'No links found' }
-
   const keys = Object.keys(links)
   if (keys.length === 0) return { ok: true, value: 'No links found' }
-
   if (split) {
     const exportsResult = await makeExports(links, 'Link', output, readonly)
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
     return { ok: true, value: exportsResult.value }
   }
-
   const code = makeExportConst(links, 'Link', readonly)
   const coreResult = await core(code, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

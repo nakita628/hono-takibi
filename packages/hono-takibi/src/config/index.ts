@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { type FormatOptions } from 'oxfmt'
+import { type FormatConfig } from 'oxfmt'
 import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
@@ -14,7 +14,7 @@ const ConfigSchema = z
       { message: 'must be .yaml | .json | .tsp' },
     ),
     basePath: z.string().exactOptional(),
-    format: z.custom<FormatOptions>(() => true).exactOptional(),
+    format: z.custom<FormatConfig>(() => true).exactOptional(),
     'zod-openapi': z
       .object({
         output: z
@@ -31,7 +31,6 @@ const ConfigSchema = z
             testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
           .exactOptional(),
-        // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
         exportResponses: z.boolean().exactOptional(),
@@ -352,12 +351,9 @@ const ConfigSchema = z
   })
   .readonly()
 
-export type Config = z.infer<typeof ConfigSchema>
+type Config = z.infer<typeof ConfigSchema>
 type ConfigInput = z.input<typeof ConfigSchema>
 
-/**
- * Validates and parses a hono-takibi configuration object.
- */
 export function parseConfig(
   config: unknown,
 ): { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string } {
@@ -370,32 +366,18 @@ export function parseConfig(
   return { ok: true, value: result.data }
 }
 
-/**
- * Dynamic import wrapper that avoids Vite's static analysis.
- * Vite warns about dynamic imports it cannot analyze at build time.
- * Using an indirect call prevents the warning since Vite only analyzes
- * direct `import()` expressions.
- */
-const dynamicImport = (specifier: string): Promise<{ readonly default: unknown }> =>
-  // eslint-disable-next-line typescript-eslint/no-implied-eval
-  new Function('specifier', 'return import(specifier)')(specifier)
-
-/**
- * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
- */
 export async function readConfig(): Promise<
   { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
-
   try {
     register()
     const url = pathToFileURL(abs).href
-    const mod = await dynamicImport(url)
-    if (!('default' in mod) || mod.default === undefined)
+    // eslint-disable-next-line typescript-eslint/no-implied-eval
+    const mod = await new Function('specifier', 'return import(specifier)')(url)
+    if (typeof mod !== 'object' || mod === null || !('default' in mod) || mod.default === undefined)
       return { ok: false, error: 'Config must export default object' }
-
     return parseConfig(mod.default)
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }

@@ -26,10 +26,9 @@ export function requestBodiesCode(
   components: Components,
   exportRequestBodies: boolean,
   readonly?: boolean,
-): string {
+) {
   const requestBodies = components.requestBodies
   if (!requestBodies) return ''
-
   const asConst = readonly ? ' as const' : ''
   return Object.entries(requestBodies)
     .map(([k, body]) => {

@@ -53,16 +53,12 @@ export async function headers(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!headers) return { ok: false, error: 'No headers found' }
-
   const headerNames = Object.keys(headers)
   if (headerNames.length === 0) return { ok: true, value: 'No headers found' }
-
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
-
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-
     const allResults = await Promise.all([
       ...headerNames.map((headerName) => {
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
@@ -72,16 +68,13 @@ export async function headers(
       }),
       core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
-
-    const firstError = allResults.find((r) => !r.ok)
+    const firstError = allResults.find((result) => !result.ok)
     if (firstError) return firstError
-
     return {
       ok: true,
       value: `Generated headers code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
   const coreResult = await core(toFileCode(headerDefinitions, output), path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

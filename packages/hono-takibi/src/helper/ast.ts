@@ -4,10 +4,6 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
-// =============================================================================
-// AST-based identifier extraction
-// =============================================================================
-
 /**
  * Creates a TypeScript source file from code string.
  *
@@ -42,10 +38,6 @@ const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readon
   const found = new Set(allIdentifiers.filter((id) => varNames.has(id)))
   return [...found]
 }
-
-// =============================================================================
-// Circular dependency analysis (Tarjan's algorithm)
-// =============================================================================
 
 const createInitialState = (): {
   readonly indices: Map<string, number>
@@ -177,12 +169,10 @@ const findCyclicSchemas = (
 ): ReadonlySet<string> => {
   const name2var = new Map(names.map((n) => [n, toIdentifierPascalCase(ensureSuffix(n, 'Schema'))]))
   const var2name = new Map(names.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]))
-
   const finalState = names.reduce(
     (state, n) => (state.indices.has(n) ? state : tarjanConnect(n, deps, var2name, state)),
     createInitialState(),
   )
-
   return new Set(
     finalState.sccs.flatMap((scc) => {
       if (scc.length > 1) return [...scc]
@@ -272,10 +262,6 @@ export function analyzeCircularSchemas(
   }
 }
 
-// =============================================================================
-// AST-based dependency sorting
-// =============================================================================
-
 const createDeclaration = (
   name: string,
   fullText: string,
@@ -356,11 +342,9 @@ const parseStatements = (
     (s) =>
       ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
   )
-
   const declNames = new Set(
     statements.map(getDeclarationName).filter((n): n is string => n !== undefined),
   )
-
   return statements
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
@@ -382,13 +366,11 @@ const topoSort = (
   const makeKey = (kind: 'variable' | 'type' | 'interface', name: string): string =>
     `${kind}:${name}`
   const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
-
   // For dependency resolution, prefer variable declarations (since types reference variables)
   const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
     map.get(makeKey('variable', name)) ??
     map.get(makeKey('type', name)) ??
     map.get(makeKey('interface', name))
-
   const visit = (
     key: string,
     state: {
@@ -406,7 +388,6 @@ const topoSort = (
       .map((ref) => findByName(ref))
       .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
       .reduce((s, d) => visit(makeKey(d.kind, d.name), s), withTemp)
-
     return {
       sorted: [...afterRefs.sorted, decl],
       perm: new Set([...afterRefs.perm, key]),

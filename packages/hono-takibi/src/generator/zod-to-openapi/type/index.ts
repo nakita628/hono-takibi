@@ -32,7 +32,6 @@ export function zodType(
     typeIsObject &&
     schema.additionalProperties &&
     (!schema.properties || Object.keys(schema.properties).length === 0)
-
   // Use inline index signature for record-like types in cyclic groups to avoid TS2456
   // TypeScript doesn't allow Record<string,T> in cyclic type references
   if (cyclicGroup && cyclicGroup.size > 0 && isRecordLike) {
@@ -41,6 +40,5 @@ export function zodType(
     const valueType = makeTypeString(valueSchema, typeName, cyclicGroup, readonly)
     return `type ${typeName}Type = {[key:string]:${valueType}}`
   }
-
   return `type ${typeName}Type=${makeTypeString(schema, typeName, cyclicGroup, readonly)}`
 }

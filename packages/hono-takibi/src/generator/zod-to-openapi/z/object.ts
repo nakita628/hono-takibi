@@ -39,7 +39,6 @@ export function object(schema: Schema, readonly?: boolean): string {
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
     return zodToOpenAPI(schema, undefined, readonly)
   }
-
   // Read vendor extensions for error messages
   const errorMessage = schema['x-error-message']
   const errorErrArg = errorMessage ? `,${error(errorMessage)}` : ''
@@ -49,12 +48,10 @@ export function object(schema: Schema, readonly?: boolean): string {
   const maxErrArg = maximumMessage ? `,${error(maximumMessage)}` : ''
   const patternMessage = schema['x-pattern-message']
   const patternErrArg = patternMessage ? `,${error(patternMessage)}` : ''
-
   const propNamesMsg = schema['x-propertyNames-message']
   const propNamesErrArg = propNamesMsg ? `,${error(propNamesMsg)}` : patternErrArg
   const depReqMsg = schema['x-dependentRequired-message']
   const depReqErrArg = depReqMsg ? `,${error(depReqMsg)}` : errorErrArg
-
   // additionalProperties as Schema → record type
   if (typeof schema.additionalProperties === 'object') {
     const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly)})`
@@ -71,7 +68,6 @@ export function object(schema: Schema, readonly?: boolean): string {
       : ''
     return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
   }
-
   // Determine object type based on additionalProperties boolean
   const objectType =
     schema.additionalProperties === true
@@ -79,7 +75,6 @@ export function object(schema: Schema, readonly?: boolean): string {
       : schema.additionalProperties === false
         ? 'strictObject'
         : 'object'
-
   // Build properties code if present
   const propertiesCode = schema.properties
     ? Object.entries(schema.properties)
@@ -95,7 +90,6 @@ export function object(schema: Schema, readonly?: boolean): string {
         })
         .join(',')
     : ''
-
   const base = `z.${objectType}({${propertiesCode}})`
   const minP =
     typeof schema.minProperties === 'number'

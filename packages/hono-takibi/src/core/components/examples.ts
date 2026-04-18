@@ -41,28 +41,20 @@ export async function examples(
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!examples) return { ok: false, error: 'No examples found' }
-
   const keys = Object.keys(examples)
   if (keys.length === 0) return { ok: true, value: 'No examples found' }
-
   const asConst = readonly ? ' as const' : ''
-
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
-
-    // Generate index.ts with sorted exports
     const indexCode = `${keys
       .sort()
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)
       .join('\n')}\n`
-
     const results = await Promise.all([
       ...keys.map((key) => {
         const v = examples[key]
         const name = toIdentifierPascalCase(ensureSuffix(key, 'Example'))
         const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
-
-        // Handle $ref references: generate import + re-export
         if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
@@ -70,23 +62,18 @@ export async function examples(
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
           return core(body, path.dirname(filePath), filePath)
         }
-
-        // Inline value: generate JSON export
         const body = `export const ${name} = ${JSON.stringify(v)}${asConst}\n`
         return core(body, path.dirname(filePath), filePath)
       }),
       core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])
-
-    const firstError = results.find((r) => !r.ok)
+    const firstError = results.find((result) => !result.ok)
     if (firstError) return firstError
-
     return {
       ok: true,
       value: `Generated Example code written to ${outDir}/*.ts (index.ts included)`,
     }
   }
-
   const code = makeExportConst(examples, 'Example', readonly)
   const coreResult = await core(code, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }

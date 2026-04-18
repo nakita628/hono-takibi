@@ -9,18 +9,10 @@ import type {
   Schema,
 } from '../openapi/index.js'
 
-/* ─────────────────────────────── Base Guards ─────────────────────────────── */
-
-/**
- * Checks if a value is a non-null, non-array object (record-like).
- */
 export function isRecord(value: unknown): value is { readonly [k: string]: unknown } {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/**
- * Checks if a string is a valid HTTP method.
- */
 export function isHttpMethod(
   method: string,
 ): method is 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' {
@@ -36,18 +28,10 @@ export function isHttpMethod(
   )
 }
 
-/**
- * Check if a string is a valid JavaScript identifier.
- */
 export function isValidIdent(s: string): boolean {
   return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s)
 }
 
-/* ─────────────────────────────── OpenAPI Guards ─────────────────────────────── */
-
-/**
- * Type guard for OpenAPI paths object.
- */
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
   return Object.values(v).every(
@@ -55,9 +39,6 @@ export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
   )
 }
 
-/**
- * Type guard for $ref objects.
- */
 export function isRefObject(v: unknown): v is { readonly $ref: string } {
   return (
     typeof v === 'object' &&
@@ -68,14 +49,9 @@ export function isRefObject(v: unknown): v is { readonly $ref: string } {
   )
 }
 
-/**
- * Type guard for objects with a string $ref property.
- */
 export function isStringRef(p: object): p is { readonly $ref: string } {
   return '$ref' in p && typeof p.$ref === 'string'
 }
-
-/* ─────────────────────────────── Parameter Guards ─────────────────────────────── */
 
 /**
  * Type guard for parameter objects (lightweight, unknown input).
@@ -105,20 +81,12 @@ export function isParameter(p: unknown): p is Parameter {
   )
 }
 
-/**
- * Type guard for parameter arrays.
- */
 export function isParameterArray(
   params: unknown,
 ): params is readonly Parameter[] | readonly Reference[] {
   return Array.isArray(params)
 }
 
-/* ─────────────────────────────── Operation Guards ─────────────────────────────── */
-
-/**
- * Type guard for operation-like objects (lightweight, checks responses key).
- */
 export function isOperationLike(v: unknown): v is {
   readonly summary?: string
   readonly description?: string
@@ -129,16 +97,10 @@ export function isOperationLike(v: unknown): v is {
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'responses' in v
 }
 
-/**
- * Type guard for OpenAPI Operation objects.
- */
 export function isOperation(op: unknown): op is Operation {
   return typeof op === 'object' && op !== null && 'responses' in op
 }
 
-/**
- * Type guard for Operation with typed responses.
- */
 export function isOperationWithResponses(value: unknown): value is Operation & {
   readonly responses: {
     readonly [statusCode: string]: {
@@ -155,41 +117,22 @@ export function isOperationWithResponses(value: unknown): value is Operation & {
   )
 }
 
-/* ─────────────────────────────── Schema Guards ─────────────────────────────── */
-
-/**
- * Type guard for objects with a schema property.
- */
 export function isSchemaProperty(v: unknown): v is { readonly schema?: unknown } {
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'schema' in v
 }
 
-/**
- * Type guard for schema arrays (tuple-style items).
- */
 export function isSchemaArray(items: Schema | readonly Schema[]): items is readonly Schema[] {
   return Array.isArray(items)
 }
 
-/**
- * Type guard for objects with a typed schema property.
- */
 export function isMediaWithSchema(m: unknown): m is { readonly schema: Schema } {
   return typeof m === 'object' && m !== null && 'schema' in m
 }
 
-/**
- * Type guard for Media objects (vs Reference).
- */
 export function isMedia(value: Media | Reference): value is Media {
   return typeof value === 'object' && value !== null && 'schema' in value
 }
 
-/* ─────────────────────────────── RequestBody / Response Guards ─────────────────────────────── */
-
-/**
- * Type guard for OpenAPI RequestBody objects.
- */
 export function isRequestBody(rb: unknown): rb is RequestBody {
   return (
     typeof rb === 'object' &&
@@ -198,9 +141,6 @@ export function isRequestBody(rb: unknown): rb is RequestBody {
   )
 }
 
-/**
- * Type guard for RequestBody or Reference objects.
- */
 export function isRequestBodyOrRef(
   v: unknown,
 ): v is { readonly content?: unknown; readonly required?: boolean } | { readonly $ref: string } {
@@ -208,20 +148,12 @@ export function isRequestBodyOrRef(
   return '$ref' in v || 'content' in v
 }
 
-/**
- * Type guard for request body with content (not a $ref).
- */
 export function isContentBody(
   body: unknown,
 ): body is { readonly content?: { readonly [k: string]: { readonly schema?: Schema } } } {
   return typeof body === 'object' && body !== null && !('$ref' in body)
 }
 
-/* ─────────────────────────────── Security Guards ─────────────────────────────── */
-
-/**
- * Type guard for security scheme objects (not a $ref).
- */
 export function isSecurityScheme(value: unknown): value is {
   readonly type?: string
   readonly scheme?: string
@@ -231,30 +163,17 @@ export function isSecurityScheme(value: unknown): value is {
   return typeof value === 'object' && value !== null && !('$ref' in value)
 }
 
-/**
- * Type guard for security requirement arrays.
- */
 export function isSecurityArray(
   security: unknown,
 ): security is readonly { readonly [k: string]: readonly string[] }[] {
   return Array.isArray(security)
 }
 
-/* ─────────────────────────────── Responses Guards ─────────────────────────────── */
-
-/**
- * Type guard for OpenAPI Responses objects.
- */
 export function isResponses(v: unknown): v is Responses {
   if (typeof v !== 'object' || v === null || Array.isArray(v)) return false
   return '$ref' in v || 'description' in v || 'content' in v || 'headers' in v || 'links' in v
 }
 
-/* ─────────────────────────────── OAuth Flow Guards ─────────────────────────────── */
-
-/**
- * Type guard for OAuth flow value objects.
- */
 export function isOAuthFlowValue(v: unknown): v is {
   readonly authorizationUrl?: string
   readonly tokenUrl?: string

@@ -31,10 +31,6 @@ type Endpoint = {
 
 const MAX_SCHEMA_DEPTH = 50
 
-// ---------------------------------------------------------------------------
-// Slug / anchor helpers
-// ---------------------------------------------------------------------------
-
 /**
  * Converts text to a widdershins-compatible slug for HTML id attributes.
  * Lowercases ASCII, keeps non-ASCII (e.g. Japanese), removes special chars.
@@ -256,10 +252,6 @@ function makeExampleFromSchema(
   return makeDefaultValue(schema)
 }
 
-// ---------------------------------------------------------------------------
-// Security helpers
-// ---------------------------------------------------------------------------
-
 function extractSecurityRequirements(
   security: Operation['security'] | undefined,
 ): readonly { readonly [k: string]: readonly string[] }[] {
@@ -320,9 +312,6 @@ function makeAuthenticationSection(
   return lines
 }
 
-/**
- * Generates <aside> tag content for an endpoint's security requirements.
- */
 function makeAsideAuth(
   operation: Operation,
   globalSecurity: OpenAPI['security'] | undefined,
@@ -333,8 +322,6 @@ function makeAsideAuth(
   if (reqs.length === 0) {
     return ['<aside class="success">', 'This operation does not require authentication', '</aside>']
   }
-
-  // Build auth method descriptions matching widdershins format
   const methods: string[] = []
   for (const req of reqs) {
     if (!isRecord(req)) continue
@@ -367,17 +354,11 @@ function makeAsideAuth(
   ]
 }
 
-// ---------------------------------------------------------------------------
-// Code sample helpers (hono request)
-// ---------------------------------------------------------------------------
-
 function makeCodeSampleHeaders(
   operation: Operation,
   securitySchemes: Components['securitySchemes'] | undefined,
 ): string[] {
   const headers: string[] = []
-
-  // Content-Type for request body
   if (
     operation.requestBody &&
     isRequestBody(operation.requestBody) &&
@@ -392,16 +373,12 @@ function makeCodeSampleHeaders(
       headers.push("  -H 'Content-Type: application/x-www-form-urlencoded'")
     }
   }
-
-  // Accept header based on response content types
   const hasJsonResponse = Object.values(operation.responses).some(
     (response) => response.content?.['application/json'],
   )
   if (hasJsonResponse) {
     headers.push("  -H 'Accept: application/json'")
   }
-
-  // Auth headers – use shell-style ${VAR} so users can `export` and paste
   const security = operation.security
   const reqs = extractSecurityRequirements(security)
   if (reqs.length > 0 && securitySchemes) {
@@ -437,7 +414,6 @@ function makeCodeSampleHeaders(
           }
         }
       }
-      // Only use first security requirement for code sample
       break
     }
   }
@@ -526,39 +502,25 @@ function makeCodeSampleCurl(
   const fullPath = `${basePathPrefix}${pathStr}`
   const body = makeCodeSampleBody(operation, components)
   const isGet = method === 'get'
-
-  // Quote URL if it contains path parameters (curly braces)
   const url = fullPath.includes('{') ? `'${baseUrl}${fullPath}'` : `${baseUrl}${fullPath}`
-
   const remaining: string[] = []
-
-  // Omit -X for GET (curl default)
   if (!isGet) {
     remaining.push(`  -X ${method.toUpperCase()}`)
   }
-
   remaining.push(...headers)
-
   if (body) {
     remaining.push(`  -d '${indentJsonBody(body)}'`)
   }
-
   if (remaining.length === 0) {
     return ['> Code samples', '', '```bash', `curl ${url}`, '```']
   }
-
   const cmdParts = [
     `curl ${url} \\`,
     ...remaining.slice(0, -1).map((r) => `${r} \\`),
     remaining[remaining.length - 1],
   ]
-
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }
-
-// ---------------------------------------------------------------------------
-// Parameters / Responses / Schema tables (widdershins format)
-// ---------------------------------------------------------------------------
 
 function isParameter(value: unknown): value is Parameter {
   return typeof value === 'object' && value !== null && 'name' in value && 'in' in value
@@ -688,16 +650,13 @@ function makeParametersTable(
   operationParams: readonly Parameter[],
   components: Components | undefined,
 ): string[] {
-  type Row = {
+  const rows: {
     name: string
     in_: string
     type: string
     required: string
     description: string
-  }
-  const rows: Row[] = []
-
-  // Path, query, header, cookie parameters
+  }[] = []
   const seen = new Set<string>()
   for (const p of operationParams) {
     const key = `${p.name}:${p.in}`
@@ -738,8 +697,6 @@ function makeParametersTable(
       required: isRequired ? 'true' : 'false',
       description: 'none',
     })
-
-    // Flatten sub-fields
     const resolvedRef = bodySchema.$ref ? resolveRef(bodySchema.$ref, components) : undefined
     const resolved = isSchemaLike(resolvedRef) ? resolvedRef : bodySchema
     const subFields = flattenBodyParams(resolved, components, '', new Set())
@@ -960,10 +917,6 @@ function makeResponseSchemaSection(
   return lines
 }
 
-// ---------------------------------------------------------------------------
-// Response examples
-// ---------------------------------------------------------------------------
-
 function makeResponseExamples(
   responses: Operation['responses'],
   components: Components | undefined,
@@ -990,10 +943,6 @@ function makeResponseExamples(
   return lines
 }
 
-// ---------------------------------------------------------------------------
-// Body parameter helpers
-// ---------------------------------------------------------------------------
-
 function getBodySchema(
   requestBody: Operation['requestBody'] | undefined,
   components: Components | undefined,
@@ -1005,10 +954,6 @@ function getBodySchema(
   if (!(mediaEntry && isMedia(mediaEntry) && mediaEntry.schema)) return undefined
   return mediaEntry.schema
 }
-
-// ---------------------------------------------------------------------------
-// Enumerated values
-// ---------------------------------------------------------------------------
 
 function collectEnumeratedValues(
   operation: Operation,
@@ -1057,10 +1002,6 @@ function collectEnumeratedValues(
     '',
   ]
 }
-
-// ---------------------------------------------------------------------------
-// Schemas section (end of document)
-// ---------------------------------------------------------------------------
 
 function flattenSchemaProperties(
   schema: Schema,
@@ -1183,10 +1124,6 @@ function makeSchemasSection(
   return lines
 }
 
-// ---------------------------------------------------------------------------
-// Endpoint collection & grouping
-// ---------------------------------------------------------------------------
-
 function collectEndpoints(openAPI: OpenAPI): readonly Endpoint[] {
   if (!openAPI.paths) return []
   return Object.entries(openAPI.paths).flatMap(([pathStr, pathItem]) => {
@@ -1205,18 +1142,22 @@ type TagGroup = {
   endpoints: Endpoint[]
 }
 
-function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly TagGroup[] {
+function groupByTag(
+  endpoints: readonly Endpoint[],
+  openAPI: OpenAPI,
+): readonly {
+  name: string
+  description?: string
+  endpoints: Endpoint[]
+}[] {
   const tagMap = new Map<string, Endpoint[]>()
   const tagOrder: string[] = []
-
-  // Pre-populate tag order from openAPI.tags
   if (openAPI.tags) {
     for (const tag of openAPI.tags) {
       tagOrder.push(tag.name)
       tagMap.set(tag.name, [])
     }
   }
-
   for (const ep of endpoints) {
     const tags = ep.operation.tags
     if (tags && tags.length > 0) {
@@ -1235,14 +1176,12 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
       tagMap.get('Default')?.push(ep)
     }
   }
-
   const tagDescriptions = new Map<string, string>()
   if (openAPI.tags) {
     for (const tag of openAPI.tags) {
       if (tag.description) tagDescriptions.set(tag.name, tag.description)
     }
   }
-
   return tagOrder
     .filter((name) => tagMap.has(name) && (tagMap.get(name)?.length ?? 0) > 0)
     .map((name) => {
@@ -1252,10 +1191,6 @@ function groupByTag(endpoints: readonly Endpoint[], openAPI: OpenAPI): readonly 
       return group
     })
 }
-
-// ---------------------------------------------------------------------------
-// Main export: makeDocs
-// ---------------------------------------------------------------------------
 
 /**
  * Makes API reference Markdown from an OpenAPI specification.
@@ -1272,34 +1207,22 @@ export function makeDocs(
   const version = openAPI.info?.version ?? ''
   const fullTitle = version ? `${title} v${version}` : title
   const titleSlug = toTitleSlug(title)
-
   const securitySchemes = openAPI.components?.securitySchemes
-
   const lines: string[] = []
-
-  // ── Title ──
   lines.push(`<h1 id="${titleSlug}">${fullTitle}</h1>`, '')
-
-  // ── Scroll Down Message ──
   lines.push(
     '> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.',
     '',
   )
-
-  // ── API Description ──
   if (openAPI.info?.description) {
     lines.push(openAPI.info.description.trimEnd(), '')
   }
-
-  // ── Base URLs ──
   if (openAPI.servers && openAPI.servers.length > 0) {
     lines.push('Base URLs:', '')
     for (const server of openAPI.servers) {
       lines.push(`* <a href="${server.url}">${server.url}</a>`, '')
     }
   }
-
-  // ── Contact / License ──
   if (openAPI.info?.contact?.email && openAPI.info?.contact?.name) {
     lines.push(
       `Email: <a href="mailto:${openAPI.info.contact.email}">${openAPI.info.contact.name}</a> `,
@@ -1316,38 +1239,24 @@ export function makeDocs(
   if (openAPI.info?.contact?.email || openAPI.info?.license) {
     lines.push('')
   }
-
-  // ── Authentication Section ──
   const authLines = makeAuthenticationSection(securitySchemes)
   if (authLines.length > 0) {
     lines.push(...authLines)
   }
-
-  // ── Endpoints by Tag ──
   const endpoints = collectEndpoints(openAPI)
   const tagGroups = groupByTag(endpoints, openAPI)
-
   for (const group of tagGroups) {
-    // Tag heading
     const tagSlug = toSlug(group.name)
     lines.push(`<h1 id="${titleSlug}-${tagSlug}">${group.name}</h1>`, '')
-
     if (group.description) {
       lines.push(group.description, '')
     }
-
     for (const { method, path: pathStr, operation } of group.endpoints) {
-      // Endpoint heading
       const heading = operation.summary ?? operation.operationId ?? `${method}${pathStr}`
-
       lines.push(`## ${heading}`, '')
-
-      // operationId anchor
       if (operation.operationId) {
         lines.push(`<a id="opId${operation.operationId}"></a>`, '')
       }
-
-      // Code sample
       const codeSampleLines =
         curl && baseUrl
           ? makeCodeSampleCurl(
@@ -1369,24 +1278,16 @@ export function makeDocs(
               entry,
             )
       lines.push(...codeSampleLines, '')
-
-      // Method + path
       lines.push(`\`${method.toUpperCase()} ${pathStr}\``, '')
-
-      // Description
       if (operation.description) {
         lines.push(operation.description, '')
       }
-
-      // Body parameter
       const bodySchema = getBodySchema(operation.requestBody, openAPI.components)
       if (bodySchema) {
         const bodyExample = makeExampleFromSchema(bodySchema, openAPI.components)
         const bodyJson = JSON.stringify(bodyExample, null, 2)
         lines.push('> Body parameter', '', '```json', bodyJson, '```', '')
       }
-
-      // Parameters table
       const pathParams = getPathParameters(openAPI, pathStr)
       const operationParams = resolveOperationParameters(operation, openAPI.components)
       const paramLines = makeParametersTable(
@@ -1398,40 +1299,27 @@ export function makeDocs(
       if (paramLines.length > 0) {
         lines.push(...paramLines)
       }
-
-      // Enumerated values (for parameters)
       const enumLines = collectEnumeratedValues(operation, openAPI.components)
       if (enumLines.length > 0) {
         lines.push(...enumLines)
       }
-
-      // Response examples
       const responseExampleLines = makeResponseExamples(operation.responses, openAPI.components)
       if (responseExampleLines.length > 0) {
         lines.push('> Example responses', '', ...responseExampleLines)
       }
-
-      // Responses table
       const responsesTableLines = makeResponsesTable(operation, openAPI.components)
       lines.push(...responsesTableLines)
-
-      // Response Schema section (only for inline schemas)
       const responseSchemaLines = makeResponseSchemaSection(operation, openAPI.components)
       if (responseSchemaLines.length > 0) {
         lines.push(...responseSchemaLines)
       }
-
-      // Authentication aside
       const asideLines = makeAsideAuth(operation, openAPI.security, securitySchemes)
       lines.push(...asideLines, '')
     }
   }
-
-  // ── Schemas Section ──
   const schemasLines = makeSchemasSection(openAPI.components?.schemas, openAPI.components)
   if (schemasLines.length > 0) {
     lines.push(...schemasLines)
   }
-
   return lines.join('\n')
 }

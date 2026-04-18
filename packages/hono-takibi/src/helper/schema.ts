@@ -42,12 +42,10 @@ export function makeSchemaInfo(
   const zSchema = analysis.zSchemaMap.get(schemaName) ?? ''
   const safeSchemaName = toIdentifierPascalCase(schemaName)
   const variableName = toIdentifierPascalCase(ensureSuffix(schemaName, 'Schema'))
-
   const isCircular = analysis.cyclicSchemas.has(schemaName)
   const isSelfReferencing = zSchema.includes(variableName)
   const needsLazy = isCircular || isSelfReferencing
   const needsTypeDef = needsLazy || analysis.extendedCyclicSchemas.has(schemaName)
-
   return { schemaName, schema, zSchema, safeSchemaName, variableName, needsLazy, needsTypeDef }
 }
 
@@ -102,12 +100,10 @@ export function makeSchemaCode(
 ): string {
   const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
   const returnType = info.needsTypeDef ? `:z.ZodType<${info.safeSchemaName}Type>` : ''
-
   const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}.openapi('${info.safeSchemaName}')`
   const zodInferCode = options.exportType
     ? `\n\nexport type ${info.safeSchemaName}=z.infer<typeof ${info.variableName}>`
     : ''
-
   return `${schemaCode}${zodInferCode}`
 }
 
@@ -165,11 +161,9 @@ export function makeTypeDefinitions(
   const initialTypeDefs = infos
     .filter((info) => info.needsTypeDef)
     .map((info) => makeTypeDefinition(info, cyclicGroupPascal, readonly))
-
   const generatedTypeNames = new Set(
     infos.filter((info) => info.needsTypeDef).map((info) => `${info.safeSchemaName}Type`),
   )
-
   const referencedTypes = new Set(
     initialTypeDefs.flatMap((typeDef) =>
       Array.from(typeDef.matchAll(/(\w+Type)\b/g), (match) => match[1]).filter(
@@ -177,7 +171,6 @@ export function makeTypeDefinitions(
       ),
     ),
   )
-
   const additionalTypeDefs = Array.from(referencedTypes)
     .filter((refType) => !generatedTypeNames.has(refType))
     .flatMap((refType) => {
@@ -185,7 +178,6 @@ export function makeTypeDefinitions(
       const schema = schemas[schemaName]
       return schema ? [zodType(schema, schemaName, cyclicGroupPascal, readonly)] : []
     })
-
   return [...initialTypeDefs, ...additionalTypeDefs]
 }
 
@@ -246,24 +238,20 @@ export function makeSplitSchemaFile(
   readonly?: boolean,
 ): string {
   const info = makeSchemaInfo(schemaName, schema, analysis)
-
   const typeDefinition = info.needsTypeDef
     ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal, readonly)}\n\n`
     : ''
-
   const schemaCode = makeSchemaCode(info, {
     exportKeyword: 'export ',
     exportType,
     ...(readonly !== undefined ? { readonly } : {}),
   })
   const content = `${typeDefinition}${schemaCode}`
-
   const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)
   const depImports =
     deps.length > 0
       ? deps.map((d) => renderNamedImport([`${d}Schema`], `./${uncapitalize(d)}`)).join('\n')
       : ''
-
   const importZ = renderNamedImport(['z'], '@hono/zod-openapi')
   return [importZ, depImports, '\n', content].filter(Boolean).join('\n')
 }

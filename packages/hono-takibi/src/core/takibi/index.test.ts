@@ -143,7 +143,7 @@ describe('takibi generate (sandbox)', () => {
 
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value).toMatch('Generated code written to')
+        expect(result.value).toBe(`🔥 Generated code written to ${out}`)
       }
 
       const generatedCode = fs.readFileSync(out, 'utf-8')
@@ -231,7 +231,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const templateResult = await template(openapi, out, true, '/', undefined, undefined, false)
       expect(templateResult.ok).toBe(true)
       if (templateResult.ok) {
-        expect(templateResult.value).toMatch('Generated code and template files written')
+        expect(templateResult.value).toBe('🔥 Generated code and template files written')
       }
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
