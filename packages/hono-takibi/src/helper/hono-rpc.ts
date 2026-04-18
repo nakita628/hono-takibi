@@ -9,21 +9,49 @@ import {
   isValidIdent,
 } from '../guard/index.js'
 
-/**
- * Escape special characters for string literals.
- */
 function makeEscaped(s: string) {
   return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 }
 
-/**
- * Format path for Hono RPC access (both type and runtime).
- *
- * When `hasBasePath` is true, the root path `/` is accessed directly
- * on the client (e.g. `client.$get`) instead of via `.index`
- * (e.g. `client.index.$get`), because stripping the basePath from
- * the Hono client removes the `.index` accessor for the root.
- */
+function refParamName(refLike: unknown): string | undefined {
+  const ref =
+    typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
+  const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
+  return m ? m[1] : undefined
+}
+
+function makeResolveParameter(componentsParameters: { readonly [k: string]: unknown }) {
+  return (
+    p: unknown,
+  ):
+    | { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }
+    | undefined => {
+    if (isParameterObject(p)) return p
+    const name = refParamName(p)
+    const cand = name ? componentsParameters[name] : undefined
+    return isParameterObject(cand) ? cand : undefined
+  }
+}
+
+function makeToParameterLikes(
+  resolveParam: (p: unknown) =>
+    | {
+        readonly name: string
+        readonly in: 'path' | 'query' | 'header' | 'cookie'
+        readonly required?: boolean
+      }
+    | undefined,
+) {
+  return (
+    arr?: unknown,
+  ): readonly {
+    readonly name: string
+    readonly in: 'path' | 'query' | 'header' | 'cookie'
+    readonly required?: boolean
+  }[] =>
+    Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
+}
+
 export function formatPath(
   p: string,
   hasBasePath?: boolean,
@@ -52,85 +80,27 @@ export function formatPath(
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
   if (p !== '/' && p.endsWith('/')) segs.push('index')
   const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
-
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
-
   const runtimeParts = honoSegs.map((seg) =>
     isValidIdent(seg) ? `.${seg}` : `['${makeEscaped(seg)}']`,
   )
   const runtimePath = runtimeParts.join('')
-
   const typeofPrefix = hasBracket
     ? honoSegs
         .slice(0, firstBracketIdx)
         .map((seg) => `.${seg}`)
         .join('')
     : runtimePath
-
   const bracketSuffix = hasBracket
     ? honoSegs
         .slice(firstBracketIdx)
         .map((seg) => `['${makeEscaped(seg)}']`)
         .join('')
     : ''
-
   return { runtimePath, typeofPrefix, bracketSuffix, hasBracket }
 }
 
-/* ─────────────────────────────── Parameters ($ref) ─────────────────────────────── */
-
-/**
- * Extract parameter name from $ref.
- */
-function refParamName(refLike: unknown): string | undefined {
-  const ref =
-    typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
-  const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
-  return m ? m[1] : undefined
-}
-
-/**
- * Create parameter resolver function.
- */
-function makeResolveParameter(componentsParameters: { readonly [k: string]: unknown }) {
-  return (
-    p: unknown,
-  ):
-    | { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }
-    | undefined => {
-    if (isParameterObject(p)) return p
-    const name = refParamName(p)
-    const cand = name ? componentsParameters[name] : undefined
-    return isParameterObject(cand) ? cand : undefined
-  }
-}
-
-/**
- * Create function to convert parameter array to ParameterLike array.
- */
-function makeToParameterLikes(
-  resolveParam: (p: unknown) =>
-    | {
-        readonly name: string
-        readonly in: 'path' | 'query' | 'header' | 'cookie'
-        readonly required?: boolean
-      }
-    | undefined,
-) {
-  return (
-    arr?: unknown,
-  ): readonly {
-    readonly name: string
-    readonly in: 'path' | 'query' | 'header' | 'cookie'
-    readonly required?: boolean
-  }[] =>
-    Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
-}
-
-/**
- * Check if operation has No Content response (204 or 205).
- */
 export function hasNoContentResponse(op: {
   readonly summary?: string
   readonly description?: string
@@ -146,14 +116,6 @@ export function hasNoContentResponse(op: {
   })
 }
 
-/**
- * All body info grouped by type.
- */
-// export type AllBodyInfo = { form: { contentType: string }[]; json: { contentType: string }[] }
-
-/**
- * Extract requestBody name from $ref.
- */
 function refRequestBodyName(refLike: unknown): string | undefined {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
@@ -161,40 +123,27 @@ function refRequestBodyName(refLike: unknown): string | undefined {
   return m ? m[1] : undefined
 }
 
-/**
- * Collect all body infos from content.
- */
 function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
-
   const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
-
   const isFormContentType = (ct: string): boolean =>
     formContentTypes.includes(ct.split(';')[0].trim())
-
   const validEntries = Object.entries(content).filter(
     ([_, mediaObj]) =>
       isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
-
   const formInfos = validEntries
     .filter(([ct]) => isFormContentType(ct))
     .map(([ct]) => ({ contentType: ct }))
-
   const jsonInfos = validEntries
     .filter(([ct]) => !isFormContentType(ct))
     .map(([ct]) => ({ contentType: ct }))
-
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
-
   return { form: formInfos, json: jsonInfos }
 }
 
-/**
- * Create function to pick body info from operation.
- */
 function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: unknown }) {
-  return (op: {
+  return (operation: {
     summary?: string
     description?: string
     parameters?: unknown
@@ -206,9 +155,8 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
         readonly json: readonly { readonly contentType: string }[]
       }
     | undefined => {
-    const requestBody = op.requestBody
+    const requestBody = operation.requestBody
     if (!isRecord(requestBody)) return undefined
-
     const refName = refRequestBodyName(requestBody)
     if (refName) {
       const resolved = componentsRequestBodies[refName]
@@ -218,28 +166,17 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
       if (resolved !== undefined) return { form: [], json: [{ contentType: 'application/json' }] }
       return undefined
     }
-
     return pickAllBodyInfoFromContent(requestBody.content)
   }
 }
 
-/* ─────────────────────────────── Split mode ─────────────────────────────── */
-
-/**
- * Resolve output directory for split mode.
- */
 export function resolveSplitOutDir(output: string) {
   const outDir = output.endsWith('.ts') ? path.dirname(output) : output
   const indexPath = path.join(outDir, 'index.ts')
   return { outDir, indexPath }
 }
 
-/* ─────────────────────────────── Path item parsing ─────────────────────────────── */
-
-/**
- * Parse raw path item to PathItemLike.
- */
-export function parsePathItem(rawItem: { [key: string]: unknown }): {
+export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
   parameters?: unknown
 } & {
   readonly [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
@@ -265,9 +202,6 @@ export function parsePathItem(rawItem: { [key: string]: unknown }): {
   }
 }
 
-/**
- * Build parseResponse return type expression.
- */
 export function makeParseResponseType(
   clientName: string,
   pathResult: {
@@ -285,9 +219,6 @@ export function makeParseResponseType(
   return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${clientMethodType}>>>>>`
 }
 
-/**
- * Create operation dependencies from OpenAPI components.
- */
 export function makeOperationDeps(
   clientName: string,
   componentsParameters: { readonly [k: string]: unknown },
@@ -298,9 +229,6 @@ export function makeOperationDeps(
   return { client: clientName, toParameterLikes, pickAllBodyInfo }
 }
 
-/**
- * Check if operation has arguments (parameters or body).
- */
 export function operationHasArgs(
   item: {
     parameters?: unknown
@@ -315,7 +243,7 @@ export function operationHasArgs(
         }
       | undefined
   },
-  op: {
+  operation: {
     readonly summary?: string
     readonly description?: string
     readonly parameters?: unknown
@@ -327,7 +255,7 @@ export function operationHasArgs(
     readonly toParameterLikes: (
       arr?: unknown,
     ) => readonly { name: string; in: 'path' | 'query' | 'header' | 'cookie'; required?: boolean }[]
-    pickAllBodyInfo: (op: {
+    pickAllBodyInfo: (operation: {
       readonly summary?: string
       readonly description?: string
       readonly parameters?: unknown
@@ -343,14 +271,14 @@ export function operationHasArgs(
 ): boolean {
   const allParams = [
     ...deps.toParameterLikes(item.parameters),
-    ...deps.toParameterLikes(op.parameters),
+    ...deps.toParameterLikes(operation.parameters),
   ]
   const hasParams =
     allParams.filter((p) => p.in === 'path').length > 0 ||
     allParams.filter((p) => p.in === 'query').length > 0 ||
     allParams.filter((p) => p.in === 'header').length > 0 ||
     allParams.filter((p) => p.in === 'cookie').length > 0
-  const allBodyInfo = deps.pickAllBodyInfo(op)
+  const allBodyInfo = deps.pickAllBodyInfo(operation)
   const hasBody =
     allBodyInfo !== undefined && (allBodyInfo.form.length > 0 || allBodyInfo.json.length > 0)
   return hasParams || hasBody

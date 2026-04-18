@@ -293,9 +293,6 @@ export function error(message: string): string {
   return `{error:${JSON.stringify(message)}}`
 }
 
-/**
- * Build InferRequestType expression.
- */
 export function makeInferRequestType(
   clientName: string,
   pathResult: {

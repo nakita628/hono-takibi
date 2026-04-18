@@ -260,10 +260,8 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
 
   const existingImports = parseDeclarations(existingFile)
   const generatedImports = parseDeclarations(generatedFile)
-
   // Detect if a name is auto-generated (Route or Handler suffix)
   const isAutoName = (name: string): boolean => name.endsWith('Route') || name.endsWith('Handler')
-
   // Collect auto-generated names as source of truth
   const generatedAutoNames = new Set<string>()
   // Map: auto-name → module specifier in generated code (canonical path)
@@ -282,19 +280,19 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
     }
   }
 
-  // Filter existing imports:
-  // - Remove auto-names not in generated (deleted routes)
-  // - Remove auto-names imported from a different module specifier (path-alias changed)
-  // - Clear default imports when the same name is generated from a different module specifier
+  /**
+   *Filter existing imports:
+   * - Remove auto-names not in generated (deleted routes)
+   * - Remove auto-names imported from a different module specifier (path-alias changed)
+   * - Clear default imports when the same name is generated from a different module specifier
+   */
   const filteredExistingImports = existingImports.map((importEntry) => {
-    // Clear default import if generated code imports the same name from a different path
     const defaultImport =
       importEntry.defaultImport !== undefined &&
       generatedDefaultImportModules.has(importEntry.defaultImport) &&
       generatedDefaultImportModules.get(importEntry.defaultImport) !== importEntry.moduleSpecifier
         ? undefined
         : importEntry.defaultImport
-
     return {
       ...importEntry,
       defaultImport,
@@ -306,8 +304,6 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
       }),
     }
   })
-
-  // Build merged import map (existing first, then generated overrides isTypeOnlyImport)
   const importMap = new Map<
     string,
     {
@@ -317,10 +313,8 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
       namespaceImport?: string
     }
   >()
-
   for (const entry of [...filteredExistingImports, ...generatedImports]) {
     const prev = importMap.get(entry.moduleSpecifier)
-
     const mergedNamedImports = new Map(prev?.namedImports ?? [])
     for (const namedImport of entry.namedImports) {
       const prevTypeOnly = mergedNamedImports.get(namedImport.name)
@@ -331,10 +325,8 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
           : prevTypeOnly && namedImport.isTypeOnly,
       )
     }
-
     const defaultImport = entry.defaultImport ?? prev?.defaultImport
     const namespaceImport = entry.namespaceImport ?? prev?.namespaceImport
-
     importMap.set(entry.moduleSpecifier, {
       namedImports: mergedNamedImports,
       isTypeOnlyImport: prev
@@ -356,7 +348,6 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
               )
               .join(', ')} }`
           : undefined
-
       const importParts = [
         info.defaultImport,
         info.namespaceImport ? `* as ${info.namespaceImport}` : undefined,
@@ -381,11 +372,9 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
 function extractChainPrefix(apiStmtText: string): string {
   const initMatch = apiStmtText.match(/=\s*app\b/)
   if (!initMatch || initMatch.index === undefined) return ''
-
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
-
   return afterApp.slice(0, routeMatch.index).trim()
 }
 
@@ -422,16 +411,13 @@ function extractOpenApiCalls(code: string): Map<string, string> {
 function mergeInlineHandler(existingText: string, generatedText: string): string {
   const generatedCalls = extractOpenApiCalls(generatedText)
   if (generatedCalls.size === 0) return generatedText
-
   const existingCalls = extractOpenApiCalls(existingText)
   const firstCallMatch = generatedText.match(/\.openapi\s*\(/)
   if (!firstCallMatch || firstCallMatch.index === undefined) return generatedText
   const prefix = generatedText.slice(0, firstCallMatch.index).trimEnd()
-
   const mergedCalls = [...generatedCalls.entries()].map(
     ([routeName, genCall]) => existingCalls.get(routeName) ?? genCall,
   )
-
   return `${prefix}\n${mergedCalls.join('\n')}`
 }
 
@@ -445,7 +431,6 @@ function extractMockFunctions(
   code: string,
 ): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
   const regex = /function\s+(mock[A-Z]\w*)\s*\([^)]*\)\s*\{/g
-
   return new Map(
     [...code.matchAll(regex)]
       .filter((match) => match.index !== undefined)
@@ -470,7 +455,6 @@ function extractRouteDescribeBlocks(
   code: string,
 ): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
   const regex = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
-
   return new Map(
     [...code.matchAll(regex)]
       .filter((match) => match.index !== undefined)
@@ -505,22 +489,18 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
   const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
   const generatedRoutes = new Set(generatedBlocks.keys())
   const existingRoutes = new Set(existingBlocks.keys())
-
   // 2. Stale routes: in existing but not in generated → remove
   const staleRanges = [...existingBlocks.entries()]
     .filter(([route]) => !generatedRoutes.has(route))
     .map(([, block]): [number, number] => [block.start, block.end])
     .toSorted((a, b) => a[0] - b[0])
-
   // 3. New routes: in generated but not in existing → add
   const newBlocks = [...generatedBlocks.entries()]
     .filter(([route]) => !existingRoutes.has(route))
     .map(([, block]) => block.text)
-
   // 4. Merge imports (reuses the same Project — no redundant creation)
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
   const mergedImports = mergeImports(existingFile, generatedFile)
-
   const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
   const generatedTestModule = generatedFile
     .getImportDeclarations()
@@ -532,10 +512,8 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
         return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
       })
     : mergedImports
-
   // 5. Find body start (after imports) in existing code
   const bodyStart = getBodyStart(existingFile)
-
   // 6. Build body by removing stale describe blocks from original text
   const filteredRanges = staleRanges.filter(([start]) => start >= bodyStart)
   const bodyWithStaleRemoved = applyRangeOps(
@@ -543,16 +521,13 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
     bodyStart,
     filteredRanges.map(([start, end]): readonly [number, number, string] => [start, end, '']),
   ).replace(/\n{3,}/g, '\n\n')
-
   // 7. Merge mock functions: add missing mock functions from generated code
   const existingMocks = extractMockFunctions(existingCode)
   const generatedMocks = extractMockFunctions(generatedCode)
   const missingMocks = [...generatedMocks.entries()]
     .filter(([name]) => !existingMocks.has(name))
     .map(([, block]) => block.text)
-
   const bodyWithRemovals = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
-
   if (newBlocks.length === 0) {
     const parts = [
       filteredImports.length > 0 ? filteredImports.join('\n') : '',
@@ -560,11 +535,9 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
     ].filter(Boolean)
     return `${parts.join('\n\n')}\n`
   }
-
   // 8. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
   const lines = bodyWithRemovals.split('\n')
   const insertLineIndex = lines.findLastIndex((line: string) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
-
   const modifiedLines =
     insertLineIndex !== -1
       ? [
@@ -574,7 +547,6 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
           ...lines.slice(insertLineIndex),
         ]
       : [...lines, '', ...newBlocks]
-
   const body = modifiedLines.join('\n').trim()
   const parts = [filteredImports.length > 0 ? filteredImports.join('\n') : '', body].filter(Boolean)
   return `${parts.join('\n\n')}\n`

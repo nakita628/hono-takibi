@@ -33,13 +33,11 @@ export async function makeExports(
 > {
   const keys = Object.keys(value)
   const outDir = output.replace(/\.ts$/, '')
-
   // sort abc
   const indexCode = `${keys
     .sort()
     .map((v) => `export * from './${uncapitalize(v)}.ts'`)
     .join('\n')}\n`
-
   const asConst = readonly ? ' as const' : ''
   const results = await Promise.all([
     ...keys.map((key) => {
@@ -51,10 +49,8 @@ export async function makeExports(
     }),
     core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
   ])
-
-  const firstError = results.find((r) => !r.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-
   return {
     ok: true,
     value: `Generated ${suffix} code written to ${outDir}/*.ts (index.ts included)`,
