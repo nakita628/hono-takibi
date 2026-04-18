@@ -26,7 +26,7 @@ export function app(
   output: string,
   basePath: string,
   pathAlias: string | undefined,
-  routeImport: string | undefined = undefined,
+  routeImport?: string | undefined,
   routeHandler = false,
 ) {
   const getRouteMaps = (

@@ -118,7 +118,7 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
 function makePaths(
   output: string,
   pathAlias: string | undefined,
-  routeImport: string | undefined = undefined,
+  routeImport?: string | undefined,
 ): {
   readonly handlerPath: string
   readonly importFrom: string
@@ -439,8 +439,8 @@ export async function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
-  pathAlias: string | undefined = undefined,
-  routeImport: string | undefined = undefined,
+  pathAlias?: string | undefined,
+  routeImport?: string | undefined,
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
@@ -547,8 +547,8 @@ export async function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
-  pathAlias: string | undefined = undefined,
-  routeImport: string | undefined = undefined,
+  pathAlias?: string | undefined,
+  routeImport?: string | undefined,
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',

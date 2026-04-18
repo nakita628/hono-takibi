@@ -29,13 +29,19 @@ function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string>
     }
   }
   if (schema.allOf) {
-    for (const s of schema.allOf) collectRefs(s, refs)
+    for (const s of schema.allOf) {
+      collectRefs(s, refs)
+    }
   }
   if (schema.oneOf) {
-    for (const s of schema.oneOf) collectRefs(s, refs)
+    for (const s of schema.oneOf) {
+      collectRefs(s, refs)
+    }
   }
   if (schema.anyOf) {
-    for (const s of schema.anyOf) collectRefs(s, refs)
+    for (const s of schema.anyOf) {
+      collectRefs(s, refs)
+    }
   }
   return refs
 }
@@ -118,66 +124,68 @@ function makeMockFunction(
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
-): string {
+) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
   return `function mock${sanitizeMockName(name)}()${returnType} {\n  return ${mockBody}\n}`
-}
-
-/* ── Security helpers ──────────────────────────────────────────────── */
-
-type SecurityInfo = {
-  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  readonly name: string
-  readonly in?: 'header' | 'query' | 'cookie'
 }
 
 function extractSecurityInfo(
   opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
   securitySchemes: { readonly [k: string]: unknown } | undefined,
-): readonly SecurityInfo[] {
+): readonly {
+  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+  readonly name: string
+  readonly in?: 'header' | 'query' | 'cookie'
+}[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
   return securityDefs.flatMap((secDef) =>
-    Object.keys(secDef).flatMap((schemeName): readonly SecurityInfo[] => {
-      const scheme = securitySchemes?.[schemeName]
-      if (!(scheme && isSecurityScheme(scheme))) return []
-      if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-        return [{ type: 'bearer', name: 'Authorization' }]
-      }
-      if (scheme.type === 'http' && scheme.scheme === 'basic') {
-        return [{ type: 'basic', name: 'Authorization' }]
-      }
-      if (scheme.type === 'apiKey') {
-        const inLocation =
-          scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
-            ? scheme.in
-            : 'header'
-        return [
-          {
-            type: 'apiKey',
-            name: scheme.name || 'X-API-Key',
-            in: inLocation,
-          },
-        ]
-      }
-      if (scheme.type === 'oauth2') {
-        return [{ type: 'oauth2', name: 'Authorization' }]
-      }
-      return []
-    }),
+    Object.keys(secDef).flatMap(
+      (
+        schemeName,
+      ): readonly {
+        readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+        readonly name: string
+        readonly in?: 'header' | 'query' | 'cookie'
+      }[] => {
+        const scheme = securitySchemes?.[schemeName]
+        if (!(scheme && isSecurityScheme(scheme))) return []
+        if (scheme.type === 'http' && scheme.scheme === 'bearer') {
+          return [{ type: 'bearer', name: 'Authorization' }]
+        }
+        if (scheme.type === 'http' && scheme.scheme === 'basic') {
+          return [{ type: 'basic', name: 'Authorization' }]
+        }
+        if (scheme.type === 'apiKey') {
+          const inLocation =
+            scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
+              ? scheme.in
+              : 'header'
+          return [
+            {
+              type: 'apiKey',
+              name: scheme.name || 'X-API-Key',
+              in: inLocation,
+            },
+          ]
+        }
+        if (scheme.type === 'oauth2') {
+          return [{ type: 'oauth2', name: 'Authorization' }]
+        }
+        return []
+      },
+    ),
   )
 }
 
 function hasRequestBodyContent(
-  op: unknown,
-): op is { requestBody: { content: { readonly [k: string]: unknown } } } {
-  if (typeof op !== 'object' || op === null) return false
-  if (!('requestBody' in op)) return false
-  const opWithBody: { requestBody?: unknown } = op
-  const rb = opWithBody.requestBody
-  if (typeof rb !== 'object' || rb === null) return false
-  return 'content' in rb
+  operation: unknown,
+): operation is { requestBody: { content: { readonly [k: string]: unknown } } } {
+  if (typeof operation !== 'object' || operation === null) return false
+  if (!('requestBody' in operation)) return false
+  if (typeof operation.requestBody !== 'object' || operation.requestBody === null) return false
+  return 'content' in operation.requestBody
 }
 
 /**
@@ -235,7 +243,14 @@ function determineSuccessStatus(responses: { readonly [k: string]: Responses }):
  * Generates the auth check code for a handler.
  * Only emits a check when the route defines a 401 response.
  */
-function makeAuthCheck(security: readonly SecurityInfo[], has401: boolean): string {
+function makeAuthCheck(
+  security: readonly {
+    readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+    readonly name: string
+    readonly in?: 'header' | 'query' | 'cookie'
+  }[],
+  has401: boolean,
+): string {
   if (!has401 || security.length === 0) return ''
   const authChecks = security.flatMap((sec) => {
     if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
@@ -312,7 +327,9 @@ export function makeMock(
         )
         const requiresAuth = security.length > 0
         const successResponse = resolveResponse(
-          operation.responses?.[String(200)] ?? operation.responses?.[String(201)] ?? operation.responses?.[String(204)],
+          operation.responses?.[String(200)] ??
+            operation.responses?.[String(201)] ??
+            operation.responses?.[String(204)],
           componentResponses,
         )
         const jsonMedia = successResponse?.content?.['application/json']

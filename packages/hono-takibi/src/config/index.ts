@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { type FormatOptions } from 'oxfmt'
+import { type FormatConfig } from 'oxfmt'
 import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
@@ -14,7 +14,7 @@ const ConfigSchema = z
       { message: 'must be .yaml | .json | .tsp' },
     ),
     basePath: z.string().exactOptional(),
-    format: z.custom<FormatOptions>(() => true).exactOptional(),
+    format: z.custom<FormatConfig>(() => true).exactOptional(),
     'zod-openapi': z
       .object({
         output: z
@@ -31,7 +31,6 @@ const ConfigSchema = z
             testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
           .exactOptional(),
-        // OpenAPI Components Object order
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
         exportResponses: z.boolean().exactOptional(),
