@@ -36,10 +36,10 @@ function extractSecurityRequirements(
   opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { readonly [k: string]: unknown } | undefined,
-): {
-  type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  name: string
-  in?: 'header' | 'query' | 'cookie'
+): readonly {
+  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
+  readonly name: string
+  readonly in?: 'header' | 'query' | 'cookie'
 }[] {
   const securityDefs = opSecurity ?? globalSecurity ?? []
   return securityDefs.flatMap((secDef) =>
