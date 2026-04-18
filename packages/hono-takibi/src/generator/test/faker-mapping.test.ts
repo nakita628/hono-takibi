@@ -75,6 +75,34 @@ describe('schemaToFaker', () => {
     it.concurrent('$ref without dots is unchanged', () => {
       expect(schemaToFaker({ $ref: '#/components/schemas/UserId' })).toBe('mockUserId()')
     })
+
+    it.concurrent('$ref with trailing slash falls back to mockunknown()', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/' })).toBe('mockunknown()')
+    })
+  })
+
+  describe('oneOf vs anyOf precedence', () => {
+    it.concurrent('prefers oneOf over anyOf when both are present', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [{ type: 'boolean' }],
+          anyOf: [{ type: 'integer' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([faker.datatype.boolean()])')
+    })
+
+    it.concurrent('falls back to anyOf when oneOf is empty', () => {
+      expect(
+        schemaToFaker({
+          oneOf: [],
+          anyOf: [{ type: 'integer' }],
+        }),
+      ).toBe('faker.helpers.arrayElement([faker.number.int({ min: 1, max: 1000 })])')
+    })
+
+    it.concurrent('returns undefined when both oneOf and anyOf are empty', () => {
+      expect(schemaToFaker({ oneOf: [], anyOf: [] })).toBe('undefined')
+    })
   })
 
   describe('array', () => {

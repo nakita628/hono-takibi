@@ -2183,3 +2183,800 @@ describe('makeTestFile - multiple path params with mixed $ref and inline', () =>
     )
   })
 })
+
+// ─── Response status handling ────────────────────────────────────
+
+describe('extractTestCases - default successStatus', () => {
+  it('defaults successStatus to 200 when no 2xx responses defined', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Error Only API', version: '1.0.0' },
+      paths: {
+        '/err': {
+          get: {
+            operationId: 'getErr',
+            responses: {
+              '400': { description: 'Bad Request' },
+              '500': { description: 'Server Error' },
+            },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].successStatus).toBe(200)
+    expect(result[0].errorStatuses).toStrictEqual([400, 500])
+  })
+})
+
+describe('extractTestCases - successStatus picks lowest 2xx', () => {
+  it('picks the lowest 2xx status when multiple are defined', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Multi Success API', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '204': { description: 'No Content' },
+              '201': { description: 'Created' },
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].successStatus).toBe(200)
+  })
+})
+
+describe('extractTestCases - errorStatuses sorted ascending', () => {
+  it('returns errorStatuses in ascending numeric order', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Sorted API', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '500': { description: 'Err' },
+              '200': { description: 'OK' },
+              '400': { description: 'Bad' },
+              '404': { description: 'NF' },
+            },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].errorStatuses).toStrictEqual([400, 404, 500])
+  })
+})
+
+describe('extractTestCases - default response key excluded from errorStatuses', () => {
+  it('excludes the "default" response key from errorStatuses', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Default Key API', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': { description: 'OK' },
+              default: { description: 'Unexpected' },
+            },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].errorStatuses).toStrictEqual([])
+  })
+})
+
+// ─── Security resolution ─────────────────────────────────────────
+
+describe('extractTestCases - global security fallback', () => {
+  it('uses spec-level security when operation has no security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Global Sec API', version: '1.0.0' },
+      security: [{ bearerAuth: [] }],
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'bearer', name: 'Authorization' }])
+  })
+})
+
+describe('extractTestCases - operation security overrides global security', () => {
+  it('operation-level empty security disables global security', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Override Sec API', version: '1.0.0' },
+      security: [{ bearerAuth: [] }],
+      paths: {
+        '/public': {
+          get: {
+            operationId: 'getPublic',
+            security: [],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: { type: 'http', scheme: 'bearer' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([])
+  })
+})
+
+describe('extractTestCases - apiKey in query location', () => {
+  it('registers apiKey with query location', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Api Key Query', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            security: [{ apiKey: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', name: 'api_key', in: 'query' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'api_key', in: 'query' }])
+  })
+})
+
+describe('extractTestCases - apiKey in cookie location', () => {
+  it('registers apiKey with cookie location', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Api Key Cookie', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            security: [{ apiKey: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', name: 'session', in: 'cookie' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'session', in: 'cookie' }])
+  })
+})
+
+describe('extractTestCases - apiKey missing in defaults to header', () => {
+  it('defaults apiKey in to "header" when the in field is missing', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Api Key No In', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            security: [{ apiKey: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', name: 'X-Token' } as never,
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-Token', in: 'header' }])
+  })
+})
+
+describe('extractTestCases - apiKey missing name uses X-API-Key default', () => {
+  it('defaults apiKey name to X-API-Key when scheme.name is missing', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Api Key No Name', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            security: [{ apiKey: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', in: 'header' } as never,
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-API-Key', in: 'header' }])
+  })
+})
+
+// ─── makeTestFile: auth scheme variants ──────────────────────────
+
+describe('makeTestFile - basic auth scheme', () => {
+  it('generates Basic Authorization header using btoa', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Basic API', version: '1.0.0' },
+      paths: {
+        '/me': {
+          get: {
+            operationId: 'getMe',
+            responses: {
+              '200': { description: 'OK' },
+              '401': { description: 'Unauthorized' },
+            },
+          },
+        },
+      },
+      security: [{ basicAuth: [] }],
+      components: {
+        securitySchemes: {
+          basicAuth: { type: 'http', scheme: 'basic' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Basic API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - oauth2 scheme', () => {
+  it('generates Bearer Authorization header for oauth2 scheme', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'OAuth2 API', version: '1.0.0' },
+      paths: {
+        '/me': {
+          get: {
+            operationId: 'getMe',
+            responses: {
+              '200': { description: 'OK' },
+              '401': { description: 'Unauthorized' },
+            },
+          },
+        },
+      },
+      security: [{ oauth2Scheme: [] }],
+      components: {
+        securitySchemes: {
+          oauth2Scheme: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/oauth/authorize',
+                scopes: {},
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('OAuth2 API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - apiKey header auth', () => {
+  it('generates custom header auth for apiKey in header', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Api Key Header', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            responses: {
+              '200': { description: 'OK' },
+              '401': { description: 'Unauthorized' },
+            },
+          },
+        },
+      },
+      security: [{ apiKey: [] }],
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Api Key Header',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-API-Key':faker.string.alphanumeric(32)}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - apiKey in query omits auth header', () => {
+  it('does not emit auth headers for apiKey with in=query', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Query Key API', version: '1.0.0' },
+      paths: {
+        '/data': {
+          get: {
+            operationId: 'getData',
+            responses: {
+              '200': { description: 'OK' },
+              '401': { description: 'Unauthorized' },
+            },
+          },
+        },
+      },
+      security: [{ apiKey: [] }],
+      components: {
+        securitySchemes: {
+          apiKey: { type: 'apiKey', name: 'api_key', in: 'query' },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Query Key API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeTestFile: test framework variants ───────────────────────
+
+describe('makeTestFile - bun test framework', () => {
+  it('imports from "bun:test" when testFramework=bun', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Bun API', version: '1.0.0' },
+      paths: {
+        '/ping': {
+          get: {
+            operationId: 'ping',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/', 'bun')
+    expect(result).toBe(
+      "import{describe,it,expect}from'bun:test'\nimport app from'./app'\n\ndescribe('Bun API',()=>{describe('default',()=>{describe('GET /ping',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/ping`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - vite-plus test framework', () => {
+  it('imports from "vite-plus/test" when testFramework=vite-plus', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Vp API', version: '1.0.0' },
+      paths: {
+        '/ping': {
+          get: {
+            operationId: 'ping',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/', 'vite-plus')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vite-plus/test'\nimport app from'./app'\n\ndescribe('Vp API',()=>{describe('default',()=>{describe('GET /ping',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/ping`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── basePath handling ───────────────────────────────────────────
+
+describe('makeTestFile - basePath prepended to request paths', () => {
+  it('prepends non-root basePath to all request URLs', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Prefixed API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'health',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/api/v1')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Prefixed API',()=>{describe('default',()=>{describe('GET /api/v1/health',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/api/v1/health`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - root path with basePath uses basePath only', () => {
+  it('uses basePath alone when spec path is "/"', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Root Prefix API', version: '1.0.0' },
+      paths: {
+        '/': {
+          get: {
+            operationId: 'getRoot',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec, './app', '/api')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Root Prefix API',()=>{describe('default',()=>{describe('GET /api',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/api`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── Circular schema detection ───────────────────────────────────
+
+describe('makeTestFile - self-referential circular schema', () => {
+  it('adds : any return type to mock function for self-referential schema', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Tree API', version: '1.0.0' },
+      paths: {
+        '/trees': {
+          post: {
+            operationId: 'createTree',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Tree' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Tree: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              children: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Tree' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return {\n    value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]),\n    children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTree())), undefined])\n  }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+describe('makeTestFile - mutually recursive circular schemas', () => {
+  it('adds : any return type to all mock functions in a cycle', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mutual API', version: '1.0.0' },
+      paths: {
+        '/a': {
+          post: {
+            operationId: 'createA',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/A' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          A: {
+            type: 'object',
+            required: ['b'],
+            properties: { b: { $ref: '#/components/schemas/B' } },
+          },
+          B: {
+            type: 'object',
+            required: ['a'],
+            properties: { a: { $ref: '#/components/schemas/A' } },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return {\n    a: mockA()\n  }\n}\n\nfunction mockA(): any {\n  return {\n    b: mockB()\n  }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── 404 test with query parameters ──────────────────────────────
+
+describe('makeTestCase - 404 test preserves query params setup', () => {
+  it('generates query param setup for both 200 and 404 tests', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Search API', version: '1.0.0' },
+      paths: {
+        '/items/{id}': {
+          get: {
+            operationId: 'searchItem',
+            tags: ['items'],
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+              {
+                name: 'q',
+                in: 'query',
+                required: true,
+                schema: { type: 'string' },
+              },
+            ],
+            responses: {
+              '200': { description: 'OK' },
+              '404': { description: 'Not Found' },
+            },
+          },
+        },
+      },
+    }
+    const result = makeTestFile(spec)
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Search API',()=>{describe('items',()=>{describe('GET /items/{id}',()=>{it('should return 200',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst q=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/items/${id}?q=${encodeURIComponent(String(q))}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{const q=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/items/-1?q=${encodeURIComponent(String(q))}`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
+    )
+  })
+})
+
+// ─── makeHandlerTestCode filtering ────────────────────────────────
+
+describe('makeHandlerTestCode - filters routes by handler name', () => {
+  it('includes only routes whose first path segment matches handler file name', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Mixed API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'listUsers',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        '/posts': {
+          get: {
+            operationId: 'listPosts',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'../app'\n\ndescribe('Users',()=>{describe('GET /users',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
+    )
+  })
+})
+
+describe('makeHandlerTestCode - dashed path segment sanitized', () => {
+  it('normalizes dashed path segment to camelCase for matching', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Dash API', version: '1.0.0' },
+      paths: {
+        '/user-accounts': {
+          get: {
+            operationId: 'listUserAccounts',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeHandlerTestCode(spec, 'handlers/userAccounts.ts', [], '../app')
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport app from'../app'\n\ndescribe('UserAccounts',()=>{describe('GET /user-accounts',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/user-accounts`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
+    )
+  })
+})
+
+// ─── Schema ref collection ───────────────────────────────────────
+
+describe('extractTestCases - nested $ref collection from object properties', () => {
+  it('collects refs from nested object properties transitively', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Nested Ref API', version: '1.0.0' },
+      paths: {
+        '/orders': {
+          post: {
+            operationId: 'createOrder',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { $ref: '#/components/schemas/Order' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Order: {
+            type: 'object',
+            properties: {
+              item: { $ref: '#/components/schemas/Item' },
+              tags: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/Tag' },
+              },
+            },
+          },
+          Item: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+          Tag: { type: 'string' },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['Order', 'Item', 'Tag'])
+  })
+})
+
+describe('extractTestCases - empty parameters array', () => {
+  it('returns empty pathParams/queryParams/headerParams for operation without parameters', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'No Params API', version: '1.0.0' },
+      paths: {
+        '/ping': {
+          get: {
+            operationId: 'ping',
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].pathParams).toStrictEqual([])
+    expect(result[0].queryParams).toStrictEqual([])
+    expect(result[0].headerParams).toStrictEqual([])
+    expect(result[0].requestBody).toBe(undefined)
+    expect(result[0].security).toStrictEqual([])
+    expect(result[0].usedSchemaRefs).toStrictEqual([])
+  })
+})
+
+describe('extractTestCases - uses fallback operationId when missing', () => {
+  it('synthesizes operationId from method and path when operationId is missing', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'No OpId API', version: '1.0.0' },
+      paths: {
+        '/users/{id}': {
+          get: {
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].operationId).toBe('get_users_{id}')
+  })
+})
+
+describe('extractTestCases - allOf composite ref collection', () => {
+  it('collects nested $refs from allOf composite in request body', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'AllOf API', version: '1.0.0' },
+      paths: {
+        '/x': {
+          post: {
+            operationId: 'createX',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    allOf: [
+                      { $ref: '#/components/schemas/Base' },
+                      { $ref: '#/components/schemas/Extension' },
+                    ],
+                  },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { id: { type: 'string' } } },
+          Extension: { type: 'object', properties: { ext: { type: 'string' } } },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].usedSchemaRefs).toStrictEqual(['Base', 'Extension'])
+  })
+})
+
+describe('extractTestCases - non-JSON request body ignored', () => {
+  it('returns undefined requestBody when no application/json content', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Form API', version: '1.0.0' },
+      paths: {
+        '/upload': {
+          post: {
+            operationId: 'upload',
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: { type: 'string', format: 'binary' },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = extractTestCases(spec)
+    expect(result[0].requestBody).toBe(undefined)
+    expect(result[0].usedSchemaRefs).toStrictEqual([])
+  })
+})

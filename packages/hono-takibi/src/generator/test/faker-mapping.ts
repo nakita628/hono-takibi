@@ -89,13 +89,6 @@ const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
-export type SchemaToFakerOptions = {
-  /** Use example values from OpenAPI schema when available */
-  useExamples?: boolean
-  /** Resolved schemas map for $ref resolution */
-  schemas?: { [key: string]: Schema }
-}
-
 /**
  * Generate faker code string for a given OpenAPI schema
  *
@@ -107,7 +100,12 @@ export type SchemaToFakerOptions = {
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
-  options: SchemaToFakerOptions = {},
+  options: {
+    /** Use example values from OpenAPI schema when available */
+    readonly useExamples?: boolean
+    /** Resolved schemas map for $ref resolution */
+    readonly schemas?: { readonly [k: string]: Schema }
+  } = {},
 ): string {
   // 1. If example is provided and useExamples is true
   if (options.useExamples && schema.example !== undefined) {
@@ -181,10 +179,14 @@ export function schemaToFaker(
     return `{ ${merged.map((m) => `...${m}`).join(', ')} }`
   }
   // 7. Handle oneOf/anyOf (union - pick random)
-  if ((schema.oneOf && schema.oneOf.length > 0) || (schema.anyOf && schema.anyOf.length > 0)) {
-    const variants = (schema.oneOf || schema.anyOf || []).map((s) =>
-      schemaToFaker(s, propertyName, options),
-    )
+  const union =
+    schema.oneOf && schema.oneOf.length > 0
+      ? schema.oneOf
+      : schema.anyOf && schema.anyOf.length > 0
+        ? schema.anyOf
+        : undefined
+  if (union) {
+    const variants = union.map((s) => schemaToFaker(s, propertyName, options))
     return `faker.helpers.arrayElement([${variants.join(', ')}])`
   }
   // 8. Check format mapping (prioritize over property name)
