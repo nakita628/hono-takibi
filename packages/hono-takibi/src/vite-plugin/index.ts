@@ -30,7 +30,7 @@ import {
 } from '../core/index.js'
 import { setFormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
-import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
+import { parseOpenAPI } from '../openapi/index.js'
 
 type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -49,15 +49,15 @@ type ViteDevServer = {
   ssrLoadModule: (moduleId: string) => Promise<unknown>
 }
 
-const toAbsolutePath = (relativePath: string) => path.resolve(process.cwd(), relativePath)
+function toAbsolutePath(relativePath: string) {
+  return path.resolve(process.cwd(), relativePath)
+}
 
-const isTypeScriptFile = (filePath: string): filePath is `${string}.ts` => filePath.endsWith('.ts')
+function isTypeScriptFile(filePath: string): filePath is `${string}.ts` {
+  return filePath.endsWith('.ts')
+}
 
-const readConfigurationWithHotReload = async (
-  server: ViteDevServer,
-): Promise<
-  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
-> => {
+async function readConfigurationWithHotReload(server: ViteDevServer) {
   const absoluteConfigPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
   try {
     const resolved = await server.pluginContainer.resolveId(absoluteConfigPath)
@@ -68,16 +68,17 @@ const readConfigurationWithHotReload = async (
     } else {
       server.moduleGraph.invalidateAll()
     }
-
     const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
     const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
-      return { ok: false, error: 'Config must export default object' }
+      return { ok: false, error: 'Config must export default object' } as const
     }
     const parsed = parseConfig(defaultExport)
-    return parsed.ok ? { ok: true, value: parsed.value } : { ok: false, error: parsed.error }
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+    return parsed.ok
+      ? ({ ok: true, value: parsed.value } as const)
+      : ({ ok: false, error: parsed.error } as const)
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }
 
@@ -91,7 +92,7 @@ const readConfigurationWithHotReload = async (
  * @param callback - Function to debounce
  * @returns Debounced function
  */
-const debounce = (delayMilliseconds: number, callback: () => void): (() => void) => {
+function debounce(delayMilliseconds: number, callback: () => void): () => void {
   const timerStorage = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
   const wrappedFunction = (): void => {
     const previousTimer = timerStorage.get(wrappedFunction)
@@ -107,9 +108,7 @@ const debounce = (delayMilliseconds: number, callback: () => void): (() => void)
  * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages
  */
-const runAllGenerationTasks = async (
-  config: Config,
-): Promise<{ readonly logs: readonly string[] }> => {
+async function runAllGenerationTasks(config: Config) {
   if (config.format) setFormatOptions(config.format)
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
@@ -123,7 +122,7 @@ const runAllGenerationTasks = async (
     ) => Promise<
       { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
     >,
-  ): Promise<string> => {
+  ) => {
     const absOutput = toAbsolutePath(output)
     if (isSplit) {
       const listTypeScriptFilesShallow = async (directoryPath: string): Promise<string[]> =>
@@ -140,9 +139,8 @@ const runAllGenerationTasks = async (
                   )
               : [],
           )
-          .catch((): string[] => [])
-
-      const deleteTypeScriptFiles = async (filePaths: string[]): Promise<string[]> =>
+          .catch(() => [])
+      const deleteTypeScriptFiles = async (filePaths: readonly string[]) =>
         Promise.all(
           filePaths.map((filePath) =>
             fsp
@@ -151,7 +149,6 @@ const runAllGenerationTasks = async (
               .catch(() => null),
           ),
         ).then((results) => results.filter((result) => result !== null))
-
       const beforeFiles = await listTypeScriptFilesShallow(absOutput)
       await deleteTypeScriptFiles(beforeFiles)
     }
@@ -160,7 +157,7 @@ const runAllGenerationTasks = async (
     return `✅ ${name}${isSplit ? '(split)' : ''} -> ${absOutput}`
   }
 
-  const makeZodOpenAPIJob = (): Promise<string> | undefined => {
+  function makeZodOpenAPIJob() {
     if (!config['zod-openapi']?.output) return undefined
     const outputPath = toAbsolutePath(config['zod-openapi']?.output)
     return (async () => {
@@ -190,7 +187,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const makeSchemaJob = (): Promise<string> | undefined => {
+  function makeSchemaJob() {
     if (!config['zod-openapi']?.components?.schemas) return undefined
     return runSplitAwareJob(
       'schemas',
@@ -207,7 +204,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeParametersJob = (): Promise<string> | undefined => {
+  function makeParametersJob() {
     if (!config['zod-openapi']?.components?.parameters) return undefined
     return runSplitAwareJob(
       'parameters',
@@ -225,7 +222,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeHeadersJob = (): Promise<string> | undefined => {
+  function makeHeadersJob() {
     if (!config['zod-openapi']?.components?.headers) return undefined
     return runSplitAwareJob(
       'headers',
@@ -243,7 +240,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeExamplesJob = (): Promise<string> | undefined => {
+  function makeExamplesJob() {
     if (!config['zod-openapi']?.components?.examples) return undefined
     return runSplitAwareJob(
       'examples',
@@ -259,7 +256,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeLinksJob = (): Promise<string> | undefined => {
+  function makeLinksJob() {
     if (!config['zod-openapi']?.components?.links) return undefined
     return runSplitAwareJob(
       'links',
@@ -275,7 +272,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeCallbacksJob = (): Promise<string> | undefined => {
+  function makeCallbacksJob() {
     if (!config['zod-openapi']?.components?.callbacks) return undefined
     return runSplitAwareJob(
       'callbacks',
@@ -292,7 +289,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeSecuritySchemesJob = (): Promise<string> | undefined => {
+  function makeSecuritySchemesJob() {
     if (!config['zod-openapi']?.components?.securitySchemes) return undefined
     return runSplitAwareJob(
       'securitySchemes',
@@ -308,7 +305,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeRequestBodiesJob = (): Promise<string> | undefined => {
+  function makeRequestBodiesJob() {
     if (!config['zod-openapi']?.components?.requestBodies) return undefined
     return runSplitAwareJob(
       'requestBodies',
@@ -325,7 +322,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeResponsesJob = (): Promise<string> | undefined => {
+  function makeResponsesJob() {
     if (!config['zod-openapi']?.components?.responses) return undefined
     return runSplitAwareJob(
       'responses',
@@ -342,7 +339,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makePathItemsJob = (): Promise<string> | undefined => {
+  function makePathItemsJob() {
     if (!config['zod-openapi']?.components?.pathItems) return undefined
     return runSplitAwareJob(
       'pathItems',
@@ -358,7 +355,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeMediaTypesJob = (): Promise<string> | undefined => {
+  function makeMediaTypesJob() {
     if (!config['zod-openapi']?.components?.mediaTypes) return undefined
     return runSplitAwareJob(
       'mediaTypes',
@@ -374,7 +371,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeWebhooksJob = (): Promise<string> | undefined => {
+  function makeWebhooksJob() {
     if (!config['zod-openapi']?.components?.webhooks) return undefined
     return runSplitAwareJob(
       'webhooks',
@@ -390,7 +387,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeRoutesJob = (): Promise<string> | undefined => {
+  function makeRoutesJob() {
     if (!config['zod-openapi']?.routes) return undefined
     return runSplitAwareJob(
       'routes',
@@ -406,7 +403,7 @@ const runAllGenerationTasks = async (
     )
   }
 
-  const makeTypeJob = (): Promise<string> | undefined => {
+  function makeTypeJob() {
     if (!config.type) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.type?.output ?? '')
@@ -416,7 +413,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const makeRpcJob = (): Promise<string> | undefined => {
+  function makeRpcJob() {
     if (!config.rpc) return undefined
     return runSplitAwareJob('rpc', config.rpc?.output ?? '', config.rpc?.split === true, (out) =>
       rpc(
@@ -433,24 +430,20 @@ const runAllGenerationTasks = async (
 
   const makeQueryJob = (
     name: string,
-    cfg: typeof config.swr,
-    fn: (
-      openAPI: OpenAPI,
-      output: string,
-      importPath: string,
-      split?: boolean,
-      clientName?: string,
-    ) => Promise<
-      { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-    >,
-  ): Promise<string> | undefined => {
+    cfg:
+      | typeof config.swr
+      | (typeof config)['tanstack-query']
+      | (typeof config)['svelte-query']
+      | (typeof config)['vue-query'],
+    fn: typeof swr | typeof tanstackQuery | typeof svelteQuery | typeof vueQuery,
+  ) => {
     if (!cfg) return undefined
     return runSplitAwareJob(name, cfg.output, cfg.split === true, (out) =>
       fn(openAPI, out, cfg.import, cfg.split === true, cfg.client ?? 'client'),
     )
   }
 
-  const makeTestJob = (): Promise<string> | undefined => {
+  function makeTestJob() {
     if (!config.test) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.test?.output ?? '')
@@ -465,7 +458,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const makeMockJob = (): Promise<string> | undefined => {
+  function makeMockJob() {
     if (!config.mock) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.mock?.output ?? '')
@@ -479,7 +472,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const makeDocsJob = (): Promise<string> | undefined => {
+  function makeDocsJob() {
     if (!config.docs) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(config.docs?.output ?? '')
@@ -495,7 +488,7 @@ const runAllGenerationTasks = async (
     })()
   }
 
-  const makeTemplateJob = (): Promise<string> | undefined => {
+  function makeTemplateJob() {
     const tmpl = config['zod-openapi']?.template
     if (!tmpl) return undefined
     const routeOutputPath = config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output
@@ -543,7 +536,6 @@ const runAllGenerationTasks = async (
     makeDocsJob(),
     makeTemplateJob(),
   ].filter((job) => job !== undefined)
-
   return Promise.all(jobs).then((logs) => ({ logs }))
 }
 
@@ -557,7 +549,7 @@ const runAllGenerationTasks = async (
  * @param absoluteInputPath - Absolute path to the input OpenAPI file
  * @returns The input directory path for use in change detection
  */
-const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string): string => {
+function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string): string {
   const inputDirectory = path.dirname(absoluteInputPath)
   const watchPatterns: string[] = [
     absoluteInputPath,
@@ -569,7 +561,7 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
   return inputDirectory
 }
 
-const extractOutputPaths = (config: Config): readonly string[] => {
+function extractOutputPaths(config: Config): readonly string[] {
   return [
     config['zod-openapi']?.output,
     config['zod-openapi']?.components?.schemas?.output,
@@ -630,16 +622,14 @@ export function honoTakibiVite(): any {
       const cleanupStaleOutputs = async (
         previousConfiguration: Config,
         currentConfiguration: Config,
-      ): Promise<string[]> => {
+      ) => {
         const previousPaths = new Set(extractOutputPaths(previousConfiguration))
         const currentPaths = new Set(extractOutputPaths(currentConfiguration))
         const stalePaths = [...previousPaths].filter((stalePath) => !currentPaths.has(stalePath))
-
         const cleanupResults = await Promise.all(
           stalePaths.map(async (stalePath): Promise<string | null> => {
             const fileStats = await fsp.stat(stalePath).catch(() => null)
             if (!fileStats) return null
-
             if (fileStats.isDirectory()) {
               await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
               return stalePath
@@ -688,7 +678,6 @@ export function honoTakibiVite(): any {
           return
         }
         pluginState.current = initialConfiguration.value
-
         pluginState.inputDirectory = addInputGlobsToWatcher(
           server,
           toAbsolutePath(pluginState.current.input),
@@ -715,9 +704,8 @@ export function honoTakibiVite(): any {
             debouncedRunGeneration()
           }
         })
-
         await runGenerationAndReload(server)
-      })().catch((error) => console.error('❌ watch error:', error))
+      })().catch((e) => console.error('❌ watch error:', e))
     },
   }
   return vitePlugin

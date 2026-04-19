@@ -1272,7 +1272,7 @@ export async function makeQueryHooks(
     )
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
     return {
       ok: true,
       value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
@@ -1316,7 +1316,7 @@ export async function makeQueryHooks(
     core(index, path.dirname(indexPath), indexPath),
   ])
   const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
   return {
     ok: true,
     value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
