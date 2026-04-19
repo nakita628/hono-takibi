@@ -1,51 +1,37 @@
 import type { Schema } from '../../openapi/index.js'
 
-/**
- * OpenAPI format to faker method mapping
- */
 const FORMAT_TO_FAKER: { [k: string]: string } = {
-  // Date/Time
   date: 'faker.date.past().toISOString().slice(0, 10)',
   'date-time': 'faker.date.past().toISOString()',
   time: 'faker.date.past().toISOString().slice(11, 19)',
-  // Network
   uri: 'faker.internet.url()',
   url: 'faker.internet.url()',
   email: 'faker.internet.email()',
   ipv4: 'faker.internet.ipv4()',
   ipv6: 'faker.internet.ipv6()',
   hostname: 'faker.internet.domainName()',
-  // Identity
   uuid: 'faker.string.uuid()',
   password: 'faker.internet.password()',
-  // Location
   city: 'faker.location.city()',
   country: 'faker.location.country()',
   streetName: 'faker.location.street()',
   zipCode: 'faker.location.zipCode()',
-  // Person
   firstName: 'faker.person.firstName()',
   lastName: 'faker.person.lastName()',
   userName: 'faker.internet.username()',
   phoneNumber: 'faker.phone.number()',
   jobTitle: 'faker.person.jobTitle()',
   gender: 'faker.person.gender()',
-  // Finance
   bic: 'faker.finance.bic()',
   iban: 'faker.finance.iban()',
-  // Binary
   binary: 'new Blob([faker.string.alphanumeric(100)])',
   byte: 'btoa(faker.string.alphanumeric(10))',
-  // Number formats
   int32: 'faker.number.int({ min: -2147483648, max: 2147483647 })',
   int64: 'faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER })',
   float: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
   double: 'faker.number.float({ min: 0, max: 1000000, fractionDigits: 4 })',
 }
 
-/**
- * OpenAPI type to faker method mapping (fallback when no format specified)
- */
 const TYPE_TO_FAKER: { [k: string]: string } = {
   string: 'faker.string.alpha({ length: { min: 5, max: 20 } })',
   number: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
@@ -54,10 +40,7 @@ const TYPE_TO_FAKER: { [k: string]: string } = {
   null: 'null',
 }
 
-/**
- * Property name heuristics (when property name suggests a format)
- */
-const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
+const PROPERTY_NAME_TO_FAKER: { [k: string]: string } = {
   id: 'faker.number.int({ min: 1, max: 99999 })',
   uuid: 'faker.string.uuid()',
   email: 'faker.internet.email()',
@@ -89,58 +72,43 @@ const PROPERTY_NAME_TO_FAKER: { [key: string]: string } = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
-/**
- * Generate faker code string for a given OpenAPI schema
- *
- * @param schema - OpenAPI schema object
- * @param propertyName - Optional property name for heuristics
- * @param options - Generation options
- * @returns faker.js code string
- */
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
   options: {
-    /** Use example values from OpenAPI schema when available */
     readonly useExamples?: boolean
-    /** Resolved schemas map for $ref resolution */
     readonly schemas?: { readonly [k: string]: Schema }
   } = {},
 ): string {
-  // 1. If example is provided and useExamples is true
   if (options.useExamples && schema.example !== undefined) {
     return JSON.stringify(schema.example)
   }
-  // 2. Handle const (OpenAPI 3.1) - use 'as const' to preserve literal type
   if (schema.const !== undefined) {
     return `${JSON.stringify(schema.const)} as const`
   }
-  // 3. Handle enum
   if (schema.enum && schema.enum.length > 0) {
-    const enumValues = schema.enum.map((v) => JSON.stringify(v)).join(', ')
-    return `faker.helpers.arrayElement([${enumValues}] as const)`
+    const values = schema.enum.map((v) => JSON.stringify(v)).join(', ')
+    return `faker.helpers.arrayElement([${values}] as const)`
   }
-  // 3. Handle $ref
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
     return `mock${refName.replace(/\./g, '')}()`
   }
-  // 4. Handle array
   if (schema.type === 'array' && schema.items) {
-    // Handle tuple types (readonly Schema[]) - use first item
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
     if (!itemSchema) return '[]'
     const itemFaker = schemaToFaker(itemSchema, undefined, options)
     return `Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (${itemFaker}))`
   }
-  // 5. Handle object
-  if (schema.type === 'object' && schema.properties) {
-    const requiredSet = new Set(schema.required || [])
-    const props = Object.entries(schema.properties)
+  const renderProps = (
+    properties: { readonly [k: string]: Schema },
+    required: readonly string[] | undefined,
+  ): string => {
+    const requiredSet = new Set(required || [])
+    return Object.entries(properties)
       .map(([key, prop]) => {
         const value = schemaToFaker(prop, key, options)
-        const isRequired = requiredSet.has(key)
-        if (!(isRequired || prop.nullable)) {
+        if (!(requiredSet.has(key) || prop.nullable)) {
           return `${key}: faker.helpers.arrayElement([${value}, undefined])`
         }
         if (prop.nullable) {
@@ -148,37 +116,24 @@ export function schemaToFaker(
         }
         return `${key}: ${value}`
       })
-      .join(',\n    ')
-    return `{\n    ${props}\n  }`
+      .join(', ')
   }
-  // 5b. Handle object with only additionalProperties (no explicit properties)
+  if (schema.type === 'object' && schema.properties) {
+    return `{ ${renderProps(schema.properties, schema.required)} }`
+  }
   if (schema.type === 'object' && !schema.properties && schema.additionalProperties) {
     return '{}'
   }
-  // 6. Handle allOf (intersection)
   if (schema.allOf && schema.allOf.length > 0) {
-    const merged = schema.allOf.map((s) => schemaToFaker(s, propertyName, options))
-    // Include sibling properties alongside allOf
+    const merged = schema.allOf
+      .map((s) => schemaToFaker(s, propertyName, options))
+      .map((m) => `...${m}`)
+      .join(', ')
     if (schema.properties) {
-      const requiredSet = new Set(schema.required || [])
-      const siblingProps = Object.entries(schema.properties)
-        .map(([key, prop]) => {
-          const value = schemaToFaker(prop, key, options)
-          const isRequired = requiredSet.has(key)
-          if (!(isRequired || prop.nullable)) {
-            return `${key}: faker.helpers.arrayElement([${value}, undefined])`
-          }
-          if (prop.nullable) {
-            return `${key}: faker.helpers.arrayElement([${value}, null])`
-          }
-          return `${key}: ${value}`
-        })
-        .join(', ')
-      return `{ ${merged.map((m) => `...${m}`).join(', ')}, ${siblingProps} }`
+      return `{ ${merged}, ${renderProps(schema.properties, schema.required)} }`
     }
-    return `{ ${merged.map((m) => `...${m}`).join(', ')} }`
+    return `{ ${merged} }`
   }
-  // 7. Handle oneOf/anyOf (union - pick random)
   const union =
     schema.oneOf && schema.oneOf.length > 0
       ? schema.oneOf
@@ -186,23 +141,19 @@ export function schemaToFaker(
         ? schema.anyOf
         : undefined
   if (union) {
-    const variants = union.map((s) => schemaToFaker(s, propertyName, options))
-    return `faker.helpers.arrayElement([${variants.join(', ')}])`
+    const variants = union.map((s) => schemaToFaker(s, propertyName, options)).join(', ')
+    return `faker.helpers.arrayElement([${variants}])`
   }
-  // 8. Check format mapping (prioritize over property name)
   if (schema.format && FORMAT_TO_FAKER[schema.format]) {
     return FORMAT_TO_FAKER[schema.format]
   }
-  // 9. Check property name heuristics (skip when type conflicts)
   if (propertyName && PROPERTY_NAME_TO_FAKER[propertyName]) {
     const hint = PROPERTY_NAME_TO_FAKER[propertyName]
     const isNumberHint = hint.includes('faker.number.')
-    const isStringType = schema.type === 'string'
-    if (!(isNumberHint && isStringType)) {
+    if (!(isNumberHint && schema.type === 'string')) {
       return hint
     }
   }
-  // 10. Check type mapping
   if (schema.type && typeof schema.type === 'string' && TYPE_TO_FAKER[schema.type]) {
     if (schema.type === 'string') {
       if (schema.pattern) {
@@ -222,6 +173,5 @@ export function schemaToFaker(
     }
     return TYPE_TO_FAKER[schema.type]
   }
-  // 11. Default fallback
   return 'undefined'
 }

@@ -132,7 +132,7 @@ describe('schemaToFaker', () => {
         properties: { name: { type: 'string' } },
         required: ['name'],
       })
-      expect(result).toBe('{\n    name: faker.person.fullName()\n  }')
+      expect(result).toBe('{ name: faker.person.fullName() }')
     })
 
     it.concurrent('generates object with optional property', () => {
@@ -141,7 +141,7 @@ describe('schemaToFaker', () => {
         properties: { age: { type: 'integer' } },
       })
       expect(result).toBe(
-        '{\n    age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), undefined])\n  }',
+        '{ age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), undefined]) }',
       )
     })
 
@@ -151,7 +151,7 @@ describe('schemaToFaker', () => {
         properties: { bio: { type: 'string', nullable: true } },
       })
       expect(result).toBe(
-        '{\n    bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
+        '{ bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
       )
     })
   })
@@ -462,7 +462,7 @@ describe('schemaToFaker', () => {
         required: ['label'],
       })
       expect(result).toBe(
-        '{\n    label: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
+        '{ label: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
       )
     })
   })
@@ -479,7 +479,7 @@ describe('schemaToFaker', () => {
         required: ['id', 'name'],
       })
       expect(result).toBe(
-        '{\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n    bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])\n  }',
+        '{ id: faker.number.int({ min: 1, max: 99999 }), name: faker.person.fullName(), bio: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
       )
     })
   })

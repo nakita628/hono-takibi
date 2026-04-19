@@ -10,7 +10,7 @@ import { schemaToFaker } from './faker-mapping.js'
 
 function collectSchemaRefs(
   schema: Schema,
-  schemas?: { [key: string]: Schema },
+  schemas?: { readonly [k: string]: Schema },
   visited: Set<string> = new Set<string>(),
 ): string[] {
   if (schema.$ref) {

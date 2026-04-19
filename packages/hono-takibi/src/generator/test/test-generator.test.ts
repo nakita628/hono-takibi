@@ -266,7 +266,7 @@ describe('extractTestCases', () => {
         headerParams: [],
         requestBody: {
           fakerCode:
-            '{\n    title: faker.lorem.sentence(),\n    done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])\n  }',
+            '{ title: faker.lorem.sentence(), done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }',
           contentType: 'application/json',
         },
         successStatus: 201,
@@ -347,7 +347,7 @@ describe('makeTestFile', () => {
   it('POST with request body — faker import, Content-Type header', () => {
     const result = makeTestFile(postSpec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Post API',()=>{describe('tasks',()=>{describe('POST /tasks',()=>{it('should return 201 - Create task',async()=>{const body={\n    title: faker.lorem.sentence(),\n    done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])\n  }\nconst res=await app.request(`/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Post API',()=>{describe('tasks',()=>{describe('POST /tasks',()=>{it('should return 201 - Create task',async()=>{const body={ title: faker.lorem.sentence(), done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }\nconst res=await app.request(`/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -977,7 +977,7 @@ describe('makeTestFile - $ref request body with mock functions', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockItem() {\n  return {\n    name: faker.person.fullName()\n  }\n}\n\nfunction mockOrder() {\n  return {\n    item: mockItem()\n  }\n}\n\ndescribe('Mock API',()=>{describe('orders',()=>{describe('POST /orders',()=>{it('should return 201 - Create order',async()=>{const body=mockOrder()\nconst res=await app.request(`/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockItem() {\n  return { name: faker.person.fullName() }\n}\n\nfunction mockOrder() {\n  return { item: mockItem() }\n}\n\ndescribe('Mock API',()=>{describe('orders',()=>{describe('POST /orders',()=>{it('should return 201 - Create order',async()=>{const body=mockOrder()\nconst res=await app.request(`/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 })
@@ -1025,7 +1025,7 @@ describe('makeTestFile - circular schema references', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return {\n    value: faker.string.alpha({ length: { min: 5, max: 20 } }),\n    children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTreeNode())), undefined])\n  }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -1072,7 +1072,7 @@ describe('makeTestFile - circular schema references', () => {
     const result = makeTestFile(spec)
     // Both A and B are circular; no faker.* calls so no faker import
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return {\n    a: mockA()\n  }\n}\n\nfunction mockA(): any {\n  return {\n    b: mockB()\n  }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual Circular API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 201 - Create A',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 })
@@ -1107,7 +1107,7 @@ describe('makeTestFile - bun framework with faker', () => {
   it('bun framework with request body imports faker from @faker-js/faker', () => {
     const result = makeTestFile(postSpec, './app', '/', 'bun')
     expect(result).toBe(
-      "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Post API',()=>{describe('tasks',()=>{describe('POST /tasks',()=>{it('should return 201 - Create task',async()=>{const body={\n    title: faker.lorem.sentence(),\n    done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])\n  }\nconst res=await app.request(`/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'bun:test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Post API',()=>{describe('tasks',()=>{describe('POST /tasks',()=>{it('should return 201 - Create task',async()=>{const body={ title: faker.lorem.sentence(), done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }\nconst res=await app.request(`/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 })
@@ -1181,7 +1181,7 @@ describe('makeTestFile - security combined with body and headers', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Combo API',()=>{describe('default',()=>{describe('POST /items',()=>{it('should return 201 - Create item',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${faker.string.alphanumeric(32)}`},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})\nit('should return 401 without auth',async()=>{const body={\n    name: faker.person.fullName()\n  }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Combo API',()=>{describe('default',()=>{describe('POST /items',()=>{it('should return 201 - Create item',async()=>{const body={ name: faker.person.fullName() }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${faker.string.alphanumeric(32)}`},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})\nit('should return 401 without auth',async()=>{const body={ name: faker.person.fullName() }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
 })
@@ -1676,7 +1676,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUsername() {\n  return faker.string.alpha({ length: { min: 1, max: 30 } })\n}\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockPassword() {\n  return faker.string.alpha({ length: { min: 6, max: 20 } })\n}\n\nfunction mockAuthSignupRequest() {\n  return {\n    username: mockUsername(),\n    name: faker.person.fullName(),\n    email: mockEmail(),\n    password: mockPassword()\n  }\n}\n\ndescribe('Namespaced API',()=>{describe('Auth',()=>{describe('POST /auth/signup',()=>{it('should return 201',async()=>{const body=mockAuthSignupRequest()\nconst res=await app.request(`/auth/signup`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUsername() {\n  return faker.string.alpha({ length: { min: 1, max: 30 } })\n}\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockPassword() {\n  return faker.string.alpha({ length: { min: 6, max: 20 } })\n}\n\nfunction mockAuthSignupRequest() {\n  return { username: mockUsername(), name: faker.person.fullName(), email: mockEmail(), password: mockPassword() }\n}\n\ndescribe('Namespaced API',()=>{describe('Auth',()=>{describe('POST /auth/signup',()=>{it('should return 201',async()=>{const body=mockAuthSignupRequest()\nconst res=await app.request(`/auth/signup`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -1764,7 +1764,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
     }
     const result = makeHandlerTestCode(spec, 'handlers/posts.ts', [], '../app')
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTypesCommentBody() {\n  return faker.string.alpha({ length: { min: 1, max: 280 } })\n}\n\nfunction mockPostsCommentRequest() {\n  return {\n    body: mockTypesCommentBody()\n  }\n}\n\nfunction mockTypesPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Posts',()=>{describe('POST /posts/comment/{postId}',()=>{it('should return 200',async()=>{const postId=mockTypesPostId()\nconst body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/${postId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{const body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/00000000-0000-0000-0000-000000000000`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(404)})})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTypesCommentBody() {\n  return faker.string.alpha({ length: { min: 1, max: 280 } })\n}\n\nfunction mockPostsCommentRequest() {\n  return { body: mockTypesCommentBody() }\n}\n\nfunction mockTypesPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Posts',()=>{describe('POST /posts/comment/{postId}',()=>{it('should return 200',async()=>{const postId=mockTypesPostId()\nconst body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/${postId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{const body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/00000000-0000-0000-0000-000000000000`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(404)})})\n})\n",
     )
   })
 
@@ -1804,7 +1804,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
     }
     const result = makeTestFile(spec, './app', '/', 'vite-plus')
     expect(result).toBe(
-      "import{describe,it,expect}from'vite-plus/test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockAuthLoginRequest() {\n  return {\n    email: mockEmail()\n  }\n}\n\ndescribe('VP Dotted API',()=>{describe('auth',()=>{describe('POST /auth/login',()=>{it('should return 200',async()=>{const body=mockAuthLoginRequest()\nconst res=await app.request(`/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vite-plus/test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockAuthLoginRequest() {\n  return { email: mockEmail() }\n}\n\ndescribe('VP Dotted API',()=>{describe('auth',()=>{describe('POST /auth/login',()=>{it('should return 200',async()=>{const body=mockAuthLoginRequest()\nconst res=await app.request(`/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })
@@ -2688,7 +2688,7 @@ describe('makeTestFile - self-referential circular schema', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return {\n    value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]),\n    children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTree())), undefined])\n  }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })
@@ -2730,7 +2730,7 @@ describe('makeTestFile - mutually recursive circular schemas', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return {\n    a: mockA()\n  }\n}\n\nfunction mockA(): any {\n  return {\n    b: mockB()\n  }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })

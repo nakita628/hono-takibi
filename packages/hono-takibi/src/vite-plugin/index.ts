@@ -111,13 +111,9 @@ const runAllGenerationTasks = async (
   config: Config,
 ): Promise<{ readonly logs: readonly string[] }> => {
   if (config.format) setFormatOptions(config.format)
-
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
-  /**
-   * Runs a generation job with split-mode file cleanup.
-   */
   const runSplitAwareJob = async (
     name: string,
     output: string,
