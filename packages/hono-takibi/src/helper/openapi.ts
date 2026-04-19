@@ -32,7 +32,7 @@ import { coerce } from './../helper/index.js'
  * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
  * ```
  */
-export function makeRef($ref: string): string {
+export function makeRef($ref: string) {
   /**
    * Maps OpenAPI component path prefixes to their corresponding suffixes.
    * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
@@ -349,21 +349,21 @@ export function makeCallbacks(
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
   readonly?: boolean,
-): string[] {
+) {
   const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
-  return Object.entries(content)
-    .map(([contentType, mediaOrRef]) => {
-      // Reference
-      if (isRefObject(mediaOrRef)) {
-        return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
-      }
-      // Media
-      if (isMedia(mediaOrRef)) {
-        return `'${contentType}':${makeMedia(mediaOrRef, readonly)}`
-      }
-      return undefined
-    })
-    .filter((v) => v !== undefined)
+  return Object.freeze(
+    Object.entries(content)
+      .map(([contentType, mediaOrRef]) => {
+        if (isRefObject(mediaOrRef)) {
+          return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
+        }
+        if (isMedia(mediaOrRef)) {
+          return `'${contentType}':${makeMedia(mediaOrRef, readonly)}`
+        }
+        return undefined
+      })
+      .filter((v) => v !== undefined),
+  )
 }
 
 /**
@@ -542,21 +542,17 @@ export function makeParameters(
   [section: string]: { readonly [k: string]: string }
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
-    // Initialize section if needed
     if (!acc[param.in]) acc[param.in] = {}
-    // Handle $ref
     if (param.$ref) {
       acc[param.in][makeSafeKey(param.name)] = makeRef(param.$ref)
       return acc
     }
-    // Handle parameters with content instead of schema (OpenAPI 3.x)
     const schema = param.schema ?? getSchemaFromContent(param.content)
     if (!schema) {
       acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
     const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
-    // Apply coercion for query parameters
     const z =
       param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
         ? coerce(baseSchema, schema.type, schema.format)

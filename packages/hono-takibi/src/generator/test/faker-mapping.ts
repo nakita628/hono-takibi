@@ -103,7 +103,7 @@ export function schemaToFaker(
   const renderProps = (
     properties: { readonly [k: string]: Schema },
     required: readonly string[] | undefined,
-  ): string => {
+  ) => {
     const requiredSet = new Set(required || [])
     return Object.entries(properties)
       .map(([key, prop]) => {

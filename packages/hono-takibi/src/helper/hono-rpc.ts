@@ -13,7 +13,7 @@ function makeEscaped(s: string) {
   return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 }
 
-function refParamName(refLike: unknown): string | undefined {
+function refParamName(refLike: unknown) {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
@@ -52,15 +52,7 @@ function makeToParameterLikes(
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
 }
 
-export function formatPath(
-  p: string,
-  hasBasePath?: boolean,
-): {
-  readonly runtimePath: string
-  readonly typeofPrefix: string
-  readonly bracketSuffix: string
-  readonly hasBracket: boolean
-} {
+export function formatPath(p: string, hasBasePath?: boolean) {
   if (p === '/') {
     if (hasBasePath) {
       return {
@@ -68,14 +60,14 @@ export function formatPath(
         typeofPrefix: '',
         bracketSuffix: '',
         hasBracket: false,
-      }
+      } as const
     }
     return {
       runtimePath: '.index',
       typeofPrefix: '.index',
       bracketSuffix: '',
       hasBracket: false,
-    }
+    } as const
   }
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
   if (p !== '/' && p.endsWith('/')) segs.push('index')
@@ -98,17 +90,17 @@ export function formatPath(
         .map((seg) => `['${makeEscaped(seg)}']`)
         .join('')
     : ''
-  return { runtimePath, typeofPrefix, bracketSuffix, hasBracket }
+  return { runtimePath, typeofPrefix, bracketSuffix, hasBracket } as const
 }
 
-export function hasNoContentResponse(op: {
+export function hasNoContentResponse(operation: {
   readonly summary?: string
   readonly description?: string
   readonly parameters?: unknown
   readonly requestBody?: unknown
   readonly responses?: unknown
-}): boolean {
-  const responses = op.responses
+}) {
+  const responses = operation.responses
   if (!isRecord(responses)) return false
   return Object.keys(responses).some((status) => {
     const code = Number.parseInt(status, 10)
@@ -116,7 +108,7 @@ export function hasNoContentResponse(op: {
   })
 }
 
-function refRequestBodyName(refLike: unknown): string | undefined {
+function refRequestBodyName(refLike: unknown) {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
   const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/)
@@ -139,7 +131,7 @@ function pickAllBodyInfoFromContent(content: unknown) {
     .filter(([ct]) => !isFormContentType(ct))
     .map(([ct]) => ({ contentType: ct }))
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
-  return { form: formInfos, json: jsonInfos }
+  return { form: formInfos, json: jsonInfos } as const
 }
 
 function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: unknown }) {
@@ -149,12 +141,7 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
     parameters?: unknown
     requestBody?: unknown
     responses?: unknown
-  }):
-    | {
-        readonly form: readonly { readonly contentType: string }[]
-        readonly json: readonly { readonly contentType: string }[]
-      }
-    | undefined => {
+  }) => {
     const requestBody = operation.requestBody
     if (!isRecord(requestBody)) return undefined
     const refName = refRequestBodyName(requestBody)
@@ -163,7 +150,8 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
       if (isRecord(resolved) && isRecord(resolved.content)) {
         return pickAllBodyInfoFromContent(resolved.content)
       }
-      if (resolved !== undefined) return { form: [], json: [{ contentType: 'application/json' }] }
+      if (resolved !== undefined)
+        return { form: [], json: [{ contentType: 'application/json' }] } as const
       return undefined
     }
     return pickAllBodyInfoFromContent(requestBody.content)
@@ -173,7 +161,7 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
 export function resolveSplitOutDir(output: string) {
   const outDir = output.endsWith('.ts') ? path.dirname(output) : output
   const indexPath = path.join(outDir, 'index.ts')
-  return { outDir, indexPath }
+  return { outDir, indexPath } as const
 }
 
 export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
@@ -199,7 +187,7 @@ export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
     head: isOperationLike(rawItem.head) ? rawItem.head : undefined,
     patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
     trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
-  }
+  } as const
 }
 
 export function makeParseResponseType(
@@ -211,7 +199,7 @@ export function makeParseResponseType(
     readonly hasBracket: boolean
   },
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
-): string {
+) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   const clientMethodType = hasBracket
     ? `typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']`
@@ -226,7 +214,7 @@ export function makeOperationDeps(
 ) {
   const toParameterLikes = makeToParameterLikes(makeResolveParameter(componentsParameters))
   const pickAllBodyInfo = makePickAllBodyInfo(componentsRequestBodies)
-  return { client: clientName, toParameterLikes, pickAllBodyInfo }
+  return { client: clientName, toParameterLikes, pickAllBodyInfo } as const
 }
 
 export function operationHasArgs(
@@ -268,7 +256,7 @@ export function operationHasArgs(
         }
       | undefined
   },
-): boolean {
+) {
   const allParams = [
     ...deps.toParameterLikes(item.parameters),
     ...deps.toParameterLikes(operation.parameters),

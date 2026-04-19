@@ -500,33 +500,30 @@ function isParameter(value: unknown): value is Parameter {
   return typeof value === 'object' && value !== null && 'name' in value && 'in' in value
 }
 
-function resolveOperationParameters(
-  operation: Operation,
-  components: Components | undefined,
-): readonly Parameter[] {
-  if (!operation.parameters) return []
+function resolveOperationParameters(operation: Operation, components: Components | undefined) {
+  if (!operation.parameters) return [] as const
   return operation.parameters.flatMap((parameter) => {
     if ('$ref' in parameter && parameter.$ref) {
       const resolved = resolveRef(parameter.$ref, components)
       if (isParameter(resolved)) return [resolved]
-      return []
+      return [] as const
     }
-    return [parameter]
+    return [parameter] as const
   })
 }
 
-function getPathParameters(openAPI: OpenAPI, pathStr: string): readonly Parameter[] {
+function getPathParameters(openAPI: OpenAPI, pathStr: string) {
   const pathItem = openAPI.paths?.[pathStr]
-  if (!pathItem?.parameters) return []
+  if (!pathItem?.parameters) return [] as const
   const params: readonly (Parameter | { readonly $ref?: string })[] = pathItem.parameters
-  return params.flatMap((parameter): Parameter[] => {
+  return params.flatMap((parameter) => {
     if ('$ref' in parameter && parameter.$ref) {
       const resolved = resolveRef(parameter.$ref, openAPI.components)
       if (isParameter(resolved)) return [resolved]
-      return []
+      return [] as const
     }
-    if (isParameter(parameter)) return [parameter]
-    return []
+    if (isParameter(parameter)) return [parameter] as const
+    return [] as const
   })
 }
 
@@ -538,7 +535,7 @@ function resolveArrayItem(
   itemSchema: Schema,
   components: Components | undefined,
   visited: Set<string>,
-): Schema {
+) {
   if (itemSchema.$ref && !visited.has(itemSchema.$ref)) {
     visited.add(itemSchema.$ref)
     const ref = resolveRef(itemSchema.$ref, components)
@@ -563,7 +560,7 @@ function flattenBodyParams(
     if (isSchemaLike(resolved)) {
       return flattenBodyParams(resolved, components, prefix, visited, depth + 1)
     }
-    return []
+    return [] as const
   }
 
   if (schema.type === 'object' && schema.properties) {
@@ -619,7 +616,7 @@ function makeParametersTable(
   pathParams: readonly Parameter[],
   operationParams: readonly Parameter[],
   components: Components | undefined,
-): string[] {
+): readonly string[] {
   const rows: {
     name: string
     in_: string
@@ -690,7 +687,10 @@ function makeParametersTable(
   ]
 }
 
-function makeResponsesTable(operation: Operation, components: Components | undefined): string[] {
+function makeResponsesTable(
+  operation: Operation,
+  components: Components | undefined,
+): readonly string[] {
   const heading = operation.summary ?? operation.operationId ?? ''
   const slugBase = toSlug(heading)
   const rows: string[] = []
@@ -834,7 +834,7 @@ function flattenResponseSchemaFields(
 function makeResponseSchemaSection(
   operation: Operation,
   components: Components | undefined,
-): string[] {
+): readonly string[] {
   const heading = operation.summary ?? operation.operationId ?? ''
   const slugBase = toSlug(heading)
   const lines: string[] = []
@@ -868,7 +868,7 @@ function makeResponseSchemaSection(
 function makeResponseExamples(
   responses: Operation['responses'],
   components: Components | undefined,
-): string[] {
+): readonly string[] {
   const lines: string[] = []
   for (const [statusCode, response] of Object.entries(responses)) {
     const resolvedResponse = resolveResponse(response, components)
@@ -892,7 +892,7 @@ function makeResponseExamples(
 function getBodySchema(
   requestBody: Operation['requestBody'] | undefined,
   components: Components | undefined,
-): Schema | undefined {
+) {
   if (!requestBody) return undefined
   const body = isRefObject(requestBody) ? resolveRef(requestBody.$ref, components) : requestBody
   if (!(body && isRequestBody(body) && body.content)) return undefined
@@ -949,22 +949,16 @@ function flattenSchemaProperties(
   prefix: string,
   visited: Set<string> = new Set(),
   depth = 0,
-): readonly {
-  name: string
-  type: string
-  required: boolean
-  restrictions: string
-  description: string
-}[] {
-  if (depth > MAX_SCHEMA_DEPTH) return []
+) {
+  if (depth > MAX_SCHEMA_DEPTH) return [] as const
   if (schema.$ref) {
-    if (visited.has(schema.$ref)) return []
+    if (visited.has(schema.$ref)) return [] as const
     visited.add(schema.$ref)
     const resolved = resolveRef(schema.$ref, components)
     if (isSchemaLike(resolved)) {
       return flattenSchemaProperties(resolved, components, prefix, visited, depth + 1)
     }
-    return []
+    return [] as const
   }
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
@@ -978,10 +972,10 @@ function flattenSchemaProperties(
           restrictions: 'none',
           description: propSchema.description ?? 'none',
         },
-      ]
+      ] as const
     })
   }
-  return []
+  return [] as const
 }
 
 function collectSchemaEnumeratedValues(schema: Schema): readonly {
@@ -1005,7 +999,7 @@ function collectSchemaEnumeratedValues(schema: Schema): readonly {
 function makeSchemasSection(
   schemas: { readonly [k: string]: Schema } | undefined,
   components: Components | undefined,
-): string[] {
+): readonly string[] {
   if (!schemas || Object.keys(schemas).length === 0) return []
   const lines: string[] = ['# Schemas', '']
   for (const [name, schema] of Object.entries(schemas)) {

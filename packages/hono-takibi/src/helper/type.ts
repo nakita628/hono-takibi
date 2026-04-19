@@ -33,7 +33,7 @@ export function makeTypeString(
   selfTypeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
-): string {
+) {
   if (!schema) return 'unknown'
   if (schema.$ref) {
     return makeRefTypeString(schema.$ref, selfTypeName)
@@ -66,7 +66,7 @@ export function makeTypeString(
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
-function makeRefTypeString(ref: string, selfTypeName: string): string {
+function makeRefTypeString(ref: string, selfTypeName: string) {
   const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
@@ -114,7 +114,7 @@ function makeBaseTypeString(
   selfTypeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
-): string {
+) {
   if (types.length > 1) {
     return types
       .map((t) => makeSingleTypeString(schema, t, selfTypeName, cyclicGroup, readonly))
@@ -129,7 +129,7 @@ function makeSingleTypeString(
   selfTypeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
-): string {
+) {
   if (type === 'string') return 'string'
   if (type === 'number') return 'number'
   if (type === 'integer') return 'number'

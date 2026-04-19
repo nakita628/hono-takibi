@@ -19,16 +19,7 @@ import { getOpenAPI3 } from '@typespec/openapi3'
  * @param input - Path to OpenAPI file (.yaml, .json) or TypeSpec file (.tsp)
  * @returns Result object with parsed OpenAPI or error message
  */
-export async function parseOpenAPI(input: string): Promise<
-  | {
-      readonly ok: true
-      readonly value: OpenAPI
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    }
-> {
+export async function parseOpenAPI(input: string) {
   try {
     if (typeof input === 'string' && input.endsWith('.tsp')) {
       const program = await compile(NodeHost, path.resolve(input), {
@@ -40,20 +31,20 @@ export async function parseOpenAPI(input: string): Promise<
         return {
           ok: false,
           error: `TypeSpec compile failed:\n${errors}`,
-        }
+        } as const
       }
       const [record] = await getOpenAPI3(program)
       const tsp = 'document' in record ? record.document : record.versions[0].document
       const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
-      return { ok: true, value: openAPI }
+      return { ok: true, value: openAPI } as const
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
     // The parser validates the spec at runtime but does not express this guarantee in its type definition,
     // so we assert `OpenAPI` here to enable typed access in the generator.
     const openAPI = (await SwaggerParser.bundle(input)) as OpenAPI
-    return { ok: true, value: openAPI }
+    return { ok: true, value: openAPI } as const
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }
 

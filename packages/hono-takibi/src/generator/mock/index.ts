@@ -12,7 +12,7 @@ import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
-function collectRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
+function collectRefs(schema: Schema, refs: Set<string> = new Set()) {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').at(-1)
     if (refName) refs.add(refName)
@@ -50,7 +50,7 @@ function collectAllDependencies(
   refName: string,
   schemas: { readonly [k: string]: Schema },
   visited: Set<string> = new Set(),
-): Set<string> {
+) {
   if (visited.has(refName)) return visited
   visited.add(refName)
   const schema = schemas[refName]
@@ -86,7 +86,7 @@ function topologicalSort(
   return result
 }
 
-function detectCircularSchemas(schemas: { readonly [k: string]: Schema }): Set<string> {
+function detectCircularSchemas(schemas: { readonly [k: string]: Schema }) {
   const circular = new Set<string>()
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name]
@@ -136,11 +136,7 @@ function extractSecurityInfo(
   opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
   securitySchemes: { readonly [k: string]: unknown } | undefined,
-): readonly {
-  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  readonly name: string
-  readonly in?: 'header' | 'query' | 'cookie'
-}[] {
+) {
   const securityDefs = opSecurity ?? globalSecurity ?? []
   return securityDefs.flatMap((secDef) =>
     Object.keys(secDef).flatMap(
@@ -152,12 +148,12 @@ function extractSecurityInfo(
         readonly in?: 'header' | 'query' | 'cookie'
       }[] => {
         const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return []
+        if (!(scheme && isSecurityScheme(scheme))) return [] as const
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          return [{ type: 'bearer', name: 'Authorization' }]
+          return [{ type: 'bearer', name: 'Authorization' }] as const
         }
         if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          return [{ type: 'basic', name: 'Authorization' }]
+          return [{ type: 'basic', name: 'Authorization' }] as const
         }
         if (scheme.type === 'apiKey') {
           const inLocation =
@@ -170,12 +166,12 @@ function extractSecurityInfo(
               name: scheme.name || 'X-API-Key',
               in: inLocation,
             },
-          ]
+          ] as const
         }
         if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }]
+          return [{ type: 'oauth2', name: 'Authorization' }] as const
         }
-        return []
+        return [] as const
       },
     ),
   )
@@ -194,7 +190,7 @@ function hasRequestBodyContent(
  * Filter OpenAPI spec to only include JSON content types for request bodies.
  * This is needed because @hono/zod-openapi doesn't correctly handle multiple content types.
  */
-function filterToJsonContentTypes(openapi: OpenAPI): OpenAPI {
+function filterToJsonContentTypes(openapi: OpenAPI) {
   const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace']
   const filteredPaths = Object.fromEntries(
     Object.entries(openapi.paths).map(([path, pathItem]) => {
@@ -252,7 +248,7 @@ function makeAuthCheck(
     readonly in?: 'header' | 'query' | 'cookie'
   }[],
   has401: boolean,
-): string {
+) {
   if (!has401 || security.length === 0) return ''
   const authChecks = security.flatMap((sec) => {
     if (sec.type === 'bearer' || sec.type === 'oauth2' || sec.type === 'basic') {
@@ -276,7 +272,7 @@ function makeHandlerBody(
   hasNoContent: boolean,
   schemas: { readonly [k: string]: Schema },
   allRefs: Set<string>,
-): string {
+) {
   if (jsonSchema) {
     collectRefs(jsonSchema, allRefs)
     const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
@@ -296,7 +292,7 @@ export function makeMock(
   options: {
     readonly readonly?: boolean
   } = {},
-): string {
+) {
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
