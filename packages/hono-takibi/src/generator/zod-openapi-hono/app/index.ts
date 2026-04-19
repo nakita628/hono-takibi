@@ -50,14 +50,12 @@ export function app(
   const routeBasename = isIndexFile
     ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
     : output.replace(/^.*\//, '').replace(/\.ts$/, '')
-  // Fallback: routeImport (routes.import) → pathAlias → relative path
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
     basePath !== '/'
       ? `const app=new OpenAPIHono().basePath('${basePath}')`
       : 'const app=new OpenAPIHono()'
   if (!routeHandler) {
-    // routeHandler: false — handlers create sub-routers, index.ts mounts them via .route()
     const handlerFileNames = [
       ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),
     ]
@@ -76,7 +74,6 @@ export function app(
         : ''
     return [importSection, appInit, apiInit, 'export default app'].filter(Boolean).join('\n\n')
   }
-  // routeHandler: true — app.openapi() pattern with barrel import
   const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
   const routeModule =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeBasename}` : `./${routeBasename}`)

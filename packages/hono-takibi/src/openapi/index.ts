@@ -172,9 +172,7 @@ type OAuthFlow = {
     }
   }
 }
-/**
- * OpenAPI paths with PathItem definitions
- */
+
 export type OpenAPIPaths = {
   readonly [P in keyof NonNullable<BaseOpenAPI['paths']>]: PathItem
 }
@@ -330,9 +328,6 @@ export type PathItem = {
   readonly parameters?: readonly Parameter[] | readonly Reference[]
 }
 
-/**
- * Operation definition
- */
 export type Operation = {
   readonly tags?: readonly string[]
   readonly summary?: string
@@ -409,7 +404,6 @@ export type Schema = {
   }
   readonly externalDocs?: ExternalDocs
   readonly example?: unknown
-  // search properties
   readonly examples?: {
     readonly [k: string]:
       | {

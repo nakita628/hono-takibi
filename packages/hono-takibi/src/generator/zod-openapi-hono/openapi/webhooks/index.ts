@@ -50,11 +50,11 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
     return `export const ${webhookName(name, method)}={${properties}}${asConst}`
   }
   if (!openapi.webhooks) return ''
-  const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
-    r.startsWith('#/components/parameters/')
-  const resolve = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
-    if ('name' in p && 'in' in p) return p
-    const ref = '$ref' in p ? p.$ref : undefined
+  const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
+    ref.startsWith('#/components/parameters/')
+  const resolve = (parameter: Parameter | { readonly $ref?: string }): Parameter | undefined => {
+    if ('name' in parameter && 'in' in parameter) return parameter
+    const ref = '$ref' in parameter ? parameter.$ref : undefined
     if (!(ref && isParameterRef(ref))) return undefined
     const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
     if (!resolved) return undefined
