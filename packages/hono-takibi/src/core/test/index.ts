@@ -12,18 +12,16 @@ export async function test(
   importPath: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const testCode = makeTestFile(openAPI, importPath, basePath, testFramework)
   const [fmtResult, mkdirResult, existingResult] = await Promise.all([
     fmt(testCode),
     mkdir(path.dirname(output)),
     readFile(output),
   ])
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error }
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
-  if (!existingResult.ok) return { ok: false, error: existingResult.error }
+  if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
+  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
   const merged =
     existingResult.value !== null
       ? mergeTestFile(existingResult.value, fmtResult.value)
@@ -31,6 +29,6 @@ export async function test(
   const finalFmtResult = await fmt(merged)
   const content = finalFmtResult.ok ? finalFmtResult.value : merged
   const writeResult = await writeFile(output, content)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error }
-  return { ok: true, value: `Generated test file written to ${output}` }
+  if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
+  return { ok: true, value: `Generated test file written to ${output}` } as const
 }

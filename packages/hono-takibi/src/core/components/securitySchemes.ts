@@ -36,19 +36,17 @@ export async function securitySchemes(
   output: string,
   split: boolean,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!securitySchemes) return { ok: false, error: 'No securitySchemes found' }
+) {
+  if (!securitySchemes) return { ok: false, error: 'No securitySchemes found' } as const
   const keys = Object.keys(securitySchemes)
-  if (keys.length === 0) return { ok: true, value: 'No securitySchemes found' }
+  if (keys.length === 0) return { ok: true, value: 'No securitySchemes found' } as const
   if (split) {
     const exportsResult = await makeExports(securitySchemes, 'SecurityScheme', output, readonly)
-    if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
-    return { ok: true, value: exportsResult.value }
+    if (!exportsResult.ok) return { ok: false, error: exportsResult.error } as const
+    return { ok: true, value: exportsResult.value } as const
   }
   const code = makeExportConst(securitySchemes, 'SecurityScheme', readonly)
   const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated securitySchemes code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated securitySchemes code written to ${output}` } as const
 }

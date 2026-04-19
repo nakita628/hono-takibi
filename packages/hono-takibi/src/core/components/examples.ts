@@ -37,12 +37,10 @@ export async function examples(
   output: string,
   split: boolean,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!examples) return { ok: false, error: 'No examples found' }
+) {
+  if (!examples) return { ok: false, error: 'No examples found' } as const
   const keys = Object.keys(examples)
-  if (keys.length === 0) return { ok: true, value: 'No examples found' }
+  if (keys.length === 0) return { ok: true, value: 'No examples found' } as const
   const asConst = readonly ? ' as const' : ''
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
@@ -72,10 +70,10 @@ export async function examples(
     return {
       ok: true,
       value: `Generated Example code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const code = makeExportConst(examples, 'Example', readonly)
   const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated examples code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated examples code written to ${output}` } as const
 }

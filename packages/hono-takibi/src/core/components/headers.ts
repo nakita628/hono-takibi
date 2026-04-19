@@ -49,17 +49,15 @@ export async function headers(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!headers) return { ok: false, error: 'No headers found' }
+) {
+  if (!headers) return { ok: false, error: 'No headers found' } as const
   const headerNames = Object.keys(headers)
-  if (headerNames.length === 0) return { ok: true, value: 'No headers found' }
+  if (headerNames.length === 0) return { ok: true, value: 'No headers found' } as const
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-    const allResults = await Promise.all([
+    const results = await Promise.all([
       ...headerNames.map((headerName) => {
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
         const code = headersCode(singleComponent, true, exportType, readonly)
@@ -68,15 +66,15 @@ export async function headers(
       }),
       core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = allResults.find((result) => !result.ok)
+    const firstError = results.find((result) => !result.ok)
     if (firstError) return firstError
     return {
       ok: true,
       value: `Generated headers code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
   const coreResult = await core(toFileCode(headerDefinitions, output), path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated headers code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated headers code written to ${output}` } as const
 }

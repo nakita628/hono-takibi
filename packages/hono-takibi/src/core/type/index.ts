@@ -36,21 +36,15 @@ const DEEP_READONLY_TYPE =
  * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
  * @returns Result with success message or error
  */
-export async function type(
-  openAPI: OpenAPI,
-  output: `${string}.ts`,
-  readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
   const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
   const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
   const coreResult = await core(dts, path.dirname(output), output)
   return coreResult.ok
-    ? { ok: true, value: `Generated type code written to ${output}` }
-    : { ok: false, error: coreResult.error }
+    ? ({ ok: true, value: `Generated type code written to ${output}` } as const)
+    : ({ ok: false, error: coreResult.error } as const)
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {
@@ -143,10 +137,7 @@ function makePathParams(openApiPath: string): readonly string[] {
   return Array.from(openApiPath.matchAll(/\{([^}]+)\}/g)).map((m) => m[1])
 }
 
-function makeParamPart(
-  params: readonly Parameter[],
-  components: Components | undefined,
-): string | undefined {
+function makeParamPart(params: readonly Parameter[], components: Components | undefined) {
   const props = params.map((p) => {
     const safeKey = makeSafeKey(p.name)
     return `${safeKey}:${makeSchemaTypeString(makeParameterSchema(p), components, new Set())}`
@@ -218,7 +209,7 @@ function makeBodyParts(
     classified.formTypes.length > 0
       ? `{form:${classified.formTypes.length === 1 ? classified.formTypes[0] : `(${classified.formTypes.join('|')})`}}`
       : undefined
-  return [jsonPart, formPart].filter((p): p is string => p !== undefined)
+  return [jsonPart, formPart].filter((p) => p !== undefined)
 }
 
 function makeOutputTypes(

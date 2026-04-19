@@ -12,18 +12,6 @@ import {
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { makeInferRequestType, methodPath } from '../../utils/index.js'
 
-/* ─────────────────────────────── Types ─────────────────────────────── */
-
-type OperationCode = {
-  readonly funcName: string
-  readonly code: string
-  readonly hasArgs: boolean
-}
-
-type GeneratedOperation = { code: string; hasArgs: boolean } | null
-
-/* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
-
 const makeOperationCode = (
   pathStr: string,
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
@@ -31,7 +19,7 @@ const makeOperationCode = (
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
-): GeneratedOperation => {
+) => {
   const op = item[method]
   if (!isOperationLike(op)) return null
 
@@ -62,7 +50,7 @@ const makeOperationCodes = (
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
-): OperationCode[] =>
+) =>
   Object.entries(paths)
     .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
@@ -75,7 +63,7 @@ const makeOperationCodes = (
             ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
             : null
         })
-        .filter((item): item is OperationCode => item !== null)
+        .filter((item) => item !== null)
     })
 
 /* ─────────────────────────────── Header ─────────────────────────────── */
@@ -115,41 +103,29 @@ export async function rpc(
   clientName = 'client',
   useParseResponse?: boolean,
   basePath?: string,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const pathsMaybe = openAPI.paths
-  if (!isOpenAPIPaths(pathsMaybe)) {
-    return { ok: false, error: 'Invalid OpenAPI paths' }
-  }
-
+  if (!isOpenAPIPaths(pathsMaybe)) return { ok: false, error: 'Invalid OpenAPI paths' } as const
   const hasBasePath = basePath !== undefined && basePath !== '/'
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-
   const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse, hasBasePath)
-
-  // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
     const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    return { ok: true, value: `Generated rpc code written to ${output}` }
+    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+    return { ok: true, value: `Generated rpc code written to ${output}` } as const
   }
-
-  // Split: write each file + index.ts (barrel) in parallel
   const { outDir, indexPath } = resolveSplitOutDir(output)
-
   const exportLines = Array.from(
     new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
   )
   const index = `${exportLines.join('\n')}\n`
-
-  const allResults = await Promise.all([
+  const results = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
       const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
       const fileSrc = `${header}${code}\n`
@@ -158,11 +134,10 @@ export async function rpc(
     }),
     core(index, path.dirname(indexPath), indexPath),
   ])
-
-  const firstError = allResults.find((r) => !r.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
   return {
     ok: true,
     value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,
-  }
+  } as const
 }

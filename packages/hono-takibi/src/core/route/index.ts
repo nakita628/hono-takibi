@@ -5,15 +5,6 @@ import { core, makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates Hono route files from OpenAPI specification.
- *
- * @param openAPI - Parsed OpenAPI specification
- * @param routes - Route output configuration
- * @param components - Component import configuration
- * @param readonly - Whether to add `as const` assertion to route definitions
- * @returns Promise resolving to success message or error
- */
 export async function route(
   openAPI: OpenAPI,
   routes?: {
@@ -28,21 +19,19 @@ export async function route(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!routes?.output) return { ok: false, error: 'routes.output is required' }
+) {
+  if (!routes?.output) return { ok: false, error: 'routes.output is required' } as const
   const { output, split = false } = routes
   const routesSrc = routeCode(openAPI, readonly)
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, components)
     const result = await core(code, path.dirname(filePath), filePath)
-    return result.ok ? { ok: true as const, value: filePath } : result
+    return result.ok ? ({ ok: true, value: filePath } as const) : result
   }
   if (!split) {
     const result = await writeFile(output, routesSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated route code written to ${output}` }
+    return { ok: true, value: `Generated route code written to ${output}` } as const
   }
   const outDir = output.replace(/\.ts$/, '')
   const hits = Array.from(
@@ -57,9 +46,9 @@ export async function route(
   if (blocks.length === 0) {
     const result = await writeFile(String(output), routesSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated route code written to ${output}` }
+    return { ok: true, value: `Generated route code written to ${output}` } as const
   }
-  const allResults = await Promise.all([
+  const results = await Promise.all([
     ...blocks.map(({ name, block }) => writeFile(`${outDir}/${uncapitalize(name)}.ts`, block)),
     core(
       makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
@@ -67,7 +56,10 @@ export async function route(
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = allResults.find((result) => !result.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-  return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
+  return {
+    ok: true,
+    value: `Generated route code written to ${outDir}/*.ts (index.ts included)`,
+  } as const
 }
