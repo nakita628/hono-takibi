@@ -77,7 +77,7 @@ export async function webhooks(
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = results.find((r) => !r.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
   return {
     ok: true,
