@@ -50,12 +50,10 @@ export async function callbacks(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!callbacks) return { ok: false, error: 'No callbacks found' }
+) {
+  if (!callbacks) return { ok: false, error: 'No callbacks found' } as const
   const keys = Object.keys(callbacks)
-  if (keys.length === 0) return { ok: true, value: 'No callbacks found' }
+  if (keys.length === 0) return { ok: true, value: 'No callbacks found' } as const
   const asConst = readonly ? ' as const' : ''
   const isCallbacks = (v: unknown): v is Callbacks =>
     typeof v === 'object' && v !== null && !('$ref' in v)
@@ -66,7 +64,7 @@ export async function callbacks(
     const results = await Promise.all([
       ...keys.map((key) => {
         const callbackOrRef = callbacks[key]
-        if (!isCallbacks(callbackOrRef)) return { ok: true, value: 'skipped' }
+        if (!isCallbacks(callbackOrRef)) return { ok: true, value: 'skipped' } as const
         const name = toIdentifierPascalCase(ensureSuffix(key, 'Callback'))
         const callbackCode = makeCallback(callbackOrRef)
         const body = callbackCode
@@ -84,7 +82,7 @@ export async function callbacks(
     return {
       ok: true,
       value: `Generated Callback code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const code = Object.entries(callbacks)
     .map(([k, callbackOrRef]) => {
@@ -97,6 +95,6 @@ export async function callbacks(
     .filter((v) => v !== undefined)
     .join('\n\n')
   const coreResult = await core(toFileCode(code, output), path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated callbacks code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated callbacks code written to ${output}` } as const
 }

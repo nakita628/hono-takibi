@@ -7,9 +7,7 @@ export async function swr(
   importPath: string,
   split?: boolean,
   clientName = 'client',
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const config = {
     packageName: 'swr',
     frameworkName: 'SWR',
@@ -30,12 +28,12 @@ export async function swr(
       return {
         ok: true,
         value: `Generated swr hooks written to ${outDir}/*.ts (index.ts included)`,
-      }
+      } as const
     }
     return {
       ok: true,
       value: `Generated swr hooks written to ${output}`,
-    }
+    } as const
   }
   return result
 }

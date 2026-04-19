@@ -7,9 +7,7 @@ export async function svelteQuery(
   importPath: string,
   split?: boolean,
   clientName = 'client',
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   // @see https://tanstack.com/query/v5/docs/framework/svelte/reactivity
   const config = {

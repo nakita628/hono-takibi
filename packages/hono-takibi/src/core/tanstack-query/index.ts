@@ -7,9 +7,7 @@ export async function tanstackQuery(
   importPath: string,
   split?: boolean,
   clientName = 'client',
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const config = {
     packageName: '@tanstack/react-query',
     frameworkName: 'TanStack Query',

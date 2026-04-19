@@ -36,9 +36,7 @@ export const getHealthRoute=createRoute({method:'get',path:'/health',operationId
 
 
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
-  return c.json({
-    status: faker.helpers.arrayElement([faker.helpers.arrayElement(['active', 'inactive', 'pending']), undefined])
-  }, 200)
+  return c.json({ status: faker.helpers.arrayElement([faker.helpers.arrayElement(['active', 'inactive', 'pending']), undefined]) }, 200)
 }
 
 const app = new OpenAPIHono()${appInit}
@@ -103,7 +101,7 @@ describe('makeMock', () => {
       }
       const result = makeMock(spec, '/')
       expect(result).toBe(
-        "import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\n\nconst AuthUserSchema=z.object({name:z.string()}).openapi({\"required\":[\"name\"]}).openapi('AuthUser')\n\nexport const getAuthMeRoute=createRoute({method:'get',path:'/auth/me',operationId:'getMe',responses:{200:{description:\"OK\",content:{'application/json':{schema:AuthUserSchema}}}}})\n\nfunction mockAuthUser() {\n  return {\n    name: faker.person.fullName()\n  }\n}\n\nconst getAuthMeRouteHandler: RouteHandler<typeof getAuthMeRoute> = async (c) => {\n  return c.json(mockAuthUser(), 200)\n}\n\nconst app = new OpenAPIHono()\n\nexport const api = app\n  .openapi(getAuthMeRoute, getAuthMeRouteHandler)\n\nexport default app",
+        "import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\n\nconst AuthUserSchema=z.object({name:z.string()}).openapi({\"required\":[\"name\"]}).openapi('AuthUser')\n\nexport const getAuthMeRoute=createRoute({method:'get',path:'/auth/me',operationId:'getMe',responses:{200:{description:\"OK\",content:{'application/json':{schema:AuthUserSchema}}}}})\n\nfunction mockAuthUser() {\n  return { name: faker.person.fullName() }\n}\n\nconst getAuthMeRouteHandler: RouteHandler<typeof getAuthMeRoute> = async (c) => {\n  return c.json(mockAuthUser(), 200)\n}\n\nconst app = new OpenAPIHono()\n\nexport const api = app\n  .openapi(getAuthMeRoute, getAuthMeRouteHandler)\n\nexport default app",
       )
     })
   })

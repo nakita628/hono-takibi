@@ -32,7 +32,7 @@ export function normalizeTypes(
  * @example
  * methodPath('get', '/users/{id}/posts') // 'getUsersIdPosts'
  */
-export function methodPath(method: string, path: string): string {
+export function methodPath(method: string, path: string) {
   const hasTrailingSlash = path !== '/' && path.endsWith('/')
   const apiPath = path
     .replace(/[^A-Za-z0-9]/g, ' ')
@@ -50,25 +50,30 @@ export function methodPath(method: string, path: string): string {
  * @param parameters - An object containing `query`, `path`, and `header` parameters.
  * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
-export const requestParamsArray = (parameters: {
+export function requestParamsArray(parameters: {
   readonly [k: string]: { readonly [k: string]: string }
-}): readonly string[] =>
-  Object.entries(parameters)
-    .filter(([, obj]) => obj && Object.keys(obj).length)
-    .map(([section, obj]) => {
-      const name =
-        section === 'path'
-          ? 'params'
-          : section === 'header'
-            ? 'headers'
-            : section === 'cookie'
-              ? 'cookies'
-              : section
-      const fields = Object.entries(obj)
-        .map(([k, v]) => `${k}:${v}`)
-        .join(',')
-      return `${name}:z.object({${fields}})`
-    })
+}) {
+  return Object.freeze(
+    Object.entries(parameters)
+      .filter(([, obj]) => obj && Object.keys(obj).length)
+      .map(([section, obj]) => {
+        const name =
+          section === 'path'
+            ? 'params'
+            : section === 'header'
+              ? 'headers'
+              : section === 'cookie'
+                ? 'cookies'
+                : section
+
+        const fields = Object.entries(obj)
+          .map(([k, v]) => `${k}:${v}`)
+          .join(',')
+
+        return `${name}:z.object({${fields}})` as const
+      }),
+  )
+}
 
 /**
  * Converts a string to a safe TypeScript object key with single quotes.
@@ -90,7 +95,7 @@ export const requestParamsArray = (parameters: {
  * makeSafeKey('line\nbreak') // → "'line\\nbreak'"
  * ```
  */
-export function makeSafeKey(key: string): string {
+export function makeSafeKey(key: string) {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) return key
   const escaped = key
     .replace(/\\/g, '\\\\')
@@ -118,7 +123,7 @@ export function makeSafeKey(key: string): string {
  * toIdentifierPascalCase('日本語')         // → 'Unnamed12345' (hash-based fallback)
  * ```
  */
-export function toIdentifierPascalCase(text: string): string {
+export function toIdentifierPascalCase(text: string) {
   // Check if text contains non-ASCII characters (char code > 127)
   const hasNonAscii = Array.from(text).some((c) => c.charCodeAt(0) > 127)
   const result = text
@@ -149,7 +154,7 @@ export function toIdentifierPascalCase(text: string): string {
  * @param options - Optional sorting behavior.
  * @returns Import line or empty string when no names exist.
  */
-export function renderNamedImport(names: readonly string[], spec: string): string {
+export function renderNamedImport(names: readonly string[], spec: string) {
   const unique = Array.from(new Set(names))
   return unique.length > 0 ? `import{${unique.join(',')}}from'${spec}'` : ''
 }
@@ -167,7 +172,7 @@ export function renderNamedImport(names: readonly string[], spec: string): strin
  * uncapitalize('')       // → ''
  * ```
  */
-export function uncapitalize(text: string): string {
+export function uncapitalize(text: string) {
   return text.charAt(0).toLowerCase() + text.slice(1)
 }
 
@@ -184,7 +189,7 @@ export function uncapitalize(text: string): string {
  * capitalize('')       // → ''
  * ```
  */
-export function capitalize(text: string): string {
+export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
@@ -206,7 +211,7 @@ export function capitalize(text: string): string {
  * ensureSuffix('file', '.ts')              // → 'file.ts'
  * ```
  */
-export function ensureSuffix(text: string, suffix: string): string {
+export function ensureSuffix(text: string, suffix: string) {
   return `${text}${suffix}`
 }
 
@@ -236,7 +241,7 @@ export function zodToOpenAPISchema(
   exportType: boolean,
   notComponentSchema?: boolean,
   readonly?: boolean,
-): string {
+) {
   const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema
     ? `export const ${schemaName}=${zodSchema}${readonlyModifier}`
@@ -267,7 +272,7 @@ export function zodToOpenAPISchema(
  * // "export * from './comment'\nexport * from './post'\nexport * from './user'\n"
  * ```
  */
-export function makeBarrel(value: { readonly [k: string]: unknown }): string {
+export function makeBarrel(value: { readonly [k: string]: unknown }) {
   return `${Object.keys(value)
     .sort()
     .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
@@ -286,7 +291,7 @@ export function makeBarrel(value: { readonly [k: string]: unknown }): string {
  * // → '{error:"Name must be 3-20 characters"}'
  * ```
  */
-export function error(message: string): string {
+export function error(message: string) {
   if (/^\s*\(.*?\)\s*=>/.test(message)) {
     return `{error:${message}}`
   }
@@ -302,7 +307,7 @@ export function makeInferRequestType(
     hasBracket: boolean
   },
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
-): string {
+) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   return hasBracket
     ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`

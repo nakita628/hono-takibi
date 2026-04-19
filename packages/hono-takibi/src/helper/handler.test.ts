@@ -479,7 +479,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     expect(result).toStrictEqual({ ok: true, value: undefined })
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
-      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return { id: faker.number.int({ min: 1, max: 99999 }), name: faker.person.fullName() }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
     )
   })
 
@@ -495,7 +495,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     expect(result).toStrictEqual({ ok: true, value: undefined })
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getUsersRoute } from '../routes'\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n}\n`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getUsersRoute } from '../routes'\n\nfunction mockUser() {\n  return { id: faker.number.int({ min: 1, max: 99999 }), name: faker.person.fullName() }\n}\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n}\n`,
     )
   })
 
@@ -542,7 +542,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     expect(result).toStrictEqual({ ok: true, value: undefined })
     expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
-      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '@/routes/routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return {\n    id: faker.number.int({ min: 1, max: 99999 }),\n    name: faker.person.fullName(),\n  }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport { getUsersRoute } from '@/routes/routes'\n\nconst app = new OpenAPIHono()\n\nfunction mockUser() {\n  return { id: faker.number.int({ min: 1, max: 99999 }), name: faker.person.fullName() }\n}\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json(\n    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),\n    200,\n  )\n})\n`,
     )
   })
 
@@ -644,7 +644,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     expect(result).toStrictEqual({ ok: true, value: undefined })
     expect(fs.readFileSync(`${testDir}/handlers/orders.ts`, 'utf-8')).toBe(
-      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getOrdersRoute } from '../routes'\n\nfunction mockOrder() {\n  return {\n    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),\n    total: faker.helpers.arrayElement([\n      faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),\n      undefined,\n    ]),\n  }\n}\n\nfunction mockUser() {\n  return {\n    name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),\n  }\n}\n\nexport const getOrdersRouteHandler: RouteHandler<typeof getOrdersRoute> = async (c) => {\n  return c.json(\n    {\n      items: faker.helpers.arrayElement([\n        Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockOrder()),\n        undefined,\n      ]),\n      user: faker.helpers.arrayElement([mockUser(), undefined]),\n    },\n    200,\n  )\n}\n`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport { faker } from '@faker-js/faker'\nimport type { getOrdersRoute } from '../routes'\n\nfunction mockOrder() {\n  return {\n    id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]),\n    total: faker.helpers.arrayElement([\n      faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),\n      undefined,\n    ]),\n  }\n}\n\nfunction mockUser() {\n  return { name: faker.helpers.arrayElement([faker.person.fullName(), undefined]) }\n}\n\nexport const getOrdersRouteHandler: RouteHandler<typeof getOrdersRoute> = async (c) => {\n  return c.json(\n    {\n      items: faker.helpers.arrayElement([\n        Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockOrder()),\n        undefined,\n      ]),\n      user: faker.helpers.arrayElement([mockUser(), undefined]),\n    },\n    200,\n  )\n}\n`,
     )
   })
 

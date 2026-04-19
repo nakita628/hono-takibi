@@ -45,17 +45,15 @@ export async function responses(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!responses) return { ok: false, error: 'No responses found' }
+) {
+  if (!responses) return { ok: false, error: 'No responses found' } as const
   const responseNames = Object.keys(responses)
-  if (responseNames.length === 0) return { ok: true, value: 'No responses found' }
+  if (responseNames.length === 0) return { ok: true, value: 'No responses found' } as const
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
-    const allResults = await Promise.all([
+    const results = await Promise.all([
       ...responseNames.map((responseName) => {
         const singleComponent = { responses: { [responseName]: responses[responseName] } }
         const code = responsesCode(singleComponent, true, readonly)
@@ -64,12 +62,12 @@ export async function responses(
       }),
       core(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = allResults.find((result) => !result.ok)
-    if (firstError) return firstError
+    const firstError = results.find((result) => !result.ok)
+    if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
     return {
       ok: true,
       value: `Generated responses code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const responseDefinitions = responsesCode({ responses }, true, readonly)
   const coreResult = await core(
@@ -77,6 +75,6 @@ export async function responses(
     path.dirname(output),
     output,
   )
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated responses code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated responses code written to ${output}` } as const
 }

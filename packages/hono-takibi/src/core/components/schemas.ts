@@ -44,17 +44,14 @@ export async function schemas(
   split: boolean,
   exportType: boolean,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!schemas) return { ok: false, error: 'No schemas found' }
+) {
+  if (!schemas) return { ok: false, error: 'No schemas found' } as const
   const schemaNames = Object.keys(schemas)
-  if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' }
+  if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' } as const
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
     const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
-
-    const allResults = await Promise.all([
+    const results = await Promise.all([
       ...schemaNames.map((schemaName) => {
         const fileCode = makeSplitSchemaFile(
           schemaName,
@@ -69,20 +66,19 @@ export async function schemas(
       }),
       core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
     ])
-
-    const firstError = allResults.find((result) => !result.ok)
+    const firstError = results.find((result) => !result.ok)
     if (firstError) return firstError
 
     return {
       ok: true,
       value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   const schemaDefinitions = schemasCode({ schemas }, true, exportType, readonly)
   const sorted = ast(schemaDefinitions)
   const schemaDefinitionsCode = `${importCode}\n\n${sorted}`
   const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated schema code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated schema code written to ${output}` } as const
 }

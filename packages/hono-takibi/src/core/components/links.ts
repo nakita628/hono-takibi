@@ -36,19 +36,17 @@ export async function links(
   output: string,
   split: boolean,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!links) return { ok: false, error: 'No links found' }
+) {
+  if (!links) return { ok: false, error: 'No links found' } as const
   const keys = Object.keys(links)
-  if (keys.length === 0) return { ok: true, value: 'No links found' }
+  if (keys.length === 0) return { ok: true, value: 'No links found' } as const
   if (split) {
     const exportsResult = await makeExports(links, 'Link', output, readonly)
-    if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
-    return { ok: true, value: exportsResult.value }
+    if (!exportsResult.ok) return { ok: false, error: exportsResult.error } as const
+    return { ok: true, value: exportsResult.value } as const
   }
   const code = makeExportConst(links, 'Link', readonly)
   const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated links code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated links code written to ${output}` } as const
 }

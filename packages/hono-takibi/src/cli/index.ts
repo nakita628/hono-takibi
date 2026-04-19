@@ -36,18 +36,7 @@ const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 Options:
   -h, --help                  display help for command`
 
-function parseCli(args: readonly string[]):
-  | {
-      readonly ok: true
-      readonly value: {
-        readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-        readonly output: `${string}.ts`
-      }
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    } {
+function parseCli(args: readonly string[]) {
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
@@ -60,7 +49,7 @@ function parseCli(args: readonly string[]):
     return {
       ok: false,
       error: HELP_TEXT,
-    }
+    } as const
   }
   return {
     ok: true,
@@ -68,7 +57,7 @@ function parseCli(args: readonly string[]):
       input,
       output,
     },
-  }
+  } as const
 }
 
 export async function honoTakibi(): Promise<
@@ -76,15 +65,15 @@ export async function honoTakibi(): Promise<
 > {
   const args = process.argv.slice(2)
   if (args.length === 1 && (args[0] === '--help' || args[0] === '-h')) {
-    return { ok: true, value: HELP_TEXT }
+    return { ok: true, value: HELP_TEXT } as const
   }
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) {
     const cliResult = parseCli(args)
-    if (!cliResult.ok) return { ok: false, error: cliResult.error }
+    if (!cliResult.ok) return { ok: false, error: cliResult.error } as const
     const { input, output } = cliResult.value
     const openAPIResult = await parseOpenAPI(input)
-    if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
+    if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error } as const
     const openAPI = openAPIResult.value
     const takibiResult = await takibi(openAPI, output, {
       readonly: false,
@@ -104,15 +93,15 @@ export async function honoTakibi(): Promise<
       exportMediaTypes: false,
       exportMediaTypesTypes: false,
     })
-    if (!takibiResult.ok) return { ok: false, error: takibiResult.error }
-    return { ok: true, value: takibiResult.value }
+    if (!takibiResult.ok) return { ok: false, error: takibiResult.error } as const
+    return { ok: true, value: takibiResult.value } as const
   }
   const readConfigResult = await readConfig()
-  if (!readConfigResult.ok) return { ok: false, error: readConfigResult.error }
+  if (!readConfigResult.ok) return { ok: false, error: readConfigResult.error } as const
   const config = readConfigResult.value
   if (config.format) setFormatOptions(config.format)
   const openAPIResult = await parseOpenAPI(config.input)
-  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
+  if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error } as const
   const openAPI = openAPIResult.value
   const results = await Promise.all([
     config['zod-openapi']?.output
@@ -339,10 +328,11 @@ export async function honoTakibi(): Promise<
       )
     })(),
   ])
-  const values: string[] = []
-  for (const result of results) {
-    if (result && !result.ok) return { ok: false, error: result.error }
-    if (result?.ok) values.push(result.value)
-  }
-  return { ok: true, value: values.join('\n') }
+  const errored = results.find((result) => result && !result.ok)
+  if (errored && !errored.ok) return { ok: false, error: errored.error } as const
+  const value = results
+    .map((result) => (result?.ok ? result.value : undefined))
+    .filter((v) => v !== undefined)
+    .join('\n')
+  return { ok: true, value } as const
 }

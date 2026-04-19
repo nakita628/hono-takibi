@@ -43,12 +43,10 @@ export async function mediaTypes(
   output: string,
   split: boolean,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!mediaTypes) return { ok: false, error: 'No mediaTypes found' }
+) {
+  if (!mediaTypes) return { ok: false, error: 'No mediaTypes found' } as const
   const keys = Object.keys(mediaTypes)
-  if (keys.length === 0) return { ok: true, value: 'No mediaTypes found' }
+  if (keys.length === 0) return { ok: true, value: 'No mediaTypes found' } as const
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
@@ -84,7 +82,7 @@ export async function mediaTypes(
     return {
       ok: true,
       value: `Generated MediaType code written to ${outDir}/*.ts (index.ts included)`,
-    }
+    } as const
   }
   const definitions = keys
     .map((key) => {
@@ -104,6 +102,6 @@ export async function mediaTypes(
     .join('\n\n')
   const code = `${importCode}\n\n${definitions}\n`
   const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error }
-  return { ok: true, value: `Generated mediaTypes code written to ${output}` }
+  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  return { ok: true, value: `Generated mediaTypes code written to ${output}` } as const
 }

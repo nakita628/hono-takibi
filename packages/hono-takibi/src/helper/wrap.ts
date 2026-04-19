@@ -19,7 +19,7 @@ export function wrap(
     headers?: Header
     isOptional?: boolean
   },
-): string {
+) {
   /* Properties not supported or causing type issues with zod-to-openapi */
   const unsupportedProps = new Set([
     'contains',

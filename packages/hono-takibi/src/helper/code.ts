@@ -36,7 +36,7 @@ import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../util
 export function makeModuleSpec(
   fromFile: string,
   target: { readonly output: string; readonly split?: boolean },
-): string {
+) {
   const rel = path.relative(path.dirname(fromFile), target.output).replace(/\\/g, '/')
   const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
   return stripped === '' ? '.' : stripped.startsWith('.') ? stripped : `./${stripped}`
@@ -66,7 +66,7 @@ export function makeModuleSpec(
  * // → 'export const UserProfileSchema='
  * ```
  */
-export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
+export function makeConst(exportVariable: boolean, text: string, suffix: string) {
   return `${exportVariable ? 'export const ' : 'const '}${toIdentifierPascalCase(ensureSuffix(text, suffix))}=`
 }
 
@@ -100,7 +100,7 @@ export function makeExportConst(
   value: { readonly [k: string]: unknown },
   suffix: string,
   readonly?: boolean,
-): string {
+) {
   const asConst = readonly ? ' as const' : ''
   return Object.keys(value)
     .map(
@@ -198,26 +198,22 @@ export function makeImports(
       }
     | undefined,
   split = false,
-): string {
+) {
   const fallbackPrefix = split ? '..' : '.'
-  // Resolve import path for a component type
   const resolvePath = (key: string): string => {
     const target = components?.[key]
     return (
       target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${key}`)
     )
   }
-  // Find locally defined exports to exclude from imports
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
-  // Build @hono/zod-openapi import
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  // Build component imports in OpenAPI order
   const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
     const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
       .filter((t): t is string => Boolean(t) && !defined.has(t))

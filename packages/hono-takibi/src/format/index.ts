@@ -19,7 +19,7 @@ let currentOptions = defaultOptions
  * setFormatOptions({ printWidth: 80, semi: true })
  * ```
  */
-export function setFormatOptions(opts: FormatConfig): void {
+export function setFormatOptions(opts: FormatConfig) {
   currentOptions = { ...defaultOptions, ...opts }
 }
 
@@ -47,17 +47,13 @@ export function setFormatOptions(opts: FormatConfig): void {
  * }
  * ```
  */
-export async function fmt(
-  input: string,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+export async function fmt(input: string) {
   const { code, errors } = await format('<stdin>.ts', input, currentOptions)
   if (errors.length > 0) {
     return {
       ok: false,
       error: errors.map((e) => e.message).join('\n'),
-    }
+    } as const
   }
-  return { ok: true, value: code }
+  return { ok: true, value: code } as const
 }

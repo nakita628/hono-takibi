@@ -48,16 +48,14 @@ export async function pathItems(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!pathItemsConfig?.output) return { ok: false, error: 'pathItems.output is required' }
-  if (!components.pathItems) return { ok: false, error: 'No pathItems found' }
+) {
+  if (!pathItemsConfig?.output) return { ok: false, error: 'pathItems.output is required' } as const
+  if (!components.pathItems) return { ok: false, error: 'No pathItems found' } as const
   const keys = Object.keys(components.pathItems)
-  if (keys.length === 0) return { ok: true, value: 'No pathItems found' }
+  if (keys.length === 0) return { ok: true, value: 'No pathItems found' } as const
   const { output, split = false } = pathItemsConfig
   const pathItemsSrc = pathItemsCode(components, true, readonly)
-  if (!pathItemsSrc) return { ok: true, value: 'No pathItems found' }
+  if (!pathItemsSrc) return { ok: true, value: 'No pathItems found' } as const
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, componentsConfig)
     const result = await core(code, path.dirname(filePath), filePath)
@@ -66,7 +64,7 @@ export async function pathItems(
   if (!split) {
     const result = await writeFile(output, pathItemsSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated pathItems code written to ${output}` }
+    return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }
   const outDir = output.replace(/\.ts$/, '')
   const hits = Array.from(
@@ -81,9 +79,9 @@ export async function pathItems(
   if (blocks.length === 0) {
     const result = await writeFile(String(output), pathItemsSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated pathItems code written to ${output}` }
+    return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }
-  const allResults = await Promise.all([
+  const results = await Promise.all([
     ...blocks.map(({ name, block }) =>
       writeFile(`${outDir}/${uncapitalize(name)}PathItem.ts`, block),
     ),
@@ -93,10 +91,10 @@ export async function pathItems(
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = allResults.find((result) => !result.ok)
+  const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
   return {
     ok: true,
     value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
-  }
+  } as const
 }

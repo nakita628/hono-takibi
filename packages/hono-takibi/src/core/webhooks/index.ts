@@ -38,32 +38,22 @@ export async function webhooks(
     }
   },
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  if (!webhooks?.output) return { ok: false, error: 'webhooks.output is required' }
-  if (!openAPI.webhooks) return { ok: false, error: 'No webhooks found' }
-
+) {
+  if (!webhooks?.output) return { ok: false, error: 'webhooks.output is required' } as const
+  if (!openAPI.webhooks) return { ok: false, error: 'No webhooks found' } as const
   const { output, split = false } = webhooks
   const webhooksSrc = webhookCode(openAPI, readonly)
-
-  if (!webhooksSrc) return { ok: true, value: 'No webhooks found' }
-
-  // Write a single webhook file
+  if (!webhooksSrc) return { ok: true, value: 'No webhooks found' } as const
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, components)
     const result = await core(code, path.dirname(filePath), filePath)
-    return result.ok ? { ok: true as const, value: filePath } : result
+    return result.ok ? ({ ok: true, value: filePath } as const) : result
   }
-
-  // Non-split mode: single file
   if (!split) {
     const result = await writeFile(output, webhooksSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated webhooks code written to ${output}` }
+    return { ok: true, value: `Generated webhooks code written to ${output}` } as const
   }
-
-  // Split mode: extract webhook blocks from source
   const outDir = output.replace(/\.ts$/, '')
   const hits = Array.from(
     webhooksSrc.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/g),
@@ -74,16 +64,12 @@ export async function webhooks(
     name: h.name,
     block: webhooksSrc.slice(h.start, hits[i + 1]?.start ?? webhooksSrc.length).trim(),
   }))
-
-  // No blocks found: write as single file
   if (blocks.length === 0) {
     const result = await writeFile(String(output), webhooksSrc)
     if (!result.ok) return result
-    return { ok: true, value: `Generated webhooks code written to ${output}` }
+    return { ok: true, value: `Generated webhooks code written to ${output}` } as const
   }
-
-  // Write each webhook block and barrel file in parallel
-  const allResults = await Promise.all([
+  const results = await Promise.all([
     ...blocks.map(({ name, block }) => writeFile(`${outDir}/${uncapitalize(name)}.ts`, block)),
     core(
       makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
@@ -91,12 +77,10 @@ export async function webhooks(
       `${outDir}/index.ts`,
     ),
   ])
-
-  const firstError = allResults.find((r) => !r.ok)
+  const firstError = results.find((r) => !r.ok)
   if (firstError) return firstError
-
   return {
     ok: true,
     value: `Generated webhooks code written to ${outDir}/*.ts (index.ts included)`,
-  }
+  } as const
 }

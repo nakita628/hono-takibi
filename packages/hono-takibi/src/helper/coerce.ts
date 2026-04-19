@@ -1,4 +1,4 @@
-export function coerce(baseSchema: string, schemaType: string, format?: string): string {
+export function coerce(baseSchema: string, schemaType: string, format?: string) {
   const pipeCoerce = (coerceBase: string, typeBase: string, baseSchema: string) => {
     const afterType = baseSchema.slice(typeBase.length)
     const match = afterType.match(

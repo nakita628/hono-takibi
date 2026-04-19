@@ -10,9 +10,9 @@ import { schemaToFaker } from './faker-mapping.js'
 
 function collectSchemaRefs(
   schema: Schema,
-  schemas?: { [key: string]: Schema },
+  schemas?: { readonly [k: string]: Schema },
   visited: Set<string> = new Set<string>(),
-): string[] {
+): readonly string[] {
   if (schema.$ref) {
     const refName = schema.$ref.replace('#/components/schemas/', '')
     if (visited.has(refName)) return []
@@ -29,18 +29,14 @@ function collectSchemaRefs(
     const composite = schema[key]
     return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
   })
-  return [...propRefs, ...itemRefs, ...compositeRefs]
+  return [...propRefs, ...itemRefs, ...compositeRefs] as const
 }
 
 function extractSecurityRequirements(
   opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
   securitySchemes: { readonly [k: string]: unknown } | undefined,
-): readonly {
-  readonly type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
-  readonly name: string
-  readonly in?: 'header' | 'query' | 'cookie'
-}[] {
+) {
   const securityDefs = opSecurity ?? globalSecurity ?? []
   return securityDefs.flatMap((secDef) =>
     Object.keys(secDef).flatMap(
@@ -52,24 +48,24 @@ function extractSecurityRequirements(
         in?: 'header' | 'query' | 'cookie'
       }[] => {
         const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return []
+        if (!(scheme && isSecurityScheme(scheme))) return [] as const
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          return [{ type: 'bearer', name: 'Authorization' }]
+          return [{ type: 'bearer', name: 'Authorization' }] as const
         }
         if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          return [{ type: 'basic', name: 'Authorization' }]
+          return [{ type: 'basic', name: 'Authorization' }] as const
         }
         if (scheme.type === 'apiKey') {
           const inLocation =
             scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
               ? scheme.in
               : 'header'
-          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }]
+          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }] as const
         }
         if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }]
+          return [{ type: 'oauth2', name: 'Authorization' }] as const
         }
-        return []
+        return [] as const
       },
     ),
   )
@@ -157,7 +153,7 @@ export function extractTestCases(spec: OpenAPI) {
   )
 }
 
-function shallowRefs(schema: Schema): string[] {
+function shallowRefs(schema: Schema): readonly string[] {
   const selfRef = schema.$ref ? [schema.$ref.replace('#/components/schemas/', '')] : []
   const propRefs = schema.properties ? Object.values(schema.properties).flatMap(shallowRefs) : []
   const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
@@ -166,7 +162,7 @@ function shallowRefs(schema: Schema): string[] {
     const composite = schema[key]
     return composite ? composite.flatMap(shallowRefs) : []
   })
-  return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs]
+  return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs] as const
 }
 
 function reachesSelf(
@@ -196,7 +192,7 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
 function topologicalOrder(
   usedSchemaNames: Set<string>,
   schemas: { [key: string]: Schema },
-): string[] {
+): readonly string[] {
   const visit = (name: string, visited: Set<string>, visiting: Set<string>): string[] => {
     if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return []
     const nextVisiting = new Set(visiting).add(name)
@@ -215,7 +211,7 @@ function topologicalOrder(
   return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))
 }
 
-function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string {
+function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>) {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
   const circular = detectCircularSchemas(schemas)
@@ -227,7 +223,7 @@ function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>): string 
     .join('\n\n')
 }
 
-function getNonExistentValue(schema?: Schema, schemas?: { [key: string]: Schema }): string {
+function getNonExistentValue(schema?: Schema, schemas?: { [key: string]: Schema }) {
   if (!schema) return '__non_existent__'
   const resolved =
     schema.$ref && schemas
@@ -242,7 +238,7 @@ function makeAuthHeader(sec: {
   type: 'bearer' | 'apiKey' | 'basic' | 'oauth2'
   name: string
   in?: 'header' | 'query' | 'cookie'
-}): string {
+}) {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
@@ -259,7 +255,7 @@ function makeTestCase(
   tc: ReturnType<typeof extractTestCases>[number],
   basePath = '/',
   schemas?: { [k: string]: Schema },
-): string {
+) {
   const basePathPrefix = basePath !== '/' ? basePath : ''
   const fullPath =
     tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
@@ -318,7 +314,7 @@ function makeTestCase(
   return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
 }
 
-function escapeString(s: string): string {
+function escapeString(s: string) {
   return s.replace(/'/g, "\\'").replace(/\n/g, ' ')
 }
 
@@ -333,7 +329,7 @@ export function makeTestFile(
   appImportPath: string = './app',
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-): string {
+) {
   const testCases = extractTestCases(spec)
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
@@ -361,7 +357,7 @@ export function makeTestFile(
   return `${imports}\n${body}`
 }
 
-function getPathFirstSegment(path: string): string {
+function getPathFirstSegment(path: string) {
   const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
   const sanitized = rawSegment
     .replace(/\{([^}]+)\}/g, '$1')
@@ -379,7 +375,7 @@ export function makeHandlerTestCode(
   importFrom: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-): string {
+) {
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
   const testCases = extractTestCases(spec)
   const relevantCases = testCases.filter((tc) => getPathFirstSegment(tc.path) === handlerFileName)

@@ -4,13 +4,11 @@ import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.j
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
-/** Generates TypeScript code from an OpenAPI spec. */
 export async function takibi(
   openAPI: OpenAPI,
   output: `${string}.ts`,
   componentsOptions: {
     readonly readonly?: boolean
-    // OpenAPI Components Object order
     readonly exportSchemas: boolean
     readonly exportSchemasTypes: boolean
     readonly exportResponses: boolean
@@ -27,22 +25,19 @@ export async function takibi(
     readonly exportMediaTypes: boolean
     readonly exportMediaTypesTypes: boolean
   },
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
-  // zodOpenAPIHono() throws on invalid schemas
+) {
   try {
     const coreResult = await core(
       zodOpenAPIHono(openAPI, componentsOptions),
       path.dirname(output),
       output,
     )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
     return {
       ok: true,
       value: `🔥 Generated code written to ${output}`,
-    }
+    } as const
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }

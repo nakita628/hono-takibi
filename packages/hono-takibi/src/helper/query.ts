@@ -21,7 +21,7 @@ import {
  * @param prefix - Hook prefix ('use' or 'create')
  * @returns Hook name (e.g., "useGetUsers" or "createGetUsers")
  */
-function makeHookName(method: string, pathStr: string, prefix: string): string {
+function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)
   return `${prefix}${capitalize(funcName)}`
 }
@@ -39,7 +39,7 @@ function makeResponseType(parseResponseFuncName: string): string {
  * e.g., ('client', 'get', '/users') → 'InferRequestType<typeof client.users.$get>'
  * e.g., ('client', 'get', '/users/{id}') → 'InferRequestType<(typeof client.users)[':id']['$get']>'
  */
-function makeArgsType(clientName: string, method: string, pathStr: string): string {
+function makeArgsType(clientName: string, method: string, pathStr: string) {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
   const typeAccess = pathResult.hasBracket
@@ -67,7 +67,7 @@ function makeParseResponseWrapperCode(
   pathStr: string,
   hasArgs: boolean,
   clientName: string,
-): string {
+) {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
   if (hasArgs) {
@@ -85,7 +85,7 @@ function makeParseResponseWrapperCode(
  * @param isSWR - Whether to use SWR naming (keeps method prefix, no "Query" suffix)
  * @returns Query key getter function name (e.g., "getUsersQueryKey" or "getGetUsersKey")
  */
-function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
+function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
     return `get${capitalize(methodPath(method, pathStr))}Key`
   }
@@ -100,7 +100,7 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
  * @param isSWR - Whether to use SWR naming (keeps method prefix, no "QueryKey" suffix)
  * @returns Infinite query key getter function name (e.g., "getUsersInfiniteQueryKey" or "getGetUsersInfiniteKey")
  */
-function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean): string {
+function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
     return `get${capitalize(methodPath(method, pathStr))}InfiniteKey`
   }
@@ -113,7 +113,7 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
  * @param pathStr - API path
  * @returns Query options getter function name (e.g., "getUsersQueryOptions")
  */
-function makeQueryOptionsGetterName(pathStr: string): string {
+function makeQueryOptionsGetterName(pathStr: string) {
   return `get${capitalize(methodPath('', pathStr))}QueryOptions`
 }
 
@@ -149,7 +149,7 @@ function makeQueryKeyGetterCode(
     readonly isSWR?: boolean
   },
   hasHeader = false,
-): string {
+) {
   // Extract prefix (first path segment without leading slash)
   // e.g., '/pet/findByStatus' → 'pet', '/store/inventory' → 'store'
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
@@ -183,7 +183,7 @@ function makeInfiniteQueryKeyGetterCode(
   honoPath: string,
   config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
   hasHeader = false,
-): string {
+) {
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
 
   // Vue Query: uses MaybeRefOrGetter and toValue
@@ -231,7 +231,7 @@ function makeQueryOptionsGetterCode(
     readonly hasQueryOptionsHelper?: boolean
     readonly isVueQuery?: boolean
   },
-): string {
+) {
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
@@ -272,7 +272,7 @@ function makeSWRQueryHookCode(
   argsType: string,
   parseResponseFuncName: string,
   queryFn = 'useSWR',
-): string {
+) {
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
   const optionsSig = `options?:{swr?:${swrConfigType};options?:ClientRequestOptions}`
@@ -301,7 +301,7 @@ function makeSWRInfiniteHookCode(
   responseType: string,
   parseResponseFuncName: string,
   errorType = 'Error',
-): string {
+) {
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const swrConfigType = `SWRInfiniteConfiguration<${responseType},${errorType}>&{swrKey?:SWRInfiniteKeyLoader}`
   const optionsSig = `options:{swr?:${swrConfigType};options?:ClientRequestOptions}`
@@ -326,7 +326,7 @@ function makeQueryHookCode(
     readonly useQueryOptionsType: string
     readonly errorType?: string
   },
-): string {
+) {
   const errorType = config.errorType ?? 'Error'
   // TData generic enables type-safe `select` option:
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
@@ -378,7 +378,7 @@ function makeSuspenseQueryHookCode(
     readonly isVueQuery?: boolean
     readonly errorType?: string
   },
-): string {
+) {
   const errorType = config.errorType ?? 'Error'
   // TData generic enables type-safe `select` option
   const tDataGeneric = `<TData=${responseType}>`
@@ -438,7 +438,7 @@ function makeInfiniteQueryOptionsGetterCode(
     readonly isVueQuery?: boolean
     readonly hasInfiniteQueryOptionsHelper?: boolean
   },
-): string {
+) {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
   // infiniteQueryOptions() requires getNextPageParam + initialPageParam which the getter
   // cannot provide (user supplies them). Return plain {queryKey, queryFn} object instead.
@@ -471,7 +471,7 @@ function makeInfiniteQueryHookCode(
     readonly isVueQuery?: boolean
     readonly errorType?: string
   },
-): string {
+) {
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
@@ -514,7 +514,7 @@ function makeSuspenseInfiniteQueryHookCode(
     readonly isVueQuery?: boolean
     readonly errorType?: string
   },
-): string {
+) {
   const errorType = config.errorType ?? 'Error'
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},${errorType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
@@ -553,7 +553,7 @@ function makeSuspenseInfiniteQueryHookCode(
  *
  * @see https://tkdodo.eu/blog/effective-react-query-keys
  */
-function makePrefixKeyCode(prefix: string): string {
+function makePrefixKeyCode(prefix: string) {
   const funcName = `get${toIdentifierPascalCase(prefix)}Key`
   return `export function ${funcName}(){return['${prefix}']as const}`
 }
@@ -561,7 +561,7 @@ function makePrefixKeyCode(prefix: string): string {
 /**
  * Extracts unique prefixes from OpenAPI paths and generates prefix key functions.
  */
-function makePrefixKeyCodes(paths: OpenAPIPaths): string[] {
+function makePrefixKeyCodes(paths: OpenAPIPaths): readonly string[] {
   const prefixes = new Set<string>()
   for (const p of Object.keys(paths)) {
     const prefix = p.replace(/^\//, '').split('/')[0]
@@ -579,7 +579,7 @@ function makePrefixKeyCodes(paths: OpenAPIPaths): string[] {
  * @param pathStr - API path
  * @returns Mutation options getter function name (e.g., "getPutPetMutationOptions")
  */
-function makeMutationOptionsGetterName(method: string, pathStr: string): string {
+function makeMutationOptionsGetterName(method: string, pathStr: string) {
   const funcName = methodPath(method, pathStr)
   return `get${capitalize(funcName)}MutationOptions`
 }
@@ -610,7 +610,7 @@ function makeMutationOptionsGetterCode(
   method: string,
   honoPath: string,
   config: { readonly frameworkName: string; readonly hasMutationOptionsHelper?: boolean },
-): string {
+) {
   const methodUpper = method.toUpperCase()
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
@@ -638,7 +638,7 @@ function makeSWRHeader(
   hasMutation: boolean,
   hasAnyArgs: boolean,
   hasInfiniteQuery = false,
-): string {
+) {
   const lines: string[] = []
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
@@ -682,7 +682,7 @@ function makeSWRMutationHookCode(
   parseResponseFuncName: string,
   hasNoContent: boolean,
   errorType = 'Error',
-): string {
+) {
   const variablesType = hasArgs ? argsType : 'undefined'
   const responseTypeWithUndefined = hasNoContent ? `${responseType}|undefined` : responseType
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},${errorType},Key,${variablesType}>`
@@ -694,8 +694,6 @@ function makeSWRMutationHookCode(
   const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
   return `export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async()=>${parseResponseFuncName}(clientOptions),restMutationOptions)}}`
 }
-
-/* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
 
 function makeMutationHookCode(
   hookName: string,
@@ -710,7 +708,7 @@ function makeMutationHookCode(
     readonly errorType?: string
   },
   hasNoContent: boolean,
-): string {
+) {
   const variablesType = hasArgs ? argsType : 'void'
   const errorType = config.errorType ?? 'Error'
   // For 204/205 responses, parseResponse returns undefined
@@ -755,13 +753,7 @@ function makeHookCode(
     readonly immutableQueryFn?: string
   },
   clientName: string,
-): {
-  readonly code: string
-  readonly isQuery: boolean
-  readonly hasArgs: boolean
-  readonly hasInfinite: boolean
-  readonly parseResponseFuncName: string
-} | null {
+) {
   const op = item[method]
   if (!isOperationLike(op)) return null
   const hookName = makeHookName(method, pathStr, config.hookPrefix)
@@ -854,7 +846,7 @@ function makeHookCode(
         hasArgs,
         hasInfinite: true,
         parseResponseFuncName,
-      }
+      } as const
     }
     // SWR mutation
     const prefix = honoPath.replace(/^\//, '').split('/')[0]
@@ -876,7 +868,7 @@ function makeHookCode(
       hasArgs,
       hasInfinite: false,
       parseResponseFuncName,
-    }
+    } as const
   }
   // TanStack Query / Vue Query / Svelte Query
   if (isQuery) {
@@ -1011,7 +1003,7 @@ function makeHookCode(
       hasArgs,
       hasInfinite,
       parseResponseFuncName,
-    }
+    } as const
   }
   // Generate mutation options getter (mutation key is inlined)
   const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
@@ -1249,12 +1241,10 @@ export async function makeQueryHooks(
   },
   split?: boolean,
   clientName = 'client',
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const pathsMaybe = openAPI.paths
   if (!isOpenAPIPaths(pathsMaybe)) {
-    return { ok: false, error: 'Invalid OpenAPI paths' }
+    return { ok: false, error: 'Invalid OpenAPI paths' } as const
   }
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
@@ -1282,11 +1272,11 @@ export async function makeQueryHooks(
     )
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
+    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
     return {
       ok: true,
       value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
-    }
+    } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
   const prefixKeyFileName = '_keys'
@@ -1297,8 +1287,7 @@ export async function makeQueryHooks(
     ]),
   )
   const index = `${exportLines.join('\n')}\n`
-  const allResults = await Promise.all([
-    // Prefix key file (no imports needed — pure functions returning string literals)
+  const results = await Promise.all([
     ...(prefixKeyCodes.length > 0
       ? [
           core(
@@ -1326,10 +1315,10 @@ export async function makeQueryHooks(
     }),
     core(index, path.dirname(indexPath), indexPath),
   ])
-  const firstError = allResults.find((result) => !result.ok)
-  if (firstError) return firstError
+  const firstError = results.find((result) => !result.ok)
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
   return {
     ok: true,
     value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
-  }
+  } as const
 }

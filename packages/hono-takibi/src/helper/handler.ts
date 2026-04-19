@@ -7,7 +7,7 @@ import { mergeBarrelFile, mergeHandlerFile, mergeTestFile } from '../merge/index
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 
-function makeRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
+function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop()
     if (refName) refs.add(refName)
@@ -41,27 +41,20 @@ function makeRefs(schema: Schema, refs: Set<string> = new Set()): Set<string> {
   return refs
 }
 
-function makeMockFunction(
-  name: string,
-  schema: Schema,
-  schemas: { readonly [k: string]: Schema },
-): string {
+function makeMockFunction(name: string, schema: Schema, schemas: { readonly [k: string]: Schema }) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   return `function mock${name}() {\n  return ${mockBody}\n}`
 }
 
-function makeResponseInfo(operation: Operation): {
-  readonly schema: Schema | undefined
-  readonly statusCode: number
-} {
+function makeResponseInfo(operation: Operation) {
   if (!isOperationWithResponses(operation)) {
-    return { schema: undefined, statusCode: 200 }
+    return { schema: undefined, statusCode: 200 } as const
   }
   const responses = operation.responses
   const successResponse = responses['200'] ?? responses['201'] ?? responses['204']
   const responseSchema = successResponse?.content?.['application/json']?.schema
   const statusCode = responses['200'] ? 200 : responses['201'] ? 201 : responses['204'] ? 204 : 200
-  return { schema: responseSchema, statusCode }
+  return { schema: responseSchema, statusCode } as const
 }
 
 function makeMockHandlerCode(
@@ -80,19 +73,18 @@ function makeMockHandlerCode(
     return {
       content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{
   return c.json(${mockData}, ${statusCode})
-}`,
+}` as const,
       needsFaker: true,
       usedRefs,
-    }
+    } as const
   }
-  // 204 No Content
   return {
     content: `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(_c)=>{
   return new Response(null, { status: 204 })
-}`,
+}` as const,
     needsFaker: false,
     usedRefs: new Set(),
-  }
+  } as const
 }
 
 function makeStubHandlerCode(routeId: string): string {
@@ -115,15 +107,7 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
   return `${fileName.replace(/\.ts$/, '')}.test.ts`
 }
 
-function makePaths(
-  output: string,
-  pathAlias: string | undefined,
-  routeImport?: string,
-): {
-  readonly handlerPath: string
-  readonly importFrom: string
-  readonly testImportFrom: string
-} {
+function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
   const isDot = output === '.' || output === './'
   const isIndexFile = !isDot && output.endsWith('/index.ts')
   const baseDir = isDot
@@ -136,11 +120,10 @@ function makePaths(
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : (output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts').replace(/\.ts$/, '')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
-  // Fallback: routeImport (routes.import) → pathAlias → relative path
   const importFrom =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
   const testImportFrom = aliasPrefix ?? '..'
-  return { handlerPath, importFrom, testImportFrom }
+  return { handlerPath, importFrom, testImportFrom } as const
 }
 
 function makeInlineStubContent(routeId: string): string {
@@ -164,13 +147,13 @@ function makeInlineMockContent(
       content: `.openapi(${routeId}Route,async(c)=>{return c.json(${mockData},${statusCode})})`,
       needsFaker: true,
       usedRefs,
-    }
+    } as const
   }
   return {
     content: `.openapi(${routeId}Route,async(_c)=>{return new Response(null,{status:204})})`,
     needsFaker: false,
     usedRefs: new Set(),
-  }
+  } as const
 }
 
 function makeInlineStubHandlerInfo(
@@ -193,7 +176,7 @@ function makeInlineStubHandlerInfo(
     routeNames: [`${routeId}Route`],
     needsFaker: false,
     usedRefs: new Set(),
-  }
+  } as const
 }
 
 function makeInlineMockHandlerInfo(
@@ -229,7 +212,7 @@ function makeInlineStubFileContent(
     readonly routeNames: readonly string[]
   },
   importFrom: string,
-): string {
+) {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
@@ -248,7 +231,7 @@ function makeInlineMockFileContent(
   },
   importFrom: string,
   schemas: { readonly [k: string]: Schema },
-): string {
+) {
   const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
@@ -286,7 +269,7 @@ function makeStubHandlerInfo(
     routeNames: [`${routeId}Route`],
     needsFaker: false,
     usedRefs: new Set(),
-  }
+  } as const
 }
 
 function makeMockHandlerInfo(
@@ -294,14 +277,7 @@ function makeMockHandlerInfo(
   method: string,
   operation: Operation,
   schemas: { readonly [k: string]: Schema },
-): {
-  readonly fileName: `${string}.ts`
-  readonly testFileName: `${string}.ts`
-  readonly contents: readonly string[]
-  readonly routeNames: readonly string[]
-  readonly needsFaker: boolean
-  readonly usedRefs: ReadonlySet<string>
-} {
+) {
   const routeId = methodPath(method, path)
   const fileName = makeHandlerFileName(path)
   const result = makeMockHandlerCode(routeId, operation, schemas)
@@ -312,7 +288,7 @@ function makeMockHandlerInfo(
     routeNames: [`${routeId}Route`],
     needsFaker: result.needsFaker,
     usedRefs: result.usedRefs,
-  }
+  } as const
 }
 
 function makeMergedHandlers<
@@ -351,7 +327,7 @@ function makeStubFileContent(
     readonly routeNames: readonly string[]
   },
   importFrom: string,
-): string {
+) {
   const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
@@ -367,7 +343,7 @@ function makeMockFileContent(
   },
   importFrom: string,
   schemas: { readonly [k: string]: Schema },
-): string {
+) {
   const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
@@ -392,20 +368,13 @@ function makeBarrelContent(fileNames: readonly string[]): string {
  * Any `.ts` handler file not in the generated set (excluding `index.ts` and `.test.ts` files)
  * is deleted, along with its corresponding `.test.ts` file.
  */
-async function removeStaleFiles(
-  handlerPath: string,
-  generatedFileNames: ReadonlySet<string>,
-): Promise<
-  { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
-> {
+async function removeStaleFiles(handlerPath: string, generatedFileNames: ReadonlySet<string>) {
   const readdirResult = await readdir(handlerPath)
   if (!readdirResult.ok) {
-    // Directory doesn't exist yet (first generation) — nothing to clean
     if (readdirResult.notFound) {
-      return { ok: true, value: undefined }
+      return { ok: true, value: undefined } as const
     }
-    // Other errors (e.g., EACCES): propagate so callers are aware
-    return { ok: false, error: readdirResult.error }
+    return { ok: false, error: readdirResult.error } as const
   }
   const staleFiles = readdirResult.value.filter(
     (file) =>
@@ -420,11 +389,9 @@ async function removeStaleFiles(
       unlink(`${handlerPath}/${file.replace(/\.ts$/, '.test.ts')}`),
     ]),
   )
-
   const firstError = results.find((r) => !r.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
-
-  return { ok: true, value: undefined }
+  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+  return { ok: true, value: undefined } as const
 }
 
 /**
@@ -444,16 +411,12 @@ export async function zodOpenAPIHonoHandler(
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-): Promise<
-  { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
-> {
+) {
   const paths = openapi.paths
   const handlers = makeMergedHandlers(
     Object.entries(paths).flatMap(([path, pathItem]) =>
       Object.entries(pathItem)
-        .filter(
-          (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
-        )
+        .filter((entry) => isHttpMethod(entry[0]) && isOperation(entry[1]))
         .map(([method]) =>
           routeHandler
             ? makeStubHandlerInfo(path, method)
@@ -463,7 +426,7 @@ export async function zodOpenAPIHonoHandler(
   )
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
   const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
@@ -524,14 +487,12 @@ export async function zodOpenAPIHonoHandler(
       return { ok: true, value: undefined } as const
     })(),
   ])
-
   const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-  // Remove stale handler files (deleted from OpenAPI)
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
-  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
-  return { ok: true, value: undefined }
+  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const
+  return { ok: true, value: undefined } as const
 }
 
 /**
@@ -552,9 +513,7 @@ export async function mockZodOpenAPIHonoHandler(
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-): Promise<
-  { readonly ok: true; readonly value: undefined } | { readonly ok: false; readonly error: string }
-> {
+) {
   const paths = openapi.paths
   const schemas = openapi.components?.schemas ?? {}
   const handlers = makeMergedHandlers(
@@ -572,7 +531,7 @@ export async function mockZodOpenAPIHonoHandler(
   )
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
   const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
     ...handlers.map(async (handler) => {
       const fileContent = routeHandler
@@ -635,9 +594,8 @@ export async function mockZodOpenAPIHonoHandler(
   ])
   const firstError = results.find((result) => !result.ok)
   if (firstError) return firstError
-  // Remove stale handler files (deleted from OpenAPI)
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
-  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error }
-  return { ok: true, value: undefined }
+  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const
+  return { ok: true, value: undefined } as const
 }
