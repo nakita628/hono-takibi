@@ -46,17 +46,16 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
         ]
           .filter((v) => v !== undefined)
           .join(',')
-      
         const asConst = readonly ? ' as const' : ''
         return `export const ${methodPath(method, path)}Route=createRoute({${properties}}${asConst})`
     }
-  const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
-    r.startsWith('#/components/parameters/')
-  const isPathItemRef = (r: string): r is `#/components/pathItems/${string}` =>
-    r.startsWith('#/components/pathItems/')
-  const resolveParameter = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
-    if ('name' in p && 'in' in p) return p
-    const ref = '$ref' in p ? p.$ref : undefined
+  const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
+    ref.startsWith('#/components/parameters/')
+  const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
+    ref.startsWith('#/components/pathItems/')
+  const resolveParameter = (parameter: Parameter | { readonly $ref?: string }): Parameter | undefined => {
+    if ('name' in parameter && 'in' in parameter) return parameter
+    const ref = '$ref' in parameter ? parameter.$ref : undefined
     if (!ref || !isParameterRef(ref)) return undefined
     const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
     if (!resolved) return undefined

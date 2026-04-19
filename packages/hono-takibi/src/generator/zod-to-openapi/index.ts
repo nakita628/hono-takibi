@@ -2,11 +2,7 @@ import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { error, normalizeTypes } from '../../utils/index.js'
-import { _enum } from './z/enum.js'
-import { integer } from './z/integer.js'
-import { number } from './z/number.js'
-import { object } from './z/object.js'
-import { string } from './z/string.js'
+import { string, number, integer, object, _enum } from './z/index.js'
 
 /**
  * Converts an OpenAPI Schema to a Zod schema string.

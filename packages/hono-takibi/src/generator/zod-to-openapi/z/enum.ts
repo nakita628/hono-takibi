@@ -33,10 +33,8 @@ import { error } from '../../../utils/index.js'
 export function _enum(schema: Schema): string {
   const ht = (t: string): boolean =>
     schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
-  /* isPrimitive - check if value is a valid z.literal primitive */
   const isPrimitive = (v: unknown): boolean =>
     v === null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
-  /* lit - converts a value to a valid JavaScript literal */
   const lit = (v: unknown): string => {
     if (v === null) return 'null'
     if (v === undefined) return 'undefined'
@@ -56,15 +54,12 @@ export function _enum(schema: Schema): string {
     }
     return errArg
   }
-  /* zLit - wraps value appropriately for Zod 4 */
   const zLit = (v: unknown): string =>
     isPrimitive(v) ? `z.literal(${lit(v)}${litErrArg(v)})` : `z.custom<${JSON.stringify(v)}>()`
   /* tuple */
   const tuple = (arr: readonly unknown[]): string =>
     `z.tuple([${arr.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
-  /* guard */
   if (!schema.enum || schema.enum.length === 0) return 'z.any()'
-  /* number / integer enum  */
   if (ht('number') || ht('integer')) {
     return schema.enum.length > 1
       ? `z.union([${schema.enum.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`

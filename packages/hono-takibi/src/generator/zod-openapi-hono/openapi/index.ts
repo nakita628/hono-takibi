@@ -23,7 +23,7 @@ export function zodOpenAPIHono(
     readonly exportMediaTypes: boolean
     readonly exportMediaTypesTypes: boolean
   },
-): string {
+) {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)
