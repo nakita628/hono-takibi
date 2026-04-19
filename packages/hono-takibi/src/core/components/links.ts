@@ -42,7 +42,7 @@ export async function links(
   if (keys.length === 0) return { ok: true, value: 'No links found' } as const
   if (split) {
     const exportsResult = await makeExports(links, 'Link', output, readonly)
-    if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
+    if (!exportsResult.ok) return { ok: false, error: exportsResult.error } as const
     return { ok: true, value: exportsResult.value } as const
   }
   const code = makeExportConst(links, 'Link', readonly)

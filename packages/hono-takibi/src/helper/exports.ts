@@ -28,9 +28,7 @@ export async function makeExports(
     | 'Webhook',
   output: string,
   readonly?: boolean,
-): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+) {
   const keys = Object.keys(value)
   const outDir = output.replace(/\.ts$/, '')
   // sort abc
@@ -54,5 +52,5 @@ export async function makeExports(
   return {
     ok: true,
     value: `Generated ${suffix} code written to ${outDir}/*.ts (index.ts included)`,
-  }
+  } as const
 }

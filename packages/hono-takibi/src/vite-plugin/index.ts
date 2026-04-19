@@ -30,7 +30,7 @@ import {
 } from '../core/index.js'
 import { setFormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
-import { parseOpenAPI } from '../openapi/index.js'
+import { type OpenAPI, parseOpenAPI } from '../openapi/index.js'
 
 type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
@@ -434,7 +434,15 @@ const runAllGenerationTasks = async (
   const makeQueryJob = (
     name: string,
     cfg: typeof config.swr,
-    fn: typeof swr,
+    fn: (
+      openAPI: OpenAPI,
+      output: string,
+      importPath: string,
+      split?: boolean,
+      clientName?: string,
+    ) => Promise<
+      { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+    >,
   ): Promise<string> | undefined => {
     if (!cfg) return undefined
     return runSplitAwareJob(name, cfg.output, cfg.split === true, (out) =>

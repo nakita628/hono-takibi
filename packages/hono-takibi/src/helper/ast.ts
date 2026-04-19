@@ -10,10 +10,11 @@ import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
  * @param code - TypeScript code to parse
  * @returns Parsed TypeScript SourceFile
  */
-const createSourceFile = (code: string): ts.SourceFile =>
-  ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+function createSourceFile(code: string) {
+  return ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+}
 
-const getChildren = (node: ts.Node): readonly ts.Node[] => {
+function getChildren(node: ts.Node): readonly ts.Node[] {
   const syntaxChildren = node.getChildren()
   if (syntaxChildren.length > 0) return syntaxChildren
   const semanticChildren: ts.Node[] = []
@@ -23,39 +24,41 @@ const getChildren = (node: ts.Node): readonly ts.Node[] => {
   return semanticChildren
 }
 
-const collectIdentifiers = (node: ts.Node): readonly string[] => {
+function collectIdentifiers(node: ts.Node) {
   const visit = (n: ts.Node): readonly string[] => {
     const current = ts.isIdentifier(n) ? [n.text] : []
     const children = getChildren(n).flatMap(visit)
-    return [...current, ...children]
+    return [...current, ...children] as const
   }
   return visit(node)
 }
 
-const extractIdentifiers = (code: string, varNames: ReadonlySet<string>): readonly string[] => {
+function extractIdentifiers(code: string, varNames: ReadonlySet<string>) {
   const sourceFile = createSourceFile(code)
   const allIdentifiers = collectIdentifiers(sourceFile)
   const found = new Set(allIdentifiers.filter((id) => varNames.has(id)))
-  return [...found]
+  return [...found] as const
 }
 
-const createInitialState = (): {
+function createInitialState(): {
   readonly indices: Map<string, number>
   readonly lowLinks: Map<string, number>
   readonly onStack: Set<string>
   readonly stack: readonly string[]
   readonly sccs: readonly (readonly string[])[]
   readonly index: number
-} => ({
-  indices: new Map<string, number>(),
-  lowLinks: new Map<string, number>(),
-  onStack: new Set<string>(),
-  stack: [],
-  sccs: [],
-  index: 0,
-})
+} {
+  return {
+    indices: new Map<string, number>(),
+    lowLinks: new Map<string, number>(),
+    onStack: new Set<string>(),
+    stack: [],
+    sccs: [],
+    index: 0,
+  } as const
+}
 
-const popStackUntil = (
+function popStackUntil(
   stack: readonly string[],
   onStack: Set<string>,
   name: string,
@@ -63,7 +66,7 @@ const popStackUntil = (
   readonly scc: readonly string[]
   readonly newStack: readonly string[]
   readonly newOnStack: Set<string>
-} => {
+} {
   const idx = stack.lastIndexOf(name)
   if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
   const scc = stack.slice(idx)
@@ -72,7 +75,7 @@ const popStackUntil = (
   return { scc, newStack, newOnStack }
 }
 
-const tarjanConnect = (
+function tarjanConnect(
   name: string,
   deps: ReadonlyMap<string, readonly string[]>,
   var2name: ReadonlyMap<string, string>,
@@ -84,14 +87,7 @@ const tarjanConnect = (
     readonly sccs: readonly (readonly string[])[]
     readonly index: number
   },
-): {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: readonly string[]
-  readonly sccs: readonly (readonly string[])[]
-  readonly index: number
-} => {
+) {
   const currentIndex = state.index
   const indices = new Map(state.indices).set(name, currentIndex)
   const lowLinks = new Map(state.lowLinks).set(name, currentIndex)
@@ -112,7 +108,7 @@ const tarjanConnect = (
     stack,
     onStack,
     index: currentIndex + 1,
-  }
+  } as const
 
   const afterDeps = (deps.get(name) ?? []).reduce<{
     readonly indices: Map<string, number>
@@ -163,10 +159,10 @@ const tarjanConnect = (
   return afterDeps
 }
 
-const findCyclicSchemas = (
+function findCyclicSchemas(
   names: readonly string[],
   deps: ReadonlyMap<string, readonly string[]>,
-): ReadonlySet<string> => {
+): ReadonlySet<string> {
   const name2var = new Map(names.map((n) => [n, toIdentifierPascalCase(ensureSuffix(n, 'Schema'))]))
   const var2name = new Map(names.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]))
   const finalState = names.reduce(
@@ -228,11 +224,9 @@ export function analyzeCircularSchemas(
   const varNameToName = new Map(
     schemaNames.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]),
   )
-
   const zSchemaMap = new Map(
     schemaNames.map((n) => [n, zodToOpenAPI(schemas[n], undefined, readonly)]),
   )
-
   const depsMap = new Map(
     schemaNames.map((n) => {
       const code = zSchemaMap.get(n) ?? ''
@@ -240,9 +234,7 @@ export function analyzeCircularSchemas(
       return [n, extractIdentifiers(code, varNameSet).filter((v) => v !== selfVar)]
     }),
   )
-
   const cyclicSchemas = findCyclicSchemas(schemaNames, depsMap)
-
   const extendedCyclicSchemas = new Set([
     ...cyclicSchemas,
     ...[...cyclicSchemas].flatMap((n) =>
@@ -262,19 +254,21 @@ export function analyzeCircularSchemas(
   }
 }
 
-const createDeclaration = (
+function createDeclaration(
   name: string,
   fullText: string,
   refs: readonly string[],
   kind: 'variable' | 'type' | 'interface',
-) => ({
-  name,
-  fullText,
-  refs,
-  kind,
-})
+) {
+  return {
+    name,
+    fullText,
+    refs,
+    kind,
+  } as const
+}
 
-const getDeclarationName = (statement: ts.Statement): string | undefined => {
+function getDeclarationName(statement: ts.Statement) {
   if (ts.isVariableStatement(statement)) {
     const declaration = statement.declarationList.declarations[0]
     return declaration && ts.isIdentifier(declaration.name) ? declaration.name.text : undefined
@@ -288,16 +282,14 @@ const getDeclarationName = (statement: ts.Statement): string | undefined => {
   return undefined
 }
 
-const getDeclarationKind = (
-  statement: ts.Statement,
-): 'variable' | 'type' | 'interface' | undefined => {
+function getDeclarationKind(statement: ts.Statement) {
   if (ts.isVariableStatement(statement)) return 'variable'
   if (ts.isTypeAliasDeclaration(statement)) return 'type'
   if (ts.isInterfaceDeclaration(statement)) return 'interface'
   return undefined
 }
 
-const isLazySchema = (statement: ts.Statement): boolean => {
+function isLazySchema(statement: ts.Statement): boolean {
   if (!ts.isVariableStatement(statement)) return false
   const declaration = statement.declarationList.declarations[0]
   if (!declaration?.initializer) return false
@@ -306,12 +298,12 @@ const isLazySchema = (statement: ts.Statement): boolean => {
   return /^z\.lazy\s*\(/.test(initText)
 }
 
-const getStatementReferences = (
+function getStatementReferences(
   statement: ts.Statement,
   declNames: ReadonlySet<string>,
   selfName: string,
   selfKind: 'variable' | 'type' | 'interface',
-): readonly string[] => {
+): readonly string[] {
   if (isLazySchema(statement)) return []
 
   const identifiers = collectIdentifiers(statement)
@@ -335,9 +327,9 @@ const getStatementReferences = (
   ]
 }
 
-const parseStatements = (
+function parseStatements(
   sourceFile: ts.SourceFile,
-): readonly ReturnType<typeof createDeclaration>[] => {
+): readonly ReturnType<typeof createDeclaration>[] {
   const statements = sourceFile.statements.filter(
     (s) =>
       ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
@@ -359,9 +351,9 @@ const parseStatements = (
     .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
 }
 
-const topoSort = (
+function topoSort(
   decls: readonly ReturnType<typeof createDeclaration>[],
-): readonly ReturnType<typeof createDeclaration>[] => {
+): readonly ReturnType<typeof createDeclaration>[] {
   // Use composite key (kind:name) to distinguish const and type with same name
   const makeKey = (kind: 'variable' | 'type' | 'interface', name: string): string =>
     `${kind}:${name}`
