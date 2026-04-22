@@ -60,9 +60,7 @@ function parseCli(args: readonly string[]) {
   } as const
 }
 
-export async function honoTakibi(): Promise<
-  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
-> {
+export async function honoTakibi() {
   const args = process.argv.slice(2)
   if (args.length === 1 && (args[0] === '--help' || args[0] === '-h')) {
     return { ok: true, value: HELP_TEXT } as const
