@@ -28,8 +28,8 @@ export function isHttpMethod(
   )
 }
 
-export function isValidIdent(s: string): boolean {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s)
+export function isValidIdent(v: string): boolean {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(v)
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {
@@ -49,8 +49,8 @@ export function isRefObject(v: unknown): v is { readonly $ref: string } {
   )
 }
 
-export function isStringRef(p: object): p is { readonly $ref: string } {
-  return '$ref' in p && typeof p.$ref === 'string'
+export function isStringRef(v: object): v is { readonly $ref: string } {
+  return '$ref' in v && typeof v.$ref === 'string'
 }
 
 export function isParameterObject(v: unknown): v is {
@@ -65,20 +65,18 @@ export function isParameterObject(v: unknown): v is {
   return pos === 'path' || pos === 'query' || pos === 'header' || pos === 'cookie'
 }
 
-export function isParameter(parameter: unknown): parameter is Parameter {
+export function isParameter(v: unknown): v is Parameter {
   return (
-    typeof parameter === 'object' &&
-    parameter !== null &&
-    'name' in parameter &&
-    'in' in parameter &&
-    ('schema' in parameter || 'content' in parameter)
+    typeof v === 'object' &&
+    v !== null &&
+    'name' in v &&
+    'in' in v &&
+    ('schema' in v || 'content' in v)
   )
 }
 
-export function isParameterArray(
-  parameters: unknown,
-): parameters is readonly Parameter[] | readonly Reference[] {
-  return Array.isArray(parameters)
+export function isParameterArray(v: unknown): v is readonly Parameter[] | readonly Reference[] {
+  return Array.isArray(v)
 }
 
 export function isOperationLike(v: unknown): v is {
@@ -91,8 +89,8 @@ export function isOperationLike(v: unknown): v is {
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'responses' in v
 }
 
-export function isOperation(operation: unknown): operation is Operation {
-  return typeof operation === 'object' && operation !== null && 'responses' in operation
+export function isOperation(v: unknown): v is Operation {
+  return typeof v === 'object' && v !== null && 'responses' in v
 }
 
 export function isOperationWithResponses(v: unknown): v is Operation & {
@@ -115,8 +113,8 @@ export function isSchemaProperty(v: unknown): v is { readonly schema?: unknown }
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'schema' in v
 }
 
-export function isSchemaArray(items: Schema | readonly Schema[]): items is readonly Schema[] {
-  return Array.isArray(items)
+export function isSchemaArray(v: Schema | readonly Schema[]): v is readonly Schema[] {
+  return Array.isArray(v)
 }
 
 export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } {
@@ -127,11 +125,9 @@ export function isMedia(v: Media | Reference): v is Media {
   return typeof v === 'object' && v !== null && 'schema' in v
 }
 
-export function isRequestBody(requestBody: unknown): requestBody is RequestBody {
+export function isRequestBody(v: unknown): v is RequestBody {
   return (
-    typeof requestBody === 'object' &&
-    requestBody !== null &&
-    ('content' in requestBody || 'required' in requestBody || 'description' in requestBody)
+    typeof v === 'object' && v !== null && ('content' in v || 'required' in v || 'description' in v)
   )
 }
 
@@ -143,9 +139,9 @@ export function isRequestBodyOrRef(
 }
 
 export function isContentBody(
-  body: unknown,
-): body is { readonly content?: { readonly [k: string]: { readonly schema?: Schema } } } {
-  return typeof body === 'object' && body !== null && !('$ref' in body)
+  v: unknown,
+): v is { readonly content?: { readonly [k: string]: { readonly schema?: Schema } } } {
+  return typeof v === 'object' && v !== null && !('$ref' in v)
 }
 
 export function isSecurityScheme(v: unknown): v is {
@@ -158,9 +154,9 @@ export function isSecurityScheme(v: unknown): v is {
 }
 
 export function isSecurityArray(
-  security: unknown,
-): security is readonly { readonly [k: string]: readonly string[] }[] {
-  return Array.isArray(security)
+  v: unknown,
+): v is readonly { readonly [k: string]: readonly string[] }[] {
+  return Array.isArray(v)
 }
 
 export function isResponses(v: unknown): v is Responses {

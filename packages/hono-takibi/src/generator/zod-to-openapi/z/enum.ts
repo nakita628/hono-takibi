@@ -42,10 +42,8 @@ export function _enum(schema: Schema): string {
     if (typeof v === 'number' || typeof v === 'boolean') return String(v)
     return JSON.stringify(v)
   }
-  /* x-error-message (shared across all branches) */
   const errorMessage = schema['x-error-message']
   const errArg = errorMessage ? `,${error(errorMessage)}` : ''
-  /* x-enum-error-messages (per-value, falls back to errArg) */
   const enumMessages = schema['x-enum-error-messages']
   const litErrArg = (v: unknown): string => {
     if (enumMessages) {
@@ -56,7 +54,6 @@ export function _enum(schema: Schema): string {
   }
   const zLit = (v: unknown): string =>
     isPrimitive(v) ? `z.literal(${lit(v)}${litErrArg(v)})` : `z.custom<${JSON.stringify(v)}>()`
-  /* tuple */
   const tuple = (arr: readonly unknown[]): string =>
     `z.tuple([${arr.map((v) => `z.literal(${lit(v)}${litErrArg(v)})`).join(',')}]${errArg})`
   if (!schema.enum || schema.enum.length === 0) return 'z.any()'
@@ -88,7 +85,6 @@ export function _enum(schema: Schema): string {
     }
     return `z.literal(${lit(schema.enum[0])}${litErrArg(schema.enum[0])})`
   }
-  /* mixed / null only */
   if (schema.enum.length > 1) {
     const parts = schema.enum.map((v) =>
       isPrimitive(v) ? `z.literal(${lit(v)}${litErrArg(v)})` : `z.custom<${JSON.stringify(v)}>()`,

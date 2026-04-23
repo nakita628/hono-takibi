@@ -2,32 +2,6 @@ import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
 
-/**
- * Generates a TypeScript type string from an OpenAPI schema.
- *
- * @param schema - The OpenAPI schema object
- * @param selfTypeName - The name of the current type (for self-reference detection)
- * @param cyclicGroup - Optional set of type names in a cyclic dependency group
- * @param readonly - Whether to generate readonly array and object types
- * @returns A TypeScript type string representation
- *
- * @mermaid
- * flowchart TD
- *   A["makeTypeString(schema)"] --> B{"Has $ref?"}
- *   B -->|Yes| C["Ref type string"]
- *   B -->|No| D{"oneOf / anyOf?"}
- *   D -->|Yes| E["Union type (|)"]
- *   D -->|No| F{"allOf?"}
- *   F -->|Yes| G["Intersection type (&)"]
- *   F -->|No| H{"enum?"}
- *   H -->|Yes| I["Literal union"]
- *   H -->|No| J{"Primitive type?"}
- *   J -->|string| K["string"]
- *   J -->|number/integer| L["number"]
- *   J -->|boolean| M["boolean"]
- *   J -->|array| N["T[] / readonly T[]"]
- *   J -->|object| O["{props}"]
- */
 export function makeTypeString(
   schema: Schema,
   selfTypeName: string,

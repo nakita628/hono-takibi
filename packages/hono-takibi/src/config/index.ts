@@ -30,6 +30,7 @@ const ConfigSchema = z
             pathAlias: z.string().exactOptional(),
             testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
+          .readonly()
           .exactOptional(),
         exportSchemas: z.boolean().exactOptional(),
         exportSchemasTypes: z.boolean().exactOptional(),
@@ -52,6 +53,7 @@ const ConfigSchema = z
             split: z.boolean().exactOptional(),
             import: z.string().exactOptional(),
           })
+          .readonly()
           .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
             message: 'split mode requires directory, not .ts file',
           })
@@ -182,6 +184,7 @@ const ConfigSchema = z
           })
           .exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.output && v.routes), {
         message:
           'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
@@ -194,6 +197,7 @@ const ConfigSchema = z
           message: 'must be .ts file',
         }),
       })
+      .readonly()
       .exactOptional(),
     rpc: z
       .object({
@@ -203,6 +207,7 @@ const ConfigSchema = z
         client: z.string().exactOptional(),
         parseResponse: z.boolean().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
       })
@@ -214,6 +219,7 @@ const ConfigSchema = z
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
       })
@@ -225,6 +231,7 @@ const ConfigSchema = z
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
       })
@@ -236,6 +243,7 @@ const ConfigSchema = z
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
       })
@@ -247,6 +255,7 @@ const ConfigSchema = z
         split: z.boolean().exactOptional(),
         client: z.string().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
         message: 'split mode requires directory, not .ts file',
       })
@@ -257,11 +266,13 @@ const ConfigSchema = z
         import: z.string(),
         testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
       })
+      .readonly()
       .exactOptional(),
     mock: z
       .object({
         output: z.string(),
       })
+      .readonly()
       .exactOptional(),
     docs: z
       .object({
@@ -272,6 +283,7 @@ const ConfigSchema = z
         curl: z.boolean().default(false).exactOptional(),
         baseUrl: z.string().exactOptional(),
       })
+      .readonly()
       .refine((v) => !(v.curl === true && v.entry !== undefined), {
         message: 'entry cannot be specified when curl is true',
       })
@@ -351,23 +363,18 @@ const ConfigSchema = z
   })
   .readonly()
 
-type Config = z.infer<typeof ConfigSchema>
-type ConfigInput = z.input<typeof ConfigSchema>
-
-export function parseConfig(
-  config: unknown,
-): { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string } {
+export function parseConfig(config: unknown) {
   const result = ConfigSchema.safeParse(config)
   if (!result.success) {
     const issue = result.error.issues[0]
     const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : ''
-    return { ok: false, error: `Invalid config: ${path}${issue.message}` }
+    return { ok: false, error: `Invalid config: ${path}${issue.message}` } as const
   }
-  return { ok: true, value: result.data }
+  return { ok: true, value: result.data } as const
 }
 
 export async function readConfig(): Promise<
-  { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string }
+  { ok: true; value: z.infer<typeof ConfigSchema> } | { ok: false; error: string }
 > {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
@@ -376,14 +383,20 @@ export async function readConfig(): Promise<
     const url = pathToFileURL(abs).href
     // eslint-disable-next-line typescript-eslint/no-implied-eval
     const mod = await new Function('specifier', 'return import(specifier)')(url)
-    if (typeof mod !== 'object' || mod === null || !('default' in mod) || mod.default === undefined)
-      return { ok: false, error: 'Config must export default object' }
+    if (
+      typeof mod !== 'object' ||
+      mod === null ||
+      !('default' in mod) ||
+      mod.default === undefined
+    ) {
+      return { ok: false, error: 'Config must export default object' } as const
+    }
     return parseConfig(mod.default)
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }
 
-export function defineConfig(config: ConfigInput) {
+export function defineConfig(config: z.infer<typeof ConfigSchema>) {
   return config
 }

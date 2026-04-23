@@ -104,8 +104,8 @@ export function makeExportConst(
   const asConst = readonly ? ' as const' : ''
   return Object.keys(value)
     .map(
-      (key) =>
-        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}${asConst}`,
+      (k) =>
+        `export const ${toIdentifierPascalCase(ensureSuffix(k, suffix))}=${JSON.stringify(value[k])}${asConst}`,
     )
     .join('\n\n')
 }

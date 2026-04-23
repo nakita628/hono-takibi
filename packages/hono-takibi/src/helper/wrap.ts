@@ -93,15 +93,15 @@ export function wrap(
       if (unsupportedProps.has(key)) {
         continue
       }
-      // Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject)
+      /* Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject) */
       if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
         continue
       }
-      // Filter out not.not (nested not with boolean)
+      /* Filter out not.not (nested not with boolean) */
       if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
         continue
       }
-      // Convert non-string values in required array to strings (YAML may parse null/true/false as literals)
+      /* Convert non-string values in required array to strings (YAML may parse null/true/false as literals) */
       if (key === 'required' && Array.isArray(value)) {
         filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
         continue

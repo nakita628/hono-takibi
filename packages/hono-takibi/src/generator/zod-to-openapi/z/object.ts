@@ -35,11 +35,9 @@ import { zodToOpenAPI } from '../index.js'
  * ```
  */
 export function object(schema: Schema, readonly?: boolean): string {
-  /* Delegate combinators to zodToOpenAPI */
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
     return zodToOpenAPI(schema, undefined, readonly)
   }
-  /* Read vendor extensions for error messages */
   const errorMessage = schema['x-error-message']
   const errorErrArg = errorMessage ? `,${error(errorMessage)}` : ''
   const minimumMessage = schema['x-minimum-message']

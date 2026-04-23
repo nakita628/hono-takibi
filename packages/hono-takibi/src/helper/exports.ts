@@ -3,15 +3,6 @@ import path from 'node:path'
 import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../utils/index.js'
 import { core } from './core.js'
 
-/**
- * Generates TypeScript export files for OpenAPI components in split mode.
- *
- * @param value - Object containing component definitions
- * @param suffix - Component type suffix (e.g., 'Example', 'Schema')
- * @param output - Output directory path
- * @param readonly - Whether to add `as const` assertion to the output
- * @returns Result object with success/error status
- */
 export async function makeExports(
   value: { readonly [k: string]: unknown },
   suffix:
@@ -31,7 +22,7 @@ export async function makeExports(
 ) {
   const keys = Object.keys(value)
   const outDir = output.replace(/\.ts$/, '')
-  // sort abc
+  /* sort abc */
   const indexCode = `${keys
     .sort()
     .map((v) => `export * from './${uncapitalize(v)}.ts'`)
