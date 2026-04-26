@@ -49,10 +49,10 @@ export async function examples(
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)
       .join('\n')}\n`
     const results = await Promise.all([
-      ...keys.map((key) => {
-        const v = examples[key]
-        const name = toIdentifierPascalCase(ensureSuffix(key, 'Example'))
-        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
+      ...keys.map((k) => {
+        const v = examples[k]
+        const name = toIdentifierPascalCase(ensureSuffix(k, 'Example'))
+        const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
         if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
@@ -65,8 +65,8 @@ export async function examples(
       }),
       core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated Example code written to ${outDir}/*.ts (index.ts included)`,

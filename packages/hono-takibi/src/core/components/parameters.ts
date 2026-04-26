@@ -66,8 +66,8 @@ export async function parameters(
       }),
       core(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+    const e = results.find((result) => !result.ok)
+    if (e && !e.ok) return { ok: false, error: e.error } as const
     return {
       ok: true,
       value: `Generated parameters code written to ${outDir}/*.ts (index.ts included)`,

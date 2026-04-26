@@ -28,8 +28,8 @@ export function isHttpMethod(
   )
 }
 
-export function isValidIdent(v: string): boolean {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(v)
+export function isValidIdent(str: string): boolean {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(str)
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {

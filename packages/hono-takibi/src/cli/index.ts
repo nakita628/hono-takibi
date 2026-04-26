@@ -326,8 +326,8 @@ export async function honoTakibi() {
       )
     })(),
   ])
-  const errored = results.find((result) => result && !result.ok)
-  if (errored && !errored.ok) return { ok: false, error: errored.error } as const
+  const e = results.find((result) => result && !result.ok)
+  if (e && !e.ok) return { ok: false, error: e.error } as const
   const value = results
     .map((result) => (result?.ok ? result.value : undefined))
     .filter((v) => v !== undefined)

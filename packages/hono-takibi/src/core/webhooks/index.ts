@@ -77,8 +77,8 @@ export async function webhooks(
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated webhooks code written to ${outDir}/*.ts (index.ts included)`,

@@ -67,6 +67,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -78,6 +79,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -89,6 +91,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -99,6 +102,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -109,6 +113,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -119,6 +124,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -129,6 +135,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -139,6 +146,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -149,6 +157,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -159,6 +168,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -170,6 +180,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
                 message: 'split mode requires directory, not .ts file',
               })
@@ -180,6 +191,7 @@ const ConfigSchema = z
                 split: z.boolean().exactOptional(),
                 import: z.string().exactOptional(),
               })
+              .readonly()
               .exactOptional(),
           })
           .exactOptional(),
@@ -297,7 +309,6 @@ const ConfigSchema = z
       ...v,
       output: v.split !== true && !v.output.endsWith('.ts') ? `${v.output}/index.ts` : v.output,
     })
-
     const normalized = Object.fromEntries(
       (
         ['rpc', 'swr', 'tanstack-query', 'svelte-query', 'vue-query', 'test', 'mock'] as const
@@ -306,7 +317,6 @@ const ConfigSchema = z
         return v !== undefined ? [[k, normalize(v)]] : []
       }),
     )
-
     return {
       ...config,
       ...(config['zod-openapi'] && {

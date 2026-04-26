@@ -221,7 +221,6 @@ export function wrap(
         meta.headers.content ? `content:${JSON.stringify(meta.headers.content)}` : undefined,
       ].filter((v) => v !== undefined)
     : []
-
   const openapiSchema = args ? JSON.stringify(args) : undefined
   // Strip outer braces from JSON object to embed directly in openapi({...}) call
   // e.g. '{"description":"foo"}' → '"description":"foo"'
@@ -231,7 +230,6 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-
   /**
    * Serializes a media object with examples handled as code references.
    */

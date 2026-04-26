@@ -549,7 +549,10 @@ export function makeOperation(operation: Operation, readonly?: boolean) {
 export function makePathItem(pathItem: PathItem) {
   const additionalOperationsCode = pathItem.additionalOperations
     ? Object.entries(pathItem.additionalOperations)
-        .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
+        .map(
+          ([operationName, operation]) =>
+            `${JSON.stringify(operationName)}:${makeOperation(operation)}`,
+        )
         .join(',')
     : undefined
   const results = [

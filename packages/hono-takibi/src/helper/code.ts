@@ -200,11 +200,9 @@ export function makeImports(
   split = false,
 ) {
   const fallbackPrefix = split ? '..' : '.'
-  const resolvePath = (key: string): string => {
-    const target = components?.[key]
-    return (
-      target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${key}`)
-    )
+  const resolvePath = (k: string): string => {
+    const target = components?.[k]
+    return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${k}`)
   }
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
