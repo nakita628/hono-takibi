@@ -32,7 +32,6 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   trim: 'trim()',
 }
 
-// Transform formats that do not accept error messages
 const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
 
 /**
@@ -59,7 +58,6 @@ const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
 export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]
   const errorMessage = schema['x-error-message']
-  /* Apply x-error-message to format validators (not transforms) */
   const base = (() => {
     if (!format) return errorMessage ? `z.string(${error(errorMessage)})` : 'z.string()'
     if (errorMessage && schema.format && !TRANSFORM_FORMATS.has(schema.format)) {
@@ -68,7 +66,6 @@ export function string(schema: Schema): string {
     return `z.${format}`
   })()
   const patternMessage = schema['x-pattern-message']
-  /* Add 'u' flag for Unicode property escapes (\p{...} or \P{...}) */
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const patternMsgPart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
@@ -87,7 +84,6 @@ export function string(schema: Schema): string {
   return [
     base,
     pattern,
-    /* minLength === maxLength → .length(n) */
     isFixedLength ? `.length(${schema.minLength}${sizeMsgPart})` : undefined,
     !isFixedLength && schema.minLength !== undefined
       ? `.min(${schema.minLength}${minMsgPart})`

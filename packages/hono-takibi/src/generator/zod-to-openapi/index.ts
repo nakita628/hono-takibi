@@ -4,39 +4,6 @@ import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { error, normalizeTypes } from '../../utils/index.js'
 import { string, number, integer, object, _enum } from './z/index.js'
 
-/**
- * Converts an OpenAPI Schema to a Zod schema string.
- *
- * @param schema - OpenAPI Schema object to convert
- * @param meta - Optional parameter/header metadata for validation
- * @param readonly - Whether to add `.readonly()` to container types (object, array, tuple, record)
- * @returns Zod schema string representation
- *
- * @example
- * ```ts
- * zodToOpenAPI({ type: 'string' })           // → 'z.string()'
- * zodToOpenAPI({ $ref: '#/components/schemas/User' }) // → 'UserSchema'
- * ```
- *
- * @mermaid
- * flowchart TD
- *   A["zodToOpenAPI(schema)"] --> B{"Has $ref?"}
- *   B -->|Yes| C["makeRef()"]
- *   B -->|No| D{"Has combinator?"}
- *   D -->|allOf| E["z.intersection / .and()"]
- *   D -->|anyOf| F["z.union()"]
- *   D -->|oneOf| G["z.discriminatedUnion() / z.xor()"]
- *   D -->|not| H["z.any().refine()"]
- *   D -->|No| I{"Check type"}
- *   I -->|string| J["string()"]
- *   I -->|number| K["number()"]
- *   I -->|integer| L["integer()"]
- *   I -->|boolean| M["z.boolean()"]
- *   I -->|array| N["z.array()"]
- *   I -->|object| O["object()"]
- *   I -->|null| P["z.null()"]
- *   I -->|fallback| Q["z.any()"]
- */
 export function zodToOpenAPI(
   schema: Schema,
   meta?: {
@@ -55,7 +22,6 @@ export function zodToOpenAPI(
         return rest
       })()
     : meta
-  /** ref */
   if (schema.$ref !== undefined) {
     return wrap(makeRef(schema.$ref), schema, meta)
   }
@@ -97,7 +63,6 @@ export function zodToOpenAPI(
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     return wrap(z, { ...schema, nullable }, meta)
   }
-  /* anyOf */
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) return wrap('z.any()', schema, meta)
     const anyOfSchemas = schema.anyOf.map((s) =>
@@ -107,7 +72,6 @@ export function zodToOpenAPI(
     const anyOfErrArg = anyOfMsg ? `,${error(anyOfMsg)}` : ''
     return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrArg})`, schema, meta)
   }
-  /* oneOf */
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta)
     /* Check if any oneOf member is a $ref (could reference allOf schema) or uses allOf directly */
@@ -125,7 +89,6 @@ export function zodToOpenAPI(
         : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrArg})`
     return wrap(z, schema, meta)
   }
-  /* not */
   if (schema.not !== undefined) {
     const notMsg = schema['x-not-message']
     const notErrArg = notMsg ? `,${error(notMsg)}` : ''

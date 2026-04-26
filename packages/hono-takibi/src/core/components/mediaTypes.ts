@@ -55,10 +55,10 @@ export async function mediaTypes(
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)
       .join('\n')}\n`
     const results = await Promise.all([
-      ...keys.map((key) => {
-        const v = mediaTypes[key]
-        const name = toIdentifierPascalCase(ensureSuffix(key, 'MediaTypeSchema'))
-        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
+      ...keys.map((k) => {
+        const v = mediaTypes[k]
+        const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
+        const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
         if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
@@ -77,17 +77,17 @@ export async function mediaTypes(
       }),
       core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated MediaType code written to ${outDir}/*.ts (index.ts included)`,
     } as const
   }
   const definitions = keys
-    .map((key) => {
-      const v = mediaTypes[key]
-      const name = toIdentifierPascalCase(ensureSuffix(key, 'MediaTypeSchema'))
+    .map((k) => {
+      const v = mediaTypes[k]
+      const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
       if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
         const refKey = v.$ref.split('/').at(-1) ?? ''
         const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))

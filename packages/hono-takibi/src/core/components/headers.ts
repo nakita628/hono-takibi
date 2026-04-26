@@ -66,8 +66,8 @@ export async function headers(
       }),
       core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated headers code written to ${outDir}/*.ts (index.ts included)`,

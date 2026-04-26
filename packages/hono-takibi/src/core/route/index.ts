@@ -23,13 +23,13 @@ export async function route(
   if (!routes?.output) return { ok: false, error: 'routes.output is required' } as const
   const { output, split = false } = routes
   const routesSrc = routeCode(openAPI, readonly)
-  const writeFile = async (filePath: string, src: string) => {
+  const importWriteFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, components)
     const result = await core(code, path.dirname(filePath), filePath)
     return result.ok ? ({ ok: true, value: filePath } as const) : result
   }
   if (!split) {
-    const result = await writeFile(output, routesSrc)
+    const result = await importWriteFile(output, routesSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
@@ -44,20 +44,22 @@ export async function route(
     block: routesSrc.slice(h.start, hits[i + 1]?.start ?? routesSrc.length).trim(),
   }))
   if (blocks.length === 0) {
-    const result = await writeFile(String(output), routesSrc)
+    const result = await importWriteFile(output, routesSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
   const results = await Promise.all([
-    ...blocks.map(({ name, block }) => writeFile(`${outDir}/${uncapitalize(name)}.ts`, block)),
+    ...blocks.map(({ name, block }) =>
+      importWriteFile(`${outDir}/${uncapitalize(name)}.ts`, block),
+    ),
     core(
       makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated route code written to ${outDir}/*.ts (index.ts included)`,

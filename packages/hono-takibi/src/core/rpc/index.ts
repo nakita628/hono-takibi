@@ -12,23 +12,20 @@ import {
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { makeInferRequestType, methodPath } from '../../utils/index.js'
 
-const makeOperationCode = (
-  pathStr: string,
+function makeOperationCode(
+  path: string,
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
   item: ReturnType<typeof parsePathItem>,
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
-) => {
-  const op = item[method]
-  if (!isOperationLike(op)) return null
-
-  const funcName = methodPath(method, pathStr)
-  const pathResult = formatPath(pathStr, hasBasePath)
-  const hasArgs = operationHasArgs(item, op, deps)
-
+) {
+  const operation = item[method]
+  if (!isOperationLike(operation)) return null
+  const funcName = methodPath(method, path)
+  const pathResult = formatPath(path, hasBasePath)
+  const hasArgs = operationHasArgs(item, operation, deps)
   const inferType = makeInferRequestType(deps.client, pathResult, method)
-
   const argSig = hasArgs
     ? `args:${inferType},options?:ClientRequestOptions`
     : 'options?:ClientRequestOptions'
@@ -36,23 +33,18 @@ const makeOperationCode = (
     ? `${deps.client}${pathResult.runtimePath}.$${method}(args,options)`
     : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options)`
   const call = useParseResponse ? `parseResponse(${clientCall})` : clientCall
-
   const func = `export async function ${funcName}(${argSig}){return await ${call}}`
-
-  return { code: func, hasArgs }
+  return { code: func, hasArgs } as const
 }
 
-/**
- * Builds operation codes from OpenAPI paths.
- */
-const makeOperationCodes = (
+function makeOperationCodes(
   paths: OpenAPIPaths,
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
-) =>
-  Object.entries(paths)
-    .filter((entry): entry is [string, { [k: string]: unknown }] => isRecord(entry[1]))
+) {
+  return Object.entries(paths)
+    .filter((entry) => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
@@ -65,23 +57,20 @@ const makeOperationCodes = (
         })
         .filter((item) => item !== null)
     })
+}
 
-/* ─────────────────────────────── Header ─────────────────────────────── */
-
-const makeHeader = (
+function makeHeader(
   importPath: string,
   needsInferRequestType: boolean,
   clientName: string,
   useParseResponse?: boolean,
-): string => {
+) {
   const typeImports = needsInferRequestType
     ? 'InferRequestType,ClientRequestOptions'
     : 'ClientRequestOptions'
   const parseResponseImport = useParseResponse ? `import{parseResponse}from'hono/client'\n` : ''
-  return `import type{${typeImports}}from'hono/client'\n${parseResponseImport}import{${clientName}}from'${importPath}'\n\n`
+  return `import type{${typeImports}}from'hono/client'\n${parseResponseImport}import{${clientName}}from'${importPath}'\n\n` as const
 }
-
-/* ─────────────────────────────── Entry ─────────────────────────────── */
 
 /**
  * Generates RPC client wrapper functions from OpenAPI specification.
@@ -104,13 +93,13 @@ export async function rpc(
   useParseResponse?: boolean,
   basePath?: string,
 ) {
-  const pathsMaybe = openAPI.paths
-  if (!isOpenAPIPaths(pathsMaybe)) return { ok: false, error: 'Invalid OpenAPI paths' } as const
+  const paths = openAPI.paths
+  if (!isOpenAPIPaths(paths)) return { ok: false, error: 'Invalid OpenAPI paths' } as const
   const hasBasePath = basePath !== undefined && basePath !== '/'
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-  const operationCodes = makeOperationCodes(pathsMaybe, deps, useParseResponse, hasBasePath)
+  const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath)
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
@@ -134,8 +123,8 @@ export async function rpc(
     }),
     core(index, path.dirname(indexPath), indexPath),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,

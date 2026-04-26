@@ -241,10 +241,6 @@ function makeStatusCode(statusCode: string) {
       : Number.parseInt(statusCode, 10)
 }
 
-/**
- * Determines if a media type should be treated as JSON for outputFormat.
- * Only application/json and types ending with +json are considered JSON.
- */
 function isJsonMediaType(mediaType: string): boolean {
   return mediaType === 'application/json' || mediaType.endsWith('+json')
 }

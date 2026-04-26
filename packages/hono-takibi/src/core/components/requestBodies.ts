@@ -52,7 +52,7 @@ export async function requestBodies(
   const toFileCode = (code: string, filePath: string) =>
     makeImports(code, filePath, components, split)
   if (split) {
-    const outDir = String(output).replace(/\.ts$/, '')
+    const outDir = output.replace(/\.ts$/, '')
     const results = await Promise.all([
       ...bodyNames.map((bodyName) => {
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
@@ -62,8 +62,8 @@ export async function requestBodies(
       }),
       core(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated requestBodies code written to ${outDir}/*.ts (index.ts included)`,

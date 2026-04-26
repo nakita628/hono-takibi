@@ -49,7 +49,7 @@ export async function schemas(
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' } as const
   if (split) {
-    const outDir = String(output).replace(/\.ts$/, '')
+    const outDir = output.replace(/\.ts$/, '')
     const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
     const results = await Promise.all([
       ...schemaNames.map((schemaName) => {
@@ -66,9 +66,8 @@ export async function schemas(
       }),
       core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
-
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated schema code written to ${outDir}/*.ts (index.ts included)`,

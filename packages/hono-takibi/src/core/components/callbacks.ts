@@ -62,23 +62,21 @@ export async function callbacks(
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
     const results = await Promise.all([
-      ...keys.map((key) => {
-        const callbackOrRef = callbacks[key]
+      ...keys.map((k) => {
+        const callbackOrRef = callbacks[k]
         if (!isCallbacks(callbackOrRef)) return { ok: true, value: 'skipped' } as const
-        const name = toIdentifierPascalCase(ensureSuffix(key, 'Callback'))
+        const name = toIdentifierPascalCase(ensureSuffix(k, 'Callback'))
         const callbackCode = makeCallback(callbackOrRef)
         const body = callbackCode
           ? `export const ${name} = {${callbackCode}}${asConst}\n`
           : `export const ${name} = {}${asConst}\n`
-        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
+        const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
         return core(toFileCode(body, filePath), path.dirname(filePath), filePath)
       }),
       core(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find(
-      (result): result is { readonly ok: false; readonly error: string } => !result.ok,
-    )
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated Callback code written to ${outDir}/*.ts (index.ts included)`,

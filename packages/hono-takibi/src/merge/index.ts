@@ -8,7 +8,7 @@ import { Project, type SourceFile, type VariableStatement } from 'ts-morph'
  * Skips string literals (single/double/backtick) so that brackets
  * inside strings are not counted.
  */
-function findBalancedEnd(code: string, start: number, open: string, close: string): number {
+function findBalancedEnd(code: string, start: number, open: string, close: string) {
   let pos = start
   let depth = 0
   while (pos < code.length) {
@@ -40,7 +40,7 @@ function findBalancedEnd(code: string, start: number, open: string, close: strin
  * Returns the source position just after the last import declaration.
  * Returns 0 if there are no import declarations.
  */
-function getBodyStart(file: SourceFile): number {
+function getBodyStart(file: SourceFile) {
   const decls = file.getImportDeclarations()
   return decls.length > 0 ? decls[decls.length - 1].getEnd() : 0
 }
@@ -55,7 +55,7 @@ function applyRangeOps(
   code: string,
   startPos: number,
   ops: readonly (readonly [number, number, string])[],
-): string {
+) {
   const slices: string[] = []
   let cursor = startPos
   for (const [start, end, replacement] of ops) {
@@ -85,7 +85,7 @@ function createSourcePair(existingCode: string, generatedCode: string) {
  * Returns a Map from handler name to its VariableStatement AST node.
  * A "handler" is any exported variable whose name ends with `Handler`.
  */
-function collectHandlerMap(file: SourceFile): Map<string, VariableStatement> {
+function collectHandlerMap(file: SourceFile) {
   const map = new Map<string, VariableStatement>()
   for (const stmt of file.getVariableStatements()) {
     if (!stmt.isExported()) continue
@@ -115,7 +115,7 @@ function collectHandlerMap(file: SourceFile): Map<string, VariableStatement> {
  * @param generatedCode - The newly generated file content.
  * @returns The merged source code.
  */
-export function mergeHandlerFile(existingCode: string, generatedCode: string): string {
+export function mergeHandlerFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
 
   const isInlineHandlerName = (name: string): boolean =>
@@ -179,11 +179,8 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
  * @param generatedCode - The newly generated file content.
  * @returns The merged source code.
  */
-export function mergeAppFile(existingCode: string, generatedCode: string): string {
+export function mergeAppFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
-
-  // Find 'export const api = ...' in existing (position for replacement)
-  // Use getStart() (not getFullStart()) to preserve leading comments
   const findApiStmt = (file: SourceFile) =>
     file
       .getVariableStatements()
@@ -191,17 +188,12 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
         (stmt) =>
           stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
       )
-
   const existingApiStmt = findApiStmt(existingFile)
   const apiReplaceRange: [number, number] | null = existingApiStmt
     ? [existingApiStmt.getStart(), existingApiStmt.getEnd()]
     : null
-
-  // Get 'export const api = ...' text from generated
   const generatedApiStmt = findApiStmt(generatedFile)
   const rawGeneratedApiText = generatedApiStmt?.getText() ?? ''
-
-  // Preserve user's chain prefix (e.g., .basePath('/api')) between `app` and first .openapi(/.route(
   const existingApiText = existingApiStmt?.getText() ?? ''
   const chainPrefix = extractChainPrefix(existingApiText)
   const generatedApiText = chainPrefix
@@ -210,18 +202,13 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
         (_, ws) => `app${chainPrefix}${ws}.`,
       )
     : rawGeneratedApiText
-
   const mergedImports = mergeImports(existingFile, generatedFile)
   const bodyStart = getBodyStart(existingFile)
-
-  // Build body: replace api statement, keep everything else
   const existingBody = apiReplaceRange
     ? existingCode.slice(bodyStart, apiReplaceRange[0]) +
       generatedApiText +
       existingCode.slice(apiReplaceRange[1])
     : existingCode.slice(bodyStart)
-
-  // Fallback to generated body when existing file has no body content
   const generatedBodyStart = getBodyStart(generatedFile)
   const body = existingBody.trim() || generatedCode.slice(generatedBodyStart).trim()
 
@@ -369,7 +356,7 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
  * this returns `.basePath('/api')`.
  * Returns empty string if there is no prefix chain.
  */
-function extractChainPrefix(apiStmtText: string): string {
+function extractChainPrefix(apiStmtText: string) {
   const initMatch = apiStmtText.match(/=\s*app\b/)
   if (!initMatch || initMatch.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
@@ -383,7 +370,7 @@ function extractChainPrefix(apiStmtText: string): string {
  *
  * Returns a map of route name (first argument) to the full `.openapi(...)` text.
  */
-function extractOpenApiCalls(code: string): Map<string, string> {
+function extractOpenApiCalls(code: string) {
   return new Map(
     [...code.matchAll(/\.openapi\s*\(/g)]
       .filter((match) => match.index !== undefined)
@@ -408,7 +395,7 @@ function extractOpenApiCalls(code: string): Map<string, string> {
  * - Routes only in generated: add from generated (new route stubs)
  * - Routes only in existing: remove (route deleted from OpenAPI spec)
  */
-function mergeInlineHandler(existingText: string, generatedText: string): string {
+function mergeInlineHandler(existingText: string, generatedText: string) {
   const generatedCalls = extractOpenApiCalls(generatedText)
   if (generatedCalls.size === 0) return generatedText
   const existingCalls = extractOpenApiCalls(existingText)
@@ -427,9 +414,7 @@ function mergeInlineHandler(existingText: string, generatedText: string): string
  * Uses balanced-brace counting to find the full extent of each function body.
  * Returns a map of function name to block info including text and source positions.
  */
-function extractMockFunctions(
-  code: string,
-): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
+function extractMockFunctions(code: string) {
   const regex = /function\s+(mock[A-Z]\w*)\s*\([^)]*\)\s*\{/g
   return new Map(
     [...code.matchAll(regex)]
@@ -451,9 +436,7 @@ function extractMockFunctions(
  * Returns a map of route identifier (e.g., "GET /users") to block info
  * including text and source positions for removal.
  */
-function extractRouteDescribeBlocks(
-  code: string,
-): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
+function extractRouteDescribeBlocks(code: string) {
   const regex = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
   return new Map(
     [...code.matchAll(regex)]
@@ -483,7 +466,7 @@ function extractRouteDescribeBlocks(
  * @param generatedCode - The newly generated test file content.
  * @returns The merged test code.
  */
-export function mergeTestFile(existingCode: string, generatedCode: string): string {
+export function mergeTestFile(existingCode: string, generatedCode: string) {
   // 1. Extract route describe blocks from both files
   const existingBlocks = extractRouteDescribeBlocks(existingCode)
   const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
@@ -562,7 +545,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
  * @param generatedCode - The newly generated barrel file content.
  * @returns The synced barrel file content.
  */
-export function mergeBarrelFile(_existingCode: string, generatedCode: string): string {
+export function mergeBarrelFile(_existingCode: string, generatedCode: string) {
   return generatedCode
 }
 
@@ -572,7 +555,7 @@ export function mergeBarrelFile(_existingCode: string, generatedCode: string): s
  * Inserts before the first `describe(` block, or at the start of body if none found.
  * Collapses triple+ newlines after insertion.
  */
-function insertMissingMocks(body: string, missingMocks: readonly string[]): string {
+function insertMissingMocks(body: string, missingMocks: readonly string[]) {
   if (missingMocks.length === 0) return body
   const describeMatch = body.match(/\n(?=describe\s*\()/)
   const inserted =

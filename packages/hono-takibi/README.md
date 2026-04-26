@@ -372,7 +372,7 @@ export default defineConfig({
   // Base path prefix for all routes
   basePath: '/api',
 
-  // oxfmt FormatOptions for generated code output
+  // oxfmt FormatConfig for generated code output
   // @see https://www.npmjs.com/package/oxfmt
   // format: {},
 
