@@ -241,7 +241,7 @@ export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) 
 
 export function useDeletePostsId(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deletePostsId>> | undefined,
+    Awaited<ReturnType<typeof deletePostsId>>  ,
     Error,
     InferRequestType<(typeof client.posts)[':id']['$delete']>
   >

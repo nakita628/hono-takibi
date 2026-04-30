@@ -227,7 +227,7 @@ export async function deleteUsersUserId(
 
 export function useDeleteUsersUserId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deleteUsersUserId>> | undefined,
+    Awaited<ReturnType<typeof deleteUsersUserId>>  ,
     Error,
     Key,
     InferRequestType<(typeof client.users)[':userId']['$delete']>

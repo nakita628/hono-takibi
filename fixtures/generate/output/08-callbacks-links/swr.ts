@@ -128,7 +128,7 @@ export async function deleteSubscriptionsId(
 
 export function useDeleteSubscriptionsId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
+    Awaited<ReturnType<typeof deleteSubscriptionsId>>  ,
     Error,
     Key,
     InferRequestType<(typeof client.subscriptions)[':id']['$delete']>

@@ -208,7 +208,7 @@ export async function deletePostsId(
 
 export function useDeletePostsId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deletePostsId>> | undefined,
+    Awaited<ReturnType<typeof deletePostsId>>  ,
     Error,
     Key,
     InferRequestType<(typeof client.posts)[':id']['$delete']>

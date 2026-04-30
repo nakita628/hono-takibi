@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useSWRConfig } from 'swr'
+
 import { getGetTodoKey, useDeleteTodoId, useGetTodoId, usePutTodoId } from '@/hooks/swr'
 import { formatDate } from '@/utils'
 
@@ -77,7 +78,10 @@ export function TodoDetailPage() {
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
-            <Link to="/" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium">
+            <Link
+              to="/"
+              className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
+            >
               <span className="mr-1">←</span> Back
             </Link>
           </div>
@@ -93,7 +97,10 @@ export function TodoDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium">
+          <Link
+            to="/"
+            className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium"
+          >
             <span className="mr-1">←</span> Back
           </Link>
         </div>
@@ -125,7 +132,9 @@ export function TodoDetailPage() {
           <div className="space-y-6">
             <div>
               <span className="block text-sm font-medium text-gray-500 mb-2">ID</span>
-              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">{todo.id}</p>
+              <p className="text-gray-700 font-mono text-sm bg-gray-50 p-3 rounded-lg break-all">
+                {todo.id}
+              </p>
             </div>
 
             <div>
@@ -171,10 +180,14 @@ export function TodoDetailPage() {
                 onClick={handleToggleCompleted}
                 disabled={isUpdating}
                 className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-colors hover:opacity-80 disabled:opacity-50 ${
-                  todo.completed === 1 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                  todo.completed === 1
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-orange-100 text-orange-700'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full mr-2 ${todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'}`} />
+                <span
+                  className={`w-2 h-2 rounded-full mr-2 ${todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'}`}
+                />
                 {todo.completed === 1 ? 'Completed' : 'Pending'}
                 <span className="ml-2 text-xs opacity-60">(click to toggle)</span>
               </button>

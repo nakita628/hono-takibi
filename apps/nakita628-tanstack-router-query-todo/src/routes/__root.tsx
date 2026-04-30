@@ -50,7 +50,7 @@ function RootErrorComponent({ error }: { error: Error }) {
             </button>
             <button
               type="button"
-              onClick={() => window.location.href = '/'}
+              onClick={() => (window.location.href = '/')}
               className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-3 rounded-lg transition-colors"
             >
               Go Home
