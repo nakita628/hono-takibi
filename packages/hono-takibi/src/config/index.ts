@@ -8,19 +8,15 @@ import * as z from 'zod'
 
 const ConfigSchema = z
   .object({
-    input: z.custom<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
-      (v) =>
-        typeof v === 'string' && (v.endsWith('.yaml') || v.endsWith('.json') || v.endsWith('.tsp')),
-      { message: 'must be .yaml | .json | .tsp' },
-    ),
+    input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
+      error: 'must be .yaml | .json | .tsp',
+    }),
     basePath: z.string().exactOptional(),
     format: z.custom<FormatConfig>(() => true).exactOptional(),
     'zod-openapi': z
       .object({
         output: z
-          .custom<`${string}.ts`>((v) => typeof v === 'string' && v.endsWith('.ts'), {
-            message: 'must be .ts file',
-          })
+          .templateLiteral([z.string().min(1), z.enum(['.ts'])], { error: 'must be .ts file' })
           .exactOptional(),
         readonly: z.boolean().exactOptional(),
         template: z
@@ -205,8 +201,8 @@ const ConfigSchema = z
     type: z
       .object({
         readonly: z.boolean().exactOptional(),
-        output: z.custom<`${string}.ts`>((v) => typeof v === 'string' && v.endsWith('.ts'), {
-          message: 'must be .ts file',
+        output: z.templateLiteral([z.string().min(1), z.enum(['.ts'])], {
+          error: 'must be .ts file',
         }),
       })
       .readonly()
@@ -288,7 +284,7 @@ const ConfigSchema = z
       .exactOptional(),
     docs: z
       .object({
-        output: z.custom<`${string}.md`>((v) => typeof v === 'string' && v.endsWith('.md'), {
+        output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
           message: 'must be .md file',
         }),
         entry: z.string().exactOptional(),
@@ -383,11 +379,9 @@ export function parseConfig(config: unknown) {
   return { ok: true, value: result.data } as const
 }
 
-export async function readConfig(): Promise<
-  { ok: true; value: z.infer<typeof ConfigSchema> } | { ok: false; error: string }
-> {
+export async function readConfig() {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
-  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` }
+  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
     register()
     const url = pathToFileURL(abs).href
