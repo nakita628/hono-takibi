@@ -129,7 +129,7 @@ function makeMockFunction(
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${mockBody}\n}`
+  return `function mock${name.replace(/\./g, '')}()${returnType}{return ${mockBody}}`
 }
 
 function extractSecurityInfo(
@@ -262,7 +262,7 @@ function makeAuthCheck(
     return []
   })
   if (authChecks.length === 0) return ''
-  return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, ${401})\n  }\n  `
+  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, ${401})}`
 }
 
 function makeHandlerBody(
@@ -342,7 +342,7 @@ export function makeMock(
         const authCheck = makeAuthCheck(security, has401)
         const usesContext = handlerBody.includes('c.') || authCheck !== ''
         const param = usesContext ? 'c' : '_c'
-        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {\n  ${authCheck}${handlerBody}\n}`
+        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${handlerBody}}`
         return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
       },
     ),
@@ -383,26 +383,22 @@ export function makeMock(
   const routes = routeCode(filteredOpenapi, options.readonly)
   const appSetup = routeEntries
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
-    .join('\n  ')
+    .join('')
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
 
-export const api = app
-  ${appSetup}
+export const api = app${appSetup}
 
 export default app`
   return [
     imports,
-    '',
     components,
-    '',
     routes,
-    '',
     mockFunctions.join('\n\n'),
-    '',
     handlers.join('\n\n'),
-    '',
     appCode,
-  ].join('\n')
+  ]
+    .filter((s) => s.length > 0)
+    .join('\n\n')
 }

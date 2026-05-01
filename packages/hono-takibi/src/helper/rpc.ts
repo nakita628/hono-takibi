@@ -125,11 +125,11 @@ function pickAllBodyInfoFromContent(content: unknown) {
       isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
   const formInfos = validEntries
-    .filter(([ct]) => isFormContentType(ct))
-    .map(([ct]) => ({ contentType: ct }))
+    .filter(([contentType]) => isFormContentType(contentType))
+    .map(([contentType]) => ({ contentType }))
   const jsonInfos = validEntries
-    .filter(([ct]) => !isFormContentType(ct))
-    .map(([ct]) => ({ contentType: ct }))
+    .filter(([contentType]) => !isFormContentType(contentType))
+    .map(([contentType]) => ({ contentType }))
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
   return { form: formInfos, json: jsonInfos } as const
 }

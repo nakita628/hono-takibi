@@ -65,11 +65,9 @@ export function requestParamsArray(parameters: {
               : section === 'cookie'
                 ? 'cookies'
                 : section
-
         const fields = Object.entries(obj)
           .map(([k, v]) => `${k}:${v}`)
           .join(',')
-
         return `${name}:z.object({${fields}})` as const
       }),
   )
@@ -244,19 +242,18 @@ export function zodToOpenAPISchema(
 ) {
   const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}`
-    : `const ${schemaName}=${zodSchema}${readonlyModifier}`
-
+    ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
+    : (`const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
   // schema code — strip trailing 'Schema' suffix to get the OpenAPI type name
   const typeName = schemaName.replace(/Schema$/, '')
   const componentSchemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
-    : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')`
-  // zod infer code
-  const zodInferCode = exportType ? `\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>` : ''
-
-  if (notComponentSchema) return `${schemaCode}${zodInferCode}`
-  return `${componentSchemaCode}${zodInferCode}`
+    ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
+    : (`const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
+  const zodInferCode = exportType
+    ? (`\n\nexport type ${typeName}=z.infer<typeof ${schemaName}>` as const)
+    : ('' as const)
+  if (notComponentSchema) return `${schemaCode}${zodInferCode}` as const
+  return `${componentSchemaCode}${zodInferCode}` as const
 }
 
 /**
@@ -293,9 +290,9 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  */
 export function error(message: string) {
   if (/^\s*\(.*?\)\s*=>/.test(message)) {
-    return `{error:${message}}`
+    return `{error:${message}}` as const
   }
-  return `{error:${JSON.stringify(message)}}`
+  return `{error:${JSON.stringify(message)}}` as const
 }
 
 export function makeInferRequestType(
@@ -310,6 +307,6 @@ export function makeInferRequestType(
 ) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   return hasBracket
-    ? `InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>`
-    : `InferRequestType<typeof ${clientName}${runtimePath}.$${method}>`
+    ? (`InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>` as const)
+    : (`InferRequestType<typeof ${clientName}${runtimePath}.$${method}>` as const)
 }

@@ -112,11 +112,9 @@ export function wrap(
   }
 
   const formatLiteral = (v: unknown): string => {
-    /* boolean true or false */
     if (typeof v === 'boolean') {
       return `${v}`
     }
-    /* number */
     if (typeof v === 'number') {
       if (schema.format === 'int64') {
         return `${v}n`
@@ -126,15 +124,12 @@ export function wrap(
       }
       return `${v}`
     }
-    /* date */
     if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
-    /* string */
     if (typeof v === 'string') {
       return JSON.stringify(v)
     }
-    /* other */
     return JSON.stringify(v)
   }
   const isNullable =
@@ -265,7 +260,7 @@ export function wrap(
     })
     return `{${entries.join(',')}}`
   }
-  const openapiProps = [
+  const result = [
     meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
     ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
@@ -273,17 +268,17 @@ export function wrap(
   /* https://github.com/OAI/OpenAPI-Specification/issues/2385 */
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
-      return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+      return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
     }
-    return openapiProps.length === 0
+    return result.length === 0
       ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
+      : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
   /* Handle optional object properties */
   if (meta?.isOptional === true) {
-    return openapiProps.length === 0
+    return result.length === 0
       ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
+      : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
-  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
 }

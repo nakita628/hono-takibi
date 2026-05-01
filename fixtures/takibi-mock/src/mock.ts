@@ -1,5 +1,5 @@
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
-import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const HealthResponseSchema = z
   .object({
@@ -275,13 +275,15 @@ export const getUsersRoute = createRoute({
   operationId: 'listUsers',
   request: {
     query: z.object({
-      page: z
-        .int()
+      page: z.coerce
+        .number()
+        .pipe(z.int())
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .default(20)
         .exactOptional()
         .openapi({
@@ -320,13 +322,15 @@ export const getProductsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({ param: { name: 'maxPrice', in: 'query', schema: { type: 'number' } } }),
-      page: z
-        .int()
+      page: z.coerce
+        .number()
+        .pipe(z.int())
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .default(20)
         .exactOptional()
         .openapi({
@@ -369,14 +373,16 @@ export const getProductsProductIdRoute = createRoute({
   operationId: 'getProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -396,14 +402,16 @@ export const putProductsProductIdRoute = createRoute({
   operationId: 'updateProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: { content: { 'application/json': { schema: UpdateProductInputSchema } }, required: true },
   },
@@ -426,14 +434,16 @@ export const deleteProductsProductIdRoute = createRoute({
   operationId: 'deleteProduct',
   request: {
     params: z.object({
-      productId: z.uuid().openapi({
-        param: {
-          name: 'productId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      productId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'productId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -465,13 +475,15 @@ export const getOrdersRoute = createRoute({
             },
           },
         }),
-      page: z
-        .int()
+      page: z.coerce
+        .number()
+        .pipe(z.int())
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .default(20)
         .exactOptional()
         .openapi({
@@ -514,14 +526,16 @@ export const getOrdersOrderIdRoute = createRoute({
   operationId: 'getOrder',
   request: {
     params: z.object({
-      orderId: z.uuid().openapi({
-        param: {
-          name: 'orderId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      orderId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'orderId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -540,14 +554,16 @@ export const patchOrdersOrderIdRoute = createRoute({
   operationId: 'updateOrderStatus',
   request: {
     params: z.object({
-      orderId: z.uuid().openapi({
-        param: {
-          name: 'orderId',
-          in: 'path',
-          required: true,
-          schema: { type: 'string', format: 'uuid' },
-        },
-      }),
+      orderId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'orderId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateOrderStatusInputSchema } },

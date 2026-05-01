@@ -281,9 +281,7 @@ function parseStatements(sourceFile: ts.SourceFile) {
     (s) =>
       ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
   )
-  const declNames = new Set(
-    statements.map(getDeclarationName).filter((n) => n !== undefined),
-  )
+  const declNames = new Set(statements.map(getDeclarationName).filter((n) => n !== undefined))
   return statements
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
