@@ -519,7 +519,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string) {
   const bodyWithStaleRemoved = applyRangeOps(
     existingCode,
     bodyStart,
-    filteredRanges.map(([start, end]): readonly [number, number, string] => [start, end, '']),
+    filteredRanges.map(([start, end]) => [start, end, ''] as const),
   ).replace(/\n{3,}/g, '\n\n')
   // 7. Merge mock functions: add missing mock functions from generated code
   const existingMocks = extractMockFunctions(existingCode)

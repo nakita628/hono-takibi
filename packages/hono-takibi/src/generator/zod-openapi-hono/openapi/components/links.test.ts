@@ -49,7 +49,7 @@ describe('linksCode', () => {
   })
 
   it.concurrent('should generate multiple links separated by double newline', () => {
-    const components: Components = {
+    const components = {
       links: {
         GetUserById: { operationId: 'getUser' },
         GetUserOrders: {
@@ -57,7 +57,7 @@ describe('linksCode', () => {
           server: { url: 'https://api.example.com' },
         },
       },
-    }
+    } as unknown as Components
     expect(linksCode(components, true)).toBe(
       `export const GetUserByIdLink={operationId:"getUser"}\n\nexport const GetUserOrdersLink={operationRef:"#/paths/~1users/get",server:{"url":"https://api.example.com"}}`,
     )
@@ -73,7 +73,7 @@ describe('linksCode', () => {
   })
 
   it.concurrent('should preserve all OpenAPI Link fields', () => {
-    const components: Components = {
+    const components = {
       links: {
         GetUserById: {
           operationId: 'getUser',
@@ -83,7 +83,7 @@ describe('linksCode', () => {
           server: { url: 'https://api.example.com', description: 'Prod' },
         },
       },
-    }
+    } as unknown as Components
     expect(linksCode(components, true)).toBe(
       `export const GetUserByIdLink={operationId:"getUser",parameters:{"id":"$response.body#/id"},requestBody:"$response.body",description:"Link to user details",server:{"url":"https://api.example.com","description":"Prod"}}`,
     )

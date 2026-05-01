@@ -58,7 +58,7 @@ describe('securitySchemesCode', () => {
   })
 
   it.concurrent('should preserve oauth2 flows with scopes', () => {
-    const components: Components = {
+    const components = {
       securitySchemes: {
         oauth2Auth: {
           type: 'oauth2',
@@ -70,7 +70,7 @@ describe('securitySchemesCode', () => {
           },
         },
       },
-    }
+    } as unknown as Components
     expect(securitySchemesCode(components, true)).toBe(
       `export const Oauth2AuthSecurityScheme={"type":"oauth2","flows":{"implicit":{"authorizationUrl":"https://example.com/oauth/authorize","scopes":{"read":"Read","write":"Write"}}}}`,
     )
