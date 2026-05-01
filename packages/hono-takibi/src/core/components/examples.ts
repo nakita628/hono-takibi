@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { makeExportConst } from '../../helper/code.js'
-import { core, makeRef } from '../../helper/index.js'
+import { makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../../utils/index.js'
 
@@ -58,12 +59,12 @@ export async function examples(
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const importPath = `./${uncapitalize(refKey)}.ts`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
-          return core(body, path.dirname(filePath), filePath)
+          return emit(body, path.dirname(filePath), filePath)
         }
         const body = `export const ${name} = ${JSON.stringify(v)}${asConst}\n`
-        return core(body, path.dirname(filePath), filePath)
+        return emit(body, path.dirname(filePath), filePath)
       }),
-      core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+      emit(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e
@@ -73,7 +74,7 @@ export async function examples(
     } as const
   }
   const code = makeExportConst(examples, 'Example', readonly)
-  const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(code, path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated examples code written to ${output}` } as const
 }

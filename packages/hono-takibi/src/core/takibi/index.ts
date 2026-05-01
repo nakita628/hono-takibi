@@ -1,7 +1,7 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
-import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 export async function takibi(
@@ -27,12 +27,12 @@ export async function takibi(
   },
 ) {
   try {
-    const coreResult = await core(
+    const emitResult = await emit(
       zodOpenAPIHono(openAPI, componentsOptions),
       path.dirname(output),
       output,
     )
-    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return {
       ok: true,
       value: `🔥 Generated code written to ${output}`,

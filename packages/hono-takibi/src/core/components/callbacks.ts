@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { makeConst } from '../../helper/code.js'
-import { core, makeCallback, makeImports } from '../../helper/index.js'
+import { makeCallback, makeImports } from '../../helper/index.js'
 import type { Callbacks, Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
@@ -71,9 +72,9 @@ export async function callbacks(
           ? `export const ${name} = {${callbackCode}}${asConst}\n`
           : `export const ${name} = {}${asConst}\n`
         const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
-        return core(toFileCode(body, filePath), path.dirname(filePath), filePath)
+        return emit(toFileCode(body, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
+      emit(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e
@@ -92,7 +93,7 @@ export async function callbacks(
     })
     .filter((v) => v !== undefined)
     .join('\n\n')
-  const coreResult = await core(toFileCode(code, output), path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(toFileCode(code, output), path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated callbacks code written to ${output}` } as const
 }

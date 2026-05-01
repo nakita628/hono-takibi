@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { schemasCode } from '../../generator/zod-openapi-hono/openapi/components/schemas.js'
-import { analyzeCircularSchemas, ast, core, makeSplitSchemaFile } from '../../helper/index.js'
+import { analyzeCircularSchemas, ast, makeSplitSchemaFile } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, renderNamedImport, uncapitalize } from '../../utils/index.js'
 
@@ -62,9 +63,9 @@ export async function schemas(
           readonly,
         )
         const filePath = `${outDir}/${uncapitalize(schemaName)}.ts`
-        return core(fileCode, path.dirname(filePath), filePath)
+        return emit(fileCode, path.dirname(filePath), filePath)
       }),
-      core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
+      emit(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e
@@ -77,7 +78,7 @@ export async function schemas(
   const schemaDefinitions = schemasCode({ schemas }, true, exportType, readonly)
   const sorted = ast(schemaDefinitions)
   const schemaDefinitionsCode = `${importCode}\n\n${sorted}`
-  const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(schemaDefinitionsCode, path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated schema code written to ${output}` } as const
 }

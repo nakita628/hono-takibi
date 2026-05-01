@@ -1,10 +1,10 @@
 import path from 'node:path'
 
+import { emit } from '../emit/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
 import {
-  core,
   formatPath,
   hasNoContentResponse,
   makeOperationDeps,
@@ -282,8 +282,6 @@ function makeSWRQueryHookCode(
     : `${parseResponseFuncName}(clientOptions)`
   return `export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
-
-/* ─────────────────────────────── SWR Infinite Query Hook Code ─────────────────────────────── */
 
 /**
  * Generates SWR Infinite query hook code.
@@ -569,8 +567,6 @@ function makePrefixKeyCodes(paths: OpenAPIPaths): readonly string[] {
   }
   return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
 }
-
-/* ─────────────────────────────── Mutation Options Getter ─────────────────────────────── */
 
 /**
  * Generates the mutation options getter function name.
@@ -1271,8 +1267,8 @@ export async function makeQueryHooks(
       hasInfiniteQuery,
     )
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
-    const coreResult = await core(code, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+    const emitResult = await emit(code, path.dirname(output), output)
+    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return {
       ok: true,
       value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
@@ -1290,7 +1286,7 @@ export async function makeQueryHooks(
   const results = await Promise.all([
     ...(prefixKeyCodes.length > 0
       ? [
-          core(
+          emit(
             `${prefixKeyCodes.join('\n\n')}\n`,
             path.dirname(path.join(outDir, `${prefixKeyFileName}.ts`)),
             path.join(outDir, `${prefixKeyFileName}.ts`),
@@ -1311,9 +1307,9 @@ export async function makeQueryHooks(
       )
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${parseResponseFuncName}.ts`)
-      return core(fileSrc, path.dirname(filePath), filePath)
+      return emit(fileSrc, path.dirname(filePath), filePath)
     }),
-    core(index, path.dirname(indexPath), indexPath),
+    emit(index, path.dirname(indexPath), indexPath),
   ])
   const firstError = results.find((result) => !result.ok)
   if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const

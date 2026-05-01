@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { core, makeImports } from '../../helper/index.js'
+import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
@@ -58,9 +59,9 @@ export async function requestBodies(
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
         const code = requestBodiesCode(singleComponent, true, readonly)
         const filePath = path.join(outDir, `${uncapitalize(bodyName)}.ts`)
-        return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
+      emit(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e
@@ -70,7 +71,7 @@ export async function requestBodies(
     } as const
   }
   const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
-  const coreResult = await core(toFileCode(bodyDefinitions, output), path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(toFileCode(bodyDefinitions, output), path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated requestBodies code written to ${output}` } as const
 }

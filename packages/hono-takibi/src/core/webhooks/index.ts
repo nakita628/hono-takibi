@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
-import { core, makeImports } from '../../helper/index.js'
+import { makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
@@ -46,7 +47,7 @@ export async function webhooks(
   if (!webhooksSrc) return { ok: true, value: 'No webhooks found' } as const
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, components)
-    const result = await core(code, path.dirname(filePath), filePath)
+    const result = await emit(code, path.dirname(filePath), filePath)
     return result.ok ? ({ ok: true, value: filePath } as const) : result
   }
   if (!split) {
@@ -71,7 +72,7 @@ export async function webhooks(
   }
   const results = await Promise.all([
     ...blocks.map(({ name, block }) => writeFile(`${outDir}/${uncapitalize(name)}.ts`, block)),
-    core(
+    emit(
       makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
       outDir,
       `${outDir}/index.ts`,

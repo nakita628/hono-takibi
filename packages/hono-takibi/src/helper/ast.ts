@@ -178,14 +178,7 @@ export function analyzeCircularSchemas(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
   readonly?: boolean,
-): {
-  readonly zSchemaMap: ReadonlyMap<string, string>
-  readonly depsMap: ReadonlyMap<string, readonly string[]>
-  readonly cyclicSchemas: ReadonlySet<string>
-  readonly extendedCyclicSchemas: ReadonlySet<string>
-  readonly cyclicGroupPascal: ReadonlySet<string>
-  readonly varNameToName: ReadonlyMap<string, string>
-} {
+) {
   const varNameSet = new Set(
     schemaNames.map((n) => toIdentifierPascalCase(ensureSuffix(n, 'Schema'))),
   )
@@ -206,12 +199,9 @@ export function analyzeCircularSchemas(
   const extendedCyclicSchemas = new Set([
     ...cyclicSchemas,
     ...[...cyclicSchemas].flatMap((n) =>
-      (depsMap.get(n) ?? [])
-        .map((v) => varNameToName.get(v))
-        .filter((x): x is string => x !== undefined),
+      (depsMap.get(n) ?? []).map((v) => varNameToName.get(v)).filter((x) => x !== undefined),
     ),
   ])
-
   return {
     zSchemaMap,
     depsMap,
@@ -219,7 +209,7 @@ export function analyzeCircularSchemas(
     extendedCyclicSchemas,
     cyclicGroupPascal: new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase)),
     varNameToName,
-  }
+  } as const
 }
 
 function createDeclaration(
@@ -261,7 +251,6 @@ function isLazySchema(statement: ts.Statement) {
   if (!ts.isVariableStatement(statement)) return false
   const declaration = statement.declarationList.declarations[0]
   if (!declaration?.initializer) return false
-
   const initText = declaration.initializer.getText()
   return /^z\.lazy\s*\(/.test(initText)
 }
@@ -293,20 +282,18 @@ function parseStatements(sourceFile: ts.SourceFile) {
       ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
   )
   const declNames = new Set(
-    statements.map(getDeclarationName).filter((n): n is string => n !== undefined),
+    statements.map(getDeclarationName).filter((n) => n !== undefined),
   )
   return statements
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
       const kind = getDeclarationKind(statement)
       if (!(name && kind)) return undefined
-
       const fullText = statement.getText(sourceFile)
       const refs = getStatementReferences(statement, declNames, name, kind)
-
       return createDeclaration(name, fullText, refs, kind)
     })
-    .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
+    .filter((d) => d !== undefined)
 }
 
 function topoSort(
@@ -344,7 +331,7 @@ function topoSort(
     const withTemp: typeof state = { ...state, temp: new Set([...state.temp, key]) }
     const afterRefs = decl.refs
       .map((ref) => findByName(ref))
-      .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
+      .filter((d) => d !== undefined)
       .reduce((s, d) => visit(makeKey(d.kind, d.name), s), withTemp)
     return {
       sorted: [...afterRefs.sorted, decl],
@@ -352,7 +339,6 @@ function topoSort(
       temp: new Set([...afterRefs.temp].filter((t) => t !== key)),
     }
   }
-
   const initial: Parameters<typeof visit>[1] = { sorted: [], perm: new Set(), temp: new Set() }
   return decls.reduce((state, d) => visit(makeKey(d.kind, d.name), state), initial).sorted
 }

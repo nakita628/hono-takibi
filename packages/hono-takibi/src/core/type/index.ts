@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
   isMediaWithSchema,
@@ -10,7 +11,6 @@ import {
   isSchemaArray,
   isStringRef,
 } from '../../guard/index.js'
-import { core } from '../../helper/index.js'
 import type {
   Components,
   OpenAPI,
@@ -41,10 +41,10 @@ export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: 
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
   const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
   const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
-  const coreResult = await core(dts, path.dirname(output), output)
-  return coreResult.ok
+  const emitResult = await emit(dts, path.dirname(output), output)
+  return emitResult.ok
     ? ({ ok: true, value: `Generated type code written to ${output}` } as const)
-    : ({ ok: false, error: coreResult.error } as const)
+    : ({ ok: false, error: emitResult.error } as const)
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {

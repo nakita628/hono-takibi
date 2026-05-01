@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
-import { core, makeImports } from '../../helper/index.js'
+import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
@@ -62,9 +63,9 @@ export async function parameters(
         const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }
         const code = parametersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${uncapitalize(parameterName)}.ts`)
-        return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
+      emit(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
     if (e && !e.ok) return { ok: false, error: e.error } as const
@@ -74,11 +75,11 @@ export async function parameters(
     } as const
   }
   const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
-  const coreResult = await core(
+  const emitResult = await emit(
     toFileCode(parameterDefinitions, output),
     path.dirname(output),
     output,
   )
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated parameters code written to ${output}` } as const
 }
