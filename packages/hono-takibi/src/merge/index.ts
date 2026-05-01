@@ -204,12 +204,25 @@ export function mergeAppFile(existingCode: string, generatedCode: string) {
     : rawGeneratedApiText
   const mergedImports = mergeImports(existingFile, generatedFile)
   const bodyStart = getBodyStart(existingFile)
-  const existingBody = apiReplaceRange
-    ? existingCode.slice(bodyStart, apiReplaceRange[0]) +
-      generatedApiText +
-      existingCode.slice(apiReplaceRange[1])
-    : existingCode.slice(bodyStart)
   const generatedBodyStart = getBodyStart(generatedFile)
+  const existingBody = (() => {
+    if (apiReplaceRange) {
+      return (
+        existingCode.slice(bodyStart, apiReplaceRange[0]) +
+        generatedApiText +
+        existingCode.slice(apiReplaceRange[1])
+      )
+    }
+    // No api in existing. Only append the generated api block + trailing exports when
+    // existing also lacks `export default` — i.e., the file looks incomplete (e.g. user
+    // has middleware but never wrote api/default). When existing keeps `export default`,
+    // assume the omission of api is intentional and leave the body untouched.
+    const slice = existingCode.slice(bodyStart)
+    if (slice.trim().length === 0 || !generatedApiStmt) return slice
+    if (/\bexport\s+default\b/.test(slice)) return slice
+    const trailing = generatedCode.slice(generatedApiStmt.getEnd())
+    return `${slice.trimEnd()}\n\n${generatedApiText}${trailing}`
+  })()
   const body = existingBody.trim() || generatedCode.slice(generatedBodyStart).trim()
 
   const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body].filter(Boolean)
@@ -362,7 +375,11 @@ function extractChainPrefix(apiStmtText: string) {
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
-  return afterApp.slice(0, routeMatch.index).trim()
+  const candidate = afterApp.slice(0, routeMatch.index).trim()
+  // Only treat as chain prefix when it actually starts with a method call (e.g. `.basePath('/api')`).
+  // Why: comments alone (`// Public routes`) get returned by the trim() above and would be
+  // injected directly after `app`, producing invalid `app// Public routes.openapi(...)`.
+  return candidate.startsWith('.') ? candidate : ''
 }
 
 /**
@@ -518,9 +535,19 @@ export function mergeTestFile(existingCode: string, generatedCode: string) {
     ].filter(Boolean)
     return `${parts.join('\n\n')}\n`
   }
-  // 8. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
+  // 8. Find insertion point.
+  // If existing has an outer non-route describe wrapper (e.g. `describe('Users', ...)`),
+  // insert new route blocks BEFORE its closing `})`. Otherwise (route describes are
+  // top-level) append at end — without this check, the last `})` belongs to the last
+  // route describe and new blocks would be nested inside it.
   const lines = bodyWithRemovals.split('\n')
-  const insertLineIndex = lines.findLastIndex((line: string) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
+  const isRouteDescribeTitle = (title: string) => /^[A-Z]+\s+\//.test(title)
+  const hasOuterWrapper = [
+    ...bodyWithRemovals.matchAll(/^describe\s*\(\s*['"]([^'"]+)['"]/gm),
+  ].some((m) => !isRouteDescribeTitle(m[1] ?? ''))
+  const insertLineIndex = hasOuterWrapper
+    ? lines.findLastIndex((line: string) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
+    : -1
   const modifiedLines =
     insertLineIndex !== -1
       ? [

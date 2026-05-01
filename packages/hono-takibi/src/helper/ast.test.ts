@@ -22,12 +22,24 @@ const UserSchema = z.object({
   name: z.string(),
   status: z.enum(["active", "inactive", "suspended"])
 })`
-    const result = ast(input)
-    // UserSchema and PaginationSchema should come before UserListResponseSchema
-    expect(result.indexOf('UserSchema')).toBeLessThan(result.indexOf('UserListResponseSchema'))
-    expect(result.indexOf('PaginationSchema')).toBeLessThan(
-      result.indexOf('UserListResponseSchema'),
-    )
+    expect(ast(input)).toBe(`const UserSchema = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  name: z.string(),
+  status: z.enum(["active", "inactive", "suspended"])
+})
+
+const PaginationSchema = z.object({
+  page: z.int32(),
+  limit: z.int32(),
+  total: z.int32(),
+  totalPages: z.int32()
+})
+
+const UserListResponseSchema = z.object({
+  data: z.array(UserSchema),
+  pagination: PaginationSchema
+})`)
   })
 
   it.concurrent('should sort AuthResponse with nested User dependency', () => {
@@ -43,15 +55,24 @@ const UserSchema = z.object({
   email: z.email(),
   name: z.string()
 })`
-    const result = ast(input)
-    expect(result.indexOf('UserSchema')).toBeLessThan(result.indexOf('AuthResponseSchema'))
+    expect(ast(input)).toBe(`const UserSchema = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  name: z.string()
+})
+
+const AuthResponseSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresIn: z.int32(),
+  user: UserSchema
+})`)
   })
 
   it.concurrent('should return original code when only imports', () => {
     const input = `import { z } from "zod"
 import { createRoute } from "@hono/zod-openapi"`
-    const result = ast(input)
-    expect(result).toBe(input)
+    expect(ast(input)).toBe(input)
   })
 
   it.concurrent('should handle Error schema with nested details array', () => {
@@ -65,8 +86,16 @@ const ErrorDetailSchema = z.object({
   field: z.string(),
   message: z.string()
 })`
-    const result = ast(input)
-    expect(result.indexOf('ErrorDetailSchema')).toBeLessThan(result.indexOf('ErrorSchema'))
+    expect(ast(input)).toBe(`const ErrorDetailSchema = z.object({
+  field: z.string(),
+  message: z.string()
+})
+
+const ErrorSchema = z.object({
+  code: z.string(),
+  message: z.string(),
+  details: z.array(ErrorDetailSchema).optional()
+})`)
   })
 
   it.concurrent('should handle z.lazy for TreeNode self-reference', () => {
@@ -77,18 +106,16 @@ const ErrorDetailSchema = z.object({
   parent: TreeNodeSchema.optional(),
   children: z.array(TreeNodeSchema).optional()
 }))`
-    const result = ast(input)
     // z.lazy schemas should not be reordered (no dependency tracking)
-    expect(result).toBe(input)
+    expect(ast(input)).toBe(input)
   })
 
   it.concurrent('should sort type aliases for API types', () => {
     const input = `type UserListResponse = z.infer<typeof UserListResponseSchema>
 type User = z.infer<typeof UserSchema>
 type Pagination = z.infer<typeof PaginationSchema>`
-    const result = ast(input)
     // Type aliases have no dependencies on each other, order is preserved
-    expect(result).toBe(
+    expect(ast(input)).toBe(
       'type UserListResponse = z.infer<typeof UserListResponseSchema>\n\ntype User = z.infer<typeof UserSchema>\n\ntype Pagination = z.infer<typeof PaginationSchema>',
     )
   })
@@ -102,9 +129,8 @@ type Pagination = z.infer<typeof PaginationSchema>`
 }).openapi('Merged')
 
 export type MergedSchema = z.infer<typeof MergedSchema>`
-    const result = ast(input)
     // Both const and type should be present, const before type
-    expect(result).toBe(`export const MergedSchema = z.object({
+    expect(ast(input)).toBe(`export const MergedSchema = z.object({
   id: z.string(),
   name: z.string()
 }).openapi('Merged')
@@ -120,29 +146,34 @@ export const UserSchema = z.object({ name: z.string() }).openapi('User')
 export type UserSchema = z.infer<typeof UserSchema>
 export const ConfigSchema = z.object({ DataSchema, UserSchema }).openapi('Config')
 export type ConfigSchema = z.infer<typeof ConfigSchema>`
-    const result = ast(input)
-    // All 6 declarations should be present
-    expect((result.match(/export const/g) || []).length).toBe(3)
-    expect((result.match(/export type/g) || []).length).toBe(3)
-    // Dependencies should be sorted correctly
-    expect(result.indexOf('const DataSchema')).toBeLessThan(result.indexOf('const ConfigSchema'))
-    expect(result.indexOf('const UserSchema')).toBeLessThan(result.indexOf('const ConfigSchema'))
+    expect(ast(input))
+      .toBe(`export const DataSchema = z.object({ value: z.string() }).openapi('Data')
+
+export type DataSchema = z.infer<typeof DataSchema>
+
+export const UserSchema = z.object({ name: z.string() }).openapi('User')
+
+export type UserSchema = z.infer<typeof UserSchema>
+
+export const ConfigSchema = z.object({ DataSchema, UserSchema }).openapi('Config')
+
+export type ConfigSchema = z.infer<typeof ConfigSchema>`)
   })
 
   it.concurrent('should sort const before type when type references const with same name', () => {
     // Type references its own const with same name
     const input = `export type TestSchema = z.infer<typeof TestSchema>
 export const TestSchema = z.string()`
-    const result = ast(input)
-    // const should come before type
-    expect(result.indexOf('const TestSchema')).toBeLessThan(result.indexOf('type TestSchema'))
+    expect(ast(input)).toBe(`export const TestSchema = z.string()
+
+export type TestSchema = z.infer<typeof TestSchema>`)
   })
 
   it.concurrent('should sort const followed by its type alias', () => {
     const input = `export type User = z.infer<typeof UserSchema>
 export const UserSchema = z.object({ id: z.string(), name: z.string() })`
-    const result = ast(input)
-    expect(result).toBe(`export const UserSchema = z.object({ id: z.string(), name: z.string() })
+    expect(ast(input))
+      .toBe(`export const UserSchema = z.object({ id: z.string(), name: z.string() })
 
 export type User = z.infer<typeof UserSchema>`)
   })
@@ -150,10 +181,94 @@ export type User = z.infer<typeof UserSchema>`)
   it.concurrent('should preserve order when no dependencies exist', () => {
     const input = `const ASchema = z.string()
 const BSchema = z.number()`
-    const result = ast(input)
-    expect(result).toBe(`const ASchema = z.string()
+    expect(ast(input)).toBe(`const ASchema = z.string()
 
 const BSchema = z.number()`)
+  })
+
+  it.concurrent('should return empty string for empty input', () => {
+    expect(ast('')).toBe('')
+  })
+
+  it.concurrent('should return single declaration unchanged', () => {
+    expect(ast('const FooSchema = z.string()')).toBe('const FooSchema = z.string()')
+  })
+
+  it.concurrent('should preserve chained .openapi() calls verbatim', () => {
+    const input = `const UserSchema = z
+  .object({ id: z.string() })
+  .openapi({ required: ['id'] })
+  .openapi('User')`
+    expect(ast(input)).toBe(input)
+  })
+
+  it.concurrent('should sort interface declarations by extends dependency', () => {
+    const input = `interface User extends Base { name: string }
+interface Base { id: string }`
+    expect(ast(input)).toBe(`interface Base { id: string }
+
+interface User extends Base { name: string }`)
+  })
+
+  it.concurrent('should sort type alias chain bottom-up', () => {
+    const input = `type C = B
+type B = A
+type A = string`
+    expect(ast(input)).toBe(`type A = string
+
+type B = A
+
+type C = B`)
+  })
+
+  it.concurrent('should handle mixed const, type, and interface declarations', () => {
+    const input = `interface Foo { x: string }
+type Bar = z.infer<typeof BarSchema>
+const BarSchema = z.object({ name: z.string() })`
+    expect(ast(input)).toBe(`interface Foo { x: string }
+
+const BarSchema = z.object({ name: z.string() })
+
+type Bar = z.infer<typeof BarSchema>`)
+  })
+
+  it.concurrent('should skip function declarations and only keep declarations', () => {
+    const input = `function foo() { return 1 }
+const BarSchema = z.string()
+type Bar = z.infer<typeof BarSchema>`
+    expect(ast(input)).toBe(`const BarSchema = z.string()
+
+type Bar = z.infer<typeof BarSchema>`)
+  })
+
+  it.concurrent('should skip expression statements and only keep declarations', () => {
+    const input = `console.log('hi')
+const FooSchema = z.string()`
+    expect(ast(input)).toBe('const FooSchema = z.string()')
+  })
+
+  it.concurrent('should preserve const+type pairs across schemas with deps', () => {
+    const input = `export const FooSchema = z.object({ x: z.string() })
+export type Foo = z.infer<typeof FooSchema>
+export const BarSchema = z.object({ foo: FooSchema })
+export type Bar = z.infer<typeof BarSchema>`
+    expect(ast(input)).toBe(`export const FooSchema = z.object({ x: z.string() })
+
+export type Foo = z.infer<typeof FooSchema>
+
+export const BarSchema = z.object({ foo: FooSchema })
+
+export type Bar = z.infer<typeof BarSchema>`)
+  })
+
+  it.concurrent('should strip JSDoc leading comments (current behavior)', () => {
+    // KNOWN LIMITATION: ast() uses statement.getText() which excludes leading trivia.
+    // JSDoc comments attached to declarations are stripped during reordering.
+    const input = `/**
+ * User entity
+ */
+const UserSchema = z.object({ id: z.string() })`
+    expect(ast(input)).toBe('const UserSchema = z.object({ id: z.string() })')
   })
 })
 
@@ -184,8 +299,9 @@ describe('analyzeCircularSchemas', () => {
       },
     } as const
     const result = analyzeCircularSchemas(schemas, ['SocialUser', 'UserProfile'])
-    expect(result.cyclicSchemas.has('SocialUser')).toBe(true)
-    expect(result.cyclicSchemas.has('UserProfile')).toBe(true)
+    expect(result.cyclicSchemas).toStrictEqual(new Set(['SocialUser', 'UserProfile']))
+    expect(result.extendedCyclicSchemas).toStrictEqual(new Set(['SocialUser', 'UserProfile']))
+    expect(result.cyclicGroupPascal).toStrictEqual(new Set(['SocialUser', 'UserProfile']))
   })
 
   it.concurrent('should not mark User API schemas as cyclic', () => {
@@ -222,9 +338,8 @@ describe('analyzeCircularSchemas', () => {
       },
     } as const
     const result = analyzeCircularSchemas(schemas, ['User', 'UserListResponse', 'Pagination'])
-    expect(result.cyclicSchemas.has('User')).toBe(false)
-    expect(result.cyclicSchemas.has('UserListResponse')).toBe(false)
-    expect(result.cyclicSchemas.has('Pagination')).toBe(false)
+    expect(result.cyclicSchemas).toStrictEqual(new Set())
+    expect(result.extendedCyclicSchemas).toStrictEqual(new Set())
   })
 
   it.concurrent('should generate correct zSchemaMap for User schema', () => {
@@ -298,8 +413,7 @@ describe('analyzeCircularSchemas', () => {
       },
     } as const
     const result = analyzeCircularSchemas(schemas, ['GraphNode', 'GraphEdge'])
-    expect(result.cyclicSchemas.has('GraphNode')).toBe(true)
-    expect(result.cyclicSchemas.has('GraphEdge')).toBe(true)
+    expect(result.cyclicSchemas).toStrictEqual(new Set(['GraphNode', 'GraphEdge']))
   })
 
   it.concurrent('should include EdgeMetadata in extendedCyclicSchemas', () => {
@@ -330,12 +444,11 @@ describe('analyzeCircularSchemas', () => {
     } as const
     const result = analyzeCircularSchemas(schemas, ['GraphNode', 'GraphEdge', 'EdgeMetadata'])
     // GraphNode and GraphEdge form a cycle
-    expect(result.cyclicSchemas.has('GraphNode')).toBe(true)
-    expect(result.cyclicSchemas.has('GraphEdge')).toBe(true)
-    // EdgeMetadata is not cyclic
-    expect(result.cyclicSchemas.has('EdgeMetadata')).toBe(false)
+    expect(result.cyclicSchemas).toStrictEqual(new Set(['GraphNode', 'GraphEdge']))
     // EdgeMetadata is extended because GraphEdge depends on it
-    expect(result.extendedCyclicSchemas.has('EdgeMetadata')).toBe(true)
+    expect(result.extendedCyclicSchemas).toStrictEqual(
+      new Set(['GraphNode', 'GraphEdge', 'EdgeMetadata']),
+    )
   })
 
   it.concurrent('should detect Comment -> CommentAuthor -> Comment indirect cycle', () => {
@@ -367,7 +480,69 @@ describe('analyzeCircularSchemas', () => {
       },
     } as const
     const result = analyzeCircularSchemas(schemas, ['Comment', 'CommentAuthor'])
-    expect(result.cyclicSchemas.has('Comment')).toBe(true)
-    expect(result.cyclicSchemas.has('CommentAuthor')).toBe(true)
+    expect(result.cyclicSchemas).toStrictEqual(new Set(['Comment', 'CommentAuthor']))
+  })
+
+  it.concurrent('should detect 3-way cycle A -> B -> C -> A', () => {
+    const schemas = {
+      A: { type: 'object', properties: { b: { $ref: '#/components/schemas/B' } } },
+      B: { type: 'object', properties: { c: { $ref: '#/components/schemas/C' } } },
+      C: { type: 'object', properties: { a: { $ref: '#/components/schemas/A' } } },
+    } as const
+    const result = analyzeCircularSchemas(schemas, ['A', 'B', 'C'])
+    expect(result.cyclicSchemas).toStrictEqual(new Set(['A', 'B', 'C']))
+    expect(result.extendedCyclicSchemas).toStrictEqual(new Set(['A', 'B', 'C']))
+  })
+
+  it.concurrent('should not mark direct self-reference as cyclic (self-deps excluded; use z.lazy)', () => {
+    // Self-references are excluded from depsMap by design — they should be
+    // wrapped with z.lazy() at the generator level. analyzeCircularSchemas
+    // only flags mutual references between distinct schemas.
+    const schemas = {
+      Self: {
+        type: 'object',
+        properties: { next: { $ref: '#/components/schemas/Self' } },
+      },
+    } as const
+    const result = analyzeCircularSchemas(schemas, ['Self'])
+    expect(result.cyclicSchemas).toStrictEqual(new Set())
+    expect(result.depsMap.get('Self')).toStrictEqual([])
+  })
+
+  it.concurrent('should return empty maps for empty input', () => {
+    const result = analyzeCircularSchemas({}, [])
+    expect(result.cyclicSchemas).toStrictEqual(new Set())
+    expect(result.extendedCyclicSchemas).toStrictEqual(new Set())
+    expect(result.cyclicGroupPascal).toStrictEqual(new Set())
+    expect([...result.depsMap.entries()]).toStrictEqual([])
+    expect([...result.zSchemaMap.entries()]).toStrictEqual([])
+  })
+
+  it.concurrent('should compute zSchemaMap with readonly modifier when enabled', () => {
+    const schemas = {
+      User: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string' } },
+      },
+    } as const
+    const withReadonly = analyzeCircularSchemas(schemas, ['User'], true)
+    const withoutReadonly = analyzeCircularSchemas(schemas, ['User'], false)
+    expect(withReadonly.zSchemaMap.get('User')).toBe(
+      'z.object({id:z.string()}).readonly().openapi({"required":["id"]})',
+    )
+    expect(withoutReadonly.zSchemaMap.get('User')).toBe(
+      'z.object({id:z.string()}).openapi({"required":["id"]})',
+    )
+  })
+
+  it.concurrent('should expose varNameToName mapping in PascalCase Schema form', () => {
+    const schemas = {
+      'auth-user': { type: 'object', properties: {} },
+      Order: { type: 'object', properties: {} },
+    } as const
+    const result = analyzeCircularSchemas(schemas, ['auth-user', 'Order'])
+    expect(result.varNameToName.get('AuthUserSchema')).toBe('auth-user')
+    expect(result.varNameToName.get('OrderSchema')).toBe('Order')
   })
 })

@@ -3316,4 +3316,531 @@ describe('Users', () => {
 `)
     })
   })
+
+  describe('realistic human-edit scenarios', () => {
+    it('mergeHandlerFile preserves user try/catch and external imports', () => {
+      const existing = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import db from './db'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  try {
+    const user = await db.user.find(c.req.param('id'))
+    return c.json(user, 200)
+  } catch (e) {
+    return c.json({ error: 'Internal' }, 500)
+  }
+}`
+      const generated = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import db from './db'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  try {
+    const user = await db.user.find(c.req.param('id'))
+    return c.json(user, 200)
+  } catch (e) {
+    return c.json({ error: 'Internal' }, 500)
+  }
+}
+`)
+    })
+
+    it('mergeHandlerFile preserves user JSDoc on handler', () => {
+      const existing = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+
+/**
+ * Returns user by ID.
+ * @throws 404 if user not found
+ */
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: 1, name: 'Alice' }, 200)
+}`
+      const generated = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+
+/**
+ * Returns user by ID.
+ * @throws 404 if user not found
+ */
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ id: 1, name: 'Alice' }, 200)
+}
+`)
+    })
+
+    it('mergeHandlerFile preserves user-defined helper exports alongside handlers', () => {
+      const existing = `import { type RouteHandler } from '@hono/zod-openapi'
+import { aRoute } from './routes'
+
+export const ADMIN_TOKEN = 'admin-secret'
+
+export function isAdmin(token: string) {
+  return token === ADMIN_TOKEN
+}
+
+export const aRouteHandler: RouteHandler<typeof aRoute> = async (c) => {
+  return c.json({ admin: isAdmin(c.req.header('Authorization') ?? '') }, 200)
+}`
+      const generated = `import { type RouteHandler } from '@hono/zod-openapi'
+import { aRoute, bRoute } from './routes'
+
+export const aRouteHandler: RouteHandler<typeof aRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}
+
+export const bRouteHandler: RouteHandler<typeof bRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { type RouteHandler } from '@hono/zod-openapi'
+import { aRoute, bRoute } from './routes'
+
+export const ADMIN_TOKEN = 'admin-secret'
+
+export function isAdmin(token: string) {
+  return token === ADMIN_TOKEN
+}
+
+export const aRouteHandler: RouteHandler<typeof aRoute> = async (c) => {
+  return c.json({ admin: isAdmin(c.req.header('Authorization') ?? '') }, 200)
+}
+
+export const bRouteHandler: RouteHandler<typeof bRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}
+`)
+    })
+
+    it('mergeHandlerFile preserves user satisfies operator and type imports', () => {
+      const existing = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import type { User } from './types'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  const user = { id: 1, name: 'Alice' } satisfies User
+  return c.json(user, 200)
+}`
+      const generated = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import type { User } from './types'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  const user = { id: 1, name: 'Alice' } satisfies User
+  return c.json(user, 200)
+}
+`)
+    })
+
+    it('mergeHandlerFile preserves user middleware/utility imports', () => {
+      const existing = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from './routes'
+import { authenticate } from './middleware/auth'
+import { sanitize } from '../utils/sanitize'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  const user = await authenticate(c)
+  return c.json(sanitize(user), 200)
+}`
+      const generated = `import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute, postUserRoute } from './routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}
+
+export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { type RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute, postUserRoute } from './routes'
+import { authenticate } from './middleware/auth'
+import { sanitize } from '../utils/sanitize'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  const user = await authenticate(c)
+  return c.json(sanitize(user), 200)
+}
+
+export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (_c) => {
+  throw new Error('Not implemented')
+}
+`)
+    })
+
+    it('mergeHandlerFile reorders inline .openapi() chain to generated order while preserving user impl', () => {
+      const existing = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { getRouteA, getRouteB, getRouteC } from './routes'
+
+export const allHandler = new OpenAPIHono()
+  .openapi(getRouteC, async (c) => c.json({ c: 'c' }, 200))
+  .openapi(getRouteA, async (c) => c.json({ a: 'a' }, 200))
+  .openapi(getRouteB, async (c) => c.json({ b: 'b' }, 200))`
+      const generated = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { getRouteA, getRouteB, getRouteC } from './routes'
+
+export const allHandler = new OpenAPIHono()
+  .openapi(getRouteA, async (_c) => { throw new Error('Not implemented') })
+  .openapi(getRouteB, async (_c) => { throw new Error('Not implemented') })
+  .openapi(getRouteC, async (_c) => { throw new Error('Not implemented') })`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { getRouteA, getRouteB, getRouteC } from './routes'
+
+export const allHandler = new OpenAPIHono()
+.openapi(getRouteA, async (c) => c.json({ a: 'a' }, 200))
+.openapi(getRouteB, async (c) => c.json({ b: 'b' }, 200))
+.openapi(getRouteC, async (c) => c.json({ c: 'c' }, 200))
+`)
+    })
+
+    it('mergeHandlerFile preserves user closure variables outside inline handler chain', () => {
+      const existing = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { aRoute, bRoute } from './routes'
+
+const cache = new Map<string, unknown>()
+
+export const allHandler = new OpenAPIHono()
+  .openapi(aRoute, async (c) => {
+    const cached = cache.get('a')
+    if (cached) return c.json(cached, 200)
+    const data = { value: 'a' }
+    cache.set('a', data)
+    return c.json(data, 200)
+  })
+  .openapi(bRoute, async (c) => c.json({ b: 'b' }, 200))`
+      const generated = `import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { aRoute, bRoute } from './routes'
+
+export const allHandler = new OpenAPIHono()
+  .openapi(aRoute, async (_c) => { throw new Error('Not implemented') })
+  .openapi(bRoute, async (_c) => { throw new Error('Not implemented') })`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono, type RouteHandler } from '@hono/zod-openapi'
+import { aRoute, bRoute } from './routes'
+
+const cache = new Map<string, unknown>()
+
+export const allHandler = new OpenAPIHono()
+.openapi(aRoute, async (c) => {
+    const cached = cache.get('a')
+    if (cached) return c.json(cached, 200)
+    const data = { value: 'a' }
+    cache.set('a', data)
+    return c.json(data, 200)
+  })
+.openapi(bRoute, async (c) => c.json({ b: 'b' }, 200))
+`)
+    })
+
+    it('mergeAppFile preserves user .use() middleware between app declaration and api chain', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { logger } from 'hono/logger'
+import { cors } from 'hono/cors'
+import { getUserRoute, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+app.use('*', logger())
+app.use('/api/*', cors())
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+
+export default app`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUserRoute, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+
+export default app`
+      expect(mergeAppFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { logger } from 'hono/logger'
+import { cors } from 'hono/cors'
+import { getUserRoute, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+app.use('*', logger())
+app.use('/api/*', cors())
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+
+export default app
+`)
+    })
+
+    it('mergeAppFile preserves user .notFound() and .onError() registered after api chain', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUserRoute, getUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler)
+
+app.notFound((c) => c.json({ error: 'Not found' }, 404))
+app.onError((err, c) => c.json({ error: err.message }, 500))
+
+export default app`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUserRoute, getUserRouteHandler, postUserRoute, postUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler).openapi(postUserRoute, postUserRouteHandler)
+
+export default app`
+      expect(mergeAppFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUserRoute, getUserRouteHandler, postUserRoute, postUserRouteHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getUserRoute, getUserRouteHandler).openapi(postUserRoute, postUserRouteHandler)
+
+app.notFound((c) => c.json({ error: 'Not found' }, 404))
+app.onError((err, c) => c.json({ error: err.message }, 500))
+
+export default app
+`)
+    })
+
+    it('mergeTestFile preserves user beforeEach hook and authentication setup', () => {
+      const existing = `import { describe, it, expect, beforeEach } from 'vite-plus/test'
+import app from '..'
+
+let token: string
+beforeEach(async () => {
+  const res = await app.request('/auth/login', { method: 'POST' })
+  token = (await res.json()).token
+})
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', {
+      headers: { Authorization: \`Bearer \${token}\` },
+    })
+    expect(res.status).toBe(200)
+  })
+})`
+      const generated = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})`
+      expect(mergeTestFile(existing, generated))
+        .toBe(`import { beforeEach, describe, expect, it } from 'vite-plus/test'
+import app from '..'
+
+let token: string
+beforeEach(async () => {
+  const res = await app.request('/auth/login', { method: 'POST' })
+  token = (await res.json()).token
+})
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', {
+      headers: { Authorization: \`Bearer \${token}\` },
+    })
+    expect(res.status).toBe(200)
+  })
+})
+`)
+    })
+
+    it('mergeTestFile preserves user it.skip and it.only modifiers', () => {
+      const existing = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it.skip('List users (skipped pending fix)', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+  it.only('Get user by ID (debugging)', async () => {
+    const res = await app.request('/users/1', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})`
+      const generated = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})`
+      expect(mergeTestFile(existing, generated))
+        .toBe(`import { describe, expect, it } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it.skip('List users (skipped pending fix)', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+  it.only('Get user by ID (debugging)', async () => {
+    const res = await app.request('/users/1', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})
+`)
+    })
+
+    it('mergeBarrelFile drops existing user comments (generated is source of truth)', () => {
+      // Documented behavior: barrel file is fully replaced by generated content.
+      // User comments outside generated exports are not preserved.
+      const existing = `// Custom user comment about the barrel
+export * from './user'
+export * from './post'`
+      const generated = `export * from './user'
+export * from './comment'`
+      expect(mergeBarrelFile(existing, generated)).toBe(`export * from './user'
+export * from './comment'`)
+    })
+
+    it('mergeAppFile ignores user comments between app and .openapi() (no chain prefix injection)', () => {
+      // Regression: previously `extractChainPrefix` returned the comment text after trim(),
+      // producing invalid `app// Public routes.openapi(...)` after injection.
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { aRoute, aHandler, bRoute, bHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  // Public routes
+  .openapi(aRoute, aHandler)
+  // Admin routes
+  .openapi(bRoute, bHandler)
+
+export default app`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { aRoute, aHandler, bRoute, bHandler, cRoute, cHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(aRoute, aHandler).openapi(bRoute, bHandler).openapi(cRoute, cHandler)
+
+export default app`
+      expect(mergeAppFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { aHandler, aRoute, bHandler, bRoute, cHandler, cRoute } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(aRoute, aHandler).openapi(bRoute, bHandler).openapi(cRoute, cHandler)
+
+export default app
+`)
+    })
+
+    it('mergeAppFile appends generated api + export default when existing has middleware but no api/default', () => {
+      // Regression: previously the body was returned as-is, leaving the file without an api
+      // export and without `export default app` — invalid as the application entrypoint.
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { logger } from 'hono/logger'
+
+const app = new OpenAPIHono()
+app.use('*', logger())`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { aRoute, aHandler } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(aRoute, aHandler)
+
+export default app`
+      expect(mergeAppFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { logger } from 'hono/logger'
+import { aHandler, aRoute } from './handlers'
+
+const app = new OpenAPIHono()
+app.use('*', logger())
+
+export const api = app.openapi(aRoute, aHandler)
+
+export default app
+`)
+    })
+
+    it('mergeTestFile appends new route describe at end when no outer wrapper exists', () => {
+      // Regression: previously the new POST /users describe was nested inside the GET /users
+      // describe because `findLastIndex` matched the `})` closing GET /users.
+      const existing = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})`
+      const generated = `import { describe, it, expect } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})
+
+describe('POST /users', () => {
+  it('Create user', async () => {
+    const res = await app.request('/users', { method: 'POST' })
+    expect(res.status).toBe(201)
+  })
+})`
+      expect(mergeTestFile(existing, generated))
+        .toBe(`import { describe, expect, it } from 'vite-plus/test'
+import app from '..'
+
+describe('GET /users', () => {
+  it('List users', async () => {
+    const res = await app.request('/users', { method: 'GET' })
+    expect(res.status).toBe(200)
+  })
+})
+
+describe('POST /users', () => {
+  it('Create user', async () => {
+    const res = await app.request('/users', { method: 'POST' })
+    expect(res.status).toBe(201)
+  })
+})
+`)
+    })
+  })
 })
