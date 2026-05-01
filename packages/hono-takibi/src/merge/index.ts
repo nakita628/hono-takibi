@@ -483,14 +483,32 @@ function extractMockFunctions(code: string) {
 /**
  * Extracts `describe('METHOD /path', ...)` calls from test code.
  *
+ * Also matches `describe.skip(...)` / `describe.only(...)` so user-applied test
+ * modifiers are recognized as the same route — preventing duplicate describes
+ * after regeneration.
+ *
  * Returns a map of route identifier (e.g., "GET /users") to block info
  * including text and source positions for removal.
  */
 function extractRouteDescribeBlocks(code: string) {
+  const DESCRIBE_MODIFIERS = new Set([
+    'skip',
+    'only',
+    'skipIf',
+    'runIf',
+    'concurrent',
+    'sequential',
+  ])
   const result = new Map<string, { text: string; start: number; end: number }>()
   for (const call of parseSnippet(code).getDescendantsOfKind(SyntaxKind.CallExpression)) {
     const expr = call.getExpression()
-    if (!Node.isIdentifier(expr) || expr.getText() !== 'describe') continue
+    const isDescribe =
+      (Node.isIdentifier(expr) && expr.getText() === 'describe') ||
+      (Node.isPropertyAccessExpression(expr) &&
+        Node.isIdentifier(expr.getExpression()) &&
+        expr.getExpression().getText() === 'describe' &&
+        DESCRIBE_MODIFIERS.has(expr.getName()))
+    if (!isDescribe) continue
     const firstArg = call.getArguments()[0]
     if (
       !firstArg ||
@@ -551,14 +569,13 @@ export function mergeTestFile(existingCode: string, generatedCode: string) {
   return joinSections([filteredImports.join('\n'), body])
 }
 
-const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
-
 /**
  * Drops test-framework imports from any module other than the one used by the generated
  * file. Without this, switching frameworks (e.g. existing `vitest` → generated
  * `vite-plus/test`) would leave duplicate framework imports.
  */
 function filterTestFrameworkImports(mergedImports: readonly string[], generatedFile: SourceFile) {
+  const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
   const generatedTestModule = generatedFile
     .getImportDeclarations()
     .map((d) => d.getModuleSpecifierValue())
