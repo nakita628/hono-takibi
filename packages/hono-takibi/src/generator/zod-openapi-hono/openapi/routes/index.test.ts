@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+
 import { routeCode } from './index.js'
 
 describe('routeCode', () => {

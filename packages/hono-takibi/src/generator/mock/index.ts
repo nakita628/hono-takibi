@@ -129,7 +129,7 @@ function makeMockFunction(
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${mockBody}\n}`
+  return `function mock${name.replace(/\./g, '')}()${returnType}{return ${mockBody}}` as const
 }
 
 function extractSecurityInfo(
@@ -191,12 +191,12 @@ function hasRequestBodyContent(
  * This is needed because @hono/zod-openapi doesn't correctly handle multiple content types.
  */
 function filterToJsonContentTypes(openapi: OpenAPI) {
-  const httpMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace']
   const filteredPaths = Object.fromEntries(
     Object.entries(openapi.paths).map(([path, pathItem]) => {
       const filteredPathItem = Object.fromEntries(
         Object.entries(pathItem).map(([k, v]) => {
-          if (!httpMethods.includes(k)) return [k, v]
+          if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(k))
+            return [k, v]
           if (!hasRequestBodyContent(v)) return [k, v]
           const jsonContent = v.requestBody.content['application/json']
           if (!jsonContent) return [k, v]
@@ -262,7 +262,7 @@ function makeAuthCheck(
     return []
   })
   if (authChecks.length === 0) return ''
-  return `if (!(${authChecks.join(' || ')})) {\n    return c.json({ message: 'Unauthorized' }, ${401})\n  }\n  `
+  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, ${401})}`
 }
 
 function makeHandlerBody(
@@ -300,52 +300,42 @@ export function makeMock(
   const componentResponses = openapi.components?.responses
   const allRefs = new Set<string>()
   const processed = Object.entries(paths).flatMap(([p, pathItem]) =>
-    Object.entries(pathItem).flatMap(
-      ([method, operation]): readonly {
-        readonly entry: {
-          readonly routeId: string
-          readonly method: string
-          readonly path: string
-          readonly requiresAuth: boolean
-        }
-        readonly handler: string
-      }[] => {
-        if (!(isHttpMethod(method) && isOperation(operation))) return []
-        const routeId = methodPath(method, p)
-        const security = extractSecurityInfo(
-          isSecurityArray(operation.security) ? operation.security : undefined,
-          isSecurityArray(openapi.security) ? openapi.security : undefined,
-          securitySchemes,
-        )
-        const requiresAuth = security.length > 0
-        const successResponse = resolveResponse(
-          operation.responses?.[String(200)] ??
-            operation.responses?.[String(201)] ??
-            operation.responses?.[String(204)],
-          componentResponses,
-        )
-        const jsonMedia = successResponse?.content?.['application/json']
-        const textMedia = successResponse?.content?.['text/plain']
-        const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
-        const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-        const statusCode = determineSuccessStatus(operation.responses)
-        const handlerBody = makeHandlerBody(
-          statusCode,
-          jsonSchema,
-          textSchema,
-          operation.responses?.[String(204)] !== undefined,
-          schemas,
-          allRefs,
-        )
-        // Generate auth check code only when route defines a 401 Unauthorized response
-        const has401 = operation.responses?.[String(401)] !== undefined
-        const authCheck = makeAuthCheck(security, has401)
-        const usesContext = handlerBody.includes('c.') || authCheck !== ''
-        const param = usesContext ? 'c' : '_c'
-        const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {\n  ${authCheck}${handlerBody}\n}`
-        return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
-      },
-    ),
+    Object.entries(pathItem).flatMap(([method, operation]) => {
+      if (!(isHttpMethod(method) && isOperation(operation))) return []
+      const routeId = methodPath(method, p)
+      const security = extractSecurityInfo(
+        isSecurityArray(operation.security) ? operation.security : undefined,
+        isSecurityArray(openapi.security) ? openapi.security : undefined,
+        securitySchemes,
+      )
+      const requiresAuth = security.length > 0
+      const successResponse = resolveResponse(
+        operation.responses?.[String(200)] ??
+          operation.responses?.[String(201)] ??
+          operation.responses?.[String(204)],
+        componentResponses,
+      )
+      const jsonMedia = successResponse?.content?.['application/json']
+      const textMedia = successResponse?.content?.['text/plain']
+      const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
+      const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
+      const statusCode = determineSuccessStatus(operation.responses)
+      const handlerBody = makeHandlerBody(
+        statusCode,
+        jsonSchema,
+        textSchema,
+        operation.responses?.[String(204)] !== undefined,
+        schemas,
+        allRefs,
+      )
+      // Generate auth check code only when route defines a 401 Unauthorized response
+      const has401 = operation.responses?.[String(401)] !== undefined
+      const authCheck = makeAuthCheck(security, has401)
+      const usesContext = handlerBody.includes('c.') || authCheck !== ''
+      const param = usesContext ? 'c' : '_c'
+      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${handlerBody}}`
+      return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
+    }),
   )
   const routeEntries = processed.map(({ entry }) => entry)
   const handlers = processed.map(({ handler }) => handler)
@@ -383,26 +373,15 @@ export function makeMock(
   const routes = routeCode(filteredOpenapi, options.readonly)
   const appSetup = routeEntries
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
-    .join('\n  ')
+    .join('')
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'`
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
 
-export const api = app
-  ${appSetup}
+export const api = app${appSetup}
 
 export default app`
-  return [
-    imports,
-    '',
-    components,
-    '',
-    routes,
-    '',
-    mockFunctions.join('\n\n'),
-    '',
-    handlers.join('\n\n'),
-    '',
-    appCode,
-  ].join('\n')
+  return [imports, components, routes, mockFunctions.join('\n\n'), handlers.join('\n\n'), appCode]
+    .filter((s) => s.length > 0)
+    .join('\n\n')
 }

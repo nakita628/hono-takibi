@@ -48,14 +48,8 @@ export async function parseOpenAPI(input: string) {
   }
 }
 
-/**
- * Base OpenAPI type derived from SwaggerParser
- */
 type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.bundle>>
 
-/**
- * Extended OpenAPI specification with required components and paths
- */
 export type OpenAPI = BaseOpenAPI & {
   readonly openapi?: string
   readonly $self?: string
@@ -213,15 +207,15 @@ export type FormatString =
   | 'ipv6'
   | 'cidrv4'
   | 'cidrv6'
-  | 'date' // ISO date format (YYYY-MM-DD)
-  | 'time' // ISO time format (HH:mm:ss[.SSSSSS])
-  | 'date-time' // ISO 8601; by default only `Z` timezone allowed
-  | 'duration' // ISO 8601 duration
+  | 'date' /* ISO date format (YYYY-MM-DD) */
+  | 'time' /* ISO time format (HH:mm:ss[.SSSSSS]) */
+  | 'date-time' /* ISO 8601; by default only `Z` timezone allowed */
+  | 'duration' /* ISO 8601 duration */
   | 'binary'
-  // transforms
-  | 'toLowerCase' // toLowerCase
-  | 'toUpperCase' // toUpperCase
-  | 'trim' // trim whitespace
+  /* transforms */
+  | 'toLowerCase' /* toLowerCase */
+  | 'toUpperCase' /* toUpperCase */
+  | 'trim' /* trim whitespace */
 
 export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
 

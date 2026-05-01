@@ -6,7 +6,6 @@ import {
   toIdentifierPascalCase,
   uncapitalize,
 } from '../utils/index.js'
-import type { analyzeCircularSchemas } from './ast.js'
 
 /**
  * Creates metadata for a single OpenAPI schema.
@@ -29,7 +28,14 @@ import type { analyzeCircularSchemas } from './ast.js'
 export function makeSchemaInfo(
   schemaName: string,
   schema: Schema,
-  analysis: ReturnType<typeof analyzeCircularSchemas>,
+  analysis: {
+    readonly zSchemaMap: ReadonlyMap<string, string>
+    readonly depsMap: ReadonlyMap<string, readonly string[]>
+    readonly cyclicSchemas: ReadonlySet<string>
+    readonly extendedCyclicSchemas: ReadonlySet<string>
+    readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly varNameToName: ReadonlyMap<string, string>
+  },
 ) {
   const zSchema = analysis.zSchemaMap.get(schemaName) ?? ''
   const safeSchemaName = toIdentifierPascalCase(schemaName)
@@ -66,7 +72,14 @@ export function makeSchemaInfo(
 export function makeSchemaInfos(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
-  analysis: ReturnType<typeof analyzeCircularSchemas>,
+  analysis: {
+    readonly zSchemaMap: ReadonlyMap<string, string>
+    readonly depsMap: ReadonlyMap<string, readonly string[]>
+    readonly cyclicSchemas: ReadonlySet<string>
+    readonly extendedCyclicSchemas: ReadonlySet<string>
+    readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly varNameToName: ReadonlyMap<string, string>
+  },
 ) {
   return schemaNames.map((name) => makeSchemaInfo(name, schemas[name], analysis))
 }
@@ -91,7 +104,15 @@ export function makeSchemaInfos(
  * ```
  */
 export function makeSchemaCode(
-  info: ReturnType<typeof makeSchemaInfo>,
+  info: {
+    readonly schemaName: string
+    readonly schema: Schema
+    readonly zSchema: string
+    readonly safeSchemaName: string
+    readonly variableName: string
+    readonly needsLazy: boolean
+    readonly needsTypeDef: boolean
+  },
   options: {
     readonly exportKeyword: string
     readonly exportType: boolean
@@ -127,7 +148,15 @@ export function makeSchemaCode(
  * ```
  */
 export function makeTypeDefinition(
-  info: ReturnType<typeof makeSchemaInfo>,
+  info: {
+    readonly schemaName: string
+    readonly schema: Schema
+    readonly zSchema: string
+    readonly safeSchemaName: string
+    readonly variableName: string
+    readonly needsLazy: boolean
+    readonly needsTypeDef: boolean
+  },
   cyclicGroupPascal: ReadonlySet<string>,
   readonly?: boolean,
 ) {
@@ -153,7 +182,15 @@ export function makeTypeDefinition(
  * ```
  */
 export function makeTypeDefinitions(
-  infos: readonly ReturnType<typeof makeSchemaInfo>[],
+  infos: readonly {
+    readonly schemaName: string
+    readonly schema: Schema
+    readonly zSchema: string
+    readonly safeSchemaName: string
+    readonly variableName: string
+    readonly needsLazy: boolean
+    readonly needsTypeDef: boolean
+  }[],
   schemas: { readonly [k: string]: Schema },
   cyclicGroupPascal: ReadonlySet<string>,
   readonly?: boolean,
@@ -233,7 +270,14 @@ export function makeSplitSchemaFile(
   schemaName: string,
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
-  analysis: ReturnType<typeof analyzeCircularSchemas>,
+  analysis: {
+    readonly zSchemaMap: ReadonlyMap<string, string>
+    readonly depsMap: ReadonlyMap<string, readonly string[]>
+    readonly cyclicSchemas: ReadonlySet<string>
+    readonly extendedCyclicSchemas: ReadonlySet<string>
+    readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly varNameToName: ReadonlyMap<string, string>
+  },
   exportType: boolean,
   readonly?: boolean,
 ) {

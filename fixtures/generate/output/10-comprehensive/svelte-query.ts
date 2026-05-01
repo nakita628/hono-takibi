@@ -266,7 +266,7 @@ export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptio
 export function createDeleteUsersUserId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteUsersUserId>> | undefined,
+      Awaited<ReturnType<typeof deleteUsersUserId>>  ,
       Error,
       InferRequestType<(typeof client.users)[':userId']['$delete']>
     >

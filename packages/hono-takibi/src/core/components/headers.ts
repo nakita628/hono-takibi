@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
-import { core, makeImports } from '../../helper/index.js'
+import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
@@ -62,19 +63,19 @@ export async function headers(
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
         const code = headersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${uncapitalize(headerName)}.ts`)
-        return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
+      emit(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated headers code written to ${outDir}/*.ts (index.ts included)`,
     } as const
   }
   const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
-  const coreResult = await core(toFileCode(headerDefinitions, output), path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(toFileCode(headerDefinitions, output), path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated headers code written to ${output}` } as const
 }

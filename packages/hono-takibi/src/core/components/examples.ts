@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { makeExportConst } from '../../helper/code.js'
-import { core, makeRef } from '../../helper/index.js'
+import { makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../../utils/index.js'
 
@@ -49,31 +50,31 @@ export async function examples(
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)
       .join('\n')}\n`
     const results = await Promise.all([
-      ...keys.map((key) => {
-        const v = examples[key]
-        const name = toIdentifierPascalCase(ensureSuffix(key, 'Example'))
-        const filePath = path.join(outDir, `${uncapitalize(key)}.ts`)
+      ...keys.map((k) => {
+        const v = examples[k]
+        const name = toIdentifierPascalCase(ensureSuffix(k, 'Example'))
+        const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
         if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const importPath = `./${uncapitalize(refKey)}.ts`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
-          return core(body, path.dirname(filePath), filePath)
+          return emit(body, path.dirname(filePath), filePath)
         }
         const body = `export const ${name} = ${JSON.stringify(v)}${asConst}\n`
-        return core(body, path.dirname(filePath), filePath)
+        return emit(body, path.dirname(filePath), filePath)
       }),
-      core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+      emit(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])
-    const firstError = results.find((result) => !result.ok)
-    if (firstError) return firstError
+    const e = results.find((result) => !result.ok)
+    if (e) return e
     return {
       ok: true,
       value: `Generated Example code written to ${outDir}/*.ts (index.ts included)`,
     } as const
   }
   const code = makeExportConst(examples, 'Example', readonly)
-  const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(code, path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated examples code written to ${output}` } as const
 }

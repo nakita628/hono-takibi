@@ -11,7 +11,7 @@ const UlidSchema = z
   .openapi({ examples: ['01J1K9N3E6R6ZK7Z6B0Q9Q3H3J'] })
   .openapi('Ulid')
 
-type IdType = z.infer<typeof UuidSchema> | z.infer<typeof UlidSchema>
+type IdType = z.infer<typeof UuidSchema>  
 
 type LocaleType = string
 

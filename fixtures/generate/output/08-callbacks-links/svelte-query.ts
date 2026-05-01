@@ -151,7 +151,7 @@ export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestO
 export function createDeleteSubscriptionsId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
+      Awaited<ReturnType<typeof deleteSubscriptionsId>>  ,
       Error,
       InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
     >

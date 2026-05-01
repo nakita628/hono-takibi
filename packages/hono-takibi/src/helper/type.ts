@@ -2,32 +2,6 @@ import { isSchemaArray } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
 
-/**
- * Generates a TypeScript type string from an OpenAPI schema.
- *
- * @param schema - The OpenAPI schema object
- * @param selfTypeName - The name of the current type (for self-reference detection)
- * @param cyclicGroup - Optional set of type names in a cyclic dependency group
- * @param readonly - Whether to generate readonly array and object types
- * @returns A TypeScript type string representation
- *
- * @mermaid
- * flowchart TD
- *   A["makeTypeString(schema)"] --> B{"Has $ref?"}
- *   B -->|Yes| C["Ref type string"]
- *   B -->|No| D{"oneOf / anyOf?"}
- *   D -->|Yes| E["Union type (|)"]
- *   D -->|No| F{"allOf?"}
- *   F -->|Yes| G["Intersection type (&)"]
- *   F -->|No| H{"enum?"}
- *   H -->|Yes| I["Literal union"]
- *   H -->|No| J{"Primitive type?"}
- *   J -->|string| K["string"]
- *   J -->|number/integer| L["number"]
- *   J -->|boolean| M["boolean"]
- *   J -->|array| N["T[] / readonly T[]"]
- *   J -->|object| O["{props}"]
- */
 export function makeTypeString(
   schema: Schema,
   selfTypeName: string,
@@ -70,7 +44,6 @@ function makeRefTypeString(ref: string, selfTypeName: string) {
   const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-    // Only use local type name for self-references
     if (parentName === selfTypeName) {
       return `${parentName}Type`
     }
@@ -78,8 +51,6 @@ function makeRefTypeString(ref: string, selfTypeName: string) {
   }
   const rawRef = ref.split('/').at(-1) ?? ''
   const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-  // Only use local type name for self-references
-  // For other schemas (including those in cyclic group), use z.infer
   if (refName === selfTypeName) {
     return `${refName}Type`
   }
@@ -151,7 +122,6 @@ function makeArrayTypeString(
   const prefix = readonly ? 'readonly ' : ''
   if (!schema.items) return `${prefix}unknown[]`
   const items = schema.items
-  // Handle array of Schemas (tuple style)
   if (isSchemaArray(items)) {
     const firstItem = items[0]
     if (items.length > 1) {
@@ -167,12 +137,10 @@ function makeArrayTypeString(
     }
     return `${prefix}unknown[]`
   }
-  // Handle single Schema (OpenAPI 3.0+ style)
   if (items.$ref) {
     const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
-      // Only use local type name for self-references
       if (parentName === selfTypeName) {
         return `${prefix}${parentName}Type[]`
       }
@@ -180,7 +148,6 @@ function makeArrayTypeString(
     }
     const rawRef = items.$ref.split('/').at(-1) ?? ''
     const refName = toIdentifierPascalCase(decodeURIComponent(rawRef))
-    // Only use local type name for self-references
     if (refName === selfTypeName) {
       return `${prefix}${refName}Type[]`
     }

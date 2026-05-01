@@ -93,15 +93,15 @@ export function wrap(
       if (unsupportedProps.has(key)) {
         continue
       }
-      // Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject)
+      /* Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject) */
       if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
         continue
       }
-      // Filter out not.not (nested not with boolean)
+      /* Filter out not.not (nested not with boolean) */
       if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
         continue
       }
-      // Convert non-string values in required array to strings (YAML may parse null/true/false as literals)
+      /* Convert non-string values in required array to strings (YAML may parse null/true/false as literals) */
       if (key === 'required' && Array.isArray(value)) {
         filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
         continue
@@ -112,11 +112,9 @@ export function wrap(
   }
 
   const formatLiteral = (v: unknown): string => {
-    /* boolean true or false */
     if (typeof v === 'boolean') {
       return `${v}`
     }
-    /* number */
     if (typeof v === 'number') {
       if (schema.format === 'int64') {
         return `${v}n`
@@ -126,15 +124,12 @@ export function wrap(
       }
       return `${v}`
     }
-    /* date */
     if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
-    /* string */
     if (typeof v === 'string') {
       return JSON.stringify(v)
     }
-    /* other */
     return JSON.stringify(v)
   }
   const isNullable =
@@ -221,7 +216,6 @@ export function wrap(
         meta.headers.content ? `content:${JSON.stringify(meta.headers.content)}` : undefined,
       ].filter((v) => v !== undefined)
     : []
-
   const openapiSchema = args ? JSON.stringify(args) : undefined
   // Strip outer braces from JSON object to embed directly in openapi({...}) call
   // e.g. '{"description":"foo"}' → '"description":"foo"'
@@ -231,7 +225,6 @@ export function wrap(
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-
   /**
    * Serializes a media object with examples handled as code references.
    */
@@ -267,7 +260,7 @@ export function wrap(
     })
     return `{${entries.join(',')}}`
   }
-  const openapiProps = [
+  const result = [
     meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
     ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
@@ -275,17 +268,17 @@ export function wrap(
   /* https://github.com/OAI/OpenAPI-Specification/issues/2385 */
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
-      return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+      return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
     }
-    return openapiProps.length === 0
+    return result.length === 0
       ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
+      : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
   /* Handle optional object properties */
   if (meta?.isOptional === true) {
-    return openapiProps.length === 0
+    return result.length === 0
       ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
+      : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
-  return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
+  return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
 }

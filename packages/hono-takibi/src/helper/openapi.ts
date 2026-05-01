@@ -23,20 +23,7 @@ import {
 } from '../utils/index.js'
 import { coerce } from './../helper/index.js'
 
-/**
- * Converts an OpenAPI `$ref` string to a variable name with the appropriate suffix.
- *
- * @example
- * ```ts
- * makeRef('#/components/schemas/User')      // → 'UserSchema'
- * makeRef('#/components/parameters/UserId') // → 'UserIdParamsSchema'
- * ```
- */
 export function makeRef($ref: string) {
-  /**
-   * Maps OpenAPI component path prefixes to their corresponding suffixes.
-   * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
-   */
   const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
     readonly prefix: string
     readonly suffix: string
@@ -53,11 +40,8 @@ export function makeRef($ref: string) {
     { prefix: '#/components/pathItems/', suffix: 'PathItem' },
     { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
   ]
-  /** Converts name to PascalCase variable name with suffix */
-  const toVariableName = (name: string, suffix: string): string =>
+  const toVariableName = (name: string, suffix: string) =>
     toIdentifierPascalCase(ensureSuffix(name, suffix))
-  // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
-  // These are self-referential and reference the parent schema with z.lazy()
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
     const parentSchema = toVariableName(decodeURIComponent(propertiesMatch[1]), 'Schema')
@@ -66,17 +50,10 @@ export function makeRef($ref: string) {
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodeURIComponent(rawRef)
-  // Find matching component type and apply corresponding suffix
   const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
   return toVariableName(decodedRef, match?.suffix ?? 'Schema')
 }
 
-/**
- * Generates examples code. Top-level `$ref` is resolved to a variable reference;
- * `$ref` inside `value` or custom extensions (`x-*`) is serialized as-is.
- *
- * @see https://swagger.io/docs/specification/v3_0/adding-examples/
- */
 export function makeExamples(examples: {
   readonly [k: string]:
     | {
@@ -106,17 +83,9 @@ export function makeExamples(examples: {
 }) {
   const result = Object.entries(examples)
     .map(([k, example]) => {
-      // Reference with $ref
-      // Note: When $ref is present, sibling properties (summary, description) are IGNORED.
-      // This follows OpenAPI 3.0 spec where $ref must be the only property in an object.
-      // OpenAPI 3.1 allows sibling properties, but for backward compatibility and
-      // per JSON Reference spec, we only use the $ref and discard siblings.
-      // SwaggerParser.bundle() preserves both $ref and siblings in the parsed object,
-      // but hono-takibi intentionally ignores siblings to generate clean variable references.
       if ('$ref' in example && example.$ref) {
         return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
-      // Example object
       const result = [
         example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
         example.description !== undefined
@@ -366,29 +335,6 @@ export function makeContent(
   )
 }
 
-/**
- * Generates code for an OpenAPI request body.
- *
- * Handles both $ref references and inline request body definitions
- * with description, content, and required properties.
- *
- * @param body - OpenAPI request body object or reference
- * @returns TypeScript code string for the request body
- *
- * @example
- * ```ts
- * // Reference
- * makeRequestBody({ $ref: '#/components/requestBodies/CreateUser' })
- * // → 'CreateUserRequestBody'
- *
- * // Inline
- * makeRequestBody({
- *   content: { 'application/json': { schema: {...} } },
- *   required: true
- * })
- * // → '{content:{"application/json":{schema:...}},required:true}'
- * ```
- */
 export function makeRequestBody(body: RequestBody | Reference, readonly?: boolean) {
   if ('$ref' in body && body.$ref) {
     return makeRef(body.$ref)
@@ -405,24 +351,6 @@ export function makeRequestBody(body: RequestBody | Reference, readonly?: boolea
   return `{${result}}`
 }
 
-/**
- * Generates code for an OpenAPI media object.
- *
- * Converts media type definitions including schema, examples,
- * and encoding into TypeScript code.
- *
- * @param media - OpenAPI media object
- * @returns TypeScript code string for the media
- *
- * @example
- * ```ts
- * makeMedia({
- *   schema: { type: 'object', properties: { name: { type: 'string' } } },
- *   example: { name: 'John' }
- * })
- * // → '{schema:z.object({name:z.string()}),example:{"name":"John"}}'
- * ```
- */
 export function makeMedia(media: Media, readonly?: boolean) {
   const encodingCode = media.encoding
     ? Object.entries(media.encoding)
@@ -447,24 +375,6 @@ export function makeMedia(media: Media, readonly?: boolean) {
   return `{${result}}`
 }
 
-/**
- * Generates code for an OpenAPI encoding object.
- *
- * Handles encoding properties for multipart request bodies including
- * contentType, headers, and nested encoding configurations.
- *
- * @param encoding - OpenAPI encoding object
- * @returns TypeScript code string for the encoding
- *
- * @example
- * ```ts
- * makeEncoding({
- *   contentType: 'image/png',
- *   headers: { 'X-Custom': { schema: { type: 'string' } } }
- * })
- * // → 'contentType:"image/png",headers:{"X-Custom":{schema:z.string()}}'
- * ```
- */
 export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
   const nestedEncoding = encoding.encoding
     ? Object.entries(encoding.encoding)
@@ -494,12 +404,6 @@ export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
     .join(',')
 }
 
-/**
- * Generates request parts from parameters and request body.
- * @param parameters OpenAPI parameters array
- * @param requestBody OpenAPI request body (can be Reference or inline RequestBody)
- * @returns Request string like `request:{query:...,body:...},` or empty string
- */
 export function makeRequest(
   parameters: readonly Parameter[] | undefined,
   requestBody: RequestBody | Reference | undefined,
@@ -524,22 +428,11 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
   return content[firstKey]?.schema
 }
 
-/**
- * Converts OpenAPI parameters into a structured object grouped by location (query, path, header, cookie).
- *
- * @param parameters - Array of OpenAPI Parameter objects.
- * @returns An object where keys are parameter locations and values are records of parameter names to Zod schemas.
- *
- * @remarks
- * - Handles $ref references using makeRef.
- * - Supports parameters with content instead of schema (OpenAPI 3.x).
- * - Applies coercion for query parameters with number/boolean/date types.
- */
 export function makeParameters(
   parameters: readonly Parameter[],
   readonly?: boolean,
 ): {
-  [section: string]: { readonly [k: string]: string }
+  readonly [section: string]: { readonly [k: string]: string }
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     if (!acc[param.in]) acc[param.in] = {}
@@ -580,31 +473,12 @@ export function makeParameters(
   }, {})
 }
 
-/**
- * Generates request parameter code from OpenAPI parameters.
- *
- * @param parameters - Array of OpenAPI parameter objects.
- * @returns Comma-separated parameter code string or undefined if empty.
- */
 export function makeRequestParams(parameters: readonly Parameter[], readonly?: boolean) {
   const paramsObject = makeParameters(parameters, readonly)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
 
-/**
- * Generates code for path-level parameters array.
- *
- * Per OpenAPI 3.x specification, `parameters` is an array of Parameter Object or Reference Object.
- * This function outputs the array format: `[ParamSchema1, ParamSchema2, ...]`
- *
- * @see https://spec.openapis.org/oas/v3.1.0.html#parameter-object
- * @see https://spec.openapis.org/oas/v3.1.0.html#path-item-object (parameters field)
- *
- * @param parameters - Array of Parameter or Reference objects
- * @returns Array literal string like `[Schema1, Schema2]`
- * OpenAPI spec: parameters is [Parameter Object | Reference Object]
- */
 export function makePathParameters(parameters: readonly (Parameter | Reference)[]) {
   const serializeValue = (value: unknown): string => {
     if (value === null) return 'null'
@@ -675,7 +549,10 @@ export function makeOperation(operation: Operation, readonly?: boolean) {
 export function makePathItem(pathItem: PathItem) {
   const additionalOperationsCode = pathItem.additionalOperations
     ? Object.entries(pathItem.additionalOperations)
-        .map(([opName, op]) => `${JSON.stringify(opName)}:${makeOperation(op)}`)
+        .map(
+          ([operationName, operation]) =>
+            `${JSON.stringify(operationName)}:${makeOperation(operation)}`,
+        )
         .join(',')
     : undefined
   const results = [

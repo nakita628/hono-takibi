@@ -8,7 +8,7 @@ import {
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
-} from './hono-rpc.js'
+} from './rpc.js'
 
 /* ═══════════════════════════════════ formatPath ═══════════════════════════════════ */
 

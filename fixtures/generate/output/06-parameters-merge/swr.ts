@@ -123,7 +123,7 @@ export async function deleteItemsItemId(
 
 export function useDeleteItemsItemId(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+    Awaited<ReturnType<typeof deleteItemsItemId>>  ,
     Error,
     Key,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>

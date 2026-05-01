@@ -7,12 +7,9 @@ migrations
 dev.db
 dev.db-journal
 test.db
-cache
-pet-store
 .DS_Store
 local.db
 typedoc
-copilot-instructions.md
 .cursor
 .codex
 tsp-output

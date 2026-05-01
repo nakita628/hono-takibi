@@ -94,7 +94,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     }
   } & {
     '/any-of-three': {
-      $get: { input: {}; output: string | number | string; outputFormat: 'json'; status: 200 }
+      $get: { input: {}; output: string | number  ; outputFormat: 'json'; status: 200 }
     }
   } & {
     '/any-of-ref': {

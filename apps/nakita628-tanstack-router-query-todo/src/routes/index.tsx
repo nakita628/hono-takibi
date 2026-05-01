@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link, useSearch } from '@tanstack/react-router'
 import { memo } from 'react'
+
 import type { Todo } from '@/api/routes'
 import {
   getGetTodoQueryKey,
@@ -89,9 +90,7 @@ function HomePage() {
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: todos } = useSuspenseQuery(
-    getGetTodoQueryOptions({ query: { page, rows } }),
-  )
+  const { data: todos } = useSuspenseQuery(getGetTodoQueryOptions({ query: { page, rows } }))
   const hasMore = todos.length === rows
 
   const revalidate = () =>
@@ -126,7 +125,10 @@ function HomePage() {
   }
 
   const handleToggle = async (id: string, completed: number) => {
-    await updateMutation.mutateAsync({ param: { id }, json: { completed: completed === 0 ? 1 : 0 } })
+    await updateMutation.mutateAsync({
+      param: { id },
+      json: { completed: completed === 0 ? 1 : 0 },
+    })
   }
 
   const handleDelete = async (id: string) => {

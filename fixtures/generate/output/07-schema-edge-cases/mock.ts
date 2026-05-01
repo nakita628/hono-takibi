@@ -153,13 +153,11 @@ function mockExtended() {
 }
 
 function mockComposedObject() {
-  return {
-    ...mockBase(),
-    ...mockExtended(),
-    ...{
-      extra: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
-    },
-  }
+  return ({
+	...mockBase(),
+	...mockExtended(),
+	extra: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])
+})
 }
 
 function mockLevel1() {

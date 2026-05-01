@@ -149,7 +149,7 @@ export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptio
 export function createDeleteItemsItemId(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+      Awaited<ReturnType<typeof deleteItemsItemId>>  ,
       Error,
       InferRequestType<(typeof client.items)[':itemId']['$delete']>
     >

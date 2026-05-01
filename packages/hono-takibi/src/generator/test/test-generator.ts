@@ -29,7 +29,7 @@ function collectSchemaRefs(
     const composite = schema[key]
     return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
   })
-  return [...propRefs, ...itemRefs, ...compositeRefs] as const
+  return [...propRefs, ...itemRefs, ...compositeRefs]
 }
 
 function extractSecurityRequirements(
@@ -48,24 +48,24 @@ function extractSecurityRequirements(
         in?: 'header' | 'query' | 'cookie'
       }[] => {
         const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return [] as const
+        if (!(scheme && isSecurityScheme(scheme))) return []
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
-          return [{ type: 'bearer', name: 'Authorization' }] as const
+          return [{ type: 'bearer', name: 'Authorization' }]
         }
         if (scheme.type === 'http' && scheme.scheme === 'basic') {
-          return [{ type: 'basic', name: 'Authorization' }] as const
+          return [{ type: 'basic', name: 'Authorization' }]
         }
         if (scheme.type === 'apiKey') {
           const inLocation =
             scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
               ? scheme.in
               : 'header'
-          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }] as const
+          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }]
         }
         if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }] as const
+          return [{ type: 'oauth2', name: 'Authorization' }]
         }
-        return [] as const
+        return []
       },
     ),
   )
@@ -81,9 +81,9 @@ export function extractTestCases(spec: OpenAPI) {
           ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
             rawParam)
           : rawParam
-        if (!param) return []
+        if (!param) return [] as const
         const schema = param.schema || { type: 'string' as const }
-        return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }]
+        return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }] as const
       })
       const pathParams = resolvedParams
         .filter((p) => p.param.in === 'path')
@@ -158,9 +158,9 @@ function shallowRefs(schema: Schema): readonly string[] {
   const propRefs = schema.properties ? Object.values(schema.properties).flatMap(shallowRefs) : []
   const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
   const itemRefs = items.flatMap(shallowRefs)
-  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((key) => {
-    const composite = schema[key]
-    return composite ? composite.flatMap(shallowRefs) : []
+  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
+    const composite = schema[k]
+    return composite ? composite.flatMap(shallowRefs) : ([] as const)
   })
   return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs] as const
 }
@@ -168,7 +168,7 @@ function shallowRefs(schema: Schema): readonly string[] {
 function reachesSelf(
   start: string,
   target: string,
-  schemas: { [key: string]: Schema },
+  schemas: { [k: string]: Schema },
   visited: Set<string> = new Set<string>(),
 ): boolean {
   if (start === target) return true
@@ -179,7 +179,7 @@ function reachesSelf(
   return shallowRefs(schema).some((dep) => reachesSelf(dep, target, schemas, visited))
 }
 
-function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> {
+function detectCircularSchemas(schemas: { [k: string]: Schema }): Set<string> {
   return new Set(
     Object.keys(schemas).filter((name) => {
       const schema = schemas[name]
@@ -191,10 +191,10 @@ function detectCircularSchemas(schemas: { [key: string]: Schema }): Set<string> 
 
 function topologicalOrder(
   usedSchemaNames: Set<string>,
-  schemas: { [key: string]: Schema },
+  schemas: { [k: string]: Schema },
 ): readonly string[] {
   const visit = (name: string, visited: Set<string>, visiting: Set<string>): string[] => {
-    if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return []
+    if (visited.has(name) || !usedSchemaNames.has(name) || visiting.has(name)) return [] as const
     const nextVisiting = new Set(visiting).add(name)
     const schema = schemas[name]
     const depOrder = schema
@@ -203,9 +203,9 @@ function topologicalOrder(
           for (const n of subOrder) visited.add(n)
           return subOrder
         })
-      : []
+      : ([] as const)
     visited.add(name)
-    return [...depOrder, name]
+    return [...depOrder, name] as const
   }
   const visited = new Set<string>()
   return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))

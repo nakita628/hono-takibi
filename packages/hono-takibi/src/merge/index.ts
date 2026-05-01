@@ -1,46 +1,17 @@
-import { Project, type SourceFile, type VariableStatement } from 'ts-morph'
+import { Node, Project, type SourceFile, SyntaxKind, type VariableStatement } from 'ts-morph'
 
 /**
- * Finds the end position of a balanced expression.
- *
- * Scans from `start`, counting opening/closing characters,
- * and returns the position just after the matching closing character.
- * Skips string literals (single/double/backtick) so that brackets
- * inside strings are not counted.
+ * Parses a code snippet into a temporary in-memory SourceFile for AST analysis.
  */
-function findBalancedEnd(code: string, start: number, open: string, close: string): number {
-  let pos = start
-  let depth = 0
-  while (pos < code.length) {
-    const ch = code[pos]
-    // Skip string/template literals
-    if (ch === "'" || ch === '"' || ch === '`') {
-      pos++
-      while (pos < code.length) {
-        if (code[pos] === '\\') {
-          pos += 2
-          continue
-        }
-        if (code[pos] === ch) {
-          pos++
-          break
-        }
-        pos++
-      }
-      continue
-    }
-    depth += ch === open ? 1 : ch === close ? -1 : 0
-    if (ch === close && depth === 0) return pos + 1
-    pos++
-  }
-  return start
+function parseSnippet(code: string) {
+  return new Project({ useInMemoryFileSystem: true }).createSourceFile('snippet.ts', code)
 }
 
 /**
  * Returns the source position just after the last import declaration.
  * Returns 0 if there are no import declarations.
  */
-function getBodyStart(file: SourceFile): number {
+function getBodyStart(file: SourceFile) {
   const decls = file.getImportDeclarations()
   return decls.length > 0 ? decls[decls.length - 1].getEnd() : 0
 }
@@ -55,15 +26,10 @@ function applyRangeOps(
   code: string,
   startPos: number,
   ops: readonly (readonly [number, number, string])[],
-): string {
-  const slices: string[] = []
-  let cursor = startPos
-  for (const [start, end, replacement] of ops) {
-    slices.push(code.slice(cursor, start), replacement)
-    cursor = end
-  }
-  slices.push(code.slice(cursor))
-  return slices.join('')
+) {
+  const cursors = [startPos, ...ops.map(([, end]) => end)]
+  const segments = ops.flatMap(([start, , repl], i) => [code.slice(cursors[i], start), repl])
+  return [...segments, code.slice(cursors.at(-1) ?? startPos)].join('')
 }
 
 /**
@@ -85,7 +51,7 @@ function createSourcePair(existingCode: string, generatedCode: string) {
  * Returns a Map from handler name to its VariableStatement AST node.
  * A "handler" is any exported variable whose name ends with `Handler`.
  */
-function collectHandlerMap(file: SourceFile): Map<string, VariableStatement> {
+function collectHandlerMap(file: SourceFile) {
   const map = new Map<string, VariableStatement>()
   for (const stmt of file.getVariableStatements()) {
     if (!stmt.isExported()) continue
@@ -115,7 +81,7 @@ function collectHandlerMap(file: SourceFile): Map<string, VariableStatement> {
  * @param generatedCode - The newly generated file content.
  * @returns The merged source code.
  */
-export function mergeHandlerFile(existingCode: string, generatedCode: string): string {
+export function mergeHandlerFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
 
   const isInlineHandlerName = (name: string): boolean =>
@@ -133,12 +99,12 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
   // Chain-merge operations: inline handlers in both — merge .openapi() calls
   const mergeOps: readonly [number, number, string][] = [...existingHandlers.entries()]
     .filter(([name]) => isInlineHandlerName(name) && generatedHandlers.has(name))
-    .flatMap(([name, stmt]): readonly [number, number, string][] => {
+    .flatMap(([name, stmt]) => {
       const genStmt = generatedHandlers.get(name)
       if (!genStmt) return []
       const merged = mergeInlineHandler(stmt.getText(), genStmt.getText())
       if (merged === stmt.getText()) return []
-      return [[stmt.getStart(), stmt.getEnd(), merged]]
+      return [[stmt.getStart(), stmt.getEnd(), merged]] as const
     })
 
   const bodyStart = getBodyStart(existingFile)
@@ -156,13 +122,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
 
   const mergedImports = mergeImports(existingFile, generatedFile)
 
-  const parts = [
-    mergedImports.length > 0 ? mergedImports.join('\n') : '',
-    body.trim(),
-    newHandlerStatements.length > 0 ? newHandlerStatements.join('\n\n') : '',
-  ].filter(Boolean)
-
-  return `${parts.join('\n\n')}\n`
+  return joinSections([mergedImports.join('\n'), body.trim(), newHandlerStatements.join('\n\n')])
 }
 
 /**
@@ -179,56 +139,82 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string): s
  * @param generatedCode - The newly generated file content.
  * @returns The merged source code.
  */
-export function mergeAppFile(existingCode: string, generatedCode: string): string {
+export function mergeAppFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
-
-  // Find 'export const api = ...' in existing (position for replacement)
-  // Use getStart() (not getFullStart()) to preserve leading comments
-  const findApiStmt = (file: SourceFile) =>
-    file
-      .getVariableStatements()
-      .find(
-        (stmt) =>
-          stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
-      )
-
-  const existingApiStmt = findApiStmt(existingFile)
-  const apiReplaceRange: [number, number] | null = existingApiStmt
-    ? [existingApiStmt.getStart(), existingApiStmt.getEnd()]
-    : null
-
-  // Get 'export const api = ...' text from generated
-  const generatedApiStmt = findApiStmt(generatedFile)
-  const rawGeneratedApiText = generatedApiStmt?.getText() ?? ''
-
-  // Preserve user's chain prefix (e.g., .basePath('/api')) between `app` and first .openapi(/.route(
-  const existingApiText = existingApiStmt?.getText() ?? ''
-  const chainPrefix = extractChainPrefix(existingApiText)
-  const generatedApiText = chainPrefix
-    ? rawGeneratedApiText.replace(
-        /\bapp(\s*)\.(?=\s*(?:openapi|route)\s*\()/,
-        (_, ws) => `app${chainPrefix}${ws}.`,
-      )
-    : rawGeneratedApiText
-
+  const existingApiStmt = findApiStatement(existingFile)
+  const generatedApiStmt = findApiStatement(generatedFile)
+  const generatedApiText = injectChainPrefix(
+    generatedApiStmt?.getText() ?? '',
+    extractChainPrefix(existingApiStmt?.getText() ?? ''),
+  )
+  const existingBody = buildAppBody({
+    existingCode,
+    generatedCode,
+    bodyStart: getBodyStart(existingFile),
+    existingApiStmt,
+    generatedApiStmt,
+    generatedApiText,
+  })
+  const body = existingBody.trim() || generatedCode.slice(getBodyStart(generatedFile)).trim()
   const mergedImports = mergeImports(existingFile, generatedFile)
-  const bodyStart = getBodyStart(existingFile)
-
-  // Build body: replace api statement, keep everything else
-  const existingBody = apiReplaceRange
-    ? existingCode.slice(bodyStart, apiReplaceRange[0]) +
-      generatedApiText +
-      existingCode.slice(apiReplaceRange[1])
-    : existingCode.slice(bodyStart)
-
-  // Fallback to generated body when existing file has no body content
-  const generatedBodyStart = getBodyStart(generatedFile)
-  const body = existingBody.trim() || generatedCode.slice(generatedBodyStart).trim()
-
-  const parts = [mergedImports.length > 0 ? mergedImports.join('\n') : '', body].filter(Boolean)
-
-  return `${parts.join('\n\n')}\n`
+  return joinSections([mergedImports.join('\n'), body])
 }
+
+function findApiStatement(file: SourceFile) {
+  return file
+    .getVariableStatements()
+    .find(
+      (stmt) =>
+        stmt.isExported() && stmt.getDeclarations().some((decl) => decl.getName() === 'api'),
+    )
+}
+
+function injectChainPrefix(generatedApiText: string, chainPrefix: string) {
+  if (!chainPrefix) return generatedApiText
+  return generatedApiText.replace(
+    /\bapp(\s*)\.(?=\s*(?:openapi|route)\s*\()/,
+    (_, ws) => `app${chainPrefix}${ws}.`,
+  )
+}
+
+/**
+ * Builds the merged app body by either replacing the existing api statement in place,
+ * or — when existing has no api but is incomplete (lacks `export default`) — appending
+ * the generated api block plus any trailing exports. When existing keeps `export default`
+ * but no api, treats the omission as intentional and leaves the body untouched.
+ */
+function buildAppBody(args: {
+  readonly existingCode: string
+  readonly generatedCode: string
+  readonly bodyStart: number
+  readonly existingApiStmt: VariableStatement | undefined
+  readonly generatedApiStmt: VariableStatement | undefined
+  readonly generatedApiText: string
+}) {
+  const { existingCode, generatedCode, bodyStart, existingApiStmt, generatedApiStmt } = args
+  if (existingApiStmt) {
+    return (
+      existingCode.slice(bodyStart, existingApiStmt.getStart()) +
+      args.generatedApiText +
+      existingCode.slice(existingApiStmt.getEnd())
+    )
+  }
+  const slice = existingCode.slice(bodyStart)
+  if (slice.trim().length === 0 || !generatedApiStmt) return slice
+  if (/\bexport\s+default\b/.test(slice)) return slice
+  const trailing = generatedCode.slice(generatedApiStmt.getEnd())
+  return `${slice.trimEnd()}\n\n${args.generatedApiText}${trailing}`
+}
+
+/**
+ * Joins non-empty sections with double newlines and ensures a trailing newline.
+ */
+function joinSections(sections: readonly string[]) {
+  return `${sections.filter((s) => s.length > 0).join('\n\n')}\n`
+}
+
+/** A name auto-generated by the codegen (route or handler symbol). */
+const isAutoName = (name: string): boolean => name.endsWith('Route') || name.endsWith('Handler')
 
 /**
  * Merges import declarations from two source files.
@@ -239,72 +225,108 @@ export function mergeAppFile(existingCode: string, generatedCode: string): strin
  *
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
- *
- * @param existingFile - The existing source file (already parsed).
- * @param generatedFile - The generated source file (already parsed).
- * @returns Array of merged import declaration strings.
  */
 function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): string[] {
-  // Parse raw import declarations from a single file
-  const parseDeclarations = (file: SourceFile) =>
-    file.getImportDeclarations().map((importDeclaration) => ({
-      moduleSpecifier: importDeclaration.getModuleSpecifierValue(),
-      isTypeOnlyImport: importDeclaration.isTypeOnly(),
-      defaultImport: importDeclaration.getDefaultImport()?.getText(),
-      namespaceImport: importDeclaration.getNamespaceImport()?.getText(),
-      namedImports: importDeclaration.getNamedImports().map((namedImport) => ({
-        name: namedImport.getName(),
-        isTypeOnly: namedImport.isTypeOnly(),
-      })),
-    }))
+  const existingImports = parseImportDeclarations(existingFile)
+  const generatedImports = parseImportDeclarations(generatedFile)
+  const generatedIndex = buildGeneratedImportIndex(generatedImports)
+  const filteredExisting = filterExistingImports(existingImports, generatedIndex)
+  const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
+  return [...importMap.entries()]
+    .map(([spec, info]) => formatImportLine(spec, info))
+    .filter((line): line is string => line !== undefined)
+}
 
-  const existingImports = parseDeclarations(existingFile)
-  const generatedImports = parseDeclarations(generatedFile)
-  // Detect if a name is auto-generated (Route or Handler suffix)
-  const isAutoName = (name: string): boolean => name.endsWith('Route') || name.endsWith('Handler')
-  // Collect auto-generated names as source of truth
-  const generatedAutoNames = new Set<string>()
-  // Map: auto-name → module specifier in generated code (canonical path)
-  const generatedAutoNameModules = new Map<string, string>()
-  // Map: default import name → module specifier in generated code (canonical path)
-  const generatedDefaultImportModules = new Map<string, string>()
-  for (const importEntry of generatedImports) {
-    if (importEntry.defaultImport) {
-      generatedDefaultImportModules.set(importEntry.defaultImport, importEntry.moduleSpecifier)
+function parseImportDeclarations(file: SourceFile) {
+  return file.getImportDeclarations().map((d) => ({
+    moduleSpecifier: d.getModuleSpecifierValue(),
+    isTypeOnlyImport: d.isTypeOnly(),
+    defaultImport: d.getDefaultImport()?.getText(),
+    namespaceImport: d.getNamespaceImport()?.getText(),
+    namedImports: d.getNamedImports().map((n) => ({
+      name: n.getName(),
+      isTypeOnly: n.isTypeOnly(),
+    })),
+  }))
+}
+
+/**
+ * Builds canonical-path lookup tables for generated imports. Used to detect when an
+ * existing import refers to a stale path (e.g., path-alias re-config) so it can be
+ * dropped in favor of the generated path.
+ */
+function buildGeneratedImportIndex(
+  generatedImports: readonly {
+    readonly moduleSpecifier: string
+    readonly defaultImport: string | undefined
+    readonly namedImports: readonly { readonly name: string }[]
+  }[],
+) {
+  const autoNameModules = new Map<string, string>()
+  const defaultImportModules = new Map<string, string>()
+  for (const entry of generatedImports) {
+    if (entry.defaultImport) {
+      defaultImportModules.set(entry.defaultImport, entry.moduleSpecifier)
     }
-    for (const namedImport of importEntry.namedImports) {
-      if (isAutoName(namedImport.name)) {
-        generatedAutoNames.add(namedImport.name)
-        generatedAutoNameModules.set(namedImport.name, importEntry.moduleSpecifier)
+    for (const named of entry.namedImports) {
+      if (isAutoName(named.name)) {
+        autoNameModules.set(named.name, entry.moduleSpecifier)
       }
     }
   }
+  return { autoNameModules, defaultImportModules }
+}
 
-  /**
-   *Filter existing imports:
-   * - Remove auto-names not in generated (deleted routes)
-   * - Remove auto-names imported from a different module specifier (path-alias changed)
-   * - Clear default imports when the same name is generated from a different module specifier
-   */
-  const filteredExistingImports = existingImports.map((importEntry) => {
-    const defaultImport =
-      importEntry.defaultImport !== undefined &&
-      generatedDefaultImportModules.has(importEntry.defaultImport) &&
-      generatedDefaultImportModules.get(importEntry.defaultImport) !== importEntry.moduleSpecifier
-        ? undefined
-        : importEntry.defaultImport
+/**
+ * Filters existing imports against the generated index:
+ * - Removes auto-names not present in generated (route/handler deleted)
+ * - Removes auto-names whose canonical module differs (path-alias changed)
+ * - Clears default imports whose canonical module differs (default re-pathed)
+ */
+function filterExistingImports(
+  existingImports: readonly {
+    readonly moduleSpecifier: string
+    readonly isTypeOnlyImport: boolean
+    readonly defaultImport: string | undefined
+    readonly namespaceImport: string | undefined
+    readonly namedImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+  }[],
+  index: {
+    readonly autoNameModules: ReadonlyMap<string, string>
+    readonly defaultImportModules: ReadonlyMap<string, string>
+  },
+) {
+  return existingImports.map((entry) => {
+    const defaultIsStale =
+      entry.defaultImport !== undefined &&
+      index.defaultImportModules.has(entry.defaultImport) &&
+      index.defaultImportModules.get(entry.defaultImport) !== entry.moduleSpecifier
     return {
-      ...importEntry,
-      defaultImport,
-      namedImports: importEntry.namedImports.filter((namedImport) => {
-        if (!isAutoName(namedImport.name)) return true
-        if (!generatedAutoNames.has(namedImport.name)) return false
-        const canonicalModule = generatedAutoNameModules.get(namedImport.name)
-        return canonicalModule === undefined || canonicalModule === importEntry.moduleSpecifier
+      ...entry,
+      defaultImport: defaultIsStale ? undefined : entry.defaultImport,
+      namedImports: entry.namedImports.filter((named) => {
+        if (!isAutoName(named.name)) return true
+        const canonical = index.autoNameModules.get(named.name)
+        return canonical !== undefined && canonical === entry.moduleSpecifier
       }),
     }
   })
-  const importMap = new Map<
+}
+
+/**
+ * Combines parsed import entries by module specifier. Named imports are unioned and
+ * type-only flags are AND-merged (type-only only when type-only in every occurrence).
+ */
+function mergeImportEntries(
+  entries: readonly {
+    readonly moduleSpecifier: string
+    readonly isTypeOnlyImport: boolean
+    readonly defaultImport: string | undefined
+    readonly namespaceImport: string | undefined
+    readonly namedImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+  }[],
+) {
+  const map = new Map<
     string,
     {
       namedImports: Map<string, boolean>
@@ -313,53 +335,58 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
       namespaceImport?: string
     }
   >()
-  for (const entry of [...filteredExistingImports, ...generatedImports]) {
-    const prev = importMap.get(entry.moduleSpecifier)
-    const mergedNamedImports = new Map(prev?.namedImports ?? [])
-    for (const namedImport of entry.namedImports) {
-      const prevTypeOnly = mergedNamedImports.get(namedImport.name)
-      mergedNamedImports.set(
-        namedImport.name,
-        prevTypeOnly === undefined
-          ? namedImport.isTypeOnly
-          : prevTypeOnly && namedImport.isTypeOnly,
+  for (const entry of entries) {
+    const prev = map.get(entry.moduleSpecifier)
+    const namedImports = new Map(prev?.namedImports ?? [])
+    for (const named of entry.namedImports) {
+      const prevTypeOnly = namedImports.get(named.name)
+      namedImports.set(
+        named.name,
+        prevTypeOnly === undefined ? named.isTypeOnly : prevTypeOnly && named.isTypeOnly,
       )
     }
-    const defaultImport = entry.defaultImport ?? prev?.defaultImport
-    const namespaceImport = entry.namespaceImport ?? prev?.namespaceImport
-    importMap.set(entry.moduleSpecifier, {
-      namedImports: mergedNamedImports,
+    map.set(entry.moduleSpecifier, {
+      namedImports,
       isTypeOnlyImport: prev
         ? prev.isTypeOnlyImport && entry.isTypeOnlyImport
         : entry.isTypeOnlyImport,
-      ...(defaultImport !== undefined && { defaultImport }),
-      ...(namespaceImport !== undefined && { namespaceImport }),
+      ...(entry.defaultImport !== undefined && { defaultImport: entry.defaultImport }),
+      ...(prev?.defaultImport !== undefined &&
+        entry.defaultImport === undefined && { defaultImport: prev.defaultImport }),
+      ...(entry.namespaceImport !== undefined && { namespaceImport: entry.namespaceImport }),
+      ...(prev?.namespaceImport !== undefined &&
+        entry.namespaceImport === undefined && { namespaceImport: prev.namespaceImport }),
     })
   }
+  return map
+}
 
-  return Array.from(importMap.entries())
-    .map(([moduleSpecifier, info]) => {
-      const namedPart =
-        info.namedImports.size > 0
-          ? `{ ${Array.from(info.namedImports.entries())
-              .toSorted(([a], [b]) => a.localeCompare(b))
-              .map(([name, isTypeOnly]) =>
-                isTypeOnly && !info.isTypeOnlyImport ? `type ${name}` : name,
-              )
-              .join(', ')} }`
-          : undefined
-      const importParts = [
-        info.defaultImport,
-        info.namespaceImport ? `* as ${info.namespaceImport}` : undefined,
-        namedPart,
-      ].filter((p): p is string => p !== undefined)
-
-      if (importParts.length === 0) return undefined
-
-      const typePrefix = info.isTypeOnlyImport ? 'import type' : 'import'
-      return `${typePrefix} ${importParts.join(', ')} from '${moduleSpecifier}'`
-    })
-    .filter((line): line is string => line !== undefined)
+function formatImportLine(
+  moduleSpecifier: string,
+  info: {
+    namedImports: Map<string, boolean>
+    isTypeOnlyImport: boolean
+    defaultImport?: string
+    namespaceImport?: string
+  },
+) {
+  const namedPart =
+    info.namedImports.size > 0
+      ? `{ ${[...info.namedImports.entries()]
+          .toSorted(([a], [b]) => a.localeCompare(b))
+          .map(([name, isTypeOnly]) =>
+            isTypeOnly && !info.isTypeOnlyImport ? `type ${name}` : name,
+          )
+          .join(', ')} }`
+      : undefined
+  const parts = [
+    info.defaultImport,
+    info.namespaceImport ? `* as ${info.namespaceImport}` : undefined,
+    namedPart,
+  ].filter((p): p is string => p !== undefined)
+  if (parts.length === 0) return undefined
+  const prefix = info.isTypeOnlyImport ? 'import type' : 'import'
+  return `${prefix} ${parts.join(', ')} from '${moduleSpecifier}'`
 }
 
 /**
@@ -369,35 +396,51 @@ function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): stri
  * this returns `.basePath('/api')`.
  * Returns empty string if there is no prefix chain.
  */
-function extractChainPrefix(apiStmtText: string): string {
+function extractChainPrefix(apiStmtText: string) {
   const initMatch = apiStmtText.match(/=\s*app\b/)
   if (!initMatch || initMatch.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
-  return afterApp.slice(0, routeMatch.index).trim()
+  const candidate = afterApp.slice(0, routeMatch.index).trim()
+  // Only treat as chain prefix when it actually starts with a method call (e.g. `.basePath('/api')`).
+  // Why: comments alone (`// Public routes`) get returned by the trim() above and would be
+  // injected directly after `app`, producing invalid `app// Public routes.openapi(...)`.
+  return candidate.startsWith('.') ? candidate : ''
 }
 
 /**
  * Extracts individual .openapi() call blocks from a handler chain.
  *
- * Returns a map of route name (first argument) to the full `.openapi(...)` text.
+ * Returns a map of route name (first argument) to the full `.openapi(...)` text,
+ * ordered by appearance in the source (left-to-right within the chain).
  */
-function extractOpenApiCalls(code: string): Map<string, string> {
-  return new Map(
-    [...code.matchAll(/\.openapi\s*\(/g)]
-      .filter((match) => match.index !== undefined)
-      .flatMap((match) => {
-        const dotPos = match.index
-        const parenPos = dotPos + match[0].length - 1
-        const afterParen = code.slice(parenPos + 1).trimStart()
-        const routeNameMatch = afterParen.match(/^(\w+)/)
-        if (!routeNameMatch) return []
-        const routeName = routeNameMatch[1]
-        const end = findBalancedEnd(code, parenPos, '(', ')')
-        return [[routeName, code.slice(dotPos, end)] as const]
-      }),
-  )
+function extractOpenApiCalls(code: string) {
+  // ts-morph traverses chained calls outer-first (right-to-left), so sort by the position
+  // of the `openapi` identifier to restore source order before populating the Map.
+  const calls = parseSnippet(code)
+    .getDescendantsOfKind(SyntaxKind.CallExpression)
+    .filter((call) => {
+      const expr = call.getExpression()
+      return Node.isPropertyAccessExpression(expr) && expr.getName() === 'openapi'
+    })
+    .toSorted((a, b) => {
+      const aExpr = a.getExpression()
+      const bExpr = b.getExpression()
+      const aPos = Node.isPropertyAccessExpression(aExpr) ? aExpr.getNameNode().getStart() : 0
+      const bPos = Node.isPropertyAccessExpression(bExpr) ? bExpr.getNameNode().getStart() : 0
+      return aPos - bPos
+    })
+  const result = new Map<string, string>()
+  for (const call of calls) {
+    const expr = call.getExpression()
+    if (!Node.isPropertyAccessExpression(expr)) continue
+    const arg = call.getArguments()[0]
+    if (!arg || !Node.isIdentifier(arg)) continue
+    const dotPos = expr.getNameNode().getStart() - 1
+    result.set(arg.getText(), code.slice(dotPos, call.getEnd()))
+  }
+  return result
 }
 
 /**
@@ -408,7 +451,7 @@ function extractOpenApiCalls(code: string): Map<string, string> {
  * - Routes only in generated: add from generated (new route stubs)
  * - Routes only in existing: remove (route deleted from OpenAPI spec)
  */
-function mergeInlineHandler(existingText: string, generatedText: string): string {
+function mergeInlineHandler(existingText: string, generatedText: string) {
   const generatedCalls = extractOpenApiCalls(generatedText)
   if (generatedCalls.size === 0) return generatedText
   const existingCalls = extractOpenApiCalls(existingText)
@@ -422,49 +465,56 @@ function mergeInlineHandler(existingText: string, generatedText: string): string
 }
 
 /**
- * Extracts `function mockXxx(...)` definitions from test code.
+ * Extracts top-level `function mockXxx(...) { ... }` definitions from test code.
  *
- * Uses balanced-brace counting to find the full extent of each function body.
  * Returns a map of function name to block info including text and source positions.
  */
-function extractMockFunctions(
-  code: string,
-): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
-  const regex = /function\s+(mock[A-Z]\w*)\s*\([^)]*\)\s*\{/g
-  return new Map(
-    [...code.matchAll(regex)]
-      .filter((match) => match.index !== undefined)
-      .map((match) => {
-        const name = match[1]
-        const start = match.index
-        const braceStart = code.indexOf('{', start + match[0].length - 1)
-        const end = findBalancedEnd(code, braceStart, '{', '}')
-        return [name, { text: code.slice(start, end), start, end }] as const
-      }),
-  )
+function extractMockFunctions(file: SourceFile, code: string) {
+  const result = new Map<string, { text: string; start: number; end: number }>()
+  for (const fn of file.getFunctions()) {
+    const name = fn.getName()
+    if (!name || !/^mock[A-Z]/.test(name)) continue
+    const [start, end] = [fn.getStart(), fn.getEnd()]
+    result.set(name, { text: code.slice(start, end), start, end })
+  }
+  return result
 }
 
 /**
- * Extracts `describe('METHOD /path', ...)` blocks from test code.
+ * Extracts `describe('METHOD /path', ...)` calls from test code.
  *
- * Uses balanced-paren counting to find the full extent of each describe call.
+ * Also matches `describe.skip(...)` / `describe.only(...)` so user-applied test
+ * modifiers are recognized as the same route — preventing duplicate describes
+ * after regeneration.
+ *
  * Returns a map of route identifier (e.g., "GET /users") to block info
  * including text and source positions for removal.
  */
-function extractRouteDescribeBlocks(
-  code: string,
-): Map<string, { readonly text: string; readonly start: number; readonly end: number }> {
-  const regex = /describe\(\s*['"]([A-Z]+\s+\/[^'"]*)['"]/g
-  return new Map(
-    [...code.matchAll(regex)]
-      .filter((match) => match.index !== undefined)
-      .map((match) => {
-        const route = match[1]
-        const start = match.index
-        const end = findBalancedEnd(code, start, '(', ')')
-        return [route, { text: code.slice(start, end), start, end }] as const
-      }),
-  )
+const DESCRIBE_MODIFIERS = new Set(['skip', 'only', 'skipIf', 'runIf', 'concurrent', 'sequential'])
+
+function extractRouteDescribeBlocks(file: SourceFile, code: string) {
+  const result = new Map<string, { text: string; start: number; end: number }>()
+  for (const call of file.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+    const expr = call.getExpression()
+    const isDescribe =
+      (Node.isIdentifier(expr) && expr.getText() === 'describe') ||
+      (Node.isPropertyAccessExpression(expr) &&
+        Node.isIdentifier(expr.getExpression()) &&
+        expr.getExpression().getText() === 'describe' &&
+        DESCRIBE_MODIFIERS.has(expr.getName()))
+    if (!isDescribe) continue
+    const firstArg = call.getArguments()[0]
+    if (
+      !firstArg ||
+      (!Node.isStringLiteral(firstArg) && !Node.isNoSubstitutionTemplateLiteral(firstArg))
+    )
+      continue
+    const title = firstArg.getLiteralText()
+    if (!/^[A-Z]+\s+\//.test(title)) continue
+    const [start, end] = [call.getStart(), call.getEnd()]
+    result.set(title, { text: code.slice(start, end), start, end })
+  }
+  return result
 }
 
 /**
@@ -483,73 +533,78 @@ function extractRouteDescribeBlocks(
  * @param generatedCode - The newly generated test file content.
  * @returns The merged test code.
  */
-export function mergeTestFile(existingCode: string, generatedCode: string): string {
-  // 1. Extract route describe blocks from both files
-  const existingBlocks = extractRouteDescribeBlocks(existingCode)
-  const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
-  const generatedRoutes = new Set(generatedBlocks.keys())
-  const existingRoutes = new Set(existingBlocks.keys())
-  // 2. Stale routes: in existing but not in generated → remove
-  const staleRanges = [...existingBlocks.entries()]
-    .filter(([route]) => !generatedRoutes.has(route))
-    .map(([, block]): [number, number] => [block.start, block.end])
-    .toSorted((a, b) => a[0] - b[0])
-  // 3. New routes: in generated but not in existing → add
-  const newBlocks = [...generatedBlocks.entries()]
-    .filter(([route]) => !existingRoutes.has(route))
-    .map(([, block]) => block.text)
-  // 4. Merge imports (reuses the same Project — no redundant creation)
+export function mergeTestFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
-  const mergedImports = mergeImports(existingFile, generatedFile)
+  const existingBlocks = extractRouteDescribeBlocks(existingFile, existingCode)
+  const generatedBlocks = extractRouteDescribeBlocks(generatedFile, generatedCode)
+  const filteredImports = filterTestFrameworkImports(
+    mergeImports(existingFile, generatedFile),
+    generatedFile,
+  )
+  const bodyStart = getBodyStart(existingFile)
+  const staleRanges = [...existingBlocks.entries()]
+    .filter(([route]) => !generatedBlocks.has(route))
+    .map(([, block]) => [block.start, block.end] as const)
+    .filter(([start]) => start >= bodyStart)
+    .toSorted(([a], [b]) => a - b)
+  const newBlocks = [...generatedBlocks.entries()]
+    .filter(([route]) => !existingBlocks.has(route))
+    .map(([, block]) => block.text)
+  const bodyWithStaleRemoved = applyRangeOps(
+    existingCode,
+    bodyStart,
+    staleRanges.map(([start, end]) => [start, end, ''] as const),
+  ).replace(/\n{3,}/g, '\n\n')
+  const existingMocks = extractMockFunctions(existingFile, existingCode)
+  const missingMocks = [...extractMockFunctions(generatedFile, generatedCode).entries()]
+    .filter(([name]) => !existingMocks.has(name))
+    .map(([, block]) => block.text)
+  const bodyAfterMocks = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
+  const body = insertNewRouteDescribes(bodyAfterMocks, newBlocks).trim()
+  return joinSections([filteredImports.join('\n'), body])
+}
+
+/**
+ * Drops test-framework imports from any module other than the one used by the generated
+ * file. Without this, switching frameworks (e.g. existing `vitest` → generated
+ * `vite-plus/test`) would leave duplicate framework imports.
+ */
+function filterTestFrameworkImports(mergedImports: readonly string[], generatedFile: SourceFile) {
   const TEST_FRAMEWORK_MODULES = new Set(['vitest', 'bun:test', 'vite-plus/test'])
   const generatedTestModule = generatedFile
     .getImportDeclarations()
     .map((d) => d.getModuleSpecifierValue())
     .find((spec) => TEST_FRAMEWORK_MODULES.has(spec))
-  const filteredImports = generatedTestModule
-    ? mergedImports.filter((line) => {
-        const spec = line.match(/from\s+'([^']+)'/)?.[1] ?? ''
-        return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
-      })
-    : mergedImports
-  // 5. Find body start (after imports) in existing code
-  const bodyStart = getBodyStart(existingFile)
-  // 6. Build body by removing stale describe blocks from original text
-  const filteredRanges = staleRanges.filter(([start]) => start >= bodyStart)
-  const bodyWithStaleRemoved = applyRangeOps(
-    existingCode,
-    bodyStart,
-    filteredRanges.map(([start, end]): readonly [number, number, string] => [start, end, '']),
-  ).replace(/\n{3,}/g, '\n\n')
-  // 7. Merge mock functions: add missing mock functions from generated code
-  const existingMocks = extractMockFunctions(existingCode)
-  const generatedMocks = extractMockFunctions(generatedCode)
-  const missingMocks = [...generatedMocks.entries()]
-    .filter(([name]) => !existingMocks.has(name))
-    .map(([, block]) => block.text)
-  const bodyWithRemovals = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
-  if (newBlocks.length === 0) {
-    const parts = [
-      filteredImports.length > 0 ? filteredImports.join('\n') : '',
-      bodyWithRemovals.trim(),
-    ].filter(Boolean)
-    return `${parts.join('\n\n')}\n`
-  }
-  // 8. Find insertion point: last line matching /^\s*\}\s*\)\s*;?\s*$/ (outer describe close)
-  const lines = bodyWithRemovals.split('\n')
-  const insertLineIndex = lines.findLastIndex((line: string) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
-  const modifiedLines =
-    insertLineIndex !== -1
-      ? [
-          ...lines.slice(0, insertLineIndex),
-          '',
-          ...newBlocks.map((block) => `  ${block}`),
-          ...lines.slice(insertLineIndex),
-        ]
-      : [...lines, '', ...newBlocks]
-  const body = modifiedLines.join('\n').trim()
-  const parts = [filteredImports.length > 0 ? filteredImports.join('\n') : '', body].filter(Boolean)
-  return `${parts.join('\n\n')}\n`
+  if (!generatedTestModule) return [...mergedImports]
+  return mergedImports.filter((line) => {
+    const spec = line.match(/from\s+'([^']+)'/)?.[1] ?? ''
+    return !TEST_FRAMEWORK_MODULES.has(spec) || spec === generatedTestModule
+  })
+}
+
+/**
+ * Inserts new route describe blocks. When the body has an outer non-route describe wrapper
+ * (e.g. `describe('Users', ...)`), inserts before its closing `})` so new blocks remain
+ * nested. Otherwise appends at end — preventing the last `})` (which belongs to the last
+ * route describe) from being treated as the wrapper close.
+ */
+function insertNewRouteDescribes(body: string, newBlocks: readonly string[]) {
+  if (newBlocks.length === 0) return body
+  const lines = body.split('\n')
+  const isRouteDescribeTitle = (title: string) => /^[A-Z]+\s+\//.test(title)
+  const hasOuterWrapper = [...body.matchAll(/^describe\s*\(\s*['"]([^'"]+)['"]/gm)].some(
+    (m) => !isRouteDescribeTitle(m[1] ?? ''),
+  )
+  const insertLineIndex = hasOuterWrapper
+    ? lines.findLastIndex((line) => /^\s*\}\s*\)\s*;?\s*$/.test(line))
+    : -1
+  if (insertLineIndex === -1) return [...lines, '', ...newBlocks].join('\n')
+  return [
+    ...lines.slice(0, insertLineIndex),
+    '',
+    ...newBlocks.map((block) => `  ${block}`),
+    ...lines.slice(insertLineIndex),
+  ].join('\n')
 }
 
 /**
@@ -562,7 +617,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string): stri
  * @param generatedCode - The newly generated barrel file content.
  * @returns The synced barrel file content.
  */
-export function mergeBarrelFile(_existingCode: string, generatedCode: string): string {
+export function mergeBarrelFile(_existingCode: string, generatedCode: string) {
   return generatedCode
 }
 
@@ -572,7 +627,7 @@ export function mergeBarrelFile(_existingCode: string, generatedCode: string): s
  * Inserts before the first `describe(` block, or at the start of body if none found.
  * Collapses triple+ newlines after insertion.
  */
-function insertMissingMocks(body: string, missingMocks: readonly string[]): string {
+function insertMissingMocks(body: string, missingMocks: readonly string[]) {
   if (missingMocks.length === 0) return body
   const describeMatch = body.match(/\n(?=describe\s*\()/)
   const inserted =

@@ -4,13 +4,7 @@ import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
-/**
- * Creates a TypeScript source file from code string.
- *
- * @param code - TypeScript code to parse
- * @returns Parsed TypeScript SourceFile
- */
-function createSourceFile(code: string) {
+function makeSourceFile(code: string) {
   return ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
 }
 
@@ -34,7 +28,7 @@ function collectIdentifiers(node: ts.Node) {
 }
 
 function extractIdentifiers(code: string, varNames: ReadonlySet<string>) {
-  const sourceFile = createSourceFile(code)
+  const sourceFile = makeSourceFile(code)
   const allIdentifiers = collectIdentifiers(sourceFile)
   const found = new Set(allIdentifiers.filter((id) => varNames.has(id)))
   return [...found] as const
@@ -180,44 +174,11 @@ function findCyclicSchemas(
   )
 }
 
-/**
- * Analyzes OpenAPI schemas for circular dependencies using Tarjan's SCC algorithm.
- *
- * @param schemas - Record of schema name to Schema definition
- * @param schemaNames - Array of schema names to analyze
- * @returns Analysis result containing dependency graph and cyclic schemas
- *
- * @mermaid
- * flowchart TD
- *   A["analyzeCircularSchemas()"] --> B["Generate Zod code for each schema"]
- *   B --> C["Extract identifier references via AST"]
- *   C --> D["Build dependency graph"]
- *   D --> E["Run Tarjan's SCC algorithm"]
- *   E --> F{"SCC size > 1?"}
- *   F -->|Yes| G["Mark as cyclic"]
- *   F -->|No| H{"Self-referencing?"}
- *   H -->|Yes| G
- *   H -->|No| I["Non-cyclic"]
- *   G --> J["Extend with direct dependencies"]
- */
 export function analyzeCircularSchemas(
   schemas: { readonly [k: string]: Schema },
   schemaNames: readonly string[],
   readonly?: boolean,
-): {
-  /** Map from schema name to generated Zod code */
-  readonly zSchemaMap: ReadonlyMap<string, string>
-  /** Map from schema name to its dependency variable names */
-  readonly depsMap: ReadonlyMap<string, readonly string[]>
-  /** Set of schema names that are part of a cycle */
-  readonly cyclicSchemas: ReadonlySet<string>
-  /** Set of cyclic schemas plus their direct dependencies */
-  readonly extendedCyclicSchemas: ReadonlySet<string>
-  /** PascalCase versions of extended cyclic schemas */
-  readonly cyclicGroupPascal: ReadonlySet<string>
-  /** Map from variable name to original schema name */
-  readonly varNameToName: ReadonlyMap<string, string>
-} {
+) {
   const varNameSet = new Set(
     schemaNames.map((n) => toIdentifierPascalCase(ensureSuffix(n, 'Schema'))),
   )
@@ -238,12 +199,9 @@ export function analyzeCircularSchemas(
   const extendedCyclicSchemas = new Set([
     ...cyclicSchemas,
     ...[...cyclicSchemas].flatMap((n) =>
-      (depsMap.get(n) ?? [])
-        .map((v) => varNameToName.get(v))
-        .filter((x): x is string => x !== undefined),
+      (depsMap.get(n) ?? []).map((v) => varNameToName.get(v)).filter((x) => x !== undefined),
     ),
   ])
-
   return {
     zSchemaMap,
     depsMap,
@@ -251,7 +209,7 @@ export function analyzeCircularSchemas(
     extendedCyclicSchemas,
     cyclicGroupPascal: new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase)),
     varNameToName,
-  }
+  } as const
 }
 
 function createDeclaration(
@@ -289,11 +247,10 @@ function getDeclarationKind(statement: ts.Statement) {
   return undefined
 }
 
-function isLazySchema(statement: ts.Statement): boolean {
+function isLazySchema(statement: ts.Statement) {
   if (!ts.isVariableStatement(statement)) return false
   const declaration = statement.declarationList.declarations[0]
   if (!declaration?.initializer) return false
-
   const initText = declaration.initializer.getText()
   return /^z\.lazy\s*\(/.test(initText)
 }
@@ -303,62 +260,51 @@ function getStatementReferences(
   declNames: ReadonlySet<string>,
   selfName: string,
   selfKind: 'variable' | 'type' | 'interface',
-): readonly string[] {
-  if (isLazySchema(statement)) return []
-
+) {
+  if (isLazySchema(statement)) return [] as const
   const identifiers = collectIdentifiers(statement)
-  // Filter out self-references, but allow references to same-named declarations of different kind
-  // e.g., type TestSchema can reference const TestSchema
   return [
     ...new Set(
       identifiers.filter((id) => {
         if (!declNames.has(id)) return false
-        // If same name but different kind (e.g., type referencing variable), allow it
-        // For self-reference check, we only exclude if it's exactly the same declaration
-        // However, at this point we don't have kind info for the referenced decl
-        // So we need to check if this is a type/interface referencing a variable with same name
         if (id === selfName && (selfKind === 'type' || selfKind === 'interface')) {
-          // Type/interface can reference variable with same name, so don't exclude
           return true
         }
         return id !== selfName
       }),
     ),
-  ]
+  ] as const
 }
 
-function parseStatements(
-  sourceFile: ts.SourceFile,
-): readonly ReturnType<typeof createDeclaration>[] {
+function parseStatements(sourceFile: ts.SourceFile) {
   const statements = sourceFile.statements.filter(
     (s) =>
       ts.isVariableStatement(s) || ts.isTypeAliasDeclaration(s) || ts.isInterfaceDeclaration(s),
   )
-  const declNames = new Set(
-    statements.map(getDeclarationName).filter((n): n is string => n !== undefined),
-  )
+  const declNames = new Set(statements.map(getDeclarationName).filter((n) => n !== undefined))
   return statements
     .map((statement): ReturnType<typeof createDeclaration> | undefined => {
       const name = getDeclarationName(statement)
       const kind = getDeclarationKind(statement)
       if (!(name && kind)) return undefined
-
       const fullText = statement.getText(sourceFile)
       const refs = getStatementReferences(statement, declNames, name, kind)
-
       return createDeclaration(name, fullText, refs, kind)
     })
-    .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
+    .filter((d) => d !== undefined)
 }
 
 function topoSort(
-  decls: readonly ReturnType<typeof createDeclaration>[],
-): readonly ReturnType<typeof createDeclaration>[] {
-  // Use composite key (kind:name) to distinguish const and type with same name
+  decls: readonly {
+    readonly name: string
+    readonly fullText: string
+    readonly refs: readonly string[]
+    readonly kind: 'variable' | 'type' | 'interface'
+  }[],
+) {
   const makeKey = (kind: 'variable' | 'type' | 'interface', name: string): string =>
     `${kind}:${name}`
   const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
-  // For dependency resolution, prefer variable declarations (since types reference variables)
   const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
     map.get(makeKey('variable', name)) ??
     map.get(makeKey('type', name)) ??
@@ -366,7 +312,12 @@ function topoSort(
   const visit = (
     key: string,
     state: {
-      readonly sorted: readonly ReturnType<typeof createDeclaration>[]
+      readonly sorted: readonly {
+        readonly name: string
+        readonly fullText: string
+        readonly refs: readonly string[]
+        readonly kind: 'variable' | 'type' | 'interface'
+      }[]
       readonly perm: ReadonlySet<string>
       readonly temp: ReadonlySet<string>
     },
@@ -378,7 +329,7 @@ function topoSort(
     const withTemp: typeof state = { ...state, temp: new Set([...state.temp, key]) }
     const afterRefs = decl.refs
       .map((ref) => findByName(ref))
-      .filter((d): d is ReturnType<typeof createDeclaration> => d !== undefined)
+      .filter((d) => d !== undefined)
       .reduce((s, d) => visit(makeKey(d.kind, d.name), s), withTemp)
     return {
       sorted: [...afterRefs.sorted, decl],
@@ -386,26 +337,12 @@ function topoSort(
       temp: new Set([...afterRefs.temp].filter((t) => t !== key)),
     }
   }
-
   const initial: Parameters<typeof visit>[1] = { sorted: [], perm: new Set(), temp: new Set() }
   return decls.reduce((state, d) => visit(makeKey(d.kind, d.name), state), initial).sorted
 }
 
-/**
- * Sorts TypeScript declarations by dependency order using topological sort.
- *
- * @param code - TypeScript source code containing declarations
- * @returns Code with declarations sorted by dependency order
- *
- * @mermaid
- * flowchart LR
- *   A["Parse TS source"] --> B["Extract declarations"]
- *   B --> C["Resolve references"]
- *   C --> D["Topological sort"]
- *   D --> E["Emit sorted code"]
- */
-export function ast(code: string): string {
-  const sourceFile = createSourceFile(code)
+export function ast(code: string) {
+  const sourceFile = makeSourceFile(code)
   const decls = parseStatements(sourceFile)
   if (decls.length === 0) return code
   return topoSort(decls)

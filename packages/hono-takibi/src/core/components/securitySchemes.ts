@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { makeExportConst } from '../../helper/code.js'
-import { core, makeExports } from '../../helper/index.js'
+import { makeExports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 
 /**
@@ -46,7 +47,7 @@ export async function securitySchemes(
     return { ok: true, value: exportsResult.value } as const
   }
   const code = makeExportConst(securitySchemes, 'SecurityScheme', readonly)
-  const coreResult = await core(code, path.dirname(output), output)
-  if (!coreResult.ok) return { ok: false, error: coreResult.error } as const
+  const emitResult = await emit(code, path.dirname(output), output)
+  if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated securitySchemes code written to ${output}` } as const
 }

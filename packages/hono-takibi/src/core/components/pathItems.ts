@@ -1,7 +1,8 @@
 import path from 'node:path'
 
+import { emit } from '../../emit/index.js'
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
-import { core, makeImports } from '../../helper/index.js'
+import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
@@ -58,7 +59,7 @@ export async function pathItems(
   if (!pathItemsSrc) return { ok: true, value: 'No pathItems found' } as const
   const writeFile = async (filePath: string, src: string) => {
     const code = makeImports(src, filePath, componentsConfig)
-    const result = await core(code, path.dirname(filePath), filePath)
+    const result = await emit(code, path.dirname(filePath), filePath)
     return result.ok ? { ok: true as const, value: filePath } : result
   }
   if (!split) {
@@ -85,14 +86,14 @@ export async function pathItems(
     ...blocks.map(({ name, block }) =>
       writeFile(`${outDir}/${uncapitalize(name)}PathItem.ts`, block),
     ),
-    core(
+    emit(
       makeBarrel(Object.fromEntries(blocks.map((b) => [`${b.name}PathItem`, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
