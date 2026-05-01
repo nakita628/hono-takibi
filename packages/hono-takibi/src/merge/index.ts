@@ -469,9 +469,9 @@ function mergeInlineHandler(existingText: string, generatedText: string) {
  *
  * Returns a map of function name to block info including text and source positions.
  */
-function extractMockFunctions(code: string) {
+function extractMockFunctions(file: SourceFile, code: string) {
   const result = new Map<string, { text: string; start: number; end: number }>()
-  for (const fn of parseSnippet(code).getFunctions()) {
+  for (const fn of file.getFunctions()) {
     const name = fn.getName()
     if (!name || !/^mock[A-Z]/.test(name)) continue
     const [start, end] = [fn.getStart(), fn.getEnd()]
@@ -490,17 +490,11 @@ function extractMockFunctions(code: string) {
  * Returns a map of route identifier (e.g., "GET /users") to block info
  * including text and source positions for removal.
  */
-function extractRouteDescribeBlocks(code: string) {
-  const DESCRIBE_MODIFIERS = new Set([
-    'skip',
-    'only',
-    'skipIf',
-    'runIf',
-    'concurrent',
-    'sequential',
-  ])
+const DESCRIBE_MODIFIERS = new Set(['skip', 'only', 'skipIf', 'runIf', 'concurrent', 'sequential'])
+
+function extractRouteDescribeBlocks(file: SourceFile, code: string) {
   const result = new Map<string, { text: string; start: number; end: number }>()
-  for (const call of parseSnippet(code).getDescendantsOfKind(SyntaxKind.CallExpression)) {
+  for (const call of file.getDescendantsOfKind(SyntaxKind.CallExpression)) {
     const expr = call.getExpression()
     const isDescribe =
       (Node.isIdentifier(expr) && expr.getText() === 'describe') ||
@@ -540,9 +534,9 @@ function extractRouteDescribeBlocks(code: string) {
  * @returns The merged test code.
  */
 export function mergeTestFile(existingCode: string, generatedCode: string) {
-  const existingBlocks = extractRouteDescribeBlocks(existingCode)
-  const generatedBlocks = extractRouteDescribeBlocks(generatedCode)
   const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
+  const existingBlocks = extractRouteDescribeBlocks(existingFile, existingCode)
+  const generatedBlocks = extractRouteDescribeBlocks(generatedFile, generatedCode)
   const filteredImports = filterTestFrameworkImports(
     mergeImports(existingFile, generatedFile),
     generatedFile,
@@ -561,8 +555,9 @@ export function mergeTestFile(existingCode: string, generatedCode: string) {
     bodyStart,
     staleRanges.map(([start, end]) => [start, end, ''] as const),
   ).replace(/\n{3,}/g, '\n\n')
-  const missingMocks = [...extractMockFunctions(generatedCode).entries()]
-    .filter(([name]) => !extractMockFunctions(existingCode).has(name))
+  const existingMocks = extractMockFunctions(existingFile, existingCode)
+  const missingMocks = [...extractMockFunctions(generatedFile, generatedCode).entries()]
+    .filter(([name]) => !existingMocks.has(name))
     .map(([, block]) => block.text)
   const bodyAfterMocks = insertMissingMocks(bodyWithStaleRemoved, missingMocks)
   const body = insertNewRouteDescribes(bodyAfterMocks, newBlocks).trim()
