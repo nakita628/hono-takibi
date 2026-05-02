@@ -144,7 +144,7 @@ describe('object', () => {
         },
         `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"エラー"})`,
       ],
-      // no message at all → no errArg
+      // no message at all → no errorArg
       [
         {
           type: 'object',
@@ -309,7 +309,7 @@ describe('object', () => {
         },
         'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"パターンエラー"})',
       ],
-      // no message at all → no errArg
+      // no message at all → no errorArg
       [
         {
           type: 'object',

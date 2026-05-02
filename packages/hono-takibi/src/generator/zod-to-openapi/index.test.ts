@@ -1059,7 +1059,7 @@ describe('zodToOpenAPI', () => {
             { enum: ['only'], 'x-error-message': 'onlyのみ' },
             `z.literal('only',{error:"onlyのみ"})`,
           ],
-          // x-error-message on number enum → z.union (individual literals also get errArg)
+          // x-error-message on number enum → z.union (individual literals also get errorArg)
           [
             { enum: [1, 2, 3], 'x-error-message': '1-3のみ' },
             'z.union([z.literal(1,{error:"1-3のみ"}),z.literal(2,{error:"1-3のみ"}),z.literal(3,{error:"1-3のみ"})],{error:"1-3のみ"})',
@@ -1069,7 +1069,7 @@ describe('zodToOpenAPI', () => {
             { type: 'number', enum: [42], 'x-error-message': '42のみ' },
             'z.literal(42,{error:"42のみ"})',
           ],
-          // x-error-message on boolean enum → z.union (individual literals also get errArg)
+          // x-error-message on boolean enum → z.union (individual literals also get errorArg)
           [
             { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
             'z.union([z.literal(true,{error:"ブール値"}),z.literal(false,{error:"ブール値"})],{error:"ブール値"})',

@@ -35,7 +35,7 @@ describe('_enum', () => {
       ],
       // Single string value → z.literal with error
       [{ enum: ['only'], 'x-error-message': 'only必須' }, `z.literal('only',{error:"only必須"})`],
-      // Number enum (multiple) → z.union with error (individual literals also get errArg)
+      // Number enum (multiple) → z.union with error (individual literals also get errorArg)
       [
         { enum: [1, 2], 'x-error-message': '1か2を指定' },
         'z.union([z.literal(1,{error:"1か2を指定"}),z.literal(2,{error:"1か2を指定"})],{error:"1か2を指定"})',
@@ -45,12 +45,12 @@ describe('_enum', () => {
         { type: 'number', enum: [42], 'x-error-message': '42のみ' },
         'z.literal(42,{error:"42のみ"})',
       ],
-      // Integer enum (multiple) → z.union with error (individual literals also get errArg)
+      // Integer enum (multiple) → z.union with error (individual literals also get errorArg)
       [
         { type: 'integer', enum: [1, 2, 3], 'x-error-message': '1-3の整数' },
         'z.union([z.literal(1,{error:"1-3の整数"}),z.literal(2,{error:"1-3の整数"}),z.literal(3,{error:"1-3の整数"})],{error:"1-3の整数"})',
       ],
-      // Boolean enum → z.union with error (individual literals also get errArg)
+      // Boolean enum → z.union with error (individual literals also get errorArg)
       [
         { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値必須' },
         'z.union([z.literal(true,{error:"ブール値必須"}),z.literal(false,{error:"ブール値必須"})],{error:"ブール値必須"})',
@@ -60,12 +60,12 @@ describe('_enum', () => {
         { type: 'boolean', enum: [true], 'x-error-message': 'trueのみ' },
         'z.literal(true,{error:"trueのみ"})',
       ],
-      // Array enum (single tuple) → z.tuple with error (internal literals also get errArg)
+      // Array enum (single tuple) → z.tuple with error (internal literals also get errorArg)
       [
         { type: 'array', enum: [[1, 2]], 'x-error-message': '[1,2]のみ' },
         'z.tuple([z.literal(1,{error:"[1,2]のみ"}),z.literal(2,{error:"[1,2]のみ"})],{error:"[1,2]のみ"})',
       ],
-      // Array enum (multiple tuples) → z.union with error (internal literals also get errArg)
+      // Array enum (multiple tuples) → z.union with error (internal literals also get errorArg)
       [
         {
           type: 'array',

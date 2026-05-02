@@ -29,21 +29,18 @@ export function app(
   routeImport?: string,
   routeHandler = false,
 ) {
-  const getRouteMaps = (
-    openapi: OpenAPI,
-  ): { routeName: string; handlerName: string; path: string }[] => {
+  const getRouteMaps = (openapi: OpenAPI) => {
     const paths = openapi.paths
-    const routeMappings = Object.entries(paths).flatMap(([path, pathItem]) => {
+    return Object.entries(paths).flatMap(([path, pathItem]) => {
       return Object.entries(pathItem).flatMap(([method]) => {
-        if (!isHttpMethod(method)) return []
+        if (!isHttpMethod(method)) return [] as const
         return {
           routeName: `${methodPath(method, path)}Route`,
           handlerName: `${methodPath(method, path)}RouteHandler`,
           path,
-        }
+        } as const
       })
     })
-    return routeMappings
   }
   const routeMappings = getRouteMaps(openapi)
   const isIndexFile = output.endsWith('/index.ts')
