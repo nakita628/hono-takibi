@@ -3,7 +3,6 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { type FormatConfig } from 'oxfmt'
-import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
 const ConfigSchema = z
@@ -383,10 +382,8 @@ export async function readConfig() {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
-    register()
     const url = pathToFileURL(abs).href
-    // eslint-disable-next-line typescript-eslint/no-implied-eval
-    const mod = await new Function('specifier', 'return import(specifier)')(url)
+    const mod = await import(url)
     if (
       typeof mod !== 'object' ||
       mod === null ||
