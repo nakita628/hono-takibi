@@ -51,7 +51,13 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+      const expected = `import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -89,8 +95,8 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useHono<TError = Error, TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -108,16 +114,16 @@ export function getHonoInfiniteQueryKey() {
 }
 
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHono(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useInfiniteHono<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -149,10 +155,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -176,18 +182,18 @@ export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -211,10 +217,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -269,7 +275,7 @@ export function getUsersKey() {
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -296,8 +302,8 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useHono<TError = Error, TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -315,16 +321,16 @@ export function getHonoInfiniteQueryKey() {
 }
 
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHono(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useInfiniteHono<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -335,7 +341,7 @@ export function useInfiniteHono(options: {
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -372,10 +378,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -399,18 +405,18 @@ export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -444,10 +450,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -493,7 +499,7 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -524,8 +530,8 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -543,16 +549,16 @@ export function getUsersInfiniteQueryKey() {
 }
 
 export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useInfiniteUsers<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -596,7 +602,13 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+      const expected = `import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -628,8 +640,8 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
+export function usePing<TError = Error, TData = Awaited<ReturnType<typeof getPing>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -647,16 +659,16 @@ export function getPingInfiniteQueryKey() {
 }
 
 export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfinitePing(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function useInfinitePing<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -676,8 +688,8 @@ export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostPing(options?: {
-  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
+export function usePostPing<TError = Error>(options?: {
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, TError, void>
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
@@ -716,7 +728,7 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -747,8 +759,8 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
+export function useHonoX<TError = Error, TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -766,16 +778,16 @@ export function getHonoXInfiniteQueryKey() {
 }
 
 export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHonoX(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useInfiniteHonoX<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -820,7 +832,13 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+      const expected = `import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -862,10 +880,10 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -892,18 +910,18 @@ export function getUsersIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsersId(
+export function useInfiniteUsersId<TError = Error>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -930,10 +948,10 @@ export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) 
   }
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   >
   options?: ClientRequestOptions
@@ -1037,7 +1055,7 @@ export * from './deleteUsersId'
 
       // Check GET /users query file (has args with MaybeRefOrGetter/toValue)
       const getUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const getUsersExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const getUsersExpected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -1074,10 +1092,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1101,18 +1119,18 @@ export function getUsersInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1146,10 +1164,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -1162,7 +1180,7 @@ export function usePostUsers(options?: {
 
       // Check GET /users/{id} query file (path param with bracket notation)
       const getUsersId = fs.readFileSync(path.join(dir, 'hooks', 'getUsersId.ts'), 'utf-8')
-      const getUsersIdExpected = `import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+      const getUsersIdExpected = `import { useQuery, useInfiniteQuery, queryOptions, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -1199,10 +1217,10 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1229,18 +1247,18 @@ export function getUsersIdInfiniteQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsersId(
+export function useInfiniteUsersId<TError = Error>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1277,10 +1295,10 @@ export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePutUsersId(options?: {
+export function usePutUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$put']>
   >
   options?: ClientRequestOptions
@@ -1315,10 +1333,10 @@ export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) 
   }
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   >
   options?: ClientRequestOptions
@@ -1422,10 +1440,10 @@ export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePutUsersId(options?: {
+export function usePutUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$put']>
   >
   options?: ClientRequestOptions
@@ -1450,10 +1468,10 @@ export function getPatchUsersIdMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePatchUsersId(options?: {
+export function usePatchUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof patchUsersId>>,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$patch']>
   >
   options?: ClientRequestOptions

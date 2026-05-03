@@ -58,6 +58,7 @@ describe('tanstackQuery', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
+  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -97,8 +98,8 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useHono<TError = Error, TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -111,8 +112,11 @@ export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
   })
 }
 
-export function useSuspenseHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useSuspenseHono<
+  TError = Error,
+  TData = Awaited<ReturnType<typeof getHono>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -130,24 +134,24 @@ export function getHonoInfiniteQueryKey() {
 }
 
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHono(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useInfiniteHono<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfiniteHono(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useSuspenseInfiniteHono<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -180,10 +184,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -197,10 +201,10 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   })
 }
 
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useSuspenseUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -222,18 +226,18 @@ export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -241,10 +245,10 @@ export function useInfiniteUsers(
   return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-export function useSuspenseInfiniteUsers(
+export function useSuspenseInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -271,10 +275,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -335,6 +339,7 @@ export function getUsersKey() {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -364,8 +369,8 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useHono<TError = Error, TData = Awaited<ReturnType<typeof getHono>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -378,8 +383,11 @@ export function useHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
   })
 }
 
-export function useSuspenseHono<TData = Awaited<ReturnType<typeof getHono>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, Error, TData>
+export function useSuspenseHono<
+  TError = Error,
+  TData = Awaited<ReturnType<typeof getHono>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -397,24 +405,24 @@ export function getHonoInfiniteQueryKey() {
 }
 
 export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHono(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useInfiniteHono<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfiniteHono(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, Error>
+export function useSuspenseInfiniteHono<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHono>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -434,6 +442,7 @@ export function useSuspenseInfiniteHono(options: {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -469,10 +478,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -486,10 +495,10 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   })
 }
 
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useSuspenseUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -511,18 +520,18 @@ export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -530,10 +539,10 @@ export function useInfiniteUsers(
   return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-export function useSuspenseInfiniteUsers(
+export function useSuspenseInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -570,10 +579,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -625,6 +634,7 @@ describe('tanstackQuery (custom client name)', () => {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -658,8 +668,8 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -672,8 +682,11 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?:
   })
 }
 
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+export function useSuspenseUsers<
+  TError = Error,
+  TData = Awaited<ReturnType<typeof getUsers>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -691,24 +704,24 @@ export function getUsersInfiniteQueryKey() {
 }
 
 export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useInfiniteUsers<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfiniteUsers(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+export function useSuspenseInfiniteUsers<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -762,6 +775,7 @@ describe('tanstackQuery (no args operations)', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
+  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -797,8 +811,8 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
+export function usePing<TError = Error, TData = Awaited<ReturnType<typeof getPing>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -811,8 +825,11 @@ export function usePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
   })
 }
 
-export function useSuspensePing<TData = Awaited<ReturnType<typeof getPing>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, Error, TData>
+export function useSuspensePing<
+  TError = Error,
+  TData = Awaited<ReturnType<typeof getPing>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -830,24 +847,24 @@ export function getPingInfiniteQueryKey() {
 }
 
 export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfinitePing(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function useInfinitePing<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({ ...queryOptions, ...getPingInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfinitePing(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, Error>
+export function useSuspenseInfinitePing<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -870,8 +887,8 @@ export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostPing(options?: {
-  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, Error, void>
+export function usePostPing<TError = Error>(options?: {
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, TError, void>
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
@@ -916,6 +933,7 @@ describe('tanstackQuery (path with special characters)', () => {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -949,8 +967,8 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
+export function useHonoX<TError = Error, TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -963,8 +981,11 @@ export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?:
   })
 }
 
-export function useSuspenseHonoX<TData = Awaited<ReturnType<typeof getHonoX>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error, TData>
+export function useSuspenseHonoX<
+  TError = Error,
+  TData = Awaited<ReturnType<typeof getHonoX>>,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -982,24 +1003,24 @@ export function getHonoXInfiniteQueryKey() {
 }
 
 export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteHonoX(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useInfiniteHonoX<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({ ...queryOptions, ...getHonoXInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfiniteHonoX(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, Error>
+export function useSuspenseInfiniteHonoX<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options
@@ -1054,6 +1075,7 @@ describe('tanstackQuery (path parameters)', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
+  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -1095,10 +1117,10 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1112,10 +1134,10 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   })
 }
 
-export function useSuspenseUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useSuspenseUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1139,18 +1161,18 @@ export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsersId(
+export function useInfiniteUsersId<TError = Error>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1161,10 +1183,10 @@ export function useInfiniteUsersId(
   })
 }
 
-export function useSuspenseInfiniteUsersId(
+export function useSuspenseInfiniteUsersId<TError = Error>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1191,10 +1213,10 @@ export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) 
   })
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   >
   options?: ClientRequestOptions
@@ -1316,10 +1338,10 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     InferRequestType<typeof client.users.$post>
   >
   options?: ClientRequestOptions
@@ -1353,10 +1375,10 @@ export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePutUsersId(options?: {
+export function usePutUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$put']>
   >
   options?: ClientRequestOptions
@@ -1390,10 +1412,10 @@ export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) 
   })
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = Error>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   >
   options?: ClientRequestOptions
@@ -1410,6 +1432,7 @@ export function useDeleteUsersId(options?: {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -1445,10 +1468,10 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1462,10 +1485,10 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
   })
 }
 
-export function useSuspenseUsersId<TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function useSuspenseUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error, TData>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1489,18 +1512,18 @@ export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsersId(
+export function useInfiniteUsersId<TError = Error>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1511,10 +1534,10 @@ export function useInfiniteUsersId(
   })
 }
 
-export function useSuspenseInfiniteUsersId(
+export function useSuspenseInfiniteUsersId<TError = Error>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, Error>
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1533,6 +1556,7 @@ export function useSuspenseInfiniteUsersId(
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -1568,10 +1592,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1585,10 +1609,10 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   })
 }
 
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function useSuspenseUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -1610,18 +1634,18 @@ export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
-export function useInfiniteUsers(
+export function useInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
@@ -1629,10 +1653,10 @@ export function useInfiniteUsers(
   return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-export function useSuspenseInfiniteUsers(
+export function useSuspenseInfiniteUsers<TError = Error>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
+    query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
     options?: ClientRequestOptions
   },
 ) {
