@@ -87,8 +87,10 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'schemas' }
   }),
+  angularQuery: vi.fn(async () => ({ ok: true, value: 'angularQuery' })),
   preactQuery: vi.fn(async () => ({ ok: true, value: 'preactQuery' })),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
+  solidQuery: vi.fn(async () => ({ ok: true, value: 'solidQuery' })),
   svelteQuery: vi.fn(async () => ({ ok: true, value: 'svelteQuery' })),
   swr: vi.fn(async () => ({ ok: true, value: 'swr' })),
   route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {

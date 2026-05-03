@@ -464,6 +464,50 @@ const ConfigSchema = z
           .readonly(),
       ])
       .exactOptional(),
+    'solid-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
+    'angular-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
     test: z
       .object({
         output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),

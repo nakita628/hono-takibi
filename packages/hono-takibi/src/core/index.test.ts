@@ -5,6 +5,7 @@ import * as core from './index.js'
 describe('core barrel exports', () => {
   it.concurrent('exposes the exact expected export names', () => {
     expect(Object.keys(core).sort()).toStrictEqual([
+      'angularQuery',
       'callbacks',
       'docs',
       'examples',
@@ -21,6 +22,7 @@ describe('core barrel exports', () => {
       'rpc',
       'schemas',
       'securitySchemes',
+      'solidQuery',
       'svelteQuery',
       'swr',
       'takibi',

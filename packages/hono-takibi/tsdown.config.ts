@@ -12,6 +12,8 @@ export default defineConfig({
     'core/svelte-query/index': './src/core/svelte-query/index.ts',
     'core/vue-query/index': './src/core/vue-query/index.ts',
     'core/preact-query/index': './src/core/preact-query/index.ts',
+    'core/solid-query/index': './src/core/solid-query/index.ts',
+    'core/angular-query/index': './src/core/angular-query/index.ts',
     'core/type/index': './src/core/type/index.ts',
     'core/docs/index': './src/core/docs/index.ts',
   },

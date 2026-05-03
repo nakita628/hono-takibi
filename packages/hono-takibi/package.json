@@ -60,6 +60,14 @@
       "types": "./dist/core/preact-query/index.d.ts",
       "import": "./dist/core/preact-query/index.js"
     },
+    "./solid-query": {
+      "types": "./dist/core/solid-query/index.d.ts",
+      "import": "./dist/core/solid-query/index.js"
+    },
+    "./angular-query": {
+      "types": "./dist/core/angular-query/index.d.ts",
+      "import": "./dist/core/angular-query/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
