@@ -421,4 +421,333 @@ describe('honoTakibiVite', () => {
 
     expect(sendSpy).toHaveBeenCalledWith({ type: 'full-reload' })
   })
+
+  // --- error paths in readConfigurationWithHotReload ---
+
+  it('logs config error when default export is not an object', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { server } = createMockViteDevServer({})
+    server.ssrLoadModule = async () => ({ default: 'not-an-object' })
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Config must export default object'),
+    )
+    errorSpy.mockRestore()
+  })
+
+  it('logs config error when parseConfig fails', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { server } = createMockViteDevServer({})
+    server.ssrLoadModule = async () => ({ default: { input: 'invalid.txt' } })
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    errorSpy.mockRestore()
+  })
+
+  it('logs config error when ssrLoadModule throws', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { server } = createMockViteDevServer({})
+    server.ssrLoadModule = async () => {
+      throw new Error('module load failure')
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('module load failure'))
+    errorSpy.mockRestore()
+  })
+
+  it('invalidates all modules when resolveId returns null', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const invalidateAllSpy = vi.fn()
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    server.pluginContainer.resolveId = async () => null
+    server.moduleGraph.invalidateAll = invalidateAllSpy
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(invalidateAllSpy).toHaveBeenCalled()
+  })
+
+  // --- watcher.on 'all' callback paths ---
+
+  it('regenerates when input .yaml file changes inside input directory', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    expect(watcherCallback).toBeDefined()
+
+    const reloadDeferred = createDeferred<void>()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') reloadDeferred.resolve()
+    }
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await reloadDeferred.promise
+  })
+
+  it('ignores file changes outside input directory', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
+    if (watcherCallback) await watcherCallback('change', '/some/other/place/file.yaml')
+    await new Promise((resolve) => setTimeout(resolve, 250))
+
+    expect(sendSpy).not.toHaveBeenCalled()
+  })
+
+  it('ignores non-yaml/json/tsp files inside input directory', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
+    const txtPath = path.resolve(process.cwd(), 'note.txt')
+    if (watcherCallback) await watcherCallback('change', txtPath)
+    await new Promise((resolve) => setTimeout(resolve, 250))
+
+    expect(sendSpy).not.toHaveBeenCalled()
+  })
+
+  it('handles config file change via watcher callback', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+    if (watcherCallback) await watcherCallback('change', configPath)
+
+    expect(logSpy).toHaveBeenCalledWith('config changed (watch)')
+    logSpy.mockRestore()
+  })
+
+  // --- runAllGenerationTasks: error paths ---
+
+  it('logs error when parseOpenAPI fails', async () => {
+    const { parseOpenAPI } = await import('../openapi/index.js')
+    vi.mocked(parseOpenAPI).mockImplementationOnce(async () => ({
+      ok: false,
+      error: 'parse failure',
+    }))
+
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const { server, reloaded } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('❌ parseOpenAPI: parse failure'))
+    logSpy.mockRestore()
+  })
+
+  it('logs config error when zod-openapi output path is not .ts', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { output: 'out/routes.json' as const },
+    }
+    const { server } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    errorSpy.mockRestore()
+  })
+
+  // --- generators broader coverage ---
+
+  it('runs full pipeline: type/mock/docs/test/template + all clients', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        output: 'out/single.ts',
+      },
+      type: { output: 'out/types.ts' },
+      mock: { output: 'out/mock.ts' },
+      docs: { output: 'out/api.md' },
+      test: { output: 'out/api.test.ts', import: './api' },
+      rpc: { output: 'out/rpc/index.ts', import: '@rpc' },
+      swr: { output: 'out/swr/index.ts', import: '@swr' },
+      'tanstack-query': { output: 'out/tanstack/index.ts', import: '@tan' },
+      'svelte-query': { output: 'out/svelte/index.ts', import: '@svl' },
+      'vue-query': { output: 'out/vue/index.ts', import: '@vue' },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const core = await import('../core/index.js')
+    expect(core.takibi).toHaveBeenCalled()
+    expect(core.type).toHaveBeenCalled()
+    expect(core.mock).toHaveBeenCalled()
+    expect(core.docs).toHaveBeenCalled()
+    expect(core.test).toHaveBeenCalled()
+    expect(core.rpc).toHaveBeenCalled()
+    expect(core.swr).toHaveBeenCalled()
+    expect(core.tanstackQuery).toHaveBeenCalled()
+    expect(core.svelteQuery).toHaveBeenCalled()
+    expect(core.vueQuery).toHaveBeenCalled()
+  })
+
+  it('runs every component generator branch', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        components: {
+          schemas: { output: 'out/schemas.ts' },
+          parameters: { output: 'out/parameters.ts' },
+          headers: { output: 'out/headers.ts' },
+          securitySchemes: { output: 'out/security.ts' },
+          requestBodies: { output: 'out/bodies.ts' },
+          responses: { output: 'out/responses.ts' },
+          examples: { output: 'out/examples.ts' },
+          links: { output: 'out/links.ts' },
+          callbacks: { output: 'out/callbacks.ts' },
+          pathItems: { output: 'out/pathItems.ts' },
+          mediaTypes: { output: 'out/mediaTypes.ts' },
+          webhooks: { output: 'out/webhooks.ts' },
+        },
+      },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const core = await import('../core/index.js')
+    expect(core.parameters).toHaveBeenCalled()
+    expect(core.headers).toHaveBeenCalled()
+    expect(core.securitySchemes).toHaveBeenCalled()
+    expect(core.requestBodies).toHaveBeenCalled()
+    expect(core.responses).toHaveBeenCalled()
+    expect(core.examples).toHaveBeenCalled()
+    expect(core.links).toHaveBeenCalled()
+    expect(core.callbacks).toHaveBeenCalled()
+    expect(core.pathItems).toHaveBeenCalled()
+    expect(core.mediaTypes).toHaveBeenCalled()
+    expect(core.webhooks).toHaveBeenCalled()
+  })
+
+  it('logs error when a generator returns failure result', async () => {
+    const core = await import('../core/index.js')
+    vi.mocked(core.takibi).mockImplementationOnce(async () => ({
+      ok: false as const,
+      error: 'takibi internal failure',
+    }))
+    const configuration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { output: 'out/single.ts' as const },
+    }
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const { server, reloaded } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(logSpy.mock.calls.some(([msg]) => /takibi internal failure/.test(String(msg)))).toBe(
+      true,
+    )
+    logSpy.mockRestore()
+  })
+
+  it('handleHotUpdate logs config error when invalid config is loaded later', async () => {
+    const initialConfiguration = {
+      input: 'openapi.yaml',
+      'zod-openapi': { routes: { output: 'out/route', split: true } },
+    }
+    const { server, reloaded } = createMockViteDevServer(initialConfiguration)
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    server.ssrLoadModule = async () => ({ default: { input: 'broken.txt' } })
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    errorSpy.mockRestore()
+  })
+
+  it('skips generation when config has no outputs', async () => {
+    const configuration = { input: 'openapi.yaml' }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    // No throw → success path covered. Verify ws.send still called.
+    // (Falls into runGenerationAndReload which still triggers full-reload.)
+  })
 })
