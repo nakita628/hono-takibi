@@ -15,7 +15,7 @@ export function zodToOpenAPI(
 ): string {
   if (schema === undefined) throw new Error('Schema is undefined')
   // isOptional should only affect the outermost schema; strip for recursive calls.
-  const innerMeta: typeof meta = meta?.isOptional
+  const innerMeta = meta?.isOptional
     ? (() => {
         const { isOptional: _, ...rest } = meta
         return rest
@@ -117,9 +117,9 @@ export function zodToOpenAPI(
     if (typeof schema.not === 'object' && Array.isArray(schema.not.type)) {
       const predicates = schema.not.type
         .map((t) => typePredicates[t])
-        .filter((p): p is string => p !== undefined)
+        .filter((v) => v !== undefined)
       if (predicates.length > 0) {
-        const bodies = predicates.map((p) => `(${p.replace(/^\(v\) => /, '')})`)
+        const bodies = predicates.map((v) => `(${v.replace(/^\(v\) => /, '')})`)
         const combined = `(v) => ${bodies.join(' && ')}`
         return wrap(`z.any().refine(${combined}${notErrorArg})`, schema, meta)
       }
@@ -135,12 +135,8 @@ export function zodToOpenAPI(
         schema.not.anyOf !== undefined ||
         schema.not.allOf !== undefined)
     ) {
-      const innerZod = zodToOpenAPI(schema.not, innerMeta, readonly)
-      return wrap(
-        `z.any().refine((v) => !${innerZod}.safeParse(v).success${notErrorArg})`,
-        schema,
-        meta,
-      )
+      const zod = zodToOpenAPI(schema.not, innerMeta, readonly)
+      return wrap(`z.any().refine((v) => !${zod}.safeParse(v).success${notErrorArg})`, schema, meta)
     }
     return wrap('z.any()', schema, meta)
   }
