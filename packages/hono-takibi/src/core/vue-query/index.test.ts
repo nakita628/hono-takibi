@@ -89,7 +89,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Error>(options?: {
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -116,12 +116,17 @@ export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfiniteHono<TError = Error>(options: {
+export function useInfiniteHono<
+  TData = Awaited<ReturnType<typeof getHono>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getHono>>,
     TError,
-    Awaited<ReturnType<typeof getHono>>,
-    ReturnType<typeof getHonoInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -154,7 +159,7 @@ export function getUsersQueryOptions(
   }
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -189,14 +194,19 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsers<TError = Error>(
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -212,7 +222,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -221,7 +231,7 @@ export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequ
   }
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -230,7 +240,7 @@ export function usePostUsers<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 `
 
@@ -306,7 +316,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Error>(options?: {
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -333,12 +343,17 @@ export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfiniteHono<TError = Error>(options: {
+export function useInfiniteHono<
+  TData = Awaited<ReturnType<typeof getHono>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getHono>>,
     TError,
-    Awaited<ReturnType<typeof getHono>>,
-    ReturnType<typeof getHonoInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -387,7 +402,7 @@ export function getUsersQueryOptions(
   }
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -422,14 +437,19 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsers<TError = Error>(
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -455,7 +475,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -464,7 +484,7 @@ export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequ
   }
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -473,7 +493,7 @@ export function usePostUsers<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -544,7 +564,7 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(options?: {
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -571,12 +591,17 @@ export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfiniteUsers<TError = Error>(options: {
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getUsers>>,
     TError,
-    Awaited<ReturnType<typeof getUsers>>,
-    ReturnType<typeof getUsersInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -653,7 +678,7 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePing<TData = Awaited<ReturnType<typeof getPing>>, TError = Error>(options?: {
+export function usePing<TData = Awaited<ReturnType<typeof getPing>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -680,12 +705,17 @@ export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfinitePing<TError = Error>(options: {
+export function useInfinitePing<
+  TData = Awaited<ReturnType<typeof getPing>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getPing>>,
     TError,
-    Awaited<ReturnType<typeof getPing>>,
-    ReturnType<typeof getPingInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getPingInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -697,7 +727,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-export function getPostPingMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostPingMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
@@ -706,12 +736,12 @@ export function getPostPingMutationOptions<TError = Error>(options?: ClientReque
   }
 }
 
-export function usePostPing<TError = Error>(options?: {
+export function usePostPing<TError = unknown>(options?: {
   mutation?: UseMutationOptions<Awaited<ReturnType<typeof postPing>>, TError, void>
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostPingMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostPingMutationOptions<TError>(clientOptions) })
 }
 `
       expect(code).toBe(expected)
@@ -777,7 +807,7 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = Error>(options?: {
+export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -804,12 +834,17 @@ export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfiniteHonoX<TError = Error>(options: {
+export function useInfiniteHonoX<
+  TData = Awaited<ReturnType<typeof getHonoX>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getHonoX>>,
     TError,
-    Awaited<ReturnType<typeof getHonoX>>,
-    ReturnType<typeof getHonoXInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getHonoXInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -897,7 +932,7 @@ export function getUsersIdQueryOptions(
   }
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -935,14 +970,19 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsersId<TError = Error>(
+export function useInfiniteUsersId<
+  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
-      Awaited<ReturnType<typeof getUsersId>>,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -961,7 +1001,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -970,7 +1010,7 @@ export function getDeleteUsersIdMutationOptions<TError = Error>(options?: Client
   }
 }
 
-export function useDeleteUsersId<TError = Error>(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     TError,
@@ -980,8 +1020,8 @@ export function useDeleteUsersId<TError = Error>(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
-    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
     ...mutationOptions,
+    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
   })
 }
 `
@@ -1117,7 +1157,7 @@ export function getUsersQueryOptions(
   }
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -1152,14 +1192,19 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsers<TError = Error>(
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1185,7 +1230,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -1194,7 +1239,7 @@ export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequ
   }
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -1203,7 +1248,7 @@ export function usePostUsers<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 `
       expect(postUsers).toBe(postUsersExpected)
@@ -1247,7 +1292,7 @@ export function getUsersIdQueryOptions(
   }
 }
 
-export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
+export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -1285,14 +1330,19 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsersId<TError = Error>(
+export function useInfiniteUsersId<
+  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
-      Awaited<ReturnType<typeof getUsersId>>,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1321,7 +1371,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1330,7 +1380,7 @@ export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientReq
   }
 }
 
-export function usePutUsersId<TError = Error>(options?: {
+export function usePutUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
     TError,
@@ -1339,7 +1389,7 @@ export function usePutUsersId<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPutUsersIdMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions<TError>(clientOptions) })
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)
@@ -1359,7 +1409,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1368,7 +1418,7 @@ export function getDeleteUsersIdMutationOptions<TError = Error>(options?: Client
   }
 }
 
-export function useDeleteUsersId<TError = Error>(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     TError,
@@ -1378,8 +1428,8 @@ export function useDeleteUsersId<TError = Error>(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
-    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
     ...mutationOptions,
+    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
   })
 }
 `
@@ -1469,7 +1519,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1478,7 +1528,7 @@ export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientReq
   }
 }
 
-export function usePutUsersId<TError = Error>(options?: {
+export function usePutUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putUsersId>>,
     TError,
@@ -1487,7 +1537,7 @@ export function usePutUsersId<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPutUsersIdMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions<TError>(clientOptions) })
 }
 
 export async function patchUsersId(
@@ -1497,7 +1547,7 @@ export async function patchUsersId(
   return await parseResponse(client.users[':id'].$patch(args, options))
 }
 
-export function getPatchUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPatchUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PATCH'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
@@ -1506,7 +1556,7 @@ export function getPatchUsersIdMutationOptions<TError = Error>(options?: ClientR
   }
 }
 
-export function usePatchUsersId<TError = Error>(options?: {
+export function usePatchUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof patchUsersId>>,
     TError,
@@ -1516,8 +1566,8 @@ export function usePatchUsersId<TError = Error>(options?: {
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
-    ...getPatchUsersIdMutationOptions<TError>(clientOptions),
     ...mutationOptions,
+    ...getPatchUsersIdMutationOptions<TError>(clientOptions),
   })
 }
 `

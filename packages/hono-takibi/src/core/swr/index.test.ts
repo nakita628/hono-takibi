@@ -103,7 +103,7 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono<TError = Error>(options: {
+export function useInfiniteGetHono<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -160,7 +160,7 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers<TError = Error>(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
@@ -183,7 +183,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -290,7 +290,7 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono<TError = Error>(options: {
+export function useInfiniteGetHono<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -359,7 +359,7 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers<TError = Error>(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
@@ -392,7 +392,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -497,7 +497,7 @@ export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function useInfiniteGetUsers<TError = Error>(options: {
+export function useInfiniteGetUsers<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -594,7 +594,7 @@ export function getGetPingInfiniteKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-export function useInfiniteGetPing<TError = Error>(options: {
+export function useInfiniteGetPing<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPing>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -611,7 +611,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-export function usePostPing<TError = Error>(options?: {
+export function usePostPing<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPing>>,
     TError,
@@ -706,7 +706,7 @@ export function getGetHonoXInfiniteKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-export function useInfiniteGetHonoX<TError = Error>(options: {
+export function useInfiniteGetHonoX<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHonoX>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -818,7 +818,7 @@ export function getGetUsersIdInfiniteKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsersId<TError = Error>(
+export function useInfiniteGetUsersId<TError = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, TError> & {
@@ -841,7 +841,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function useDeleteUsersId<TError = Error>(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     TError,
@@ -1000,7 +1000,7 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers<TError = Error>(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
@@ -1074,7 +1074,7 @@ export function getGetUsersIdInfiniteKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsersId<TError = Error>(
+export function useInfiniteGetUsersId<TError = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
     swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, TError> & {
@@ -1107,7 +1107,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -1147,7 +1147,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function usePutUsersId<TError = Error>(options?: {
+export function usePutUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putUsersId>>,
     TError,
@@ -1187,7 +1187,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function useDeleteUsersId<TError = Error>(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
     TError,
@@ -1321,7 +1321,7 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono<TError = Error>(options: {
+export function useInfiniteGetHono<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
@@ -1412,7 +1412,7 @@ export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function useInfiniteGetUsers<TError = Error>(options: {
+export function useInfiniteGetUsers<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }

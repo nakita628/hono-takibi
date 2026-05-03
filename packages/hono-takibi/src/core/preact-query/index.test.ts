@@ -97,7 +97,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Error>(options?: {
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = unknown>(options?: {
   query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
 }) {
@@ -113,7 +113,7 @@ export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Er
 
 export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof getHono>>,
-  TError = Error,
+  TError = unknown,
 >(options?: {
   query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
   options?: ClientRequestOptions
@@ -141,12 +141,17 @@ export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function useInfiniteHono<TError = Error>(options: {
+export function useInfiniteHono<
+  TData = Awaited<ReturnType<typeof getHono>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getHono>>,
     TError,
-    Awaited<ReturnType<typeof getHono>>,
-    ReturnType<typeof getHonoInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -154,12 +159,17 @@ export function useInfiniteHono<TError = Error>(options: {
   return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
 }
 
-export function useSuspenseInfiniteHono<TError = Error>(options: {
+export function useSuspenseInfiniteHono<
+  TData = Awaited<ReturnType<typeof getHono>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(options: {
   query: UseSuspenseInfiniteQueryOptions<
     Awaited<ReturnType<typeof getHono>>,
     TError,
-    Awaited<ReturnType<typeof getHono>>,
-    ReturnType<typeof getHonoInfiniteQueryKey>
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    TPageParam
   >
   options?: ClientRequestOptions
 }) {
@@ -193,7 +203,7 @@ export function getUsersQueryOptions(
   })
 }
 
-export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -210,7 +220,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   })
 }
 
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
     query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -243,14 +253,19 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-export function useInfiniteUsers<TError = Error>(
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -259,14 +274,19 @@ export function useInfiniteUsers<TError = Error>(
   return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
 }
 
-export function useSuspenseInfiniteUsers<TError = Error>(
+export function useSuspenseInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
     query: UseSuspenseInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -285,7 +305,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return mutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -298,7 +318,7 @@ export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequ
   })
 }
 
-export function usePostUsers<TError = Error>(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postUsers>>,
     TError,
@@ -307,7 +327,7 @@ export function usePostUsers<TError = Error>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUsersMutationOptions<TError>(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 `
 

@@ -106,7 +106,7 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = Error>(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = unknown>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, TError, TData>
@@ -141,14 +141,19 @@ export function getPetsInfiniteQueryOptions(
   }
 }
 
-export function createInfinitePets<TError = Error>(
+export function createInfinitePets<
+  TData = Awaited<ReturnType<typeof getPets>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPets>>,
       TError,
-      Awaited<ReturnType<typeof getPets>>,
-      ReturnType<typeof getPetsInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getPetsInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -166,7 +171,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-export function getPostPetsMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostPetsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
@@ -175,7 +180,7 @@ export function getPostPetsMutationOptions<TError = Error>(options?: ClientReque
   }
 }
 
-export function createPostPets<TError = Error>(
+export function createPostPets<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postPets>>,
@@ -187,7 +192,7 @@ export function createPostPets<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPetsMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPostPetsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -216,7 +221,7 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = Error>(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = unknown>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError, TData>
@@ -253,14 +258,19 @@ export function getPetsPetIdInfiniteQueryOptions(
   }
 }
 
-export function createInfinitePetsPetId<TError = Error>(
+export function createInfinitePetsPetId<
+  TData = Awaited<ReturnType<typeof getPetsPetId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPetsPetId>>,
       TError,
-      Awaited<ReturnType<typeof getPetsPetId>>,
-      ReturnType<typeof getPetsPetIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -278,7 +288,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPutPetsPetIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
@@ -287,7 +297,7 @@ export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientR
   }
 }
 
-export function createPutPetsPetId<TError = Error>(
+export function createPutPetsPetId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putPetsPetId>>,
@@ -299,7 +309,7 @@ export function createPutPetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutPetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPutPetsPetIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -310,7 +320,9 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeletePetsPetIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
@@ -319,7 +331,7 @@ export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: Clie
   }
 }
 
-export function createDeletePetsPetId<TError = Error>(
+export function createDeletePetsPetId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof deletePetsPetId>> | undefined,
@@ -331,7 +343,7 @@ export function createDeletePetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeletePetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getDeletePetsPetIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -412,7 +424,7 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = Error>(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = unknown>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, TError, TData>
@@ -447,14 +459,19 @@ export function getPetsInfiniteQueryOptions(
   }
 }
 
-export function createInfinitePets<TError = Error>(
+export function createInfinitePets<
+  TData = Awaited<ReturnType<typeof getPets>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPets>>,
       TError,
-      Awaited<ReturnType<typeof getPets>>,
-      ReturnType<typeof getPetsInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getPetsInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -507,7 +524,7 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = Error>(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = unknown>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError, TData>
@@ -544,14 +561,19 @@ export function getPetsPetIdInfiniteQueryOptions(
   }
 }
 
-export function createInfinitePetsPetId<TError = Error>(
+export function createInfinitePetsPetId<
+  TData = Awaited<ReturnType<typeof getPetsPetId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPetsPetId>>,
       TError,
-      Awaited<ReturnType<typeof getPetsPetId>>,
-      ReturnType<typeof getPetsPetIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -579,7 +601,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-export function getPostPetsMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostPetsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
@@ -588,7 +610,7 @@ export function getPostPetsMutationOptions<TError = Error>(options?: ClientReque
   }
 }
 
-export function createPostPets<TError = Error>(
+export function createPostPets<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postPets>>,
@@ -600,7 +622,7 @@ export function createPostPets<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPetsMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPostPetsMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -624,7 +646,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPutPetsPetIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
@@ -633,7 +655,7 @@ export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientR
   }
 }
 
-export function createPutPetsPetId<TError = Error>(
+export function createPutPetsPetId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putPetsPetId>>,
@@ -645,7 +667,7 @@ export function createPutPetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutPetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPutPetsPetIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -669,7 +691,9 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeletePetsPetIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
@@ -678,7 +702,7 @@ export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: Clie
   }
 }
 
-export function createDeletePetsPetId<TError = Error>(
+export function createDeletePetsPetId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof deletePetsPetId>> | undefined,
@@ -690,7 +714,7 @@ export function createDeletePetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeletePetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getDeletePetsPetIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -764,7 +788,7 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
@@ -795,13 +819,18 @@ export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createInfiniteUsers<TError = Error>(
+export function createInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -886,7 +915,7 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createPing<TData = Awaited<ReturnType<typeof getPing>>, TError = Error>(
+export function createPing<TData = Awaited<ReturnType<typeof getPing>>, TError = unknown>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
     options?: ClientRequestOptions
@@ -917,13 +946,18 @@ export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createInfinitePing<TError = Error>(
+export function createInfinitePing<
+  TData = Awaited<ReturnType<typeof getPing>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPing>>,
       TError,
-      Awaited<ReturnType<typeof getPing>>,
-      ReturnType<typeof getPingInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getPingInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -938,7 +972,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-export function getPostPingMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostPingMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
@@ -947,7 +981,7 @@ export function getPostPingMutationOptions<TError = Error>(options?: ClientReque
   }
 }
 
-export function createPostPing<TError = Error>(
+export function createPostPing<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<Awaited<ReturnType<typeof postPing>>, TError, void>
     options?: ClientRequestOptions
@@ -955,7 +989,7 @@ export function createPostPing<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPingMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPostPingMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -1022,7 +1056,7 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = Error>(
+export function createHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = unknown>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
     options?: ClientRequestOptions
@@ -1053,13 +1087,18 @@ export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createInfiniteHonoX<TError = Error>(
+export function createInfiniteHonoX<
+  TData = Awaited<ReturnType<typeof getHonoX>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getHonoX>>,
       TError,
-      Awaited<ReturnType<typeof getHonoX>>,
-      ReturnType<typeof getHonoXInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getHonoXInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1151,7 +1190,7 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -1188,14 +1227,19 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-export function createInfiniteUsersId<TError = Error>(
+export function createInfiniteUsersId<
+  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
-      Awaited<ReturnType<typeof getUsersId>>,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1213,7 +1257,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1222,7 +1266,7 @@ export function getDeleteUsersIdMutationOptions<TError = Error>(options?: Client
   }
 }
 
-export function createDeleteUsersId<TError = Error>(
+export function createDeleteUsersId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1234,7 +1278,7 @@ export function createDeleteUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteUsersIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getDeleteUsersIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -1366,7 +1410,7 @@ export function getUsersQueryOptions(
   })
 }
 
-export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -1401,14 +1445,19 @@ export function getUsersInfiniteQueryOptions(
   }
 }
 
-export function createInfiniteUsers<TError = Error>(
+export function createInfiniteUsers<
+  TData = Awaited<ReturnType<typeof getUsers>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<typeof client.users.$get>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
-      Awaited<ReturnType<typeof getUsers>>,
-      ReturnType<typeof getUsersInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1436,7 +1485,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -1445,7 +1494,7 @@ export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequ
   }
 }
 
-export function createPostUsers<TError = Error>(
+export function createPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postUsers>>,
@@ -1457,7 +1506,7 @@ export function createPostUsers<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostUsersMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -1498,7 +1547,7 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -1535,14 +1584,19 @@ export function getUsersIdInfiniteQueryOptions(
   }
 }
 
-export function createInfiniteUsersId<TError = Error>(
+export function createInfiniteUsersId<
+  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
     query: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
-      Awaited<ReturnType<typeof getUsersId>>,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>
+      TData,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>,
+      TPageParam
     >
     options?: ClientRequestOptions
   },
@@ -1570,7 +1624,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1579,7 +1633,7 @@ export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientReq
   }
 }
 
-export function createPutUsersId<TError = Error>(
+export function createPutUsersId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putUsersId>>,
@@ -1591,7 +1645,7 @@ export function createPutUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutUsersIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getPutUsersIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
@@ -1612,7 +1666,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1621,7 +1675,7 @@ export function getDeleteUsersIdMutationOptions<TError = Error>(options?: Client
   }
 }
 
-export function createDeleteUsersId<TError = Error>(
+export function createDeleteUsersId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof deleteUsersId>> | undefined,
@@ -1633,7 +1687,7 @@ export function createDeleteUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteUsersIdMutationOptions<TError>(clientOptions), ...mutation }
+    return { ...mutation, ...getDeleteUsersIdMutationOptions<TError>(clientOptions) }
   })
 }
 `
