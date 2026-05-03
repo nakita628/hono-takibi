@@ -8,22 +8,22 @@ export async function solidQuery(
   split?: boolean,
   clientName = 'client',
 ) {
+  // Solid Query v5: `createQuery` accepts an Accessor (= () => T) for options,
+  // matching Svelte v5's thunk pattern. Helpers (queryOptions/etc.) take plain
+  // objects but the hook itself wraps them in a thunk.
   const config = {
     packageName: '@tanstack/solid-query',
     frameworkName: 'Solid Query',
     hookPrefix: 'create',
     queryFn: 'createQuery',
     mutationFn: 'createMutation',
+    useThunk: true,
     useQueryOptionsType: 'CreateQueryOptions',
     useMutationOptionsType: 'CreateMutationOptions',
-    // v4 has no queryOptions/mutationOptions/infiniteQueryOptions helpers (added in v5)
-    hasQueryOptionsHelper: false,
-    hasMutationOptionsHelper: false,
-    hasInfiniteQueryOptionsHelper: false,
-    // v4 has no suspense hooks (added in v5 for other frameworks)
+    hasQueryOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
     useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
-    useThunk: true,
+    hasInfiniteQueryOptionsHelper: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

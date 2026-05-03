@@ -40,7 +40,12 @@ describe('solidQuery', () => {
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createInfiniteQuery, createMutation } from '@tanstack/solid-query'
+      const expected = `import {
+  createQuery,
+  createInfiniteQuery,
+  createMutation,
+  queryOptions,
+} from '@tanstack/solid-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -68,12 +73,12 @@ export async function getHono(options?: ClientRequestOptions) {
 }
 
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
-  return {
+  return queryOptions({
     queryKey: getHonoQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 export function createHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Error>(
@@ -139,12 +144,12 @@ export function getUsersQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
-  return {
+  return queryOptions({
     queryKey: getUsersQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+  })
 }
 
 export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
