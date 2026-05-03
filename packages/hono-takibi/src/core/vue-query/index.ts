@@ -16,11 +16,15 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    hasQueryOptionsHelper: true,
+    // Vue Query's queryOptions() includes a thunk overload `() => UseQueryOptions`,
+    // which hijacks overload resolution when the factory takes MaybeRefOrGetter args
+    // (TQueryKey defaults to readonly unknown[], inference fails, last overload error).
+    // Plain object factory bypasses the helper and lets useQuery infer types directly.
+    hasQueryOptionsHelper: false,
     isVueQuery: true,
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    hasInfiniteQueryOptionsHelper: true,
+    hasInfiniteQueryOptionsHelper: false,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

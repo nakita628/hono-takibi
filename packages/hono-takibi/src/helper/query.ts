@@ -328,9 +328,9 @@ function makeQueryHookCode(
   },
 ) {
   const errorType = config.errorType ?? 'Error'
-  // TError + TData generics enable custom error types and type-safe `select` option:
-  //   useUsers<HTTPError, string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
-  const tDataGeneric = `<TError=${errorType},TData=${responseType}>`
+  // TData first so callers can override `select`'s output type without naming TError:
+  //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
+  const generics = `<TData=${responseType},TError=${errorType}>`
   const queryOptionsType = `${config.useQueryOptionsType}<${responseType},TError,TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   // Spread user options FIRST, then set concrete queryKey/queryFn AFTER.
@@ -346,7 +346,7 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
@@ -354,14 +354,14 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
 function makeSuspenseQueryHookCode(
@@ -380,8 +380,8 @@ function makeSuspenseQueryHookCode(
   },
 ) {
   const errorType = config.errorType ?? 'Error'
-  // TError + TData generics enable custom error types and type-safe `select` option
-  const tDataGeneric = `<TError=${errorType},TData=${responseType}>`
+  // TData first so callers can override `select`'s output type without naming TError.
+  const generics = `<TData=${responseType},TError=${errorType}>`
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},TError,TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   // Same spread-first pattern as makeQueryHookCode — see comment there for rationale.
@@ -393,7 +393,7 @@ function makeSuspenseQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
@@ -401,14 +401,14 @@ function makeSuspenseQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-  return `export function ${hookName}${tDataGeneric}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
 /**
@@ -421,16 +421,16 @@ function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
 /**
  * Generates infinite query options getter function code.
  *
- * Wraps the return with `infiniteQueryOptions({...})` when the framework
- * supports it (TanStack v5 idiom — runtime is identity, but provides better
- * TypeScript inference and integration with `prefetchInfiniteQuery` etc.).
+ * Returns a plain `{queryKey, queryFn}` object (not wrapped with
+ * `infiniteQueryOptions()`). The user supplies `getNextPageParam` /
+ * `initialPageParam` at the `useInfiniteQuery` call site via the `query`
+ * argument, then the spread combines them.
  *
- * Per the v5 spec, only `queryKey` is required for `infiniteQueryOptions()`;
- * `initialPageParam` / `getNextPageParam` are supplied by the caller at
- * `useInfiniteQuery` invocation time.
- *
- * @see https://tanstack.com/query/v5/docs/react/guides/query-options
- * @see https://tanstack.com/query/latest/docs/framework/react/reference/infiniteQueryOptions
+ * Why not `infiniteQueryOptions()` wrap: that helper requires
+ * `getNextPageParam` and `initialPageParam` at the type level, which the
+ * generator cannot supply (they are pagination-strategy specific and not
+ * derivable from the OpenAPI spec). Wrapping creates compile errors;
+ * plain object defers the requirement to the user.
  */
 function makeInfiniteQueryOptionsGetterCode(
   optionsGetterName: string,
@@ -441,31 +441,29 @@ function makeInfiniteQueryOptionsGetterCode(
   config: {
     readonly frameworkName: string
     readonly isVueQuery?: boolean
-    readonly hasInfiniteQueryOptionsHelper?: boolean
   },
 ) {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  const wrap = (body: string) =>
-    config.hasInfiniteQueryOptionsHelper ? `infiniteQueryOptions({${body}})` : `{${body}}`
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
-    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${wrap(bodyContent)}}`
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return {${bodyContent}}}`
   }
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
   const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
   if (hasArgs) {
-    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${wrap(bodyContent)}}`
+    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return {${bodyContent}}}`
   }
-  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${wrap(bodyContent)}}`
+  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return {${bodyContent}}}`
 }
 
 function makeInfiniteQueryHookCode(
   hookName: string,
   infiniteOptionsGetterName: string,
+  infiniteKeyGetterName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -480,7 +478,12 @@ function makeInfiniteQueryHookCode(
   const errorType = config.errorType ?? 'Error'
   // TError generic enables custom error types: useInfiniteUsers<HTTPError>(...)
   const tErrorGeneric = `<TError=${errorType}>`
-  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError>`
+  // 4th generic (TQueryKey) must match the factory's queryKey literal type, otherwise
+  // the user's `query` option signature defaults TQueryKey to `readonly unknown[]` and
+  // exactOptionalPropertyTypes catches the mismatch on contravariant fields like
+  // `enabled`. Vue's `MaybeRef`-wrapped option types are most sensitive to this.
+  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
+  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError,${responseType},${queryKeyType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
   // Infinite options getter returns plain {queryKey, queryFn}. Spread user options FIRST
   // (provides getNextPageParam, initialPageParam, etc.), then override with concrete queryKey/queryFn.
@@ -511,6 +514,7 @@ function makeInfiniteQueryHookCode(
 function makeSuspenseInfiniteQueryHookCode(
   hookName: string,
   infiniteOptionsGetterName: string,
+  infiniteKeyGetterName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -525,7 +529,9 @@ function makeSuspenseInfiniteQueryHookCode(
   const errorType = config.errorType ?? 'Error'
   // TError generic enables custom error types
   const tErrorGeneric = `<TError=${errorType}>`
-  const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},TError>`
+  // See makeInfiniteQueryHookCode — 4th generic must match the factory's queryKey literal.
+  const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
+  const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},TError,${responseType},${queryKeyType}>`
   const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
   // Same spread-first pattern as makeInfiniteQueryHookCode.
   // Svelte Query v5+: thunk pattern
@@ -616,23 +622,39 @@ function makeMutationOptionsGetterCode(
   parseResponseFuncName: string,
   method: string,
   honoPath: string,
-  config: { readonly frameworkName: string; readonly hasMutationOptionsHelper?: boolean },
+  responseType: string,
+  hasNoContent: boolean,
+  config: {
+    readonly frameworkName: string
+    readonly hasMutationOptionsHelper?: boolean
+    readonly errorType?: string
+  },
 ) {
   const methodUpper = method.toUpperCase()
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
+  const errorType = config.errorType ?? 'Error'
+  // TError generic must be on the factory too — the hook spreads the factory's
+  // return into useMutation, so factory's TError must match hook's TError.
+  // Without this, the factory's hardcoded `Error` would conflict with the hook's
+  // generic `TError` during spread, producing variance errors.
+  const tErrorGeneric = `<TError=${errorType}>`
+  const dataType = hasNoContent ? `${responseType}|undefined` : responseType
+  const variablesType = hasArgs ? argsType : 'void'
+  // Pass explicit type args to mutationOptions<TData, TError, TVariables>
+  const typeArgs = `<${dataType},TError,${variablesType}>`
   if (hasArgs) {
     const bodyContent = `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return ${parseResponseFuncName}(args,options)}`
     const returnExpr = config.hasMutationOptionsHelper
-      ? `mutationOptions({${bodyContent}})`
+      ? `mutationOptions${typeArgs}({${bodyContent}})`
       : `{${bodyContent}}`
-    return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
+    return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
   }
   const bodyContent = `mutationKey:${inlineKey},async mutationFn(){return ${parseResponseFuncName}(options)}`
   const returnExpr = config.hasMutationOptionsHelper
-    ? `mutationOptions({${bodyContent}})`
+    ? `mutationOptions${typeArgs}({${bodyContent}})`
     : `{${bodyContent}}`
-  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
+  return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 
 /**
@@ -728,12 +750,13 @@ function makeMutationHookCode(
   const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},TError,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
   // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
+  // Propagate TError to factory call so spread types unify (factory now generic on TError).
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
-    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...${optionsGetterName}(clientOptions),...mutation}})}`
+    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...${optionsGetterName}<TError>(clientOptions),...mutation}})}`
   }
   // React TanStack Query / Vue Query: direct spread
-  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...${optionsGetterName}(clientOptions),...mutationOptions})}`
+  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...${optionsGetterName}<TError>(clientOptions),...mutationOptions})}`
 }
 
 function makeHookCode(
@@ -965,6 +988,7 @@ function makeHookCode(
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
           infiniteOptionsGetterName,
+          infiniteKeyGetterName,
           hasArgs,
           argsType,
           responseType,
@@ -984,6 +1008,7 @@ function makeHookCode(
         ? makeSuspenseInfiniteQueryHookCode(
             suspenseInfiniteHookName,
             infiniteOptionsGetterName,
+            infiniteKeyGetterName,
             hasArgs,
             argsType,
             responseType,
@@ -1025,6 +1050,8 @@ function makeHookCode(
     parseResponseFuncName,
     method,
     honoPath,
+    responseType,
+    hasNoContent,
     config,
   )
   const hookCode = makeMutationHookCode(
@@ -1170,7 +1197,10 @@ function makeHeader(
     ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
     ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
-    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
+    // infiniteQueryOptions intentionally not imported: the helper requires
+    // `getNextPageParam`/`initialPageParam` at the type level, which the
+    // generator cannot supply. Factory returns plain `{queryKey, queryFn}`
+    // and user supplies pagination params at the hook call site.
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext

@@ -68,7 +68,6 @@ describe('svelteQuery', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -107,7 +106,7 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets<TError = Error, TData = Awaited<ReturnType<typeof getPets>>>(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = Error>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, TError, TData>
@@ -134,18 +133,23 @@ export function getPetsInfiniteQueryOptions(
   args: InferRequestType<typeof client.pets.$get>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPetsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPets(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfinitePets<TError = Error>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPets>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getPets>>,
+      TError,
+      Awaited<ReturnType<typeof getPets>>,
+      ReturnType<typeof getPetsInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -162,7 +166,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
+export function getPostPetsMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
@@ -183,7 +187,7 @@ export function createPostPets<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPetsMutationOptions(clientOptions), ...mutation }
+    return { ...getPostPetsMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 
@@ -212,7 +216,7 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId<TError = Error, TData = Awaited<ReturnType<typeof getPetsPetId>>>(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = Error>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError, TData>
@@ -241,18 +245,23 @@ export function getPetsPetIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPetsPetIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPetsPetId(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfinitePetsPetId<TError = Error>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getPetsPetId>>,
+      TError,
+      Awaited<ReturnType<typeof getPetsPetId>>,
+      ReturnType<typeof getPetsPetIdInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -269,7 +278,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
@@ -290,7 +299,7 @@ export function createPutPetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutPetsPetIdMutationOptions(clientOptions), ...mutation }
+    return { ...getPutPetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 
@@ -301,7 +310,7 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
@@ -322,7 +331,7 @@ export function createDeletePetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeletePetsPetIdMutationOptions(clientOptions), ...mutation }
+    return { ...getDeletePetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -370,12 +379,7 @@ export * from './deletePetsPetId'
 
       // Check GET hook file with args (getPets)
       const createGetPets = fs.readFileSync(path.join(dir, 'hooks', 'getPets.ts'), 'utf-8')
-      const createGetPetsExpected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const createGetPetsExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -408,7 +412,7 @@ export function getPetsQueryOptions(
   })
 }
 
-export function createPets<TError = Error, TData = Awaited<ReturnType<typeof getPets>>>(
+export function createPets<TData = Awaited<ReturnType<typeof getPets>>, TError = Error>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPets>>, TError, TData>
@@ -435,18 +439,23 @@ export function getPetsInfiniteQueryOptions(
   args: InferRequestType<typeof client.pets.$get>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPetsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPets(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfinitePets<TError = Error>(
   args: () => InferRequestType<typeof client.pets.$get>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPets>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getPets>>,
+      TError,
+      Awaited<ReturnType<typeof getPets>>,
+      ReturnType<typeof getPetsInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -463,12 +472,7 @@ export function createInfinitePets<TError = Error>(
         path.join(dir, 'hooks', 'getPetsPetId.ts'),
         'utf-8',
       )
-      const createGetPetsPetIdExpected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const createGetPetsPetIdExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -503,7 +507,7 @@ export function getPetsPetIdQueryOptions(
   })
 }
 
-export function createPetsPetId<TError = Error, TData = Awaited<ReturnType<typeof getPetsPetId>>>(
+export function createPetsPetId<TData = Awaited<ReturnType<typeof getPetsPetId>>, TError = Error>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError, TData>
@@ -532,18 +536,23 @@ export function getPetsPetIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPetsPetIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPetsPetId(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfinitePetsPetId<TError = Error>(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPetsPetId>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getPetsPetId>>,
+      TError,
+      Awaited<ReturnType<typeof getPetsPetId>>,
+      ReturnType<typeof getPetsPetIdInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -570,7 +579,7 @@ export async function postPets(
   return await parseResponse(client.pets.$post(args, options))
 }
 
-export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
+export function getPostPetsMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
@@ -591,7 +600,7 @@ export function createPostPets<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPetsMutationOptions(clientOptions), ...mutation }
+    return { ...getPostPetsMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -615,7 +624,7 @@ export async function putPetsPetId(
   return await parseResponse(client.pets[':petId'].$put(args, options))
 }
 
-export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutPetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
@@ -636,7 +645,7 @@ export function createPutPetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutPetsPetIdMutationOptions(clientOptions), ...mutation }
+    return { ...getPutPetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -660,7 +669,7 @@ export async function deletePetsPetId(
   return await parseResponse(client.pets[':petId'].$delete(args, options))
 }
 
-export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeletePetsPetIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
@@ -681,7 +690,7 @@ export function createDeletePetsPetId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeletePetsPetIdMutationOptions(clientOptions), ...mutation }
+    return { ...getDeletePetsPetIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -724,12 +733,7 @@ describe('svelteQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -760,7 +764,7 @@ export function getUsersQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
@@ -783,17 +787,22 @@ export function getUsersInfiniteQueryKey() {
 }
 
 export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfiniteUsers<TError = Error>(
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -845,7 +854,6 @@ describe('svelteQuery (no args operations)', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -878,7 +886,7 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createPing<TError = Error, TData = Awaited<ReturnType<typeof getPing>>>(
+export function createPing<TData = Awaited<ReturnType<typeof getPing>>, TError = Error>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
     options?: ClientRequestOptions
@@ -901,17 +909,22 @@ export function getPingInfiniteQueryKey() {
 }
 
 export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfinitePing<TError = Error>(
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getPing>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getPing>>,
+      TError,
+      Awaited<ReturnType<typeof getPing>>,
+      ReturnType<typeof getPingInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -925,7 +938,7 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-export function getPostPingMutationOptions(options?: ClientRequestOptions) {
+export function getPostPingMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
@@ -942,7 +955,7 @@ export function createPostPing<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPingMutationOptions(clientOptions), ...mutation }
+    return { ...getPostPingMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -978,12 +991,7 @@ describe('svelteQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const expected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -1014,7 +1022,7 @@ export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createHonoX<TError = Error, TData = Awaited<ReturnType<typeof getHonoX>>>(
+export function createHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = Error>(
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
     options?: ClientRequestOptions
@@ -1037,17 +1045,22 @@ export function getHonoXInfiniteQueryKey() {
 }
 
 export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfiniteHonoX<TError = Error>(
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getHonoX>>,
+      TError,
+      Awaited<ReturnType<typeof getHonoX>>,
+      ReturnType<typeof getHonoXInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1100,7 +1113,6 @@ describe('svelteQuery (path parameters)', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -1139,7 +1151,7 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -1168,18 +1180,23 @@ export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfiniteUsersId<TError = Error>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsersId>>,
+      TError,
+      Awaited<ReturnType<typeof getUsersId>>,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1196,7 +1213,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1217,7 +1234,7 @@ export function createDeleteUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteUsersIdMutationOptions(clientOptions), ...mutation }
+    return { ...getDeleteUsersIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -1316,12 +1333,7 @@ export * from './deleteUsersId'
 
       // Check GET /users query file (no MaybeRefOrGetter/toValue for svelte)
       const getUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const getUsersExpected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const getUsersExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -1354,7 +1366,7 @@ export function getUsersQueryOptions(
   })
 }
 
-export function createUsers<TError = Error, TData = Awaited<ReturnType<typeof getUsers>>>(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
@@ -1381,18 +1393,23 @@ export function getUsersInfiniteQueryOptions(
   args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfiniteUsers<TError = Error>(
   args: () => InferRequestType<typeof client.users.$get>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1419,7 +1436,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -1440,7 +1457,7 @@ export function createPostUsers<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostUsersMutationOptions(clientOptions), ...mutation }
+    return { ...getPostUsersMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -1448,12 +1465,7 @@ export function createPostUsers<TError = Error>(
 
       // Check GET /users/{id} query file (path param with bracket notation)
       const getUsersId = fs.readFileSync(path.join(dir, 'hooks', 'getUsersId.ts'), 'utf-8')
-      const getUsersIdExpected = `import {
-  createQuery,
-  createInfiniteQuery,
-  queryOptions,
-  infiniteQueryOptions,
-} from '@tanstack/svelte-query'
+      const getUsersIdExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -1486,7 +1498,7 @@ export function getUsersIdQueryOptions(
   })
 }
 
-export function createUsersId<TError = Error, TData = Awaited<ReturnType<typeof getUsersId>>>(
+export function createUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = Error>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
@@ -1515,18 +1527,23 @@ export function getUsersIdInfiniteQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function createInfiniteUsersId<TError = Error>(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError>
+    query: CreateInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsersId>>,
+      TError,
+      Awaited<ReturnType<typeof getUsersId>>,
+      ReturnType<typeof getUsersIdInfiniteQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1553,7 +1570,7 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1574,7 +1591,7 @@ export function createPutUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutUsersIdMutationOptions(clientOptions), ...mutation }
+    return { ...getPutUsersIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
@@ -1595,7 +1612,7 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions<TError = Error>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1616,7 +1633,7 @@ export function createDeleteUsersId<TError = Error>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteUsersIdMutationOptions(clientOptions), ...mutation }
+    return { ...getDeleteUsersIdMutationOptions<TError>(clientOptions), ...mutation }
   })
 }
 `
