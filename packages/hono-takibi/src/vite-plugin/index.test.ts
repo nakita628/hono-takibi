@@ -87,6 +87,7 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'schemas' }
   }),
+  preactQuery: vi.fn(async () => ({ ok: true, value: 'preactQuery' })),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
   svelteQuery: vi.fn(async () => ({ ok: true, value: 'svelteQuery' })),
   swr: vi.fn(async () => ({ ok: true, value: 'swr' })),

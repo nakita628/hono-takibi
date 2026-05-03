@@ -1,6 +1,7 @@
 export * from './components/index.js'
 export * from './docs/index.js'
 export * from './mock/index.js'
+export * from './preact-query/index.js'
 export * from './route/index.js'
 export * from './rpc/index.js'
 export * from './svelte-query/index.js'

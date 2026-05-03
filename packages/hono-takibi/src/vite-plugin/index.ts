@@ -18,6 +18,7 @@ import {
   rpc,
   schemas,
   securitySchemes,
+  preactQuery,
   svelteQuery,
   swr,
   takibi,
@@ -434,8 +435,14 @@ async function runAllGenerationTasks(config: Config) {
       | typeof config.swr
       | (typeof config)['tanstack-query']
       | (typeof config)['svelte-query']
-      | (typeof config)['vue-query'],
-    fn: typeof swr | typeof tanstackQuery | typeof svelteQuery | typeof vueQuery,
+      | (typeof config)['vue-query']
+      | (typeof config)['preact-query'],
+    fn:
+      | typeof swr
+      | typeof tanstackQuery
+      | typeof svelteQuery
+      | typeof vueQuery
+      | typeof preactQuery,
   ) => {
     if (!cfg) return undefined
     return runSplitAwareJob(name, cfg.output, cfg.split === true, (out) =>
@@ -531,6 +538,7 @@ async function runAllGenerationTasks(config: Config) {
     makeQueryJob('tanstack-query', config['tanstack-query'], tanstackQuery),
     makeQueryJob('svelte-query', config['svelte-query'], svelteQuery),
     makeQueryJob('vue-query', config['vue-query'], vueQuery),
+    makeQueryJob('preact-query', config['preact-query'], preactQuery),
     makeTestJob(),
     makeMockJob(),
     makeDocsJob(),
@@ -583,6 +591,7 @@ function extractOutputPaths(config: Config): readonly string[] {
     config['tanstack-query']?.output,
     config['svelte-query']?.output,
     config['vue-query']?.output,
+    config['preact-query']?.output,
     config.test?.output,
     config.mock?.output,
     config.docs?.output,

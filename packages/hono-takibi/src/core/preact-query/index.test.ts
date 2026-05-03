@@ -1,0 +1,323 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
+import { describe, expect, it } from 'vite-plus/test'
+
+import type { OpenAPI } from '../../openapi/index.js'
+import { preactQuery } from './index.js'
+
+/** Simple OpenAPI spec for basic tests */
+const openapiSimple: OpenAPI = {
+  openapi: '3.1.0',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/hono': {
+      get: {
+        summary: 'Hono',
+        description: 'Simple ping for Hono',
+        responses: { '200': { description: 'OK' } },
+      },
+    },
+    '/users': {
+      get: {
+        summary: 'List users',
+        description: 'List users with pagination.',
+        parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+        responses: { '200': { description: 'OK' } },
+      },
+      post: {
+        summary: 'Create user',
+        description: 'Create a new user.',
+        requestBody: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' } } },
+        },
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+  },
+}
+
+describe('preactQuery', () => {
+  it('should generate the correct preact-query hooks code', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-preact-query-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const result = await preactQuery(openapiSimple, out, '../client', false)
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+      const expected = `import {
+  useQuery,
+  useSuspenseQuery,
+  useInfiniteQuery,
+  useSuspenseInfiniteQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/preact-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseSuspenseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseSuspenseInfiniteQueryOptions,
+  UseMutationOptions,
+} from '@tanstack/preact-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getHonoKey() {
+  return ['hono'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getHonoQueryKey() {
+  return ['hono', '/hono'] as const
+}
+
+export async function getHono(options?: ClientRequestOptions) {
+  return await parseResponse(client.hono.$get(undefined, options))
+}
+
+export function getHonoQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = Error>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function useSuspenseHono<
+  TData = Awaited<ReturnType<typeof getHono>>,
+  TError = Error,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getHonoQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function getHonoInfiniteQueryKey() {
+  return ['hono', '/hono', 'infinite'] as const
+}
+
+export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHono({ ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+export function useInfiniteHono<TError = Error>(options: {
+  query: UseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    Awaited<ReturnType<typeof getHono>>,
+    ReturnType<typeof getHonoInfiniteQueryKey>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...queryOptions, ...getHonoInfiniteQueryOptions(clientOptions) })
+}
+
+export function useSuspenseInfiniteHono<TError = Error>(options: {
+  query: UseSuspenseInfiniteQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    Awaited<ReturnType<typeof getHono>>,
+    ReturnType<typeof getHonoInfiniteQueryKey>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOptions,
+    ...getHonoInfiniteQueryOptions(clientOptions),
+  })
+}
+
+export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args] as const
+}
+
+export async function getUsers(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$get(args, options))
+}
+
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  })
+}
+
+export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = Error>(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
+}
+
+export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['users', '/users', args, 'infinite'] as const
+}
+
+export function getUsersInfiniteQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getUsers(args, { ...options, init: { ...options?.init, signal } })
+    },
+  }
+}
+
+export function useInfiniteUsers<TError = Error>(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersInfiniteQueryKey>
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({ ...queryOptions, ...getUsersInfiniteQueryOptions(args, clientOptions) })
+}
+
+export function useSuspenseInfiniteUsers<TError = Error>(
+  args: InferRequestType<typeof client.users.$get>,
+  options: {
+    query: UseSuspenseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersInfiniteQueryKey>
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useSuspenseInfiniteQuery({
+    ...queryOptions,
+    ...getUsersInfiniteQueryOptions(args, clientOptions),
+  })
+}
+
+export async function postUsers(
+  args: InferRequestType<typeof client.users.$post>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users.$post(args, options))
+}
+
+export function getPostUsersMutationOptions<TError = Error>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    TError,
+    InferRequestType<typeof client.users.$post>
+  >({
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return postUsers(args, options)
+    },
+  })
+}
+
+export function usePostUsers<TError = Error>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postUsers>>,
+    TError,
+    InferRequestType<typeof client.users.$post>
+  >
+  options?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, options: clientOptions } = options ?? {}
+  return useMutation({ ...getPostUsersMutationOptions<TError>(clientOptions), ...mutationOptions })
+}
+`
+
+      expect(code).toBe(expected)
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated preact-query hooks written to ${out}`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

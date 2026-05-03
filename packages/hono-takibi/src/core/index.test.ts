@@ -14,6 +14,7 @@ describe('core barrel exports', () => {
       'mock',
       'parameters',
       'pathItems',
+      'preactQuery',
       'requestBodies',
       'responses',
       'route',
