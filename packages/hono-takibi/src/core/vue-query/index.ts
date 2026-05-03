@@ -22,9 +22,13 @@ export async function vueQuery(
     // Plain object factory bypasses the helper and lets useQuery infer types directly.
     hasQueryOptionsHelper: false,
     isVueQuery: true,
+    suspenseQueryFn: 'useSuspenseQuery',
+    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
     hasInfiniteQueryOptionsHelper: false,
+    suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
+    useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }
