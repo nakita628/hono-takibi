@@ -420,11 +420,17 @@ function makePropertyMap(
   components: Components | undefined,
   visited: Set<string>,
 ): ReadonlyMap<string, { readonly type: string; readonly required: boolean }> {
+  // Break cycles: when allOf members reference back to an ancestor schema (e.g.
+  // A.allOf -> B, B.allOf -> A), we'd otherwise recurse forever and overflow.
+  if (schema.$ref && visited.has(schema.$ref)) {
+    return new Map()
+  }
+  const nextVisited = schema.$ref ? new Set([...visited, schema.$ref]) : visited
   const resolved = makeResolvedSchema(schema, components)
   const fromAllOf = new Map<string, { type: string; required: boolean }>(
     resolved.allOf && resolved.allOf.length > 0
       ? resolved.allOf.flatMap((subSchema) => [
-          ...makePropertyMap(subSchema, components, visited).entries(),
+          ...makePropertyMap(subSchema, components, nextVisited).entries(),
         ])
       : [],
   )
@@ -434,7 +440,7 @@ function makePropertyMap(
   const requiredSet = new Set(Array.isArray(resolved.required) ? resolved.required : [])
   const currentProps = new Map(
     Object.entries(resolved.properties).map(([key, propSchema]) => {
-      const propType = makeSchemaTypeString(propSchema, components, visited)
+      const propType = makeSchemaTypeString(propSchema, components, nextVisited)
       const existing = fromAllOf.get(key)
       const isRequired = requiredSet.has(key) || (existing?.required ?? false)
       return [key, { type: propType, required: isRequired }] as const

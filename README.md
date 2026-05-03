@@ -555,7 +555,6 @@ export default defineConfig({
 **This package is in active development and may introduce breaking changes without prior notice.**
 
 - Not all OpenAPI features are supported
-- Circular references through `allOf` may cause stack overflow in type generation
 - Some OpenAPI validations may not be perfectly converted to Zod
 
 We strongly recommend:

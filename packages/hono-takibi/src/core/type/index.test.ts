@@ -492,4 +492,85 @@ describe('type', () => {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('handles circular allOf references without stack overflow', { timeout: 10000 }, async () => {
+    const openapi: OpenAPI = {
+      openapi: '3.0.0',
+      info: { title: 'Circular', version: '1.0.0' },
+      components: {
+        schemas: {
+          A: {
+            type: 'object',
+            allOf: [{ $ref: '#/components/schemas/B' }],
+            properties: { a: { type: 'string' } },
+          },
+          B: {
+            type: 'object',
+            allOf: [{ $ref: '#/components/schemas/A' }],
+            properties: { b: { type: 'number' } },
+          },
+        },
+      },
+      paths: {
+        '/x': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/A' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    try {
+      const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('handles self-referencing allOf without stack overflow', { timeout: 10000 }, async () => {
+    const openapi: OpenAPI = {
+      openapi: '3.0.0',
+      info: { title: 'Self-ref', version: '1.0.0' },
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            allOf: [{ $ref: '#/components/schemas/Node' }],
+            properties: { value: { type: 'string' } },
+          },
+        },
+      },
+      paths: {
+        '/x': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Node' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    try {
+      const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
