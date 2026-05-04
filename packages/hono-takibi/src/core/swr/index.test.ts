@@ -16,6 +16,7 @@ const openapiSimple: OpenAPI = {
       get: {
         summary: 'Hono',
         description: 'Simple ping for Hono',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
     },
@@ -23,6 +24,7 @@ const openapiSimple: OpenAPI = {
       get: {
         summary: 'List users',
         description: 'List users with pagination.',
+        'x-pagination': true,
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -438,6 +440,7 @@ describe('swr (custom client name)', () => {
           '/users': {
             get: {
               summary: 'Get users',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -524,6 +527,7 @@ const openapiNoArgs: OpenAPI = {
     '/ping': {
       get: {
         summary: 'Ping',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
       post: {
@@ -647,6 +651,7 @@ describe('swr (path with special characters)', () => {
           '/hono-x': {
             get: {
               summary: 'HonoX',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -737,6 +742,7 @@ describe('swr (path parameters)', () => {
           '/users/{id}': {
             get: {
               summary: 'Get user',
+              'x-pagination': true,
               parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '200': { description: 'OK' } },
             },
@@ -878,6 +884,7 @@ const openapiCrud: OpenAPI = {
     '/users': {
       get: {
         summary: 'List users',
+        'x-pagination': true,
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -893,6 +900,7 @@ const openapiCrud: OpenAPI = {
     '/users/{id}': {
       get: {
         summary: 'Get user',
+        'x-pagination': true,
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -1257,6 +1265,7 @@ const openapiImmutable: OpenAPI = {
     '/hono': {
       get: {
         summary: 'Hono',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
     },
@@ -1353,6 +1362,7 @@ describe('swr (enabled priority)', () => {
           '/users': {
             get: {
               summary: 'Get users',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -1425,6 +1435,39 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
   return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('swr (no pagination)', () => {
+  it('should NOT generate Infinite hooks when x-pagination is absent', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-no-pag-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              summary: 'List',
+              // NOTE: deliberately no x-pagination
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const result = await swr(openAPI, out, '../client', false)
+      if (!result.ok) throw new Error(result.error)
+      const code = fs.readFileSync(out, 'utf-8')
+      // Assertion: must not contain Infinite-related symbols
+      expect(code.includes('Infinite')).toBe(false)
+      expect(code.includes('useSWRInfinite')).toBe(false)
+      expect(code.includes('swr/infinite')).toBe(false)
+      expect(code.includes('SWRInfiniteConfiguration')).toBe(false)
+      expect(code.includes('SWRInfiniteKeyLoader')).toBe(false)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

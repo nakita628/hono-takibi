@@ -287,6 +287,17 @@ export default defineConfig({
 })
 ```
 
+### Infinite Query (`x-pagination`)
+
+Set `x-pagination: true` on a GET operation to generate infinite query hooks.
+
+```yaml
+paths:
+  /posts:
+    get:
+      x-pagination: true
+```
+
 ## Test & Mock Generation
 
 ### Test Generation

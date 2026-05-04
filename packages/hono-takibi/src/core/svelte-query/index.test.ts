@@ -14,6 +14,7 @@ const openapiSimple: OpenAPI = {
   paths: {
     '/pets': {
       get: {
+        'x-pagination': true,
         summary: 'List pets',
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
@@ -29,6 +30,7 @@ const openapiSimple: OpenAPI = {
     },
     '/pets/{petId}': {
       get: {
+        'x-pagination': true,
         summary: 'Get pet',
         parameters: [{ name: 'petId', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { '200': { description: 'OK' } },
@@ -68,11 +70,13 @@ describe('svelteQuery', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -129,26 +133,44 @@ export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pet
   return ['pets', '/pets', args, 'infinite'] as const
 }
 
-export function getPetsInfiniteQueryOptions(
+export function getPetsInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<typeof client.pets.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPets>>,
+      allPages: Awaited<ReturnType<typeof getPets>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPetsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPets(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfinitePets<
-  TData = Awaited<ReturnType<typeof getPets>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getPets>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPets>>,
+      allPages: Awaited<ReturnType<typeof getPets>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPets>>,
       TError,
       TData,
@@ -159,8 +181,8 @@ export function createInfinitePets<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getPetsInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getPetsInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 
@@ -246,26 +268,44 @@ export function getPetsPetIdInfiniteQueryKey(
   return ['pets', '/pets/:petId', args, 'infinite'] as const
 }
 
-export function getPetsPetIdInfiniteQueryOptions(
+export function getPetsPetIdInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPetsPetId>>,
+      allPages: Awaited<ReturnType<typeof getPetsPetId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPetsPetIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPetsPetId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfinitePetsPetId<
-  TData = Awaited<ReturnType<typeof getPetsPetId>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getPetsPetId>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPetsPetId>>,
+      allPages: Awaited<ReturnType<typeof getPetsPetId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPetsPetId>>,
       TError,
       TData,
@@ -276,8 +316,8 @@ export function createInfinitePetsPetId<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 
@@ -391,11 +431,17 @@ export * from './deletePetsPetId'
 
       // Check GET hook file with args (getPets)
       const createGetPets = fs.readFileSync(path.join(dir, 'hooks', 'getPets.ts'), 'utf-8')
-      const createGetPetsExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const createGetPetsExpected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -447,26 +493,44 @@ export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pet
   return ['pets', '/pets', args, 'infinite'] as const
 }
 
-export function getPetsInfiniteQueryOptions(
+export function getPetsInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<typeof client.pets.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPets>>,
+      allPages: Awaited<ReturnType<typeof getPets>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPetsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPets(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfinitePets<
-  TData = Awaited<ReturnType<typeof getPets>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getPets>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPets>>,
+      allPages: Awaited<ReturnType<typeof getPets>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPets>>,
       TError,
       TData,
@@ -477,8 +541,8 @@ export function createInfinitePets<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getPetsInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getPetsInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 `
@@ -489,11 +553,17 @@ export function createInfinitePets<
         path.join(dir, 'hooks', 'getPetsPetId.ts'),
         'utf-8',
       )
-      const createGetPetsPetIdExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const createGetPetsPetIdExpected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -549,26 +619,44 @@ export function getPetsPetIdInfiniteQueryKey(
   return ['pets', '/pets/:petId', args, 'infinite'] as const
 }
 
-export function getPetsPetIdInfiniteQueryOptions(
+export function getPetsPetIdInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPetsPetId>>,
+      allPages: Awaited<ReturnType<typeof getPetsPetId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getPetsPetIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getPetsPetId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfinitePetsPetId<
-  TData = Awaited<ReturnType<typeof getPetsPetId>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getPetsPetId>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPetsPetId>>,
+      allPages: Awaited<ReturnType<typeof getPetsPetId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPetsPetId>>,
       TError,
       TData,
@@ -579,8 +667,8 @@ export function createInfinitePetsPetId<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 `
@@ -737,6 +825,7 @@ const openapiCustomClient: OpenAPI = {
   paths: {
     '/users': {
       get: {
+        'x-pagination': true,
         summary: 'Get users',
         responses: { '200': { description: 'OK' } },
       },
@@ -757,11 +846,17 @@ describe('svelteQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const expected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -810,22 +905,42 @@ export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfiniteUsers<
-  TData = Awaited<ReturnType<typeof getUsers>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
       TData,
@@ -836,8 +951,8 @@ export function createInfiniteUsers<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersInfiniteQueryOptions(clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getUsersInfiniteQueryOptions(pagination, clientOptions) }
   })
 }
 `
@@ -855,6 +970,7 @@ const openapiNoArgs: OpenAPI = {
   paths: {
     '/ping': {
       get: {
+        'x-pagination': true,
         summary: 'Ping',
         responses: { '200': { description: 'OK' } },
       },
@@ -883,11 +999,13 @@ describe('svelteQuery (no args operations)', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -937,22 +1055,42 @@ export function getPingInfiniteQueryKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-export function getPingInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+export function getPingInfiniteQueryOptions<TPageParam = unknown>(
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPing>>,
+      allPages: Awaited<ReturnType<typeof getPing>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions({
     queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfinitePing<
-  TData = Awaited<ReturnType<typeof getPing>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getPing>>,
+      allPages: Awaited<ReturnType<typeof getPing>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getPing>>,
       TError,
       TData,
@@ -963,8 +1101,8 @@ export function createInfinitePing<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getPingInfiniteQueryOptions(clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getPingInfiniteQueryOptions(pagination, clientOptions) }
   })
 }
 
@@ -1011,6 +1149,7 @@ describe('svelteQuery (path with special characters)', () => {
         paths: {
           '/hono-x': {
             get: {
+              'x-pagination': true,
               summary: 'HonoX',
               responses: { '200': { description: 'OK' } },
             },
@@ -1025,11 +1164,17 @@ describe('svelteQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const expected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1078,22 +1223,42 @@ export function getHonoXInfiniteQueryKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-export function getHonoXInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
+export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getHonoX>>,
+      allPages: Awaited<ReturnType<typeof getHonoX>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: ClientRequestOptions,
+) {
+  return infiniteQueryOptions({
     queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfiniteHonoX<
-  TData = Awaited<ReturnType<typeof getHonoX>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getHonoX>>,
+      allPages: Awaited<ReturnType<typeof getHonoX>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getHonoX>>,
       TError,
       TData,
@@ -1104,8 +1269,8 @@ export function createInfiniteHonoX<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getHonoXInfiniteQueryOptions(clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getHonoXInfiniteQueryOptions(pagination, clientOptions) }
   })
 }
 `
@@ -1127,6 +1292,7 @@ describe('svelteQuery (path parameters)', () => {
         paths: {
           '/users/{id}': {
             get: {
+              'x-pagination': true,
               summary: 'Get user',
               parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '200': { description: 'OK' } },
@@ -1152,11 +1318,13 @@ describe('svelteQuery (path parameters)', () => {
   createInfiniteQuery,
   createMutation,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1215,26 +1383,44 @@ export function getUsersIdInfiniteQueryKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function getUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsersId>>,
+      allPages: Awaited<ReturnType<typeof getUsersId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfiniteUsersId<
-  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsersId>>,
+      allPages: Awaited<ReturnType<typeof getUsersId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
       TData,
@@ -1245,8 +1431,8 @@ export function createInfiniteUsersId<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 
@@ -1296,6 +1482,7 @@ const openapiCrud: OpenAPI = {
   paths: {
     '/users': {
       get: {
+        'x-pagination': true,
         summary: 'List users',
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
@@ -1311,6 +1498,7 @@ const openapiCrud: OpenAPI = {
     },
     '/users/{id}': {
       get: {
+        'x-pagination': true,
         summary: 'Get user',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { '200': { description: 'OK' } },
@@ -1377,11 +1565,17 @@ export * from './deleteUsersId'
 
       // Check GET /users query file (no MaybeRefOrGetter/toValue for svelte)
       const getUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const getUsersExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const getUsersExpected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1433,26 +1627,44 @@ export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.us
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions(
+export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<typeof client.users.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfiniteUsers<
-  TData = Awaited<ReturnType<typeof getUsers>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
       TData,
@@ -1463,8 +1675,8 @@ export function createInfiniteUsers<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getUsersInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 `
@@ -1514,11 +1726,17 @@ export function createPostUsers<TError = unknown>(
 
       // Check GET /users/{id} query file (path param with bracket notation)
       const getUsersId = fs.readFileSync(path.join(dir, 'hooks', 'getUsersId.ts'), 'utf-8')
-      const getUsersIdExpected = `import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
+      const getUsersIdExpected = `import {
+  createQuery,
+  createInfiniteQuery,
+  queryOptions,
+  infiniteQueryOptions,
+} from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1572,26 +1790,44 @@ export function getUsersIdInfiniteQueryKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function getUsersIdInfiniteQueryOptions(
+export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsersId>>,
+      allPages: Awaited<ReturnType<typeof getUsersId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function createInfiniteUsersId<
-  TData = Awaited<ReturnType<typeof getUsersId>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsersId>>,
+      allPages: Awaited<ReturnType<typeof getUsersId>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsersId>>,
       TError,
       TData,
@@ -1602,8 +1838,8 @@ export function createInfiniteUsersId<
   },
 ) {
   return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 `

@@ -26,7 +26,10 @@ export async function vueQuery(
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    hasInfiniteQueryOptionsHelper: false,
+    // PoC verified (2026-05-04): Vue Query's `infiniteQueryOptions()` has only
+    // 2 overloads (Defined/Undefined initialData), neither is a thunk — so it
+    // does NOT collide with `MaybeRefOrGetter<args>` factory args (unlike `queryOptions()`).
+    hasInfiniteQueryOptionsHelper: true,
     suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
     useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
   }

@@ -10,6 +10,14 @@ export function zodToOpenAPI(
     parameters?: Parameter
     headers?: Header
     isOptional?: boolean
+    /**
+     * When set, the immediate object below this call is a `discriminatedUnion`
+     * variant. The named property is the discriminator and must NOT be wrapped
+     * in `.exactOptional()` even if absent from the OpenAPI `required` array,
+     * because Zod's `discriminatedUnion` rejects absent/optional discriminators
+     * at runtime ("No matching discriminator"). Consumed by `object()`.
+     */
+    discriminatorKey?: string
   },
   readonly?: boolean,
 ): string {

@@ -11,16 +11,16 @@ function makeSourceFile(code: string) {
 function getChildren(node: ts.Node): readonly ts.Node[] {
   const syntaxChildren = node.getChildren()
   if (syntaxChildren.length > 0) return syntaxChildren
-  const semanticChildren: ts.Node[] = []
+  const semanticChildren: ts.Node[] = [] as const
   ts.forEachChild(node, (child) => {
     semanticChildren[semanticChildren.length] = child
   })
   return semanticChildren
 }
 
-function collectIdentifiers(node: ts.Node) {
-  const visit = (n: ts.Node): readonly string[] => {
-    const current = ts.isIdentifier(n) ? [n.text] : []
+function collectIdentifiers(node: ts.Node): readonly string[] {
+  const visit = (n: ts.Node) => {
+    const current = ts.isIdentifier(n) ? ([n.text] as const) : ([] as const)
     const children = getChildren(n).flatMap(visit)
     return [...current, ...children] as const
   }
@@ -34,14 +34,7 @@ function extractIdentifiers(code: string, varNames: ReadonlySet<string>) {
   return [...found] as const
 }
 
-function createInitialState(): {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: readonly string[]
-  readonly sccs: readonly (readonly string[])[]
-  readonly index: number
-} {
+function createInitialState() {
   return {
     indices: new Map<string, number>(),
     lowLinks: new Map<string, number>(),
@@ -52,21 +45,13 @@ function createInitialState(): {
   } as const
 }
 
-function popStackUntil(
-  stack: readonly string[],
-  onStack: Set<string>,
-  name: string,
-): {
-  readonly scc: readonly string[]
-  readonly newStack: readonly string[]
-  readonly newOnStack: Set<string>
-} {
+function popStackUntil(stack: readonly string[], onStack: Set<string>, name: string) {
   const idx = stack.lastIndexOf(name)
   if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
   const scc = stack.slice(idx)
   const newStack = stack.slice(0, idx)
   const newOnStack = new Set([...onStack].filter((n) => !scc.includes(n)))
-  return { scc, newStack, newOnStack }
+  return { scc, newStack, newOnStack } as const
 }
 
 function tarjanConnect(
@@ -135,7 +120,7 @@ function tarjanConnect(
     if (s.onStack.has(depName)) {
       const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
       const updatedLowLinks = new Map(s.lowLinks).set(name, newLowLink)
-      return { ...s, lowLinks: updatedLowLinks }
+      return { ...s, lowLinks: updatedLowLinks } as const
     }
     return s
   }, initialState)

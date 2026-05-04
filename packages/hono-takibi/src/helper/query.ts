@@ -422,16 +422,15 @@ function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
 /**
  * Generates infinite query options getter function code.
  *
- * Returns a plain `{queryKey, queryFn}` object (not wrapped with
- * `infiniteQueryOptions()`). The user supplies `getNextPageParam` /
- * `initialPageParam` at the `useInfiniteQuery` call site via the `query`
- * argument, then the spread combines them.
+ * When `hasInfiniteQueryOptionsHelper` is enabled (TanStack v5 family):
+ *   Wraps with `infiniteQueryOptions({...})` and accepts `pagination` as a
+ *   required arg providing `initialPageParam` / `getNextPageParam`. Returns
+ *   a `DataTag`-branded options object — `queryClient.getQueryData(opts.queryKey)`
+ *   then infers `InfiniteData<TPage> | undefined` automatically.
  *
- * Why not `infiniteQueryOptions()` wrap: that helper requires
- * `getNextPageParam` and `initialPageParam` at the type level, which the
- * generator cannot supply (they are pagination-strategy specific and not
- * derivable from the OpenAPI spec). Wrapping creates compile errors;
- * plain object defers the requirement to the user.
+ * When the helper is unavailable (legacy / non-TanStack):
+ *   Returns plain `{queryKey, queryFn}`; users supply pagination at hook site
+ *   via the `query` option.
  */
 function makeInfiniteQueryOptionsGetterCode(
   optionsGetterName: string,
@@ -439,13 +438,32 @@ function makeInfiniteQueryOptionsGetterCode(
   hasArgs: boolean,
   argsType: string,
   parseResponseFuncName: string,
+  responseType: string,
   config: {
     readonly frameworkName: string
     readonly isVueQuery?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
   },
 ) {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
+  // Branch 1: helper-wrapped (TanStack v5 family)
+  if (config.hasInfiniteQueryOptionsHelper) {
+    const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+    if (config.isVueQuery && hasArgs) {
+      const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
+      const body = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+      return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+    }
+    const fetcherCall = hasArgs
+      ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
+      : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
+    const body = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    if (hasArgs) {
+      return `export function ${optionsGetterName}<TPageParam=unknown>(args:${argsType},${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+    }
+    return `export function ${optionsGetterName}<TPageParam=unknown>(${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+  }
+  // Branch 2: plain object (legacy / no helper)
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
     const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}}`
@@ -473,25 +491,49 @@ function makeInfiniteQueryHookCode(
     readonly useInfiniteQueryOptionsType: string
     readonly useThunk?: boolean
     readonly isVueQuery?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly errorType?: string
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
-  // TData first so callers can override `select`'s output type; TPageParam exposes
-  // the page-cursor type for getNextPageParam/initialPageParam.
-  const generics = `<TData=${responseType},TError=${errorType},TPageParam=unknown>`
-  // 4th generic (TQueryKey) must match the factory's queryKey literal type, otherwise
-  // the user's `query` option signature defaults TQueryKey to `readonly unknown[]` and
-  // exactOptionalPropertyTypes catches the mismatch on contravariant fields like
-  // `enabled`. Vue's `MaybeRef`-wrapped option types are most sensitive to this.
+  // When helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
+  // factory has `pagination` baked in, so options.query becomes optional.
+  // When helper is disabled (legacy), TData defaults to the page response type and
+  // users supply pagination via options.query (required).
+  const useHelper = config.hasInfiniteQueryOptionsHelper === true
+  const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
+  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`
-  // Spread-only management: users must spread getXxxInfiniteQueryOptions() and add
-  // pagination strategy (getNextPageParam, initialPageParam) at call site.
-  const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
-  // Infinite options getter returns plain {queryKey, queryFn}. Spread user options FIRST
-  // (provides getNextPageParam, initialPageParam, etc.), then override with concrete queryKey/queryFn.
-  // Svelte Query v5+: thunk pattern — createInfiniteQuery(() => options)
+  const optionsType = useHelper
+    ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
+    : `{query:${queryOptionsType};options?:ClientRequestOptions}`
+  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+
+  // Helper-wrapped path (TanStack v5 family)
+  if (useHelper) {
+    if (config.useThunk) {
+      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
+      const optionsGetterCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsGetterCall}}})}`
+    }
+    if (config.isVueQuery) {
+      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+      const optionsGetterCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
+    }
+    const argsSig = hasArgs ? `args:${argsType},` : ''
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+      : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
+  }
+
+  // Legacy path: plain object factory; user supplies pagination via options.query
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
@@ -499,7 +541,6 @@ function makeInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
-  // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const optionsGetterCall = hasArgs
@@ -507,7 +548,6 @@ function makeInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
-  // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
@@ -527,19 +567,45 @@ function makeSuspenseInfiniteQueryHookCode(
     readonly useSuspenseInfiniteQueryOptionsType: string
     readonly useThunk?: boolean
     readonly isVueQuery?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly errorType?: string
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
-  // See makeInfiniteQueryHookCode for TData/TPageParam rationale.
-  const generics = `<TData=${responseType},TError=${errorType},TPageParam=unknown>`
-  // See makeInfiniteQueryHookCode — 4th generic must match the factory's queryKey literal.
+  const useHelper = config.hasInfiniteQueryOptionsHelper === true
+  const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
+  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`
-  // See makeInfiniteQueryHookCode for spread-only rationale.
-  const optionsType = `{query:${queryOptionsType};options?:ClientRequestOptions}`
-  // Same spread-first pattern as makeInfiniteQueryHookCode.
-  // Svelte Query v5+: thunk pattern
+  const optionsType = useHelper
+    ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
+    : `{query:${queryOptionsType};options?:ClientRequestOptions}`
+  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+
+  // Helper-wrapped path
+  if (useHelper) {
+    if (config.useThunk) {
+      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
+      const optionsGetterCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsGetterCall}}})}`
+    }
+    if (config.isVueQuery) {
+      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+      const optionsGetterCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
+    }
+    const argsSig = hasArgs ? `args:${argsType},` : ''
+    const optionsGetterCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+      : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
+  }
+
+  // Legacy path
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
@@ -547,7 +613,6 @@ function makeSuspenseInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsGetterCall}}})}`
   }
-  // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const optionsGetterCall = hasArgs
@@ -555,7 +620,6 @@ function makeSuspenseInfiniteQueryHookCode(
       : `${infiniteOptionsGetterName}(clientOptions)`
     return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsGetterCall}})}`
   }
-  // React TanStack Query: spread user options first, then getter overrides queryKey/queryFn
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const optionsGetterCall = hasArgs
     ? `${infiniteOptionsGetterName}(args,clientOptions)`
@@ -801,6 +865,9 @@ function makeHookCode(
   const hookName = makeHookName(method, pathStr, config.hookPrefix)
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
+  // Infinite hooks are emitted only when the operation declares `x-pagination: true`.
+  // Generating Infinite for non-paginated GETs creates unusable code (no getNextPageParam).
+  const hasPagination = isRecord(op) && op['x-pagination'] === true
   // Detect header parameters for key exclusion (REST: headers are metadata, not resource identifiers)
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
@@ -853,26 +920,30 @@ function makeHookCode(
             config.immutableQueryFn,
           )
         : null
-      // Infinite query support (all GET endpoints)
+      // Infinite query support (only when x-pagination: true)
       const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr, true)
-      const infiniteKeyGetterCode = makeInfiniteQueryKeyGetterCode(
-        infiniteKeyGetterName,
-        hasArgs,
-        argsType,
-        honoPath,
-        config,
-        hasHeaderArgs,
-      )
+      const infiniteKeyGetterCode = hasPagination
+        ? makeInfiniteQueryKeyGetterCode(
+            infiniteKeyGetterName,
+            hasArgs,
+            argsType,
+            honoPath,
+            config,
+            hasHeaderArgs,
+          )
+        : null
       const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(parseResponseFuncName)}`
-      const infiniteHookCode = makeSWRInfiniteHookCode(
-        infiniteHookName,
-        infiniteKeyGetterName,
-        hasArgs,
-        argsType,
-        responseType,
-        parseResponseFuncName,
-        config.errorType,
-      )
+      const infiniteHookCode = hasPagination
+        ? makeSWRInfiniteHookCode(
+            infiniteHookName,
+            infiniteKeyGetterName,
+            hasArgs,
+            argsType,
+            responseType,
+            parseResponseFuncName,
+            config.errorType,
+          )
+        : null
       // Order: key → wrapper → hook → immutableHook → infiniteKey → infiniteHook
       const parts = [
         keyGetterCode,
@@ -886,7 +957,7 @@ function makeHookCode(
         code: parts.join('\n\n'),
         isQuery: true,
         hasArgs,
-        hasInfinite: true,
+        hasInfinite: hasPagination,
         parseResponseFuncName,
       } as const
     }
@@ -944,11 +1015,12 @@ function makeHookCode(
       responseType,
       config,
     )
-    // Generate infinite query key getter (only when infinite query hooks are enabled AND endpoint has pagination params)
+    // Generate infinite query key getter (only when infinite query hooks are enabled
+    // AND endpoint declares `x-pagination: true`)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
     const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
-    const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType)
+    const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
     const infiniteKeyGetterCode = hasInfinite
       ? makeInfiniteQueryKeyGetterCode(
           infiniteKeyGetterName,
@@ -967,7 +1039,14 @@ function makeHookCode(
           hasArgs,
           argsType,
           parseResponseFuncName,
-          config,
+          responseType,
+          {
+            frameworkName: config.frameworkName,
+            ...(config.isVueQuery ? { isVueQuery: true } : {}),
+            ...(config.hasInfiniteQueryOptionsHelper
+              ? { hasInfiniteQueryOptionsHelper: true }
+              : {}),
+          },
         )
       : null
     // Generate suspense query hook
@@ -1005,6 +1084,9 @@ function makeHookCode(
             useInfiniteQueryOptionsType,
             ...(config.useThunk ? { useThunk: true } : {}),
             ...(config.isVueQuery ? { isVueQuery: true } : {}),
+            ...(config.hasInfiniteQueryOptionsHelper
+              ? { hasInfiniteQueryOptionsHelper: true }
+              : {}),
             ...(config.errorType ? { errorType: config.errorType } : {}),
           },
         )
@@ -1025,6 +1107,9 @@ function makeHookCode(
               useSuspenseInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
               ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.isVueQuery ? { isVueQuery: true } : {}),
+              ...(config.hasInfiniteQueryOptionsHelper
+                ? { hasInfiniteQueryOptionsHelper: true }
+                : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
             },
           )
@@ -1205,10 +1290,9 @@ function makeHeader(
     ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
     ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
-    // infiniteQueryOptions intentionally not imported: the helper requires
-    // `getNextPageParam`/`initialPageParam` at the type level, which the
-    // generator cannot supply. Factory returns plain `{queryKey, queryFn}`
-    // and user supplies pagination params at the hook call site.
+    // infiniteQueryOptions: imported when generator wraps factory with helper
+    // (see makeInfiniteQueryOptionsGetterCode helper-wrapped branch)
+    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
@@ -1221,6 +1305,8 @@ function makeHeader(
     ...(hasInfiniteQuery && config.useSuspenseInfiniteQueryOptionsType
       ? [config.useSuspenseInfiniteQueryOptionsType]
       : []),
+    // InfiniteData: needed when helper-wrapped factory returns InfiniteData<...>-typed options
+    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['InfiniteData'] : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args

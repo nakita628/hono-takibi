@@ -563,8 +563,7 @@ export async function readConfig() {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
-    const url = pathToFileURL(abs).href
-    const mod = await import(url)
+    const mod = await import(pathToFileURL(abs).href)
     if (
       typeof mod !== 'object' ||
       mod === null ||

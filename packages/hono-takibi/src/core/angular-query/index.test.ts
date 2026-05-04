@@ -16,6 +16,7 @@ const openapiSimple: OpenAPI = {
     },
     '/users': {
       get: {
+        'x-pagination': true,
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -45,11 +46,13 @@ describe('angularQuery', () => {
   injectInfiniteQuery,
   injectMutation,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/angular-query-experimental'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -99,41 +102,6 @@ export function injectHono<TData = Awaited<ReturnType<typeof getHono>>, TError =
   })
 }
 
-export function getHonoInfiniteQueryKey() {
-  return ['hono', '/hono', 'infinite'] as const
-}
-
-export function getHonoInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHono({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function injectInfiniteHono<
-  TData = Awaited<ReturnType<typeof getHono>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  options: () => {
-    query: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getHono>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  return injectInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getHonoInfiniteQueryOptions(clientOptions) }
-  })
-}
-
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
 }
@@ -180,26 +148,44 @@ export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.us
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions(
+export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   args: InferRequestType<typeof client.users.$get>,
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
   options?: ClientRequestOptions,
 ) {
-  return {
+  return infiniteQueryOptions({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
-  }
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
+  })
 }
 
 export function injectInfiniteUsers<
-  TData = Awaited<ReturnType<typeof getUsers>>,
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
+  pagination: {
+    initialPageParam: TPageParam
+    getNextPageParam: (
+      lastPage: Awaited<ReturnType<typeof getUsers>>,
+      allPages: Awaited<ReturnType<typeof getUsers>>[],
+      lastPageParam: TPageParam,
+    ) => TPageParam | undefined | null
+  },
+  options?: () => {
+    query?: CreateInfiniteQueryOptions<
       Awaited<ReturnType<typeof getUsers>>,
       TError,
       TData,
@@ -210,8 +196,8 @@ export function injectInfiniteUsers<
   },
 ) {
   return injectInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersInfiniteQueryOptions(args(), clientOptions) }
+    const { query, options: clientOptions } = options?.() ?? {}
+    return { ...query, ...getUsersInfiniteQueryOptions(args(), pagination, clientOptions) }
   })
 }
 
