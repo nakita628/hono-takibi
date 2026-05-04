@@ -85,6 +85,7 @@ export function isOperationLike(v: unknown): v is {
   readonly parameters?: unknown
   readonly requestBody?: unknown
   readonly responses?: unknown
+  readonly 'x-pagination'?: boolean
 } {
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'responses' in v
 }

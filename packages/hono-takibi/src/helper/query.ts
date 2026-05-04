@@ -867,7 +867,7 @@ function makeHookCode(
   const isQuery = method === 'get'
   // Infinite hooks are emitted only when the operation declares `x-pagination: true`.
   // Generating Infinite for non-paginated GETs creates unusable code (no getNextPageParam).
-  const hasPagination = isRecord(op) && op['x-pagination'] === true
+  const hasPagination = op['x-pagination'] === true
   // Detect header parameters for key exclusion (REST: headers are metadata, not resource identifiers)
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)

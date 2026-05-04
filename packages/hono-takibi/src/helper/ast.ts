@@ -19,10 +19,10 @@ function getChildren(node: ts.Node): readonly ts.Node[] {
 }
 
 function collectIdentifiers(node: ts.Node): readonly string[] {
-  const visit = (n: ts.Node) => {
-    const current = ts.isIdentifier(n) ? ([n.text] as const) : ([] as const)
-    const children = getChildren(n).flatMap(visit)
-    return [...current, ...children] as const
+  const visit = (n: ts.Node): readonly string[] => {
+    const current: readonly string[] = ts.isIdentifier(n) ? [n.text] : []
+    const children: readonly string[] = getChildren(n).flatMap(visit)
+    return [...current, ...children]
   }
   return visit(node)
 }
@@ -34,7 +34,14 @@ function extractIdentifiers(code: string, varNames: ReadonlySet<string>) {
   return [...found] as const
 }
 
-function createInitialState() {
+function createInitialState(): {
+  readonly indices: Map<string, number>
+  readonly lowLinks: Map<string, number>
+  readonly onStack: Set<string>
+  readonly stack: readonly string[]
+  readonly sccs: readonly (readonly string[])[]
+  readonly index: number
+} {
   return {
     indices: new Map<string, number>(),
     lowLinks: new Map<string, number>(),
@@ -42,16 +49,24 @@ function createInitialState() {
     stack: [],
     sccs: [],
     index: 0,
-  } as const
+  }
 }
 
-function popStackUntil(stack: readonly string[], onStack: Set<string>, name: string) {
+function popStackUntil(
+  stack: readonly string[],
+  onStack: Set<string>,
+  name: string,
+): {
+  readonly scc: readonly string[]
+  readonly newStack: readonly string[]
+  readonly newOnStack: Set<string>
+} {
   const idx = stack.lastIndexOf(name)
   if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
   const scc = stack.slice(idx)
   const newStack = stack.slice(0, idx)
   const newOnStack = new Set([...onStack].filter((n) => !scc.includes(n)))
-  return { scc, newStack, newOnStack } as const
+  return { scc, newStack, newOnStack }
 }
 
 function tarjanConnect(
@@ -66,13 +81,19 @@ function tarjanConnect(
     readonly sccs: readonly (readonly string[])[]
     readonly index: number
   },
-) {
+): {
+  readonly indices: Map<string, number>
+  readonly lowLinks: Map<string, number>
+  readonly onStack: Set<string>
+  readonly stack: readonly string[]
+  readonly sccs: readonly (readonly string[])[]
+  readonly index: number
+} {
   const currentIndex = state.index
   const indices = new Map(state.indices).set(name, currentIndex)
   const lowLinks = new Map(state.lowLinks).set(name, currentIndex)
   const stack: readonly string[] = [...state.stack, name]
   const onStack = new Set([...state.onStack, name])
-
   const initialState: {
     readonly indices: Map<string, number>
     readonly lowLinks: Map<string, number>
@@ -87,7 +108,7 @@ function tarjanConnect(
     stack,
     onStack,
     index: currentIndex + 1,
-  } as const
+  }
 
   const afterDeps = (deps.get(name) ?? []).reduce<{
     readonly indices: Map<string, number>
@@ -107,20 +128,12 @@ function tarjanConnect(
         afterConnect.lowLinks.get(depName) ?? 0,
       )
       const updatedLowLinks = new Map(afterConnect.lowLinks).set(name, newLowLink)
-      const result: {
-        readonly indices: Map<string, number>
-        readonly lowLinks: Map<string, number>
-        readonly onStack: Set<string>
-        readonly stack: readonly string[]
-        readonly sccs: readonly (readonly string[])[]
-        readonly index: number
-      } = { ...afterConnect, lowLinks: updatedLowLinks }
-      return result
+      return { ...afterConnect, lowLinks: updatedLowLinks }
     }
     if (s.onStack.has(depName)) {
       const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
       const updatedLowLinks = new Map(s.lowLinks).set(name, newLowLink)
-      return { ...s, lowLinks: updatedLowLinks } as const
+      return { ...s, lowLinks: updatedLowLinks }
     }
     return s
   }, initialState)

@@ -358,6 +358,7 @@ export type Operation = {
       }
     }
   }[]
+  readonly 'x-pagination'?: boolean
 }
 
 export type Responses = {
