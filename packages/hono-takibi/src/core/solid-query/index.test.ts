@@ -156,6 +156,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -182,6 +183,7 @@ export function createInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: () => {
