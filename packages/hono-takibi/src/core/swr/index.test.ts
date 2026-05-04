@@ -16,6 +16,7 @@ const openapiSimple: OpenAPI = {
       get: {
         summary: 'Hono',
         description: 'Simple ping for Hono',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
     },
@@ -23,6 +24,7 @@ const openapiSimple: OpenAPI = {
       get: {
         summary: 'List users',
         description: 'List users with pagination.',
+        'x-pagination': true,
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -103,8 +105,8 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+export function useInfiniteGetHono<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -160,10 +162,10 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
       swrKey?: SWRInfiniteKeyLoader
     }
     options?: ClientRequestOptions
@@ -183,10 +185,10 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.users.$post>
   > & { swrKey?: Key }
@@ -290,8 +292,8 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+export function useInfiniteGetHono<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -359,10 +361,10 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
       swrKey?: SWRInfiniteKeyLoader
     }
     options?: ClientRequestOptions
@@ -392,10 +394,10 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.users.$post>
   > & { swrKey?: Key }
@@ -438,6 +440,7 @@ describe('swr (custom client name)', () => {
           '/users': {
             get: {
               summary: 'Get users',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -497,8 +500,8 @@ export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function useInfiniteGetUsers(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+export function useInfiniteGetUsers<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -524,6 +527,7 @@ const openapiNoArgs: OpenAPI = {
     '/ping': {
       get: {
         summary: 'Ping',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
       post: {
@@ -594,8 +598,8 @@ export function getGetPingInfiniteKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-export function useInfiniteGetPing(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPing>>, Error> & {
+export function useInfiniteGetPing<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPing>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -611,10 +615,10 @@ export async function postPing(options?: ClientRequestOptions) {
   return await parseResponse(client.ping.$post(undefined, options))
 }
 
-export function usePostPing(options?: {
+export function usePostPing<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPing>>,
-    Error,
+    TError,
     Key,
     undefined
   > & { swrKey?: Key }
@@ -647,6 +651,7 @@ describe('swr (path with special characters)', () => {
           '/hono-x': {
             get: {
               summary: 'HonoX',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -706,8 +711,8 @@ export function getGetHonoXInfiniteKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-export function useInfiniteGetHonoX(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHonoX>>, Error> & {
+export function useInfiniteGetHonoX<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHonoX>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -737,6 +742,7 @@ describe('swr (path parameters)', () => {
           '/users/{id}': {
             get: {
               summary: 'Get user',
+              'x-pagination': true,
               parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '200': { description: 'OK' } },
             },
@@ -818,10 +824,10 @@ export function getGetUsersIdInfiniteKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsersId(
+export function useInfiniteGetUsersId<TError = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, Error> & {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, TError> & {
       swrKey?: SWRInfiniteKeyLoader
     }
     options?: ClientRequestOptions
@@ -841,10 +847,10 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   > & { swrKey?: Key }
@@ -878,6 +884,7 @@ const openapiCrud: OpenAPI = {
     '/users': {
       get: {
         summary: 'List users',
+        'x-pagination': true,
         parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -893,6 +900,7 @@ const openapiCrud: OpenAPI = {
     '/users/{id}': {
       get: {
         summary: 'Get user',
+        'x-pagination': true,
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: { '200': { description: 'OK' } },
       },
@@ -1000,10 +1008,10 @@ export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.user
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsers(
+export function useInfiniteGetUsers<TError = unknown>(
   args: InferRequestType<typeof client.users.$get>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
       swrKey?: SWRInfiniteKeyLoader
     }
     options?: ClientRequestOptions
@@ -1074,10 +1082,10 @@ export function getGetUsersIdInfiniteKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function useInfiniteGetUsersId(
+export function useInfiniteGetUsersId<TError = unknown>(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, Error> & {
+    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, TError> & {
       swrKey?: SWRInfiniteKeyLoader
     }
     options?: ClientRequestOptions
@@ -1107,10 +1115,10 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function usePostUsers(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.users.$post>
   > & { swrKey?: Key }
@@ -1147,10 +1155,10 @@ export async function putUsersId(
   return await parseResponse(client.users[':id'].$put(args, options))
 }
 
-export function usePutUsersId(options?: {
+export function usePutUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putUsersId>>,
-    Error,
+    TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$put']>
   > & { swrKey?: Key }
@@ -1187,10 +1195,10 @@ export async function deleteUsersId(
   return await parseResponse(client.users[':id'].$delete(args, options))
 }
 
-export function useDeleteUsersId(options?: {
+export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof deleteUsersId>> | undefined,
-    Error,
+    TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$delete']>
   > & { swrKey?: Key }
@@ -1257,6 +1265,7 @@ const openapiImmutable: OpenAPI = {
     '/hono': {
       get: {
         summary: 'Hono',
+        'x-pagination': true,
         responses: { '200': { description: 'OK' } },
       },
     },
@@ -1321,8 +1330,8 @@ export function getGetHonoInfiniteKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function useInfiniteGetHono(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, Error> & {
+export function useInfiniteGetHono<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getHono>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -1353,6 +1362,7 @@ describe('swr (enabled priority)', () => {
           '/users': {
             get: {
               summary: 'Get users',
+              'x-pagination': true,
               responses: { '200': { description: 'OK' } },
             },
           },
@@ -1412,8 +1422,8 @@ export function getGetUsersInfiniteKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function useInfiniteGetUsers(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
+export function useInfiniteGetUsers<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
     swrKey?: SWRInfiniteKeyLoader
   }
   options?: ClientRequestOptions
@@ -1425,6 +1435,39 @@ export function useInfiniteGetUsers(options: {
   return useSWRInfinite(keyLoader, async () => getUsers(clientOptions), restSwrOptions)
 }
 `)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('swr (no pagination)', () => {
+  it('should NOT generate Infinite hooks when x-pagination is absent', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-no-pag-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              summary: 'List',
+              // NOTE: deliberately no x-pagination
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const result = await swr(openAPI, out, '../client', false)
+      if (!result.ok) throw new Error(result.error)
+      const code = fs.readFileSync(out, 'utf-8')
+      // Assertion: must not contain Infinite-related symbols
+      expect(code.includes('Infinite')).toBe(false)
+      expect(code.includes('useSWRInfinite')).toBe(false)
+      expect(code.includes('swr/infinite')).toBe(false)
+      expect(code.includes('SWRInfiniteConfiguration')).toBe(false)
+      expect(code.includes('SWRInfiniteKeyLoader')).toBe(false)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }

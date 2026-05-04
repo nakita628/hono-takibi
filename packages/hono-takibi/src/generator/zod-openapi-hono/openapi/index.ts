@@ -27,6 +27,6 @@ export function zodOpenAPIHono(
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)
-  const output = [components, routes, webhooks].filter((s) => s.length > 0).join('\n\n')
+  const output = [components, routes, webhooks].filter((v) => v.length > 0).join('\n\n')
   return `import{createRoute,z}from'@hono/zod-openapi'\n\n${output}`
 }

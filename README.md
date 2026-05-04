@@ -15,7 +15,7 @@ npm install -D hono-takibi
 - OpenAPI schemas to [Zod](https://zod.dev/) schemas
 - [@hono/zod-openapi](https://hono.dev/examples/zod-openapi) route definitions
 - App entry point + handler stubs + test files
-- Client library hooks (TanStack Query, SWR, Svelte Query, Vue Query)
+- Client library hooks (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
 - RPC client, mock server, TypeScript types
 - API reference docs with [hono-cli](https://github.com/honojs/cli) commands
 
@@ -269,7 +269,7 @@ export default app
 
 ## Client Library Integrations
 
-Supported: TanStack Query, SWR, Svelte Query, Vue Query, RPC Client.
+Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query, RPC Client.
 
 ```ts
 export default defineConfig({
@@ -285,6 +285,17 @@ export default defineConfig({
     client: 'client',
   },
 })
+```
+
+### Infinite Query (`x-pagination`)
+
+Set `x-pagination: true` on a GET operation to generate infinite query hooks.
+
+```yaml
+paths:
+  /posts:
+    get:
+      x-pagination: true
 ```
 
 ## Test & Mock Generation
@@ -498,9 +509,33 @@ export default defineConfig({
     parseResponse: true, // Use parseResponse for type-safe responses
   },
 
-  // Client library integrations (TanStack Query, SWR, Svelte Query, Vue Query)
+  // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
+  swr: {
+    output: './src/swr',
+    import: '../client',
+    split: true,
+    client: 'client',
+  },
   'tanstack-query': {
     output: './src/tanstack-query',
+    import: '../client',
+    split: true,
+    client: 'client',
+  },
+  'preact-query': {
+    output: './src/preact-query',
+    import: '../client',
+    split: true,
+    client: 'client',
+  },
+  'solid-query': {
+    output: './src/solid-query',
+    import: '../client',
+    split: true,
+    client: 'client',
+  },
+  'vue-query': {
+    output: './src/vue-query',
     import: '../client',
     split: true,
     client: 'client',
@@ -511,14 +546,8 @@ export default defineConfig({
     split: true,
     client: 'client',
   },
-  swr: {
-    output: './src/swr',
-    import: '../client',
-    split: true,
-    client: 'client',
-  },
-  'vue-query': {
-    output: './src/vue-query',
+  'angular-query': {
+    output: './src/angular-query',
     import: '../client',
     split: true,
     client: 'client',
@@ -555,7 +584,6 @@ export default defineConfig({
 **This package is in active development and may introduce breaking changes without prior notice.**
 
 - Not all OpenAPI features are supported
-- Circular references through `allOf` may cause stack overflow in type generation
 - Some OpenAPI validations may not be perfectly converted to Zod
 
 We strongly recommend:

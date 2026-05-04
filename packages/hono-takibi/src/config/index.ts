@@ -3,7 +3,6 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { type FormatConfig } from 'oxfmt'
-import { register } from 'tsx/esm/api'
 import * as z from 'zod'
 
 const ConfigSchema = z
@@ -44,150 +43,274 @@ const ConfigSchema = z
         exportMediaTypes: z.boolean().exactOptional(),
         exportMediaTypesTypes: z.boolean().exactOptional(),
         routes: z
-          .object({
-            output: z.string(),
-            split: z.boolean().exactOptional(),
-            import: z.string().exactOptional(),
-          })
-          .readonly()
-          .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-            message: 'split mode requires directory, not .ts file',
-          })
+          .discriminatedUnion('split', [
+            z
+              .object({
+                split: z.literal(true),
+                output: z.string().regex(/^(?!.*\.ts$).+/, {
+                  error: 'split mode requires directory, not .ts file',
+                }),
+                import: z.string().exactOptional(),
+              })
+              .readonly(),
+            z
+              .object({
+                split: z.literal(false).optional().default(false),
+                output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                import: z.string().exactOptional(),
+              })
+              .readonly(),
+          ])
           .exactOptional(),
         components: z
           .object({
             schemas: z
-              .object({
-                output: z.string(),
-                exportTypes: z.boolean().exactOptional(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             parameters: z
-              .object({
-                output: z.string(),
-                exportTypes: z.boolean().exactOptional(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             headers: z
-              .object({
-                output: z.string(),
-                exportTypes: z.boolean().exactOptional(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             securitySchemes: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             requestBodies: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             responses: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             examples: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             links: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             callbacks: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             pathItems: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             mediaTypes: z
-              .object({
-                output: z.string(),
-                exportTypes: z.boolean().exactOptional(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
-              .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-                message: 'split mode requires directory, not .ts file',
-              })
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
             webhooks: z
-              .object({
-                output: z.string(),
-                split: z.boolean().exactOptional(),
-                import: z.string().exactOptional(),
-              })
-              .readonly()
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
               .exactOptional(),
           })
           .exactOptional(),
@@ -208,69 +331,186 @@ const ConfigSchema = z
       .readonly()
       .exactOptional(),
     rpc: z
-      .object({
-        output: z.string(),
-        import: z.string(),
-        split: z.boolean().exactOptional(),
-        client: z.string().exactOptional(),
-        parseResponse: z.boolean().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-        message: 'split mode requires directory, not .ts file',
-      })
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+            parseResponse: z.boolean().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+            parseResponse: z.boolean().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
     swr: z
-      .object({
-        output: z.string(),
-        import: z.string(),
-        split: z.boolean().exactOptional(),
-        client: z.string().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-        message: 'split mode requires directory, not .ts file',
-      })
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
     'tanstack-query': z
-      .object({
-        output: z.string(),
-        import: z.string(),
-        split: z.boolean().exactOptional(),
-        client: z.string().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-        message: 'split mode requires directory, not .ts file',
-      })
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
-    'svelte-query': z
-      .object({
-        output: z.string(),
-        import: z.string(),
-        split: z.boolean().exactOptional(),
-        client: z.string().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-        message: 'split mode requires directory, not .ts file',
-      })
+    'preact-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
+    'solid-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
     'vue-query': z
-      .object({
-        output: z.string(),
-        import: z.string(),
-        split: z.boolean().exactOptional(),
-        client: z.string().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.split === true && v.output.endsWith('.ts')), {
-        message: 'split mode requires directory, not .ts file',
-      })
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
+    'svelte-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
+    'angular-query': z
+      .discriminatedUnion('split', [
+        z
+          .object({
+            split: z.literal(true),
+            output: z.string().regex(/^(?!.*\.ts$).+/, {
+              error: 'split mode requires directory, not .ts file',
+            }),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            split: z.literal(false).optional().default(false),
+            output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+            import: z.string(),
+            client: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
     test: z
       .object({
-        output: z.string(),
+        output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
         import: z.string(),
         testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
       })
@@ -278,94 +518,34 @@ const ConfigSchema = z
       .exactOptional(),
     mock: z
       .object({
-        output: z.string(),
+        output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
       })
       .readonly()
       .exactOptional(),
     docs: z
-      .object({
-        output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
-          message: 'must be .md file',
-        }),
-        entry: z.string().exactOptional(),
-        curl: z.boolean().default(false).exactOptional(),
-        baseUrl: z.string().exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.curl === true && v.entry !== undefined), {
-        message: 'entry cannot be specified when curl is true',
-      })
-      .refine((v) => !(v.curl === true && v.baseUrl === undefined), {
-        message: 'baseUrl is required when curl is true',
-      })
+      .discriminatedUnion('curl', [
+        z
+          .object({
+            output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
+              error: 'must be .md file',
+            }),
+            curl: z.literal(true),
+            baseUrl: z.string({ error: 'baseUrl is required when curl is true' }),
+            entry: z.never({ error: 'entry cannot be specified when curl is true' }).optional(),
+          })
+          .readonly(),
+        z
+          .object({
+            output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
+              error: 'must be .md file',
+            }),
+            curl: z.literal(false).default(false).optional(),
+            entry: z.string().exactOptional(),
+            baseUrl: z.string().exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
-  })
-  .transform((config) => {
-    const normalize = <T extends { output: string; split?: boolean }>(v: T) => ({
-      ...v,
-      output: v.split !== true && !v.output.endsWith('.ts') ? `${v.output}/index.ts` : v.output,
-    })
-    const normalized = Object.fromEntries(
-      (
-        ['rpc', 'swr', 'tanstack-query', 'svelte-query', 'vue-query', 'test', 'mock'] as const
-      ).flatMap((k) => {
-        const v = config[k]
-        return v !== undefined ? [[k, normalize(v)]] : []
-      }),
-    )
-    return {
-      ...config,
-      ...(config['zod-openapi'] && {
-        'zod-openapi': {
-          ...config['zod-openapi'],
-          ...(config['zod-openapi'].routes && {
-            routes: normalize(config['zod-openapi'].routes),
-          }),
-          ...(config['zod-openapi'].components && {
-            components: {
-              ...config['zod-openapi'].components,
-              ...(config['zod-openapi'].components.schemas && {
-                schemas: normalize(config['zod-openapi'].components.schemas),
-              }),
-              ...(config['zod-openapi'].components.parameters && {
-                parameters: normalize(config['zod-openapi'].components.parameters),
-              }),
-              ...(config['zod-openapi'].components.headers && {
-                headers: normalize(config['zod-openapi'].components.headers),
-              }),
-              ...(config['zod-openapi'].components.securitySchemes && {
-                securitySchemes: normalize(config['zod-openapi'].components.securitySchemes),
-              }),
-              ...(config['zod-openapi'].components.requestBodies && {
-                requestBodies: normalize(config['zod-openapi'].components.requestBodies),
-              }),
-              ...(config['zod-openapi'].components.responses && {
-                responses: normalize(config['zod-openapi'].components.responses),
-              }),
-              ...(config['zod-openapi'].components.examples && {
-                examples: normalize(config['zod-openapi'].components.examples),
-              }),
-              ...(config['zod-openapi'].components.links && {
-                links: normalize(config['zod-openapi'].components.links),
-              }),
-              ...(config['zod-openapi'].components.callbacks && {
-                callbacks: normalize(config['zod-openapi'].components.callbacks),
-              }),
-              ...(config['zod-openapi'].components.pathItems && {
-                pathItems: normalize(config['zod-openapi'].components.pathItems),
-              }),
-              ...(config['zod-openapi'].components.mediaTypes && {
-                mediaTypes: normalize(config['zod-openapi'].components.mediaTypes),
-              }),
-              ...(config['zod-openapi'].components.webhooks && {
-                webhooks: normalize(config['zod-openapi'].components.webhooks),
-              }),
-            },
-          }),
-        },
-      }),
-      ...normalized,
-    }
   })
   .readonly()
 
@@ -383,10 +563,7 @@ export async function readConfig() {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
-    register()
-    const url = pathToFileURL(abs).href
-    // eslint-disable-next-line typescript-eslint/no-implied-eval
-    const mod = await new Function('specifier', 'return import(specifier)')(url)
+    const mod = await import(pathToFileURL(abs).href)
     if (
       typeof mod !== 'object' ||
       mod === null ||

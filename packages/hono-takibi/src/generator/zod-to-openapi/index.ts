@@ -10,13 +10,20 @@ export function zodToOpenAPI(
     parameters?: Parameter
     headers?: Header
     isOptional?: boolean
+    /**
+     * When set, the immediate object below this call is a `discriminatedUnion`
+     * variant. The named property is the discriminator and must NOT be wrapped
+     * in `.exactOptional()` even if absent from the OpenAPI `required` array,
+     * because Zod's `discriminatedUnion` rejects absent/optional discriminators
+     * at runtime ("No matching discriminator"). Consumed by `object()`.
+     */
+    discriminatorKey?: string
   },
   readonly?: boolean,
 ): string {
   if (schema === undefined) throw new Error('Schema is undefined')
-  /* isOptional should only affect the outermost schema, not nested schemas */
-  /* Strip isOptional for recursive calls using destructuring to avoid 'as' cast */
-  const innerMeta: typeof meta = meta?.isOptional
+  // isOptional should only affect the outermost schema; strip for recursive calls.
+  const innerMeta = meta?.isOptional
     ? (() => {
         const { isOptional: _, ...rest } = meta
         return rest
@@ -27,12 +34,7 @@ export function zodToOpenAPI(
   }
   const isNullType = (s: Schema) =>
     s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
-  /* Helper: Check if schema is a bare $ref (no other properties) */
-  /* Used to optimize $ref handling - when $ref is the only property, */
-  /* we can use makeRef() directly instead of recursing */
   const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
-  /* combinators */
-  /** allOf */
   if (schema.allOf !== undefined) {
     const effectiveAllOf: readonly Schema[] =
       schema.properties !== undefined
@@ -68,30 +70,30 @@ export function zodToOpenAPI(
     const anyOfSchemas = schema.anyOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
     )
-    const anyOfMsg = schema['x-anyOf-message']
-    const anyOfErrArg = anyOfMsg ? `,${error(anyOfMsg)}` : ''
-    return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrArg})`, schema, meta)
+    const anyOfMessage = schema['x-anyOf-message']
+    const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
+    return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`, schema, meta)
   }
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta)
-    /* Check if any oneOf member is a $ref (could reference allOf schema) or uses allOf directly */
-    /* ZodIntersection (from allOf) is not compatible with discriminatedUnion */
+    // ZodIntersection (from allOf) is not compatible with discriminatedUnion, so
+    // fall back to xor when oneOf contains a $ref or allOf member.
     const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
     )
     const discriminator = schema.discriminator?.propertyName
-    const oneOfMsg = schema['x-oneOf-message']
-    const oneOfErrArg = oneOfMsg ? `,${error(oneOfMsg)}` : ''
+    const oneOfMessage = schema['x-oneOf-message']
+    const oneOfErrorArg = oneOfMessage ? `,${error(oneOfMessage)}` : ''
     const z =
       discriminator && !hasRefOrAllOf
-        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrArg})`
-        : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrArg})`
+        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
+        : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
     return wrap(z, schema, meta)
   }
   if (schema.not !== undefined) {
-    const notMsg = schema['x-not-message']
-    const notErrArg = notMsg ? `,${error(notMsg)}` : ''
+    const notMessage = schema['x-not-message']
+    const notErrorArg = notMessage ? `,${error(notMessage)}` : ''
     const typePredicates: { readonly [k: string]: string } = {
       string: `(v) => typeof v !== 'string'`,
       number: `(v) => typeof v !== 'number'`,
@@ -101,74 +103,63 @@ export function zodToOpenAPI(
       object: `(v) => typeof v !== 'object' || v === null || Array.isArray(v)`,
       null: '(v) => v !== null',
     }
-    // 0. not.$ref
     if (typeof schema.not === 'object' && schema.not.$ref !== undefined) {
       const refName = makeRef(schema.not.$ref)
       return wrap(
-        `z.any().refine((v) => !${refName}.safeParse(v).success${notErrArg})`,
+        `z.any().refine((v) => !${refName}.safeParse(v).success${notErrorArg})`,
         schema,
         meta,
       )
     }
-    /* 1. not.const */
     if (typeof schema.not === 'object' && 'const' in schema.not) {
       const value = JSON.stringify(schema.not.const)
       const predicate = `(v) => v !== ${value}`
-      return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
+      return wrap(`z.any().refine(${predicate}${notErrorArg})`, schema, meta)
     }
-    /* 2a. not.type (single type) */
     if (typeof schema.not === 'object' && typeof schema.not.type === 'string') {
       const predicate = typePredicates[schema.not.type]
       if (predicate) {
-        return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
+        return wrap(`z.any().refine(${predicate}${notErrorArg})`, schema, meta)
       }
     }
-    /* 2b. not.type (array of types)*/
     if (typeof schema.not === 'object' && Array.isArray(schema.not.type)) {
       const predicates = schema.not.type
         .map((t) => typePredicates[t])
-        .filter((p): p is string => p !== undefined)
+        .filter((v) => v !== undefined)
       if (predicates.length > 0) {
-        const bodies = predicates.map((p) => `(${p.replace(/^\(v\) => /, '')})`)
+        const bodies = predicates.map((v) => `(${v.replace(/^\(v\) => /, '')})`)
         const combined = `(v) => ${bodies.join(' && ')}`
-        return wrap(`z.any().refine(${combined}${notErrArg})`, schema, meta)
+        return wrap(`z.any().refine(${combined}${notErrorArg})`, schema, meta)
       }
     }
-    /* 3. not.enum */
     if (typeof schema.not === 'object' && Array.isArray(schema.not.enum)) {
       const list = JSON.stringify(schema.not.enum)
       const predicate = `(v) => !${list}.includes(v)`
-      return wrap(`z.any().refine(${predicate}${notErrArg})`, schema, meta)
+      return wrap(`z.any().refine(${predicate}${notErrorArg})`, schema, meta)
     }
-    /* 3b. not with composition (oneOf/anyOf/allOf) */
     if (
       typeof schema.not === 'object' &&
       (schema.not.oneOf !== undefined ||
         schema.not.anyOf !== undefined ||
         schema.not.allOf !== undefined)
     ) {
-      const innerZod = zodToOpenAPI(schema.not, innerMeta, readonly)
-      return wrap(
-        `z.any().refine((v) => !${innerZod}.safeParse(v).success${notErrArg})`,
-        schema,
-        meta,
-      )
+      const zod = zodToOpenAPI(schema.not, innerMeta, readonly)
+      return wrap(`z.any().refine((v) => !${zod}.safeParse(v).success${notErrorArg})`, schema, meta)
     }
-    /* 4. fallback */
     return wrap('z.any()', schema, meta)
   }
   if (schema.const !== undefined) {
     const value = schema.const
     const errorMessage = schema['x-error-message']
-    const errArg = errorMessage ? `,${error(errorMessage)}` : ''
-    /* z.literal only supports primitives in Zod 4 */
+    const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
+    // z.literal supports only primitives in Zod 4; fall back to z.custom for objects/arrays.
     const isPrimitive =
       value === null ||
       typeof value === 'string' ||
       typeof value === 'number' ||
       typeof value === 'boolean'
     const z = isPrimitive
-      ? `z.literal(${JSON.stringify(value)}${errArg})`
+      ? `z.literal(${JSON.stringify(value)}${errorArg})`
       : `z.custom<${JSON.stringify(value)}>()`
     return wrap(z, schema, meta)
   }
@@ -186,16 +177,15 @@ export function zodToOpenAPI(
   if (t.includes('array')) {
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
-    const arrayErrArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
-    /* JSON Schema 2020-12: prefixItems for tuple validation */
+    const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const tupleItems = schema.prefixItems.map((item) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, readonly),
       )
-      const z = `z.tuple([${tupleItems.join(',')}]${arrayErrArg})`
+      const z = `z.tuple([${tupleItems.join(',')}]${arrayErrorArg})`
       return wrap(`${z}${readonlyMod}`, schema, meta)
     }
-    /* items can be Schema or readonly Schema[] (JSON Schema draft-04 tuple validation) */
+    // items can be Schema or readonly Schema[] (Draft-04 tuple validation).
     const itemSchema: Schema | undefined = Array.isArray(schema.items)
       ? schema.items[0]
       : schema.items
@@ -204,32 +194,36 @@ export function zodToOpenAPI(
         ? makeRef(itemSchema.$ref)
         : zodToOpenAPI(itemSchema, innerMeta, readonly)
       : 'z.any()'
-    const z = `z.array(${item}${arrayErrArg})`
+    const z = `z.array(${item}${arrayErrorArg})`
     const patternMessage = schema['x-pattern-message']
-    const patternErrArg = patternMessage ? `,${error(patternMessage)}` : ''
+    const patternErrorArg = patternMessage ? `,${error(patternMessage)}` : ''
     const unique =
       schema.uniqueItems === true
-        ? `.refine((items)=>new Set(items).size===items.length${patternErrArg})`
+        ? `.refine((items)=>new Set(items).size===items.length${patternErrorArg})`
         : ''
     const sizeMessage = schema['x-size-message']
-    const sizeErrArg = sizeMessage ? `,${error(sizeMessage)}` : ''
+    const sizeErrorArg = sizeMessage ? `,${error(sizeMessage)}` : ''
     const minMessage = schema['x-minimum-message']
-    const minErrArg = minMessage ? `,${error(minMessage)}` : ''
+    const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
     const maxMessage = schema['x-maximum-message']
-    const maxErrArg = maxMessage ? `,${error(maxMessage)}` : ''
+    const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
-        ? wrap(`${z}.length(${schema.minItems}${sizeErrArg})${unique}${readonlyMod}`, schema, meta)
+        ? wrap(
+            `${z}.length(${schema.minItems}${sizeErrorArg})${unique}${readonlyMod}`,
+            schema,
+            meta,
+          )
         : wrap(
-            `${z}.min(${schema.minItems}${minErrArg}).max(${schema.maxItems}${maxErrArg})${unique}${readonlyMod}`,
+            `${z}.min(${schema.minItems}${minErrorArg}).max(${schema.maxItems}${maxErrorArg})${unique}${readonlyMod}`,
             schema,
             meta,
           )
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems}${minErrArg})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.min(${schema.minItems}${minErrorArg})${unique}${readonlyMod}`, schema, meta)
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems}${maxErrArg})${unique}${readonlyMod}`, schema, meta)
+      return wrap(`${z}.max(${schema.maxItems}${maxErrorArg})${unique}${readonlyMod}`, schema, meta)
     return wrap(`${z}${unique}${readonlyMod}`, schema, meta)
   }
   if (t.includes('object')) return wrap(object(schema, readonly), schema, meta)
@@ -238,7 +232,6 @@ export function zodToOpenAPI(
     const base = errorMessage ? `z.date(${error(errorMessage)})` : 'z.date()'
     return wrap(base, schema, meta)
   }
-  /* null only */
   if (t.length === 1 && t[0] === 'null') {
     const errorMessage = schema['x-error-message']
     const base = errorMessage ? `z.null(${error(errorMessage)})` : 'z.null()'

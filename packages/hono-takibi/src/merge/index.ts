@@ -37,7 +37,7 @@ function applyRangeOps(
  *
  * Centralizes Project creation to avoid redundant instances.
  */
-function createSourcePair(existingCode: string, generatedCode: string) {
+function makeSourcePair(existingCode: string, generatedCode: string) {
   const project = new Project({ useInMemoryFileSystem: true })
   return {
     existingFile: project.createSourceFile('existing.ts', existingCode),
@@ -82,7 +82,7 @@ function collectHandlerMap(file: SourceFile) {
  * @returns The merged source code.
  */
 export function mergeHandlerFile(existingCode: string, generatedCode: string) {
-  const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
+  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
 
   const isInlineHandlerName = (name: string): boolean =>
     name.endsWith('Handler') && !name.endsWith('RouteHandler')
@@ -140,14 +140,14 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
  * @returns The merged source code.
  */
 export function mergeAppFile(existingCode: string, generatedCode: string) {
-  const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
+  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
   const existingApiStmt = findApiStatement(existingFile)
   const generatedApiStmt = findApiStatement(generatedFile)
   const generatedApiText = injectChainPrefix(
     generatedApiStmt?.getText() ?? '',
     extractChainPrefix(existingApiStmt?.getText() ?? ''),
   )
-  const existingBody = buildAppBody({
+  const existingBody = makeAppBody({
     existingCode,
     generatedCode,
     bodyStart: getBodyStart(existingFile),
@@ -183,7 +183,7 @@ function injectChainPrefix(generatedApiText: string, chainPrefix: string) {
  * the generated api block plus any trailing exports. When existing keeps `export default`
  * but no api, treats the omission as intentional and leaves the body untouched.
  */
-function buildAppBody(args: {
+function makeAppBody(args: {
   readonly existingCode: string
   readonly generatedCode: string
   readonly bodyStart: number
@@ -229,7 +229,7 @@ const isAutoName = (name: string): boolean => name.endsWith('Route') || name.end
 function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): string[] {
   const existingImports = parseImportDeclarations(existingFile)
   const generatedImports = parseImportDeclarations(generatedFile)
-  const generatedIndex = buildGeneratedImportIndex(generatedImports)
+  const generatedIndex = makeGeneratedImportIndex(generatedImports)
   const filteredExisting = filterExistingImports(existingImports, generatedIndex)
   const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
   return [...importMap.entries()]
@@ -255,7 +255,7 @@ function parseImportDeclarations(file: SourceFile) {
  * existing import refers to a stale path (e.g., path-alias re-config) so it can be
  * dropped in favor of the generated path.
  */
-function buildGeneratedImportIndex(
+function makeGeneratedImportIndex(
   generatedImports: readonly {
     readonly moduleSpecifier: string
     readonly defaultImport: string | undefined
@@ -534,7 +534,7 @@ function extractRouteDescribeBlocks(file: SourceFile, code: string) {
  * @returns The merged test code.
  */
 export function mergeTestFile(existingCode: string, generatedCode: string) {
-  const { existingFile, generatedFile } = createSourcePair(existingCode, generatedCode)
+  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
   const existingBlocks = extractRouteDescribeBlocks(existingFile, existingCode)
   const generatedBlocks = extractRouteDescribeBlocks(generatedFile, generatedCode)
   const filteredImports = filterTestFrameworkImports(

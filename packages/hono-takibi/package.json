@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.9.997",
+  "version": "0.9.998",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
@@ -56,6 +56,18 @@
       "types": "./dist/core/vue-query/index.d.ts",
       "import": "./dist/core/vue-query/index.js"
     },
+    "./preact-query": {
+      "types": "./dist/core/preact-query/index.d.ts",
+      "import": "./dist/core/preact-query/index.js"
+    },
+    "./solid-query": {
+      "types": "./dist/core/solid-query/index.d.ts",
+      "import": "./dist/core/solid-query/index.js"
+    },
+    "./angular-query": {
+      "types": "./dist/core/angular-query/index.d.ts",
+      "import": "./dist/core/angular-query/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
@@ -79,7 +91,6 @@
     "@typespec/openapi3": "^1.11.0",
     "oxfmt": "^0.45.0",
     "ts-morph": "^28.0.0",
-    "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "zod": "^4.3.6"
   },

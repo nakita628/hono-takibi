@@ -35,25 +35,9 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
 const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
 
 /**
- * Builds a Zod string schema from an OpenAPI string schema definition.
- *
- * - If `schema.format` exists and matches `FORMAT_STRING`, uses `z.<format>()`; otherwise falls back to `z.string()`
- * - If `schema.pattern` is set, appends `.regex(...)` using the `regex()` helper
- * - If `minLength` and `maxLength` are defined and equal, appends `.length(n)`
- * - Otherwise, appends `.min(n)` and/or `.max(n)` individually
- * - Supports `x-error-message`, `x-pattern-message`, and `x-size-message` vendor extensions
- *   using the Zod v4 unified `{ error: "msg" }` parameter
- * - Returns the concatenated Zod schema string
- *
- * @example
- * ```ts
- * // With format, pattern, and minLength
- * string({ type: 'string', format: 'email', pattern: '^.+@example\\.com$', minLength: 5 })
- * // => 'z.email().regex(/^.+@example\\.com$/).min(5)'
- * ```
- *
- * @param schemas - OpenAPI string schema
- * @returns Concatenated Zod string schema
+ * Builds a Zod string schema from an OpenAPI string schema, applying format,
+ * pattern, length constraints, and `x-error-message` / `x-pattern-message` /
+ * `x-size-message` vendor extensions.
  */
 export function string(schema: Schema): string {
   const format = schema.format && FORMAT_STRING[schema.format]

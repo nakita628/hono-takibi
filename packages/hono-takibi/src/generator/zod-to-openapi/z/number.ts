@@ -2,29 +2,9 @@ import type { Schema } from '../../../openapi/index.js'
 import { error } from '../../../utils/index.js'
 
 /**
- * Generates a Zod schema for number types based on OpenAPI schema.
- *
- * Supports float, float32, float64, and number formats with constraints.
- * Supports `x-minimum-message` and `x-maximum-message` vendor extensions
- * using the Zod v4 unified `{ error: "msg" }` parameter.
- *
- * @param schema - The OpenAPI schema object
- * @returns The Zod schema string
- *
- * @example
- * ```ts
- * // Basic number
- * number({ type: 'number' })
- * // → 'z.number()'
- *
- * // Float with constraints
- * number({ type: 'number', format: 'float', minimum: 0, maximum: 1.0 })
- * // → 'z.float32().min(0).max(1)'
- *
- * // Positive number (exclusive minimum = 0)
- * number({ type: 'number', minimum: 0, exclusiveMinimum: true })
- * // → 'z.number().positive()'
- * ```
+ * Generates a Zod schema for number types (number / float32 / float64), with
+ * min/max/multipleOf constraints and `x-*-message` vendor extensions translated
+ * to Zod v4 `{error: "msg"}` parameters.
  */
 export function number(schema: Schema): string {
   const errorMessage = schema['x-error-message']
@@ -36,56 +16,56 @@ export function number(schema: Schema): string {
         ? `z.float64(${baseErrorArg})`
         : `z.number(${baseErrorArg})`
   const minimumMessage = schema['x-minimum-message']
-  const minErrArg = minimumMessage ? error(minimumMessage) : ''
-  const minErrPart = minErrArg ? `,${minErrArg}` : ''
+  const minErrorArg = minimumMessage ? error(minimumMessage) : ''
+  const minErrorPart = minErrorArg ? `,${minErrorArg}` : ''
   const minimum = (() => {
     if (schema.minimum !== undefined) {
       if (schema.minimum === 0 && schema.exclusiveMinimum === true) {
-        return `.positive(${minErrArg})`
+        return `.positive(${minErrorArg})`
       }
       if (schema.minimum === 0 && schema.exclusiveMinimum === false) {
-        return `.nonnegative(${minErrArg})`
+        return `.nonnegative(${minErrorArg})`
       }
       if (schema.exclusiveMinimum === true) {
-        return `.gt(${schema.minimum}${minErrPart})`
+        return `.gt(${schema.minimum}${minErrorPart})`
       }
-      return `.min(${schema.minimum}${minErrPart})`
+      return `.min(${schema.minimum}${minErrorPart})`
     }
     if (typeof schema.exclusiveMinimum === 'number') {
-      return `.gt(${schema.exclusiveMinimum}${minErrPart})`
+      return `.gt(${schema.exclusiveMinimum}${minErrorPart})`
     }
     return undefined
   })()
   const maximumMessage = schema['x-maximum-message']
-  const maxErrArg = maximumMessage ? error(maximumMessage) : ''
-  const maxErrPart = maxErrArg ? `,${maxErrArg}` : ''
+  const maxErrorArg = maximumMessage ? error(maximumMessage) : ''
+  const maxErrorPart = maxErrorArg ? `,${maxErrorArg}` : ''
   const maximum = (() => {
     if (schema.maximum !== undefined) {
       if (schema.maximum === 0 && schema.exclusiveMaximum === true) {
-        return `.negative(${maxErrArg})`
+        return `.negative(${maxErrorArg})`
       }
       if (schema.maximum === 0 && schema.exclusiveMaximum === false) {
-        return `.nonpositive(${maxErrArg})`
+        return `.nonpositive(${maxErrorArg})`
       }
       if (schema.exclusiveMaximum === true) {
-        return `.lt(${schema.maximum}${maxErrPart})`
+        return `.lt(${schema.maximum}${maxErrorPart})`
       }
-      return `.max(${schema.maximum}${maxErrPart})`
+      return `.max(${schema.maximum}${maxErrorPart})`
     }
     if (typeof schema.exclusiveMaximum === 'number') {
-      return `.lt(${schema.exclusiveMaximum}${maxErrPart})`
+      return `.lt(${schema.exclusiveMaximum}${maxErrorPart})`
     }
     return undefined
   })()
-  const multipleOfMsg = schema['x-multipleOf-message']
-  const multipleOfErrArg = multipleOfMsg
-    ? `,${error(multipleOfMsg)}`
+  const multipleOfMessage = schema['x-multipleOf-message']
+  const multipleOfErrorArg = multipleOfMessage
+    ? `,${error(multipleOfMessage)}`
     : baseErrorArg
       ? `,${baseErrorArg}`
       : ''
   const multipleOf =
     schema.multipleOf !== undefined
-      ? `.multipleOf(${schema.multipleOf}${multipleOfErrArg})`
+      ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`
       : undefined
   return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
 }

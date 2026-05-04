@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 import { readConfig } from '../config/index.js'
 import {
+  angularQuery,
   callbacks,
   docs,
   examples,
@@ -12,12 +13,14 @@ import {
   mock,
   parameters,
   pathItems,
+  preactQuery,
   requestBodies,
   responses,
   route,
   rpc,
   schemas,
   securitySchemes,
+  solidQuery,
   svelteQuery,
   swr,
   takibi,
@@ -268,13 +271,22 @@ export async function honoTakibi() {
           config['tanstack-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
-    config['svelte-query']
-      ? svelteQuery(
+    config['preact-query']
+      ? preactQuery(
           openAPI,
-          config['svelte-query'].output,
-          config['svelte-query'].import,
-          config['svelte-query'].split ?? false,
-          config['svelte-query'].client ?? 'client',
+          config['preact-query'].output,
+          config['preact-query'].import,
+          config['preact-query'].split ?? false,
+          config['preact-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
+    config['solid-query']
+      ? solidQuery(
+          openAPI,
+          config['solid-query'].output,
+          config['solid-query'].import,
+          config['solid-query'].split ?? false,
+          config['solid-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
     config['vue-query']
@@ -284,6 +296,24 @@ export async function honoTakibi() {
           config['vue-query'].import,
           config['vue-query'].split ?? false,
           config['vue-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
+    config['svelte-query']
+      ? svelteQuery(
+          openAPI,
+          config['svelte-query'].output,
+          config['svelte-query'].import,
+          config['svelte-query'].split ?? false,
+          config['svelte-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
+    config['angular-query']
+      ? angularQuery(
+          openAPI,
+          config['angular-query'].output,
+          config['angular-query'].import,
+          config['angular-query'].split ?? false,
+          config['angular-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
     config.test
