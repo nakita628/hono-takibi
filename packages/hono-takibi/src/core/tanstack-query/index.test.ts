@@ -143,6 +143,7 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -168,6 +169,7 @@ export function useInfiniteHono<
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -199,6 +201,7 @@ export function useSuspenseInfiniteHono<
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -288,6 +291,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -314,6 +318,7 @@ export function useInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -346,6 +351,7 @@ export function useSuspenseInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -523,6 +529,7 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -548,6 +555,7 @@ export function useInfiniteHono<
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -579,6 +587,7 @@ export function useSuspenseInfiniteHono<
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -692,6 +701,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -718,6 +728,7 @@ export function useInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -750,6 +761,7 @@ export function useSuspenseInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -933,6 +945,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -958,6 +971,7 @@ export function useInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -989,6 +1003,7 @@ export function useSuspenseInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1133,6 +1148,7 @@ export function getPingInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getPing>>,
       allPages: Awaited<ReturnType<typeof getPing>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -1158,6 +1174,7 @@ export function useInfinitePing<
       lastPage: Awaited<ReturnType<typeof getPing>>,
       allPages: Awaited<ReturnType<typeof getPing>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1189,6 +1206,7 @@ export function useSuspenseInfinitePing<
       lastPage: Awaited<ReturnType<typeof getPing>>,
       allPages: Awaited<ReturnType<typeof getPing>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1346,6 +1364,7 @@ export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getHonoX>>,
       allPages: Awaited<ReturnType<typeof getHonoX>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -1371,6 +1390,7 @@ export function useInfiniteHonoX<
       lastPage: Awaited<ReturnType<typeof getHonoX>>,
       allPages: Awaited<ReturnType<typeof getHonoX>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1402,6 +1422,7 @@ export function useSuspenseInfiniteHonoX<
       lastPage: Awaited<ReturnType<typeof getHonoX>>,
       allPages: Awaited<ReturnType<typeof getHonoX>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1562,6 +1583,7 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -1588,6 +1610,7 @@ export function useInfiniteUsersId<
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1620,6 +1643,7 @@ export function useSuspenseInfiniteUsersId<
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -1987,6 +2011,7 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -2013,6 +2038,7 @@ export function useInfiniteUsersId<
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -2045,6 +2071,7 @@ export function useSuspenseInfiniteUsersId<
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -2156,6 +2183,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: ClientRequestOptions,
@@ -2182,6 +2210,7 @@ export function useInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {
@@ -2214,6 +2243,7 @@ export function useSuspenseInfiniteUsers<
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
       lastPageParam: TPageParam,
+      allPageParams: TPageParam[],
     ) => TPageParam | undefined | null
   },
   options?: {

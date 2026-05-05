@@ -448,7 +448,7 @@ function makeInfiniteQueryOptionsGetterCode(
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
   // Branch 1: helper-wrapped (TanStack v5 family)
   if (config.hasInfiniteQueryOptionsHelper) {
-    const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+    const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
     if (config.isVueQuery && hasArgs) {
       const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
       const body = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
@@ -508,7 +508,7 @@ function makeInfiniteQueryHookCode(
   const optionsType = useHelper
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
-  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
 
   // Helper-wrapped path (TanStack v5 family)
   if (useHelper) {
@@ -580,7 +580,7 @@ function makeSuspenseInfiniteQueryHookCode(
   const optionsType = useHelper
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
-  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
 
   // Helper-wrapped path
   if (useHelper) {
@@ -1449,8 +1449,8 @@ export async function makeQueryHooks(
     }),
     emit(index, path.dirname(indexPath), indexPath),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+  const e = results.find((result) => !result.ok)
+  if (e && !e.ok) return { ok: false, error: e.error } as const
   return {
     ok: true,
     value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
