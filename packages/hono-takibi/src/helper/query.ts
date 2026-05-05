@@ -1449,8 +1449,8 @@ export async function makeQueryHooks(
     }),
     emit(index, path.dirname(indexPath), indexPath),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+  const e = results.find((result) => !result.ok)
+  if (e && !e.ok) return { ok: false, error: e.error } as const
   return {
     ok: true,
     value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
