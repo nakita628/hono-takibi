@@ -1,7 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { ErrorSchema, UserSchema } from '~/components/schemas'
 import { UserIdParamParamsSchema } from '@/components/parameters'
 import { XRequestIdHeaderSchema } from '~/components/headers'
+import { ErrorSchema, UserSchema } from '~/components/schemas'
 
 export const getUsersIdRoute = createRoute({
   method: 'get',

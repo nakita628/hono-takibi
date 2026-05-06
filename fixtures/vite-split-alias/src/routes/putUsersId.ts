@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { UserSchema, UserUpdateSchema } from '~/components/schemas'
 import { UserIdParamParamsSchema } from '@/components/parameters'
+import { UserSchema, UserUpdateSchema } from '~/components/schemas'
 
 export const putUsersIdRoute = createRoute({
   method: 'put',

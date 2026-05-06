@@ -1,7 +1,7 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { UserSchema } from '~/components/schemas'
 import { CreateUserBodyRequestBody } from '~/components/requestBodies'
 import { XRequestIdHeaderSchema } from '~/components/headers'
+import { UserSchema } from '~/components/schemas'
 import { UserExampleExample } from '~/components/examples'
 import { GetUserLinkLink } from '@/components/links'
 
