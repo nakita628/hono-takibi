@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -45,7 +39,9 @@ export async function postExpressions(
   return await parseResponse(client.expressions.$post(args, options))
 }
 
-export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
+export function getPostExpressionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['expressions', '/expressions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
@@ -54,11 +50,11 @@ export function getPostExpressionsMutationOptions(options?: ClientRequestOptions
   }
 }
 
-export function createPostExpressions(
+export function createPostExpressions<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postExpressions>>,
-      Error,
+      TError,
       InferRequestType<typeof client.expressions.$post>
     >
     options?: ClientRequestOptions
@@ -66,7 +62,7 @@ export function createPostExpressions(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostExpressionsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostExpressionsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -77,7 +73,7 @@ export async function postShapes(
   return await parseResponse(client.shapes.$post(args, options))
 }
 
-export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
+export function getPostShapesMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['shapes', '/shapes', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
@@ -86,11 +82,11 @@ export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostShapes(
+export function createPostShapes<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postShapes>>,
-      Error,
+      TError,
       InferRequestType<typeof client.shapes.$post>
     >
     options?: ClientRequestOptions
@@ -98,7 +94,7 @@ export function createPostShapes(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostShapesMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostShapesMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -109,7 +105,7 @@ export async function postDocuments(
   return await parseResponse(client.documents.$post(args, options))
 }
 
-export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
+export function getPostDocumentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['documents', '/documents', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
@@ -118,11 +114,11 @@ export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) 
   }
 }
 
-export function createPostDocuments(
+export function createPostDocuments<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postDocuments>>,
-      Error,
+      TError,
       InferRequestType<typeof client.documents.$post>
     >
     options?: ClientRequestOptions
@@ -130,7 +126,7 @@ export function createPostDocuments(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostDocumentsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostDocumentsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -141,7 +137,7 @@ export async function postConfigs(
   return await parseResponse(client.configs.$post(args, options))
 }
 
-export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
+export function getPostConfigsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['configs', '/configs', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
@@ -150,11 +146,11 @@ export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostConfigs(
+export function createPostConfigs<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postConfigs>>,
-      Error,
+      TError,
       InferRequestType<typeof client.configs.$post>
     >
     options?: ClientRequestOptions
@@ -162,7 +158,7 @@ export function createPostConfigs(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostConfigsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostConfigsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -183,9 +179,12 @@ export function getNullableUnionQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createNullableUnion<TData = Awaited<ReturnType<typeof getNullableUnion>>>(
+export function createNullableUnion<
+  TData = Awaited<ReturnType<typeof getNullableUnion>>,
+  TError = unknown,
+>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -198,31 +197,6 @@ export function createNullableUnion<TData = Awaited<ReturnType<typeof getNullabl
         return getNullableUnion({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
-  })
-}
-
-export function getNullableUnionInfiniteQueryKey() {
-  return ['nullable-union', '/nullable-union', 'infinite'] as const
-}
-
-export function getNullableUnionInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNullableUnionInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteNullableUnion(
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getNullableUnionInfiniteQueryOptions(clientOptions) }
   })
 }
 
@@ -243,9 +217,12 @@ export function getNestedCircularQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createNestedCircular<TData = Awaited<ReturnType<typeof getNestedCircular>>>(
+export function createNestedCircular<
+  TData = Awaited<ReturnType<typeof getNestedCircular>>,
+  TError = unknown,
+>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -258,30 +235,5 @@ export function createNestedCircular<TData = Awaited<ReturnType<typeof getNested
         return getNestedCircular({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
-  })
-}
-
-export function getNestedCircularInfiniteQueryKey() {
-  return ['nested-circular', '/nested-circular', 'infinite'] as const
-}
-
-export function getNestedCircularInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNestedCircularInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteNestedCircular(
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getNestedCircularInfiniteQueryOptions(clientOptions) }
   })
 }

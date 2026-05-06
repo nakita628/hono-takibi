@@ -1,9 +1,5 @@
-import { createQuery, createInfiniteQuery, queryOptions } from '@tanstack/svelte-query'
-import type {
-  CreateQueryOptions,
-  QueryFunctionContext,
-  CreateInfiniteQueryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -29,9 +25,9 @@ export function getHealthQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createHealth<TData = Awaited<ReturnType<typeof getHealth>>>(
+export function createHealth<TData = Awaited<ReturnType<typeof getHealth>>, TError = unknown>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -44,30 +40,5 @@ export function createHealth<TData = Awaited<ReturnType<typeof getHealth>>>(
         return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
-  })
-}
-
-export function getHealthInfiniteQueryKey() {
-  return ['health', '/health', 'infinite'] as const
-}
-
-export function getHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getHealthInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHealth({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteHealth(
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getHealthInfiniteQueryOptions(clientOptions) }
   })
 }

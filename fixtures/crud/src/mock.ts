@@ -1,5 +1,5 @@
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
-import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const TaskSchema = z
   .object({
@@ -214,12 +214,7 @@ function mockTask() {
 }
 
 const getRouteHandler: RouteHandler<typeof getRoute> = async (c) => {
-  return c.json(
-    {
-      message: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ message: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getTasksRouteHandler: RouteHandler<typeof getTasksRoute> = async (c) => {

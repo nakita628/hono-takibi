@@ -111,8 +111,9 @@ export const getPostsIdRoute = createRoute({
   operationId: 'getPost',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -129,8 +130,9 @@ export const putPostsIdRoute = createRoute({
   operationId: 'updatePost',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -148,8 +150,9 @@ export const deletePostsIdRoute = createRoute({
   operationId: 'deletePost',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -164,8 +167,9 @@ export const getPostsIdCommentsRoute = createRoute({
   operationId: 'listComments',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -182,8 +186,9 @@ export const postPostsIdCommentsRoute = createRoute({
   operationId: 'createComment',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),

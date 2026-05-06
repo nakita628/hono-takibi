@@ -1,8 +1,6 @@
 import {
   useQuery,
   useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
   mutationOptions,
@@ -11,8 +9,6 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseSuspenseQueryOptions,
-  UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -46,8 +42,12 @@ export async function postNullable(
   return await parseResponse(client.nullable.$post(args, options))
 }
 
-export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postNullable>>,
+    TError,
+    InferRequestType<typeof client.nullable.$post>
+  >({
     mutationKey: ['nullable', '/nullable', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
       return postNullable(args, options)
@@ -55,16 +55,19 @@ export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostNullable(options?: {
+export function usePostNullable<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postNullable>>,
-    Error,
+    TError,
     InferRequestType<typeof client.nullable.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostNullableMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostNullableMutationOptions<TError>(clientOptions),
+  })
 }
 
 export async function postDiscriminated(
@@ -74,8 +77,14 @@ export async function postDiscriminated(
   return await parseResponse(client.discriminated.$post(args, options))
 }
 
-export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostDiscriminatedMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postDiscriminated>>,
+    TError,
+    InferRequestType<typeof client.discriminated.$post>
+  >({
     mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
       return postDiscriminated(args, options)
@@ -83,16 +92,19 @@ export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptio
   })
 }
 
-export function usePostDiscriminated(options?: {
+export function usePostDiscriminated<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDiscriminated>>,
-    Error,
+    TError,
     InferRequestType<typeof client.discriminated.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostDiscriminatedMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostDiscriminatedMutationOptions<TError>(clientOptions),
+  })
 }
 
 export function getComposedQueryKey() {
@@ -112,8 +124,11 @@ export function getComposedQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useComposed<TData = Awaited<ReturnType<typeof getComposed>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error, TData>
+export function useComposed<
+  TData = Awaited<ReturnType<typeof getComposed>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -126,8 +141,11 @@ export function useComposed<TData = Awaited<ReturnType<typeof getComposed>>>(opt
   })
 }
 
-export function useSuspenseComposed<TData = Awaited<ReturnType<typeof getComposed>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error, TData>
+export function useSuspenseComposed<
+  TData = Awaited<ReturnType<typeof getComposed>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getComposed>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -137,38 +155,6 @@ export function useSuspenseComposed<TData = Awaited<ReturnType<typeof getCompose
     queryFn({ signal }: QueryFunctionContext) {
       return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getComposedInfiniteQueryKey() {
-  return ['composed', '/composed', 'infinite'] as const
-}
-
-export function getComposedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getComposedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getComposed({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteComposed(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getComposedInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteComposed(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getComposed>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getComposedInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -189,8 +175,11 @@ export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useDeepNested<TData = Awaited<ReturnType<typeof getDeepNested>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error, TData>
+export function useDeepNested<
+  TData = Awaited<ReturnType<typeof getDeepNested>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -203,8 +192,11 @@ export function useDeepNested<TData = Awaited<ReturnType<typeof getDeepNested>>>
   })
 }
 
-export function useSuspenseDeepNested<TData = Awaited<ReturnType<typeof getDeepNested>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error, TData>
+export function useSuspenseDeepNested<
+  TData = Awaited<ReturnType<typeof getDeepNested>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -214,38 +206,6 @@ export function useSuspenseDeepNested<TData = Awaited<ReturnType<typeof getDeepN
     queryFn({ signal }: QueryFunctionContext) {
       return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getDeepNestedInfiniteQueryKey() {
-  return ['deep-nested', '/deep-nested', 'infinite'] as const
-}
-
-export function getDeepNestedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getDeepNestedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getDeepNested({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteDeepNested(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getDeepNestedInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteDeepNested(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getDeepNestedInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -268,8 +228,9 @@ export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
 
 export function useAdditionalProps<
   TData = Awaited<ReturnType<typeof getAdditionalProps>>,
+  TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error, TData>
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -284,8 +245,9 @@ export function useAdditionalProps<
 
 export function useSuspenseAdditionalProps<
   TData = Awaited<ReturnType<typeof getAdditionalProps>>,
+  TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error, TData>
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -295,40 +257,5 @@ export function useSuspenseAdditionalProps<
     queryFn({ signal }: QueryFunctionContext) {
       return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getAdditionalPropsInfiniteQueryKey() {
-  return ['additional-props', '/additional-props', 'infinite'] as const
-}
-
-export function getAdditionalPropsInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getAdditionalPropsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteAdditionalProps(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getAdditionalPropsInfiniteQueryOptions(clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteAdditionalProps(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getAdditionalPropsInfiniteQueryOptions(clientOptions),
   })
 }

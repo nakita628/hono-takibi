@@ -4,7 +4,7 @@ import { CreateUserRequestRequestBody } from '../requestBodies'
 import {
   ConflictResponse,
   DefaultErrorResponse,
-  UserResponse,
+  UserResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
 
@@ -19,7 +19,7 @@ export const postUsersRoute = createRoute({
     body: CreateUserRequestRequestBody,
   },
   responses: {
-    201: UserResponse,
+    201: UserResponseResponse,
     400: ValidationErrorResponse,
     409: ConflictResponse,
     default: DefaultErrorResponse,

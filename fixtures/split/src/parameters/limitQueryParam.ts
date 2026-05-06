@@ -1,9 +1,8 @@
 import { z } from '@hono/zod-openapi'
 
-export const LimitQueryParamParamsSchema = z
-  .int()
-  .min(1)
-  .max(200)
+export const LimitQueryParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int().min(1).max(200))
   .exactOptional()
   .openapi({
     param: {

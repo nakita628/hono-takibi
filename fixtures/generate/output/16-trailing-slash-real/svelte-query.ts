@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -45,10 +39,11 @@ export function getApiReverseGeocodeIndexQueryOptions(
 
 export function createApiReverseGeocodeIndex<
   TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+  TError = unknown,
 >(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -67,37 +62,6 @@ export function createApiReverseGeocodeIndex<
   })
 }
 
-export function getApiReverseGeocodeIndexInfiniteQueryKey(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-) {
-  return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
-}
-
-export function getApiReverseGeocodeIndexInfiniteQueryOptions(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getApiReverseGeocodeIndexInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseGeocodeIndex(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteApiReverseGeocodeIndex(
-  args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getApiReverseGeocodeIndexInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
   options?: ClientRequestOptions,
@@ -107,7 +71,7 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -122,11 +86,11 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
   }
 }
 
-export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
+export function createPostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
-      Error,
+      TError,
       InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
     >
     options?: ClientRequestOptions
@@ -135,8 +99,8 @@ export function createPostApiV2PublicBookingAccountRegisterOauthIndex(
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
-      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(clientOptions),
       ...mutation,
+      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
     }
   })
 }
@@ -150,7 +114,7 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -163,11 +127,11 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   }
 }
 
-export function createPostApiV2PublicBookingAccountRegisterEmail(
+export function createPostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
-      Error,
+      TError,
       InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
     >
     options?: ClientRequestOptions
@@ -176,8 +140,8 @@ export function createPostApiV2PublicBookingAccountRegisterEmail(
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
-      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(clientOptions),
       ...mutation,
+      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
     }
   })
 }

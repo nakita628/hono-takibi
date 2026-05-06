@@ -45,8 +45,9 @@ export const getItemsItemIdRoute = createRoute({
   operationId: 'getItem',
   request: {
     params: z.object({
-      itemId: z
-        .int()
+      itemId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'itemId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -78,8 +79,9 @@ export const putItemsItemIdRoute = createRoute({
   operationId: 'updateItem',
   request: {
     params: z.object({
-      itemId: z
-        .int()
+      itemId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'itemId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -104,8 +106,9 @@ export const deleteItemsItemIdRoute = createRoute({
   operationId: 'deleteItem',
   request: {
     params: z.object({
-      itemId: z
-        .int()
+      itemId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'itemId', in: 'path', required: true, schema: { type: 'integer' } },
         }),

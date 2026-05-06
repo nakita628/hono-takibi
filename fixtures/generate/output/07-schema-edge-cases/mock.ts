@@ -153,21 +153,15 @@ function mockExtended() {
 }
 
 function mockComposedObject() {
-  return ({
-	...mockBase(),
-	...mockExtended(),
-	extra: faker.helpers.arrayElement([faker.datatype.boolean(), undefined])
-})
+  return {
+    ...mockBase(),
+    ...mockExtended(),
+    ...{ extra: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) },
+  }
 }
 
 function mockLevel1() {
-  return {
-    level2: {
-      level3: {
-        value: faker.string.alpha({ length: { min: 5, max: 20 } }),
-      },
-    },
-  }
+  return { level2: { level3: { value: faker.string.alpha({ length: { min: 5, max: 20 } }) } } }
 }
 
 function mockDynamicMap() {

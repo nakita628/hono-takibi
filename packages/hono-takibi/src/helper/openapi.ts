@@ -446,17 +446,20 @@ export function makeParameters(
       return acc
     }
     const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
+    // Path and query parameters arrive as strings on the wire — coerce them
+    // to the schema-declared type. Header/cookie are left untouched.
+    const isStringWire = param.in === 'query' || param.in === 'path'
     const z =
-      param.in === 'query' && (schema.type === 'number' || schema.type === 'integer')
+      isStringWire && (schema.type === 'number' || schema.type === 'integer')
         ? coerce(baseSchema, schema.type, schema.format)
-        : param.in === 'query' && schema.type === 'boolean'
+        : isStringWire && schema.type === 'boolean'
           ? baseSchema
               .replace('boolean', 'stringbool')
               .replace(/\.default\("true"\)/g, '.default(true)')
               .replace(/\.default\("false"\)/g, '.default(false)')
-          : param.in === 'query' && schema.type === 'date'
+          : isStringWire && schema.type === 'date'
             ? `z.coerce.${baseSchema.replace('z.', '')}`
-            : param.in === 'query' && (schema.type === 'object' || schema.type === 'array')
+            : isStringWire && (schema.type === 'object' || schema.type === 'array')
               ? baseSchema
                   .replace(
                     /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,

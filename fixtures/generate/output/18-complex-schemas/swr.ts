@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -40,10 +38,10 @@ export async function postExpressions(
   return await parseResponse(client.expressions.$post(args, options))
 }
 
-export function usePostExpressions(options?: {
+export function usePostExpressions<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postExpressions>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.expressions.$post>
   > & { swrKey?: Key }
@@ -70,10 +68,10 @@ export async function postShapes(
   return await parseResponse(client.shapes.$post(args, options))
 }
 
-export function usePostShapes(options?: {
+export function usePostShapes<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postShapes>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.shapes.$post>
   > & { swrKey?: Key }
@@ -100,10 +98,10 @@ export async function postDocuments(
   return await parseResponse(client.documents.$post(args, options))
 }
 
-export function usePostDocuments(options?: {
+export function usePostDocuments<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postDocuments>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.documents.$post>
   > & { swrKey?: Key }
@@ -130,10 +128,10 @@ export async function postConfigs(
   return await parseResponse(client.configs.$post(args, options))
 }
 
-export function usePostConfigs(options?: {
+export function usePostConfigs<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postConfigs>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.configs.$post>
   > & { swrKey?: Key }
@@ -184,23 +182,6 @@ export function useImmutableGetNullableUnion(options?: {
   }
 }
 
-export function getGetNullableUnionInfiniteKey() {
-  return ['nullable-union', '/nullable-union', 'infinite'] as const
-}
-
-export function useInfiniteGetNullableUnion(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getNullableUnion>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetNullableUnionInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getNullableUnion(clientOptions), restSwrOptions)
-}
-
 export function getGetNestedCircularKey() {
   return ['nested-circular', '/nested-circular'] as const
 }
@@ -230,21 +211,4 @@ export function useImmutableGetNestedCircular(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getNestedCircular(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetNestedCircularInfiniteKey() {
-  return ['nested-circular', '/nested-circular', 'infinite'] as const
-}
-
-export function useInfiniteGetNestedCircular(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getNestedCircular>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetNestedCircularInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getNestedCircular(clientOptions), restSwrOptions)
 }

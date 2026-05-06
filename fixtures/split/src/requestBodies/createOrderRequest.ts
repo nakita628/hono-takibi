@@ -1,7 +1,9 @@
 import { OrderSchema } from '../schemas'
-import { OrderExample } from '../examples'
+import { OrderExampleExample } from '../examples'
 
 export const CreateOrderRequestRequestBody = {
-  content: { 'application/json': { schema: OrderSchema, examples: { sample: OrderExample } } },
+  content: {
+    'application/json': { schema: OrderSchema, examples: { sample: OrderExampleExample } },
+  },
   required: true,
 }

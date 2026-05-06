@@ -1,4 +1,4 @@
-export const OrderFilterExample = {
+export const OrderFilterExampleExample = {
   value: {
     kind: 'order',
     status: 'paid',

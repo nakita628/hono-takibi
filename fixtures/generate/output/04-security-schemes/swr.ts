@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -62,23 +60,6 @@ export function useImmutableGetPublic(options?: {
   }
 }
 
-export function getGetPublicInfiniteKey() {
-  return ['public', '/public', 'infinite'] as const
-}
-
-export function useInfiniteGetPublic(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPublic>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetPublicInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getPublic(clientOptions), restSwrOptions)
-}
-
 export function getGetBearerProtectedKey() {
   return ['bearer-protected', '/bearer-protected'] as const
 }
@@ -111,23 +92,6 @@ export function useImmutableGetBearerProtected(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getBearerProtected(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetBearerProtectedInfiniteKey() {
-  return ['bearer-protected', '/bearer-protected', 'infinite'] as const
-}
-
-export function useInfiniteGetBearerProtected(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getBearerProtected>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetBearerProtectedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getBearerProtected(clientOptions), restSwrOptions)
 }
 
 export function getGetApiKeyProtectedKey() {
@@ -164,23 +128,6 @@ export function useImmutableGetApiKeyProtected(options?: {
   }
 }
 
-export function getGetApiKeyProtectedInfiniteKey() {
-  return ['api-key-protected', '/api-key-protected', 'infinite'] as const
-}
-
-export function useInfiniteGetApiKeyProtected(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiKeyProtected>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetApiKeyProtectedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getApiKeyProtected(clientOptions), restSwrOptions)
-}
-
 export function getGetBasicProtectedKey() {
   return ['basic-protected', '/basic-protected'] as const
 }
@@ -210,23 +157,6 @@ export function useImmutableGetBasicProtected(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getBasicProtected(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetBasicProtectedInfiniteKey() {
-  return ['basic-protected', '/basic-protected', 'infinite'] as const
-}
-
-export function useInfiniteGetBasicProtected(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getBasicProtected>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetBasicProtectedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getBasicProtected(clientOptions), restSwrOptions)
 }
 
 export function getGetOauthProtectedKey() {
@@ -260,23 +190,6 @@ export function useImmutableGetOauthProtected(options?: {
   }
 }
 
-export function getGetOauthProtectedInfiniteKey() {
-  return ['oauth-protected', '/oauth-protected', 'infinite'] as const
-}
-
-export function useInfiniteGetOauthProtected(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getOauthProtected>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetOauthProtectedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getOauthProtected(clientOptions), restSwrOptions)
-}
-
 export function getGetMultiAuthKey() {
   return ['multi-auth', '/multi-auth'] as const
 }
@@ -306,21 +219,4 @@ export function useImmutableGetMultiAuth(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getMultiAuth(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetMultiAuthInfiniteKey() {
-  return ['multi-auth', '/multi-auth', 'infinite'] as const
-}
-
-export function useInfiniteGetMultiAuth(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getMultiAuth>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetMultiAuthInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getMultiAuth(clientOptions), restSwrOptions)
 }

@@ -1,8 +1,8 @@
-import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseInfiniteQueryOptions,
+  UseSuspenseQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import { toValue } from 'vue'
@@ -26,7 +26,9 @@ export async function postSubscriptions(
   return await parseResponse(client.subscriptions.$post(args, options))
 }
 
-export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
+export function getPostSubscriptionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
@@ -35,16 +37,19 @@ export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptio
   }
 }
 
-export function usePostSubscriptions(options?: {
+export function usePostSubscriptions<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postSubscriptions>>,
-    Error,
+    TError,
     InferRequestType<typeof client.subscriptions.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostSubscriptionsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostSubscriptionsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export function getSubscriptionsIdQueryKey(
@@ -64,18 +69,21 @@ export function getSubscriptionsIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
   options?: ClientRequestOptions,
 ) {
-  return queryOptions({
+  return {
     queryKey: getSubscriptionsIdQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSubscriptionsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useSubscriptionsId<TData = Awaited<ReturnType<typeof getSubscriptionsId>>>(
+export function useSubscriptionsId<
+  TData = Awaited<ReturnType<typeof getSubscriptionsId>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -92,35 +100,26 @@ export function useSubscriptionsId<TData = Awaited<ReturnType<typeof getSubscrip
   })
 }
 
-export function getSubscriptionsIdInfiniteQueryKey(
+export function useSuspenseSubscriptionsId<
+  TData = Awaited<ReturnType<typeof getSubscriptionsId>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
-) {
-  return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
-}
-
-export function getSubscriptionsIdInfiniteQueryOptions(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getSubscriptionsIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSubscriptionsId(toValue(args), { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteSubscriptionsId(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
-  options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getSubscriptionsIdInfiniteQueryOptions(args, clientOptions),
+    queryKey: getSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSubscriptionsId(toValue(args), {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
@@ -131,7 +130,9 @@ export async function deleteSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$delete(args, options))
 }
 
-export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
@@ -140,18 +141,18 @@ export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestO
   }
 }
 
-export function useDeleteSubscriptionsId(options?: {
+export function useDeleteSubscriptionsId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteSubscriptionsId>>  ,
-    Error,
+    Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
+    TError,
     InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
-    ...getDeleteSubscriptionsIdMutationOptions(clientOptions),
     ...mutationOptions,
+    ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions),
   })
 }
 
@@ -162,7 +163,9 @@ export async function postWebhooksTest(
   return await parseResponse(client.webhooks.test.$post(args, options))
 }
 
-export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
+export function getPostWebhooksTestMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
@@ -171,14 +174,17 @@ export function getPostWebhooksTestMutationOptions(options?: ClientRequestOption
   }
 }
 
-export function usePostWebhooksTest(options?: {
+export function usePostWebhooksTest<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postWebhooksTest>>,
-    Error,
+    TError,
     InferRequestType<typeof client.webhooks.test.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostWebhooksTestMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostWebhooksTestMutationOptions<TError>(clientOptions),
+  })
 }

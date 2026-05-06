@@ -4,7 +4,7 @@ import { UpdateUserRequestRequestBody } from '../requestBodies'
 import {
   DefaultErrorResponse,
   NotFoundResponse,
-  UserResponse,
+  UserResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
 
@@ -20,7 +20,7 @@ export const patchUsersUserIdRoute = createRoute({
     body: UpdateUserRequestRequestBody,
   },
   responses: {
-    200: UserResponse,
+    200: UserResponseResponse,
     400: ValidationErrorResponse,
     404: NotFoundResponse,
     default: DefaultErrorResponse,

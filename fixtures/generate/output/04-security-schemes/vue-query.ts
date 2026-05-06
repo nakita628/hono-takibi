@@ -1,8 +1,8 @@
-import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseInfiniteQueryOptions,
+  UseSuspenseQueryOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -41,16 +41,19 @@ export async function getPublic(options?: ClientRequestOptions) {
 }
 
 export function getPublicQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getPublicQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPublic({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function usePublic<TData = Awaited<ReturnType<typeof getPublic>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error, TData>
+export function usePublic<
+  TData = Awaited<ReturnType<typeof getPublic>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -63,25 +66,21 @@ export function usePublic<TData = Awaited<ReturnType<typeof getPublic>>>(options
   })
 }
 
-export function getPublicInfiniteQueryKey() {
-  return ['public', '/public', 'infinite'] as const
-}
-
-export function getPublicInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getPublicInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPublic({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfinitePublic(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getPublic>>, Error>
+export function useSuspensePublic<
+  TData = Awaited<ReturnType<typeof getPublic>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getPublicInfiniteQueryOptions(clientOptions) })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getPublicQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export function getBearerProtectedQueryKey() {
@@ -93,18 +92,19 @@ export async function getBearerProtected(options?: ClientRequestOptions) {
 }
 
 export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getBearerProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function useBearerProtected<
   TData = Awaited<ReturnType<typeof getBearerProtected>>,
+  TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error, TData>
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -117,27 +117,20 @@ export function useBearerProtected<
   })
 }
 
-export function getBearerProtectedInfiniteQueryKey() {
-  return ['bearer-protected', '/bearer-protected', 'infinite'] as const
-}
-
-export function getBearerProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getBearerProtectedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getBearerProtected({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteBearerProtected(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, Error>
+export function useSuspenseBearerProtected<
+  TData = Awaited<ReturnType<typeof getBearerProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getBearerProtectedInfiniteQueryOptions(clientOptions),
+    queryKey: getBearerProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
   })
 }
 
@@ -150,18 +143,19 @@ export async function getApiKeyProtected(options?: ClientRequestOptions) {
 }
 
 export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getApiKeyProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
 export function useApiKeyProtected<
   TData = Awaited<ReturnType<typeof getApiKeyProtected>>,
+  TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error, TData>
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -174,27 +168,20 @@ export function useApiKeyProtected<
   })
 }
 
-export function getApiKeyProtectedInfiniteQueryKey() {
-  return ['api-key-protected', '/api-key-protected', 'infinite'] as const
-}
-
-export function getApiKeyProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getApiKeyProtectedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteApiKeyProtected(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, Error>
+export function useSuspenseApiKeyProtected<
+  TData = Awaited<ReturnType<typeof getApiKeyProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getApiKeyProtectedInfiniteQueryOptions(clientOptions),
+    queryKey: getApiKeyProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
   })
 }
 
@@ -207,16 +194,19 @@ export async function getBasicProtected(options?: ClientRequestOptions) {
 }
 
 export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getBasicProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useBasicProtected<TData = Awaited<ReturnType<typeof getBasicProtected>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error, TData>
+export function useBasicProtected<
+  TData = Awaited<ReturnType<typeof getBasicProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -229,27 +219,20 @@ export function useBasicProtected<TData = Awaited<ReturnType<typeof getBasicProt
   })
 }
 
-export function getBasicProtectedInfiniteQueryKey() {
-  return ['basic-protected', '/basic-protected', 'infinite'] as const
-}
-
-export function getBasicProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getBasicProtectedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getBasicProtected({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteBasicProtected(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, Error>
+export function useSuspenseBasicProtected<
+  TData = Awaited<ReturnType<typeof getBasicProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getBasicProtectedInfiniteQueryOptions(clientOptions),
+    queryKey: getBasicProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
   })
 }
 
@@ -262,16 +245,19 @@ export async function getOauthProtected(options?: ClientRequestOptions) {
 }
 
 export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getOauthProtectedQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useOauthProtected<TData = Awaited<ReturnType<typeof getOauthProtected>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error, TData>
+export function useOauthProtected<
+  TData = Awaited<ReturnType<typeof getOauthProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -284,27 +270,20 @@ export function useOauthProtected<TData = Awaited<ReturnType<typeof getOauthProt
   })
 }
 
-export function getOauthProtectedInfiniteQueryKey() {
-  return ['oauth-protected', '/oauth-protected', 'infinite'] as const
-}
-
-export function getOauthProtectedInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getOauthProtectedInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getOauthProtected({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteOauthProtected(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, Error>
+export function useSuspenseOauthProtected<
+  TData = Awaited<ReturnType<typeof getOauthProtected>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getOauthProtectedInfiniteQueryOptions(clientOptions),
+    queryKey: getOauthProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
   })
 }
 
@@ -317,16 +296,19 @@ export async function getMultiAuth(options?: ClientRequestOptions) {
 }
 
 export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getMultiAuthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useMultiAuth<TData = Awaited<ReturnType<typeof getMultiAuth>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error, TData>
+export function useMultiAuth<
+  TData = Awaited<ReturnType<typeof getMultiAuth>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -339,23 +321,19 @@ export function useMultiAuth<TData = Awaited<ReturnType<typeof getMultiAuth>>>(o
   })
 }
 
-export function getMultiAuthInfiniteQueryKey() {
-  return ['multi-auth', '/multi-auth', 'infinite'] as const
-}
-
-export function getMultiAuthInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getMultiAuthInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getMultiAuth({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteMultiAuth(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, Error>
+export function useSuspenseMultiAuth<
+  TData = Awaited<ReturnType<typeof getMultiAuth>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getMultiAuthInfiniteQueryOptions(clientOptions) })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getMultiAuthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }

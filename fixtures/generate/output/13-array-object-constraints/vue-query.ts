@@ -1,8 +1,8 @@
-import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseInfiniteQueryOptions,
+  UseSuspenseQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import { toValue } from 'vue'
@@ -36,16 +36,16 @@ export async function getTags(options?: ClientRequestOptions) {
 }
 
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getTagsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useTags<TData = Awaited<ReturnType<typeof getTags>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, Error, TData>
+export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = unknown>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -58,25 +58,21 @@ export function useTags<TData = Awaited<ReturnType<typeof getTags>>>(options?: {
   })
 }
 
-export function getTagsInfiniteQueryKey() {
-  return ['tags', '/tags', 'infinite'] as const
-}
-
-export function getTagsInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getTagsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTags({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteTags(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTags>>, Error>
+export function useSuspenseTags<
+  TData = Awaited<ReturnType<typeof getTags>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getTagsInfiniteQueryOptions(clientOptions) })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getTagsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }
 
 export async function postTags(
@@ -86,7 +82,7 @@ export async function postTags(
   return await parseResponse(client.tags.$post(args, options))
 }
 
-export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
+export function getPostTagsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tags', '/tags', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
@@ -95,16 +91,16 @@ export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostTags(options?: {
+export function usePostTags<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTags>>,
-    Error,
+    TError,
     InferRequestType<typeof client.tags.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTagsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostTagsMutationOptions<TError>(clientOptions) })
 }
 
 export function getSettingsQueryKey(
@@ -124,18 +120,18 @@ export function getSettingsQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
   options?: ClientRequestOptions,
 ) {
-  return queryOptions({
+  return {
     queryKey: getSettingsQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getSettings(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>>(
+export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error, TData>
+    query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -152,35 +148,26 @@ export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>>(
   })
 }
 
-export function getSettingsInfiniteQueryKey(
+export function useSuspenseSettings<
+  TData = Awaited<ReturnType<typeof getSettings>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
-) {
-  return ['settings', '/settings', args, 'infinite'] as const
-}
-
-export function getSettingsInfiniteQueryOptions(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getSettingsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSettings(toValue(args), { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteSettings(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
-  options: {
-    query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getSettings>>, Error>
+  options?: {
+    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
     ...queryOptions,
-    ...getSettingsInfiniteQueryOptions(args, clientOptions),
+    queryKey: getSettingsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getSettings(toValue(args), {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      })
+    },
   })
 }
 
@@ -191,7 +178,7 @@ export async function putSettings(
   return await parseResponse(client.settings.$put(args, options))
 }
 
-export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
+export function getPutSettingsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['settings', '/settings', 'PUT'] as const,
     async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
@@ -200,16 +187,19 @@ export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePutSettings(options?: {
+export function usePutSettings<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof putSettings>>,
-    Error,
+    TError,
     InferRequestType<typeof client.settings.$put>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPutSettingsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPutSettingsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export async function postConfig(
@@ -219,7 +209,7 @@ export async function postConfig(
   return await parseResponse(client.config.$post(args, options))
 }
 
-export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
+export function getPostConfigMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['config', '/config', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.config.$post>) {
@@ -228,16 +218,16 @@ export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostConfig(options?: {
+export function usePostConfig<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postConfig>>,
-    Error,
+    TError,
     InferRequestType<typeof client.config.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostConfigMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostConfigMutationOptions<TError>(clientOptions) })
 }
 
 export async function postPayment(
@@ -247,7 +237,7 @@ export async function postPayment(
   return await parseResponse(client.payment.$post(args, options))
 }
 
-export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
+export function getPostPaymentMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payment', '/payment', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
@@ -256,14 +246,17 @@ export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostPayment(options?: {
+export function usePostPayment<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPayment>>,
-    Error,
+    TError,
     InferRequestType<typeof client.payment.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostPaymentMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostPaymentMutationOptions<TError>(clientOptions),
+  })
 }

@@ -20,8 +20,9 @@ const PageParamParamsSchema = z.coerce
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
-const UserIdParamParamsSchema = z
-  .int()
+const UserIdParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
 
 const UserExampleExample = {

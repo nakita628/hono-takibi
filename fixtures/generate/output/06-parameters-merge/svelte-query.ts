@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -44,10 +38,13 @@ export function getItemsItemIdQueryOptions(
   })
 }
 
-export function createItemsItemId<TData = Awaited<ReturnType<typeof getItemsItemId>>>(
+export function createItemsItemId<
+  TData = Awaited<ReturnType<typeof getItemsItemId>>,
+  TError = unknown,
+>(
   args: () => InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -66,38 +63,6 @@ export function createItemsItemId<TData = Awaited<ReturnType<typeof getItemsItem
   })
 }
 
-export function getItemsItemIdInfiniteQueryKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
-  const { header: _, ...keyArgs } = args
-  return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
-}
-
-export function getItemsItemIdInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getItemsItemIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItemsItemId(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteItemsItemId(
-  args: () => InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItemsItemId>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getItemsItemIdInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function putItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
   options?: ClientRequestOptions,
@@ -105,7 +70,7 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutItemsItemIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
@@ -114,11 +79,11 @@ export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions)
   }
 }
 
-export function createPutItemsItemId(
+export function createPutItemsItemId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putItemsItemId>>,
-      Error,
+      TError,
       InferRequestType<(typeof client.items)[':itemId']['$put']>
     >
     options?: ClientRequestOptions
@@ -126,7 +91,7 @@ export function createPutItemsItemId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutItemsItemIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPutItemsItemIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -137,7 +102,9 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteItemsItemIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
@@ -146,11 +113,11 @@ export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptio
   }
 }
 
-export function createDeleteItemsItemId(
+export function createDeleteItemsItemId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteItemsItemId>>  ,
-      Error,
+      Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+      TError,
       InferRequestType<(typeof client.items)[':itemId']['$delete']>
     >
     options?: ClientRequestOptions
@@ -158,7 +125,7 @@ export function createDeleteItemsItemId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteItemsItemIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getDeleteItemsItemIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -185,10 +152,10 @@ export function getItemsQueryOptions(
   })
 }
 
-export function createItems<TData = Awaited<ReturnType<typeof getItems>>>(
+export function createItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(
   args: () => InferRequestType<typeof client.items.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -201,34 +168,5 @@ export function createItems<TData = Awaited<ReturnType<typeof getItems>>>(
         return getItems(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
-  })
-}
-
-export function getItemsInfiniteQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', '/items', args, 'infinite'] as const
-}
-
-export function getItemsInfiniteQueryOptions(
-  args: InferRequestType<typeof client.items.$get>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteItems(
-  args: () => InferRequestType<typeof client.items.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getItemsInfiniteQueryOptions(args(), clientOptions) }
   })
 }

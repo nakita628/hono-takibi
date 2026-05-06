@@ -1,8 +1,8 @@
-import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseInfiniteQueryOptions,
+  UseSuspenseQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -28,7 +28,7 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -37,16 +37,16 @@ export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostOrders(options?: {
+export function usePostOrders<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postOrders>>,
-    Error,
+    TError,
     InferRequestType<typeof client.orders.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostOrdersMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostOrdersMutationOptions<TError>(clientOptions) })
 }
 
 export async function postPayments(
@@ -56,7 +56,7 @@ export async function postPayments(
   return await parseResponse(client.payments.$post(args, options))
 }
 
-export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
+export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payments', '/payments', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
@@ -65,16 +65,19 @@ export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostPayments(options?: {
+export function usePostPayments<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postPayments>>,
-    Error,
+    TError,
     InferRequestType<typeof client.payments.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostPaymentsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostPaymentsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export function getItemsQueryKey() {
@@ -86,16 +89,16 @@ export async function getItems(options?: ClientRequestOptions) {
 }
 
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getItemsQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useItems<TData = Awaited<ReturnType<typeof getItems>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, Error, TData>
+export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -108,23 +111,19 @@ export function useItems<TData = Awaited<ReturnType<typeof getItems>>>(options?:
   })
 }
 
-export function getItemsInfiniteQueryKey() {
-  return ['items', '/items', 'infinite'] as const
-}
-
-export function getItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getItemsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteItems(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
+export function useSuspenseItems<
+  TData = Awaited<ReturnType<typeof getItems>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getItemsInfiniteQueryOptions(clientOptions) })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }

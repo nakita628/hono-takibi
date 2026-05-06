@@ -32,10 +32,10 @@ export async function postJson(
   return await parseResponse(client.json.$post(args, options))
 }
 
-export function usePostJson(options?: {
+export function usePostJson<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postJson>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.json.$post>
   > & { swrKey?: Key }
@@ -62,10 +62,10 @@ export async function postForm(
   return await parseResponse(client.form.$post(args, options))
 }
 
-export function usePostForm(options?: {
+export function usePostForm<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postForm>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.form.$post>
   > & { swrKey?: Key }
@@ -92,10 +92,10 @@ export async function postUpload(
   return await parseResponse(client.upload.$post(args, options))
 }
 
-export function usePostUpload(options?: {
+export function usePostUpload<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postUpload>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.upload.$post>
   > & { swrKey?: Key }
@@ -122,10 +122,10 @@ export async function postText(
   return await parseResponse(client.text.$post(args, options))
 }
 
-export function usePostText(options?: {
+export function usePostText<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postText>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.text.$post>
   > & { swrKey?: Key }
@@ -152,10 +152,10 @@ export async function postMultiContent(
   return await parseResponse(client['multi-content'].$post(args, options))
 }
 
-export function usePostMultiContent(options?: {
+export function usePostMultiContent<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postMultiContent>>,
-    Error,
+    TError,
     Key,
     InferRequestType<(typeof client)['multi-content']['$post']>
   > & { swrKey?: Key }

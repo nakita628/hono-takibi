@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -36,10 +34,10 @@ export async function postNullable(
   return await parseResponse(client.nullable.$post(args, options))
 }
 
-export function usePostNullable(options?: {
+export function usePostNullable<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postNullable>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.nullable.$post>
   > & { swrKey?: Key }
@@ -66,10 +64,10 @@ export async function postDiscriminated(
   return await parseResponse(client.discriminated.$post(args, options))
 }
 
-export function usePostDiscriminated(options?: {
+export function usePostDiscriminated<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postDiscriminated>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.discriminated.$post>
   > & { swrKey?: Key }
@@ -120,23 +118,6 @@ export function useImmutableGetComposed(options?: {
   }
 }
 
-export function getGetComposedInfiniteKey() {
-  return ['composed', '/composed', 'infinite'] as const
-}
-
-export function useInfiniteGetComposed(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getComposed>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetComposedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getComposed(clientOptions), restSwrOptions)
-}
-
 export function getGetDeepNestedKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
@@ -166,23 +147,6 @@ export function useImmutableGetDeepNested(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getDeepNested(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetDeepNestedInfiniteKey() {
-  return ['deep-nested', '/deep-nested', 'infinite'] as const
-}
-
-export function useInfiniteGetDeepNested(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getDeepNested>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetDeepNestedInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getDeepNested(clientOptions), restSwrOptions)
 }
 
 export function getGetAdditionalPropsKey() {
@@ -217,21 +181,4 @@ export function useImmutableGetAdditionalProps(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getAdditionalProps(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetAdditionalPropsInfiniteKey() {
-  return ['additional-props', '/additional-props', 'infinite'] as const
-}
-
-export function useInfiniteGetAdditionalProps(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getAdditionalProps>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetAdditionalPropsInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getAdditionalProps(clientOptions), restSwrOptions)
 }

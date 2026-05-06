@@ -10,7 +10,7 @@ import {
   DefaultErrorResponse,
   RateLimitedResponse,
   UnauthorizedResponse,
-  UserListResponse,
+  UserListResponseResponse,
 } from '../responses'
 
 export const getUsersRoute = createRoute({
@@ -29,7 +29,7 @@ export const getUsersRoute = createRoute({
     }),
   },
   responses: {
-    200: UserListResponse,
+    200: UserListResponseResponse,
     401: UnauthorizedResponse,
     429: RateLimitedResponse,
     default: DefaultErrorResponse,

@@ -17,8 +17,9 @@ export const getUsersRoute = createRoute({
   operationId: 'getUsers',
   request: {
     query: z.object({
-      limit: z
-        .int()
+      limit: z.coerce
+        .number()
+        .pipe(z.int())
         .default(10)
         .exactOptional()
         .openapi({

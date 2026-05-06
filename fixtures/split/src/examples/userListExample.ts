@@ -1,4 +1,4 @@
-export const UserListExample = {
+export const UserListExampleExample = {
   value: {
     items: [
       {

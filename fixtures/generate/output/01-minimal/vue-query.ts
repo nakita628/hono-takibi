@@ -1,8 +1,8 @@
-import { useQuery, useInfiniteQuery, queryOptions } from '@tanstack/vue-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseInfiniteQueryOptions,
+  UseSuspenseQueryOptions,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -21,16 +21,19 @@ export async function getHealth(options?: ClientRequestOptions) {
 }
 
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getHealthQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useHealth<TData = Awaited<ReturnType<typeof getHealth>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error, TData>
+export function useHealth<
+  TData = Awaited<ReturnType<typeof getHealth>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -43,23 +46,19 @@ export function useHealth<TData = Awaited<ReturnType<typeof getHealth>>>(options
   })
 }
 
-export function getHealthInfiniteQueryKey() {
-  return ['health', '/health', 'infinite'] as const
-}
-
-export function getHealthInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getHealthInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHealth({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteHealth(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getHealth>>, Error>
+export function useSuspenseHealth<
+  TData = Awaited<ReturnType<typeof getHealth>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHealth>>, TError, TData>
   options?: ClientRequestOptions
 }) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getHealthInfiniteQueryOptions(clientOptions) })
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useSuspenseQuery({
+    ...queryOptions,
+    queryKey: getHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    },
+  })
 }

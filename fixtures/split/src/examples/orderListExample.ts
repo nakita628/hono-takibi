@@ -1,4 +1,4 @@
-export const OrderListExample = {
+export const OrderListExampleExample = {
   value: {
     items: [
       {
