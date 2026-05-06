@@ -160,44 +160,53 @@ export function makeExportConst(
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
 
 /**
- * Regex patterns for OpenAPI component types.
- * Ordered per OpenAPI 3.0 specification.
- * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
- *
- * Hoisted to module scope to avoid re-creating RegExp objects on every call.
+ * Component-type suffix table. Order is significant: the regex tries
+ * alternatives left-to-right and the first wins, so longer / more specific
+ * suffixes (`ParamsSchema`, `MediaTypeSchema`, ...) MUST come before shorter
+ * ones (`Schema`). Otherwise `UserParamsSchema` would be classified as a bare
+ * Schema. This replaces the old `(?<!Params)(?<!Header)(?<!MediaType)`
+ * negative-lookbehind hack with a self-evident ordering rule.
  */
-const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-  {
-    pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)(?<!MediaType)Schema)\\b`, 'g'),
-    key: 'schemas',
-  },
-  { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}MediaTypeSchema)\\b`, 'g'), key: 'mediaTypes' },
-]
+const COMPONENT_SUFFIXES = [
+  ['parameters', 'ParamsSchema'],
+  ['headers', 'HeaderSchema'],
+  ['mediaTypes', 'MediaTypeSchema'],
+  ['securitySchemes', 'SecurityScheme'],
+  ['requestBodies', 'RequestBody'],
+  ['responses', 'Response'],
+  ['examples', 'Example'],
+  ['links', 'Link'],
+  ['callbacks', 'Callback'],
+  ['pathItems', 'PathItem'],
+  ['schemas', 'Schema'],
+] as const
+
+/**
+ * Single regex that simultaneously SKIPS strings/comments and CAPTURES
+ * component-type identifiers. The string / comment alternatives come first
+ * so the engine consumes them whole — identifier-shape tokens hiding inside
+ * (e.g. `operationId: 'userCreatedCallback'`) are unreachable because the
+ * preceding alternative has already consumed the surrounding quotes and
+ * everything between them.
+ */
+const SCAN = new RegExp(
+  [
+    String.raw`"(?:\\.|[^"\\])*"`,
+    String.raw`'(?:\\.|[^'\\])*'`,
+    String.raw`\`(?:\\.|[^\`\\])*\``,
+    String.raw`//[^\n]*`,
+    String.raw`/\*[\s\S]*?\*/`,
+    `\\b(${JS_IDENT}(?:${COMPONENT_SUFFIXES.map(([, suf]) => suf).join('|')}))\\b`,
+  ].join('|'),
+  'g',
+)
 
 /** Pattern to find locally exported constants */
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
 
-/**
- * Replaces string / template literal / comment contents with spaces so
- * identifier-pattern scans can't false-match tokens hiding inside (e.g.
- * `operationId: 'userCreatedCallback'` looks like a Callback import; JSDoc
- * `@returns UserSchema` looks like a Schema import). Newlines are preserved
- * to keep line numbers stable for debugging.
- */
-function stripStringContents(code: string) {
-  return code.replace(
-    /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
-    (m) => m.replace(/[^\n]/g, ' '),
-  )
-}
+/** Maps a captured identifier back to its component-type key by suffix. */
+const classifyRef = (name: string): string | undefined =>
+  COMPONENT_SUFFIXES.find(([, suffix]) => name.endsWith(suffix))?.[0]
 
 export function makeImports(
   code: string,
@@ -221,17 +230,20 @@ export function makeImports(
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
-  const scanCode = stripStringContents(code)
+  const grouped = Array.from(code.matchAll(SCAN), (m) => m[1])
+    .filter((name): name is string => Boolean(name) && !defined.has(name))
+    .reduce<ReadonlyMap<string, ReadonlySet<string>>>((acc, name) => {
+      const kind = classifyRef(name)
+      if (!kind) return acc
+      return new Map(acc).set(kind, new Set([...(acc.get(kind) ?? []), name]))
+    }, new Map())
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
-    const tokens = [...new Set(Array.from(scanCode.matchAll(pattern), (m) => m[1]))]
-      .filter((t): t is string => Boolean(t) && !defined.has(t))
-      .sort()
-    return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []
-  })
+  const componentImports = [...grouped.entries()].flatMap(([kind, names]) => [
+    renderNamedImport([...names].toSorted(), resolvePath(kind)),
+  ])
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }
