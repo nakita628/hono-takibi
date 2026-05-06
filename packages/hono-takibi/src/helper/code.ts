@@ -160,12 +160,15 @@ export function makeExportConst(
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
 
 /**
- * Component-type suffix table. Order is significant: the regex tries
- * alternatives left-to-right and the first wins, so longer / more specific
- * suffixes (`ParamsSchema`, `MediaTypeSchema`, ...) MUST come before shorter
- * ones (`Schema`). Otherwise `UserParamsSchema` would be classified as a bare
- * Schema. This replaces the old `(?<!Params)(?<!Header)(?<!MediaType)`
- * negative-lookbehind hack with a self-evident ordering rule.
+ * OpenAPI Components Object fields and the identifier suffix each one uses.
+ * Covers OpenAPI 3.0 / 3.1 / 3.2 — all three share the same 11 Fixed Fields
+ * under `components`. Top-level `webhooks` (3.1+) is intentionally omitted:
+ * it lives outside `components` and reuses schemas/responses refs rather
+ * than introducing a `*Webhook` identifier suffix of its own.
+ *
+ * Listed in OpenAPI 3.0 spec order — purely cosmetic. `classifyRef` selects
+ * the longest matching suffix so `Schema` (substring of `ParamsSchema` /
+ * `HeaderSchema` / `MediaTypeSchema`) doesn't shadow the longer ones.
  */
 const COMPONENT_SUFFIXES = [
   ['schemas', 'Schema'],
@@ -204,9 +207,19 @@ const SCAN = new RegExp(
 /** Pattern to find locally exported constants */
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
 
-/** Maps a captured identifier back to its component-type key by suffix. */
+/**
+ * Maps a captured identifier back to its component-type key by suffix.
+ * Picks the LONGEST matching suffix so a name like `UserParamsSchema` is
+ * classified as `parameters` (suffix `ParamsSchema`, 12 chars) rather than
+ * `schemas` (suffix `Schema`, 6 chars) regardless of `COMPONENT_SUFFIXES`
+ * source order.
+ */
 const classifyRef = (name: string): string | undefined =>
-  COMPONENT_SUFFIXES.find(([, suffix]) => name.endsWith(suffix))?.[0]
+  COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+    (best, entry) =>
+      name.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
+    undefined,
+  )?.[0]
 
 export function makeImports(
   code: string,
