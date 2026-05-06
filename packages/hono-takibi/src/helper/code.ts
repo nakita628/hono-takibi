@@ -185,6 +185,43 @@ const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: s
 /** Pattern to find locally exported constants */
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
 
+/**
+ * Replaces the contents of every string / template literal in `code` with a
+ * blank of the same length so identifier-pattern scans can't false-match
+ * tokens that happen to live inside a quoted value (e.g. an OpenAPI
+ * `operationId: 'userCreatedCallback'` would otherwise look like a `Callback`
+ * import).
+ */
+function stripStringContents(code: string): string {
+  let out = ''
+  let i = 0
+  while (i < code.length) {
+    const ch = code[i]
+    if (ch === '"' || ch === "'" || ch === '`') {
+      const quote = ch
+      out += ch
+      i++
+      while (i < code.length && code[i] !== quote) {
+        if (code[i] === '\\' && i + 1 < code.length) {
+          out += '  '
+          i += 2
+          continue
+        }
+        out += ' '
+        i++
+      }
+      if (i < code.length) {
+        out += code[i]
+        i++
+      }
+      continue
+    }
+    out += ch
+    i++
+  }
+  return out
+}
+
 export function makeImports(
   code: string,
   fromFile: string,
@@ -207,13 +244,14 @@ export function makeImports(
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
+  const scanCode = stripStringContents(code)
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
   const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
-    const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
+    const tokens = [...new Set(Array.from(scanCode.matchAll(pattern), (m) => m[1]))]
       .filter((t): t is string => Boolean(t) && !defined.has(t))
       .sort()
     return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []

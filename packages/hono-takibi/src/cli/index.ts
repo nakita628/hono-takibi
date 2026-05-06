@@ -195,6 +195,7 @@ export async function honoTakibi() {
           config['zod-openapi']?.components?.mediaTypes?.output,
           config['zod-openapi']?.components?.mediaTypes?.split ?? false,
           config['zod-openapi']?.readonly,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.webhooks

@@ -1,0 +1,21 @@
+{
+  "name": "@fixtures/vite-split-alias",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate": "hono-takibi",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.0",
+    "hono": "^4.9.6",
+    "vite": "^7.1.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "hono-takibi": "workspace:^",
+    "typescript": "^5.9.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
