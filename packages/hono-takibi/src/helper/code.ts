@@ -171,7 +171,6 @@ const COMPONENT_SUFFIXES = [
   ['schemas', 'Schema'],
   ['parameters', 'ParamsSchema'],
   ['headers', 'HeaderSchema'],
-  ['mediaTypes', 'MediaTypeSchema'],
   ['securitySchemes', 'SecurityScheme'],
   ['requestBodies', 'RequestBody'],
   ['responses', 'Response'],
@@ -179,6 +178,7 @@ const COMPONENT_SUFFIXES = [
   ['links', 'Link'],
   ['callbacks', 'Callback'],
   ['pathItems', 'PathItem'],
+  ['mediaTypes', 'MediaTypeSchema']
 ] as const
 
 /**
