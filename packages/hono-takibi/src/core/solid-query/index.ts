@@ -23,14 +23,7 @@ export async function solidQuery(
     hasQueryOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
     useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
-    // 2026-05-06: Disabled — `infiniteQueryOptions(...)` attaches a DataTag
-    // marker to queryKey but defaults TQueryKey to `readonly unknown[]` (TS
-    // cannot infer through the nested options shape). When the factory result
-    // is spread into `useInfiniteQuery({...factory, ...userOpts})`, the widened
-    // DataTag-typed key collides with the precise tuple inferred at the hook
-    // call site → TS2769 / TS2379. Plain object factory preserves the precise
-    // tuple type through the spread.
-    hasInfiniteQueryOptionsHelper: false,
+    hasInfiniteQueryOptionsHelper: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }
