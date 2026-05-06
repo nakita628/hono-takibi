@@ -168,6 +168,7 @@ const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
  * negative-lookbehind hack with a self-evident ordering rule.
  */
 const COMPONENT_SUFFIXES = [
+  ['schemas', 'Schema'],
   ['parameters', 'ParamsSchema'],
   ['headers', 'HeaderSchema'],
   ['mediaTypes', 'MediaTypeSchema'],
@@ -178,7 +179,6 @@ const COMPONENT_SUFFIXES = [
   ['links', 'Link'],
   ['callbacks', 'Callback'],
   ['pathItems', 'PathItem'],
-  ['schemas', 'Schema'],
 ] as const
 
 /**
