@@ -80,17 +80,16 @@ export function getUsersInfiniteQueryKey(
 export function getUsersInfiniteQueryOptions<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-      allPageParams: TPageParam[],
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
@@ -99,7 +98,7 @@ export function getUsersInfiniteQueryOptions<
     TError,
     TData,
     ReturnType<typeof getUsersInfiniteQueryKey>,
-    TPageParam
+    unknown
   >({
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>>) {
@@ -113,17 +112,16 @@ export function getUsersInfiniteQueryOptions<
 export function useInfiniteUsers<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-      allPageParams: TPageParam[],
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -131,7 +129,7 @@ export function useInfiniteUsers<
       TError,
       TData,
       ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -139,7 +137,7 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions<TData, TError, TPageParam>(args, pagination, clientOptions),
+    ...getUsersInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 
@@ -200,17 +198,16 @@ export function getPostsInfiniteQueryKey(
 export function getPostsInfiniteQueryOptions<
   TData = InfiniteData<Awaited<ReturnType<typeof getPosts>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getPosts>>,
       allPages: Awaited<ReturnType<typeof getPosts>>[],
-      lastPageParam: TPageParam,
-      allPageParams: TPageParam[],
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
@@ -219,7 +216,7 @@ export function getPostsInfiniteQueryOptions<
     TError,
     TData,
     ReturnType<typeof getPostsInfiniteQueryKey>,
-    TPageParam
+    unknown
   >({
     queryKey: getPostsInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsInfiniteQueryKey>>) {
@@ -233,17 +230,16 @@ export function getPostsInfiniteQueryOptions<
 export function useInfinitePosts<
   TData = InfiniteData<Awaited<ReturnType<typeof getPosts>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getPosts>>,
       allPages: Awaited<ReturnType<typeof getPosts>>[],
-      lastPageParam: TPageParam,
-      allPageParams: TPageParam[],
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -251,7 +247,7 @@ export function useInfinitePosts<
       TError,
       TData,
       ReturnType<typeof getPostsInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -259,7 +255,7 @@ export function useInfinitePosts<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getPostsInfiniteQueryOptions<TData, TError, TPageParam>(args, pagination, clientOptions),
+    ...getPostsInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 

@@ -481,12 +481,22 @@ function makeInfiniteQueryOptionsGetterCode(
   // We surface `TError` as a factory generic so the hook can pipe its own
   // `TError` through, and pin TQueryKey/TData explicitly here.
   if (config.hasInfiniteQueryOptionsHelper) {
-    const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
-    // TData/TError/TPageParam are factory generics so they can be piped from the
-    // call site (hook) — letting the user pick `select`'s output type without
-    // breaking factory↔hook compatibility.
-    const factoryGenerics = `<TData=InfiniteData<${responseType}>,TError=${errorType},TPageParam=unknown>`
-    const explicitGenerics = `<${responseType},TError,TData,ReturnType<typeof ${infiniteKeyGetterName}>,TPageParam>`
+    // Vue Query: TPageParam is pinned to `unknown` (no factory generic).
+    // Vue Query 5.x wraps every non-`enabled` options field in `MaybeRefDeep<T>`,
+    // a deferred conditional that TS cannot simplify for a generic T (even with
+    // a primitive constraint), causing a `T not assignable to MaybeRefDeep<T>`
+    // error at the `infiniteQueryOptions(...)` call. Pinning TPageParam to a
+    // concrete `unknown` lets the conditional resolve. Other libs keep
+    // TPageParam generic because their option types don't apply this wrapping.
+    const tp = config.isVueQuery ? 'unknown' : 'TPageParam'
+    const paginationParam = `pagination:{initialPageParam:${tp};getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:${tp},allPageParams:${tp}[])=>${tp}|undefined|null}`
+    // TData/TError (and TPageParam for non-Vue) are factory generics so they
+    // can be piped from the call site (hook) — letting the user pick `select`'s
+    // output type without breaking factory↔hook compatibility.
+    const factoryGenerics = config.isVueQuery
+      ? `<TData=InfiniteData<${responseType}>,TError=${errorType}>`
+      : `<TData=InfiniteData<${responseType}>,TError=${errorType},TPageParam=unknown>`
+    const explicitGenerics = `<${responseType},TError,TData,ReturnType<typeof ${infiniteKeyGetterName}>,${tp}>`
     if (config.isVueQuery && hasArgs) {
       const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
       const body = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
@@ -542,19 +552,40 @@ function makeInfiniteQueryHookCode(
   // `getNextPageParam`, regardless of whether `infiniteQueryOptions(...)` wraps
   // the body. So the hook signature is uniform across helper/no-helper.
   const useHelper = config.hasInfiniteQueryOptionsHelper === true
-  // When helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
-  // when disabled, TData defaults to the page response type (caller can override).
-  const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
-  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
+  // useInfiniteQuery returns `InfiniteData<TFnData>` regardless of whether the
+  // factory is wrapped in `infiniteQueryOptions(...)` or returns a plain object,
+  // so TData defaults to `InfiniteData<...>` either way.
+  const tDataDefault = `InfiniteData<${responseType}>`
+  // Vue Query 5.x wraps every non-`enabled` field in `MaybeRefDeep<...>`, which
+  // is a deferred conditional that TypeScript cannot simplify for an
+  // unconstrained generic TPageParam — even with a primitive constraint, the
+  // conditional resolution stays deferred and the bare TPageParam fails the
+  // assignment to `MaybeRefDeep<TPageParam>`. Pinning TPageParam to `unknown`
+  // (no generic) lets the conditional resolve (`unknown extends Function?` is
+  // false, `unknown extends object?` is false, → bare `unknown`), so the
+  // assignment succeeds. Trade-off: Vue Query users get `unknown` for the
+  // `lastPageParam` callback param; they can narrow with a type guard or
+  // assert at the call site if they need stricter typing.
+  // Vue Query: TPageParam is pinned to `unknown` (no generic). All TPageParam
+  // references in this hook resolve to `unknown` so the type system can simplify
+  // Vue Query's `MaybeRefDeep<TPageParam>` conditional.
+  const tp = config.isVueQuery ? 'unknown' : 'TPageParam'
+  const generics = config.isVueQuery
+    ? `<TData=${tDataDefault},TError=${errorType}>`
+    : `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
-  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`
+  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},${tp}>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
-  const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
+  const paginationParam = `pagination:{initialPageParam:${tp};getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:${tp},allPageParams:${tp}[])=>${tp}|undefined|null}`
 
   // Pipe TError/TPageParam from the hook into the factory so explicit generics
   // on `infiniteQueryOptions(...)` inside the factory unify with the hook's
   // generics (no inference fallback to `readonly unknown[]` / `DefaultError`).
-  const factoryGenericArgs = useHelper ? '<TData,TError,TPageParam>' : ''
+  const factoryGenericArgs = useHelper
+    ? config.isVueQuery
+      ? '<TData,TError>'
+      : '<TData,TError,TPageParam>'
+    : ''
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
@@ -595,7 +626,20 @@ function makeSuspenseInfiniteQueryHookCode(
   const errorType = config.errorType ?? 'unknown'
   const useHelper = config.hasInfiniteQueryOptionsHelper === true
   const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
-  const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
+  // Vue Query 5.x wraps every non-`enabled` field in `MaybeRefDeep<...>`, which
+  // is a deferred conditional that TypeScript cannot simplify for an
+  // unconstrained generic TPageParam — even with a primitive constraint, the
+  // conditional resolution stays deferred and the bare TPageParam fails the
+  // assignment to `MaybeRefDeep<TPageParam>`. Pinning TPageParam to `unknown`
+  // (no generic) lets the conditional resolve (`unknown extends Function?` is
+  // false, `unknown extends object?` is false, → bare `unknown`), so the
+  // assignment succeeds. Trade-off: Vue Query users get `unknown` for the
+  // `lastPageParam` callback param; they can narrow with a type guard or
+  // assert at the call site if they need stricter typing.
+  const tPageParamGen = config.isVueQuery ? '' : ',TPageParam=unknown'
+  const generics = config.isVueQuery
+    ? `<TData=${tDataDefault},TError=${errorType}>`
+    : `<TData=${tDataDefault},TError=${errorType}${tPageParamGen}>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   const queryOptionsType = `${config.useSuspenseInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`
   // Factory now always emits pagination + initialPageParam/getNextPageParam,
@@ -605,7 +649,11 @@ function makeSuspenseInfiniteQueryHookCode(
 
   // Pipe TError/TPageParam from the hook into the factory for explicit-generics
   // unification (see makeInfiniteQueryHookCode for rationale).
-  const factoryGenericArgs = useHelper ? '<TData,TError,TPageParam>' : ''
+  const factoryGenericArgs = useHelper
+    ? config.isVueQuery
+      ? '<TData,TError>'
+      : '<TData,TError,TPageParam>'
+    : ''
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const optionsGetterCall = hasArgs
@@ -1305,8 +1353,10 @@ function makeHeader(
     ...(hasInfiniteQuery && config.useSuspenseInfiniteQueryOptionsType
       ? [config.useSuspenseInfiniteQueryOptionsType]
       : []),
-    // InfiniteData: needed when helper-wrapped factory returns InfiniteData<...>-typed options
-    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['InfiniteData'] : []),
+    // InfiniteData: needed for the hook's `TData = InfiniteData<...>` default
+    // (always present for infinite hooks, regardless of whether the factory is
+    // wrapped in `infiniteQueryOptions(...)` or returns a plain object).
+    ...(hasInfiniteQuery ? ['InfiniteData'] : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args

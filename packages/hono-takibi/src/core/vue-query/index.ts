@@ -29,6 +29,12 @@ export async function vueQuery(
     // hook generation and the import emission for vue-query output.
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
+    // Helper is enabled (TanStack-official pattern). For Vue Query, the helper
+    // wraps the factory body in `infiniteQueryOptions(...)` and tags the
+    // queryKey with `DataTag<...>`. To keep typecheck green, the hook/factory
+    // pin TPageParam to a primitive constraint (see `helper/query.ts`); this
+    // matches the TanStack docs (`initialPageParam: 0`, `initialPageParam: ''`)
+    // and lets Vue Query's `MaybeRefDeep<TPageParam>` conditional simplify.
     hasInfiniteQueryOptionsHelper: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
