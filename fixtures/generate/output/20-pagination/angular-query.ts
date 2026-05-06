@@ -43,7 +43,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -61,7 +61,7 @@ export function injectUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError
     return {
       ...query,
       queryKey: getUsersQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getUsers(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -97,7 +97,7 @@ export function getUsersInfiniteQueryOptions<
     TPageParam
   >({
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -157,7 +157,7 @@ export function getPostsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getPosts(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -175,7 +175,7 @@ export function injectPosts<TData = Awaited<ReturnType<typeof getPosts>>, TError
     return {
       ...query,
       queryKey: getPostsQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getPosts(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -211,7 +211,7 @@ export function getPostsInfiniteQueryOptions<
     TPageParam
   >({
     queryKey: getPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getPosts(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -265,7 +265,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -282,7 +282,7 @@ export function injectHealth<TData = Awaited<ReturnType<typeof getHealth>>, TErr
     return {
       ...query,
       queryKey: getHealthQueryKey(),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

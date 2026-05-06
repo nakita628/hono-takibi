@@ -79,7 +79,7 @@ export function getSubscriptionsIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -99,7 +99,7 @@ export function useSubscriptionsId<
   return useQuery({
     ...queryOptions,
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getSubscriptionsId(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -122,7 +122,7 @@ export function useSuspenseSubscriptionsId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getSubscriptionsId(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

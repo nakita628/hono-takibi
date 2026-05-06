@@ -33,7 +33,7 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -56,7 +56,7 @@ export function useApiReverseChibanIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseChibanIndex({
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -76,7 +76,7 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -99,7 +99,7 @@ export function useApiReverseChiban<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -124,7 +124,7 @@ export function getPostsIndexQueryOptions(
 ) {
   return {
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getPostsIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -147,7 +147,7 @@ export function usePostsIndex<TData = Awaited<ReturnType<typeof getPostsIndex>>,
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getPostsIndex(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -206,7 +206,7 @@ export function getUsersIdIndexQueryOptions(
 ) {
   return {
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getUsersIdIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -232,7 +232,7 @@ export function useUsersIdIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getUsersIdIndex(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -252,7 +252,7 @@ export async function getItemsIndex(options?: ClientRequestOptions) {
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -275,7 +275,7 @@ export function useItemsIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

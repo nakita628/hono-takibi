@@ -35,7 +35,7 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -52,7 +52,7 @@ export function createTags<TData = Awaited<ReturnType<typeof getTags>>, TError =
     return {
       ...query,
       queryKey: getTagsQueryKey(),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -108,7 +108,7 @@ export function getSettingsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -126,7 +126,7 @@ export function createSettings<TData = Awaited<ReturnType<typeof getSettings>>, 
     return {
       ...query,
       queryKey: getSettingsQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getSettings(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

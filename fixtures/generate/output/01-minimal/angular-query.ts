@@ -19,7 +19,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -36,7 +36,7 @@ export function injectHealth<TData = Awaited<ReturnType<typeof getHealth>>, TErr
     return {
       ...query,
       queryKey: getHealthQueryKey(),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

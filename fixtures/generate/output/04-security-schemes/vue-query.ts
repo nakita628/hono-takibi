@@ -39,7 +39,7 @@ export async function getPublic(options?: ClientRequestOptions) {
 export function getPublicQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
+    queryFn({ signal }) {
       return getPublic({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -62,7 +62,7 @@ export function usePublic<
   return useQuery({
     ...queryOptions,
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
+    queryFn({ signal }) {
       return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -79,7 +79,7 @@ export async function getBearerProtected(options?: ClientRequestOptions) {
 export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -102,7 +102,7 @@ export function useBearerProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -119,7 +119,7 @@ export async function getApiKeyProtected(options?: ClientRequestOptions) {
 export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -142,7 +142,7 @@ export function useApiKeyProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -159,7 +159,7 @@ export async function getBasicProtected(options?: ClientRequestOptions) {
 export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -182,7 +182,7 @@ export function useBasicProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -199,7 +199,7 @@ export async function getOauthProtected(options?: ClientRequestOptions) {
 export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -222,7 +222,7 @@ export function useOauthProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
+    queryFn({ signal }) {
       return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -239,7 +239,7 @@ export async function getMultiAuth(options?: ClientRequestOptions) {
 export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
+    queryFn({ signal }) {
       return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -262,7 +262,7 @@ export function useMultiAuth<
   return useQuery({
     ...queryOptions,
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
+    queryFn({ signal }) {
       return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

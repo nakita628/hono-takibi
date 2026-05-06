@@ -202,7 +202,7 @@ export async function getNotRef(options?: ClientRequestOptions) {
 export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotRef({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -219,7 +219,7 @@ export function useNotRef<
   return useQuery({
     ...queryOptions,
     queryKey: getNotRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -236,7 +236,7 @@ export function useSuspenseNotRef<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getNotRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -253,7 +253,7 @@ export async function getNotEnum(options?: ClientRequestOptions) {
 export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotEnumQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotEnum({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -270,7 +270,7 @@ export function useNotEnum<
   return useQuery({
     ...queryOptions,
     queryKey: getNotEnumQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -287,7 +287,7 @@ export function useSuspenseNotEnum<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getNotEnumQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -304,7 +304,7 @@ export async function getNotConst(options?: ClientRequestOptions) {
 export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotConstQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotConst({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -321,7 +321,7 @@ export function useNotConst<
   return useQuery({
     ...queryOptions,
     queryKey: getNotConstQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -338,7 +338,7 @@ export function useSuspenseNotConst<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getNotConstQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -355,7 +355,7 @@ export async function getNotComposition(options?: ClientRequestOptions) {
 export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotCompositionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotComposition({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -372,7 +372,7 @@ export function useNotComposition<
   return useQuery({
     ...queryOptions,
     queryKey: getNotCompositionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -389,7 +389,7 @@ export function useSuspenseNotComposition<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getNotCompositionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -406,7 +406,7 @@ export async function getAllOfSibling(options?: ClientRequestOptions) {
 export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAllOfSiblingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -423,7 +423,7 @@ export function useAllOfSibling<
   return useQuery({
     ...queryOptions,
     queryKey: getAllOfSiblingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -440,7 +440,7 @@ export function useSuspenseAllOfSibling<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getAllOfSiblingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -457,7 +457,7 @@ export async function getNullableOneOf(options?: ClientRequestOptions) {
 export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNullableOneOfQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -474,7 +474,7 @@ export function useNullableOneOf<
   return useQuery({
     ...queryOptions,
     queryKey: getNullableOneOfQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -491,7 +491,7 @@ export function useSuspenseNullableOneOf<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getNullableOneOfQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -508,7 +508,7 @@ export async function getAnyOfThree(options?: ClientRequestOptions) {
 export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfThreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -525,7 +525,7 @@ export function useAnyOfThree<
   return useQuery({
     ...queryOptions,
     queryKey: getAnyOfThreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -542,7 +542,7 @@ export function useSuspenseAnyOfThree<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getAnyOfThreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -559,7 +559,7 @@ export async function getAnyOfRef(options?: ClientRequestOptions) {
 export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -576,7 +576,7 @@ export function useAnyOfRef<
   return useQuery({
     ...queryOptions,
     queryKey: getAnyOfRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -593,7 +593,7 @@ export function useSuspenseAnyOfRef<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getAnyOfRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

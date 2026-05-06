@@ -29,9 +29,7 @@ export function getApiReverseGeocodeIndexQueryOptions(
 ) {
   return {
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...options,
         init: { ...options?.init, signal },
@@ -60,9 +58,7 @@ export function useApiReverseGeocodeIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
+    queryFn({ signal }) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

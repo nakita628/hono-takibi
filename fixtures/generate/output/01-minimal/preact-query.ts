@@ -23,7 +23,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -40,7 +40,7 @@ export function useHealth<
   return useQuery({
     ...queryOptions,
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -57,7 +57,7 @@ export function useSuspenseHealth<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

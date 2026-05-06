@@ -19,7 +19,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHealthQueryKey>>) {
+    queryFn({ signal }) {
       return getHealth({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -42,7 +42,7 @@ export function useHealth<
   return useQuery({
     ...queryOptions,
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHealthQueryKey>>) {
+    queryFn({ signal }) {
       return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

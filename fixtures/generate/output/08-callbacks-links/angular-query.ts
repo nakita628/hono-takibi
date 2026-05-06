@@ -69,7 +69,7 @@ export function getSubscriptionsIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -90,7 +90,7 @@ export function injectSubscriptionsId<
     return {
       ...query,
       queryKey: getSubscriptionsIdQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getSubscriptionsId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },

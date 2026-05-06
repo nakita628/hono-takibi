@@ -25,7 +25,7 @@ export async function getUsers(options?: ClientRequestOptions) {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
+    queryFn({ signal }) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -45,7 +45,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
+    queryFn({ signal }) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -98,7 +98,7 @@ export function getUsersIdQueryOptions(
 ) {
   return {
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
+    queryFn({ signal }) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -121,7 +121,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
+    queryFn({ signal }) {
       return getUsersId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -169,7 +169,7 @@ export async function getItems(options?: ClientRequestOptions) {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
+    queryFn({ signal }) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -189,7 +189,7 @@ export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
+    queryFn({ signal }) {
       return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

@@ -45,7 +45,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -63,7 +63,7 @@ export function injectUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError
     return {
       ...query,
       queryKey: getUsersQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getUsers(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -121,7 +121,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -142,7 +142,7 @@ export function injectUsersUserId<
     return {
       ...query,
       queryKey: getUsersUserIdQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getUsersUserId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -235,7 +235,7 @@ export function getProductsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getProducts(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -253,7 +253,7 @@ export function injectProducts<TData = Awaited<ReturnType<typeof getProducts>>, 
     return {
       ...query,
       queryKey: getProductsQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getProducts(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -311,7 +311,7 @@ export function getProductsProductIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getProductsProductId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -332,7 +332,7 @@ export function injectProductsProductId<
     return {
       ...query,
       queryKey: getProductsProductIdQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getProductsProductId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -395,7 +395,7 @@ export function getProductsProductIdReviewsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getProductsProductIdReviews(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -420,7 +420,7 @@ export function injectProductsProductIdReviews<
     return {
       ...query,
       queryKey: getProductsProductIdReviewsQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getProductsProductIdReviews(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -483,7 +483,7 @@ export function getOrdersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getOrders(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -501,7 +501,7 @@ export function injectOrders<TData = Awaited<ReturnType<typeof getOrders>>, TErr
     return {
       ...query,
       queryKey: getOrdersQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getOrders(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -559,7 +559,7 @@ export function getOrdersOrderIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getOrdersOrderId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -580,7 +580,7 @@ export function injectOrdersOrderId<
     return {
       ...query,
       queryKey: getOrdersOrderIdQueryKey(args()),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getOrdersOrderId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -601,7 +601,7 @@ export async function getCategories(options?: ClientRequestOptions) {
 export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getCategories({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -621,7 +621,7 @@ export function injectCategories<
     return {
       ...query,
       queryKey: getCategoriesQueryKey(),
-      queryFn({ signal }: QueryFunctionContext) {
+      queryFn({ signal }) {
         return getCategories({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

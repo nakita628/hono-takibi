@@ -242,7 +242,7 @@ function makeQueryOptionsGetterCode(
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
-    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${vueFetcherCall}}`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}){return ${vueFetcherCall}}`
     const returnExpr = config.hasQueryOptionsHelper
       ? `queryOptions({${bodyContent}})`
       : `{${bodyContent}}`
@@ -253,7 +253,7 @@ function makeQueryOptionsGetterCode(
     ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
   // queryOptions() wrap for type safety with TanStack Query
-  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${fetcherCall}}`
+  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}){return ${fetcherCall}}`
   const returnExpr = config.hasQueryOptionsHelper
     ? `queryOptions({${bodyContent}})`
     : `{${bodyContent}}`
@@ -364,7 +364,7 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:${queryFnContextType}){return ${fetcherCall}}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}){return ${fetcherCall}}}})}`
   }
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
@@ -372,14 +372,14 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:${queryFnContextType}){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
   }
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
 }
 
 function makeSuspenseQueryHookCode(
@@ -412,7 +412,7 @@ function makeSuspenseQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(args(),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}){return ${fetcherCall}}}})}`
   }
   // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
@@ -420,14 +420,14 @@ function makeSuspenseQueryHookCode(
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}})`
       : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
   }
   // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${parseResponseFuncName}({...clientOptions,init:{...clientOptions?.init,signal}})`
-  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
 }
 
 /**
@@ -499,13 +499,13 @@ function makeInfiniteQueryOptionsGetterCode(
     const explicitGenerics = `<${responseType},TError,TData,ReturnType<typeof ${infiniteKeyGetterName}>,${tp}>`
     if (config.isVueQuery && hasArgs) {
       const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
-      const body = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+      const body = `queryKey:${queryKeyCall},queryFn({signal}){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
       return `export function ${optionsGetterName}${factoryGenerics}(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions${explicitGenerics}({${body}})}`
     }
     const fetcherCall = hasArgs
       ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
       : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
-    const body = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    const body = `queryKey:${queryKeyCall},queryFn({signal}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
     if (hasArgs) {
       return `export function ${optionsGetterName}${factoryGenerics}(args:${argsType},${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions${explicitGenerics}({${body}})}`
     }
@@ -518,13 +518,13 @@ function makeInfiniteQueryOptionsGetterCode(
   const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam,allPageParams:TPageParam[])=>TPageParam|undefined|null}`
   if (config.isVueQuery && hasArgs) {
     const vueFetcherCall = `${parseResponseFuncName}(toValue(args),{...options,init:{...options?.init,signal}})`
-    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}){return ${vueFetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
     return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
   }
   const fetcherCall = hasArgs
     ? `${parseResponseFuncName}(args,{...options,init:{...options?.init,signal}})`
     : `${parseResponseFuncName}({...options,init:{...options?.init,signal}})`
-  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:${queryFnContextType}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
   if (hasArgs) {
     return `export function ${optionsGetterName}<TPageParam=unknown>(args:${argsType},${paginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
   }

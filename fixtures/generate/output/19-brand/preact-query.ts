@@ -74,7 +74,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -94,7 +94,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsersUserId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -114,7 +114,7 @@ export function useSuspenseUsersUserId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return getUsersUserId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
