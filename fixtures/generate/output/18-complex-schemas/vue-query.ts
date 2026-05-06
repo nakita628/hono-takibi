@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -167,7 +162,7 @@ export async function getNullableUnion(options?: ClientRequestOptions) {
 export function getNullableUnionQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -177,31 +172,20 @@ export function useNullableUnion<
   TData = Awaited<ReturnType<typeof getNullableUnion>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNullableUnion>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getNullableUnion>>,
+    ReturnType<typeof getNullableUnionQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNullableUnion({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseNullableUnion<
-  TData = Awaited<ReturnType<typeof getNullableUnion>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -218,7 +202,7 @@ export async function getNestedCircular(options?: ClientRequestOptions) {
 export function getNestedCircularQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -228,31 +212,20 @@ export function useNestedCircular<
   TData = Awaited<ReturnType<typeof getNestedCircular>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNestedCircular>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getNestedCircular>>,
+    ReturnType<typeof getNestedCircularQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNestedCircular({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseNestedCircular<
-  TData = Awaited<ReturnType<typeof getNestedCircular>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

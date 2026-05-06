@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -38,7 +33,7 @@ export function getPostsQueryOptions(
 ) {
   return {
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsQueryKey>>) {
       return getPosts(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -47,7 +42,13 @@ export function getPostsQueryOptions(
 export function usePosts<TData = Awaited<ReturnType<typeof getPosts>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPosts>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPosts>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getPosts>>,
+      ReturnType<typeof getPostsQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -55,24 +56,7 @@ export function usePosts<TData = Awaited<ReturnType<typeof getPosts>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPosts(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspensePosts<TData = Awaited<ReturnType<typeof getPosts>>, TError = unknown>(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.posts.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPosts>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsQueryKey>>) {
       return getPosts(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -125,7 +109,7 @@ export function getPostsIdQueryOptions(
 ) {
   return {
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdQueryKey>>) {
       return getPostsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -134,7 +118,13 @@ export function getPostsIdQueryOptions(
 export function usePostsId<TData = Awaited<ReturnType<typeof getPostsId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPostsId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getPostsId>>,
+      ReturnType<typeof getPostsIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -142,30 +132,7 @@ export function usePostsId<TData = Awaited<ReturnType<typeof getPostsId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPostsId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspensePostsId<
-  TData = Awaited<ReturnType<typeof getPostsId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdQueryKey>>) {
       return getPostsId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -252,7 +219,7 @@ export function getPostsIdCommentsQueryOptions(
 ) {
   return {
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdCommentsQueryKey>>) {
       return getPostsIdComments(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -264,7 +231,13 @@ export function usePostsIdComments<
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPostsIdComments>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getPostsIdComments>>,
+      ReturnType<typeof getPostsIdCommentsQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -272,30 +245,7 @@ export function usePostsIdComments<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPostsIdComments(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspensePostsIdComments<
-  TData = Awaited<ReturnType<typeof getPostsIdComments>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.posts)[':id']['comments']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPostsIdComments>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdCommentsQueryKey>>) {
       return getPostsIdComments(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -348,38 +298,27 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTags>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getTags>>,
+    ReturnType<typeof getTagsQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseTags<
-  TData = Awaited<ReturnType<typeof getTags>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

@@ -1,9 +1,5 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-} from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -43,7 +39,7 @@ export async function getPublic(options?: ClientRequestOptions) {
 export function getPublicQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
       return getPublic({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -53,31 +49,20 @@ export function usePublic<
   TData = Awaited<ReturnType<typeof getPublic>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPublic>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getPublic>>,
+    ReturnType<typeof getPublicQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspensePublic<
-  TData = Awaited<ReturnType<typeof getPublic>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPublic>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
       return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -94,7 +79,7 @@ export async function getBearerProtected(options?: ClientRequestOptions) {
 export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
       return getBearerProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -104,31 +89,20 @@ export function useBearerProtected<
   TData = Awaited<ReturnType<typeof getBearerProtected>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBearerProtected>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getBearerProtected>>,
+    ReturnType<typeof getBearerProtectedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseBearerProtected<
-  TData = Awaited<ReturnType<typeof getBearerProtected>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getBearerProtected>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
       return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -145,7 +119,7 @@ export async function getApiKeyProtected(options?: ClientRequestOptions) {
 export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
       return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -155,31 +129,20 @@ export function useApiKeyProtected<
   TData = Awaited<ReturnType<typeof getApiKeyProtected>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getApiKeyProtected>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getApiKeyProtected>>,
+    ReturnType<typeof getApiKeyProtectedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseApiKeyProtected<
-  TData = Awaited<ReturnType<typeof getApiKeyProtected>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getApiKeyProtected>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
       return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -196,7 +159,7 @@ export async function getBasicProtected(options?: ClientRequestOptions) {
 export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
       return getBasicProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -206,31 +169,20 @@ export function useBasicProtected<
   TData = Awaited<ReturnType<typeof getBasicProtected>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getBasicProtected>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getBasicProtected>>,
+    ReturnType<typeof getBasicProtectedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseBasicProtected<
-  TData = Awaited<ReturnType<typeof getBasicProtected>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getBasicProtected>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
       return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -247,7 +199,7 @@ export async function getOauthProtected(options?: ClientRequestOptions) {
 export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
       return getOauthProtected({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -257,31 +209,20 @@ export function useOauthProtected<
   TData = Awaited<ReturnType<typeof getOauthProtected>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getOauthProtected>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getOauthProtected>>,
+    ReturnType<typeof getOauthProtectedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseOauthProtected<
-  TData = Awaited<ReturnType<typeof getOauthProtected>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getOauthProtected>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
       return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -298,7 +239,7 @@ export async function getMultiAuth(options?: ClientRequestOptions) {
 export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
       return getMultiAuth({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -308,31 +249,20 @@ export function useMultiAuth<
   TData = Awaited<ReturnType<typeof getMultiAuth>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMultiAuth>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getMultiAuth>>,
+    ReturnType<typeof getMultiAuthQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseMultiAuth<
-  TData = Awaited<ReturnType<typeof getMultiAuth>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getMultiAuth>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
       return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

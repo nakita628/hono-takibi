@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -71,7 +66,7 @@ export function getSubscriptionsIdQueryOptions(
 ) {
   return {
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getSubscriptionsIdQueryKey>>) {
       return getSubscriptionsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -83,7 +78,13 @@ export function useSubscriptionsId<
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSubscriptionsId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getSubscriptionsId>>,
+      ReturnType<typeof getSubscriptionsIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -91,30 +92,7 @@ export function useSubscriptionsId<
   return useQuery({
     ...queryOptions,
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSubscriptionsId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseSubscriptionsId<
-  TData = Awaited<ReturnType<typeof getSubscriptionsId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getSubscriptionsIdQueryKey>>) {
       return getSubscriptionsId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

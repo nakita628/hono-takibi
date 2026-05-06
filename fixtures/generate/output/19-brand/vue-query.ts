@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -66,7 +61,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return {
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersUserIdQueryKey>>) {
       return getUsersUserId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -78,7 +73,13 @@ export function useUsersUserId<
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':userId']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersUserId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsersUserId>>,
+      ReturnType<typeof getUsersUserIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -86,30 +87,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersUserId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseUsersUserId<
-  TData = Awaited<ReturnType<typeof getUsersUserId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':userId']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersUserIdQueryKey>>) {
       return getUsersUserId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

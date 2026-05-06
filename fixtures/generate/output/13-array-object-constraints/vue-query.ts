@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -38,38 +33,27 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTags>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getTags>>,
+    ReturnType<typeof getTagsQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseTags<
-  TData = Awaited<ReturnType<typeof getTags>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTags>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -122,7 +106,7 @@ export function getSettingsQueryOptions(
 ) {
   return {
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getSettingsQueryKey>>) {
       return getSettings(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -131,7 +115,13 @@ export function getSettingsQueryOptions(
 export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSettings>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getSettings>>,
+      ReturnType<typeof getSettingsQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -139,30 +129,7 @@ export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>, TEr
   return useQuery({
     ...queryOptions,
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSettings(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseSettings<
-  TData = Awaited<ReturnType<typeof getSettings>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.settings.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getSettings>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getSettingsQueryKey>>) {
       return getSettings(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

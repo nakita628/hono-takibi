@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -104,7 +99,7 @@ export async function getComposed(options?: ClientRequestOptions) {
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getComposedQueryKey>>) {
       return getComposed({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -114,31 +109,20 @@ export function useComposed<
   TData = Awaited<ReturnType<typeof getComposed>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getComposed>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getComposed>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getComposed>>,
+    ReturnType<typeof getComposedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseComposed<
-  TData = Awaited<ReturnType<typeof getComposed>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getComposed>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getComposedQueryKey>>) {
       return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -155,7 +139,7 @@ export async function getDeepNested(options?: ClientRequestOptions) {
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getDeepNestedQueryKey>>) {
       return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -165,31 +149,20 @@ export function useDeepNested<
   TData = Awaited<ReturnType<typeof getDeepNested>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getDeepNested>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getDeepNested>>,
+    ReturnType<typeof getDeepNestedQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseDeepNested<
-  TData = Awaited<ReturnType<typeof getDeepNested>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getDeepNestedQueryKey>>) {
       return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -206,7 +179,7 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getAdditionalPropsQueryKey>>) {
       return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -216,31 +189,20 @@ export function useAdditionalProps<
   TData = Awaited<ReturnType<typeof getAdditionalProps>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getAdditionalProps>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getAdditionalProps>>,
+    ReturnType<typeof getAdditionalPropsQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseAdditionalProps<
-  TData = Awaited<ReturnType<typeof getAdditionalProps>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getAdditionalPropsQueryKey>>) {
       return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

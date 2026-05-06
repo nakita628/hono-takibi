@@ -60,7 +60,6 @@ describe('tanstackQuery', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
-  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -69,7 +68,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -148,18 +146,18 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -191,7 +189,7 @@ export function useInfiniteHono<
 }
 
 export function useSuspenseInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -296,18 +294,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -340,7 +338,7 @@ export function useInfiniteUsers<
 }
 
 export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -456,7 +454,6 @@ export function getUsersKey() {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -464,7 +461,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -534,18 +530,18 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -577,7 +573,7 @@ export function useInfiniteHono<
 }
 
 export function useSuspenseInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -618,7 +614,6 @@ export function useSuspenseInfiniteHono<
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -626,7 +621,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -706,18 +700,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -750,7 +744,7 @@ export function useInfiniteUsers<
 }
 
 export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -868,7 +862,6 @@ describe('tanstackQuery (custom client name)', () => {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -876,7 +869,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -950,18 +942,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -993,7 +985,7 @@ export function useInfiniteUsers<
 }
 
 export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1069,7 +1061,6 @@ describe('tanstackQuery (no args operations)', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
-  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -1078,7 +1069,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -1153,18 +1143,18 @@ export function getPingInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getPingInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfinitePing<
-  TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
+  TData = Awaited<ReturnType<typeof getPing>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1196,7 +1186,7 @@ export function useInfinitePing<
 }
 
 export function useSuspenseInfinitePing<
-  TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
+  TData = Awaited<ReturnType<typeof getPing>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1287,7 +1277,6 @@ describe('tanstackQuery (path with special characters)', () => {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -1295,7 +1284,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1369,18 +1357,18 @@ export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getHonoXInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteHonoX<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
+  TData = Awaited<ReturnType<typeof getHonoX>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1412,7 +1400,7 @@ export function useInfiniteHonoX<
 }
 
 export function useSuspenseInfiniteHonoX<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
+  TData = Awaited<ReturnType<typeof getHonoX>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1489,7 +1477,6 @@ describe('tanstackQuery (path parameters)', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
-  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/react-query'
 import type {
@@ -1498,7 +1485,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1588,18 +1574,18 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TData = Awaited<ReturnType<typeof getUsersId>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1632,7 +1618,7 @@ export function useInfiniteUsersId<
 }
 
 export function useSuspenseInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TData = Awaited<ReturnType<typeof getUsersId>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -1923,7 +1909,6 @@ export function useDeleteUsersId<TError = unknown>(options?: {
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -1931,7 +1916,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -2016,18 +2000,18 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersIdInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TData = Awaited<ReturnType<typeof getUsersId>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -2060,7 +2044,7 @@ export function useInfiniteUsersId<
 }
 
 export function useSuspenseInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TData = Awaited<ReturnType<typeof getUsersId>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -2100,7 +2084,6 @@ export function useSuspenseInfiniteUsersId<
   useInfiniteQuery,
   useSuspenseInfiniteQuery,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
@@ -2108,7 +2091,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -2188,18 +2170,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -2232,7 +2214,7 @@ export function useInfiniteUsers<
 }
 
 export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(

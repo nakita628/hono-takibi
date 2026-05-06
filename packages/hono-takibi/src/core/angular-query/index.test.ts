@@ -46,13 +46,11 @@ describe('angularQuery', () => {
   injectInfiniteQuery,
   injectMutation,
   queryOptions,
-  infiniteQueryOptions,
 } from '@tanstack/angular-query-experimental'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
-  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -161,18 +159,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function injectInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(

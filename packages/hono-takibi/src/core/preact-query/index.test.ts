@@ -60,7 +60,6 @@ describe('preactQuery', () => {
   useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
-  infiniteQueryOptions,
   mutationOptions,
 } from '@tanstack/preact-query'
 import type {
@@ -69,7 +68,6 @@ import type {
   UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
-  InfiniteData,
   UseMutationOptions,
 } from '@tanstack/preact-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -148,18 +146,18 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getHonoInfiniteQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -191,7 +189,7 @@ export function useInfiniteHono<
 }
 
 export function useSuspenseInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TData = Awaited<ReturnType<typeof getHono>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -296,18 +294,18 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return {
     queryKey: getUsersInfiniteQueryKey(args),
     queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
     getNextPageParam: pagination.getNextPageParam,
-  })
+  }
 }
 
 export function useInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(
@@ -340,7 +338,7 @@ export function useInfiniteUsers<
 }
 
 export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TData = Awaited<ReturnType<typeof getUsers>>,
   TError = unknown,
   TPageParam = unknown,
 >(

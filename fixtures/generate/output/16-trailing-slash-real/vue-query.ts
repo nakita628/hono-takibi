@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -34,7 +29,9 @@ export function getApiReverseGeocodeIndexQueryOptions(
 ) {
   return {
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...options,
         init: { ...options?.init, signal },
@@ -49,7 +46,13 @@ export function useApiReverseGeocodeIndex<
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+      ReturnType<typeof getApiReverseGeocodeIndexQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -57,34 +60,9 @@ export function useApiReverseGeocodeIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseGeocodeIndex(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseApiReverseGeocodeIndex<
-  TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
-      TError,
-      TData
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
       return getApiReverseGeocodeIndex(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },

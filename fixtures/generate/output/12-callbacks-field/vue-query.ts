@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -91,38 +86,27 @@ export async function getItems(options?: ClientRequestOptions) {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getItems>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getItems>>,
+    ReturnType<typeof getItemsQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseItems<
-  TData = Awaited<ReturnType<typeof getItems>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
       return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

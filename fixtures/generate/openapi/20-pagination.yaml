@@ -1,0 +1,111 @@
+openapi: 3.1.0
+info:
+  title: Pagination API
+  version: 1.0.0
+  description: |
+    OpenAPI spec exercising the `x-pagination: true` extension.
+    GET endpoints with this flag generate infinite query hooks
+    (useInfiniteUsers / getUsersInfiniteQueryOptions / etc.) in
+    every TanStack Query client (vue / react / svelte / solid /
+    preact / angular).
+
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      x-pagination: true
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Paged users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPage"
+
+  /posts:
+    get:
+      operationId: getPosts
+      x-pagination: true
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paged posts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostPage"
+
+  # Non-paginated GET — should generate query hooks but NOT infinite hooks
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: Health check
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    UserPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        nextCursor:
+          type: string
+
+    Post:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+
+    PostPage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        nextCursor:
+          type: string

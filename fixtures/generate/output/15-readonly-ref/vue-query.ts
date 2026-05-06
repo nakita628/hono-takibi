@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import { toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -30,38 +25,27 @@ export async function getUsers(options?: ClientRequestOptions) {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getUsers>>,
+    ReturnType<typeof getUsersQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseUsers<
-  TData = Awaited<ReturnType<typeof getUsers>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -114,7 +98,7 @@ export function getUsersIdQueryOptions(
 ) {
   return {
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -123,7 +107,13 @@ export function getUsersIdQueryOptions(
 export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsersId>>,
+      ReturnType<typeof getUsersIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -131,30 +121,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseUsersId<
-  TData = Awaited<ReturnType<typeof getUsersId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -202,38 +169,27 @@ export async function getItems(options?: ClientRequestOptions) {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getItems>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getItems>>,
+    ReturnType<typeof getItemsQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseItems<
-  TData = Awaited<ReturnType<typeof getItems>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
       return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

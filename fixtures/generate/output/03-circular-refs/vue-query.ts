@@ -1,10 +1,5 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseSuspenseQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -28,38 +23,27 @@ export async function getTree(options?: ClientRequestOptions) {
 export function getTreeQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTreeQueryKey>>) {
       return getTree({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getTree>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getTree>>,
+    ReturnType<typeof getTreeQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseTree<
-  TData = Awaited<ReturnType<typeof getTree>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTreeQueryKey>>) {
       return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -104,38 +88,27 @@ export async function getGraph(options?: ClientRequestOptions) {
 export function getGraphQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getGraphQueryKey>>) {
       return getGraph({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGraph>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getGraph>>,
+    ReturnType<typeof getGraphQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseGraph<
-  TData = Awaited<ReturnType<typeof getGraph>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getGraphQueryKey>>) {
       return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
