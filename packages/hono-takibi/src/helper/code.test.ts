@@ -502,9 +502,9 @@ export const X = { schema: UserSchema }`
       parameters: { output: '/src/components/parameters', split: true },
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
-    expect(importLines.some((l) => l.includes('parameters') && l.includes('UserParamsSchema'))).toBe(
-      true,
-    )
+    expect(
+      importLines.some((l) => l.includes('parameters') && l.includes('UserParamsSchema')),
+    ).toBe(true)
     expect(importLines.some((l) => l.includes('schemas') && l.includes('UserParamsSchema'))).toBe(
       false,
     )

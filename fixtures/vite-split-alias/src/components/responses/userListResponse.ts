@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { XRateLimitHeaderSchema } from '~/components/headers'
 import { UserListSchema } from '~/components/schemas'
+import { XRateLimitHeaderSchema } from '~/components/headers'
 
 export const UserListResponseResponse = {
   description: 'A list of users',
