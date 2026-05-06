@@ -137,9 +137,7 @@ function makeMockFunction(
   // runtime overhead — branding is a TS-only construct so the assertion is
   // safe; an `as` cast is the standard escape hatch for nominal brand types.
   const sanitized = name.replace(/\./g, '')
-  const body = schema['x-brand']
-    ? `${mockBody} as z.infer<typeof ${sanitized}Schema>`
-    : mockBody
+  const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${sanitized}Schema>` : mockBody
   return `function mock${sanitized}()${returnType}{return ${body}}` as const
 }
 
