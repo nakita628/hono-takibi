@@ -178,7 +178,7 @@ const COMPONENT_SUFFIXES = [
   ['links', 'Link'],
   ['callbacks', 'Callback'],
   ['pathItems', 'PathItem'],
-  ['mediaTypes', 'MediaTypeSchema']
+  ['mediaTypes', 'MediaTypeSchema'],
 ] as const
 
 /**
