@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -59,29 +57,6 @@ export function useImmutableGetItemsItemId(
   }
 }
 
-export function getGetItemsItemIdInfiniteKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-) {
-  const { header: _, ...keyArgs } = args
-  return ['items', '/items/:itemId', keyArgs, 'infinite'] as const
-}
-
-export function useInfiniteGetItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItemsItemId>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetItemsItemIdInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getItemsItemId(args, clientOptions), restSwrOptions)
-}
-
 export async function putItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
   options?: ClientRequestOptions,
@@ -89,10 +64,10 @@ export async function putItemsItemId(
   return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
-export function usePutItemsItemId(options?: {
+export function usePutItemsItemId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putItemsItemId>>,
-    Error,
+    TError,
     Key,
     InferRequestType<(typeof client.items)[':itemId']['$put']>
   > & { swrKey?: Key }
@@ -121,10 +96,10 @@ export async function deleteItemsItemId(
   return await parseResponse(client.items[':itemId'].$delete(args, options))
 }
 
-export function useDeleteItemsItemId(options?: {
+export function useDeleteItemsItemId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deleteItemsItemId>>  ,
-    Error,
+    Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+    TError,
     Key,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>
   > & { swrKey?: Key }
@@ -184,24 +159,4 @@ export function useImmutableGetItems(
     swrKey,
     ...useSWRImmutable(swrKey, async () => getItems(args, clientOptions), restSwrOptions),
   }
-}
-
-export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', '/items', args, 'infinite'] as const
-}
-
-export function useInfiniteGetItems(
-  args: InferRequestType<typeof client.items.$get>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItems>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getItems(args, clientOptions), restSwrOptions)
 }

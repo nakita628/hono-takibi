@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -28,10 +26,10 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-export function usePostOrders(options?: {
+export function usePostOrders<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postOrders>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.orders.$post>
   > & { swrKey?: Key }
@@ -58,10 +56,10 @@ export async function postPayments(
   return await parseResponse(client.payments.$post(args, options))
 }
 
-export function usePostPayments(options?: {
+export function usePostPayments<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPayments>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.payments.$post>
   > & { swrKey?: Key }
@@ -107,21 +105,4 @@ export function useImmutableGetItems(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
   return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
-}
-
-export function getGetItemsInfiniteKey() {
-  return ['items', '/items', 'infinite'] as const
-}
-
-export function useInfiniteGetItems(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItems>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getItems(clientOptions), restSwrOptions)
 }

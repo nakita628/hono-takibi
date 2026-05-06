@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -57,10 +51,10 @@ export function getUsersQueryOptions(
   })
 }
 
-export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
+export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -76,35 +70,6 @@ export function createUsers<TData = Awaited<ReturnType<typeof getUsers>>>(
   })
 }
 
-export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
-}
-
-export function getUsersInfiniteQueryOptions(
-  args: InferRequestType<typeof client.users.$get>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteUsers(
-  args: () => InferRequestType<typeof client.users.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsers>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function postUsers(
   args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
@@ -112,7 +77,7 @@ export async function postUsers(
   return await parseResponse(client.users.$post(args, options))
 }
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -121,11 +86,11 @@ export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostUsers(
+export function createPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postUsers>>,
-      Error,
+      TError,
       InferRequestType<typeof client.users.$post>
     >
     options?: ClientRequestOptions
@@ -133,7 +98,7 @@ export function createPostUsers(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostUsersMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -162,10 +127,13 @@ export function getUsersUserIdQueryOptions(
   })
 }
 
-export function createUsersUserId<TData = Awaited<ReturnType<typeof getUsersUserId>>>(
+export function createUsersUserId<
+  TData = Awaited<ReturnType<typeof getUsersUserId>>,
+  TError = unknown,
+>(
   args: () => InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -184,37 +152,6 @@ export function createUsersUserId<TData = Awaited<ReturnType<typeof getUsersUser
   })
 }
 
-export function getUsersUserIdInfiniteQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-) {
-  return ['users', '/users/:userId', args, 'infinite'] as const
-}
-
-export function getUsersUserIdInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getUsersUserIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteUsersUserId(
-  args: () => InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getUsersUserIdInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function putUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$put']>,
   options?: ClientRequestOptions,
@@ -222,7 +159,7 @@ export async function putUsersUserId(
   return await parseResponse(client.users[':userId'].$put(args, options))
 }
 
-export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutUsersUserIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:userId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
@@ -231,11 +168,11 @@ export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions)
   }
 }
 
-export function createPutUsersUserId(
+export function createPutUsersUserId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putUsersUserId>>,
-      Error,
+      TError,
       InferRequestType<(typeof client.users)[':userId']['$put']>
     >
     options?: ClientRequestOptions
@@ -243,7 +180,7 @@ export function createPutUsersUserId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutUsersUserIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPutUsersUserIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -254,7 +191,9 @@ export async function deleteUsersUserId(
   return await parseResponse(client.users[':userId'].$delete(args, options))
 }
 
-export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteUsersUserIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
@@ -263,11 +202,11 @@ export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptio
   }
 }
 
-export function createDeleteUsersUserId(
+export function createDeleteUsersUserId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteUsersUserId>>  ,
-      Error,
+      Awaited<ReturnType<typeof deleteUsersUserId>> | undefined,
+      TError,
       InferRequestType<(typeof client.users)[':userId']['$delete']>
     >
     options?: ClientRequestOptions
@@ -275,7 +214,7 @@ export function createDeleteUsersUserId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteUsersUserIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getDeleteUsersUserIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -302,10 +241,10 @@ export function getProductsQueryOptions(
   })
 }
 
-export function createProducts<TData = Awaited<ReturnType<typeof getProducts>>>(
+export function createProducts<TData = Awaited<ReturnType<typeof getProducts>>, TError = unknown>(
   args: () => InferRequestType<typeof client.products.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getProducts>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -321,35 +260,6 @@ export function createProducts<TData = Awaited<ReturnType<typeof getProducts>>>(
   })
 }
 
-export function getProductsInfiniteQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['products', '/products', args, 'infinite'] as const
-}
-
-export function getProductsInfiniteQueryOptions(
-  args: InferRequestType<typeof client.products.$get>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getProductsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getProducts(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteProducts(
-  args: () => InferRequestType<typeof client.products.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getProducts>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getProductsInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function postProducts(
   args: InferRequestType<typeof client.products.$post>,
   options?: ClientRequestOptions,
@@ -357,7 +267,7 @@ export async function postProducts(
   return await parseResponse(client.products.$post(args, options))
 }
 
-export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
+export function getPostProductsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.products.$post>) {
@@ -366,11 +276,11 @@ export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostProducts(
+export function createPostProducts<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postProducts>>,
-      Error,
+      TError,
       InferRequestType<typeof client.products.$post>
     >
     options?: ClientRequestOptions
@@ -378,7 +288,7 @@ export function createPostProducts(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostProductsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostProductsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -407,10 +317,13 @@ export function getProductsProductIdQueryOptions(
   })
 }
 
-export function createProductsProductId<TData = Awaited<ReturnType<typeof getProductsProductId>>>(
+export function createProductsProductId<
+  TData = Awaited<ReturnType<typeof getProductsProductId>>,
+  TError = unknown,
+>(
   args: () => InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -429,37 +342,6 @@ export function createProductsProductId<TData = Awaited<ReturnType<typeof getPro
   })
 }
 
-export function getProductsProductIdInfiniteQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-) {
-  return ['products', '/products/:productId', args, 'infinite'] as const
-}
-
-export function getProductsProductIdInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getProductsProductIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getProductsProductId(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteProductsProductId(
-  args: () => InferRequestType<(typeof client.products)[':productId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getProductsProductId>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getProductsProductIdInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function putProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$put']>,
   options?: ClientRequestOptions,
@@ -467,7 +349,9 @@ export async function putProductsProductId(
   return await parseResponse(client.products[':productId'].$put(args, options))
 }
 
-export function getPutProductsProductIdMutationOptions(options?: ClientRequestOptions) {
+export function getPutProductsProductIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['products', '/products/:productId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
@@ -476,11 +360,11 @@ export function getPutProductsProductIdMutationOptions(options?: ClientRequestOp
   }
 }
 
-export function createPutProductsProductId(
+export function createPutProductsProductId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof putProductsProductId>>,
-      Error,
+      TError,
       InferRequestType<(typeof client.products)[':productId']['$put']>
     >
     options?: ClientRequestOptions
@@ -488,7 +372,7 @@ export function createPutProductsProductId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPutProductsProductIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPutProductsProductIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -519,12 +403,13 @@ export function getProductsProductIdReviewsQueryOptions(
 
 export function createProductsProductIdReviews<
   TData = Awaited<ReturnType<typeof getProductsProductIdReviews>>,
+  TError = unknown,
 >(
   args: () => InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
   options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof getProductsProductIdReviews>>,
-      Error,
+      TError,
       TData
     >
     options?: ClientRequestOptions
@@ -545,40 +430,6 @@ export function createProductsProductIdReviews<
   })
 }
 
-export function getProductsProductIdReviewsInfiniteQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
-) {
-  return ['products', '/products/:productId/reviews', args, 'infinite'] as const
-}
-
-export function getProductsProductIdReviewsInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getProductsProductIdReviewsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getProductsProductIdReviews(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteProductsProductIdReviews(
-  args: () => InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getProductsProductIdReviews>>,
-      Error
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getProductsProductIdReviewsInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function postProductsProductIdReviews(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
   options?: ClientRequestOptions,
@@ -586,7 +437,9 @@ export async function postProductsProductIdReviews(
   return await parseResponse(client.products[':productId'].reviews.$post(args, options))
 }
 
-export function getPostProductsProductIdReviewsMutationOptions(options?: ClientRequestOptions) {
+export function getPostProductsProductIdReviewsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
     async mutationFn(
@@ -597,11 +450,11 @@ export function getPostProductsProductIdReviewsMutationOptions(options?: ClientR
   }
 }
 
-export function createPostProductsProductIdReviews(
+export function createPostProductsProductIdReviews<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postProductsProductIdReviews>>,
-      Error,
+      TError,
       InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>
     >
     options?: ClientRequestOptions
@@ -609,7 +462,7 @@ export function createPostProductsProductIdReviews(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostProductsProductIdReviewsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostProductsProductIdReviewsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -636,10 +489,10 @@ export function getOrdersQueryOptions(
   })
 }
 
-export function createOrders<TData = Awaited<ReturnType<typeof getOrders>>>(
+export function createOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError = unknown>(
   args: () => InferRequestType<typeof client.orders.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getOrders>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -655,35 +508,6 @@ export function createOrders<TData = Awaited<ReturnType<typeof getOrders>>>(
   })
 }
 
-export function getOrdersInfiniteQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['orders', '/orders', args, 'infinite'] as const
-}
-
-export function getOrdersInfiniteQueryOptions(
-  args: InferRequestType<typeof client.orders.$get>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getOrdersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getOrders(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteOrders(
-  args: () => InferRequestType<typeof client.orders.$get>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getOrders>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getOrdersInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function postOrders(
   args: InferRequestType<typeof client.orders.$post>,
   options?: ClientRequestOptions,
@@ -691,7 +515,7 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -700,11 +524,11 @@ export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostOrders(
+export function createPostOrders<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postOrders>>,
-      Error,
+      TError,
       InferRequestType<typeof client.orders.$post>
     >
     options?: ClientRequestOptions
@@ -712,7 +536,7 @@ export function createPostOrders(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostOrdersMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -741,10 +565,13 @@ export function getOrdersOrderIdQueryOptions(
   })
 }
 
-export function createOrdersOrderId<TData = Awaited<ReturnType<typeof getOrdersOrderId>>>(
+export function createOrdersOrderId<
+  TData = Awaited<ReturnType<typeof getOrdersOrderId>>,
+  TError = unknown,
+>(
   args: () => InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -760,37 +587,6 @@ export function createOrdersOrderId<TData = Awaited<ReturnType<typeof getOrdersO
         })
       },
     }
-  })
-}
-
-export function getOrdersOrderIdInfiniteQueryKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-) {
-  return ['orders', '/orders/:orderId', args, 'infinite'] as const
-}
-
-export function getOrdersOrderIdInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getOrdersOrderIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getOrdersOrderId(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteOrdersOrderId(
-  args: () => InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getOrdersOrderId>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getOrdersOrderIdInfiniteQueryOptions(args(), clientOptions) }
   })
 }
 
@@ -811,9 +607,12 @@ export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createCategories<TData = Awaited<ReturnType<typeof getCategories>>>(
+export function createCategories<
+  TData = Awaited<ReturnType<typeof getCategories>>,
+  TError = unknown,
+>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getCategories>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -829,31 +628,6 @@ export function createCategories<TData = Awaited<ReturnType<typeof getCategories
   })
 }
 
-export function getCategoriesInfiniteQueryKey() {
-  return ['categories', '/categories', 'infinite'] as const
-}
-
-export function getCategoriesInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getCategoriesInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getCategories({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteCategories(
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getCategories>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getCategoriesInfiniteQueryOptions(clientOptions) }
-  })
-}
-
 export async function postUploadImage(
   args: InferRequestType<typeof client.upload.image.$post>,
   options?: ClientRequestOptions,
@@ -861,7 +635,9 @@ export async function postUploadImage(
   return await parseResponse(client.upload.image.$post(args, options))
 }
 
-export function getPostUploadImageMutationOptions(options?: ClientRequestOptions) {
+export function getPostUploadImageMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['upload', '/upload/image', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
@@ -870,11 +646,11 @@ export function getPostUploadImageMutationOptions(options?: ClientRequestOptions
   }
 }
 
-export function createPostUploadImage(
+export function createPostUploadImage<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postUploadImage>>,
-      Error,
+      TError,
       InferRequestType<typeof client.upload.image.$post>
     >
     options?: ClientRequestOptions
@@ -882,6 +658,6 @@ export function createPostUploadImage(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostUploadImageMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostUploadImageMutationOptions<TError>(clientOptions) }
   })
 }

@@ -22,16 +22,20 @@ export async function vueQuery(
     // Plain object factory bypasses the helper and lets useQuery infer types directly.
     hasQueryOptionsHelper: false,
     isVueQuery: true,
-    suspenseQueryFn: 'useSuspenseQuery',
-    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
+    // Vue Query (5.100.9) intentionally does NOT export `useSuspenseQuery` /
+    // `useSuspenseInfiniteQuery` — Vue handles Suspense via the built-in
+    // `<Suspense>` component composed with the regular `useQuery`, so a separate
+    // suspense API is unnecessary. Omitting these config fields skips both the
+    // hook generation and the import emission for vue-query output.
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    // PoC verified (2026-05-04): Vue Query's `infiniteQueryOptions()` has only
-    // 2 overloads (Defined/Undefined initialData), neither is a thunk — so it
-    // does NOT collide with `MaybeRefOrGetter<args>` factory args (unlike `queryOptions()`).
+    // Helper is enabled (TanStack-official pattern). For Vue Query, the helper
+    // wraps the factory body in `infiniteQueryOptions(...)` and tags the
+    // queryKey with `DataTag<...>`. To keep typecheck green, the hook/factory
+    // pin TPageParam to a primitive constraint (see `helper/query.ts`); this
+    // matches the TanStack docs (`initialPageParam: 0`, `initialPageParam: ''`)
+    // and lets Vue Query's `MaybeRefDeep<TPageParam>` conditional simplify.
     hasInfiniteQueryOptionsHelper: true,
-    suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
-    useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

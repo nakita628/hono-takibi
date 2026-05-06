@@ -1,0 +1,22 @@
+{
+  "name": "@fixtures/query-and-path",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "takibi": "hono-takibi",
+    "verify": "tsx src/verify.ts"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.2.1",
+    "hono": "^4.11.7",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "hono-takibi": "workspace:^",
+    "tsx": "^4.21.0",
+    "vitest": "^4.0.18"
+  }
+}

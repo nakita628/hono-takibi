@@ -227,8 +227,9 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: {
     params: z.object({
-      userId: z
-        .int()
+      userId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -246,8 +247,9 @@ export const putUsersUserIdRoute = createRoute({
   operationId: 'updateUser',
   request: {
     params: z.object({
-      userId: z
-        .int()
+      userId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -266,8 +268,9 @@ export const deleteUsersUserIdRoute = createRoute({
   operationId: 'deleteUser',
   request: {
     params: z.object({
-      userId: z
-        .int()
+      userId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'userId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -332,8 +335,9 @@ export const getProductsProductIdRoute = createRoute({
   operationId: 'getProduct',
   request: {
     params: z.object({
-      productId: z
-        .int()
+      productId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'productId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -351,8 +355,9 @@ export const putProductsProductIdRoute = createRoute({
   operationId: 'updateProduct',
   request: {
     params: z.object({
-      productId: z
-        .int()
+      productId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'productId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -371,8 +376,9 @@ export const getProductsProductIdReviewsRoute = createRoute({
   operationId: 'listReviews',
   request: {
     params: z.object({
-      productId: z
-        .int()
+      productId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'productId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -389,8 +395,9 @@ export const postProductsProductIdReviewsRoute = createRoute({
   operationId: 'createReview',
   request: {
     params: z.object({
-      productId: z
-        .int()
+      productId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'productId', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -460,8 +467,9 @@ export const getOrdersOrderIdRoute = createRoute({
   operationId: 'getOrder',
   request: {
     params: z.object({
-      orderId: z
-        .int()
+      orderId: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'orderId', in: 'path', required: true, schema: { type: 'integer' } },
         }),

@@ -151,12 +151,7 @@ const deleteSubscriptionsIdRouteHandler: RouteHandler<typeof deleteSubscriptions
 }
 
 const postWebhooksTestRouteHandler: RouteHandler<typeof postWebhooksTestRoute> = async (c) => {
-  return c.json(
-    {
-      sent: faker.datatype.boolean(),
-    },
-    200,
-  )
+  return c.json({ sent: faker.datatype.boolean() }, 200)
 }
 
 const app = new OpenAPIHono()

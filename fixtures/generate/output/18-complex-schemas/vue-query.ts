@@ -1,10 +1,5 @@
-import { useQuery, useInfiniteQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type {
-  UseQueryOptions,
-  QueryFunctionContext,
-  UseInfiniteQueryOptions,
-  UseMutationOptions,
-} from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, QueryFunctionContext, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
@@ -40,7 +35,9 @@ export async function postExpressions(
   return await parseResponse(client.expressions.$post(args, options))
 }
 
-export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
+export function getPostExpressionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['expressions', '/expressions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
@@ -49,16 +46,19 @@ export function getPostExpressionsMutationOptions(options?: ClientRequestOptions
   }
 }
 
-export function usePostExpressions(options?: {
+export function usePostExpressions<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postExpressions>>,
-    Error,
+    TError,
     InferRequestType<typeof client.expressions.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostExpressionsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostExpressionsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export async function postShapes(
@@ -68,7 +68,7 @@ export async function postShapes(
   return await parseResponse(client.shapes.$post(args, options))
 }
 
-export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
+export function getPostShapesMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['shapes', '/shapes', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
@@ -77,16 +77,16 @@ export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostShapes(options?: {
+export function usePostShapes<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postShapes>>,
-    Error,
+    TError,
     InferRequestType<typeof client.shapes.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostShapesMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostShapesMutationOptions<TError>(clientOptions) })
 }
 
 export async function postDocuments(
@@ -96,7 +96,7 @@ export async function postDocuments(
   return await parseResponse(client.documents.$post(args, options))
 }
 
-export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
+export function getPostDocumentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['documents', '/documents', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
@@ -105,16 +105,19 @@ export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) 
   }
 }
 
-export function usePostDocuments(options?: {
+export function usePostDocuments<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postDocuments>>,
-    Error,
+    TError,
     InferRequestType<typeof client.documents.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostDocumentsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostDocumentsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export async function postConfigs(
@@ -124,7 +127,7 @@ export async function postConfigs(
   return await parseResponse(client.configs.$post(args, options))
 }
 
-export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
+export function getPostConfigsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['configs', '/configs', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
@@ -133,16 +136,19 @@ export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function usePostConfigs(options?: {
+export function usePostConfigs<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postConfigs>>,
-    Error,
+    TError,
     InferRequestType<typeof client.configs.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostConfigsMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostConfigsMutationOptions<TError>(clientOptions),
+  })
 }
 
 export function getNullableUnionQueryKey() {
@@ -154,49 +160,34 @@ export async function getNullableUnion(options?: ClientRequestOptions) {
 }
 
 export function getNullableUnionQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useNullableUnion<TData = Awaited<ReturnType<typeof getNullableUnion>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error, TData>
+export function useNullableUnion<
+  TData = Awaited<ReturnType<typeof getNullableUnion>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNullableUnion>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getNullableUnion>>,
+    ReturnType<typeof getNullableUnionQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNullableUnionInfiniteQueryKey() {
-  return ['nullable-union', '/nullable-union', 'infinite'] as const
-}
-
-export function getNullableUnionInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNullableUnionInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNullableUnion({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNullableUnion(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableUnion>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getNullableUnionInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -209,48 +200,33 @@ export async function getNestedCircular(options?: ClientRequestOptions) {
 }
 
 export function getNestedCircularQueryOptions(options?: ClientRequestOptions) {
-  return queryOptions({
+  return {
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...options, init: { ...options?.init, signal } })
     },
-  })
+  }
 }
 
-export function useNestedCircular<TData = Awaited<ReturnType<typeof getNestedCircular>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error, TData>
+export function useNestedCircular<
+  TData = Awaited<ReturnType<typeof getNestedCircular>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNestedCircular>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getNestedCircular>>,
+    ReturnType<typeof getNestedCircularQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNestedCircularInfiniteQueryKey() {
-  return ['nested-circular', '/nested-circular', 'infinite'] as const
-}
-
-export function getNestedCircularInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNestedCircularInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNestedCircular({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNestedCircular(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNestedCircular>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getNestedCircularInfiniteQueryOptions(clientOptions),
   })
 }

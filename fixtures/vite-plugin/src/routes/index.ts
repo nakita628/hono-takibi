@@ -105,8 +105,9 @@ export const getTodosIdRoute = createRoute({
   operationId: 'TodoById_get',
   request: {
     params: z.object({
-      id: z
-        .int32()
+      id: z.coerce
+        .number()
+        .pipe(z.int32())
         .openapi({
           param: {
             name: 'id',
@@ -136,8 +137,9 @@ export const deleteTodosIdRoute = createRoute({
   operationId: 'TodoById_remove',
   request: {
     params: z.object({
-      id: z
-        .int32()
+      id: z.coerce
+        .number()
+        .pipe(z.int32())
         .openapi({
           param: {
             name: 'id',
@@ -166,8 +168,9 @@ export const patchTodosIdRoute = createRoute({
   operationId: 'TodoById_update',
   request: {
     params: z.object({
-      id: z
-        .int32()
+      id: z.coerce
+        .number()
+        .pipe(z.int32())
         .openapi({
           param: {
             name: 'id',

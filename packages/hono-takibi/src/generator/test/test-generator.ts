@@ -15,29 +15,36 @@ function collectSchemaRefs(
 ): readonly string[] {
   if (schema.$ref) {
     const refName = schema.$ref.replace('#/components/schemas/', '')
-    if (visited.has(refName)) return []
+    if (visited.has(refName)) return [] as const
     visited.add(refName)
     const referenced = schemas?.[refName]
-    return [refName, ...(referenced ? collectSchemaRefs(referenced, schemas, visited) : [])]
+    return [
+      refName,
+      ...(referenced ? collectSchemaRefs(referenced, schemas, visited) : ([] as const)),
+    ]
   }
   const propRefs = schema.properties
     ? Object.values(schema.properties).flatMap((p) => collectSchemaRefs(p, schemas, visited))
     : []
-  const items = schema.items ? (Array.isArray(schema.items) ? schema.items : [schema.items]) : []
+  const items = schema.items
+    ? Array.isArray(schema.items)
+      ? schema.items
+      : ([schema.items] as const)
+    : ([] as const)
   const itemRefs = items.flatMap((item) => collectSchemaRefs(item, schemas, visited))
-  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((key) => {
-    const composite = schema[key]
+  const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
+    const composite = schema[k]
     return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
   })
-  return [...propRefs, ...itemRefs, ...compositeRefs]
+  return [...propRefs, ...itemRefs, ...compositeRefs] as const
 }
 
 function extractSecurityRequirements(
-  opSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
-  globalSecurity: readonly { readonly [key: string]: readonly string[] }[] | undefined,
+  opSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
+  globalSecurity: readonly { readonly [k: string]: readonly string[] }[] | undefined,
   securitySchemes: { readonly [k: string]: unknown } | undefined,
 ) {
-  const securityDefs = opSecurity ?? globalSecurity ?? []
+  const securityDefs = opSecurity ?? globalSecurity ?? ([] as const)
   return securityDefs.flatMap((secDef) =>
     Object.keys(secDef).flatMap(
       (
@@ -48,7 +55,7 @@ function extractSecurityRequirements(
         in?: 'header' | 'query' | 'cookie'
       }[] => {
         const scheme = securitySchemes?.[schemeName]
-        if (!(scheme && isSecurityScheme(scheme))) return []
+        if (!(scheme && isSecurityScheme(scheme))) return [] as const
         if (scheme.type === 'http' && scheme.scheme === 'bearer') {
           return [{ type: 'bearer', name: 'Authorization' }]
         }
@@ -60,12 +67,12 @@ function extractSecurityRequirements(
             scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
               ? scheme.in
               : 'header'
-          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }]
+          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }] as const
         }
         if (scheme.type === 'oauth2') {
-          return [{ type: 'oauth2', name: 'Authorization' }]
+          return [{ type: 'oauth2', name: 'Authorization' }] as const
         }
-        return []
+        return [] as const
       },
     ),
   )
@@ -75,8 +82,8 @@ export function extractTestCases(spec: OpenAPI) {
   const securitySchemes = spec.components?.securitySchemes
   return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
     Object.entries(pathItem).flatMap(([method, operation]) => {
-      if (!(isHttpMethod(method) && isOperation(operation))) return []
-      const resolvedParams = (operation.parameters || []).flatMap((rawParam) => {
+      if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
+      const resolvedParams = (operation.parameters || ([] as const)).flatMap((rawParam) => {
         const param = rawParam.$ref
           ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
             rawParam)
@@ -111,7 +118,7 @@ export function extractTestCases(spec: OpenAPI) {
         : undefined
       const bodyRefs = jsonBodySchema
         ? collectSchemaRefs(jsonBodySchema, spec.components?.schemas)
-        : []
+        : ([] as const)
       const paramRefs = resolvedParams.flatMap((p) =>
         collectSchemaRefs(p.schema, spec.components?.schemas),
       )
@@ -148,7 +155,7 @@ export function extractTestCases(spec: OpenAPI) {
           security,
           usedSchemaRefs,
         },
-      ]
+      ] as const
     }),
   )
 }
@@ -371,19 +378,21 @@ function getPathFirstSegment(path: string) {
 export function makeHandlerTestCode(
   spec: OpenAPI,
   handlerPath: string,
-  _routeNames: string[],
+  _routeNames: readonly string[],
   importFrom: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
   const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
   const testCases = extractTestCases(spec)
-  const relevantCases = testCases.filter((tc) => getPathFirstSegment(tc.path) === handlerFileName)
+  const relevantCases = testCases.filter(
+    (testCase) => getPathFirstSegment(testCase.path) === handlerFileName,
+  )
   if (relevantCases.length === 0) return ''
-  const usedSchemaNames = new Set(relevantCases.flatMap((tc) => tc.usedSchemaRefs))
+  const usedSchemaNames = new Set(relevantCases.flatMap((testCase) => testCase.usedSchemaRefs))
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
   const testCasesCode = relevantCases
-    .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
+    .map((testCase) => makeTestCase(testCase, basePath, spec.components?.schemas))
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)

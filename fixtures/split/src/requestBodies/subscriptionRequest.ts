@@ -1,11 +1,11 @@
 import { WebhookSubscriptionSchema } from '../schemas'
-import { SubscriptionExample } from '../examples'
+import { SubscriptionExampleExample } from '../examples'
 
 export const SubscriptionRequestRequestBody = {
   content: {
     'application/json': {
       schema: WebhookSubscriptionSchema,
-      examples: { create: SubscriptionExample },
+      examples: { create: SubscriptionExampleExample },
     },
   },
   required: true,

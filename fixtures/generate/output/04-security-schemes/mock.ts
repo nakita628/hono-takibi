@@ -120,57 +120,27 @@ export const getMultiAuthRoute = createRoute({
 })
 
 const getPublicRouteHandler: RouteHandler<typeof getPublicRoute> = async (c) => {
-  return c.json(
-    {
-      message: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ message: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getBearerProtectedRouteHandler: RouteHandler<typeof getBearerProtectedRoute> = async (c) => {
-  return c.json(
-    {
-      data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ data: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getApiKeyProtectedRouteHandler: RouteHandler<typeof getApiKeyProtectedRoute> = async (c) => {
-  return c.json(
-    {
-      data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ data: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getBasicProtectedRouteHandler: RouteHandler<typeof getBasicProtectedRoute> = async (c) => {
-  return c.json(
-    {
-      data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ data: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getOauthProtectedRouteHandler: RouteHandler<typeof getOauthProtectedRoute> = async (c) => {
-  return c.json(
-    {
-      data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ data: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getMultiAuthRouteHandler: RouteHandler<typeof getMultiAuthRoute> = async (c) => {
-  return c.json(
-    {
-      data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ data: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const app = new OpenAPIHono()

@@ -1,0 +1,420 @@
+openapi: '3.1.0'
+info:
+  title: Query and Path Parameter Coercion Test API
+  version: '1.0.0'
+  description: >
+    Verifies that hono-takibi generates code which correctly coerces
+    HTTP path/query parameters (which are always strings on the wire)
+    into the schema-declared types: number, integer (int32/int64),
+    boolean, and arrays thereof.
+paths:
+  # ── Path parameters ─────────────────────────────────────────
+  /items/integer/{id}:
+    get:
+      operationId: getItemByIntegerId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdEcho'
+
+  /items/int32/{id}:
+    get:
+      operationId: getItemByInt32Id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdEcho'
+
+  /items/int64/{id}:
+    get:
+      operationId: getItemByInt64Id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BigIntEcho'
+
+  /items/number/{value}:
+    get:
+      operationId: getItemByNumber
+      parameters:
+        - name: value
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberEcho'
+
+  /items/boolean/{flag}:
+    get:
+      operationId: getItemByBoolean
+      parameters:
+        - name: flag
+          in: path
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanEcho'
+
+  /items/mixed/{id}/sub/{flag}:
+    get:
+      operationId: getMixedPath
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: flag
+          in: path
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MixedEcho'
+
+  # ── Single-type query parameter routes (for verify table) ───
+  /q/integer:
+    get:
+      operationId: qInteger
+      parameters:
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdEcho'
+
+  /q/int32:
+    get:
+      operationId: qInt32
+      parameters:
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdEcho'
+
+  /q/int64:
+    get:
+      operationId: qInt64
+      parameters:
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BigIntEcho'
+
+  /q/number:
+    get:
+      operationId: qNumber
+      parameters:
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberEcho'
+
+  /q/boolean:
+    get:
+      operationId: qBoolean
+      parameters:
+        - name: v
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooleanEcho'
+
+  /q/mixed:
+    get:
+      operationId: qMixed
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: flag
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MixedEcho'
+
+  # ── Query parameters ────────────────────────────────────────
+  /search:
+    get:
+      operationId: search
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: price
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: active
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchEcho'
+
+  /search/optional:
+    get:
+      operationId: searchOptional
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionalEcho'
+
+  /search/array:
+    get:
+      operationId: searchArray
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          explode: true
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: flags
+          in: query
+          required: true
+          explode: true
+          schema:
+            type: array
+            items:
+              type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayEcho'
+
+components:
+  schemas:
+    IdEcho:
+      type: object
+      required: [id, type]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+
+    BigIntEcho:
+      type: object
+      required: [id, type]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+
+    NumberEcho:
+      type: object
+      required: [value, type]
+      properties:
+        value:
+          type: number
+        type:
+          type: string
+
+    BooleanEcho:
+      type: object
+      required: [flag, type]
+      properties:
+        flag:
+          type: boolean
+        type:
+          type: string
+
+    MixedEcho:
+      type: object
+      required: [id, idType, flag, flagType]
+      properties:
+        id:
+          type: integer
+        idType:
+          type: string
+        flag:
+          type: boolean
+        flagType:
+          type: string
+
+    SearchEcho:
+      type: object
+      required: [q, qType, limit, limitType, price, priceType, active, activeType]
+      properties:
+        q:
+          type: string
+        qType:
+          type: string
+        limit:
+          type: integer
+        limitType:
+          type: string
+        price:
+          type: number
+        priceType:
+          type: string
+        active:
+          type: boolean
+        activeType:
+          type: string
+
+    OptionalEcho:
+      type: object
+      required: [limit, limitType, active, activeType]
+      properties:
+        limit:
+          type: integer
+        limitType:
+          type: string
+        active:
+          type: boolean
+        activeType:
+          type: string
+
+    ArrayEcho:
+      type: object
+      required: [ids, idsTypes, flags, flagsTypes]
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+        idsTypes:
+          type: array
+          items:
+            type: string
+        flags:
+          type: array
+          items:
+            type: boolean
+        flagsTypes:
+          type: array
+          items:
+            type: string

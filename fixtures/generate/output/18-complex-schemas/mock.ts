@@ -386,9 +386,7 @@ function mockDocument() {
 }
 
 function mockBaseConfig() {
-  return {
-    version: faker.number.int({ min: 1, max: 1000 }),
-  }
+  return { version: faker.number.int({ min: 1, max: 1000 }) }
 }
 
 function mockNetworkConfig() {
@@ -413,10 +411,7 @@ function mockFullConfig() {
 }
 
 function mockSuccessResult() {
-  return {
-    status: 'success' as const,
-    data: {},
-  }
+  return { status: 'success' as const, data: {} }
 }
 
 function mockErrorResult() {

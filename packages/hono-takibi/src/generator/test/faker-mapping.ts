@@ -104,17 +104,17 @@ export function schemaToFaker(
     properties: { readonly [k: string]: Schema },
     required: readonly string[] | undefined,
   ) => {
-    const requiredSet = new Set(required || [])
+    const requiredSet = new Set(required || ([] as const))
     return Object.entries(properties)
-      .map(([key, prop]) => {
-        const value = schemaToFaker(prop, key, options)
-        if (!(requiredSet.has(key) || prop.nullable)) {
-          return `${key}: faker.helpers.arrayElement([${value}, undefined])`
+      .map(([k, v]) => {
+        const value = schemaToFaker(v, k, options)
+        if (!(requiredSet.has(k) || v.nullable)) {
+          return `${k}: faker.helpers.arrayElement([${value}, undefined])`
         }
-        if (prop.nullable) {
-          return `${key}: faker.helpers.arrayElement([${value}, null])`
+        if (v.nullable) {
+          return `${k}: faker.helpers.arrayElement([${value}, null])`
         }
-        return `${key}: ${value}`
+        return `${k}: ${value}`
       })
       .join(', ')
   }

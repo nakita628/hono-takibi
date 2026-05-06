@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -53,23 +51,6 @@ export function useImmutableGetTags(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTags(clientOptions), restSwrOptions) }
 }
 
-export function getGetTagsInfiniteKey() {
-  return ['tags', '/tags', 'infinite'] as const
-}
-
-export function useInfiniteGetTags(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getTags>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetTagsInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getTags(clientOptions), restSwrOptions)
-}
-
 export async function postTags(
   args: InferRequestType<typeof client.tags.$post>,
   options?: ClientRequestOptions,
@@ -77,10 +58,10 @@ export async function postTags(
   return await parseResponse(client.tags.$post(args, options))
 }
 
-export function usePostTags(options?: {
+export function usePostTags<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postTags>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.tags.$post>
   > & { swrKey?: Key }
@@ -140,26 +121,6 @@ export function useImmutableGetSettings(
   }
 }
 
-export function getGetSettingsInfiniteKey(args: InferRequestType<typeof client.settings.$get>) {
-  return ['settings', '/settings', args, 'infinite'] as const
-}
-
-export function useInfiniteGetSettings(
-  args: InferRequestType<typeof client.settings.$get>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getSettings>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetSettingsInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getSettings(args, clientOptions), restSwrOptions)
-}
-
 export async function putSettings(
   args: InferRequestType<typeof client.settings.$put>,
   options?: ClientRequestOptions,
@@ -167,10 +128,10 @@ export async function putSettings(
   return await parseResponse(client.settings.$put(args, options))
 }
 
-export function usePutSettings(options?: {
+export function usePutSettings<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof putSettings>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.settings.$put>
   > & { swrKey?: Key }
@@ -197,10 +158,10 @@ export async function postConfig(
   return await parseResponse(client.config.$post(args, options))
 }
 
-export function usePostConfig(options?: {
+export function usePostConfig<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postConfig>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.config.$post>
   > & { swrKey?: Key }
@@ -227,10 +188,10 @@ export async function postPayment(
   return await parseResponse(client.payment.$post(args, options))
 }
 
-export function usePostPayment(options?: {
+export function usePostPayment<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPayment>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.payment.$post>
   > & { swrKey?: Key }

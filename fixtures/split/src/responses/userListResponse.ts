@@ -1,10 +1,10 @@
 import { z } from '@hono/zod-openapi'
 import { CursorSchema, MetaSchema, UserSchema } from '../schemas'
 import { TraceIdHeaderHeaderSchema } from '../headers'
-import { UserListExample } from '../examples'
-import { ListUsersNextPageLink } from '../links'
+import { UserListExampleExample } from '../examples'
+import { ListUsersNextPageLinkLink } from '../links'
 
-export const UserListResponse = {
+export const UserListResponseResponse = {
   description: 'Users list (paged)',
   headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
   content: {
@@ -16,8 +16,8 @@ export const UserListResponse = {
           meta: MetaSchema.exactOptional(),
         })
         .openapi({ required: ['items'] }),
-      examples: { list: UserListExample },
+      examples: { list: UserListExampleExample },
     },
   },
-  links: { next: ListUsersNextPageLink },
+  links: { next: ListUsersNextPageLinkLink },
 }

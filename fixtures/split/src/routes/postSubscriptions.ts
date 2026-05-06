@@ -1,8 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { TraceIdHeaderParamParamsSchema } from '../parameters'
 import { SubscriptionRequestRequestBody } from '../requestBodies'
-import { DefaultErrorResponse, SubscriptionResponse, ValidationErrorResponse } from '../responses'
-import { SubscriptionLifecycleCallback } from '../callbacks'
+import {
+  DefaultErrorResponse,
+  SubscriptionResponseResponse,
+  ValidationErrorResponse,
+} from '../responses'
+import { SubscriptionLifecycleCallbackCallback } from '../callbacks'
 
 export const postSubscriptionsRoute = createRoute({
   method: 'post',
@@ -15,9 +19,9 @@ export const postSubscriptionsRoute = createRoute({
     body: SubscriptionRequestRequestBody,
   },
   responses: {
-    201: SubscriptionResponse,
+    201: SubscriptionResponseResponse,
     400: ValidationErrorResponse,
     default: DefaultErrorResponse,
   },
-  callbacks: { subscriptionEvents: SubscriptionLifecycleCallback },
+  callbacks: { subscriptionEvents: SubscriptionLifecycleCallbackCallback },
 })

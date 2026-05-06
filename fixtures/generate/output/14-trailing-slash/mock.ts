@@ -140,23 +140,13 @@ export const getItemsIndexRoute = createRoute({
 const getApiReverseChibanIndexRouteHandler: RouteHandler<
   typeof getApiReverseChibanIndexRoute
 > = async (c) => {
-  return c.json(
-    {
-      result: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ result: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getApiReverseChibanRouteHandler: RouteHandler<typeof getApiReverseChibanRoute> = async (
   c,
 ) => {
-  return c.json(
-    {
-      result: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ result: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const getPostsIndexRouteHandler: RouteHandler<typeof getPostsIndexRoute> = async (c) => {
@@ -173,20 +163,14 @@ const getPostsIndexRouteHandler: RouteHandler<typeof getPostsIndexRoute> = async
 
 const postPostsIndexRouteHandler: RouteHandler<typeof postPostsIndexRoute> = async (c) => {
   return c.json(
-    {
-      id: faker.number.int({ min: 1, max: 99999 }),
-      title: faker.lorem.sentence(),
-    },
+    { id: faker.number.int({ min: 1, max: 99999 }), title: faker.lorem.sentence() },
     201,
   )
 }
 
 const getUsersIdIndexRouteHandler: RouteHandler<typeof getUsersIdIndexRoute> = async (c) => {
   return c.json(
-    {
-      id: faker.string.alpha({ length: { min: 5, max: 20 } }),
-      name: faker.person.fullName(),
-    },
+    { id: faker.string.alpha({ length: { min: 5, max: 20 } }), name: faker.person.fullName() },
     200,
   )
 }

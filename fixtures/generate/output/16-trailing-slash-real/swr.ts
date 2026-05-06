@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -62,33 +60,6 @@ export function useImmutableGetApiReverseGeocodeIndex(
   }
 }
 
-export function getGetApiReverseGeocodeIndexInfiniteKey(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-) {
-  return ['api', '/api/reverseGeocode/', args, 'infinite'] as const
-}
-
-export function useInfiniteGetApiReverseGeocodeIndex(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ??
-    ((index: number) => [...getGetApiReverseGeocodeIndexInfiniteKey(args), index] as const)
-  return useSWRInfinite(
-    keyLoader,
-    async () => getApiReverseGeocodeIndex(args, clientOptions),
-    restSwrOptions,
-  )
-}
-
 export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
   options?: ClientRequestOptions,
@@ -98,10 +69,10 @@ export async function postApiV2PublicBookingAccountRegisterOauthIndex(
   )
 }
 
-export function usePostApiV2PublicBookingAccountRegisterOauthIndex(options?: {
+export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
   > & { swrKey?: Key }
@@ -139,10 +110,10 @@ export async function postApiV2PublicBookingAccountRegisterEmail(
   )
 }
 
-export function usePostApiV2PublicBookingAccountRegisterEmail(options?: {
+export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
   > & { swrKey?: Key }

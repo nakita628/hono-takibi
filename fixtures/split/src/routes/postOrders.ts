@@ -1,8 +1,8 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { TraceIdHeaderParamParamsSchema } from '../parameters'
 import { CreateOrderRequestRequestBody } from '../requestBodies'
-import { DefaultErrorResponse, OrderResponse, ValidationErrorResponse } from '../responses'
-import { OrderCreatedCallback } from '../callbacks'
+import { DefaultErrorResponse, OrderResponseResponse, ValidationErrorResponse } from '../responses'
+import { OrderCreatedCallbackCallback } from '../callbacks'
 
 export const postOrdersRoute = createRoute({
   method: 'post',
@@ -14,6 +14,10 @@ export const postOrdersRoute = createRoute({
     headers: z.object({ 'x-trace-id': TraceIdHeaderParamParamsSchema }),
     body: CreateOrderRequestRequestBody,
   },
-  responses: { 201: OrderResponse, 400: ValidationErrorResponse, default: DefaultErrorResponse },
-  callbacks: { orderEvents: OrderCreatedCallback },
+  responses: {
+    201: OrderResponseResponse,
+    400: ValidationErrorResponse,
+    default: DefaultErrorResponse,
+  },
+  callbacks: { orderEvents: OrderCreatedCallbackCallback },
 })

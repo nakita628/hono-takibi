@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -29,7 +23,9 @@ export async function postSubscriptions(
   return await parseResponse(client.subscriptions.$post(args, options))
 }
 
-export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
+export function getPostSubscriptionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
@@ -38,11 +34,11 @@ export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptio
   }
 }
 
-export function createPostSubscriptions(
+export function createPostSubscriptions<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postSubscriptions>>,
-      Error,
+      TError,
       InferRequestType<typeof client.subscriptions.$post>
     >
     options?: ClientRequestOptions
@@ -50,7 +46,7 @@ export function createPostSubscriptions(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostSubscriptionsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostSubscriptionsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -79,10 +75,13 @@ export function getSubscriptionsIdQueryOptions(
   })
 }
 
-export function createSubscriptionsId<TData = Awaited<ReturnType<typeof getSubscriptionsId>>>(
+export function createSubscriptionsId<
+  TData = Awaited<ReturnType<typeof getSubscriptionsId>>,
+  TError = unknown,
+>(
   args: () => InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -101,37 +100,6 @@ export function createSubscriptionsId<TData = Awaited<ReturnType<typeof getSubsc
   })
 }
 
-export function getSubscriptionsIdInfiniteQueryKey(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
-) {
-  return ['subscriptions', '/subscriptions/:id', args, 'infinite'] as const
-}
-
-export function getSubscriptionsIdInfiniteQueryOptions(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return {
-    queryKey: getSubscriptionsIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteSubscriptionsId(
-  args: () => InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getSubscriptionsIdInfiniteQueryOptions(args(), clientOptions) }
-  })
-}
-
 export async function deleteSubscriptionsId(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>,
   options?: ClientRequestOptions,
@@ -139,7 +107,9 @@ export async function deleteSubscriptionsId(
   return await parseResponse(client.subscriptions[':id'].$delete(args, options))
 }
 
-export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
+export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
@@ -148,11 +118,11 @@ export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestO
   }
 }
 
-export function createDeleteSubscriptionsId(
+export function createDeleteSubscriptionsId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteSubscriptionsId>>  ,
-      Error,
+      Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
+      TError,
       InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
     >
     options?: ClientRequestOptions
@@ -160,7 +130,7 @@ export function createDeleteSubscriptionsId(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getDeleteSubscriptionsIdMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -171,7 +141,9 @@ export async function postWebhooksTest(
   return await parseResponse(client.webhooks.test.$post(args, options))
 }
 
-export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
+export function getPostWebhooksTestMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
   return {
     mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
@@ -180,11 +152,11 @@ export function getPostWebhooksTestMutationOptions(options?: ClientRequestOption
   }
 }
 
-export function createPostWebhooksTest(
+export function createPostWebhooksTest<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postWebhooksTest>>,
-      Error,
+      TError,
       InferRequestType<typeof client.webhooks.test.$post>
     >
     options?: ClientRequestOptions
@@ -192,6 +164,6 @@ export function createPostWebhooksTest(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostWebhooksTestMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostWebhooksTestMutationOptions<TError>(clientOptions) }
   })
 }

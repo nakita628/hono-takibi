@@ -1,8 +1,6 @@
 import {
   useQuery,
   useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
   mutationOptions,
@@ -11,8 +9,6 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseSuspenseQueryOptions,
-  UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -44,8 +40,8 @@ export function getTreeQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useTree<TData = Awaited<ReturnType<typeof getTree>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error, TData>
+export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = unknown>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -58,8 +54,11 @@ export function useTree<TData = Awaited<ReturnType<typeof getTree>>>(options?: {
   })
 }
 
-export function useSuspenseTree<TData = Awaited<ReturnType<typeof getTree>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTree>>, Error, TData>
+export function useSuspenseTree<
+  TData = Awaited<ReturnType<typeof getTree>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -72,38 +71,6 @@ export function useSuspenseTree<TData = Awaited<ReturnType<typeof getTree>>>(opt
   })
 }
 
-export function getTreeInfiniteQueryKey() {
-  return ['tree', '/tree', 'infinite'] as const
-}
-
-export function getTreeInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getTreeInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteTree(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getTreeInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteTree(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getTree>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getTreeInfiniteQueryOptions(clientOptions),
-  })
-}
-
 export async function postTree(
   args: InferRequestType<typeof client.tree.$post>,
   options?: ClientRequestOptions,
@@ -111,8 +78,12 @@ export async function postTree(
   return await parseResponse(client.tree.$post(args, options))
 }
 
-export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postTree>>,
+    TError,
+    InferRequestType<typeof client.tree.$post>
+  >({
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
       return postTree(args, options)
@@ -120,16 +91,16 @@ export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostTree(options?: {
+export function usePostTree<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postTree>>,
-    Error,
+    TError,
     InferRequestType<typeof client.tree.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTreeMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions<TError>(clientOptions) })
 }
 
 export function getGraphQueryKey() {
@@ -149,8 +120,8 @@ export function getGraphQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error, TData>
+export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = unknown>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -163,8 +134,11 @@ export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>>(options?:
   })
 }
 
-export function useSuspenseGraph<TData = Awaited<ReturnType<typeof getGraph>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error, TData>
+export function useSuspenseGraph<
+  TData = Awaited<ReturnType<typeof getGraph>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -174,37 +148,5 @@ export function useSuspenseGraph<TData = Awaited<ReturnType<typeof getGraph>>>(o
     queryFn({ signal }: QueryFunctionContext) {
       return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getGraphInfiniteQueryKey() {
-  return ['graph', '/graph', 'infinite'] as const
-}
-
-export function getGraphInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getGraphInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteGraph(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getGraphInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteGraph(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getGraph>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getGraphInfiniteQueryOptions(clientOptions),
   })
 }

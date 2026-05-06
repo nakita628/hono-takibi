@@ -121,30 +121,17 @@ export const postMultiContentRoute = createRoute({
 
 const postJsonRouteHandler: RouteHandler<typeof postJsonRoute> = async (c) => {
   return c.json(
-    {
-      id: faker.number.int({ min: 1, max: 99999 }),
-      name: faker.person.fullName(),
-    },
+    { id: faker.number.int({ min: 1, max: 99999 }), name: faker.person.fullName() },
     200,
   )
 }
 
 const postFormRouteHandler: RouteHandler<typeof postFormRoute> = async (c) => {
-  return c.json(
-    {
-      success: faker.datatype.boolean(),
-    },
-    200,
-  )
+  return c.json({ success: faker.datatype.boolean() }, 200)
 }
 
 const postUploadRouteHandler: RouteHandler<typeof postUploadRoute> = async (c) => {
-  return c.json(
-    {
-      url: faker.internet.url(),
-    },
-    200,
-  )
+  return c.json({ url: faker.internet.url() }, 200)
 }
 
 const postTextRouteHandler: RouteHandler<typeof postTextRoute> = async (c) => {
@@ -152,12 +139,7 @@ const postTextRouteHandler: RouteHandler<typeof postTextRoute> = async (c) => {
 }
 
 const postMultiContentRouteHandler: RouteHandler<typeof postMultiContentRoute> = async (c) => {
-  return c.json(
-    {
-      received: faker.datatype.boolean(),
-    },
-    200,
-  )
+  return c.json({ received: faker.datatype.boolean() }, 200)
 }
 
 const app = new OpenAPIHono()

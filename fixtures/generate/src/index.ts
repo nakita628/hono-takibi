@@ -2,7 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import SwaggerParser from '@apidevtools/swagger-parser'
+import { angularQuery } from 'hono-takibi/angular-query'
+import { preactQuery } from 'hono-takibi/preact-query'
 import { rpc } from 'hono-takibi/rpc'
+import { solidQuery } from 'hono-takibi/solid-query'
 import { svelteQuery } from 'hono-takibi/svelte-query'
 import { swr } from 'hono-takibi/swr'
 import { tanstackQuery } from 'hono-takibi/tanstack-query'
@@ -69,6 +72,7 @@ const SPECS = [
   { name: '16-trailing-slash-real', yaml: '16-trailing-slash-real.yaml', flags: NO_EXPORTS },
   { name: '18-complex-schemas', yaml: '18-complex-schemas.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
   { name: '19-brand', yaml: '19-brand.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
+  { name: '20-pagination', yaml: '20-pagination.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'
@@ -91,6 +95,9 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
     { mode: 'tanstack-query', fn: () => tanstackQuery(openAPI, `${outDir}/tanstack-query.ts`, './client', false, 'client') },
     { mode: 'svelte-query', fn: () => svelteQuery(openAPI, `${outDir}/svelte-query.ts`, './client', false, 'client') },
     { mode: 'vue-query', fn: () => vueQuery(openAPI, `${outDir}/vue-query.ts`, './client', false, 'client') },
+    { mode: 'solid-query', fn: () => solidQuery(openAPI, `${outDir}/solid-query.ts`, './client', false, 'client') },
+    { mode: 'preact-query', fn: () => preactQuery(openAPI, `${outDir}/preact-query.ts`, './client', false, 'client') },
+    { mode: 'angular-query', fn: () => angularQuery(openAPI, `${outDir}/angular-query.ts`, './client', false, 'client') },
     { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`, '/') },
     { mode: 'test', fn: () => test(openAPI, `${outDir}/test.ts`, './mock') },
     { mode: 'parse-response', fn: () => rpc(openAPI, `${outDir}/parse-response.ts`, './client', false, 'client', true) },

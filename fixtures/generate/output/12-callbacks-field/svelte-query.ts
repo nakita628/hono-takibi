@@ -1,13 +1,7 @@
-import {
-  createQuery,
-  createInfiniteQuery,
-  createMutation,
-  queryOptions,
-} from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateInfiniteQueryOptions,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -33,7 +27,7 @@ export async function postOrders(
   return await parseResponse(client.orders.$post(args, options))
 }
 
-export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -42,11 +36,11 @@ export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostOrders(
+export function createPostOrders<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postOrders>>,
-      Error,
+      TError,
       InferRequestType<typeof client.orders.$post>
     >
     options?: ClientRequestOptions
@@ -54,7 +48,7 @@ export function createPostOrders(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostOrdersMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -65,7 +59,7 @@ export async function postPayments(
   return await parseResponse(client.payments.$post(args, options))
 }
 
-export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
+export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payments', '/payments', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
@@ -74,11 +68,11 @@ export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   }
 }
 
-export function createPostPayments(
+export function createPostPayments<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
       Awaited<ReturnType<typeof postPayments>>,
-      Error,
+      TError,
       InferRequestType<typeof client.payments.$post>
     >
     options?: ClientRequestOptions
@@ -86,7 +80,7 @@ export function createPostPayments(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...getPostPaymentsMutationOptions(clientOptions), ...mutation }
+    return { ...mutation, ...getPostPaymentsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -107,9 +101,9 @@ export function getItemsQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function createItems<TData = Awaited<ReturnType<typeof getItems>>>(
+export function createItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, Error, TData>
+    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
     options?: ClientRequestOptions
   },
 ) {
@@ -122,30 +116,5 @@ export function createItems<TData = Awaited<ReturnType<typeof getItems>>>(
         return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
-  })
-}
-
-export function getItemsInfiniteQueryKey() {
-  return ['items', '/items', 'infinite'] as const
-}
-
-export function getItemsInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getItemsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function createInfiniteItems(
-  options: () => {
-    query: CreateInfiniteQueryOptions<Awaited<ReturnType<typeof getItems>>, Error>
-    options?: ClientRequestOptions
-  },
-) {
-  return createInfiniteQuery(() => {
-    const { query, options: clientOptions } = options()
-    return { ...query, ...getItemsInfiniteQueryOptions(clientOptions) }
   })
 }

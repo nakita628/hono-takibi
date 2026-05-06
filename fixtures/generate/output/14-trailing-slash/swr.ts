@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -59,28 +57,6 @@ export function useImmutableGetApiReverseChibanIndex(options?: {
   }
 }
 
-export function getGetApiReverseChibanIndexInfiniteKey() {
-  return ['api', '/api/reverseChiban/', 'infinite'] as const
-}
-
-export function useInfiniteGetApiReverseChibanIndex(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ??
-    ((index: number) => [...getGetApiReverseChibanIndexInfiniteKey(), index] as const)
-  return useSWRInfinite(
-    keyLoader,
-    async () => getApiReverseChibanIndex(clientOptions),
-    restSwrOptions,
-  )
-}
-
 export function getGetApiReverseChibanKey() {
   return ['api', '/api/reverseChiban'] as const
 }
@@ -113,23 +89,6 @@ export function useImmutableGetApiReverseChiban(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getApiReverseChiban(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetApiReverseChibanInfiniteKey() {
-  return ['api', '/api/reverseChiban', 'infinite'] as const
-}
-
-export function useInfiniteGetApiReverseChiban(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getApiReverseChiban>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetApiReverseChibanInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getApiReverseChiban(clientOptions), restSwrOptions)
 }
 
 export function getGetPostsIndexKey(args: InferRequestType<typeof client.posts.index.$get>) {
@@ -175,28 +134,6 @@ export function useImmutableGetPostsIndex(
   }
 }
 
-export function getGetPostsIndexInfiniteKey(
-  args: InferRequestType<typeof client.posts.index.$get>,
-) {
-  return ['posts', '/posts/', args, 'infinite'] as const
-}
-
-export function useInfiniteGetPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPostsIndex>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetPostsIndexInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getPostsIndex(args, clientOptions), restSwrOptions)
-}
-
 export async function postPostsIndex(
   args: InferRequestType<typeof client.posts.index.$post>,
   options?: ClientRequestOptions,
@@ -204,10 +141,10 @@ export async function postPostsIndex(
   return await parseResponse(client.posts.index.$post(args, options))
 }
 
-export function usePostPostsIndex(options?: {
+export function usePostPostsIndex<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postPostsIndex>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.posts.index.$post>
   > & { swrKey?: Key }
@@ -272,28 +209,6 @@ export function useImmutableGetUsersIdIndex(
   }
 }
 
-export function getGetUsersIdIndexInfiniteKey(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-) {
-  return ['users', '/users/:id/', args, 'infinite'] as const
-}
-
-export function useInfiniteGetUsersIdIndex(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersIdIndex>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersIdIndexInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getUsersIdIndex(args, clientOptions), restSwrOptions)
-}
-
 export function getGetItemsIndexKey() {
   return ['items', '/items/'] as const
 }
@@ -323,21 +238,4 @@ export function useImmutableGetItemsIndex(options?: {
     swrKey,
     ...useSWRImmutable(swrKey, async () => getItemsIndex(clientOptions), restSwrOptions),
   }
-}
-
-export function getGetItemsIndexInfiniteKey() {
-  return ['items', '/items/', 'infinite'] as const
-}
-
-export function useInfiniteGetItemsIndex(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getItemsIndex>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetItemsIndexInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getItemsIndex(clientOptions), restSwrOptions)
 }

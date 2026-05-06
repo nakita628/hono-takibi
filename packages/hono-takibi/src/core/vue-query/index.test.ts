@@ -53,20 +53,11 @@ describe('vueQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
 } from '@tanstack/vue-query'
@@ -95,38 +86,27 @@ export async function getHono(options?: ClientRequestOptions) {
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoQueryKey>>) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getHono>>,
+    ReturnType<typeof getHonoQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseHono<
-  TData = Awaited<ReturnType<typeof getHono>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoQueryKey>>) {
       return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -136,20 +116,30 @@ export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
+export function getHonoInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TError = unknown,
+>(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>>) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -160,15 +150,15 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteHono<
   TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -176,7 +166,7 @@ export function useInfiniteHono<
       TError,
       TData,
       ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -184,38 +174,7 @@ export function useInfiniteHono<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getHono>>,
-      allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getHono>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
+    ...getHonoInfiniteQueryOptions<TData, TError>(pagination, clientOptions),
   })
 }
 
@@ -238,7 +197,7 @@ export function getUsersQueryOptions(
 ) {
   return {
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -247,7 +206,13 @@ export function getUsersQueryOptions(
 export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -255,24 +220,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -284,21 +232,31 @@ export function getUsersInfiniteQueryKey(
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -309,16 +267,16 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsers<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -326,7 +284,7 @@ export function useInfiniteUsers<
       TError,
       TData,
       ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -334,39 +292,7 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsers>>,
-      allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsers>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
+    ...getUsersInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 
@@ -444,19 +370,11 @@ export function getUsersKey() {
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const useGetHonoExpected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -474,38 +392,27 @@ export async function getHono(options?: ClientRequestOptions) {
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoQueryKey>>) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useHono<TData = Awaited<ReturnType<typeof getHono>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getHono>>,
+    ReturnType<typeof getHonoQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseHono<
-  TData = Awaited<ReturnType<typeof getHono>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHono>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoQueryKey>>) {
       return getHono({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -515,20 +422,30 @@ export function getHonoInfiniteQueryKey() {
   return ['hono', '/hono', 'infinite'] as const
 }
 
-export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
+export function getHonoInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
+  TError = unknown,
+>(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getHono>>,
+    TError,
+    TData,
+    ReturnType<typeof getHonoInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>>) {
       return getHono({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -539,15 +456,15 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteHono<
   TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHono>>,
       allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -555,7 +472,7 @@ export function useInfiniteHono<
       TError,
       TData,
       ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -563,38 +480,7 @@ export function useInfiniteHono<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteHono<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHono>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getHono>>,
-      allPages: Awaited<ReturnType<typeof getHono>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getHono>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
+    ...getHonoInfiniteQueryOptions<TData, TError>(pagination, clientOptions),
   })
 }
 `
@@ -602,19 +488,11 @@ export function useSuspenseInfiniteHono<
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const useGetUsersExpected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import { toValue } from 'vue'
@@ -642,7 +520,7 @@ export function getUsersQueryOptions(
 ) {
   return {
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -651,7 +529,13 @@ export function getUsersQueryOptions(
 export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -659,24 +543,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -688,21 +555,31 @@ export function getUsersInfiniteQueryKey(
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -713,16 +590,16 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsers<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -730,7 +607,7 @@ export function useInfiniteUsers<
       TError,
       TData,
       ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -738,39 +615,7 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsers>>,
-      allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsers>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
+    ...getUsersInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 `
@@ -850,19 +695,11 @@ describe('vueQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -884,38 +721,27 @@ export async function getUsers(options?: ClientRequestOptions) {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getUsers>>,
+    ReturnType<typeof getUsersQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseUsers<
-  TData = Awaited<ReturnType<typeof getUsers>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -925,20 +751,30 @@ export function getUsersInfiniteQueryKey() {
   return ['users', '/users', 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TError = unknown,
+>(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>>) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -949,15 +785,15 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsers<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -965,7 +801,7 @@ export function useInfiniteUsers<
       TError,
       TData,
       ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -973,38 +809,7 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsers>>,
-      allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsers>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersInfiniteQueryOptions(pagination, clientOptions),
+    ...getUsersInfiniteQueryOptions<TData, TError>(pagination, clientOptions),
   })
 }
 `
@@ -1046,20 +851,11 @@ describe('vueQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
 } from '@tanstack/vue-query'
@@ -1082,38 +878,27 @@ export async function getPing(options?: ClientRequestOptions) {
 export function getPingQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPingQueryKey>>) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function usePing<TData = Awaited<ReturnType<typeof getPing>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getPing>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getPing>>,
+    ReturnType<typeof getPingQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspensePing<
-  TData = Awaited<ReturnType<typeof getPing>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getPing>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPingQueryKey>>) {
       return getPing({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -1123,20 +908,30 @@ export function getPingInfiniteQueryKey() {
   return ['ping', '/ping', 'infinite'] as const
 }
 
-export function getPingInfiniteQueryOptions<TPageParam = unknown>(
+export function getPingInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
+  TError = unknown,
+>(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getPing>>,
       allPages: Awaited<ReturnType<typeof getPing>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getPing>>,
+    TError,
+    TData,
+    ReturnType<typeof getPingInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getPingInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>>) {
       return getPing({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -1147,15 +942,15 @@ export function getPingInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfinitePing<
   TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getPing>>,
       allPages: Awaited<ReturnType<typeof getPing>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -1163,7 +958,7 @@ export function useInfinitePing<
       TError,
       TData,
       ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -1171,38 +966,7 @@ export function useInfinitePing<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getPingInfiniteQueryOptions(pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfinitePing<
-  TData = InfiniteData<Awaited<ReturnType<typeof getPing>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getPing>>,
-      allPages: Awaited<ReturnType<typeof getPing>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getPing>>,
-      TError,
-      TData,
-      ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getPingInfiniteQueryOptions(pagination, clientOptions),
+    ...getPingInfiniteQueryOptions<TData, TError>(pagination, clientOptions),
   })
 }
 
@@ -1260,19 +1024,11 @@ describe('vueQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
@@ -1294,38 +1050,27 @@ export async function getHonoX(options?: ClientRequestOptions) {
 export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoXQueryKey>>) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
   }
 }
 
 export function useHonoX<TData = Awaited<ReturnType<typeof getHonoX>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getHonoX>>,
+    TError,
+    TData,
+    Awaited<ReturnType<typeof getHonoX>>,
+    ReturnType<typeof getHonoXQueryKey>
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useQuery({
     ...queryOptions,
     queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseHonoX<
-  TData = Awaited<ReturnType<typeof getHonoX>>,
-  TError = unknown,
->(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getHonoX>>, TError, TData>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoXQueryKey>>) {
       return getHonoX({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -1335,20 +1080,30 @@ export function getHonoXInfiniteQueryKey() {
   return ['hono-x', '/hono-x', 'infinite'] as const
 }
 
-export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
+export function getHonoXInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
+  TError = unknown,
+>(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHonoX>>,
       allPages: Awaited<ReturnType<typeof getHonoX>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getHonoX>>,
+    TError,
+    TData,
+    ReturnType<typeof getHonoXInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>>) {
       return getHonoX({ ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -1359,15 +1114,15 @@ export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteHonoX<
   TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getHonoX>>,
       allPages: Awaited<ReturnType<typeof getHonoX>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -1375,7 +1130,7 @@ export function useInfiniteHonoX<
       TError,
       TData,
       ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -1383,38 +1138,7 @@ export function useInfiniteHonoX<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getHonoXInfiniteQueryOptions(pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteHonoX<
-  TData = InfiniteData<Awaited<ReturnType<typeof getHonoX>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getHonoX>>,
-      allPages: Awaited<ReturnType<typeof getHonoX>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getHonoX>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getHonoXInfiniteQueryOptions(pagination, clientOptions),
+    ...getHonoXInfiniteQueryOptions<TData, TError>(pagination, clientOptions),
   })
 }
 `
@@ -1457,20 +1181,11 @@ describe('vueQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  useMutation,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const expected = `import { useQuery, useInfiniteQuery, useMutation, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
 } from '@tanstack/vue-query'
@@ -1503,7 +1218,7 @@ export function getUsersIdQueryOptions(
 ) {
   return {
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -1512,7 +1227,13 @@ export function getUsersIdQueryOptions(
 export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsersId>>,
+      ReturnType<typeof getUsersIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1520,30 +1241,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseUsersId<
-  TData = Awaited<ReturnType<typeof getUsersId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -1558,21 +1256,31 @@ export function getUsersIdInfiniteQueryKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersIdInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsersId>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersIdInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -1583,16 +1291,16 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsersId<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -1600,7 +1308,7 @@ export function useInfiniteUsersId<
       TError,
       TData,
       ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -1608,39 +1316,7 @@ export function useInfiniteUsersId<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersIdInfiniteQueryOptions(args, pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsersId>>,
-      allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsersId>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersIdInfiniteQueryOptions(args, pagination, clientOptions),
+    ...getUsersIdInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 
@@ -1772,19 +1448,11 @@ export * from './deleteUsersId'
 
       // Check GET /users query file (has args with MaybeRefOrGetter/toValue)
       const getUsers = fs.readFileSync(path.join(dir, 'hooks', 'getUsers.ts'), 'utf-8')
-      const getUsersExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const getUsersExpected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import { toValue } from 'vue'
@@ -1812,7 +1480,7 @@ export function getUsersQueryOptions(
 ) {
   return {
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -1821,7 +1489,13 @@ export function getUsersQueryOptions(
 export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsers>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsers>>,
+      ReturnType<typeof getUsersQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -1829,24 +1503,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
-    },
-  })
-}
-
-export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = unknown>(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsers>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -1858,21 +1515,31 @@ export function getUsersInfiniteQueryKey(
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsers>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -1883,16 +1550,16 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsers<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsers>>,
       allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -1900,7 +1567,7 @@ export function useInfiniteUsers<
       TError,
       TData,
       ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -1908,39 +1575,7 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsers<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsers>>,
-      allPages: Awaited<ReturnType<typeof getUsers>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsers>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
+    ...getUsersInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 `
@@ -1986,19 +1621,11 @@ export function usePostUsers<TError = unknown>(options?: {
 
       // Check GET /users/{id} query file (path param with bracket notation)
       const getUsersId = fs.readFileSync(path.join(dir, 'hooks', 'getUsersId.ts'), 'utf-8')
-      const getUsersIdExpected = `import {
-  useQuery,
-  useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
-  infiniteQueryOptions,
-} from '@tanstack/vue-query'
+      const getUsersIdExpected = `import { useQuery, useInfiniteQuery, infiniteQueryOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
-  UseSuspenseQueryOptions,
   UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/vue-query'
 import { toValue } from 'vue'
@@ -2026,7 +1653,7 @@ export function getUsersIdQueryOptions(
 ) {
   return {
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -2035,7 +1662,13 @@ export function getUsersIdQueryOptions(
 export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TError = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getUsersId>>,
+      TError,
+      TData,
+      Awaited<ReturnType<typeof getUsersId>>,
+      ReturnType<typeof getUsersIdQueryKey>
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -2043,30 +1676,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
-    },
-  })
-}
-
-export function useSuspenseUsersId<
-  TData = Awaited<ReturnType<typeof getUsersId>>,
-  TError = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
-  options?: {
-    query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getUsersId>>, TError, TData>
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -2081,21 +1691,31 @@ export function getUsersIdInfiniteQueryKey(
   return ['users', '/users/:id', args, 'infinite'] as const
 }
 
-export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
+export function getUsersIdInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: ClientRequestOptions,
 ) {
-  return infiniteQueryOptions({
+  return infiniteQueryOptions<
+    Awaited<ReturnType<typeof getUsersId>>,
+    TError,
+    TData,
+    ReturnType<typeof getUsersIdInfiniteQueryKey>,
+    unknown
+  >({
     queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
     initialPageParam: pagination.initialPageParam,
@@ -2106,16 +1726,16 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
 export function useInfiniteUsersId<
   TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
   TError = unknown,
-  TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   pagination: {
-    initialPageParam: TPageParam
+    initialPageParam: unknown
     getNextPageParam: (
       lastPage: Awaited<ReturnType<typeof getUsersId>>,
       allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
+      lastPageParam: unknown,
+      allPageParams: unknown[],
+    ) => unknown | undefined | null
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -2123,7 +1743,7 @@ export function useInfiniteUsersId<
       TError,
       TData,
       ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      unknown
     >
     options?: ClientRequestOptions
   },
@@ -2131,39 +1751,7 @@ export function useInfiniteUsersId<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersIdInfiniteQueryOptions(args, pagination, clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteUsersId<
-  TData = InfiniteData<Awaited<ReturnType<typeof getUsersId>>>,
-  TError = unknown,
-  TPageParam = unknown,
->(
-  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
-  pagination: {
-    initialPageParam: TPageParam
-    getNextPageParam: (
-      lastPage: Awaited<ReturnType<typeof getUsersId>>,
-      allPages: Awaited<ReturnType<typeof getUsersId>>[],
-      lastPageParam: TPageParam,
-    ) => TPageParam | undefined | null
-  },
-  options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof getUsersId>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getUsersIdInfiniteQueryOptions(args, pagination, clientOptions),
+    ...getUsersIdInfiniteQueryOptions<TData, TError>(args, pagination, clientOptions),
   })
 }
 `

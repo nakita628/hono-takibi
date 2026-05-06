@@ -1,8 +1,6 @@
 import {
   useQuery,
   useSuspenseQuery,
-  useInfiniteQuery,
-  useSuspenseInfiniteQuery,
   useMutation,
   queryOptions,
   mutationOptions,
@@ -11,8 +9,6 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseSuspenseQueryOptions,
-  UseInfiniteQueryOptions,
-  UseSuspenseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -74,8 +70,12 @@ export async function postOneOf(
   return await parseResponse(client['one-of'].$post(args, options))
 }
 
-export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostOneOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postOneOf>>,
+    TError,
+    InferRequestType<(typeof client)['one-of']['$post']>
+  >({
     mutationKey: ['one-of', '/one-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
       return postOneOf(args, options)
@@ -83,16 +83,16 @@ export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostOneOf(options?: {
+export function usePostOneOf<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postOneOf>>,
-    Error,
+    TError,
     InferRequestType<(typeof client)['one-of']['$post']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostOneOfMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostOneOfMutationOptions<TError>(clientOptions) })
 }
 
 export async function postAnyOf(
@@ -102,8 +102,12 @@ export async function postAnyOf(
   return await parseResponse(client['any-of'].$post(args, options))
 }
 
-export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostAnyOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postAnyOf>>,
+    TError,
+    InferRequestType<(typeof client)['any-of']['$post']>
+  >({
     mutationKey: ['any-of', '/any-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
       return postAnyOf(args, options)
@@ -111,16 +115,16 @@ export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostAnyOf(options?: {
+export function usePostAnyOf<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postAnyOf>>,
-    Error,
+    TError,
     InferRequestType<(typeof client)['any-of']['$post']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostAnyOfMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostAnyOfMutationOptions<TError>(clientOptions) })
 }
 
 export async function postAllOf(
@@ -130,8 +134,12 @@ export async function postAllOf(
   return await parseResponse(client['all-of'].$post(args, options))
 }
 
-export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostAllOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postAllOf>>,
+    TError,
+    InferRequestType<(typeof client)['all-of']['$post']>
+  >({
     mutationKey: ['all-of', '/all-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
       return postAllOf(args, options)
@@ -139,16 +147,16 @@ export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostAllOf(options?: {
+export function usePostAllOf<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postAllOf>>,
-    Error,
+    TError,
     InferRequestType<(typeof client)['all-of']['$post']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostAllOfMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostAllOfMutationOptions<TError>(clientOptions) })
 }
 
 export async function postNot(
@@ -158,8 +166,12 @@ export async function postNot(
   return await parseResponse(client.not.$post(args, options))
 }
 
-export function getPostNotMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
+export function getPostNotMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof postNot>>,
+    TError,
+    InferRequestType<typeof client.not.$post>
+  >({
     mutationKey: ['not', '/not', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.not.$post>) {
       return postNot(args, options)
@@ -167,16 +179,16 @@ export function getPostNotMutationOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function usePostNot(options?: {
+export function usePostNot<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postNot>>,
-    Error,
+    TError,
     InferRequestType<typeof client.not.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostNotMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({ ...mutationOptions, ...getPostNotMutationOptions<TError>(clientOptions) })
 }
 
 export function getNotRefQueryKey() {
@@ -196,8 +208,11 @@ export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useNotRef<TData = Awaited<ReturnType<typeof getNotRef>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error, TData>
+export function useNotRef<
+  TData = Awaited<ReturnType<typeof getNotRef>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -210,8 +225,11 @@ export function useNotRef<TData = Awaited<ReturnType<typeof getNotRef>>>(options
   })
 }
 
-export function useSuspenseNotRef<TData = Awaited<ReturnType<typeof getNotRef>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error, TData>
+export function useSuspenseNotRef<
+  TData = Awaited<ReturnType<typeof getNotRef>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotRef>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -221,38 +239,6 @@ export function useSuspenseNotRef<TData = Awaited<ReturnType<typeof getNotRef>>>
     queryFn({ signal }: QueryFunctionContext) {
       return getNotRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNotRefInfiniteQueryKey() {
-  return ['not-ref', '/not-ref', 'infinite'] as const
-}
-
-export function getNotRefInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNotRefInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNotRef({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNotRef(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getNotRefInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteNotRef(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotRef>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getNotRefInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -273,8 +259,11 @@ export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useNotEnum<TData = Awaited<ReturnType<typeof getNotEnum>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error, TData>
+export function useNotEnum<
+  TData = Awaited<ReturnType<typeof getNotEnum>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -287,8 +276,11 @@ export function useNotEnum<TData = Awaited<ReturnType<typeof getNotEnum>>>(optio
   })
 }
 
-export function useSuspenseNotEnum<TData = Awaited<ReturnType<typeof getNotEnum>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error, TData>
+export function useSuspenseNotEnum<
+  TData = Awaited<ReturnType<typeof getNotEnum>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -298,38 +290,6 @@ export function useSuspenseNotEnum<TData = Awaited<ReturnType<typeof getNotEnum>
     queryFn({ signal }: QueryFunctionContext) {
       return getNotEnum({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNotEnumInfiniteQueryKey() {
-  return ['not-enum', '/not-enum', 'infinite'] as const
-}
-
-export function getNotEnumInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNotEnumInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNotEnum({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNotEnum(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getNotEnumInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteNotEnum(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotEnum>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getNotEnumInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -350,8 +310,11 @@ export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useNotConst<TData = Awaited<ReturnType<typeof getNotConst>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error, TData>
+export function useNotConst<
+  TData = Awaited<ReturnType<typeof getNotConst>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -364,8 +327,11 @@ export function useNotConst<TData = Awaited<ReturnType<typeof getNotConst>>>(opt
   })
 }
 
-export function useSuspenseNotConst<TData = Awaited<ReturnType<typeof getNotConst>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error, TData>
+export function useSuspenseNotConst<
+  TData = Awaited<ReturnType<typeof getNotConst>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotConst>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -375,38 +341,6 @@ export function useSuspenseNotConst<TData = Awaited<ReturnType<typeof getNotCons
     queryFn({ signal }: QueryFunctionContext) {
       return getNotConst({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNotConstInfiniteQueryKey() {
-  return ['not-const', '/not-const', 'infinite'] as const
-}
-
-export function getNotConstInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNotConstInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNotConst({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNotConst(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getNotConstInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteNotConst(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotConst>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getNotConstInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -427,8 +361,11 @@ export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useNotComposition<TData = Awaited<ReturnType<typeof getNotComposition>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error, TData>
+export function useNotComposition<
+  TData = Awaited<ReturnType<typeof getNotComposition>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -443,8 +380,9 @@ export function useNotComposition<TData = Awaited<ReturnType<typeof getNotCompos
 
 export function useSuspenseNotComposition<
   TData = Awaited<ReturnType<typeof getNotComposition>>,
+  TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error, TData>
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -454,41 +392,6 @@ export function useSuspenseNotComposition<
     queryFn({ signal }: QueryFunctionContext) {
       return getNotComposition({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNotCompositionInfiniteQueryKey() {
-  return ['not-composition', '/not-composition', 'infinite'] as const
-}
-
-export function getNotCompositionInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNotCompositionInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNotComposition({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNotComposition(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getNotCompositionInfiniteQueryOptions(clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteNotComposition(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNotComposition>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getNotCompositionInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -509,8 +412,11 @@ export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useAllOfSibling<TData = Awaited<ReturnType<typeof getAllOfSibling>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error, TData>
+export function useAllOfSibling<
+  TData = Awaited<ReturnType<typeof getAllOfSibling>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -525,8 +431,9 @@ export function useAllOfSibling<TData = Awaited<ReturnType<typeof getAllOfSiblin
 
 export function useSuspenseAllOfSibling<
   TData = Awaited<ReturnType<typeof getAllOfSibling>>,
+  TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error, TData>
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -536,41 +443,6 @@ export function useSuspenseAllOfSibling<
     queryFn({ signal }: QueryFunctionContext) {
       return getAllOfSibling({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getAllOfSiblingInfiniteQueryKey() {
-  return ['all-of-sibling', '/all-of-sibling', 'infinite'] as const
-}
-
-export function getAllOfSiblingInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getAllOfSiblingInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAllOfSibling({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteAllOfSibling(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteAllOfSibling(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAllOfSibling>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getAllOfSiblingInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -591,8 +463,11 @@ export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useNullableOneOf<TData = Awaited<ReturnType<typeof getNullableOneOf>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error, TData>
+export function useNullableOneOf<
+  TData = Awaited<ReturnType<typeof getNullableOneOf>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -607,8 +482,9 @@ export function useNullableOneOf<TData = Awaited<ReturnType<typeof getNullableOn
 
 export function useSuspenseNullableOneOf<
   TData = Awaited<ReturnType<typeof getNullableOneOf>>,
+  TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error, TData>
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -618,41 +494,6 @@ export function useSuspenseNullableOneOf<
     queryFn({ signal }: QueryFunctionContext) {
       return getNullableOneOf({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getNullableOneOfInfiniteQueryKey() {
-  return ['nullable-one-of', '/nullable-one-of', 'infinite'] as const
-}
-
-export function getNullableOneOfInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getNullableOneOfInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getNullableOneOf({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteNullableOneOf(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
-  })
-}
-
-export function useSuspenseInfiniteNullableOneOf(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getNullableOneOf>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getNullableOneOfInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -673,8 +514,11 @@ export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useAnyOfThree<TData = Awaited<ReturnType<typeof getAnyOfThree>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error, TData>
+export function useAnyOfThree<
+  TData = Awaited<ReturnType<typeof getAnyOfThree>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -687,8 +531,11 @@ export function useAnyOfThree<TData = Awaited<ReturnType<typeof getAnyOfThree>>>
   })
 }
 
-export function useSuspenseAnyOfThree<TData = Awaited<ReturnType<typeof getAnyOfThree>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error, TData>
+export function useSuspenseAnyOfThree<
+  TData = Awaited<ReturnType<typeof getAnyOfThree>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -698,38 +545,6 @@ export function useSuspenseAnyOfThree<TData = Awaited<ReturnType<typeof getAnyOf
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfThree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getAnyOfThreeInfiniteQueryKey() {
-  return ['any-of-three', '/any-of-three', 'infinite'] as const
-}
-
-export function getAnyOfThreeInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getAnyOfThreeInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAnyOfThree({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteAnyOfThree(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getAnyOfThreeInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteAnyOfThree(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfThree>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getAnyOfThreeInfiniteQueryOptions(clientOptions),
   })
 }
 
@@ -750,8 +565,11 @@ export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   })
 }
 
-export function useAnyOfRef<TData = Awaited<ReturnType<typeof getAnyOfRef>>>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error, TData>
+export function useAnyOfRef<
+  TData = Awaited<ReturnType<typeof getAnyOfRef>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -764,8 +582,11 @@ export function useAnyOfRef<TData = Awaited<ReturnType<typeof getAnyOfRef>>>(opt
   })
 }
 
-export function useSuspenseAnyOfRef<TData = Awaited<ReturnType<typeof getAnyOfRef>>>(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error, TData>
+export function useSuspenseAnyOfRef<
+  TData = Awaited<ReturnType<typeof getAnyOfRef>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, TError, TData>
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -775,37 +596,5 @@ export function useSuspenseAnyOfRef<TData = Awaited<ReturnType<typeof getAnyOfRe
     queryFn({ signal }: QueryFunctionContext) {
       return getAnyOfRef({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
-  })
-}
-
-export function getAnyOfRefInfiniteQueryKey() {
-  return ['any-of-ref', '/any-of-ref', 'infinite'] as const
-}
-
-export function getAnyOfRefInfiniteQueryOptions(options?: ClientRequestOptions) {
-  return {
-    queryKey: getAnyOfRefInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAnyOfRef({ ...options, init: { ...options?.init, signal } })
-    },
-  }
-}
-
-export function useInfiniteAnyOfRef(options: {
-  query: UseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({ ...queryOptions, ...getAnyOfRefInfiniteQueryOptions(clientOptions) })
-}
-
-export function useSuspenseInfiniteAnyOfRef(options: {
-  query: UseSuspenseInfiniteQueryOptions<Awaited<ReturnType<typeof getAnyOfRef>>, Error>
-  options?: ClientRequestOptions
-}) {
-  const { query: queryOptions, options: clientOptions } = options
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    ...getAnyOfRefInfiniteQueryOptions(clientOptions),
   })
 }

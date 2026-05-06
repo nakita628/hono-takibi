@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -45,23 +43,6 @@ export function useImmutableGetTree(options?: {
   return { swrKey, ...useSWRImmutable(swrKey, async () => getTree(clientOptions), restSwrOptions) }
 }
 
-export function getGetTreeInfiniteKey() {
-  return ['tree', '/tree', 'infinite'] as const
-}
-
-export function useInfiniteGetTree(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getTree>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetTreeInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getTree(clientOptions), restSwrOptions)
-}
-
 export async function postTree(
   args: InferRequestType<typeof client.tree.$post>,
   options?: ClientRequestOptions,
@@ -69,10 +50,10 @@ export async function postTree(
   return await parseResponse(client.tree.$post(args, options))
 }
 
-export function usePostTree(options?: {
+export function usePostTree<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof postTree>>,
-    Error,
+    TError,
     Key,
     InferRequestType<typeof client.tree.$post>
   > & { swrKey?: Key }
@@ -118,21 +99,4 @@ export function useImmutableGetGraph(options?: {
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetGraphKey()) : null
   return { swrKey, ...useSWRImmutable(swrKey, async () => getGraph(clientOptions), restSwrOptions) }
-}
-
-export function getGetGraphInfiniteKey() {
-  return ['graph', '/graph', 'infinite'] as const
-}
-
-export function useInfiniteGetGraph(options: {
-  swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getGraph>>, Error> & {
-    swrKey?: SWRInfiniteKeyLoader
-  }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetGraphInfiniteKey(), index] as const)
-  return useSWRInfinite(keyLoader, async () => getGraph(clientOptions), restSwrOptions)
 }

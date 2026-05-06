@@ -1,12 +1,12 @@
 import { z } from '@hono/zod-openapi'
 import { FileSchema } from '../schemas'
 import { TraceIdHeaderHeaderSchema } from '../headers'
-import { FileExample } from '../examples'
-import { GetUserFromFileLink } from '../links'
+import { FileExampleExample } from '../examples'
+import { GetUserFromFileLinkLink } from '../links'
 
-export const FileResponse = {
+export const FileResponseResponse = {
   description: 'A file',
   headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: FileSchema, examples: { file: FileExample } } },
-  links: { owner: GetUserFromFileLink },
+  content: { 'application/json': { schema: FileSchema, examples: { file: FileExampleExample } } },
+  links: { owner: GetUserFromFileLinkLink },
 }

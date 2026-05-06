@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
 import { TokenRequestRequestBody } from '../requestBodies'
-import { DefaultErrorResponse, TokenResponse, ValidationErrorResponse } from '../responses'
+import { DefaultErrorResponse, TokenResponseResponse, ValidationErrorResponse } from '../responses'
 
 export const postAuthTokenRoute = createRoute({
   method: 'post',
@@ -9,6 +9,10 @@ export const postAuthTokenRoute = createRoute({
   summary: 'Issue access token',
   operationId: 'issueToken',
   request: { body: TokenRequestRequestBody },
-  responses: { 200: TokenResponse, 400: ValidationErrorResponse, default: DefaultErrorResponse },
+  responses: {
+    200: TokenResponseResponse,
+    400: ValidationErrorResponse,
+    default: DefaultErrorResponse,
+  },
   security: [],
 })

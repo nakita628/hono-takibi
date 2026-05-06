@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
 import { ProblemDetailsSchema, UserPreferencesSchema, UserSchema } from '../schemas'
-import { UserPrefsExample } from '../examples'
+import { UserPrefsExampleExample } from '../examples'
 
 export const UpdateUserRequestRequestBody = {
   content: {
@@ -10,7 +10,7 @@ export const UpdateUserRequestRequestBody = {
         UserPreferencesSchema,
         z.object({ patch: ProblemDetailsSchema.exactOptional() }),
       ]),
-      examples: { prefs: UserPrefsExample },
+      examples: { prefs: UserPrefsExampleExample },
     },
   },
   required: true,
