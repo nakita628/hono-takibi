@@ -625,4 +625,173 @@ export const X = { schema: UserSchema }`
       importLines.some((l) => l.includes('headers') && l.includes('XRequestIdHeaderSchema')),
     ).toBe(true)
   })
+
+  // ============================================================
+  // Output ordering — COMPONENT_SUFFIXES declaration order regardless of
+  // scan-encounter order. Source layout MUST NOT leak into emitted import
+  // order; otherwise a trivial whitespace tweak in the generator changes
+  // the resulting file diff.
+  // ============================================================
+  it('emits imports in COMPONENT_SUFFIXES order even when scan encounter is reversed', () => {
+    // Reverse encounter: Header → Schema → Param. Output must be:
+    // schemas → parameters → headers (config / spec order).
+    const code = 'XHeaderSchema, UserSchema, IdParamsSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+      headers: { output: '/src/components/headers', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    const findIdx = (token: string) => importLines.findIndex((l) => l.includes(token))
+    expect(findIdx('UserSchema')).toBeLessThan(findIdx('IdParamsSchema'))
+    expect(findIdx('IdParamsSchema')).toBeLessThan(findIdx('XHeaderSchema'))
+  })
+
+  // ============================================================
+  // Identifier position robustness — generators can place refs after any
+  // JS code-position character. Confirm `\b` boundary works.
+  // ============================================================
+  it('detects identifier preceded by various JS punctuation', () => {
+    // Cases: after `(`, `[`, `,`, `:`, `=`, ` `, newline, `{`
+    const code = `[
+  UserSchema,
+  ((PetSchema)),
+  { x: TodoSchema },
+  =CommentSchema=
+]`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    expect(result.includes('UserSchema')).toBe(true)
+    expect(result.includes('PetSchema')).toBe(true)
+    expect(result.includes('TodoSchema')).toBe(true)
+    expect(result.includes('CommentSchema')).toBe(true)
+  })
+
+  // ============================================================
+  // SCAN regex robustness — body contains only strings/comments. No
+  // import lines should be emitted (besides @hono/zod-openapi for `z.`
+  // detection if applicable).
+  // ============================================================
+  it('emits no component imports when body is only strings and comments', () => {
+    const code = `// just a comment with UserSchema mentioned
+'string with UserSchema',
+"another string with PetSchema",
+/* block comment with CommentSchema */`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes("from '../components/schemas'"))).toBe(false)
+  })
+
+  it('emits no imports for empty body', () => {
+    const result = makeImports('', '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.length).toBe(0)
+  })
+
+  // ============================================================
+  // Bare suffix name (no prefix) — should NOT match. The regex requires
+  // at least one identifier char before the suffix (`\w+Schema`).
+  // ============================================================
+  it('does not match the bare suffix name (e.g. just "Schema")', () => {
+    const code = 'Schema, Response, Callback, PathItem'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      responses: { output: '/src/components/responses', split: true },
+      callbacks: { output: '/src/components/callbacks', split: true },
+      pathItems: { output: '/src/components/pathItems', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    // Bare 'Schema' / 'Response' / 'Callback' / 'PathItem' shouldn't be imported
+    expect(importLines.length).toBe(0)
+  })
+
+  // ============================================================
+  // Nested suffix substring — `XParamsSchemaSchema` ends in `Schema`,
+  // but it ALSO ends in `ParamsSchemaSchema` which isn't a known
+  // suffix. Longest match should pick the longest KNOWN suffix
+  // (`ParamsSchema` — 12 chars).
+  // ============================================================
+  it('classifies repeated-suffix identifier by longest known suffix', () => {
+    // `UserSchemaSchema` ends in both 'Schema' (6) and... nothing longer
+    // that's a known suffix. So it gets classified as schemas.
+    const code = 'UserSchemaSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    expect(result.includes('import{UserSchemaSchema}from')).toBe(true)
+  })
+
+  it('classifies *ParamsSchemaSchema correctly (ends in two Schemas)', () => {
+    // `XParamsSchemaSchema` — endsWith('Schema') ✓, endsWith('ParamsSchema') ✗
+    // (since the last 12 chars are 'SchemaSchema', not 'ParamsSchema').
+    // So the classification is `schemas` (the only matching suffix).
+    const code = 'XParamsSchemaSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    // Identifier MUST be imported, classified as schemas (not parameters)
+    expect(
+      importLines.some((l) => l.includes('XParamsSchemaSchema') && l.includes('schemas')),
+    ).toBe(true)
+    expect(
+      importLines.some((l) => l.includes('XParamsSchemaSchema') && l.includes('parameters')),
+    ).toBe(false)
+  })
+
+  // ============================================================
+  // Unicode safety — identifiers with non-ASCII letters are not in
+  // OpenAPI generator output (we sanitize to PascalCase ASCII), but the
+  // regex `[A-Za-z_$]` correctly excludes them. Document this behavior.
+  // ============================================================
+  it('does not import identifiers starting with non-ASCII letters', () => {
+    // `日本Schema` would be a non-ASCII identifier. JS_IDENT requires
+    // `[A-Za-z_$]` start char, so the regex captures only the ASCII tail.
+    // The captured form here would be 'Schema' alone — but the regex
+    // requires at least one identifier char before the suffix (`\w+Schema`),
+    // so `Schema` alone doesn't match.
+    const code = '日本Schema, UserSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    // UserSchema imported, but the non-ASCII-prefixed identifier produces
+    // no import (would-be capture 'Schema' is too short to match `\w+`).
+    expect(importLines.some((l) => l.includes('UserSchema'))).toBe(true)
+    expect(importLines.some((l) => l.includes('日本'))).toBe(false)
+  })
+
+  // ============================================================
+  // Multiple references to the same identifier collapse to one import.
+  // ============================================================
+  it('collapses duplicate identifier references into a single import', () => {
+    const code = 'UserSchema; UserSchema; UserSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    // Count occurrences of the import line
+    const importMatches = result.match(/import\{UserSchema\}/g) ?? []
+    expect(importMatches.length).toBe(1)
+  })
+
+  // ============================================================
+  // Multiple distinct identifiers from same kind merge into one import line.
+  // ============================================================
+  it('merges multiple identifiers of the same kind into one sorted import line', () => {
+    const code = 'UserSchema, PetSchema, CommentSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    // Single import line containing all three names sorted alphabetically.
+    expect(importLines.some((l) => l.includes('{CommentSchema,PetSchema,UserSchema}'))).toBe(true)
+    // No separate import line per identifier.
+    expect(importLines.filter((l) => l.includes('schemas')).length).toBe(1)
+  })
 })
