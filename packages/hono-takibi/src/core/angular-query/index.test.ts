@@ -46,11 +46,13 @@ describe('angularQuery', () => {
   injectInfiniteQuery,
   injectMutation,
   queryOptions,
+  infiniteQueryOptions,
 } from '@tanstack/angular-query-experimental'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
+  InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -146,7 +148,11 @@ export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.us
   return ['users', '/users', args, 'infinite'] as const
 }
 
-export function getUsersInfiniteQueryOptions<TError = unknown, TPageParam = unknown>(
+export function getUsersInfiniteQueryOptions<
+  TData = InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
   args: InferRequestType<typeof client.users.$get>,
   pagination: {
     initialPageParam: TPageParam
@@ -162,7 +168,7 @@ export function getUsersInfiniteQueryOptions<TError = unknown, TPageParam = unkn
   return infiniteQueryOptions<
     Awaited<ReturnType<typeof getUsers>>,
     TError,
-    InfiniteData<Awaited<ReturnType<typeof getUsers>>>,
+    TData,
     ReturnType<typeof getUsersInfiniteQueryKey>,
     TPageParam
   >({
@@ -203,7 +209,10 @@ export function injectInfiniteUsers<
 ) {
   return injectInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersInfiniteQueryOptions<TError, TPageParam>(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      ...getUsersInfiniteQueryOptions<TData, TError, TPageParam>(args(), pagination, clientOptions),
+    }
   })
 }
 
