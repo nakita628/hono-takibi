@@ -186,40 +186,17 @@ const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: s
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
 
 /**
- * Replaces the contents of every string / template literal in `code` with a
- * blank of the same length so identifier-pattern scans can't false-match
- * tokens that happen to live inside a quoted value (e.g. an OpenAPI
- * `operationId: 'userCreatedCallback'` would otherwise look like a `Callback`
- * import).
+ * Replaces string / template literal / comment contents with spaces so
+ * identifier-pattern scans can't false-match tokens hiding inside (e.g.
+ * `operationId: 'userCreatedCallback'` looks like a Callback import; JSDoc
+ * `@returns UserSchema` looks like a Schema import). Newlines are preserved
+ * to keep line numbers stable for debugging.
  */
-function stripStringContents(code: string): string {
-  let out = ''
-  let i = 0
-  while (i < code.length) {
-    const ch = code[i]
-    if (ch === '"' || ch === "'" || ch === '`') {
-      const quote = ch
-      out += ch
-      i++
-      while (i < code.length && code[i] !== quote) {
-        if (code[i] === '\\' && i + 1 < code.length) {
-          out += '  '
-          i += 2
-          continue
-        }
-        out += ' '
-        i++
-      }
-      if (i < code.length) {
-        out += code[i]
-        i++
-      }
-      continue
-    }
-    out += ch
-    i++
-  }
-  return out
+function stripStringContents(code: string) {
+  return code.replace(
+    /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
+    (m) => m.replace(/[^\n]/g, ' '),
+  )
 }
 
 export function makeImports(

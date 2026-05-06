@@ -413,7 +413,7 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/wrap.ts', {
       callbacks: { output: '/src/components/callbacks', split: true },
     })
-    expect(result.includes("import{UserCreatedCallback}from")).toBe(true)
+    expect(result.includes('import{UserCreatedCallback}from')).toBe(true)
   })
 
   it('detects identifier when one occurrence is in code and another is in a string', () => {
@@ -444,5 +444,47 @@ describe('makeImports', () => {
     })
     const importLines = result.split('\n').filter((l) => l.startsWith('import'))
     expect(importLines.some((l) => l.includes('UserCreatedCallback'))).toBe(false)
+  })
+
+  it('ignores identifier-shape tokens inside line comments (`// ...`)', () => {
+    // Generated JSDoc / comment-out blocks could mention identifier names
+    // (e.g. `// see UserSchema for the runtime check`). Without comment
+    // stripping the auto-import detector would emit a phantom import.
+    const code = `// see UserSchema for the runtime check
+export const X = { v: 1 }`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserSchema'))).toBe(false)
+  })
+
+  it('ignores identifier-shape tokens inside block comments (`/* ... */` and JSDoc)', () => {
+    const code = `/**
+ * @returns the UserSchema instance
+ * Other refs: BearerAuthSecurityScheme, GetUserLink, JsonMediaTypeSchema
+ */
+export const X = { v: 1 }`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      securitySchemes: { output: '/src/components/securitySchemes', split: true },
+      links: { output: '/src/components/links', split: true },
+      mediaTypes: { output: '/src/components/mediaTypes', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.length).toBe(0)
+  })
+
+  it('still imports identifier when comment mentions it AND code references it', () => {
+    // Real reference outside the comment must still trigger the import; the
+    // comment mention alone should not double-emit anything.
+    const code = `// validates UserSchema input
+export const X = { schema: UserSchema }`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    const userSchemaImports = importLines.filter((l) => l.includes('UserSchema'))
+    expect(userSchemaImports.length).toBe(1)
   })
 })

@@ -3009,6 +3009,139 @@ export const getDataRoute = createRoute({
 `)
   })
 
+  // -------------------------------------------------------------------
+  // Regression test: split callbacks where the operationId value looks
+  // like a Callback identifier MUST NOT trigger a bogus self-import.
+  // -------------------------------------------------------------------
+  it('split callbacks: operationId in string does not produce self-import', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Callback Regression', version: '1.0.0' },
+      paths: {
+        '/subscribe': {
+          post: {
+            operationId: 'subscribe',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { url: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { 201: { description: 'Subscribed' } },
+            callbacks: { onUserCreated: { $ref: '#/components/callbacks/UserCreated' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: { id: { type: 'integer' } },
+            required: ['id'],
+          },
+        },
+        callbacks: {
+          UserCreated: {
+            '{$request.body#/url}': {
+              post: {
+                operationId: 'userCreatedCallback',
+                requestBody: {
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/User' } },
+                  },
+                },
+                responses: { 200: { description: 'OK' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
+      callbacks: { output: 'src/callbacks', split: true, import: '~/callbacks' },
+    },
+  },
+}`
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    const userCreated = fs.readFileSync(path.join(testDir, 'src/callbacks/userCreated.ts'), 'utf-8')
+    // Real cross-component import IS present, in alias form.
+    expect(userCreated.includes("import { UserSchema } from '~/schemas'")).toBe(true)
+    // Bogus self-import for the operationId string MUST NOT be emitted.
+    const importLines = userCreated.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('userCreatedCallback'))).toBe(false)
+    // The operationId value remains in the body as a string literal.
+    expect(userCreated.includes("operationId: 'userCreatedCallback'")).toBe(true)
+  })
+
+  // -------------------------------------------------------------------
+  // Regression test: split mediaTypes with $ref to a schema must emit a
+  // proper import line. Previously the split branch in mediaTypes.ts
+  // bypassed makeImports entirely so the body had `= UserSchema` with no
+  // backing import.
+  // -------------------------------------------------------------------
+  it('split mediaTypes with $ref schema emits cross-component import', () => {
+    const openAPI = {
+      openapi: '3.1.0',
+      info: { title: 'MediaTypes Regression', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'listUsers',
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: { id: { type: 'integer' } },
+            required: ['id'],
+          },
+        },
+        mediaTypes: {
+          JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+        },
+      },
+    }
+    const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
+      mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
+    },
+  },
+}`
+    fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    const jsonUser = fs.readFileSync(path.join(testDir, 'src/mediaTypes/jsonUser.ts'), 'utf-8')
+    // Cross-component import via path-alias.
+    expect(jsonUser.includes("import { UserSchema } from '~/schemas'")).toBe(true)
+    // Body refers to the imported identifier.
+    expect(jsonUser.includes('export const JsonUserMediaTypeSchema = UserSchema')).toBe(true)
+    // No spurious unused `z` import (the body has no `z.` call).
+    expect(jsonUser.includes("import { z } from '@hono/zod-openapi'")).toBe(false)
+  })
+
   describe('format option in config', () => {
     const formatTestSchema = {
       openapi: '3.0.3',
