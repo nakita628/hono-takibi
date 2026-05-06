@@ -320,4 +320,129 @@ describe('makeImports', () => {
     expect(result.includes("import{JsonMediaTypeSchema}from'../media-types'")).toBe(true)
     expect(result.includes("import{JsonMediaTypeSchema}from'../schemas'")).toBe(false)
   })
+
+  // -----------------------------------------------------------------
+  // Regression tests for string-literal false positives.
+  //
+  // The auto-import detector matches patterns like `\bXxxCallback\b` to find
+  // referenced component identifiers. Without stripping string contents
+  // before scanning, identifier-shaped tokens that happen to live inside a
+  // quoted value (e.g. `operationId: 'userCreatedCallback'`,
+  // `description: 'See UserSchema for details'`) get falsely detected as
+  // imports. The bug surfaced in split mode where it produced self-imports
+  // like `import { userCreatedCallback } from './index'`.
+  //
+  // Every component-type pattern needs coverage so any future regex
+  // refactor cannot reintroduce a leak in just one type.
+  // -----------------------------------------------------------------
+  it('ignores Callback identifier inside single-quoted string', () => {
+    const code = `export const UserCreatedCallback = {
+  post: { operationId: 'userCreatedCallback' },
+}`
+    const result = makeImports(code, '/src/components/callbacks/userCreated.ts', {
+      callbacks: { output: '/src/components/callbacks', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('userCreatedCallback'))).toBe(false)
+  })
+
+  it('ignores Schema identifier inside double-quoted JSON-style string', () => {
+    // `pathItems` / `callbacks` generators emit JSON.stringify output where
+    // object keys land in double quotes. A token like `"UserSchema"` (a key,
+    // not a value) must not trigger a schema import.
+    const code = `export const ProductsItem = {
+  "get": { "responses": { "200": { "description": "See UserSchema below" } } },
+}`
+    const result = makeImports(code, '/src/components/pathItems/products.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserSchema'))).toBe(false)
+  })
+
+  it('ignores Response identifier inside template literal', () => {
+    const code = `export const X = {
+  description: \`returns UserResponse on success\`,
+}`
+    const result = makeImports(code, '/src/x.ts', {
+      responses: { output: '/src/components/responses', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserResponse'))).toBe(false)
+  })
+
+  it('ignores RequestBody / Example / Link / Header / SecurityScheme inside strings', () => {
+    // One pass covering all remaining component-type patterns to lock in the
+    // strip's coverage across every regex in IMPORT_PATTERNS.
+    const code = `export const X = {
+  a: 'see CreateUserRequestBody',
+  b: 'inspect UserExample',
+  c: 'GetUserLink',
+  d: 'X-IdHeaderSchema',
+  e: 'BearerAuthSecurityScheme',
+  f: 'JsonMediaTypeSchema',
+  g: 'UserParamsSchema',
+}`
+    const result = makeImports(code, '/src/x.ts', {
+      requestBodies: { output: '/src/components/requestBodies', split: true },
+      examples: { output: '/src/components/examples', split: true },
+      links: { output: '/src/components/links', split: true },
+      headers: { output: '/src/components/headers', split: true },
+      securitySchemes: { output: '/src/components/securitySchemes', split: true },
+      mediaTypes: { output: '/src/components/mediaTypes', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.length).toBe(0)
+  })
+
+  it('ignores identifiers inside strings even when escaped quotes are present', () => {
+    // `\'` inside a single-quoted string previously could throw the parser
+    // off and re-enter scanning mode mid-string. The strip must skip past
+    // the escape and stay inside the literal until the unescaped closer.
+    const code = `export const X = { msg: 'don\\'t use UserSchema directly' }`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserSchema'))).toBe(false)
+  })
+
+  it('still imports identifiers in real code positions', () => {
+    const code = 'export const Wrapper = { inner: UserCreatedCallback }'
+    const result = makeImports(code, '/src/wrap.ts', {
+      callbacks: { output: '/src/components/callbacks', split: true },
+    })
+    expect(result.includes("import{UserCreatedCallback}from")).toBe(true)
+  })
+
+  it('detects identifier when one occurrence is in code and another is in a string', () => {
+    // Mixed scenario: the same identifier appears in BOTH a string AND a
+    // real reference. The detector should still emit one import (because
+    // there is a real reference), and not double-count or skip it.
+    const code = `export const X = {
+  description: 'creates UserSchema instance',
+  schema: UserSchema,
+}`
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    const userSchemaImports = importLines.filter((l) => l.includes('UserSchema'))
+    expect(userSchemaImports.length).toBe(1)
+  })
+
+  it('does not self-import when an identifier shape matches the file own export', () => {
+    // The defined-set filter must continue to work after the strip pass so a
+    // file that exports `UserCreatedCallback` does not import its own name
+    // even when said name appears multiple times in the body.
+    const code = `export const UserCreatedCallback = {
+  inner: UserCreatedCallback,
+}`
+    const result = makeImports(code, '/src/components/callbacks/userCreated.ts', {
+      callbacks: { output: '/src/components/callbacks', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserCreatedCallback'))).toBe(false)
+  })
 })
