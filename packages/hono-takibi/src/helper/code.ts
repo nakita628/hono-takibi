@@ -160,30 +160,66 @@ export function makeExportConst(
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
 
 /**
- * Regex patterns for OpenAPI component types.
- * Ordered per OpenAPI 3.0 specification.
- * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
+ * OpenAPI Components Object fields and the identifier suffix each one uses.
+ * Covers OpenAPI 3.0 / 3.1 / 3.2 — all three share the same 11 Fixed Fields
+ * under `components`. Top-level `webhooks` (3.1+) is intentionally omitted:
+ * it lives outside `components` and reuses schemas/responses refs rather
+ * than introducing a `*Webhook` identifier suffix of its own.
  *
- * Hoisted to module scope to avoid re-creating RegExp objects on every call.
+ * Listed in OpenAPI 3.0 spec order — purely cosmetic. `classifyRef` selects
+ * the longest matching suffix so `Schema` (substring of `ParamsSchema` /
+ * `HeaderSchema` / `MediaTypeSchema`) doesn't shadow the longer ones.
  */
-const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-  {
-    pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)(?<!MediaType)Schema)\\b`, 'g'),
-    key: 'schemas',
-  },
-  { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}MediaTypeSchema)\\b`, 'g'), key: 'mediaTypes' },
-]
+const COMPONENT_SUFFIXES = [
+  ['schemas', 'Schema'],
+  ['parameters', 'ParamsSchema'],
+  ['headers', 'HeaderSchema'],
+  ['securitySchemes', 'SecurityScheme'],
+  ['requestBodies', 'RequestBody'],
+  ['responses', 'Response'],
+  ['examples', 'Example'],
+  ['links', 'Link'],
+  ['callbacks', 'Callback'],
+  ['pathItems', 'PathItem'],
+  ['mediaTypes', 'MediaTypeSchema'],
+] as const
+
+/**
+ * Single regex that simultaneously SKIPS strings/comments and CAPTURES
+ * component-type identifiers. The string / comment alternatives come first
+ * so the engine consumes them whole — identifier-shape tokens hiding inside
+ * (e.g. `operationId: 'userCreatedCallback'`) are unreachable because the
+ * preceding alternative has already consumed the surrounding quotes and
+ * everything between them.
+ */
+const SCAN = new RegExp(
+  [
+    String.raw`"(?:\\.|[^"\\])*"`,
+    String.raw`'(?:\\.|[^'\\])*'`,
+    String.raw`\`(?:\\.|[^\`\\])*\``,
+    String.raw`//[^\n]*`,
+    String.raw`/\*[\s\S]*?\*/`,
+    `\\b(${JS_IDENT}(?:${COMPONENT_SUFFIXES.map(([, suf]) => suf).join('|')}))\\b`,
+  ].join('|'),
+  'g',
+)
 
 /** Pattern to find locally exported constants */
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
+
+/**
+ * Maps a captured identifier back to its component-type key by suffix.
+ * Picks the LONGEST matching suffix so a name like `UserParamsSchema` is
+ * classified as `parameters` (suffix `ParamsSchema`, 12 chars) rather than
+ * `schemas` (suffix `Schema`, 6 chars) regardless of `COMPONENT_SUFFIXES`
+ * source order.
+ */
+const classifyRef = (name: string): string | undefined =>
+  COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+    (best, entry) =>
+      name.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
+    undefined,
+  )?.[0]
 
 export function makeImports(
   code: string,
@@ -207,16 +243,24 @@ export function makeImports(
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
+  const grouped = Array.from(code.matchAll(SCAN), (m) => m[1])
+    .filter((name): name is string => Boolean(name) && !defined.has(name))
+    .reduce<ReadonlyMap<string, ReadonlySet<string>>>((acc, name) => {
+      const kind = classifyRef(name)
+      if (!kind) return acc
+      return new Map(acc).set(kind, new Set([...(acc.get(kind) ?? []), name]))
+    }, new Map())
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
-    const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
-      .filter((t): t is string => Boolean(t) && !defined.has(t))
-      .sort()
-    return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []
+  // Emit import lines in `COMPONENT_SUFFIXES` declaration order — same as
+  // the OpenAPI 3.x components / hono-takibi config field order — instead
+  // of scan-encounter order which varies with source layout.
+  const componentImports = COMPONENT_SUFFIXES.flatMap(([kind]) => {
+    const names = grouped.get(kind)
+    return names ? [renderNamedImport([...names].toSorted(), resolvePath(kind))] : []
   })
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }

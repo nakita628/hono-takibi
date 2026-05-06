@@ -276,6 +276,80 @@ describe('mediaTypes', () => {
       expect(fs.existsSync(path.join(outDir, 'jsonMedia.ts'))).toBe(true)
     })
 
+    // -----------------------------------------------------------------
+    // Regression: split mode previously bypassed makeImports entirely, so a
+    // mediaType whose schema is `$ref: '#/components/schemas/User'` would
+    // emit `export const JsonUserMediaTypeSchema = UserSchema` with NO
+    // `import { UserSchema }` line. Below tests lock in the cross-component
+    // import resolution and the path-alias forwarding from `components`
+    // config.
+    // -----------------------------------------------------------------
+    it('imports referenced schema in split mode (relative path)', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
+      const output = path.join(tmpDir, 'mediaTypes')
+      const result = await mediaTypes(
+        {
+          JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+        },
+        output,
+        true,
+        false,
+        { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+      )
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
+      expect(content.includes('UserSchema')).toBe(true)
+      // Must include an actual `import { UserSchema } from ...` line — not
+      // just the body reference.
+      const importLine = content
+        .split('\n')
+        .find((l) => l.startsWith('import') && l.includes('UserSchema'))
+      expect(importLine).toBeDefined()
+    })
+
+    it('uses path-alias `import` field when forwarding schema reference', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
+      const output = path.join(tmpDir, 'mediaTypes')
+      const result = await mediaTypes(
+        {
+          JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+        },
+        output,
+        true,
+        false,
+        {
+          schemas: {
+            output: path.join(tmpDir, 'schemas'),
+            split: true,
+            import: '~/components/schemas',
+          },
+        },
+      )
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
+      // Alias must be honored verbatim — no relative-path fallback.
+      expect(content.includes("from '~/components/schemas'")).toBe(true)
+    })
+
+    it('does not emit an unused `z` import when only a $ref is present', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
+      const output = path.join(tmpDir, 'mediaTypes')
+      const result = await mediaTypes(
+        {
+          JsonUser: { schema: { $ref: '#/components/schemas/User' } },
+        },
+        output,
+        true,
+        false,
+        { schemas: { output: path.join(tmpDir, 'schemas'), split: true } },
+      )
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(path.join(output, 'jsonUser.ts'), 'utf-8')
+      // The body has no `z.` usage; an unused `import { z } from '@hono/zod-openapi'`
+      // would be dead weight that breaks `noUnusedImports` lints.
+      expect(content.includes("import { z } from '@hono/zod-openapi'")).toBe(false)
+    })
+
     it('generates sorted barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes')
