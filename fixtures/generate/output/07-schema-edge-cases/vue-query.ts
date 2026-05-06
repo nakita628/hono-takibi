@@ -99,7 +99,7 @@ export async function getComposed(options?: ClientRequestOptions) {
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getComposedQueryKey>>) {
       return getComposed({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -122,7 +122,7 @@ export function useComposed<
   return useQuery({
     ...queryOptions,
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getComposedQueryKey>>) {
       return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -139,7 +139,7 @@ export async function getDeepNested(options?: ClientRequestOptions) {
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getDeepNestedQueryKey>>) {
       return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -162,7 +162,7 @@ export function useDeepNested<
   return useQuery({
     ...queryOptions,
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getDeepNestedQueryKey>>) {
       return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -179,7 +179,7 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getAdditionalPropsQueryKey>>) {
       return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -202,7 +202,7 @@ export function useAdditionalProps<
   return useQuery({
     ...queryOptions,
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getAdditionalPropsQueryKey>>) {
       return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

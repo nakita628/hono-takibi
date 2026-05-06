@@ -105,7 +105,7 @@ export async function getComposed(options?: ClientRequestOptions) {
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getComposed({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -122,7 +122,7 @@ export function createComposed<TData = Awaited<ReturnType<typeof getComposed>>, 
     return {
       ...query,
       queryKey: getComposedQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -140,7 +140,7 @@ export async function getDeepNested(options?: ClientRequestOptions) {
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getDeepNested({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -160,7 +160,7 @@ export function createDeepNested<
     return {
       ...query,
       queryKey: getDeepNestedQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -178,7 +178,7 @@ export async function getAdditionalProps(options?: ClientRequestOptions) {
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -198,7 +198,7 @@ export function createAdditionalProps<
     return {
       ...query,
       queryKey: getAdditionalPropsQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

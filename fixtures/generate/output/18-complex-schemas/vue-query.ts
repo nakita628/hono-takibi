@@ -162,7 +162,7 @@ export async function getNullableUnion(options?: ClientRequestOptions) {
 export function getNullableUnionQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -185,7 +185,7 @@ export function useNullableUnion<
   return useQuery({
     ...queryOptions,
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNullableUnionQueryKey>>) {
       return getNullableUnion({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -202,7 +202,7 @@ export async function getNestedCircular(options?: ClientRequestOptions) {
 export function getNestedCircularQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -225,7 +225,7 @@ export function useNestedCircular<
   return useQuery({
     ...queryOptions,
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getNestedCircularQueryKey>>) {
       return getNestedCircular({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

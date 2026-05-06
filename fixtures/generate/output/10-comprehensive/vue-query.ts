@@ -45,7 +45,7 @@ export function getUsersQueryOptions(
 ) {
   return {
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -68,7 +68,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -121,7 +121,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return {
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersUserIdQueryKey>>) {
       return getUsersUserId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -147,7 +147,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersUserIdQueryKey>>) {
       return getUsersUserId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -239,7 +239,7 @@ export function getProductsQueryOptions(
 ) {
   return {
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getProductsQueryKey>>) {
       return getProducts(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -262,7 +262,7 @@ export function useProducts<TData = Awaited<ReturnType<typeof getProducts>>, TEr
   return useQuery({
     ...queryOptions,
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getProductsQueryKey>>) {
       return getProducts(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -321,7 +321,7 @@ export function getProductsProductIdQueryOptions(
 ) {
   return {
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getProductsProductIdQueryKey>>) {
       return getProductsProductId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -347,7 +347,7 @@ export function useProductsProductId<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getProductsProductIdQueryKey>>) {
       return getProductsProductId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -412,7 +412,9 @@ export function getProductsProductIdReviewsQueryOptions(
 ) {
   return {
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getProductsProductIdReviewsQueryKey>>) {
       return getProductsProductIdReviews(toValue(args), {
         ...options,
         init: { ...options?.init, signal },
@@ -443,7 +445,9 @@ export function useProductsProductIdReviews<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getProductsProductIdReviewsQueryKey>>) {
       return getProductsProductIdReviews(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -506,7 +510,7 @@ export function getOrdersQueryOptions(
 ) {
   return {
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOrdersQueryKey>>) {
       return getOrders(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -529,7 +533,7 @@ export function useOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError 
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOrdersQueryKey>>) {
       return getOrders(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -585,7 +589,7 @@ export function getOrdersOrderIdQueryOptions(
 ) {
   return {
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOrdersOrderIdQueryKey>>) {
       return getOrdersOrderId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -611,7 +615,7 @@ export function useOrdersOrderId<
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOrdersOrderIdQueryKey>>) {
       return getOrdersOrderId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -631,7 +635,7 @@ export async function getCategories(options?: ClientRequestOptions) {
 export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getCategoriesQueryKey>>) {
       return getCategories({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -654,7 +658,7 @@ export function useCategories<
   return useQuery({
     ...queryOptions,
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getCategoriesQueryKey>>) {
       return getCategories({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

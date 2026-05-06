@@ -32,7 +32,7 @@ export function getItemsItemIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getItemsItemIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItemsItemId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -53,7 +53,7 @@ export function injectItemsItemId<
     return {
       ...query,
       queryKey: getItemsItemIdQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getItemsItemId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -146,7 +146,7 @@ export function getItemsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItems(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -164,7 +164,7 @@ export function injectItems<TData = Awaited<ReturnType<typeof getItems>>, TError
     return {
       ...query,
       queryKey: getItemsQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getItems(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

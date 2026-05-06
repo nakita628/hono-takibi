@@ -42,7 +42,7 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -56,7 +56,7 @@ export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = un
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -73,7 +73,7 @@ export function useSuspenseTags<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -128,7 +128,7 @@ export function getSettingsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getSettings(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -145,7 +145,7 @@ export function useSettings<TData = Awaited<ReturnType<typeof getSettings>>, TEr
   return useQuery({
     ...queryOptions,
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getSettings(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -165,7 +165,7 @@ export function useSuspenseSettings<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getSettings(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

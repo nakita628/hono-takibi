@@ -35,7 +35,7 @@ export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -55,7 +55,7 @@ export function createApiReverseChibanIndex<
     return {
       ...query,
       queryKey: getApiReverseChibanIndexQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getApiReverseChibanIndex({
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -76,7 +76,7 @@ export async function getApiReverseChiban(options?: ClientRequestOptions) {
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -96,7 +96,7 @@ export function createApiReverseChiban<
     return {
       ...query,
       queryKey: getApiReverseChibanQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -120,7 +120,7 @@ export function getPostsIndexQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsIndex(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -141,7 +141,7 @@ export function createPostsIndex<
     return {
       ...query,
       queryKey: getPostsIndexQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getPostsIndex(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -199,7 +199,7 @@ export function getUsersIdIndexQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersIdIndex(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -220,7 +220,7 @@ export function createUsersIdIndex<
     return {
       ...query,
       queryKey: getUsersIdIndexQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getUsersIdIndex(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
@@ -241,7 +241,7 @@ export async function getItemsIndex(options?: ClientRequestOptions) {
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItemsIndex({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -261,7 +261,7 @@ export function createItemsIndex<
     return {
       ...query,
       queryKey: getItemsIndexQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

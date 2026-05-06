@@ -40,7 +40,7 @@ export function getPostsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPosts(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -57,7 +57,7 @@ export function usePosts<TData = Awaited<ReturnType<typeof getPosts>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPosts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -74,7 +74,7 @@ export function useSuspensePosts<TData = Awaited<ReturnType<typeof getPosts>>, T
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPosts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -129,7 +129,7 @@ export function getPostsIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -146,7 +146,7 @@ export function usePostsId<TData = Awaited<ReturnType<typeof getPostsId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -166,7 +166,7 @@ export function useSuspensePostsId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -258,7 +258,7 @@ export function getPostsIdCommentsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -278,7 +278,7 @@ export function usePostsIdComments<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -301,7 +301,7 @@ export function useSuspensePostsIdComments<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getPostsIdComments(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -358,7 +358,7 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -372,7 +372,7 @@ export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = un
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -389,7 +389,7 @@ export function useSuspenseTags<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

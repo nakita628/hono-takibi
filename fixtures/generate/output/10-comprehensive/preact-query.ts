@@ -52,7 +52,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -69,7 +69,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -86,7 +86,7 @@ export function useSuspenseUsers<TData = Awaited<ReturnType<typeof getUsers>>, T
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -143,7 +143,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -163,7 +163,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersUserId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -183,7 +183,7 @@ export function useSuspenseUsersUserId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersUserId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -278,7 +278,7 @@ export function getProductsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProducts(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -295,7 +295,7 @@ export function useProducts<TData = Awaited<ReturnType<typeof getProducts>>, TEr
   return useQuery({
     ...queryOptions,
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProducts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -315,7 +315,7 @@ export function useSuspenseProducts<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProducts(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -375,7 +375,7 @@ export function getProductsProductIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -395,7 +395,7 @@ export function useProductsProductId<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductId(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -418,7 +418,7 @@ export function useSuspenseProductsProductId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductId(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -483,7 +483,7 @@ export function getProductsProductIdReviewsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductIdReviews(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -503,7 +503,7 @@ export function useProductsProductIdReviews<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductIdReviews(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -530,7 +530,7 @@ export function useSuspenseProductsProductIdReviews<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getProductsProductIdReviews(args, {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -595,7 +595,7 @@ export function getOrdersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrders(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -612,7 +612,7 @@ export function useOrders<TData = Awaited<ReturnType<typeof getOrders>>, TError 
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrders(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -629,7 +629,7 @@ export function useSuspenseOrders<TData = Awaited<ReturnType<typeof getOrders>>,
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrders(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -686,7 +686,7 @@ export function getOrdersOrderIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrdersOrderId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -706,7 +706,7 @@ export function useOrdersOrderId<
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrdersOrderId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -726,7 +726,7 @@ export function useSuspenseOrdersOrderId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getOrdersOrderId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -743,7 +743,7 @@ export async function getCategories(options?: ClientRequestOptions) {
 export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getCategories({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -760,7 +760,7 @@ export function useCategories<
   return useQuery({
     ...queryOptions,
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getCategories({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -777,7 +777,7 @@ export function useSuspenseCategories<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getCategories({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

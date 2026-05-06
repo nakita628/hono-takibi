@@ -27,7 +27,7 @@ export async function getTree(options?: ClientRequestOptions) {
 export function getTreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getTree({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -44,7 +44,7 @@ export function injectTree<TData = Awaited<ReturnType<typeof getTree>>, TError =
     return {
       ...query,
       queryKey: getTreeQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -94,7 +94,7 @@ export async function getGraph(options?: ClientRequestOptions) {
 export function getGraphQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getGraph({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -111,7 +111,7 @@ export function injectGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError
     return {
       ...query,
       queryKey: getGraphQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

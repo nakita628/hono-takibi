@@ -67,7 +67,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -88,7 +88,7 @@ export function createUsersUserId<
     return {
       ...query,
       queryKey: getUsersUserIdQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getUsersUserId(args(), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },

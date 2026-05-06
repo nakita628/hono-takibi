@@ -34,7 +34,7 @@ export async function getUsers(options?: ClientRequestOptions) {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -48,7 +48,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -65,7 +65,7 @@ export function useSuspenseUsers<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -120,7 +120,7 @@ export function getUsersIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -137,7 +137,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -157,7 +157,7 @@ export function useSuspenseUsersId<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -206,7 +206,7 @@ export async function getItems(options?: ClientRequestOptions) {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -220,7 +220,7 @@ export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -237,7 +237,7 @@ export function useSuspenseItems<
   return useSuspenseQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

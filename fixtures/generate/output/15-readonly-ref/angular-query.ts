@@ -27,7 +27,7 @@ export async function getUsers(options?: ClientRequestOptions) {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsers({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -44,7 +44,7 @@ export function injectUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError
     return {
       ...query,
       queryKey: getUsersQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getUsers({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -100,7 +100,7 @@ export function getUsersIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getUsersId(args, { ...options, init: { ...options?.init, signal } })
     },
   })
@@ -118,7 +118,7 @@ export function injectUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TE
     return {
       ...query,
       queryKey: getUsersIdQueryKey(args()),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getUsersId(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }
@@ -168,7 +168,7 @@ export async function getItems(options?: ClientRequestOptions) {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext) {
       return getItems({ ...options, init: { ...options?.init, signal } })
     },
   })
@@ -185,7 +185,7 @@ export function injectItems<TData = Awaited<ReturnType<typeof getItems>>, TError
     return {
       ...query,
       queryKey: getItemsQueryKey(),
-      queryFn({ signal }) {
+      queryFn({ signal }: QueryFunctionContext) {
         return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
       },
     }

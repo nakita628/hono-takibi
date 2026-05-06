@@ -33,7 +33,7 @@ export function getPostsQueryOptions(
 ) {
   return {
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsQueryKey>>) {
       return getPosts(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -56,7 +56,7 @@ export function usePosts<TData = Awaited<ReturnType<typeof getPosts>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsQueryKey>>) {
       return getPosts(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -109,7 +109,7 @@ export function getPostsIdQueryOptions(
 ) {
   return {
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdQueryKey>>) {
       return getPostsId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -132,7 +132,7 @@ export function usePostsId<TData = Awaited<ReturnType<typeof getPostsId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdQueryKey>>) {
       return getPostsId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -219,7 +219,7 @@ export function getPostsIdCommentsQueryOptions(
 ) {
   return {
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdCommentsQueryKey>>) {
       return getPostsIdComments(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -245,7 +245,7 @@ export function usePostsIdComments<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIdCommentsQueryKey>>) {
       return getPostsIdComments(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
@@ -298,7 +298,7 @@ export async function getTags(options?: ClientRequestOptions) {
 export function getTagsQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...options, init: { ...options?.init, signal } })
     },
   }
@@ -318,7 +318,7 @@ export function useTags<TData = Awaited<ReturnType<typeof getTags>>, TError = un
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTagsQueryKey>>) {
       return getTags({ ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })

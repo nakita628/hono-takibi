@@ -29,7 +29,7 @@ export function getUsersQueryOptions(
 ) {
   return {
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -52,7 +52,7 @@ export function useUsers<TData = Awaited<ReturnType<typeof getUsers>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersQueryKey>>) {
       return getUsers(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
     },
   })
@@ -105,7 +105,7 @@ export function getUsersIdQueryOptions(
 ) {
   return {
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), { ...options, init: { ...options?.init, signal } })
     },
   }
@@ -128,7 +128,7 @@ export function useUsersId<TData = Awaited<ReturnType<typeof getUsersId>>, TErro
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdQueryKey>>) {
       return getUsersId(toValue(args), {
         ...clientOptions,
         init: { ...clientOptions?.init, signal },
