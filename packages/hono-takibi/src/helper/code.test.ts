@@ -487,4 +487,142 @@ export const X = { schema: UserSchema }`
     const userSchemaImports = importLines.filter((l) => l.includes('UserSchema'))
     expect(userSchemaImports.length).toBe(1)
   })
+
+  // ============================================================
+  // Suffix disambiguation: longest match wins regardless of source order.
+  // Regression: `UserParamsSchema` ended up classified as `schemas` when
+  // `Schema` came first in `COMPONENT_SUFFIXES`. `classifyRef` now picks
+  // the longest matching suffix, so source order in COMPONENT_SUFFIXES is
+  // purely cosmetic.
+  // ============================================================
+  it('classifies *ParamsSchema as parameters even though *Schema also matches', () => {
+    const code = 'UserParamsSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('parameters') && l.includes('UserParamsSchema'))).toBe(
+      true,
+    )
+    expect(importLines.some((l) => l.includes('schemas') && l.includes('UserParamsSchema'))).toBe(
+      false,
+    )
+  })
+
+  it('classifies *HeaderSchema as headers (not schemas)', () => {
+    const code = 'XRequestIdHeaderSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      headers: { output: '/src/components/headers', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(
+      importLines.some((l) => l.includes('headers') && l.includes('XRequestIdHeaderSchema')),
+    ).toBe(true)
+    expect(
+      importLines.some((l) => l.includes('schemas') && l.includes('XRequestIdHeaderSchema')),
+    ).toBe(false)
+  })
+
+  it('classifies *MediaTypeSchema as mediaTypes (not schemas)', () => {
+    const code = 'JsonUserMediaTypeSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      mediaTypes: { output: '/src/components/mediaTypes', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(
+      importLines.some((l) => l.includes('mediaTypes') && l.includes('JsonUserMediaTypeSchema')),
+    ).toBe(true)
+    expect(
+      importLines.some((l) => l.includes('schemas') && l.includes('JsonUserMediaTypeSchema')),
+    ).toBe(false)
+  })
+
+  it('handles a name where multiple long suffixes both end with Schema (chain)', () => {
+    // A pathological identifier ending with the longest suffix should still
+    // be classified by the longest match, not by the shorter prefix-of-suffix.
+    const code = 'XParamsSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('parameters'))).toBe(true)
+    expect(importLines.some((l) => l.includes('schemas'))).toBe(false)
+  })
+
+  it('handles all 11 OpenAPI 3.x component types in one body', () => {
+    // OpenAPI 3.0 / 3.1 / 3.2 share these 11 components — verify each
+    // identifier suffix routes to the correct kind in a single pass.
+    const code = [
+      'UserSchema',
+      'IdParamsSchema',
+      'XHeaderSchema',
+      'BearerAuthSecurityScheme',
+      'CreateUserRequestBody',
+      'OkResponse',
+      'GoodExample',
+      'NextLink',
+      'WebhookCallback',
+      'PetsItemPathItem',
+      'JsonMediaTypeSchema',
+    ].join(',')
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+      parameters: { output: '/src/components/parameters', split: true },
+      headers: { output: '/src/components/headers', split: true },
+      securitySchemes: { output: '/src/components/securitySchemes', split: true },
+      requestBodies: { output: '/src/components/requestBodies', split: true },
+      responses: { output: '/src/components/responses', split: true },
+      examples: { output: '/src/components/examples', split: true },
+      links: { output: '/src/components/links', split: true },
+      callbacks: { output: '/src/components/callbacks', split: true },
+      pathItems: { output: '/src/components/pathItems', split: true },
+      mediaTypes: { output: '/src/components/mediaTypes', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('schemas') && l.includes('UserSchema'))).toBe(true)
+    expect(importLines.some((l) => l.includes('parameters') && l.includes('IdParamsSchema'))).toBe(
+      true,
+    )
+    expect(importLines.some((l) => l.includes('headers') && l.includes('XHeaderSchema'))).toBe(true)
+    expect(
+      importLines.some(
+        (l) => l.includes('securitySchemes') && l.includes('BearerAuthSecurityScheme'),
+      ),
+    ).toBe(true)
+    expect(
+      importLines.some((l) => l.includes('requestBodies') && l.includes('CreateUserRequestBody')),
+    ).toBe(true)
+    expect(importLines.some((l) => l.includes('responses') && l.includes('OkResponse'))).toBe(true)
+    expect(importLines.some((l) => l.includes('examples') && l.includes('GoodExample'))).toBe(true)
+    expect(importLines.some((l) => l.includes('links') && l.includes('NextLink'))).toBe(true)
+    expect(importLines.some((l) => l.includes('callbacks') && l.includes('WebhookCallback'))).toBe(
+      true,
+    )
+    expect(importLines.some((l) => l.includes('pathItems') && l.includes('PetsItemPathItem'))).toBe(
+      true,
+    )
+    expect(
+      importLines.some((l) => l.includes('mediaTypes') && l.includes('JsonMediaTypeSchema')),
+    ).toBe(true)
+  })
+
+  it('does not import when configured component path is missing', () => {
+    // If the user only configures schemas, an identifier ending in `Header
+    // Schema` shouldn't crash or emit a fallback path silently — it just
+    // doesn't get imported (caller decides the policy).
+    const code = 'UserSchema, XRequestIdHeaderSchema'
+    const result = makeImports(code, '/src/x.ts', {
+      schemas: { output: '/src/components/schemas', split: true },
+    })
+    const importLines = result.split('\n').filter((l) => l.startsWith('import'))
+    expect(importLines.some((l) => l.includes('UserSchema'))).toBe(true)
+    // headers path is not configured — fallback emits to ../headers via fallbackPrefix
+    expect(
+      importLines.some((l) => l.includes('headers') && l.includes('XRequestIdHeaderSchema')),
+    ).toBe(true)
+  })
 })

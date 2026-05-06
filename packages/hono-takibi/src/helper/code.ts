@@ -255,8 +255,12 @@ export function makeImports(
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  const componentImports = [...grouped.entries()].flatMap(([kind, names]) => [
-    renderNamedImport([...names].toSorted(), resolvePath(kind)),
-  ])
+  // Emit import lines in `COMPONENT_SUFFIXES` declaration order — same as
+  // the OpenAPI 3.x components / hono-takibi config field order — instead
+  // of scan-encounter order which varies with source layout.
+  const componentImports = COMPONENT_SUFFIXES.flatMap(([kind]) => {
+    const names = grouped.get(kind)
+    return names ? [renderNamedImport([...names].toSorted(), resolvePath(kind))] : []
+  })
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }
