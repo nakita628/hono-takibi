@@ -221,12 +221,12 @@ export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 
 
 export type Ref =
   | `#/components/schemas/${string}`
-  | `#/components/parameters/${string}`
-  | `#/components/securitySchemes/${string}`
-  | `#/components/requestBodies/${string}`
   | `#/components/responses/${string}`
-  | `#/components/headers/${string}`
+  | `#/components/parameters/${string}`
   | `#/components/examples/${string}`
+  | `#/components/requestBodies/${string}`
+  | `#/components/headers/${string}`
+  | `#/components/securitySchemes/${string}`
   | `#/components/links/${string}`
   | `#/components/callbacks/${string}`
   | `#/components/pathItems/${string}`

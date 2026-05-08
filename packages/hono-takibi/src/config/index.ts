@@ -86,6 +86,26 @@ const ConfigSchema = z
                   .readonly(),
               ])
               .exactOptional(),
+            responses: z
+              .discriminatedUnion('split', [
+                z
+                  .object({
+                    split: z.literal(true),
+                    output: z.string().regex(/^(?!.*\.ts$).+/, {
+                      error: 'split mode requires directory, not .ts file',
+                    }),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+                z
+                  .object({
+                    split: z.literal(false).optional().default(false),
+                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                    import: z.string().exactOptional(),
+                  })
+                  .readonly(),
+              ])
+              .exactOptional(),
             parameters: z
               .discriminatedUnion('split', [
                 z
@@ -108,29 +128,7 @@ const ConfigSchema = z
                   .readonly(),
               ])
               .exactOptional(),
-            headers: z
-              .discriminatedUnion('split', [
-                z
-                  .object({
-                    split: z.literal(true),
-                    output: z.string().regex(/^(?!.*\.ts$).+/, {
-                      error: 'split mode requires directory, not .ts file',
-                    }),
-                    import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
-                  })
-                  .readonly(),
-                z
-                  .object({
-                    split: z.literal(false).optional().default(false),
-                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
-                    import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
-                  })
-                  .readonly(),
-              ])
-              .exactOptional(),
-            securitySchemes: z
+            examples: z
               .discriminatedUnion('split', [
                 z
                   .object({
@@ -170,7 +168,7 @@ const ConfigSchema = z
                   .readonly(),
               ])
               .exactOptional(),
-            responses: z
+            headers: z
               .discriminatedUnion('split', [
                 z
                   .object({
@@ -179,6 +177,7 @@ const ConfigSchema = z
                       error: 'split mode requires directory, not .ts file',
                     }),
                     import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
                   })
                   .readonly(),
                 z
@@ -186,11 +185,12 @@ const ConfigSchema = z
                     split: z.literal(false).optional().default(false),
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
+                    exportTypes: z.boolean().exactOptional(),
                   })
                   .readonly(),
               ])
               .exactOptional(),
-            examples: z
+            securitySchemes: z
               .discriminatedUnion('split', [
                 z
                   .object({
