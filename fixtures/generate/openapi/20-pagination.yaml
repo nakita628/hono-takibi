@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Pagination Test
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      operationId: listItems
+      summary: List items with pagination
+      x-pagination: true
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemsPage'
+  /feeds:
+    get:
+      operationId: listFeeds
+      summary: Feed (paginated, no args)
+      x-pagination: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemsPage'
+  /users/{userId}/posts:
+    get:
+      operationId: listUserPosts
+      summary: User's posts (paginated, path param)
+      x-pagination: true
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemsPage'
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    ItemsPage:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        nextCursor:
+          type: string

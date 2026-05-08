@@ -223,7 +223,17 @@ export function injectInfiniteUsers<
 ) {
   return injectInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getUsersInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 

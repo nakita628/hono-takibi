@@ -209,7 +209,14 @@ export function useInfiniteHono<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
+    queryKey: getHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
   })
 }
 
@@ -246,7 +253,14 @@ export function useSuspenseInfiniteHono<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseInfiniteQuery({
     ...queryOptions,
-    ...getHonoInfiniteQueryOptions(pagination, clientOptions),
+    queryKey: getHonoInfiniteQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
   })
 }
 
@@ -386,7 +400,14 @@ export function useInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
   })
 }
 
@@ -424,7 +445,14 @@ export function useSuspenseInfiniteUsers<
   const { query: queryOptions, options: clientOptions } = options ?? {}
   return useSuspenseInfiniteQuery({
     ...queryOptions,
-    ...getUsersInfiniteQueryOptions(args, pagination, clientOptions),
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
+    },
+    initialPageParam: pagination.initialPageParam,
+    getNextPageParam: pagination.getNextPageParam,
   })
 }
 

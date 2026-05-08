@@ -19,10 +19,13 @@ export async function vueQuery(
     isVueQuery: true,
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    // Vue Query's `infiniteQueryOptions()` has only 2 overloads (Defined/Undefined initialData),
-    // neither is a thunk — safe to combine with MaybeRefOrGetter<args> factories.
-    hasInfiniteQueryOptionsHelper: true,
-    // Vue Query (5.100.x) does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
+    // Vue Query's `infiniteQueryOptions()` types `initialPageParam` as `MaybeRefDeep<TPageParam>`
+    // which TS cannot narrow from a generic `TPageParam` parameter — generation fails to typecheck.
+    // Falling back to a plain `{queryKey, queryFn}` factory: users supply pagination via
+    // `options.query.initialPageParam` / `getNextPageParam` at the hook site instead.
+    // hasInfiniteQueryOptionsHelper omitted (defaults false).
+    //
+    // Vue Query (5.100.x) also does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
     // suspense in Vue is handled at the component level via <Suspense>, not separate hooks.
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)

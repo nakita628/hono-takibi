@@ -198,7 +198,17 @@ export function createInfinitePets<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getPetsInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getPetsInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.pets.$get(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 
@@ -365,7 +375,20 @@ export function createInfinitePetsPetId<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getPetsPetIdInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.pets[':petId'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 
@@ -601,7 +624,17 @@ export function createInfinitePets<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getPetsInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getPetsInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.pets.$get(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `
@@ -766,7 +799,20 @@ export function createInfinitePetsPetId<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getPetsPetIdInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getPetsPetIdInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.pets[':petId'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `
@@ -1062,7 +1108,20 @@ export function createInfiniteUsers<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersInfiniteQueryOptions(pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getUsersInfiniteQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          authClient.users.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `
@@ -1234,7 +1293,20 @@ export function createInfinitePing<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getPingInfiniteQueryOptions(pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getPingInfiniteQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.ping.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 
@@ -1432,7 +1504,20 @@ export function createInfiniteHonoX<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getHonoXInfiniteQueryOptions(pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getHonoXInfiniteQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client['hono-x'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `
@@ -1621,7 +1706,20 @@ export function createInfiniteUsersId<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getUsersIdInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 
@@ -1879,7 +1977,17 @@ export function createInfiniteUsers<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getUsersInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `
@@ -2062,7 +2170,20 @@ export function createInfiniteUsersId<
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
-    return { ...query, ...getUsersIdInfiniteQueryOptions(args(), pagination, clientOptions) }
+    return {
+      ...query,
+      queryKey: getUsersIdInfiniteQueryKey(args()),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
+    }
   })
 }
 `

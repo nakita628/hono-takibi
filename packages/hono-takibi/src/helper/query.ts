@@ -495,10 +495,28 @@ function makeSuspenseQueryHookCode(
   return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
+/**
+ * Builds the inline body for an infinite query hook (queryKey + queryFn + optional pagination).
+ * Hook builds its own options object — does NOT spread the matching `infiniteQueryOptions(...)`
+ * factory because the helper-branded result conflicts with `useSuspenseInfiniteQuery`'s narrower
+ * options type under `exactOptionalPropertyTypes: true`.
+ */
+function makeInfiniteHookBody(
+  keyCall: string,
+  fetcherCall: string,
+  useHelper: boolean,
+): string {
+  const base = `queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  return useHelper
+    ? `${base},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    : base
+}
+
 function makeInfiniteQueryHookCode(
   hookName: string,
-  infiniteOptionsGetterName: string,
+  runtimeAccess: string,
   infiniteKeyGetterName: string,
+  infiniteOptionsGetterName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -513,9 +531,8 @@ function makeInfiniteQueryHookCode(
 ) {
   const errorType = config.errorType ?? 'unknown'
   // When the helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
-  // pagination is baked into the factory so options.query becomes optional.
-  // When disabled, TData defaults to the page response type and users supply pagination
-  // via options.query (required).
+  // pagination is required as a separate arg so options.query becomes optional.
+  // When disabled, TData defaults to the page response type and users supply pagination via options.query.
   const useHelper = config.hasInfiniteQueryOptionsHelper === true
   const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
@@ -525,56 +542,55 @@ function makeInfiniteQueryHookCode(
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
   const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+  const paginationSig = useHelper ? `${paginationParam},` : ''
 
-  // Helper-wrapped path (TanStack v5 family)
-  if (useHelper) {
-    if (config.useThunk) {
-      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-      const optionsCall = hasArgs
-        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
-        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsCall}}})}`
-    }
-    if (config.isVueQuery) {
-      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-      const optionsCall = hasArgs
-        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
-        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
-    }
-    const argsSig = hasArgs ? `args:${argsType},` : ''
+  // Vue Query: spread factory. Inline `initialPageParam: TPageParam` doesn't satisfy
+  // `useInfiniteQuery`'s `MaybeRefDeep<TPageParam>` constraint, but `infiniteQueryOptions(...)`
+  // brands the result so the spread is accepted.
+  if (config.isVueQuery && useHelper) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const optionsCall = hasArgs
       ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
       : `${infiniteOptionsGetterName}(pagination,clientOptions)`
     return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
   }
 
-  // Legacy path: plain object factory; user supplies pagination via options.query
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const optionsCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
-      : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsCall}}})}`
+    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args())` : `${infiniteKeyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
+      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
+    const destructure = useHelper ? `options?.()??{}` : 'options()'
+    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const optionsCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args,clientOptions)`
-      : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
+      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const optionsCall = hasArgs
-    ? `${infiniteOptionsGetterName}(args,clientOptions)`
-    : `${infiniteOptionsGetterName}(clientOptions)`
-  return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+  const fetcherCall = hasArgs
+    ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+  const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+  const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
+  const destructure = useHelper ? 'options??{}' : 'options'
+  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
 }
 
 function makeSuspenseInfiniteQueryHookCode(
   hookName: string,
-  infiniteOptionsGetterName: string,
+  runtimeAccess: string,
   infiniteKeyGetterName: string,
+  infiniteOptionsGetterName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -597,23 +613,11 @@ function makeSuspenseInfiniteQueryHookCode(
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
   const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+  const paginationSig = useHelper ? `${paginationParam},` : ''
 
-  if (useHelper) {
-    if (config.useThunk) {
-      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-      const optionsCall = hasArgs
-        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
-        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsCall}}})}`
-    }
-    if (config.isVueQuery) {
-      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-      const optionsCall = hasArgs
-        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
-        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
-    }
-    const argsSig = hasArgs ? `args:${argsType},` : ''
+  // Vue Query: spread factory (see makeInfiniteQueryHookCode for rationale)
+  if (config.isVueQuery && useHelper) {
+    const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const optionsCall = hasArgs
       ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
       : `${infiniteOptionsGetterName}(pagination,clientOptions)`
@@ -622,23 +626,33 @@ function makeSuspenseInfiniteQueryHookCode(
 
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const optionsCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
-      : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsCall}}})}`
+    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args())` : `${infiniteKeyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
+      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
+    const destructure = useHelper ? `options?.()??{}` : 'options()'
+    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const optionsCall = hasArgs
-      ? `${infiniteOptionsGetterName}(args,clientOptions)`
-      : `${infiniteOptionsGetterName}(clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+    const fetcherCall = hasArgs
+      ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
+      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,${body}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const optionsCall = hasArgs
-    ? `${infiniteOptionsGetterName}(args,clientOptions)`
-    : `${infiniteOptionsGetterName}(clientOptions)`
-  return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+  const fetcherCall = hasArgs
+    ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+    : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
+  const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+  const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
+  const destructure = useHelper ? 'options??{}' : 'options'
+  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.suspenseInfiniteQueryFn}({...queryOptions,${body}})}`
 }
 
 /**
@@ -998,8 +1012,9 @@ function makeHookCode(
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
-          infiniteOptionsGetterName,
+          runtimeAccess,
           infiniteKeyGetterName,
+          infiniteOptionsGetterName,
           hasArgs,
           argsType,
           responseType,
@@ -1020,8 +1035,9 @@ function makeHookCode(
       hasInfinite && config.suspenseInfiniteQueryFn && config.useSuspenseInfiniteQueryOptionsType
         ? makeSuspenseInfiniteQueryHookCode(
             suspenseInfiniteHookName,
-            infiniteOptionsGetterName,
+            runtimeAccess,
             infiniteKeyGetterName,
+            infiniteOptionsGetterName,
             hasArgs,
             argsType,
             responseType,
