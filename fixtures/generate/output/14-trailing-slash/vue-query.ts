@@ -63,7 +63,7 @@ export function useApiReverseChibanIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseChiban.index.$get(undefined, {
           ...clientOptions,
@@ -111,7 +111,7 @@ export function useApiReverseChiban<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseChiban.$get(undefined, {
           ...clientOptions,
@@ -164,7 +164,7 @@ export function usePostsIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.posts.index.$get(toValue(args), {
           ...clientOptions,
@@ -248,7 +248,7 @@ export function useUsersIdIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].index.$get(toValue(args), {
           ...clientOptions,
@@ -291,7 +291,7 @@ export function useItemsIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.index.$get(undefined, {
           ...clientOptions,

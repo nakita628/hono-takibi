@@ -58,7 +58,7 @@ export function useItemsItemId<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsItemIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items[':itemId'].$get(toValue(args), {
           ...clientOptions,
@@ -166,7 +166,7 @@ export function useItems<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(toValue(args), {
           ...clientOptions,

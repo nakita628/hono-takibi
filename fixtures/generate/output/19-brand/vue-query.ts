@@ -82,7 +82,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].$get(toValue(args), {
           ...clientOptions,

@@ -108,7 +108,7 @@ export function useComposed<
   return useQuery({
     ...queryOptions,
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.composed.$get(undefined, {
           ...clientOptions,
@@ -153,7 +153,7 @@ export function useDeepNested<
   return useQuery({
     ...queryOptions,
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['deep-nested'].$get(undefined, {
           ...clientOptions,
@@ -205,7 +205,7 @@ export function useAdditionalProps<
   return useQuery({
     ...queryOptions,
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['additional-props'].$get(undefined, {
           ...clientOptions,

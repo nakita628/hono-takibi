@@ -74,7 +74,7 @@ export function getHonoQueryKey() {
 export function getHonoQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.hono.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -122,7 +122,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
       )

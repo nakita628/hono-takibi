@@ -40,7 +40,7 @@ export function getItemsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -229,7 +229,7 @@ export function getFeedsQueryKey() {
 export function getFeedsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getFeedsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.feeds.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -426,7 +426,7 @@ export function getUsersUserIdPostsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].posts.$get(args, {
           ...options,

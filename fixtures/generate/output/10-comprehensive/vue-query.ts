@@ -64,7 +64,7 @@ export function useUsers<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -143,7 +143,7 @@ export function useUsersUserId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].$get(toValue(args), {
           ...clientOptions,
@@ -253,7 +253,7 @@ export function useProducts<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products.$get(toValue(args), {
           ...clientOptions,
@@ -337,7 +337,7 @@ export function useProductsProductId<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products[':productId'].$get(toValue(args), {
           ...clientOptions,
@@ -437,7 +437,7 @@ export function useProductsProductIdReviews<
   return useQuery({
     ...queryOptions,
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products[':productId'].reviews.$get(toValue(args), {
           ...clientOptions,
@@ -520,7 +520,7 @@ export function useOrders<
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.orders.$get(toValue(args), {
           ...clientOptions,
@@ -601,7 +601,7 @@ export function useOrdersOrderId<
   return useQuery({
     ...queryOptions,
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.orders[':orderId'].$get(toValue(args), {
           ...clientOptions,
@@ -644,7 +644,7 @@ export function useCategories<
   return useQuery({
     ...queryOptions,
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.categories.$get(undefined, {
           ...clientOptions,

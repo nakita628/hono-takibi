@@ -19,7 +19,7 @@ export function getHealthQueryKey() {
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.health.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

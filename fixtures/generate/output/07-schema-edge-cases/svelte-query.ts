@@ -89,7 +89,7 @@ export function getComposedQueryKey() {
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.composed.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -136,7 +136,7 @@ export function getDeepNestedQueryKey() {
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['deep-nested'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -187,7 +187,7 @@ export function getAdditionalPropsQueryKey() {
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['additional-props'].$get(undefined, {
           ...options,

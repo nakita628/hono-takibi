@@ -30,7 +30,7 @@ export function getTreeQueryKey() {
 export function getTreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -116,7 +116,7 @@ export function getGraphQueryKey() {
 export function getGraphQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

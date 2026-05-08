@@ -225,10 +225,14 @@ function makeQueryOptionsGetterCode(
   },
 ) {
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  // When `queryOptions(...)` wraps the body, the helper provides contextual typing for
+  // `queryFn` (signal: AbortSignal). The plain-object branch has no surrounding context,
+  // so keep `:QueryFunctionContext` there.
+  const queryFnSig = config.hasQueryOptionsHelper ? '{signal}' : '{signal}:QueryFunctionContext'
   // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
-    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
     const returnExpr = config.hasQueryOptionsHelper
       ? `queryOptions({${bodyContent}})`
       : `{${bodyContent}}`
@@ -237,7 +241,7 @@ function makeQueryOptionsGetterCode(
   const fetcherCall = hasArgs
     ? `parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))`
     : `parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))`
-  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
   const returnExpr = config.hasQueryOptionsHelper
     ? `queryOptions({${bodyContent}})`
     : `{${bodyContent}}`
@@ -444,7 +448,7 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
@@ -486,7 +490,7 @@ function makeSuspenseQueryHookCode(
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
@@ -500,13 +504,19 @@ function makeSuspenseQueryHookCode(
  * Hook builds its own options object — does NOT spread the matching `infiniteQueryOptions(...)`
  * factory because the helper-branded result conflicts with `useSuspenseInfiniteQuery`'s narrower
  * options type under `exactOptionalPropertyTypes: true`.
+ *
+ * `isVueQuery` drops `:QueryFunctionContext` from `queryFn` — `useInfiniteQuery({...})` provides
+ * contextual typing for `signal: AbortSignal`, so the annotation is redundant and breaks
+ * Vue Query's narrow per-call queryKey inference.
  */
 function makeInfiniteHookBody(
   keyCall: string,
   fetcherCall: string,
   useHelper: boolean,
+  isVueQuery = false,
 ): string {
-  const base = `queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  const queryFnSig = isVueQuery ? '{signal}' : '{signal}:QueryFunctionContext'
+  const base = `queryKey:${keyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
   return useHelper
     ? `${base},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
     : base
@@ -572,7 +582,7 @@ function makeInfiniteQueryHookCode(
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, true)
     return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
@@ -641,7 +651,7 @@ function makeSuspenseInfiniteQueryHookCode(
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
+    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, true)
     return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,${body}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
@@ -1233,6 +1243,11 @@ function makeHeader(
     ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
+  // QueryFunctionContext is emitted only when at least one generated `queryFn` carries the
+  // explicit `:QueryFunctionContext` annotation. Vue Query drops the annotation from hook
+  // bodies (useQuery / useInfiniteQuery / useSuspenseQuery provide contextual typing for
+  // `signal: AbortSignal`), but the plain-object factories still emit the annotation since
+  // a bare object literal has no surrounding contextual type for `queryFn`.
   const typeImports = [
     ...(hasQuery ? [config.useQueryOptionsType, 'QueryFunctionContext'] : []),
     ...(hasQuery && config.useSuspenseQueryOptionsType ? [config.useSuspenseQueryOptionsType] : []),

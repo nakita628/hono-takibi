@@ -59,7 +59,7 @@ export function useApiReverseGeocodeIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseGeocode.index.$get(toValue(args), {
           ...clientOptions,

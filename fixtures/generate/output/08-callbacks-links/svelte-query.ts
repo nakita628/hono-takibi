@@ -57,7 +57,7 @@ export function getSubscriptionsIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.subscriptions[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )

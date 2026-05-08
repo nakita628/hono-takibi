@@ -97,7 +97,7 @@ export function getPetsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPetsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.pets.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -249,7 +249,7 @@ export function getPetsPetIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPetsPetIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.pets[':petId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -523,7 +523,7 @@ export function getPetsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPetsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.pets.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -673,7 +673,7 @@ export function getPetsPetIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPetsPetIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.pets[':petId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -1005,7 +1005,7 @@ export function getUsersQueryKey() {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         authClient.users.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -1192,7 +1192,7 @@ export function getPingQueryKey() {
 export function getPingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.ping.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -1395,7 +1395,7 @@ export function getHonoXQueryKey() {
 export function getHonoXQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['hono-x'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -1592,7 +1592,7 @@ export function getUsersIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -1876,7 +1876,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -2056,7 +2056,7 @@ export function getUsersIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )

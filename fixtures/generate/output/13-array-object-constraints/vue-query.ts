@@ -52,7 +52,7 @@ export function useTags<
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -121,7 +121,7 @@ export function useSettings<
   return useQuery({
     ...queryOptions,
     queryKey: getSettingsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.settings.$get(toValue(args), {
           ...clientOptions,

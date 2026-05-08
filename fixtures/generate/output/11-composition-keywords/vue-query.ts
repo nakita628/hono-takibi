@@ -176,7 +176,7 @@ export function useNotRef<
   return useQuery({
     ...queryOptions,
     queryKey: getNotRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-ref'].$get(undefined, {
           ...clientOptions,
@@ -221,7 +221,7 @@ export function useNotEnum<
   return useQuery({
     ...queryOptions,
     queryKey: getNotEnumQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-enum'].$get(undefined, {
           ...clientOptions,
@@ -266,7 +266,7 @@ export function useNotConst<
   return useQuery({
     ...queryOptions,
     queryKey: getNotConstQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-const'].$get(undefined, {
           ...clientOptions,
@@ -318,7 +318,7 @@ export function useNotComposition<
   return useQuery({
     ...queryOptions,
     queryKey: getNotCompositionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-composition'].$get(undefined, {
           ...clientOptions,
@@ -368,7 +368,7 @@ export function useAllOfSibling<
   return useQuery({
     ...queryOptions,
     queryKey: getAllOfSiblingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['all-of-sibling'].$get(undefined, {
           ...clientOptions,
@@ -420,7 +420,7 @@ export function useNullableOneOf<
   return useQuery({
     ...queryOptions,
     queryKey: getNullableOneOfQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['nullable-one-of'].$get(undefined, {
           ...clientOptions,
@@ -465,7 +465,7 @@ export function useAnyOfThree<
   return useQuery({
     ...queryOptions,
     queryKey: getAnyOfThreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['any-of-three'].$get(undefined, {
           ...clientOptions,
@@ -510,7 +510,7 @@ export function useAnyOfRef<
   return useQuery({
     ...queryOptions,
     queryKey: getAnyOfRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['any-of-ref'].$get(undefined, {
           ...clientOptions,

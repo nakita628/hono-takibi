@@ -52,7 +52,7 @@ export function usePosts<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.posts.$get(toValue(args), {
           ...clientOptions,
@@ -126,7 +126,7 @@ export function usePostsId<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.posts[':id'].$get(toValue(args), {
           ...clientOptions,
@@ -240,7 +240,7 @@ export function usePostsIdComments<
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIdCommentsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.posts[':id'].comments.$get(toValue(args), {
           ...clientOptions,
@@ -311,7 +311,7 @@ export function useTags<
   return useQuery({
     ...queryOptions,
     queryKey: getTagsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.tags.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )

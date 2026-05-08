@@ -58,7 +58,7 @@ export function usePublic<
   return useQuery({
     ...queryOptions,
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.public.$get(undefined, {
           ...clientOptions,
@@ -110,7 +110,7 @@ export function useBearerProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['bearer-protected'].$get(undefined, {
           ...clientOptions,
@@ -162,7 +162,7 @@ export function useApiKeyProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['api-key-protected'].$get(undefined, {
           ...clientOptions,
@@ -214,7 +214,7 @@ export function useBasicProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['basic-protected'].$get(undefined, {
           ...clientOptions,
@@ -266,7 +266,7 @@ export function useOauthProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['oauth-protected'].$get(undefined, {
           ...clientOptions,
@@ -311,7 +311,7 @@ export function useMultiAuth<
   return useQuery({
     ...queryOptions,
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['multi-auth'].$get(undefined, {
           ...clientOptions,

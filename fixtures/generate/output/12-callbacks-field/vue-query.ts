@@ -91,7 +91,7 @@ export function useItems<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(undefined, {
           ...clientOptions,

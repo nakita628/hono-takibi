@@ -104,7 +104,7 @@ export function useHono<
   return useQuery({
     ...queryOptions,
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -145,7 +145,7 @@ export function useInfiniteHono<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -191,7 +191,7 @@ export function useUsers<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -243,7 +243,7 @@ export function useInfiniteUsers<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -361,7 +361,7 @@ export function useHono<
   return useQuery({
     ...queryOptions,
     queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -402,7 +402,7 @@ export function useInfiniteHono<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -464,7 +464,7 @@ export function useUsers<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -516,7 +516,7 @@ export function useInfiniteUsers<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -642,7 +642,7 @@ export function useUsers<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         authClient.users.$get(undefined, {
           ...clientOptions,
@@ -688,7 +688,7 @@ export function useInfiniteUsers<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         authClient.users.$get(undefined, {
           ...clientOptions,
@@ -782,7 +782,7 @@ export function usePing<
   return useQuery({
     ...queryOptions,
     queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -823,7 +823,7 @@ export function useInfinitePing<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getPingInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -933,7 +933,7 @@ export function useHonoX<
   return useQuery({
     ...queryOptions,
     queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['hono-x'].$get(undefined, {
           ...clientOptions,
@@ -981,7 +981,7 @@ export function useInfiniteHonoX<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['hono-x'].$get(undefined, {
           ...clientOptions,
@@ -1090,7 +1090,7 @@ export function useUsersId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), {
           ...clientOptions,
@@ -1146,7 +1146,7 @@ export function useInfiniteUsersId<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), {
           ...clientOptions,
@@ -1333,7 +1333,7 @@ export function useUsers<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -1385,7 +1385,7 @@ export function useInfiniteUsers<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(toValue(args), {
           ...clientOptions,
@@ -1485,7 +1485,7 @@ export function useUsersId<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), {
           ...clientOptions,
@@ -1541,7 +1541,7 @@ export function useInfiniteUsersId<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), {
           ...clientOptions,

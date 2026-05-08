@@ -91,7 +91,7 @@ export function useSubscriptionsId<
   return useQuery({
     ...queryOptions,
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.subscriptions[':id'].$get(toValue(args), {
           ...clientOptions,

@@ -38,7 +38,7 @@ export function useHealth<
   return useQuery({
     ...queryOptions,
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.health.$get(undefined, {
           ...clientOptions,

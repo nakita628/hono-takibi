@@ -35,7 +35,7 @@ export function getPublicQueryKey() {
 export function getPublicQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.public.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -80,7 +80,7 @@ export function getBearerProtectedQueryKey() {
 export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['bearer-protected'].$get(undefined, {
           ...options,
@@ -136,7 +136,7 @@ export function getApiKeyProtectedQueryKey() {
 export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['api-key-protected'].$get(undefined, {
           ...options,
@@ -192,7 +192,7 @@ export function getBasicProtectedQueryKey() {
 export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['basic-protected'].$get(undefined, {
           ...options,
@@ -248,7 +248,7 @@ export function getOauthProtectedQueryKey() {
 export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['oauth-protected'].$get(undefined, {
           ...options,
@@ -304,7 +304,7 @@ export function getMultiAuthQueryKey() {
 export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['multi-auth'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

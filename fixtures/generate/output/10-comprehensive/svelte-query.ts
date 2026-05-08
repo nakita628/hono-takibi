@@ -38,7 +38,7 @@ export function getUsersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -111,7 +111,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -227,7 +227,7 @@ export function getProductsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -305,7 +305,7 @@ export function getProductsProductIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products[':productId'].$get(args, {
           ...options,
@@ -398,7 +398,7 @@ export function getProductsProductIdReviewsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getProductsProductIdReviewsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.products[':productId'].reviews.$get(args, {
           ...options,
@@ -497,7 +497,7 @@ export function getOrdersQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.orders.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -573,7 +573,7 @@ export function getOrdersOrderIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getOrdersOrderIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.orders[':orderId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -627,7 +627,7 @@ export function getCategoriesQueryKey() {
 export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getCategoriesQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.categories.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

@@ -31,7 +31,7 @@ export function getApiReverseGeocodeIndexQueryOptions(
 ) {
   return queryOptions({
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseGeocode.index.$get(args, {
           ...options,

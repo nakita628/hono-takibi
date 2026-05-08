@@ -77,7 +77,7 @@ export function getItemsQueryKey() {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

@@ -42,7 +42,7 @@ export function useTree<
   return useQuery({
     ...queryOptions,
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       )
@@ -101,7 +101,7 @@ export function useGraph<
   return useQuery({
     ...queryOptions,
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.graph.$get(undefined, {
           ...clientOptions,

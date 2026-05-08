@@ -60,7 +60,7 @@ export function getUsersUserIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )

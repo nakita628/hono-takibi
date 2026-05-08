@@ -162,7 +162,7 @@ export function useNullableUnion<
   return useQuery({
     ...queryOptions,
     queryKey: getNullableUnionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['nullable-union'].$get(undefined, {
           ...clientOptions,
@@ -214,7 +214,7 @@ export function useNestedCircular<
   return useQuery({
     ...queryOptions,
     queryKey: getNestedCircularQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['nested-circular'].$get(undefined, {
           ...clientOptions,

@@ -30,7 +30,7 @@ export function getUsersQueryKey() {
 export function getUsersQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -125,7 +125,7 @@ export function getUsersIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -235,7 +235,7 @@ export function getItemsQueryKey() {
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

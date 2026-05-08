@@ -182,7 +182,7 @@ export function getNotRefQueryKey() {
 export function getNotRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-ref'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -257,7 +257,7 @@ export function getNotEnumQueryKey() {
 export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotEnumQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-enum'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -332,7 +332,7 @@ export function getNotConstQueryKey() {
 export function getNotConstQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotConstQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-const'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -407,7 +407,7 @@ export function getNotCompositionQueryKey() {
 export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNotCompositionQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['not-composition'].$get(undefined, {
           ...options,
@@ -493,7 +493,7 @@ export function getAllOfSiblingQueryKey() {
 export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAllOfSiblingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['all-of-sibling'].$get(undefined, {
           ...options,
@@ -575,7 +575,7 @@ export function getNullableOneOfQueryKey() {
 export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getNullableOneOfQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['nullable-one-of'].$get(undefined, {
           ...options,
@@ -661,7 +661,7 @@ export function getAnyOfThreeQueryKey() {
 export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfThreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['any-of-three'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )
@@ -736,7 +736,7 @@ export function getAnyOfRefQueryKey() {
 export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAnyOfRefQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client['any-of-ref'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

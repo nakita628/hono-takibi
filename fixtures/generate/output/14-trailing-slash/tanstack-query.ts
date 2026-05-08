@@ -38,7 +38,7 @@ export function getApiReverseChibanIndexQueryKey() {
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseChiban.index.$get(undefined, {
           ...options,
@@ -124,7 +124,7 @@ export function getApiReverseChibanQueryKey() {
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.api.reverseChiban.$get(undefined, {
           ...options,
@@ -205,7 +205,7 @@ export function getPostsIndexQueryOptions(
 ) {
   return queryOptions({
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.posts.index.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -319,7 +319,7 @@ export function getUsersIdIndexQueryOptions(
 ) {
   return queryOptions({
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':id'].index.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -408,7 +408,7 @@ export function getItemsIndexQueryKey() {
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.index.$get(undefined, { ...options, init: { ...options?.init, signal } }),
       )

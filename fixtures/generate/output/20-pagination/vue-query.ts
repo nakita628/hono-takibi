@@ -60,7 +60,7 @@ export function useItems<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(toValue(args), {
           ...clientOptions,
@@ -112,7 +112,7 @@ export function useInfiniteItems<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(toValue(args), {
           ...clientOptions,
@@ -153,7 +153,7 @@ export function useFeeds<
   return useQuery({
     ...queryOptions,
     queryKey: getFeedsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.feeds.$get(undefined, {
           ...clientOptions,
@@ -197,7 +197,7 @@ export function useInfiniteFeeds<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.feeds.$get(undefined, {
           ...clientOptions,
@@ -259,7 +259,7 @@ export function useUsersUserIdPosts<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersUserIdPostsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].posts.$get(toValue(args), {
           ...clientOptions,
@@ -324,7 +324,7 @@ export function useInfiniteUsersUserIdPosts<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.users[':userId'].posts.$get(toValue(args), {
           ...clientOptions,

@@ -32,7 +32,7 @@ export function getItemsItemIdQueryOptions(
 ) {
   return queryOptions({
     queryKey: getItemsItemIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items[':itemId'].$get(args, { ...options, init: { ...options?.init, signal } }),
       )
@@ -196,7 +196,7 @@ export function getItemsQueryOptions(
 ) {
   return queryOptions({
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({ signal }) {
       return parseResponse(
         client.items.$get(args, { ...options, init: { ...options?.init, signal } }),
       )
