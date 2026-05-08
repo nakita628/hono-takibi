@@ -4,7 +4,7 @@ import {
   IncludeQueryParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
 } from '../parameters'
-import { CompanyResponse, DefaultErrorResponse, NotFoundResponse } from '../responses'
+import { CompanyResponseResponse, DefaultErrorResponse, NotFoundResponse } from '../responses'
 
 export const getCompaniesCompanyIdRoute = createRoute({
   method: 'get',
@@ -17,5 +17,5 @@ export const getCompaniesCompanyIdRoute = createRoute({
     headers: z.object({ 'x-trace-id': TraceIdHeaderParamParamsSchema }),
     query: z.object({ include: IncludeQueryParamParamsSchema }),
   },
-  responses: { 200: CompanyResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
+  responses: { 200: CompanyResponseResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
 })

@@ -5,7 +5,7 @@ import { WebhookEventRequestRequestBody } from '../requestBodies'
 import { DefaultErrorResponse } from '../responses'
 import { TraceIdHeaderHeaderSchema } from '../headers'
 
-export const SubscriptionLifecycleCallback = {
+export const SubscriptionLifecycleCallbackCallback = {
   '{$request.body#/callbackUrl}': {
     post: {
       summary: 'Subscription lifecycle callback',

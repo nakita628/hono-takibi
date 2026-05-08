@@ -3,7 +3,7 @@ import { WebhookEventSchema } from '../schemas'
 import { WebhookEventRequestRequestBody } from '../requestBodies'
 import { DefaultErrorResponse } from '../responses'
 
-export const OrderCreatedCallback = {
+export const OrderCreatedCallbackCallback = {
   '{$request.body#/buyer/company/primaryContact/employer/meta/links/self/href}': {
     post: {
       summary: 'Order created callback (path expression is intentionally absurd)',

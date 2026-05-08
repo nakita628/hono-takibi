@@ -4,7 +4,7 @@ import {
   OrderIdPathParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
 } from '../parameters'
-import { DefaultErrorResponse, NotFoundResponse, OrderResponse } from '../responses'
+import { DefaultErrorResponse, NotFoundResponse, OrderResponseResponse } from '../responses'
 
 export const getOrdersOrderIdRoute = createRoute({
   method: 'get',
@@ -17,5 +17,5 @@ export const getOrdersOrderIdRoute = createRoute({
     headers: z.object({ 'x-trace-id': TraceIdHeaderParamParamsSchema }),
     query: z.object({ include: IncludeQueryParamParamsSchema }),
   },
-  responses: { 200: OrderResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
+  responses: { 200: OrderResponseResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
 })

@@ -87,8 +87,9 @@ export const getUsersIdRoute = createRoute({
   operationId: 'getUser',
   request: {
     params: z.object({
-      id: z
-        .int()
+      id: z.coerce
+        .number()
+        .pipe(z.int())
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),

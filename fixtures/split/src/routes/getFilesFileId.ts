@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 import { FileIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema } from '../parameters'
-import { DefaultErrorResponse, FileResponse, NotFoundResponse } from '../responses'
+import { DefaultErrorResponse, FileResponseResponse, NotFoundResponse } from '../responses'
 
 export const getFilesFileIdRoute = createRoute({
   method: 'get',
@@ -12,5 +12,5 @@ export const getFilesFileIdRoute = createRoute({
     params: z.object({ fileId: FileIdPathParamParamsSchema }),
     headers: z.object({ 'x-trace-id': TraceIdHeaderParamParamsSchema }),
   },
-  responses: { 200: FileResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
+  responses: { 200: FileResponseResponse, 404: NotFoundResponse, default: DefaultErrorResponse },
 })

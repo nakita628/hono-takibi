@@ -25,11 +25,9 @@ export const getUsersRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z
-            .array(
-              z.object({ id: z.string(), name: z.string() }).openapi({ required: ['id', 'name'] }),
-            )
-            .openapi({}),
+          schema: z.array(
+            z.object({ id: z.string(), name: z.string() }).openapi({ required: ['id', 'name'] }),
+          ),
         },
       },
     },

@@ -1,12 +1,14 @@
 import { z } from '@hono/zod-openapi'
 import { OrderSchema } from '../schemas'
 import { TraceIdHeaderHeaderSchema } from '../headers'
-import { OrderExample } from '../examples'
-import { GetOrderLink, GetUserFromOrderLink } from '../links'
+import { OrderExampleExample } from '../examples'
+import { GetOrderLinkLink, GetUserFromOrderLinkLink } from '../links'
 
-export const OrderResponse = {
+export const OrderResponseResponse = {
   description: 'An order',
   headers: z.object({ 'x-trace-id': TraceIdHeaderHeaderSchema }),
-  content: { 'application/json': { schema: OrderSchema, examples: { order: OrderExample } } },
-  links: { self: GetOrderLink, buyer: GetUserFromOrderLink },
+  content: {
+    'application/json': { schema: OrderSchema, examples: { order: OrderExampleExample } },
+  },
+  links: { self: GetOrderLinkLink, buyer: GetUserFromOrderLinkLink },
 }

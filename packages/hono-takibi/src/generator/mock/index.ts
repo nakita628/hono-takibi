@@ -129,7 +129,16 @@ function makeMockFunction(
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
   const returnType = isCircular ? ': any' : ''
-  return `function mock${name.replace(/\./g, '')}()${returnType}{return ${mockBody}}` as const
+  // When the schema is annotated with `x-brand`, the corresponding zod schema
+  // is `.brand<"X">()` and the inferred type is `T & $brand<"X">`. The faker
+  // call alone produces the un-branded `T` (e.g. plain `string`), which the
+  // route handler refuses to accept (`string` vs `string & $brand<"UserId">`).
+  // Cast via `z.infer<typeof <Name>Schema>` to satisfy the type without any
+  // runtime overhead — branding is a TS-only construct so the assertion is
+  // safe; an `as` cast is the standard escape hatch for nominal brand types.
+  const sanitized = name.replace(/\./g, '')
+  const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${sanitized}Schema>` : mockBody
+  return `function mock${sanitized}()${returnType}{return ${body}}` as const
 }
 
 function extractSecurityInfo(

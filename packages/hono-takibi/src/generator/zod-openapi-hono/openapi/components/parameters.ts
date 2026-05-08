@@ -8,16 +8,6 @@ import {
 import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**
- * Extracts schema from parameter content (for parameters using content instead of schema)
- */
-const getSchemaFromContent = (content: Content | undefined): Schema | undefined => {
-  if (!content) return undefined
-  const firstKey = Object.keys(content)[0]
-  if (!firstKey) return undefined
-  return content[firstKey]?.schema
-}
-
-/**
  * Generates TypeScript code for OpenAPI component parameters.
  *
  * @param components - The OpenAPI components object.
@@ -32,9 +22,14 @@ export function parametersCode(
   exportParametersTypes: boolean,
   readonly?: boolean,
 ) {
+  const getSchemaFromContent = (content: Content | undefined): Schema | undefined => {
+    if (!content) return undefined
+    const firstKey = Object.keys(content)[0]
+    if (!firstKey) return undefined
+    return content[firstKey]?.schema
+  }
   const { parameters } = components
   if (!parameters) return ''
-
   return Object.keys(parameters)
     .map((k) => {
       const parameter = parameters[k]
@@ -46,15 +41,17 @@ export function parametersCode(
       // Handle parameters with content instead of schema (OpenAPI 3.x)
       const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
       const baseSchema = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
-      // Apply coercion for query parameters
+      // Path and query parameters arrive as strings on the wire — coerce them
+      // to the schema-declared type. Header/cookie are left untouched.
+      const isStringWire = parameter.in === 'query' || parameter.in === 'path'
       const z =
-        parameter.in === 'query' && (schema?.type === 'number' || schema?.type === 'integer')
+        isStringWire && (schema?.type === 'number' || schema?.type === 'integer')
           ? coerce(baseSchema, schema.type, schema.format)
-          : parameter.in === 'query' && schema?.type === 'boolean'
+          : isStringWire && schema?.type === 'boolean'
             ? baseSchema.replace('boolean', 'stringbool')
-            : parameter.in === 'query' && schema?.type === 'date'
+            : isStringWire && schema?.type === 'date'
               ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : parameter.in === 'query' && (schema?.type === 'object' || schema?.type === 'array')
+              : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
                 ? baseSchema
                     .replace(
                       /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,

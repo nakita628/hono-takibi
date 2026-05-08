@@ -1,4 +1,4 @@
-export const UserPrefsExample = {
+export const UserPrefsExampleExample = {
   value: {
     locale: 'ja-JP',
     marketingOptIn: false,

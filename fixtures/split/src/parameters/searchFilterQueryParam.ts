@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
 import { SearchFilterSchema } from '../schemas'
-import { OrderFilterExample, UserFilterExample } from '../examples'
+import { OrderFilterExampleExample, UserFilterExampleExample } from '../examples'
 
 export const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOptional().openapi({
   param: {
@@ -12,7 +12,7 @@ export const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOption
     content: {
       'application/json': {
         schema: { $ref: '#/components/schemas/SearchFilter' },
-        examples: { userFilter: UserFilterExample, orderFilter: OrderFilterExample },
+        examples: { userFilter: UserFilterExampleExample, orderFilter: OrderFilterExampleExample },
       },
     },
   },

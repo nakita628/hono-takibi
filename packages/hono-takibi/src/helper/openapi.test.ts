@@ -545,6 +545,32 @@ describe('openapi helper', () => {
         'z.string().exactOptional().openapi({param:{"name":"userId","in":"path","schema":{"type":"string"}}})',
       )
     })
+    it.concurrent('applies coercion for path integer parameters', () => {
+      const result = makeParameters([{ name: 'id', in: 'path', schema: { type: 'integer' } }])
+      expect(result.path.id).toBe(
+        'z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer"}}})',
+      )
+    })
+    it.concurrent('applies coercion for path int64 parameters', () => {
+      const result = makeParameters([
+        { name: 'id', in: 'path', schema: { type: 'integer', format: 'int64' } },
+      ])
+      expect(result.path.id).toBe(
+        'z.coerce.bigint().pipe(z.int64()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer","format":"int64"}}})',
+      )
+    })
+    it.concurrent('applies coercion for path number parameters', () => {
+      const result = makeParameters([{ name: 'value', in: 'path', schema: { type: 'number' } }])
+      expect(result.path.value).toBe(
+        'z.coerce.number().exactOptional().openapi({param:{"name":"value","in":"path","schema":{"type":"number"}}})',
+      )
+    })
+    it.concurrent('applies stringbool for path boolean parameters', () => {
+      const result = makeParameters([{ name: 'flag', in: 'path', schema: { type: 'boolean' } }])
+      expect(result.path.flag).toBe(
+        'z.stringbool().exactOptional().openapi({param:{"name":"flag","in":"path","schema":{"type":"boolean"}}})',
+      )
+    })
     it.concurrent('generates header parameter with exact string output', () => {
       const result = makeParameters([
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },

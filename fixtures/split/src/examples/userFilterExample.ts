@@ -1,4 +1,4 @@
-export const UserFilterExample = {
+export const UserFilterExampleExample = {
   value: {
     kind: 'user',
     email: 'taro@inferno.example',

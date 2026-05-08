@@ -1,2 +1,2 @@
-export * from './orderPathItem'
-export * from './userPathItem'
+export * from './orderPathItemPathItem'
+export * from './userPathItemPathItem'

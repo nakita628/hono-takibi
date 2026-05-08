@@ -7,7 +7,7 @@ import {
   SearchFilterQueryParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
 } from '../parameters'
-import { DefaultErrorResponse, OrderListResponse, UnauthorizedResponse } from '../responses'
+import { DefaultErrorResponse, OrderListResponseResponse, UnauthorizedResponse } from '../responses'
 
 export const getOrdersRoute = createRoute({
   method: 'get',
@@ -25,5 +25,9 @@ export const getOrdersRoute = createRoute({
       filter: SearchFilterQueryParamParamsSchema,
     }),
   },
-  responses: { 200: OrderListResponse, 401: UnauthorizedResponse, default: DefaultErrorResponse },
+  responses: {
+    200: OrderListResponseResponse,
+    401: UnauthorizedResponse,
+    default: DefaultErrorResponse,
+  },
 })

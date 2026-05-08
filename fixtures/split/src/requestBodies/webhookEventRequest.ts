@@ -1,9 +1,12 @@
 import { WebhookEventSchema } from '../schemas'
-import { WebhookEventExample } from '../examples'
+import { WebhookEventExampleExample } from '../examples'
 
 export const WebhookEventRequestRequestBody = {
   content: {
-    'application/json': { schema: WebhookEventSchema, examples: { event: WebhookEventExample } },
+    'application/json': {
+      schema: WebhookEventSchema,
+      examples: { event: WebhookEventExampleExample },
+    },
   },
   required: true,
 }

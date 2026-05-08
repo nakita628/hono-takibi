@@ -1,4 +1,4 @@
-export const TokenResponseExample = {
+export const TokenResponseExampleExample = {
   value: {
     accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     tokenType: 'Bearer',

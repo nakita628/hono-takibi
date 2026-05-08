@@ -1,4 +1,4 @@
-export const WebhookEventExample = {
+export const WebhookEventExampleExample = {
   value: {
     subscription: {
       id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',

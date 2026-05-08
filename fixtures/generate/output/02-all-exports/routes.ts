@@ -25,8 +25,9 @@ export const PageParamParamsSchema = z.coerce
 
 export type PageParamParams = z.infer<typeof PageParamParamsSchema>
 
-export const UserIdParamParamsSchema = z
-  .int()
+export const UserIdParamParamsSchema = z.coerce
+  .number()
+  .pipe(z.int())
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
 
 export type UserIdParamParams = z.infer<typeof UserIdParamParamsSchema>

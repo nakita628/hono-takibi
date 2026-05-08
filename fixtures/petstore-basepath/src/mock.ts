@@ -1,5 +1,5 @@
+import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
-import { createRoute, OpenAPIHono, type RouteHandler, z } from '@hono/zod-openapi'
 
 const OrderSchema = z
   .object({
@@ -156,15 +156,18 @@ export const getPetPetIdRoute = createRoute({
   operationId: 'getPetById',
   request: {
     params: z.object({
-      petId: z.int64().openapi({
-        param: {
-          name: 'petId',
-          in: 'path',
-          description: 'ID of pet to return',
-          required: true,
-          schema: { type: 'integer', format: 'int64' },
-        },
-      }),
+      petId: z.coerce
+        .bigint()
+        .pipe(z.int64())
+        .openapi({
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'ID of pet to return',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
+        }),
     }),
   },
   responses: {
@@ -186,15 +189,18 @@ export const deletePetPetIdRoute = createRoute({
   operationId: 'deletePet',
   request: {
     params: z.object({
-      petId: z.int64().openapi({
-        param: {
-          name: 'petId',
-          in: 'path',
-          description: 'Pet id to delete',
-          required: true,
-          schema: { type: 'integer', format: 'int64' },
-        },
-      }),
+      petId: z.coerce
+        .bigint()
+        .pipe(z.int64())
+        .openapi({
+          param: {
+            name: 'petId',
+            in: 'path',
+            description: 'Pet id to delete',
+            required: true,
+            schema: { type: 'integer', format: 'int64' },
+          },
+        }),
     }),
   },
   responses: { 400: { description: 'Invalid pet value' } },
@@ -282,9 +288,11 @@ export const getUserUsernameRoute = createRoute({
   operationId: 'getUserByName',
   request: {
     params: z.object({
-      username: z.string().openapi({
-        param: { name: 'username', in: 'path', required: true, schema: { type: 'string' } },
-      }),
+      username: z
+        .string()
+        .openapi({
+          param: { name: 'username', in: 'path', required: true, schema: { type: 'string' } },
+        }),
     }),
   },
   responses: {
@@ -405,7 +413,7 @@ const deletePetPetIdRouteHandler: RouteHandler<typeof deletePetPetIdRoute> = asy
 }
 
 const getStoreInventoryRouteHandler: RouteHandler<typeof getStoreInventoryRoute> = async (c) => {
-  return c.json(undefined, 200)
+  return c.json({}, 200)
 }
 
 const postStoreOrderRouteHandler: RouteHandler<typeof postStoreOrderRoute> = async (c) => {

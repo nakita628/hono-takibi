@@ -222,6 +222,74 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     expect(result).toBe(`export const UnknownParamsSchema=z.any()`)
   })
 
+  it('should apply coercion to path integer parameter', () => {
+    const components: Components = {
+      parameters: {
+        id: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const IdParamsSchema=z.coerce.number().pipe(z.int()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
+    )
+  })
+
+  it('should apply coercion to path int64 parameter', () => {
+    const components: Components = {
+      parameters: {
+        id: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer', format: 'int64' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const IdParamsSchema=z.coerce.bigint().pipe(z.int64()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}})`,
+    )
+  })
+
+  it('should apply coercion to path number parameter', () => {
+    const components: Components = {
+      parameters: {
+        value: {
+          name: 'value',
+          in: 'path',
+          required: true,
+          schema: { type: 'number' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const ValueParamsSchema=z.coerce.number().openapi({param:{"name":"value","in":"path","required":true,"schema":{"type":"number"}}})`,
+    )
+  })
+
+  it('should apply stringbool to path boolean parameter', () => {
+    const components: Components = {
+      parameters: {
+        flag: {
+          name: 'flag',
+          in: 'path',
+          required: true,
+          schema: { type: 'boolean' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const FlagParamsSchema=z.stringbool().openapi({param:{"name":"flag","in":"path","required":true,"schema":{"type":"boolean"}}})`,
+    )
+  })
+
   it('should add readonly modifier when readonly option is true', () => {
     const components: Components = {
       parameters: {
