@@ -86,15 +86,15 @@ export const postPostsRoute = createRoute({
 })
 
 function mockUserId() {
-  return faker.string.uuid()
+  return faker.string.uuid() as z.infer<typeof UserIdSchema>
 }
 
 function mockEmail() {
-  return faker.internet.email()
+  return faker.internet.email() as z.infer<typeof EmailSchema>
 }
 
 function mockUsername() {
-  return faker.string.alpha({ length: { min: 3, max: 20 } })
+  return faker.string.alpha({ length: { min: 3, max: 20 } }) as z.infer<typeof UsernameSchema>
 }
 
 function mockUser() {
@@ -102,7 +102,7 @@ function mockUser() {
 }
 
 function mockPostId() {
-  return faker.string.uuid()
+  return faker.string.uuid() as z.infer<typeof PostIdSchema>
 }
 
 function mockPost() {

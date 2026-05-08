@@ -16,18 +16,11 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
-export async function postUsers(
-  args: InferRequestType<typeof client.users.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users.$post(args, options))
-}
-
 export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return postUsers(args, options)
+      return parseResponse(client.users.$post(args, options))
     },
   }
 }
@@ -35,7 +28,7 @@ export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRe
 export function injectPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postUsers>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
       TError,
       InferRequestType<typeof client.users.$post>
     >
@@ -54,32 +47,37 @@ export function getUsersUserIdQueryKey(
   return ['users', '/users/:userId', args] as const
 }
 
-export async function getUsersUserId(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users[':userId'].$get(args, options))
-}
-
 export function getUsersUserIdQueryOptions(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getUsersUserIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersUserId(args, { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function injectUsersUserId<
-  TData = Awaited<ReturnType<typeof getUsersUserId>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$get']>>>>
+  >,
   TError = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$get']>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -89,27 +87,22 @@ export function injectUsersUserId<
       ...query,
       queryKey: getUsersUserIdQueryKey(args()),
       queryFn({ signal }: QueryFunctionContext) {
-        return getUsersUserId(args(), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        })
+        return parseResponse(
+          client.users[':userId'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
-}
-
-export async function postPosts(
-  args: InferRequestType<typeof client.posts.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.$post(args, options))
 }
 
 export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
-      return postPosts(args, options)
+      return parseResponse(client.posts.$post(args, options))
     },
   }
 }
@@ -117,7 +110,7 @@ export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRe
 export function injectPostPosts<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postPosts>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
       TError,
       InferRequestType<typeof client.posts.$post>
     >

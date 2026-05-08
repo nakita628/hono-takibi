@@ -28,25 +28,38 @@ export function getApiReverseChibanIndexQueryKey() {
   return ['api', '/api/reverseChiban/'] as const
 }
 
-export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
-  return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
-}
-
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseChiban.index.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   })
 }
 
 export function injectApiReverseChibanIndex<
-  TData = Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
+    >
+  >,
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChibanIndex>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -56,10 +69,12 @@ export function injectApiReverseChibanIndex<
       ...query,
       queryKey: getApiReverseChibanIndexQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getApiReverseChibanIndex({
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        })
+        return parseResponse(
+          client.api.reverseChiban.index.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
@@ -69,25 +84,34 @@ export function getApiReverseChibanQueryKey() {
   return ['api', '/api/reverseChiban'] as const
 }
 
-export async function getApiReverseChiban(options?: ClientRequestOptions) {
-  return await parseResponse(client.api.reverseChiban.$get(undefined, options))
-}
-
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseChiban.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   })
 }
 
 export function injectApiReverseChiban<
-  TData = Awaited<ReturnType<typeof getApiReverseChiban>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
+  >,
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseChiban>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -97,7 +121,12 @@ export function injectApiReverseChiban<
       ...query,
       queryKey: getApiReverseChibanQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client.api.reverseChiban.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
@@ -107,32 +136,35 @@ export function getPostsIndexQueryKey(args: InferRequestType<typeof client.posts
   return ['posts', '/posts/', args] as const
 }
 
-export async function getPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.index.$get(args, options))
-}
-
 export function getPostsIndexQueryOptions(
   args: InferRequestType<typeof client.posts.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getPostsIndex(args, { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.posts.index.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function injectPostsIndex<
-  TData = Awaited<ReturnType<typeof getPostsIndex>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
+  >,
   TError = unknown,
 >(
   args: () => InferRequestType<typeof client.posts.index.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getPostsIndex>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -142,24 +174,22 @@ export function injectPostsIndex<
       ...query,
       queryKey: getPostsIndexQueryKey(args()),
       queryFn({ signal }: QueryFunctionContext) {
-        return getPostsIndex(args(), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client.posts.index.$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
-}
-
-export async function postPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.index.$post(args, options))
 }
 
 export function getPostPostsIndexMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
-      return postPostsIndex(args, options)
+      return parseResponse(client.posts.index.$post(args, options))
     },
   }
 }
@@ -167,7 +197,9 @@ export function getPostPostsIndexMutationOptions<TError = unknown>(options?: Cli
 export function injectPostPostsIndex<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postPostsIndex>>,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$post>>>>
+      >,
       TError,
       InferRequestType<typeof client.posts.index.$post>
     >
@@ -186,32 +218,39 @@ export function getUsersIdIndexQueryKey(
   return ['users', '/users/:id/', args] as const
 }
 
-export async function getUsersIdIndex(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users[':id'].index.$get(args, options))
-}
-
 export function getUsersIdIndexQueryOptions(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getUsersIdIndex(args, { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users[':id'].index.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function injectUsersIdIndex<
-  TData = Awaited<ReturnType<typeof getUsersIdIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['index']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getUsersIdIndex>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -221,10 +260,12 @@ export function injectUsersIdIndex<
       ...query,
       queryKey: getUsersIdIndexQueryKey(args()),
       queryFn({ signal }: QueryFunctionContext) {
-        return getUsersIdIndex(args(), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        })
+        return parseResponse(
+          client.users[':id'].index.$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
@@ -234,25 +275,31 @@ export function getItemsIndexQueryKey() {
   return ['items', '/items/'] as const
 }
 
-export async function getItemsIndex(options?: ClientRequestOptions) {
-  return await parseResponse(client.items.index.$get(undefined, options))
-}
-
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItemsIndex({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.index.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function injectItemsIndex<
-  TData = Awaited<ReturnType<typeof getItemsIndex>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>
+  >,
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItemsIndex>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -262,7 +309,12 @@ export function injectItemsIndex<
       ...query,
       queryKey: getItemsIndexQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client.items.index.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })

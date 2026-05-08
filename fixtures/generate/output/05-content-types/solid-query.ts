@@ -24,18 +24,11 @@ export function getUploadKey() {
   return ['upload'] as const
 }
 
-export async function postJson(
-  args: InferRequestType<typeof client.json.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.json.$post(args, options))
-}
-
 export function getPostJsonMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['json', '/json', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.json.$post>) {
-      return postJson(args, options)
+      return parseResponse(client.json.$post(args, options))
     },
   }
 }
@@ -43,7 +36,7 @@ export function getPostJsonMutationOptions<TError = unknown>(options?: ClientReq
 export function createPostJson<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postJson>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.json.$post>>>>>,
       TError,
       InferRequestType<typeof client.json.$post>
     >
@@ -56,18 +49,11 @@ export function createPostJson<TError = unknown>(
   })
 }
 
-export async function postForm(
-  args: InferRequestType<typeof client.form.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.form.$post(args, options))
-}
-
 export function getPostFormMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['form', '/form', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.form.$post>) {
-      return postForm(args, options)
+      return parseResponse(client.form.$post(args, options))
     },
   }
 }
@@ -75,7 +61,7 @@ export function getPostFormMutationOptions<TError = unknown>(options?: ClientReq
 export function createPostForm<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postForm>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.form.$post>>>>>,
       TError,
       InferRequestType<typeof client.form.$post>
     >
@@ -88,18 +74,11 @@ export function createPostForm<TError = unknown>(
   })
 }
 
-export async function postUpload(
-  args: InferRequestType<typeof client.upload.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.upload.$post(args, options))
-}
-
 export function getPostUploadMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['upload', '/upload', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
-      return postUpload(args, options)
+      return parseResponse(client.upload.$post(args, options))
     },
   }
 }
@@ -107,7 +86,7 @@ export function getPostUploadMutationOptions<TError = unknown>(options?: ClientR
 export function createPostUpload<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postUpload>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.$post>>>>>,
       TError,
       InferRequestType<typeof client.upload.$post>
     >
@@ -120,18 +99,11 @@ export function createPostUpload<TError = unknown>(
   })
 }
 
-export async function postText(
-  args: InferRequestType<typeof client.text.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.text.$post(args, options))
-}
-
 export function getPostTextMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['text', '/text', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.text.$post>) {
-      return postText(args, options)
+      return parseResponse(client.text.$post(args, options))
     },
   }
 }
@@ -139,7 +111,7 @@ export function getPostTextMutationOptions<TError = unknown>(options?: ClientReq
 export function createPostText<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postText>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.text.$post>>>>>,
       TError,
       InferRequestType<typeof client.text.$post>
     >
@@ -152,20 +124,13 @@ export function createPostText<TError = unknown>(
   })
 }
 
-export async function postMultiContent(
-  args: InferRequestType<(typeof client)['multi-content']['$post']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client['multi-content'].$post(args, options))
-}
-
 export function getPostMultiContentMutationOptions<TError = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
     mutationKey: ['multi-content', '/multi-content', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
-      return postMultiContent(args, options)
+      return parseResponse(client['multi-content'].$post(args, options))
     },
   }
 }
@@ -173,7 +138,11 @@ export function getPostMultiContentMutationOptions<TError = unknown>(
 export function createPostMultiContent<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postMultiContent>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+        >
+      >,
       TError,
       InferRequestType<(typeof client)['multi-content']['$post']>
     >

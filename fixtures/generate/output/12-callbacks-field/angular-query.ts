@@ -20,18 +20,11 @@ export function getPaymentsKey() {
   return ['payments'] as const
 }
 
-export async function postOrders(
-  args: InferRequestType<typeof client.orders.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.orders.$post(args, options))
-}
-
 export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return postOrders(args, options)
+      return parseResponse(client.orders.$post(args, options))
     },
   }
 }
@@ -39,7 +32,7 @@ export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientR
 export function injectPostOrders<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postOrders>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
       TError,
       InferRequestType<typeof client.orders.$post>
     >
@@ -52,18 +45,11 @@ export function injectPostOrders<TError = unknown>(
   })
 }
 
-export async function postPayments(
-  args: InferRequestType<typeof client.payments.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.payments.$post(args, options))
-}
-
 export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payments', '/payments', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return postPayments(args, options)
+      return parseResponse(client.payments.$post(args, options))
     },
   }
 }
@@ -71,7 +57,7 @@ export function getPostPaymentsMutationOptions<TError = unknown>(options?: Clien
 export function injectPostPayments<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postPayments>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
       TError,
       InferRequestType<typeof client.payments.$post>
     >
@@ -88,22 +74,27 @@ export function getItemsQueryKey() {
   return ['items', '/items'] as const
 }
 
-export async function getItems(options?: ClientRequestOptions) {
-  return await parseResponse(client.items.$get(undefined, options))
-}
-
 export function getItemsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getItemsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getItems({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
-export function injectItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(
+export function injectItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = unknown,
+>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getItems>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -113,7 +104,12 @@ export function injectItems<TData = Awaited<ReturnType<typeof getItems>>, TError
       ...query,
       queryKey: getItemsQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getItems({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client.items.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
