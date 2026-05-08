@@ -149,10 +149,7 @@ function mockUser() {
 }
 
 function mockItem() {
-  return {
-    id: faker.number.int({ min: 1, max: 99999 }),
-    title: faker.lorem.sentence(),
-  }
+  return { id: faker.number.int({ min: 1, max: 99999 }), title: faker.lorem.sentence() }
 }
 
 const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {

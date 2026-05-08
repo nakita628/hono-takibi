@@ -1,8 +1,6 @@
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
-import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -17,13 +15,6 @@ export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>)
   return ['users', '/users', args] as const
 }
 
-export async function getUsers(
-  args: InferRequestType<typeof client.users.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users.$get(args, options))
-}
-
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -34,7 +25,14 @@ export function useGetUsers(
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
-  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetUsers(
@@ -49,41 +47,18 @@ export function useImmutableGetUsers(
   const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
-export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
-}
-
-export function useInfiniteGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
-}
-
-export async function postUsers(
-  args: InferRequestType<typeof client.users.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users.$post(args, options))
-}
-
-export function usePostUsers(options?: {
+export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postUsers>>,
-    Error,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
     Key,
     InferRequestType<typeof client.users.$post>
   > & { swrKey?: Key }
@@ -97,7 +72,7 @@ export function usePostUsers(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-        postUsers(arg, clientOptions),
+        parseResponse(client.users.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
@@ -105,13 +80,6 @@ export function usePostUsers(options?: {
 
 export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
-}
-
-export async function getUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users[':id'].$get(args, options))
 }
 
 export function useGetUsersId(
@@ -124,7 +92,14 @@ export function useGetUsersId(
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
-  return { swrKey, ...useSWR(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetUsersId(
@@ -139,28 +114,10 @@ export function useImmutableGetUsersId(
   const swrKey = enabled !== false ? (customKey ?? getGetUsersIdKey(args)) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getUsersId(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
-}
-
-export function getGetUsersIdInfiniteKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-) {
-  return ['users', '/users/:id', args, 'infinite'] as const
-}
-
-export function useInfiniteGetUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-  options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsersId>>, Error> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
-  const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersIdInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getUsersId(args, clientOptions), restSwrOptions)
 }

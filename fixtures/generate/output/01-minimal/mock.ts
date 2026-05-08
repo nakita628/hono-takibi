@@ -18,12 +18,7 @@ export const getHealthRoute = createRoute({
 })
 
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
-  return c.json(
-    {
-      status: faker.helpers.arrayElement(['active', 'inactive', 'pending']),
-    },
-    200,
-  )
+  return c.json({ status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }, 200)
 }
 
 const app = new OpenAPIHono()

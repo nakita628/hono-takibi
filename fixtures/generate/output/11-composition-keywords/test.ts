@@ -51,11 +51,14 @@ function mockEmployeeInfo() {
 }
 
 function mockEmployee() {
-  return ({
-	...mockPerson(),
-	...mockEmployeeInfo(),
-	startDate: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 10), undefined])
-})
+  return {
+    ...mockPerson(),
+    ...mockEmployeeInfo(),
+    startDate: faker.helpers.arrayElement([
+      faker.date.past().toISOString().slice(0, 10),
+      undefined,
+    ]),
+  }
 }
 
 function mockNotStringValue() {

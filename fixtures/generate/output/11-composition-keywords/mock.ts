@@ -263,20 +263,13 @@ function mockPaymentMethod() {
 
 function mockSearchFilter() {
   return faker.helpers.arrayElement([
-    {
-      keyword: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    {
-      category: faker.number.int({ min: 1, max: 1000 }),
-    },
+    { keyword: faker.string.alpha({ length: { min: 5, max: 20 } }) },
+    { category: faker.number.int({ min: 1, max: 1000 }) },
   ])
 }
 
 function mockPerson() {
-  return {
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-  }
+  return { name: faker.person.fullName(), email: faker.internet.email() }
 }
 
 function mockEmployeeInfo() {
@@ -290,11 +283,16 @@ function mockEmployeeInfo() {
 }
 
 function mockEmployee() {
-  return ({
-	...mockPerson(),
-	...mockEmployeeInfo(),
-	startDate: faker.helpers.arrayElement([faker.date.past().toISOString().slice(0, 10), undefined])
-})
+  return {
+    ...mockPerson(),
+    ...mockEmployeeInfo(),
+    ...{
+      startDate: faker.helpers.arrayElement([
+        faker.date.past().toISOString().slice(0, 10),
+        undefined,
+      ]),
+    },
+  }
 }
 
 function mockNotStringValue() {

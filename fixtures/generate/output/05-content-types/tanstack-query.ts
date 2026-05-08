@@ -1,4 +1,4 @@
-import { useMutation, mutationOptions } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -24,142 +24,96 @@ export function getUploadKey() {
   return ['upload'] as const
 }
 
-export async function postJson(
-  args: InferRequestType<typeof client.json.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.json.$post(args, options))
-}
-
-export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
-    mutationKey: ['json', '/json', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.json.$post>) {
-      return postJson(args, options)
-    },
-  })
-}
-
-export function usePostJson(options?: {
+export function usePostJson<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postJson>>,
-    Error,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.json.$post>>>>>,
+    TError,
     InferRequestType<typeof client.json.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostJsonMutationOptions(clientOptions), ...mutationOptions })
-}
-
-export async function postForm(
-  args: InferRequestType<typeof client.form.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.form.$post(args, options))
-}
-
-export function getPostFormMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
-    mutationKey: ['form', '/form', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.form.$post>) {
-      return postForm(args, options)
+  return useMutation({
+    ...mutationOptions,
+    mutationKey: ['json', '/json', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.json.$post>) {
+      return parseResponse(client.json.$post(args, clientOptions))
     },
   })
 }
 
-export function usePostForm(options?: {
+export function usePostForm<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postForm>>,
-    Error,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.form.$post>>>>>,
+    TError,
     InferRequestType<typeof client.form.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostFormMutationOptions(clientOptions), ...mutationOptions })
-}
-
-export async function postUpload(
-  args: InferRequestType<typeof client.upload.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.upload.$post(args, options))
-}
-
-export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
-    mutationKey: ['upload', '/upload', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
-      return postUpload(args, options)
+  return useMutation({
+    ...mutationOptions,
+    mutationKey: ['form', '/form', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.form.$post>) {
+      return parseResponse(client.form.$post(args, clientOptions))
     },
   })
 }
 
-export function usePostUpload(options?: {
+export function usePostUpload<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postUpload>>,
-    Error,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.$post>>>>>,
+    TError,
     InferRequestType<typeof client.upload.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostUploadMutationOptions(clientOptions), ...mutationOptions })
-}
-
-export async function postText(
-  args: InferRequestType<typeof client.text.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.text.$post(args, options))
-}
-
-export function getPostTextMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
-    mutationKey: ['text', '/text', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.text.$post>) {
-      return postText(args, options)
+  return useMutation({
+    ...mutationOptions,
+    mutationKey: ['upload', '/upload', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
+      return parseResponse(client.upload.$post(args, clientOptions))
     },
   })
 }
 
-export function usePostText(options?: {
+export function usePostText<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postText>>,
-    Error,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.text.$post>>>>>,
+    TError,
     InferRequestType<typeof client.text.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostTextMutationOptions(clientOptions), ...mutationOptions })
-}
-
-export async function postMultiContent(
-  args: InferRequestType<(typeof client)['multi-content']['$post']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client['multi-content'].$post(args, options))
-}
-
-export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
-  return mutationOptions({
-    mutationKey: ['multi-content', '/multi-content', 'POST'] as const,
-    async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
-      return postMultiContent(args, options)
+  return useMutation({
+    ...mutationOptions,
+    mutationKey: ['text', '/text', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.text.$post>) {
+      return parseResponse(client.text.$post(args, clientOptions))
     },
   })
 }
 
-export function usePostMultiContent(options?: {
+export function usePostMultiContent<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postMultiContent>>,
-    Error,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+      >
+    >,
+    TError,
     InferRequestType<(typeof client)['multi-content']['$post']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...getPostMultiContentMutationOptions(clientOptions), ...mutationOptions })
+  return useMutation({
+    ...mutationOptions,
+    mutationKey: ['multi-content', '/multi-content', 'POST'] as const,
+    async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
+      return parseResponse(client['multi-content'].$post(args, clientOptions))
+    },
+  })
 }

@@ -16,22 +16,14 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // Vue Query's queryOptions() includes a thunk overload `() => UseQueryOptions`,
-    // which hijacks overload resolution when the factory takes MaybeRefOrGetter args
-    // (TQueryKey defaults to readonly unknown[], inference fails, last overload error).
-    // Plain object factory bypasses the helper and lets useQuery infer types directly.
-    hasQueryOptionsHelper: false,
     isVueQuery: true,
-    suspenseQueryFn: 'useSuspenseQuery',
-    useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    // PoC verified (2026-05-04): Vue Query's `infiniteQueryOptions()` has only
-    // 2 overloads (Defined/Undefined initialData), neither is a thunk — so it
-    // does NOT collide with `MaybeRefOrGetter<args>` factory args (unlike `queryOptions()`).
+    // Vue Query's `infiniteQueryOptions()` has only 2 overloads (Defined/Undefined initialData),
+    // neither is a thunk — safe to combine with MaybeRefOrGetter<args> factories.
     hasInfiniteQueryOptionsHelper: true,
-    suspenseInfiniteQueryFn: 'useSuspenseInfiniteQuery',
-    useSuspenseInfiniteQueryOptionsType: 'UseSuspenseInfiniteQueryOptions',
+    // Vue Query (5.100.x) does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
+    // suspense in Vue is handled at the component level via <Suspense>, not separate hooks.
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

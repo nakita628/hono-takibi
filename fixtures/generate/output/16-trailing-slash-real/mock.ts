@@ -274,12 +274,7 @@ const postApiV2PublicBookingAccountRegisterOauthIndexRouteHandler: RouteHandler<
 const postApiV2PublicBookingAccountRegisterEmailRouteHandler: RouteHandler<
   typeof postApiV2PublicBookingAccountRegisterEmailRoute
 > = async (c) => {
-  return c.json(
-    {
-      message: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    200,
-  )
+  return c.json({ message: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 200)
 }
 
 const app = new OpenAPIHono()
