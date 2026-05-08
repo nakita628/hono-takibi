@@ -329,9 +329,10 @@ function makeMutationOptionsGetterCode(
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
   const errorType = config.errorType ?? 'unknown'
-  // TError must be a generic on the factory so the hook (which spreads the factory) can
-  // pass its own TError through without a variance error.
-  const tErrorGeneric = `<TError=${errorType}>`
+  // TError is only emitted when wrapped in `mutationOptions<TData, TError, TVariables>(...)`;
+  // without the helper the factory returns a plain `{mutationKey, mutationFn}` literal where
+  // the type parameter would be unreferenced.
+  const tErrorGeneric = config.hasMutationOptionsHelper ? `<TError=${errorType}>` : ''
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
   const variablesType = hasArgs ? argsType : 'void'
   const typeArgs = `<${dataType},TError,${variablesType}>`
@@ -770,6 +771,7 @@ function makeMutationHookCode(
     readonly useThunk?: boolean
     readonly useMutationOptionsType: string
     readonly errorType?: string
+    readonly hasMutationOptionsHelper?: boolean
   },
   hasNoContent: boolean,
 ) {
@@ -780,12 +782,15 @@ function makeMutationHookCode(
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
   const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},TError,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
+  // Only forward `<TError>` to the factory when it actually accepts the type parameter
+  // (i.e. wraps with `mutationOptions<...>` helper). Otherwise the factory has no generics.
+  const factoryTypeArg = config.hasMutationOptionsHelper ? '<TError>' : ''
   // Spread user options first, then the factory so the operation contract wins.
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
-    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...mutation,...${optionsGetterName}<TError>(clientOptions)}})}`
+    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...mutation,...${optionsGetterName}${factoryTypeArg}(clientOptions)}})}`
   }
-  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,...${optionsGetterName}<TError>(clientOptions)})}`
+  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,...${optionsGetterName}${factoryTypeArg}(clientOptions)})}`
 }
 
 function makeHookCode(

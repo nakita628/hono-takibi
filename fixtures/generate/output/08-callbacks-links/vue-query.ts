@@ -14,9 +14,7 @@ export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
-export function getPostSubscriptionsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
@@ -36,10 +34,7 @@ export function usePostSubscriptions<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostSubscriptionsMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostSubscriptionsMutationOptions(clientOptions) })
 }
 
 export function getSubscriptionsIdQueryKey(
@@ -102,9 +97,7 @@ export function useSubscriptionsId<
   })
 }
 
-export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
@@ -129,13 +122,11 @@ export function useDeleteSubscriptionsId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions),
+    ...getDeleteSubscriptionsIdMutationOptions(clientOptions),
   })
 }
 
-export function getPostWebhooksTestMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
@@ -155,8 +146,5 @@ export function usePostWebhooksTest<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostWebhooksTestMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostWebhooksTestMutationOptions(clientOptions) })
 }

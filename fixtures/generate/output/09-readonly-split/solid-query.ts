@@ -62,7 +62,7 @@ export function createPosts<
   })
 }
 
-export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
@@ -83,7 +83,7 @@ export function createPostPosts<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPostsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostPostsMutationOptions(clientOptions) }
   })
 }
 
@@ -140,7 +140,7 @@ export function createPostsId<
   })
 }
 
-export function getPutPostsIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
@@ -163,11 +163,11 @@ export function createPutPostsId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutPostsIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPutPostsIdMutationOptions(clientOptions) }
   })
 }
 
-export function getDeletePostsIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
@@ -193,7 +193,7 @@ export function createDeletePostsId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeletePostsIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getDeletePostsIdMutationOptions(clientOptions) }
   })
 }
 
@@ -258,9 +258,7 @@ export function createPostsIdComments<
   })
 }
 
-export function getPostPostsIdCommentsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id/comments', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
@@ -287,7 +285,7 @@ export function createPostPostsIdComments<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPostsIdCommentsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostPostsIdCommentsMutationOptions(clientOptions) }
   })
 }
 

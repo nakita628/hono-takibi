@@ -63,7 +63,7 @@ export function usePosts<
   })
 }
 
-export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
@@ -81,7 +81,7 @@ export function usePostPosts<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostPostsMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostPostsMutationOptions(clientOptions) })
 }
 
 export function getPostsIdQueryKey(
@@ -137,7 +137,7 @@ export function usePostsId<
   })
 }
 
-export function getPutPostsIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutPostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$put']>) {
@@ -157,10 +157,10 @@ export function usePutPostsId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPutPostsIdMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPutPostsIdMutationOptions(clientOptions) })
 }
 
-export function getDeletePostsIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getDeletePostsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['$delete']>) {
@@ -183,10 +183,7 @@ export function useDeletePostsId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeletePostsIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeletePostsIdMutationOptions(clientOptions) })
 }
 
 export function getPostsIdCommentsQueryKey(
@@ -251,9 +248,7 @@ export function usePostsIdComments<
   })
 }
 
-export function getPostPostsIdCommentsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostPostsIdCommentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/:id/comments', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client.posts)[':id']['comments']['$post']>) {
@@ -277,7 +272,7 @@ export function usePostPostsIdComments<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostPostsIdCommentsMutationOptions<TError>(clientOptions),
+    ...getPostPostsIdCommentsMutationOptions(clientOptions),
   })
 }
 

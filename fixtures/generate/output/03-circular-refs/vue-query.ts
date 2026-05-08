@@ -50,7 +50,7 @@ export function useTree<
   })
 }
 
-export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
@@ -68,7 +68,7 @@ export function usePostTree<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions(clientOptions) })
 }
 
 export function getGraphQueryKey() {

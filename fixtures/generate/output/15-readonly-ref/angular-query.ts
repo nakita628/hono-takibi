@@ -61,7 +61,7 @@ export function injectUsers<
   })
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -82,7 +82,7 @@ export function injectPostUsers<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
   })
 }
 
@@ -139,7 +139,7 @@ export function injectUsersId<
   })
 }
 
-export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -162,7 +162,7 @@ export function injectPutUsersId<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutUsersIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPutUsersIdMutationOptions(clientOptions) }
   })
 }
 

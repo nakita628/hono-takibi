@@ -60,7 +60,7 @@ export function useTags<
   })
 }
 
-export function getPostTagsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTagsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tags', '/tags', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tags.$post>) {
@@ -78,7 +78,7 @@ export function usePostTags<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostTagsMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostTagsMutationOptions(clientOptions) })
 }
 
 export function getSettingsQueryKey(
@@ -132,7 +132,7 @@ export function useSettings<
   })
 }
 
-export function getPutSettingsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutSettingsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['settings', '/settings', 'PUT'] as const,
     async mutationFn(args: InferRequestType<typeof client.settings.$put>) {
@@ -150,13 +150,10 @@ export function usePutSettings<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutSettingsMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPutSettingsMutationOptions(clientOptions) })
 }
 
-export function getPostConfigMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostConfigMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['config', '/config', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.config.$post>) {
@@ -174,10 +171,10 @@ export function usePostConfig<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostConfigMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostConfigMutationOptions(clientOptions) })
 }
 
-export function getPostPaymentMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPaymentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payment', '/payment', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payment.$post>) {
@@ -195,8 +192,5 @@ export function usePostPayment<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostPaymentMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostPaymentMutationOptions(clientOptions) })
 }

@@ -74,7 +74,7 @@ export function createUsers<
   })
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -95,7 +95,7 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
   })
 }
 
@@ -156,7 +156,7 @@ export function createUsersUserId<
   })
 }
 
-export function getPutUsersUserIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:userId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
@@ -181,13 +181,11 @@ export function createPutUsersUserId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutUsersUserIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPutUsersUserIdMutationOptions(clientOptions) }
   })
 }
 
-export function getDeleteUsersUserIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
@@ -213,7 +211,7 @@ export function createDeleteUsersUserId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeleteUsersUserIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getDeleteUsersUserIdMutationOptions(clientOptions) }
   })
 }
 
@@ -268,7 +266,7 @@ export function createProducts<
   })
 }
 
-export function getPostProductsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.products.$post>) {
@@ -289,7 +287,7 @@ export function createPostProducts<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostProductsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostProductsMutationOptions(clientOptions) }
   })
 }
 
@@ -355,9 +353,7 @@ export function createProductsProductId<
   })
 }
 
-export function getPutProductsProductIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPutProductsProductIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products/:productId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
@@ -382,7 +378,7 @@ export function createPutProductsProductId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutProductsProductIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPutProductsProductIdMutationOptions(clientOptions) }
   })
 }
 
@@ -452,9 +448,7 @@ export function createProductsProductIdReviews<
   })
 }
 
-export function getPostProductsProductIdReviewsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostProductsProductIdReviewsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
     async mutationFn(
@@ -483,7 +477,7 @@ export function createPostProductsProductIdReviews<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostProductsProductIdReviewsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostProductsProductIdReviewsMutationOptions(clientOptions) }
   })
 }
 
@@ -536,7 +530,7 @@ export function createOrders<
   })
 }
 
-export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -557,7 +551,7 @@ export function createPostOrders<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostOrdersMutationOptions(clientOptions) }
   })
 }
 
@@ -667,9 +661,7 @@ export function createCategories<
   })
 }
 
-export function getPostUploadImageMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostUploadImageMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['upload', '/upload/image', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
@@ -692,6 +684,6 @@ export function createPostUploadImage<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUploadImageMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostUploadImageMutationOptions(clientOptions) }
   })
 }

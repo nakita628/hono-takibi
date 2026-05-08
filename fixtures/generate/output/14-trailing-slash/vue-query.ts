@@ -175,7 +175,7 @@ export function usePostsIndex<
   })
 }
 
-export function getPostPostsIndexMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
@@ -193,10 +193,7 @@ export function usePostPostsIndex<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostPostsIndexMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostPostsIndexMutationOptions(clientOptions) })
 }
 
 export function getUsersIdIndexQueryKey(

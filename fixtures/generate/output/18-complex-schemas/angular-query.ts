@@ -32,9 +32,7 @@ export function getShapesKey() {
   return ['shapes'] as const
 }
 
-export function getPostExpressionsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostExpressionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['expressions', '/expressions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
@@ -57,11 +55,11 @@ export function injectPostExpressions<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostExpressionsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostExpressionsMutationOptions(clientOptions) }
   })
 }
 
-export function getPostShapesMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostShapesMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['shapes', '/shapes', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
@@ -82,11 +80,11 @@ export function injectPostShapes<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostShapesMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostShapesMutationOptions(clientOptions) }
   })
 }
 
-export function getPostDocumentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostDocumentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['documents', '/documents', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
@@ -107,11 +105,11 @@ export function injectPostDocuments<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostDocumentsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostDocumentsMutationOptions(clientOptions) }
   })
 }
 
-export function getPostConfigsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostConfigsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['configs', '/configs', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
@@ -132,7 +130,7 @@ export function injectPostConfigs<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostConfigsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostConfigsMutationOptions(clientOptions) }
   })
 }
 

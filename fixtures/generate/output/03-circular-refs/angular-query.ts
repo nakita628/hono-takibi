@@ -61,7 +61,7 @@ export function injectTree<
   })
 }
 
-export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
@@ -82,7 +82,7 @@ export function injectPostTree<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostTreeMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostTreeMutationOptions(clientOptions) }
   })
 }
 

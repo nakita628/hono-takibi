@@ -61,7 +61,7 @@ export function createTree<
   })
 }
 
-export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
@@ -82,7 +82,7 @@ export function createPostTree<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostTreeMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostTreeMutationOptions(clientOptions) }
   })
 }
 

@@ -16,7 +16,7 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -37,7 +37,7 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
   })
 }
 
@@ -98,7 +98,7 @@ export function createUsersUserId<
   })
 }
 
-export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPostsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
@@ -119,6 +119,6 @@ export function createPostPosts<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPostsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostPostsMutationOptions(clientOptions) }
   })
 }

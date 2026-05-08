@@ -75,7 +75,7 @@ export function useUsers<
   })
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -93,7 +93,7 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
 }
 
 export function getUsersUserIdQueryKey(
@@ -154,7 +154,7 @@ export function useUsersUserId<
   })
 }
 
-export function getPutUsersUserIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:userId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
@@ -176,15 +176,10 @@ export function usePutUsersUserId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutUsersUserIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPutUsersUserIdMutationOptions(clientOptions) })
 }
 
-export function getDeleteUsersUserIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteUsersUserIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
@@ -207,10 +202,7 @@ export function useDeleteUsersUserId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersUserIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeleteUsersUserIdMutationOptions(clientOptions) })
 }
 
 export function getProductsQueryKey(
@@ -264,7 +256,7 @@ export function useProducts<
   })
 }
 
-export function getPostProductsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostProductsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.products.$post>) {
@@ -282,10 +274,7 @@ export function usePostProducts<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostProductsMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostProductsMutationOptions(clientOptions) })
 }
 
 export function getProductsProductIdQueryKey(
@@ -348,9 +337,7 @@ export function useProductsProductId<
   })
 }
 
-export function getPutProductsProductIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPutProductsProductIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products/:productId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
@@ -374,7 +361,7 @@ export function usePutProductsProductId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPutProductsProductIdMutationOptions<TError>(clientOptions),
+    ...getPutProductsProductIdMutationOptions(clientOptions),
   })
 }
 
@@ -448,9 +435,7 @@ export function useProductsProductIdReviews<
   })
 }
 
-export function getPostProductsProductIdReviewsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostProductsProductIdReviewsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
     async mutationFn(
@@ -478,7 +463,7 @@ export function usePostProductsProductIdReviews<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostProductsProductIdReviewsMutationOptions<TError>(clientOptions),
+    ...getPostProductsProductIdReviewsMutationOptions(clientOptions),
   })
 }
 
@@ -531,7 +516,7 @@ export function useOrders<
   })
 }
 
-export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -549,7 +534,7 @@ export function usePostOrders<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostOrdersMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostOrdersMutationOptions(clientOptions) })
 }
 
 export function getOrdersOrderIdQueryKey(
@@ -655,9 +640,7 @@ export function useCategories<
   })
 }
 
-export function getPostUploadImageMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostUploadImageMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['upload', '/upload/image', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
@@ -677,8 +660,5 @@ export function usePostUploadImage<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUploadImageMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostUploadImageMutationOptions(clientOptions) })
 }

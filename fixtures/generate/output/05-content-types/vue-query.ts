@@ -24,7 +24,7 @@ export function getUploadKey() {
   return ['upload'] as const
 }
 
-export function getPostJsonMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostJsonMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['json', '/json', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.json.$post>) {
@@ -42,10 +42,10 @@ export function usePostJson<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostJsonMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostJsonMutationOptions(clientOptions) })
 }
 
-export function getPostFormMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostFormMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['form', '/form', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.form.$post>) {
@@ -63,10 +63,10 @@ export function usePostForm<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostFormMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostFormMutationOptions(clientOptions) })
 }
 
-export function getPostUploadMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUploadMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['upload', '/upload', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.upload.$post>) {
@@ -84,10 +84,10 @@ export function usePostUpload<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUploadMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostUploadMutationOptions(clientOptions) })
 }
 
-export function getPostTextMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTextMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['text', '/text', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.text.$post>) {
@@ -105,12 +105,10 @@ export function usePostText<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostTextMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostTextMutationOptions(clientOptions) })
 }
 
-export function getPostMultiContentMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostMultiContentMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['multi-content', '/multi-content', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['multi-content']['$post']>) {
@@ -132,8 +130,5 @@ export function usePostMultiContent<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostMultiContentMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostMultiContentMutationOptions(clientOptions) })
 }

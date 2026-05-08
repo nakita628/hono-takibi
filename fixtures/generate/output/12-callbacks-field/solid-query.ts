@@ -20,7 +20,7 @@ export function getPaymentsKey() {
   return ['payments'] as const
 }
 
-export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostOrdersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['orders', '/orders', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
@@ -41,11 +41,11 @@ export function createPostOrders<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostOrdersMutationOptions(clientOptions) }
   })
 }
 
-export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPaymentsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['payments', '/payments', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
@@ -66,7 +66,7 @@ export function createPostPayments<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPaymentsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostPaymentsMutationOptions(clientOptions) }
   })
 }
 

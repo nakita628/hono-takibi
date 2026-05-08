@@ -52,7 +52,7 @@ export function getOneOfKey() {
   return ['one-of'] as const
 }
 
-export function getPostOneOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostOneOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['one-of', '/one-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
@@ -72,10 +72,10 @@ export function usePostOneOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostOneOfMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostOneOfMutationOptions(clientOptions) })
 }
 
-export function getPostAnyOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostAnyOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['any-of', '/any-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
@@ -95,10 +95,10 @@ export function usePostAnyOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostAnyOfMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostAnyOfMutationOptions(clientOptions) })
 }
 
-export function getPostAllOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostAllOfMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['all-of', '/all-of', 'POST'] as const,
     async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
@@ -118,10 +118,10 @@ export function usePostAllOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostAllOfMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostAllOfMutationOptions(clientOptions) })
 }
 
-export function getPostNotMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostNotMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['not', '/not', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.not.$post>) {
@@ -139,7 +139,7 @@ export function usePostNot<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostNotMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostNotMutationOptions(clientOptions) })
 }
 
 export function getNotRefQueryKey() {

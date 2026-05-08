@@ -70,7 +70,7 @@ export function useApiReverseGeocodeIndex<
   })
 }
 
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -106,11 +106,11 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unkn
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
+    ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(clientOptions),
   })
 }
 
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -140,6 +140,6 @@ export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
+    ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(clientOptions),
   })
 }

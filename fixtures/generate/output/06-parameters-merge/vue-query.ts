@@ -69,7 +69,7 @@ export function useItemsItemId<
   })
 }
 
-export function getPutItemsItemIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
@@ -91,15 +91,10 @@ export function usePutItemsItemId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutItemsItemIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPutItemsItemIdMutationOptions(clientOptions) })
 }
 
-export function getDeleteItemsItemIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
@@ -122,10 +117,7 @@ export function useDeleteItemsItemId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteItemsItemIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeleteItemsItemIdMutationOptions(clientOptions) })
 }
 
 export function getItemsQueryKey(

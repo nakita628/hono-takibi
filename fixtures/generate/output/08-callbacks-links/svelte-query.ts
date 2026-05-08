@@ -16,9 +16,7 @@ export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
-export function getPostSubscriptionsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
@@ -41,7 +39,7 @@ export function createPostSubscriptions<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostSubscriptionsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostSubscriptionsMutationOptions(clientOptions) }
   })
 }
 
@@ -104,9 +102,7 @@ export function createSubscriptionsId<
   })
 }
 
-export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
@@ -134,13 +130,11 @@ export function createDeleteSubscriptionsId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions(clientOptions) }
   })
 }
 
-export function getPostWebhooksTestMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
@@ -163,6 +157,6 @@ export function createPostWebhooksTest<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostWebhooksTestMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostWebhooksTestMutationOptions(clientOptions) }
   })
 }

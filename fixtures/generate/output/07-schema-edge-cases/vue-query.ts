@@ -24,7 +24,7 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
-export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['nullable', '/nullable', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
@@ -42,15 +42,10 @@ export function usePostNullable<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostNullableMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostNullableMutationOptions(clientOptions) })
 }
 
-export function getPostDiscriminatedMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
@@ -70,10 +65,7 @@ export function usePostDiscriminated<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostDiscriminatedMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostDiscriminatedMutationOptions(clientOptions) })
 }
 
 export function getComposedQueryKey() {
