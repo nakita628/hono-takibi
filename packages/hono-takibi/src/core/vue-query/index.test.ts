@@ -254,7 +254,7 @@ export function useInfiniteUsers<
   })
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -272,7 +272,7 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
 }
 `
 
@@ -537,7 +537,7 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -555,7 +555,7 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -831,7 +831,7 @@ export function useInfinitePing<
   })
 }
 
-export function getPostPingMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPingMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
@@ -849,7 +849,7 @@ export function usePostPing<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostPingMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostPingMutationOptions(clientOptions) })
 }
 `
       expect(code).toBe(expected)
@@ -1157,7 +1157,7 @@ export function useInfiniteUsersId<
   })
 }
 
-export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1180,10 +1180,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeleteUsersIdMutationOptions(clientOptions) })
 }
 `
       expect(code).toBe(expected)
@@ -1406,7 +1403,7 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -1424,7 +1421,7 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
 }
 `
       expect(postUsers).toBe(postUsersExpected)
@@ -1562,7 +1559,7 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1582,7 +1579,7 @@ export function usePutUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions(clientOptions) })
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)
@@ -1595,7 +1592,7 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeleteUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
@@ -1618,10 +1615,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeleteUsersIdMutationOptions(clientOptions) })
 }
 `
       expect(deleteUsersId).toBe(deleteUsersIdExpected)
@@ -1703,7 +1697,7 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
-export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
@@ -1723,10 +1717,10 @@ export function usePutUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions(clientOptions) })
 }
 
-export function getPatchUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPatchUsersIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users/:id', 'PATCH'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
@@ -1746,10 +1740,7 @@ export function usePatchUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPatchUsersIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPatchUsersIdMutationOptions(clientOptions) })
 }
 `
       expect(code).toBe(expected)

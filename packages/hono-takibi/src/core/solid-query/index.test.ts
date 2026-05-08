@@ -237,7 +237,7 @@ export function createInfiniteUsers<
   })
 }
 
-export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
@@ -258,7 +258,7 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
   })
 }
 `
