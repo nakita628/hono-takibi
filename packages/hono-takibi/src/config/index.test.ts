@@ -914,14 +914,14 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('parseResponse is undefined when omitted', () => {
+    it.concurrent('parseResponse defaults to false when omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         rpc: { output: 'rpc/index.ts', import: '../client' },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.rpc?.parseResponse).toBeUndefined()
+        expect(result.value.rpc?.parseResponse).toBe(false)
       }
     })
   })

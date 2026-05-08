@@ -12,6 +12,31 @@ import {
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { makeInferRequestType, methodPath } from '../../utils/index.js'
 
+/**
+ * Builds a JSDoc block from operation `summary` / `description` plus the HTTP route line.
+ * Returns an empty string when neither summary nor description is present (the route line
+ * alone isn't worth a comment block).
+ */
+function makeJsDoc(
+  operation: { summary?: unknown; description?: unknown },
+  method: string,
+  path: string,
+) {
+  const summary = typeof operation.summary === 'string' ? operation.summary.trim() : ''
+  const description = typeof operation.description === 'string' ? operation.description.trim() : ''
+  if (!summary && !description) return ''
+  const sections: string[][] = []
+  if (summary) sections.push([summary])
+  if (description) sections.push(description.split('\n'))
+  sections.push([`${method.toUpperCase()} ${path}`])
+  const body = sections
+    .map((lines, i) => (i === 0 ? lines : ['', ...lines]))
+    .flat()
+    .map((line) => (line ? ` * ${line}` : ' *'))
+    .join('\n')
+  return `/**\n${body}\n */\n`
+}
+
 function makeOperationCode(
   path: string,
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
@@ -19,6 +44,7 @@ function makeOperationCode(
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
+  docs?: boolean,
 ) {
   const operation = item[method]
   if (!isOperationLike(operation)) return null
@@ -33,7 +59,8 @@ function makeOperationCode(
     ? `${deps.client}${pathResult.runtimePath}.$${method}(args,options)`
     : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options)`
   const call = useParseResponse ? `parseResponse(${clientCall})` : clientCall
-  const func = `export async function ${funcName}(${argSig}){return await ${call}}`
+  const jsDoc = docs ? makeJsDoc(operation, method, path) : ''
+  const func = `${jsDoc}export async function ${funcName}(${argSig}){return await ${call}}`
   return { code: func, hasArgs } as const
 }
 
@@ -42,6 +69,7 @@ function makeOperationCodes(
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
+  docs?: boolean,
 ) {
   return Object.entries(paths)
     .filter((entry) => isRecord(entry[1]))
@@ -50,7 +78,15 @@ function makeOperationCodes(
       const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
       return methods
         .map((method) => {
-          const result = makeOperationCode(p, method, pathItem, deps, useParseResponse, hasBasePath)
+          const result = makeOperationCode(
+            p,
+            method,
+            pathItem,
+            deps,
+            useParseResponse,
+            hasBasePath,
+            docs,
+          )
           return result
             ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
             : null
@@ -82,6 +118,7 @@ function makeHeader(
  * @param clientName - Name of the client export (default: 'client')
  * @param useParseResponse - Whether to wrap calls with parseResponse
  * @param basePath - Base path for the app (e.g. '/api')
+ * @param docs - When true, prepend operation summary/description as JSDoc
  * @returns Promise resolving to success message or error
  */
 export async function rpc(
@@ -92,6 +129,7 @@ export async function rpc(
   clientName = 'client',
   useParseResponse?: boolean,
   basePath?: string,
+  docs?: boolean,
 ) {
   const paths = openAPI.paths
   if (!isOpenAPIPaths(paths)) return { ok: false, error: 'Invalid OpenAPI paths' } as const
@@ -99,7 +137,7 @@ export async function rpc(
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
   const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-  const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath)
+  const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath, docs)
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)

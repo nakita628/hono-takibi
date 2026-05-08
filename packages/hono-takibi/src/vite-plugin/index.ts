@@ -162,7 +162,7 @@ async function runAllGenerationTasks(config: Config) {
 
   function makeZodOpenAPIJob() {
     if (!config['zod-openapi']?.output) return undefined
-    const outputPath = toAbsolutePath(config['zod-openapi']?.output)
+    const outputPath = toAbsolutePath(config['zod-openapi'].output)
     return (async () => {
       if (!isTypeScriptFile(outputPath))
         return `❌ zod-openapi: Invalid output format: ${outputPath}`
@@ -418,7 +418,7 @@ async function runAllGenerationTasks(config: Config) {
 
   function makeRpcJob() {
     if (!config.rpc) return undefined
-    return runSplitAwareJob('rpc', config.rpc?.output ?? '', config.rpc?.split === true, (out) =>
+    return runSplitAwareJob('rpc', config.rpc.output, config.rpc.split === true, (out) =>
       rpc(
         openAPI,
         out,
@@ -427,6 +427,7 @@ async function runAllGenerationTasks(config: Config) {
         config.rpc?.client ?? 'client',
         config.rpc?.parseResponse ?? false,
         config.basePath,
+        config.rpc?.docs ?? false,
       ),
     )
   }

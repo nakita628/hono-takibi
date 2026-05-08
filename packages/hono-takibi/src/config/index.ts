@@ -27,21 +27,21 @@ const ConfigSchema = z
           })
           .readonly()
           .exactOptional(),
-        exportSchemas: z.boolean().exactOptional(),
-        exportSchemasTypes: z.boolean().exactOptional(),
-        exportResponses: z.boolean().exactOptional(),
-        exportParameters: z.boolean().exactOptional(),
-        exportParametersTypes: z.boolean().exactOptional(),
-        exportExamples: z.boolean().exactOptional(),
-        exportRequestBodies: z.boolean().exactOptional(),
-        exportHeaders: z.boolean().exactOptional(),
-        exportHeadersTypes: z.boolean().exactOptional(),
-        exportSecuritySchemes: z.boolean().exactOptional(),
-        exportLinks: z.boolean().exactOptional(),
-        exportCallbacks: z.boolean().exactOptional(),
-        exportPathItems: z.boolean().exactOptional(),
-        exportMediaTypes: z.boolean().exactOptional(),
-        exportMediaTypesTypes: z.boolean().exactOptional(),
+        exportSchemas: z.boolean().default(false),
+        exportSchemasTypes: z.boolean().default(false),
+        exportResponses: z.boolean().default(false),
+        exportParameters: z.boolean().default(false),
+        exportParametersTypes: z.boolean().default(false),
+        exportExamples: z.boolean().default(false),
+        exportRequestBodies: z.boolean().default(false),
+        exportHeaders: z.boolean().default(false),
+        exportHeadersTypes: z.boolean().default(false),
+        exportSecuritySchemes: z.boolean().default(false),
+        exportLinks: z.boolean().default(false),
+        exportCallbacks: z.boolean().default(false),
+        exportPathItems: z.boolean().default(false),
+        exportMediaTypes: z.boolean().default(false),
+        exportMediaTypesTypes: z.boolean().default(false),
         routes: z
           .discriminatedUnion('split', [
             z
@@ -73,7 +73,7 @@ const ConfigSchema = z
                       error: 'split mode requires directory, not .ts file',
                     }),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
                 z
@@ -81,7 +81,7 @@ const ConfigSchema = z
                     split: z.literal(false).optional().default(false),
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
               ])
@@ -115,7 +115,7 @@ const ConfigSchema = z
                       error: 'split mode requires directory, not .ts file',
                     }),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
                 z
@@ -123,7 +123,7 @@ const ConfigSchema = z
                     split: z.literal(false).optional().default(false),
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
               ])
@@ -177,7 +177,7 @@ const ConfigSchema = z
                       error: 'split mode requires directory, not .ts file',
                     }),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
                 z
@@ -185,7 +185,7 @@ const ConfigSchema = z
                     split: z.literal(false).optional().default(false),
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
               ])
@@ -279,7 +279,7 @@ const ConfigSchema = z
                       error: 'split mode requires directory, not .ts file',
                     }),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
                 z
@@ -287,7 +287,7 @@ const ConfigSchema = z
                     split: z.literal(false).optional().default(false),
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
-                    exportTypes: z.boolean().exactOptional(),
+                    exportTypes: z.boolean().default(false),
                   })
                   .readonly(),
               ])
@@ -339,8 +339,9 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
-            parseResponse: z.boolean().exactOptional(),
+            client: z.string().default('client'),
+            parseResponse: z.boolean().default(false),
+            docs: z.boolean().default(false),
           })
           .readonly(),
         z
@@ -348,8 +349,9 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
-            parseResponse: z.boolean().exactOptional(),
+            client: z.string().default('client'),
+            parseResponse: z.boolean().default(false),
+            docs: z.boolean().default(false),
           })
           .readonly(),
       ])
@@ -363,7 +365,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -371,7 +373,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -385,7 +387,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -393,7 +395,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -407,7 +409,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -415,7 +417,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -429,7 +431,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -437,7 +439,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -451,7 +453,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -459,7 +461,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -473,7 +475,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -481,7 +483,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -495,7 +497,7 @@ const ConfigSchema = z
               error: 'split mode requires directory, not .ts file',
             }),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
         z
@@ -503,7 +505,7 @@ const ConfigSchema = z
             split: z.literal(false).optional().default(false),
             output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
             import: z.string(),
-            client: z.string().exactOptional(),
+            client: z.string().default('client'),
           })
           .readonly(),
       ])
@@ -578,6 +580,6 @@ export async function readConfig() {
   }
 }
 
-export function defineConfig(config: z.infer<typeof ConfigSchema>) {
+export function defineConfig(config: z.input<typeof ConfigSchema>) {
   return config
 }

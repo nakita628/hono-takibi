@@ -110,75 +110,75 @@ export async function honoTakibi() {
           ...(config['zod-openapi'].readonly !== undefined
             ? { readonly: config['zod-openapi'].readonly }
             : {}),
-          exportSchemas: config['zod-openapi'].exportSchemas ?? false,
-          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
-          exportResponses: config['zod-openapi'].exportResponses ?? false,
-          exportParameters: config['zod-openapi'].exportParameters ?? false,
-          exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
-          exportExamples: config['zod-openapi'].exportExamples ?? false,
-          exportRequestBodies: config['zod-openapi'].exportRequestBodies ?? false,
-          exportHeaders: config['zod-openapi'].exportHeaders ?? false,
-          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes ?? false,
-          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes ?? false,
-          exportLinks: config['zod-openapi'].exportLinks ?? false,
-          exportCallbacks: config['zod-openapi'].exportCallbacks ?? false,
-          exportPathItems: config['zod-openapi'].exportPathItems ?? false,
-          exportMediaTypes: config['zod-openapi'].exportMediaTypes ?? false,
-          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes ?? false,
+          exportSchemas: config['zod-openapi'].exportSchemas,
+          exportSchemasTypes: config['zod-openapi'].exportSchemasTypes,
+          exportResponses: config['zod-openapi'].exportResponses,
+          exportParameters: config['zod-openapi'].exportParameters,
+          exportParametersTypes: config['zod-openapi'].exportParametersTypes,
+          exportExamples: config['zod-openapi'].exportExamples,
+          exportRequestBodies: config['zod-openapi'].exportRequestBodies,
+          exportHeaders: config['zod-openapi'].exportHeaders,
+          exportHeadersTypes: config['zod-openapi'].exportHeadersTypes,
+          exportSecuritySchemes: config['zod-openapi'].exportSecuritySchemes,
+          exportLinks: config['zod-openapi'].exportLinks,
+          exportCallbacks: config['zod-openapi'].exportCallbacks,
+          exportPathItems: config['zod-openapi'].exportPathItems,
+          exportMediaTypes: config['zod-openapi'].exportMediaTypes,
+          exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes,
         })
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
       ? schemas(
           openAPI.components?.schemas,
-          config['zod-openapi']?.components?.schemas?.output,
-          config['zod-openapi']?.components?.schemas?.split ?? false,
-          config['zod-openapi']?.components?.schemas?.exportTypes ?? false,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.schemas.output,
+          config['zod-openapi'].components.schemas.split,
+          config['zod-openapi'].components.schemas.exportTypes,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.parameters
       ? parameters(
           openAPI.components?.parameters,
-          config['zod-openapi']?.components?.parameters?.output,
-          config['zod-openapi']?.components?.parameters?.split ?? false,
-          config['zod-openapi']?.components?.parameters?.exportTypes ?? false,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.parameters.output,
+          config['zod-openapi'].components.parameters.split,
+          config['zod-openapi'].components.parameters.exportTypes,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.headers
       ? headers(
           openAPI.components?.headers,
-          config['zod-openapi']?.components?.headers?.output,
-          config['zod-openapi']?.components?.headers?.split ?? false,
-          config['zod-openapi']?.components?.headers?.exportTypes ?? false,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.headers.output,
+          config['zod-openapi'].components.headers.split,
+          config['zod-openapi'].components.headers.exportTypes,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.examples
       ? examples(
           openAPI.components?.examples,
-          config['zod-openapi']?.components?.examples?.output,
-          config['zod-openapi']?.components?.examples?.split ?? false,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.examples.output,
+          config['zod-openapi'].components.examples.split,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.links
       ? links(
           openAPI.components?.links,
-          config['zod-openapi']?.components?.links?.output,
-          config['zod-openapi']?.components?.links?.split ?? false,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.links.output,
+          config['zod-openapi'].components.links.split,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.callbacks
       ? callbacks(
           openAPI.components?.callbacks,
-          config['zod-openapi']?.components?.callbacks?.output,
-          config['zod-openapi']?.components?.callbacks?.split ?? false,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.callbacks.output,
+          config['zod-openapi'].components.callbacks.split,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.pathItems
@@ -192,44 +192,44 @@ export async function honoTakibi() {
     config['zod-openapi']?.components?.mediaTypes
       ? mediaTypes(
           openAPI.components?.mediaTypes,
-          config['zod-openapi']?.components?.mediaTypes?.output,
-          config['zod-openapi']?.components?.mediaTypes?.split ?? false,
-          config['zod-openapi']?.readonly,
-          config['zod-openapi']?.components,
+          config['zod-openapi'].components.mediaTypes.output,
+          config['zod-openapi'].components.mediaTypes.split,
+          config['zod-openapi'].readonly,
+          config['zod-openapi'].components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.webhooks
       ? webhooks(
           openAPI,
-          config['zod-openapi']?.components?.webhooks,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.webhooks,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.securitySchemes
       ? securitySchemes(
           openAPI.components?.securitySchemes,
-          config['zod-openapi']?.components?.securitySchemes?.output,
-          config['zod-openapi']?.components?.securitySchemes?.split ?? false,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.securitySchemes.output,
+          config['zod-openapi'].components.securitySchemes.split,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.requestBodies
       ? requestBodies(
           openAPI.components?.requestBodies,
-          config['zod-openapi']?.components?.requestBodies?.output,
-          config['zod-openapi']?.components?.requestBodies?.split ?? false,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.requestBodies.output,
+          config['zod-openapi'].components.requestBodies.split,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.responses
       ? responses(
           openAPI.components?.responses,
-          config['zod-openapi']?.components?.responses?.output,
-          config['zod-openapi']?.components?.responses?.split ?? false,
-          config['zod-openapi']?.components,
-          config['zod-openapi']?.readonly,
+          config['zod-openapi'].components.responses.output,
+          config['zod-openapi'].components.responses.split,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.routes
@@ -248,28 +248,23 @@ export async function honoTakibi() {
           openAPI,
           config.rpc.output,
           config.rpc.import,
-          config.rpc.split ?? false,
-          config.rpc.client ?? 'client',
-          config.rpc.parseResponse ?? false,
+          config.rpc.split,
+          config.rpc.client,
+          config.rpc.parseResponse,
           config.basePath,
+          config.rpc.docs,
         )
       : Promise.resolve(undefined),
     config.swr
-      ? swr(
-          openAPI,
-          config.swr.output,
-          config.swr.import,
-          config.swr.split ?? false,
-          config.swr.client ?? 'client',
-        )
+      ? swr(openAPI, config.swr.output, config.swr.import, config.swr.split, config.swr.client)
       : Promise.resolve(undefined),
     config['tanstack-query']
       ? tanstackQuery(
           openAPI,
           config['tanstack-query'].output,
           config['tanstack-query'].import,
-          config['tanstack-query'].split ?? false,
-          config['tanstack-query'].client ?? 'client',
+          config['tanstack-query'].split,
+          config['tanstack-query'].client,
         )
       : Promise.resolve(undefined),
     config['preact-query']
@@ -277,8 +272,8 @@ export async function honoTakibi() {
           openAPI,
           config['preact-query'].output,
           config['preact-query'].import,
-          config['preact-query'].split ?? false,
-          config['preact-query'].client ?? 'client',
+          config['preact-query'].split,
+          config['preact-query'].client,
         )
       : Promise.resolve(undefined),
     config['solid-query']
@@ -286,8 +281,8 @@ export async function honoTakibi() {
           openAPI,
           config['solid-query'].output,
           config['solid-query'].import,
-          config['solid-query'].split ?? false,
-          config['solid-query'].client ?? 'client',
+          config['solid-query'].split,
+          config['solid-query'].client,
         )
       : Promise.resolve(undefined),
     config['vue-query']
@@ -295,8 +290,8 @@ export async function honoTakibi() {
           openAPI,
           config['vue-query'].output,
           config['vue-query'].import,
-          config['vue-query'].split ?? false,
-          config['vue-query'].client ?? 'client',
+          config['vue-query'].split,
+          config['vue-query'].client,
         )
       : Promise.resolve(undefined),
     config['svelte-query']
@@ -304,8 +299,8 @@ export async function honoTakibi() {
           openAPI,
           config['svelte-query'].output,
           config['svelte-query'].import,
-          config['svelte-query'].split ?? false,
-          config['svelte-query'].client ?? 'client',
+          config['svelte-query'].split,
+          config['svelte-query'].client,
         )
       : Promise.resolve(undefined),
     config['angular-query']
@@ -313,8 +308,8 @@ export async function honoTakibi() {
           openAPI,
           config['angular-query'].output,
           config['angular-query'].import,
-          config['angular-query'].split ?? false,
-          config['angular-query'].client ?? 'client',
+          config['angular-query'].split,
+          config['angular-query'].client,
         )
       : Promise.resolve(undefined),
     config.test
