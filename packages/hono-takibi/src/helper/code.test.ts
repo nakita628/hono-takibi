@@ -298,7 +298,7 @@ describe('makeImports', () => {
       responses: { output: '/src/responses.ts' },
     })
     expect(result).toBe(
-      "import{UserSchema}from'../schemas'\nimport{IdParamsSchema}from'../parameters'\nimport{UserResponse}from'../responses'\n\n\nUserSchema, IdParamsSchema, UserResponse",
+      "import{UserSchema}from'../schemas'\nimport{UserResponse}from'../responses'\nimport{IdParamsSchema}from'../parameters'\n\n\nUserSchema, IdParamsSchema, UserResponse",
     )
   })
 

@@ -122,18 +122,20 @@ export function makeExportConst(
  * - Scans for OpenAPI component references by suffix pattern (e.g., `*Schema`, `*Response`)
  * - Excludes locally defined exports from import generation
  *
- * **OpenAPI Component Patterns** (ordered per OpenAPI 3.0 spec):
+ * **OpenAPI Component Patterns** (ordered per OpenAPI 3.0/3.1 spec):
  * | Suffix | Component Type | Example |
  * |--------|---------------|---------|
  * | `*Schema` | schemas | `UserSchema` |
- * | `*ParamsSchema` | parameters | `IdParamsSchema` |
- * | `*SecurityScheme` | securitySchemes | `BearerSecurityScheme` |
- * | `*RequestBody` | requestBodies | `CreateUserRequestBody` |
  * | `*Response` | responses | `UserResponse` |
- * | `*HeaderSchema` | headers | `AuthHeaderSchema` |
+ * | `*ParamsSchema` | parameters | `IdParamsSchema` |
  * | `*Example` | examples | `UserExample` |
+ * | `*RequestBody` | requestBodies | `CreateUserRequestBody` |
+ * | `*HeaderSchema` | headers | `AuthHeaderSchema` |
+ * | `*SecurityScheme` | securitySchemes | `BearerSecurityScheme` |
  * | `*Link` | links | `GetUserLink` |
  * | `*Callback` | callbacks | `WebhookCallback` |
+ * | `*PathItem` | pathItems | `UserPathItem` |
+ * | `*MediaTypeSchema` | mediaTypes | `JsonMediaTypeSchema` |
  *
  * @param code - The TypeScript code to analyze and prepend imports to.
  * @param fromFile - The absolute path of the file where code will be written.
@@ -160,30 +162,58 @@ export function makeExportConst(
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
 
 /**
- * Regex patterns for OpenAPI component types.
- * Ordered per OpenAPI 3.0 specification.
- * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
- *
- * Hoisted to module scope to avoid re-creating RegExp objects on every call.
+ * OpenAPI component-type → identifier suffix table.
+ * Ordered per OpenAPI 3.0/3.1 spec — also defines emitted import order.
  */
-const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-  {
-    pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)(?<!MediaType)Schema)\\b`, 'g'),
-    key: 'schemas',
-  },
-  { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}MediaTypeSchema)\\b`, 'g'), key: 'mediaTypes' },
-]
+const COMPONENT_SUFFIXES = [
+  ['schemas', 'Schema'],
+  ['responses', 'Response'],
+  ['parameters', 'ParamsSchema'],
+  ['examples', 'Example'],
+  ['requestBodies', 'RequestBody'],
+  ['headers', 'HeaderSchema'],
+  ['securitySchemes', 'SecurityScheme'],
+  ['links', 'Link'],
+  ['callbacks', 'Callback'],
+  ['pathItems', 'PathItem'],
+  ['mediaTypes', 'MediaTypeSchema'],
+] as const
+
+/**
+ * Single regex that simultaneously SKIPS strings/comments and CAPTURES
+ * component-type identifiers. The string / comment alternatives come first
+ * so the engine consumes them whole — identifier-shape tokens hiding inside
+ * (e.g. `operationId: 'userCreatedCallback'`) are unreachable because the
+ * preceding alternative has already consumed the surrounding quotes and
+ * everything between them.
+ */
+const SCAN = new RegExp(
+  [
+    String.raw`"(?:\\.|[^"\\])*"`,
+    String.raw`'(?:\\.|[^'\\])*'`,
+    String.raw`\`(?:\\.|[^\`\\])*\``,
+    String.raw`//[^\n]*`,
+    String.raw`/\*[\s\S]*?\*/`,
+    `\\b(${JS_IDENT}(?:${COMPONENT_SUFFIXES.map(([, suf]) => suf).join('|')}))\\b`,
+  ].join('|'),
+  'g',
+)
 
 /** Pattern to find locally exported constants */
 const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
+
+/**
+ * Classifies a captured token to its component key by longest-matching suffix.
+ * Why longest-match: `UserParamsSchema` ends with both `Schema` and `ParamsSchema`,
+ * but only the latter correctly identifies it as a `parameters` component.
+ */
+function classifyToken(token: string): string | undefined {
+  return COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+    (best, entry) =>
+      token.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
+    undefined,
+  )?.[0]
+}
 
 export function makeImports(
   code: string,
@@ -212,11 +242,14 @@ export function makeImports(
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
-    const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
-      .filter((t): t is string => Boolean(t) && !defined.has(t))
-      .sort()
-    return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []
+  const tokens = [
+    ...new Set(
+      Array.from(code.matchAll(SCAN), (m) => m[1]).filter((t): t is string => Boolean(t)),
+    ),
+  ].filter((t) => !defined.has(t))
+  const componentImports = COMPONENT_SUFFIXES.flatMap(([key]) => {
+    const matched = tokens.filter((t) => classifyToken(t) === key).sort()
+    return matched.length > 0 ? [renderNamedImport(matched, resolvePath(key))] : []
   })
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }
