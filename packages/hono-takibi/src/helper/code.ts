@@ -158,12 +158,19 @@ export function makeExportConst(
  * // → "import{z}from'@hono/zod-openapi'\n\n..."
  * ```
  */
-/** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
+const EXPORT_CONST_PATTERN = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)/g
 
 /**
- * OpenAPI component-type → identifier suffix table.
- * Ordered per OpenAPI 3.0/3.1 spec — also defines emitted import order.
+ * OpenAPI Components Object fields and the identifier suffix each one uses.
+ * Covers OpenAPI 3.0 / 3.1 / 3.2 — all three share the same 11 Fixed Fields
+ * under `components`. Top-level `webhooks` (3.1+) is intentionally omitted:
+ * it lives outside `components` and reuses schemas/responses refs rather
+ * than introducing a `*Webhook` identifier suffix of its own.
+ *
+ * Listed in OpenAPI 3.0 spec order — purely cosmetic. `classifyRef` selects
+ * the longest matching suffix so `Schema` (substring of `ParamsSchema` /
+ * `HeaderSchema` / `MediaTypeSchema`) doesn't shadow the longer ones.
  */
 const COMPONENT_SUFFIXES = [
   ['schemas', 'Schema'],
@@ -199,21 +206,19 @@ const SCAN = new RegExp(
   'g',
 )
 
-/** Pattern to find locally exported constants */
-const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
-
 /**
- * Classifies a captured token to its component key by longest-matching suffix.
- * Why longest-match: `UserParamsSchema` ends with both `Schema` and `ParamsSchema`,
- * but only the latter correctly identifies it as a `parameters` component.
+ * Maps a captured identifier back to its component-type key by suffix.
+ * Picks the LONGEST matching suffix so a name like `UserParamsSchema` is
+ * classified as `parameters` (suffix `ParamsSchema`, 12 chars) rather than
+ * `schemas` (suffix `Schema`, 6 chars) regardless of `COMPONENT_SUFFIXES`
+ * source order.
  */
-function classifyToken(token: string): string | undefined {
-  return COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+const classifyRef = (name: string): string | undefined =>
+  COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
     (best, entry) =>
-      token.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
+      name.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
     undefined,
   )?.[0]
-}
 
 export function makeImports(
   code: string,
@@ -237,19 +242,24 @@ export function makeImports(
   const defined = new Set(
     Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
+  const grouped = Array.from(code.matchAll(SCAN), (m) => m[1])
+    .filter((name): name is string => Boolean(name) && !defined.has(name))
+    .reduce<ReadonlyMap<string, ReadonlySet<string>>>((acc, name) => {
+      const kind = classifyRef(name)
+      if (!kind) return acc
+      return new Map(acc).set(kind, new Set([...(acc.get(kind) ?? []), name]))
+    }, new Map())
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
   const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
-  const tokens = [
-    ...new Set(
-      Array.from(code.matchAll(SCAN), (m) => m[1]).filter((t): t is string => Boolean(t)),
-    ),
-  ].filter((t) => !defined.has(t))
-  const componentImports = COMPONENT_SUFFIXES.flatMap(([key]) => {
-    const matched = tokens.filter((t) => classifyToken(t) === key).sort()
-    return matched.length > 0 ? [renderNamedImport(matched, resolvePath(key))] : []
+  // Emit import lines in `COMPONENT_SUFFIXES` declaration order — same as
+  // the OpenAPI 3.x components / hono-takibi config field order — instead
+  // of scan-encounter order which varies with source layout.
+  const componentImports = COMPONENT_SUFFIXES.flatMap(([kind]) => {
+    const names = grouped.get(kind)
+    return names ? [renderNamedImport([...names].toSorted(), resolvePath(kind))] : []
   })
   return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }
