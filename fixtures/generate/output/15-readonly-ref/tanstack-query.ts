@@ -1,4 +1,10 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -19,6 +25,17 @@ export function getUsersKey() {
 
 export function getUsersQueryKey() {
   return ['users', '/users'] as const
+}
+
+export function getUsersQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useUsers<
@@ -73,6 +90,19 @@ export function useSuspenseUsers<
   })
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>
+  >({
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  })
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
@@ -82,17 +112,25 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['users', '/users', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
+}
+
+export function getUsersIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useUsersId<
@@ -161,6 +199,21 @@ export function useSuspenseUsersId<
   })
 }
 
+export function getPutUsersIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$put']>
+  >({
+    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
+      return parseResponse(client.users[':id'].$put(args, options))
+    },
+  })
+}
+
 export function usePutUsersId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -172,17 +225,22 @@ export function usePutUsersId<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['users', '/users/:id', 'PUT'] as const,
-    async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
-      return parseResponse(client.users[':id'].$put(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions<TError>(clientOptions) })
 }
 
 export function getItemsQueryKey() {
   return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useItems<

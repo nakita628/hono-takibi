@@ -28,6 +28,17 @@ export function getShapesKey() {
   return ['shapes'] as const
 }
 
+export function getPostExpressionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['expressions', '/expressions', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
+      return parseResponse(client.expressions.$post(args, options))
+    },
+  }
+}
+
 export function usePostExpressions<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.expressions.$post>>>>>,
@@ -39,11 +50,17 @@ export function usePostExpressions<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['expressions', '/expressions', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.expressions.$post>) {
-      return parseResponse(client.expressions.$post(args, clientOptions))
-    },
+    ...getPostExpressionsMutationOptions<TError>(clientOptions),
   })
+}
+
+export function getPostShapesMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['shapes', '/shapes', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
+      return parseResponse(client.shapes.$post(args, options))
+    },
+  }
 }
 
 export function usePostShapes<TError = unknown>(options?: {
@@ -55,13 +72,16 @@ export function usePostShapes<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['shapes', '/shapes', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.shapes.$post>) {
-      return parseResponse(client.shapes.$post(args, clientOptions))
+  return useMutation({ ...mutationOptions, ...getPostShapesMutationOptions<TError>(clientOptions) })
+}
+
+export function getPostDocumentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['documents', '/documents', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
+      return parseResponse(client.documents.$post(args, options))
     },
-  })
+  }
 }
 
 export function usePostDocuments<TError = unknown>(options?: {
@@ -75,11 +95,17 @@ export function usePostDocuments<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['documents', '/documents', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.documents.$post>) {
-      return parseResponse(client.documents.$post(args, clientOptions))
-    },
+    ...getPostDocumentsMutationOptions<TError>(clientOptions),
   })
+}
+
+export function getPostConfigsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['configs', '/configs', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
+      return parseResponse(client.configs.$post(args, options))
+    },
+  }
 }
 
 export function usePostConfigs<TError = unknown>(options?: {
@@ -93,15 +119,26 @@ export function usePostConfigs<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['configs', '/configs', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.configs.$post>) {
-      return parseResponse(client.configs.$post(args, clientOptions))
-    },
+    ...getPostConfigsMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getNullableUnionQueryKey() {
   return ['nullable-union', '/nullable-union'] as const
+}
+
+export function getNullableUnionQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNullableUnionQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['nullable-union'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useNullableUnion<
@@ -138,6 +175,20 @@ export function useNullableUnion<
 
 export function getNestedCircularQueryKey() {
   return ['nested-circular', '/nested-circular'] as const
+}
+
+export function getNestedCircularQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNestedCircularQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['nested-circular'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useNestedCircular<

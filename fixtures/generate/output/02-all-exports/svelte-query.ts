@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -14,6 +14,20 @@ export function getUsersKey() {
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
+}
+
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createUsers<
@@ -44,6 +58,15 @@ export function createUsers<
   })
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  }
+}
+
 export function createPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -56,18 +79,26 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['users', '/users', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-        return parseResponse(client.users.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getUsersIdQueryKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
   return ['users', '/users/:id', args] as const
+}
+
+export function getUsersIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createUsersId<

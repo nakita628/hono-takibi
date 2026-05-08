@@ -16,6 +16,23 @@ export function getApiReverseGeocodeIndexQueryKey(
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
+export function getApiReverseGeocodeIndexQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getApiReverseGeocodeIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseGeocode.index.$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
 export function useApiReverseGeocodeIndex<
   TData = Awaited<
     ReturnType<
@@ -53,6 +70,23 @@ export function useApiReverseGeocodeIndex<
   })
 }
 
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<
+        typeof client.api.v2.public.booking.account.register.oauth.index.$post
+      >,
+    ) {
+      return parseResponse(
+        client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+      )
+    },
+  }
+}
+
 export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -72,17 +106,21 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unkn
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
-    async mutationFn(
-      args: InferRequestType<
-        typeof client.api.v2.public.booking.account.register.oauth.index.$post
-      >,
-    ) {
-      return parseResponse(
-        client.api.v2.public.booking.account.register.oauth.index.$post(args, clientOptions),
-      )
-    },
+    ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
   })
+}
+
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
+    ) {
+      return parseResponse(client.api.v2.public.booking.account.register.email.$post(args, options))
+    },
+  }
 }
 
 export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(options?: {
@@ -102,13 +140,6 @@ export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
-    async mutationFn(
-      args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
-    ) {
-      return parseResponse(
-        client.api.v2.public.booking.account.register.email.$post(args, clientOptions),
-      )
-    },
+    ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
   })
 }

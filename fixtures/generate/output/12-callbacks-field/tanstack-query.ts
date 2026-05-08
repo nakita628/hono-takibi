@@ -1,4 +1,10 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -21,6 +27,19 @@ export function getPaymentsKey() {
   return ['payments'] as const
 }
 
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.orders.$post>
+  >({
+    mutationKey: ['orders', '/orders', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, options))
+    },
+  })
+}
+
 export function usePostOrders<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
@@ -30,11 +49,18 @@ export function usePostOrders<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['orders', '/orders', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
+  return useMutation({ ...mutationOptions, ...getPostOrdersMutationOptions<TError>(clientOptions) })
+}
+
+export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.payments.$post>
+  >({
+    mutationKey: ['payments', '/payments', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
+      return parseResponse(client.payments.$post(args, options))
     },
   })
 }
@@ -50,15 +76,23 @@ export function usePostPayments<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['payments', '/payments', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-      return parseResponse(client.payments.$post(args, clientOptions))
-    },
+    ...getPostPaymentsMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getItemsQueryKey() {
   return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useItems<

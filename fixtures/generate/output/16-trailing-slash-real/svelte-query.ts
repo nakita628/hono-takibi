@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -16,6 +16,23 @@ export function getApiReverseGeocodeIndexQueryKey(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
 ) {
   return ['api', '/api/reverseGeocode/', args] as const
+}
+
+export function getApiReverseGeocodeIndexQueryOptions(
+  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getApiReverseGeocodeIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseGeocode.index.$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createApiReverseGeocodeIndex<
@@ -57,6 +74,23 @@ export function createApiReverseGeocodeIndex<
   })
 }
 
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<
+        typeof client.api.v2.public.booking.account.register.oauth.index.$post
+      >,
+    ) {
+      return parseResponse(
+        client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+      )
+    },
+  }
+}
+
 export function createPostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -79,18 +113,22 @@ export function createPostApiV2PublicBookingAccountRegisterOauthIndex<TError = u
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
       ...mutation,
-      mutationKey: ['api', '/api/v2/public/booking/account/register/oauth/', 'POST'] as const,
-      async mutationFn(
-        args: InferRequestType<
-          typeof client.api.v2.public.booking.account.register.oauth.index.$post
-        >,
-      ) {
-        return parseResponse(
-          client.api.v2.public.booking.account.register.oauth.index.$post(args, clientOptions),
-        )
-      },
+      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
     }
   })
+}
+
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
+    ) {
+      return parseResponse(client.api.v2.public.booking.account.register.email.$post(args, options))
+    },
+  }
 }
 
 export function createPostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
@@ -113,14 +151,7 @@ export function createPostApiV2PublicBookingAccountRegisterEmail<TError = unknow
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
       ...mutation,
-      mutationKey: ['api', '/api/v2/public/booking/account/register/email', 'POST'] as const,
-      async mutationFn(
-        args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
-      ) {
-        return parseResponse(
-          client.api.v2.public.booking.account.register.email.$post(args, clientOptions),
-        )
-      },
+      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
     }
   })
 }

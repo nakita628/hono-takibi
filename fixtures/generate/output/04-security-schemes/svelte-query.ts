@@ -1,4 +1,4 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -30,6 +30,17 @@ export function getPublicKey() {
 
 export function getPublicQueryKey() {
   return ['public', '/public'] as const
+}
+
+export function getPublicQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getPublicQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.public.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createPublic<
@@ -64,6 +75,20 @@ export function createPublic<
 
 export function getBearerProtectedQueryKey() {
   return ['bearer-protected', '/bearer-protected'] as const
+}
+
+export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getBearerProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createBearerProtected<
@@ -108,6 +133,20 @@ export function getApiKeyProtectedQueryKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
 
+export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getApiKeyProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
 export function createApiKeyProtected<
   TData = Awaited<
     ReturnType<
@@ -148,6 +187,20 @@ export function createApiKeyProtected<
 
 export function getBasicProtectedQueryKey() {
   return ['basic-protected', '/basic-protected'] as const
+}
+
+export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getBasicProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createBasicProtected<
@@ -192,6 +245,20 @@ export function getOauthProtectedQueryKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
 
+export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getOauthProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
 export function createOauthProtected<
   TData = Awaited<
     ReturnType<
@@ -232,6 +299,17 @@ export function createOauthProtected<
 
 export function getMultiAuthQueryKey() {
   return ['multi-auth', '/multi-auth'] as const
+}
+
+export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getMultiAuthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createMultiAuth<

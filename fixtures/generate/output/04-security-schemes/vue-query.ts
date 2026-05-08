@@ -32,6 +32,17 @@ export function getPublicQueryKey() {
   return ['public', '/public'] as const
 }
 
+export function getPublicQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getPublicQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.public.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function usePublic<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
   TError = unknown,
@@ -60,6 +71,20 @@ export function usePublic<
 
 export function getBearerProtectedQueryKey() {
   return ['bearer-protected', '/bearer-protected'] as const
+}
+
+export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getBearerProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useBearerProtected<
@@ -100,6 +125,20 @@ export function getApiKeyProtectedQueryKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
 
+export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getApiKeyProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
 export function useApiKeyProtected<
   TData = Awaited<
     ReturnType<
@@ -136,6 +175,20 @@ export function useApiKeyProtected<
 
 export function getBasicProtectedQueryKey() {
   return ['basic-protected', '/basic-protected'] as const
+}
+
+export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getBasicProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useBasicProtected<
@@ -176,6 +229,20 @@ export function getOauthProtectedQueryKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
 
+export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getOauthProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
 export function useOauthProtected<
   TData = Awaited<
     ReturnType<
@@ -212,6 +279,17 @@ export function useOauthProtected<
 
 export function getMultiAuthQueryKey() {
   return ['multi-auth', '/multi-auth'] as const
+}
+
+export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getMultiAuthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useMultiAuth<

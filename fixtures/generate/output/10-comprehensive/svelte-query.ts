@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -32,6 +32,20 @@ export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get
   return ['users', '/users', args] as const
 }
 
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
 export function createUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
   TError = unknown,
@@ -60,6 +74,15 @@ export function createUsers<
   })
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  }
+}
+
 export function createPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -72,13 +95,7 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['users', '/users', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-        return parseResponse(client.users.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -86,6 +103,20 @@ export function getUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['users', '/users/:userId', args] as const
+}
+
+export function getUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersUserIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createUsersUserId<
@@ -125,6 +156,15 @@ export function createUsersUserId<
   })
 }
 
+export function getPutUsersUserIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['users', '/users/:userId', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
+      return parseResponse(client.users[':userId'].$put(args, options))
+    },
+  }
+}
+
 export function createPutUsersUserId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -141,14 +181,19 @@ export function createPutUsersUserId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['users', '/users/:userId', 'PUT'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
-        return parseResponse(client.users[':userId'].$put(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPutUsersUserIdMutationOptions<TError>(clientOptions) }
   })
+}
+
+export function getDeleteUsersUserIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
+      return parseResponse(client.users[':userId'].$delete(args, options))
+    },
+  }
 }
 
 export function createDeleteUsersUserId<TError = unknown>(
@@ -168,18 +213,26 @@ export function createDeleteUsersUserId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
-        return parseResponse(client.users[':userId'].$delete(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getDeleteUsersUserIdMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args] as const
+}
+
+export function getProductsQueryOptions(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createProducts<
@@ -215,6 +268,15 @@ export function createProducts<
   })
 }
 
+export function getPostProductsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['products', '/products', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.products.$post>) {
+      return parseResponse(client.products.$post(args, options))
+    },
+  }
+}
+
 export function createPostProducts<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -227,13 +289,7 @@ export function createPostProducts<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['products', '/products', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.products.$post>) {
-        return parseResponse(client.products.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostProductsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -241,6 +297,23 @@ export function getProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
   return ['products', '/products/:productId', args] as const
+}
+
+export function getProductsProductIdQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsProductIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createProductsProductId<
@@ -282,6 +355,17 @@ export function createProductsProductId<
   })
 }
 
+export function getPutProductsProductIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['products', '/products/:productId', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
+      return parseResponse(client.products[':productId'].$put(args, options))
+    },
+  }
+}
+
 export function createPutProductsProductId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -298,13 +382,7 @@ export function createPutProductsProductId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['products', '/products/:productId', 'PUT'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
-        return parseResponse(client.products[':productId'].$put(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPutProductsProductIdMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -312,6 +390,23 @@ export function getProductsProductIdReviewsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
   return ['products', '/products/:productId/reviews', args] as const
+}
+
+export function getProductsProductIdReviewsQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsProductIdReviewsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].reviews.$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createProductsProductIdReviews<
@@ -357,6 +452,19 @@ export function createProductsProductIdReviews<
   })
 }
 
+export function getPostProductsProductIdReviewsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
+    ) {
+      return parseResponse(client.products[':productId'].reviews.$post(args, options))
+    },
+  }
+}
+
 export function createPostProductsProductIdReviews<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -375,20 +483,26 @@ export function createPostProductsProductIdReviews<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
-      async mutationFn(
-        args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
-      ) {
-        return parseResponse(client.products[':productId'].reviews.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostProductsProductIdReviewsMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args] as const
+}
+
+export function getOrdersQueryOptions(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getOrdersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createOrders<
@@ -422,6 +536,15 @@ export function createOrders<
   })
 }
 
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['orders', '/orders', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, options))
+    },
+  }
+}
+
 export function createPostOrders<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -434,13 +557,7 @@ export function createPostOrders<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['orders', '/orders', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-        return parseResponse(client.orders.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -448,6 +565,20 @@ export function getOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
   return ['orders', '/orders/:orderId', args] as const
+}
+
+export function getOrdersOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getOrdersOrderIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders[':orderId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createOrdersOrderId<
@@ -493,6 +624,17 @@ export function getCategoriesQueryKey() {
   return ['categories', '/categories'] as const
 }
 
+export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getCategoriesQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.categories.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
 export function createCategories<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>
@@ -525,6 +667,17 @@ export function createCategories<
   })
 }
 
+export function getPostUploadImageMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['upload', '/upload/image', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
+      return parseResponse(client.upload.image.$post(args, options))
+    },
+  }
+}
+
 export function createPostUploadImage<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -539,12 +692,6 @@ export function createPostUploadImage<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['upload', '/upload/image', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
-        return parseResponse(client.upload.image.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostUploadImageMutationOptions<TError>(clientOptions) }
   })
 }

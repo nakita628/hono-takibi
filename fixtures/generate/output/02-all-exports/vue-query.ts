@@ -16,6 +16,20 @@ export function getUsersQueryKey(
   return ['users', '/users', args] as const
 }
 
+export function getUsersQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
   TError = unknown,
@@ -45,6 +59,15 @@ export function useUsers<
   })
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  }
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
@@ -54,19 +77,27 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['users', '/users', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 
 export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
   return ['users', '/users/:id', args] as const
+}
+
+export function getUsersIdQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useUsersId<

@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -16,6 +16,15 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  }
+}
+
 export function createPostUsers<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -28,13 +37,7 @@ export function createPostUsers<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['users', '/users', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-        return parseResponse(client.users.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostUsersMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -42,6 +45,20 @@ export function getUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['users', '/users/:userId', args] as const
+}
+
+export function getUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersUserIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createUsersUserId<
@@ -81,6 +98,15 @@ export function createUsersUserId<
   })
 }
 
+export function getPostPostsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['posts', '/posts', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
+      return parseResponse(client.posts.$post(args, options))
+    },
+  }
+}
+
 export function createPostPosts<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -93,12 +119,6 @@ export function createPostPosts<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['posts', '/posts', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.posts.$post>) {
-        return parseResponse(client.posts.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostPostsMutationOptions<TError>(clientOptions) }
   })
 }

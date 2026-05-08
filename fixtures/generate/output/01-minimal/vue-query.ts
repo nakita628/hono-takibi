@@ -12,6 +12,17 @@ export function getHealthQueryKey() {
   return ['health', '/health'] as const
 }
 
+export function getHealthQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.health.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useHealth<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
   TError = unknown,

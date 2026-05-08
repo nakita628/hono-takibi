@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -18,6 +18,17 @@ export function getTreeKey() {
 
 export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
+}
+
+export function getTreeQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getTreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createTree<
@@ -50,6 +61,15 @@ export function createTree<
   })
 }
 
+export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['tree', '/tree', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
+      return parseResponse(client.tree.$post(args, options))
+    },
+  }
+}
+
 export function createPostTree<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -62,18 +82,23 @@ export function createPostTree<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['tree', '/tree', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-        return parseResponse(client.tree.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostTreeMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
+}
+
+export function getGraphQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getGraphQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createGraph<

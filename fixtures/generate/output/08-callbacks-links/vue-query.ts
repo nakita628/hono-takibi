@@ -14,6 +14,17 @@ export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
+export function getPostSubscriptionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
+      return parseResponse(client.subscriptions.$post(args, options))
+    },
+  }
+}
+
 export function usePostSubscriptions<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -27,10 +38,7 @@ export function usePostSubscriptions<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
-      return parseResponse(client.subscriptions.$post(args, clientOptions))
-    },
+    ...getPostSubscriptionsMutationOptions<TError>(clientOptions),
   })
 }
 
@@ -38,6 +46,23 @@ export function getSubscriptionsIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args] as const
+}
+
+export function getSubscriptionsIdQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<(typeof client.subscriptions)[':id']['$get']>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.subscriptions[':id'].$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useSubscriptionsId<
@@ -77,6 +102,17 @@ export function useSubscriptionsId<
   })
 }
 
+export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
+      return parseResponse(client.subscriptions[':id'].$delete(args, options))
+    },
+  }
+}
+
 export function useDeleteSubscriptionsId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     | Awaited<
@@ -93,11 +129,19 @@ export function useDeleteSubscriptionsId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
-    async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
-      return parseResponse(client.subscriptions[':id'].$delete(args, clientOptions))
-    },
+    ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions),
   })
+}
+
+export function getPostWebhooksTestMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
+      return parseResponse(client.webhooks.test.$post(args, options))
+    },
+  }
 }
 
 export function usePostWebhooksTest<TError = unknown>(options?: {
@@ -113,9 +157,6 @@ export function usePostWebhooksTest<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
-      return parseResponse(client.webhooks.test.$post(args, clientOptions))
-    },
+    ...getPostWebhooksTestMutationOptions<TError>(clientOptions),
   })
 }

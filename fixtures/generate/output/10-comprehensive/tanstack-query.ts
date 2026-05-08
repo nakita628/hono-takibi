@@ -1,4 +1,10 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -31,6 +37,20 @@ export function getUsersKey() {
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['users', '/users', args] as const
+}
+
+export function getUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useUsers<
@@ -85,6 +105,19 @@ export function useSuspenseUsers<
   })
 }
 
+export function getPostUsersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>
+  >({
+    mutationKey: ['users', '/users', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
+      return parseResponse(client.users.$post(args, options))
+    },
+  })
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
@@ -94,19 +127,27 @@ export function usePostUsers<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['users', '/users', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.users.$post>) {
-      return parseResponse(client.users.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions<TError>(clientOptions) })
 }
 
 export function getUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['users', '/users/:userId', args] as const
+}
+
+export function getUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersUserIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':userId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useUsersUserId<
@@ -179,6 +220,23 @@ export function useSuspenseUsersUserId<
   })
 }
 
+export function getPutUsersUserIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+      >
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':userId']['$put']>
+  >({
+    mutationKey: ['users', '/users/:userId', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
+      return parseResponse(client.users[':userId'].$put(args, options))
+    },
+  })
+}
+
 export function usePutUsersUserId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -194,9 +252,26 @@ export function usePutUsersUserId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['users', '/users/:userId', 'PUT'] as const,
-    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$put']>) {
-      return parseResponse(client.users[':userId'].$put(args, clientOptions))
+    ...getPutUsersUserIdMutationOptions<TError>(clientOptions),
+  })
+}
+
+export function getDeleteUsersUserIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.users)[':userId']['$delete']>
+  >({
+    mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
+      return parseResponse(client.users[':userId'].$delete(args, options))
     },
   })
 }
@@ -217,15 +292,26 @@ export function useDeleteUsersUserId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['users', '/users/:userId', 'DELETE'] as const,
-    async mutationFn(args: InferRequestType<(typeof client.users)[':userId']['$delete']>) {
-      return parseResponse(client.users[':userId'].$delete(args, clientOptions))
-    },
+    ...getDeleteUsersUserIdMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['products', '/products', args] as const
+}
+
+export function getProductsQueryOptions(
+  args: InferRequestType<typeof client.products.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useProducts<
@@ -284,6 +370,19 @@ export function useSuspenseProducts<
   })
 }
 
+export function getPostProductsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.products.$post>
+  >({
+    mutationKey: ['products', '/products', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.products.$post>) {
+      return parseResponse(client.products.$post(args, options))
+    },
+  })
+}
+
 export function usePostProducts<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
@@ -295,10 +394,7 @@ export function usePostProducts<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['products', '/products', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.products.$post>) {
-      return parseResponse(client.products.$post(args, clientOptions))
-    },
+    ...getPostProductsMutationOptions<TError>(clientOptions),
   })
 }
 
@@ -306,6 +402,23 @@ export function getProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
   return ['products', '/products/:productId', args] as const
+}
+
+export function getProductsProductIdQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsProductIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function useProductsProductId<
@@ -382,6 +495,25 @@ export function useSuspenseProductsProductId<
   })
 }
 
+export function getPutProductsProductIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
+      >
+    >,
+    TError,
+    InferRequestType<(typeof client.products)[':productId']['$put']>
+  >({
+    mutationKey: ['products', '/products/:productId', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
+      return parseResponse(client.products[':productId'].$put(args, options))
+    },
+  })
+}
+
 export function usePutProductsProductId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -397,10 +529,7 @@ export function usePutProductsProductId<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['products', '/products/:productId', 'PUT'] as const,
-    async mutationFn(args: InferRequestType<(typeof client.products)[':productId']['$put']>) {
-      return parseResponse(client.products[':productId'].$put(args, clientOptions))
-    },
+    ...getPutProductsProductIdMutationOptions<TError>(clientOptions),
   })
 }
 
@@ -408,6 +537,23 @@ export function getProductsProductIdReviewsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
 ) {
   return ['products', '/products/:productId/reviews', args] as const
+}
+
+export function getProductsProductIdReviewsQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['reviews']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getProductsProductIdReviewsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.products[':productId'].reviews.$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function useProductsProductIdReviews<
@@ -492,6 +638,29 @@ export function useSuspenseProductsProductIdReviews<
   })
 }
 
+export function getPostProductsProductIdReviewsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.products)[':productId']['reviews']['$post']>>
+        >
+      >
+    >,
+    TError,
+    InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>
+  >({
+    mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
+    async mutationFn(
+      args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
+    ) {
+      return parseResponse(client.products[':productId'].reviews.$post(args, options))
+    },
+  })
+}
+
 export function usePostProductsProductIdReviews<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -509,17 +678,26 @@ export function usePostProductsProductIdReviews<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['products', '/products/:productId/reviews', 'POST'] as const,
-    async mutationFn(
-      args: InferRequestType<(typeof client.products)[':productId']['reviews']['$post']>,
-    ) {
-      return parseResponse(client.products[':productId'].reviews.$post(args, clientOptions))
-    },
+    ...getPostProductsProductIdReviewsMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['orders', '/orders', args] as const
+}
+
+export function getOrdersQueryOptions(
+  args: InferRequestType<typeof client.orders.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getOrdersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useOrders<
@@ -574,6 +752,19 @@ export function useSuspenseOrders<
   })
 }
 
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.orders.$post>
+  >({
+    mutationKey: ['orders', '/orders', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, options))
+    },
+  })
+}
+
 export function usePostOrders<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
@@ -583,19 +774,27 @@ export function usePostOrders<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['orders', '/orders', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-      return parseResponse(client.orders.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostOrdersMutationOptions<TError>(clientOptions) })
 }
 
 export function getOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
   return ['orders', '/orders/:orderId', args] as const
+}
+
+export function getOrdersOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getOrdersOrderIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.orders[':orderId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useOrdersOrderId<
@@ -676,6 +875,17 @@ export function getCategoriesQueryKey() {
   return ['categories', '/categories'] as const
 }
 
+export function getCategoriesQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getCategoriesQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.categories.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
 export function useCategories<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>
@@ -732,6 +942,23 @@ export function useSuspenseCategories<
   })
 }
 
+export function getPostUploadImageMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.image.$post>>>>
+    >,
+    TError,
+    InferRequestType<typeof client.upload.image.$post>
+  >({
+    mutationKey: ['upload', '/upload/image', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
+      return parseResponse(client.upload.image.$post(args, options))
+    },
+  })
+}
+
 export function usePostUploadImage<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -745,9 +972,6 @@ export function usePostUploadImage<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['upload', '/upload/image', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.upload.image.$post>) {
-      return parseResponse(client.upload.image.$post(args, clientOptions))
-    },
+    ...getPostUploadImageMutationOptions<TError>(clientOptions),
   })
 }

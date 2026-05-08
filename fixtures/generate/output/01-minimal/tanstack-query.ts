@@ -1,4 +1,4 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -14,6 +14,17 @@ export function getHealthKey() {
 
 export function getHealthQueryKey() {
   return ['health', '/health'] as const
+}
+
+export function getHealthQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.health.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useHealth<

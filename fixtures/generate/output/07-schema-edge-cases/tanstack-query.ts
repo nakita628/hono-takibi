@@ -1,4 +1,10 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -29,6 +35,19 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
+export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.nullable.$post>
+  >({
+    mutationKey: ['nullable', '/nullable', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
+      return parseResponse(client.nullable.$post(args, options))
+    },
+  })
+}
+
 export function usePostNullable<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
@@ -40,9 +59,23 @@ export function usePostNullable<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['nullable', '/nullable', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-      return parseResponse(client.nullable.$post(args, clientOptions))
+    ...getPostNullableMutationOptions<TError>(clientOptions),
+  })
+}
+
+export function getPostDiscriminatedMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.discriminated.$post>>>>
+    >,
+    TError,
+    InferRequestType<typeof client.discriminated.$post>
+  >({
+    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
+      return parseResponse(client.discriminated.$post(args, options))
     },
   })
 }
@@ -60,15 +93,23 @@ export function usePostDiscriminated<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-      return parseResponse(client.discriminated.$post(args, clientOptions))
-    },
+    ...getPostDiscriminatedMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
+}
+
+export function getComposedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getComposedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.composed.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useComposed<
@@ -129,6 +170,17 @@ export function useSuspenseComposed<
 
 export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
+}
+
+export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getDeepNestedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['deep-nested'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useDeepNested<
@@ -193,6 +245,20 @@ export function useSuspenseDeepNested<
 
 export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
+}
+
+export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getAdditionalPropsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['additional-props'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function useAdditionalProps<

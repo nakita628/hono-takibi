@@ -52,6 +52,15 @@ export function getOneOfKey() {
   return ['one-of'] as const
 }
 
+export function getPostOneOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['one-of', '/one-of', 'POST'] as const,
+    async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
+      return parseResponse(client['one-of'].$post(args, options))
+    },
+  }
+}
+
 export function usePostOneOf<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<
@@ -63,13 +72,16 @@ export function usePostOneOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['one-of', '/one-of', 'POST'] as const,
-    async mutationFn(args: InferRequestType<(typeof client)['one-of']['$post']>) {
-      return parseResponse(client['one-of'].$post(args, clientOptions))
+  return useMutation({ ...mutationOptions, ...getPostOneOfMutationOptions<TError>(clientOptions) })
+}
+
+export function getPostAnyOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['any-of', '/any-of', 'POST'] as const,
+    async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
+      return parseResponse(client['any-of'].$post(args, options))
     },
-  })
+  }
 }
 
 export function usePostAnyOf<TError = unknown>(options?: {
@@ -83,13 +95,16 @@ export function usePostAnyOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['any-of', '/any-of', 'POST'] as const,
-    async mutationFn(args: InferRequestType<(typeof client)['any-of']['$post']>) {
-      return parseResponse(client['any-of'].$post(args, clientOptions))
+  return useMutation({ ...mutationOptions, ...getPostAnyOfMutationOptions<TError>(clientOptions) })
+}
+
+export function getPostAllOfMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['all-of', '/all-of', 'POST'] as const,
+    async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
+      return parseResponse(client['all-of'].$post(args, options))
     },
-  })
+  }
 }
 
 export function usePostAllOf<TError = unknown>(options?: {
@@ -103,13 +118,16 @@ export function usePostAllOf<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['all-of', '/all-of', 'POST'] as const,
-    async mutationFn(args: InferRequestType<(typeof client)['all-of']['$post']>) {
-      return parseResponse(client['all-of'].$post(args, clientOptions))
+  return useMutation({ ...mutationOptions, ...getPostAllOfMutationOptions<TError>(clientOptions) })
+}
+
+export function getPostNotMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['not', '/not', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.not.$post>) {
+      return parseResponse(client.not.$post(args, options))
     },
-  })
+  }
 }
 
 export function usePostNot<TError = unknown>(options?: {
@@ -121,17 +139,22 @@ export function usePostNot<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['not', '/not', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.not.$post>) {
-      return parseResponse(client.not.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostNotMutationOptions<TError>(clientOptions) })
 }
 
 export function getNotRefQueryKey() {
   return ['not-ref', '/not-ref'] as const
+}
+
+export function getNotRefQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNotRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-ref'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useNotRef<
@@ -168,6 +191,17 @@ export function getNotEnumQueryKey() {
   return ['not-enum', '/not-enum'] as const
 }
 
+export function getNotEnumQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNotEnumQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-enum'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useNotEnum<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['not-enum']['$get']>>>>
@@ -202,6 +236,17 @@ export function getNotConstQueryKey() {
   return ['not-const', '/not-const'] as const
 }
 
+export function getNotConstQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNotConstQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-const'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useNotConst<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['not-const']['$get']>>>>
@@ -234,6 +279,20 @@ export function useNotConst<
 
 export function getNotCompositionQueryKey() {
   return ['not-composition', '/not-composition'] as const
+}
+
+export function getNotCompositionQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNotCompositionQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['not-composition'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useNotComposition<
@@ -274,6 +333,20 @@ export function getAllOfSiblingQueryKey() {
   return ['all-of-sibling', '/all-of-sibling'] as const
 }
 
+export function getAllOfSiblingQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getAllOfSiblingQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['all-of-sibling'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
+}
+
 export function useAllOfSibling<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-of-sibling']['$get']>>>>
@@ -308,6 +381,20 @@ export function useAllOfSibling<
 
 export function getNullableOneOfQueryKey() {
   return ['nullable-one-of', '/nullable-one-of'] as const
+}
+
+export function getNullableOneOfQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getNullableOneOfQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['nullable-one-of'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useNullableOneOf<
@@ -348,6 +435,17 @@ export function getAnyOfThreeQueryKey() {
   return ['any-of-three', '/any-of-three'] as const
 }
 
+export function getAnyOfThreeQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getAnyOfThreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['any-of-three'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useAnyOfThree<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-of-three']['$get']>>>>
@@ -380,6 +478,17 @@ export function useAnyOfThree<
 
 export function getAnyOfRefQueryKey() {
   return ['any-of-ref', '/any-of-ref'] as const
+}
+
+export function getAnyOfRefQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getAnyOfRefQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['any-of-ref'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useAnyOfRef<

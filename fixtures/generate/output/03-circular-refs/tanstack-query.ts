@@ -1,4 +1,10 @@
-import { useQuery, useSuspenseQuery, useMutation } from '@tanstack/react-query'
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  queryOptions,
+  mutationOptions,
+} from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -19,6 +25,17 @@ export function getTreeKey() {
 
 export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
+}
+
+export function getTreeQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getTreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useTree<
@@ -67,6 +84,19 @@ export function useSuspenseTree<
   })
 }
 
+export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.tree.$post>
+  >({
+    mutationKey: ['tree', '/tree', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
+      return parseResponse(client.tree.$post(args, options))
+    },
+  })
+}
+
 export function usePostTree<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
@@ -76,17 +106,22 @@ export function usePostTree<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['tree', '/tree', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions<TError>(clientOptions) })
 }
 
 export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
+}
+
+export function getGraphQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getGraphQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useGraph<

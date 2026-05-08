@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -16,6 +16,17 @@ export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
+export function getPostSubscriptionsMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
+      return parseResponse(client.subscriptions.$post(args, options))
+    },
+  }
+}
+
 export function createPostSubscriptions<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -30,13 +41,7 @@ export function createPostSubscriptions<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
-        return parseResponse(client.subscriptions.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostSubscriptionsMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -44,6 +49,20 @@ export function getSubscriptionsIdQueryKey(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
 ) {
   return ['subscriptions', '/subscriptions/:id', args] as const
+}
+
+export function getSubscriptionsIdQueryOptions(
+  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getSubscriptionsIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.subscriptions[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createSubscriptionsId<
@@ -85,6 +104,17 @@ export function createSubscriptionsId<
   })
 }
 
+export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
+      return parseResponse(client.subscriptions[':id'].$delete(args, options))
+    },
+  }
+}
+
 export function createDeleteSubscriptionsId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -104,14 +134,19 @@ export function createDeleteSubscriptionsId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
-        return parseResponse(client.subscriptions[':id'].$delete(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions) }
   })
+}
+
+export function getPostWebhooksTestMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
+      return parseResponse(client.webhooks.test.$post(args, options))
+    },
+  }
 }
 
 export function createPostWebhooksTest<TError = unknown>(
@@ -128,12 +163,6 @@ export function createPostWebhooksTest<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
-        return parseResponse(client.webhooks.test.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostWebhooksTestMutationOptions<TError>(clientOptions) }
   })
 }

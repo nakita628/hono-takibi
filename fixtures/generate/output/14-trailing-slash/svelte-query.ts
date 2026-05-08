@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -26,6 +26,20 @@ export function getUsersKey() {
 
 export function getApiReverseChibanIndexQueryKey() {
   return ['api', '/api/reverseChiban/'] as const
+}
+
+export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getApiReverseChibanIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseChiban.index.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createApiReverseChibanIndex<
@@ -70,6 +84,20 @@ export function getApiReverseChibanQueryKey() {
   return ['api', '/api/reverseChiban'] as const
 }
 
+export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getApiReverseChibanQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseChiban.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
 export function createApiReverseChiban<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
@@ -108,6 +136,20 @@ export function getPostsIndexQueryKey(args: InferRequestType<typeof client.posts
   return ['posts', '/posts/', args] as const
 }
 
+export function getPostsIndexQueryOptions(
+  args: InferRequestType<typeof client.posts.index.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getPostsIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.posts.index.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
+}
+
 export function createPostsIndex<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
@@ -143,6 +185,15 @@ export function createPostsIndex<
   })
 }
 
+export function getPostPostsIndexMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['posts', '/posts/', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
+      return parseResponse(client.posts.index.$post(args, options))
+    },
+  }
+}
+
 export function createPostPostsIndex<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -157,13 +208,7 @@ export function createPostPostsIndex<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['posts', '/posts/', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
-        return parseResponse(client.posts.index.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostPostsIndexMutationOptions<TError>(clientOptions) }
   })
 }
 
@@ -171,6 +216,20 @@ export function getUsersIdIndexQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
 ) {
   return ['users', '/users/:id/', args] as const
+}
+
+export function getUsersIdIndexQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getUsersIdIndexQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].index.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createUsersIdIndex<
@@ -214,6 +273,17 @@ export function createUsersIdIndex<
 
 export function getItemsIndexQueryKey() {
   return ['items', '/items/'] as const
+}
+
+export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getItemsIndexQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.index.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createItemsIndex<

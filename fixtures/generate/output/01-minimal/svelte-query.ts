@@ -1,4 +1,4 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
 import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -10,6 +10,17 @@ export function getHealthKey() {
 
 export function getHealthQueryKey() {
   return ['health', '/health'] as const
+}
+
+export function getHealthQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getHealthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.health.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createHealth<

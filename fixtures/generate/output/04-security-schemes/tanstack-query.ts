@@ -1,4 +1,4 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery, queryOptions } from '@tanstack/react-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -34,6 +34,17 @@ export function getPublicKey() {
 
 export function getPublicQueryKey() {
   return ['public', '/public'] as const
+}
+
+export function getPublicQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getPublicQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.public.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function usePublic<
@@ -90,6 +101,20 @@ export function useSuspensePublic<
 
 export function getBearerProtectedQueryKey() {
   return ['bearer-protected', '/bearer-protected'] as const
+}
+
+export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getBearerProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function useBearerProtected<
@@ -164,6 +189,20 @@ export function getApiKeyProtectedQueryKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
 
+export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getApiKeyProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
 export function useApiKeyProtected<
   TData = Awaited<
     ReturnType<
@@ -234,6 +273,20 @@ export function useSuspenseApiKeyProtected<
 
 export function getBasicProtectedQueryKey() {
   return ['basic-protected', '/basic-protected'] as const
+}
+
+export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getBasicProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function useBasicProtected<
@@ -308,6 +361,20 @@ export function getOauthProtectedQueryKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
 
+export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getOauthProtectedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
 export function useOauthProtected<
   TData = Awaited<
     ReturnType<
@@ -378,6 +445,17 @@ export function useSuspenseOauthProtected<
 
 export function getMultiAuthQueryKey() {
   return ['multi-auth', '/multi-auth'] as const
+}
+
+export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getMultiAuthQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function useMultiAuth<

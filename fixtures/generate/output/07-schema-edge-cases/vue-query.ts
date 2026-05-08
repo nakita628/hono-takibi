@@ -24,6 +24,15 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
+export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['nullable', '/nullable', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
+      return parseResponse(client.nullable.$post(args, options))
+    },
+  }
+}
+
 export function usePostNullable<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
@@ -35,11 +44,19 @@ export function usePostNullable<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['nullable', '/nullable', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-      return parseResponse(client.nullable.$post(args, clientOptions))
-    },
+    ...getPostNullableMutationOptions<TError>(clientOptions),
   })
+}
+
+export function getPostDiscriminatedMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
+      return parseResponse(client.discriminated.$post(args, options))
+    },
+  }
 }
 
 export function usePostDiscriminated<TError = unknown>(options?: {
@@ -55,15 +72,23 @@ export function usePostDiscriminated<TError = unknown>(options?: {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-      return parseResponse(client.discriminated.$post(args, clientOptions))
-    },
+    ...getPostDiscriminatedMutationOptions<TError>(clientOptions),
   })
 }
 
 export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
+}
+
+export function getComposedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getComposedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.composed.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useComposed<
@@ -98,6 +123,17 @@ export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
 
+export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getDeepNestedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['deep-nested'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useDeepNested<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nested']['$get']>>>>
@@ -130,6 +166,20 @@ export function useDeepNested<
 
 export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
+}
+
+export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getAdditionalPropsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['additional-props'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  }
 }
 
 export function useAdditionalProps<

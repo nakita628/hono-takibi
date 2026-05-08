@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -28,6 +28,15 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
+export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['nullable', '/nullable', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
+      return parseResponse(client.nullable.$post(args, options))
+    },
+  }
+}
+
 export function createPostNullable<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -40,14 +49,19 @@ export function createPostNullable<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['nullable', '/nullable', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-        return parseResponse(client.nullable.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostNullableMutationOptions<TError>(clientOptions) }
   })
+}
+
+export function getPostDiscriminatedMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
+      return parseResponse(client.discriminated.$post(args, options))
+    },
+  }
 }
 
 export function createPostDiscriminated<TError = unknown>(
@@ -64,18 +78,23 @@ export function createPostDiscriminated<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-        return parseResponse(client.discriminated.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostDiscriminatedMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
+}
+
+export function getComposedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getComposedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.composed.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createComposed<
@@ -112,6 +131,17 @@ export function createComposed<
 
 export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
+}
+
+export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getDeepNestedQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['deep-nested'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createDeepNested<
@@ -152,6 +182,20 @@ export function createDeepNested<
 
 export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
+}
+
+export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getAdditionalPropsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['additional-props'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
+    },
+  })
 }
 
 export function createAdditionalProps<

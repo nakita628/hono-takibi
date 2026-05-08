@@ -97,6 +97,28 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
 }
 
 /**
+ * Generates the query options getter function name.
+ *   '/users' → 'getUsersQueryOptions'
+ */
+function makeQueryOptionsGetterName(pathStr: string) {
+  return `get${capitalize(methodPath('', pathStr))}QueryOptions`
+}
+
+/**
+ * Generates the infinite query options getter function name.
+ */
+function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
+  return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
+}
+
+/**
+ * Generates the mutation options getter function name.
+ */
+function makeMutationOptionsGetterName(method: string, pathStr: string) {
+  return `get${capitalize(methodPath(method, pathStr))}MutationOptions`
+}
+
+/**
  * Generates query key getter function code using structured keys.
  *
  * Pattern: ['prefix', '/full/path', args?]
@@ -183,6 +205,147 @@ function makeInfiniteQueryKeyGetterCode(
 }
 
 /**
+ * Generates the query options factory.
+ *
+ * The factory returns either a `queryOptions({...})`-branded options object
+ * (when the framework provides the helper) or a plain `{queryKey, queryFn}` literal.
+ * `queryFn` inlines `parseResponse(client.x.$y(...))` directly so no fetcher wrapper is needed.
+ *
+ * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
+ */
+function makeQueryOptionsGetterCode(
+  optionsGetterName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  argsType: string,
+  runtimeAccess: string,
+  config: {
+    readonly hasQueryOptionsHelper?: boolean
+    readonly isVueQuery?: boolean
+  },
+) {
+  const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
+  if (config.isVueQuery && hasArgs) {
+    const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+    const returnExpr = config.hasQueryOptionsHelper
+      ? `queryOptions({${bodyContent}})`
+      : `{${bodyContent}}`
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return ${returnExpr}}`
+  }
+  const fetcherCall = hasArgs
+    ? `parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))`
+    : `parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))`
+  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  const returnExpr = config.hasQueryOptionsHelper
+    ? `queryOptions({${bodyContent}})`
+    : `{${bodyContent}}`
+  if (hasArgs) {
+    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return ${returnExpr}}`
+  }
+  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
+}
+
+/**
+ * Generates the infinite query options factory.
+ *
+ * When `hasInfiniteQueryOptionsHelper` is true (TanStack v5 family) the factory wraps with
+ * `infiniteQueryOptions({...})` and accepts `pagination` as a required arg providing
+ * `initialPageParam` / `getNextPageParam`. Otherwise the factory returns a plain
+ * `{queryKey, queryFn}` and users must supply pagination at the hook site.
+ */
+function makeInfiniteQueryOptionsGetterCode(
+  optionsGetterName: string,
+  infiniteKeyGetterName: string,
+  hasArgs: boolean,
+  argsType: string,
+  runtimeAccess: string,
+  responseType: string,
+  config: {
+    readonly isVueQuery?: boolean
+    readonly hasInfiniteQueryOptionsHelper?: boolean
+  },
+) {
+  const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+  if (config.hasInfiniteQueryOptionsHelper) {
+    const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
+    if (config.isVueQuery && hasArgs) {
+      const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
+      const body = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+      return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+    }
+    const fetcherCall = hasArgs
+      ? `parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))`
+      : `parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))`
+    const body = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+    if (hasArgs) {
+      return `export function ${optionsGetterName}<TPageParam=unknown>(args:${argsType},${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+    }
+    return `export function ${optionsGetterName}<TPageParam=unknown>(${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
+  }
+  // Branch 2: plain object (legacy / no helper)
+  if (config.isVueQuery && hasArgs) {
+    const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
+    const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+    return `export function ${optionsGetterName}(args:MaybeRefOrGetter<${argsType}>,options?:ClientRequestOptions){return {${bodyContent}}}`
+  }
+  const fetcherCall = hasArgs
+    ? `parseResponse(${runtimeAccess}(args,{...options,init:{...options?.init,signal}}))`
+    : `parseResponse(${runtimeAccess}(undefined,{...options,init:{...options?.init,signal}}))`
+  const bodyContent = `queryKey:${queryKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
+  if (hasArgs) {
+    return `export function ${optionsGetterName}(args:${argsType},options?:ClientRequestOptions){return {${bodyContent}}}`
+  }
+  return `export function ${optionsGetterName}(options?:ClientRequestOptions){return {${bodyContent}}}`
+}
+
+/**
+ * Generates the mutation options factory.
+ *
+ * Returns either a `mutationOptions<TData,TError,TVars>({...})`-typed object (when
+ * the framework provides the helper) or a plain `{mutationKey, mutationFn}` literal.
+ * `mutationFn` inlines `parseResponse(client.x.$y(args, options))`.
+ */
+function makeMutationOptionsGetterCode(
+  optionsGetterName: string,
+  hasArgs: boolean,
+  argsType: string,
+  runtimeAccess: string,
+  method: string,
+  honoPath: string,
+  responseType: string,
+  hasNoContent: boolean,
+  config: {
+    readonly hasMutationOptionsHelper?: boolean
+    readonly errorType?: string
+  },
+) {
+  const methodUpper = method.toUpperCase()
+  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
+  const errorType = config.errorType ?? 'unknown'
+  // TError must be a generic on the factory so the hook (which spreads the factory) can
+  // pass its own TError through without a variance error.
+  const tErrorGeneric = `<TError=${errorType}>`
+  const dataType = hasNoContent ? `${responseType}|undefined` : responseType
+  const variablesType = hasArgs ? argsType : 'void'
+  const typeArgs = `<${dataType},TError,${variablesType}>`
+  if (hasArgs) {
+    const bodyContent = `mutationKey:${inlineKey},async mutationFn(args:${argsType}){return parseResponse(${runtimeAccess}(args,options))}`
+    const returnExpr = config.hasMutationOptionsHelper
+      ? `mutationOptions${typeArgs}({${bodyContent}})`
+      : `{${bodyContent}}`
+    return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
+  }
+  const bodyContent = `mutationKey:${inlineKey},async mutationFn(){return parseResponse(${runtimeAccess}(undefined,options))}`
+  const returnExpr = config.hasMutationOptionsHelper
+    ? `mutationOptions${typeArgs}({${bodyContent}})`
+    : `{${bodyContent}}`
+  return `export function ${optionsGetterName}${tErrorGeneric}(options?:ClientRequestOptions){return ${returnExpr}}`
+}
+
+/**
  * Generates SWR query hook code.
  *
  * SWR pattern: useSWR(key, fetcher, options)
@@ -237,6 +400,14 @@ function makeSWRInfiniteHookCode(
   return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKeyLoader,...restSwrOptions}=swrOptions??{};const keyLoader=customKeyLoader??((index:number)=>[...${keyCall},index]as const);return useSWRInfinite(keyLoader,async()=>${fetcherCall},restSwrOptions)}`
 }
 
+/**
+ * Generates a query hook with inline queryKey + queryFn. The hook builds its own
+ * options object — does NOT spread the matching `getXQueryOptions` factory.
+ * Why: `queryOptions()` brands the result with `DataTag`, which is incompatible
+ * with `useSuspenseQuery`'s narrower options type. Keeping hook bodies inline
+ * lets every hook (regular + suspense + infinite) accept the same factory shape
+ * while sharing the same parseResponse call.
+ */
 function makeQueryHookCode(
   hookName: string,
   keyGetterName: string,
@@ -257,9 +428,6 @@ function makeQueryHookCode(
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
   const generics = `<TData=${responseType},TError=${errorType}>`
   const queryOptionsType = `${config.useQueryOptionsType}<${responseType},TError,TData>`
-  // Spread-only management: user spreads their own queryOptions first, hook overrides
-  // queryKey/queryFn afterward so the operation contract always wins. queryKey is required
-  // by TanStack v5.100+ (WithRequired) and is satisfied by the inline assignment.
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
@@ -271,7 +439,6 @@ function makeQueryHookCode(
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
     return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
-  // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const fetcherCall = hasArgs
@@ -279,7 +446,6 @@ function makeQueryHookCode(
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
     return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
-  // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
@@ -303,12 +469,10 @@ function makeSuspenseQueryHookCode(
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
-  // TData first so callers can override `select`'s output type without naming TError.
   const generics = `<TData=${responseType},TError=${errorType}>`
   const queryOptionsType = `${config.useSuspenseQueryOptionsType}<${responseType},TError,TData>`
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-  // Svelte Query v5+: thunk pattern
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
     const svelteKeyCall = hasArgs ? `${keyGetterName}(args())` : `${keyGetterName}()`
@@ -317,7 +481,6 @@ function makeSuspenseQueryHookCode(
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
     return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.suspenseQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
   }
-  // Vue Query: args typed as MaybeRefOrGetter
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const fetcherCall = hasArgs
@@ -325,7 +488,6 @@ function makeSuspenseQueryHookCode(
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
     return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
   }
-  // React TanStack Query: spread user options first, inline queryKey/queryFn after
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
@@ -333,25 +495,9 @@ function makeSuspenseQueryHookCode(
   return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseQueryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
 }
 
-/**
- * Builds the inline body for an infinite query hook (queryKey + queryFn + optional pagination).
- * Uses Awaited<ReturnType<typeof parseResponse<...>>> brute-force for the response type
- * so no fetcher wrapper is needed.
- */
-function makeInfiniteHookBody(
-  keyCall: string,
-  fetcherCall: string,
-  useHelper: boolean,
-): string {
-  const base = `queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}`
-  return useHelper
-    ? `${base},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
-    : base
-}
-
 function makeInfiniteQueryHookCode(
   hookName: string,
-  runtimeAccess: string,
+  infiniteOptionsGetterName: string,
   infiniteKeyGetterName: string,
   hasArgs: boolean,
   argsType: string,
@@ -366,9 +512,10 @@ function makeInfiniteQueryHookCode(
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
-  // When helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
-  // pagination is baked in so options.query becomes optional.
-  // When disabled, TData defaults to the page response type; users supply pagination via options.query.
+  // When the helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
+  // pagination is baked into the factory so options.query becomes optional.
+  // When disabled, TData defaults to the page response type and users supply pagination
+  // via options.query (required).
   const useHelper = config.hasInfiniteQueryOptionsHelper === true
   const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
@@ -378,44 +525,55 @@ function makeInfiniteQueryHookCode(
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
   const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
-  const paginationSig = useHelper ? `${paginationParam},` : ''
 
+  // Helper-wrapped path (TanStack v5 family)
+  if (useHelper) {
+    if (config.useThunk) {
+      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
+      const optionsCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsCall}}})}`
+    }
+    if (config.isVueQuery) {
+      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+      const optionsCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+    }
+    const argsSig = hasArgs ? `args:${argsType},` : ''
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+      : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+  }
+
+  // Legacy path: plain object factory; user supplies pagination via options.query
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args())` : `${infiniteKeyGetterName}()`
-    const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-    const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
-    const destructure = useHelper ? `options?.()??{}` : 'options()'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}})}`
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsCall}}})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-    const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-    const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
-    const destructure = useHelper ? 'options??{}' : 'options'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  const fetcherCall = hasArgs
-    ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-  const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-  const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
-  const destructure = useHelper ? 'options??{}' : 'options'
-  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
+  const optionsCall = hasArgs
+    ? `${infiniteOptionsGetterName}(args,clientOptions)`
+    : `${infiniteOptionsGetterName}(clientOptions)`
+  return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
 }
 
 function makeSuspenseInfiniteQueryHookCode(
   hookName: string,
-  runtimeAccess: string,
+  infiniteOptionsGetterName: string,
   infiniteKeyGetterName: string,
   hasArgs: boolean,
   argsType: string,
@@ -439,39 +597,48 @@ function makeSuspenseInfiniteQueryHookCode(
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
   const paginationParam = `pagination:{initialPageParam:TPageParam;getNextPageParam:(lastPage:${responseType},allPages:${responseType}[],lastPageParam:TPageParam)=>TPageParam|undefined|null}`
-  const paginationSig = useHelper ? `${paginationParam},` : ''
+
+  if (useHelper) {
+    if (config.useThunk) {
+      const argsSig = hasArgs ? `args:()=>${argsType},` : ''
+      const optionsCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args(),pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,...${optionsCall}}})}`
+    }
+    if (config.isVueQuery) {
+      const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
+      const optionsCall = hasArgs
+        ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+        : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+      return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+    }
+    const argsSig = hasArgs ? `args:${argsType},` : ''
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
+      : `${infiniteOptionsGetterName}(pagination,clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+  }
 
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args())` : `${infiniteKeyGetterName}()`
-    const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-    const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
-    const destructure = useHelper ? `options?.()??{}` : 'options()'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}})}`
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args(),clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}options:()=>${optionsType}){return ${config.suspenseInfiniteQueryFn}(()=>{const{query,options:clientOptions}=options();return{...query,...${optionsCall}}})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-    const fetcherCall = hasArgs
-      ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
-      : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-    const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
-    const destructure = useHelper ? 'options??{}' : 'options'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.suspenseInfiniteQueryFn}({...queryOptions,${body}})}`
+    const optionsCall = hasArgs
+      ? `${infiniteOptionsGetterName}(args,clientOptions)`
+      : `${infiniteOptionsGetterName}(clientOptions)`
+    return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
-  const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
-  const fetcherCall = hasArgs
-    ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-  const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper)
-  const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
-  const destructure = useHelper ? 'options??{}' : 'options'
-  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.suspenseInfiniteQueryFn}({...queryOptions,${body}})}`
+  const optionsCall = hasArgs
+    ? `${infiniteOptionsGetterName}(args,clientOptions)`
+    : `${infiniteOptionsGetterName}(clientOptions)`
+  return `export function ${hookName}${generics}(${argsSig}options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.suspenseInfiniteQueryFn}({...queryOptions,...${optionsCall}})}`
 }
 
 /**
@@ -570,8 +737,7 @@ function makeSWRMutationHookCode(
 
 function makeMutationHookCode(
   hookName: string,
-  inlineKey: string,
-  runtimeAccess: string,
+  optionsGetterName: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -585,23 +751,17 @@ function makeMutationHookCode(
 ) {
   const variablesType = hasArgs ? argsType : 'void'
   const errorType = config.errorType ?? 'unknown'
-  // TError generic enables custom error types: usePostUsers<APIError>(...)
   const tErrorGeneric = `<TError=${errorType}>`
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
   const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},TError,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
-  // Spread user options first, then inline mutationKey/mutationFn so the operation
-  // contract always wins — same rule as query hooks.
-  const mutationFnBody = hasArgs
-    ? `async mutationFn(args:${argsType}){return parseResponse(${runtimeAccess}(args,clientOptions))}`
-    : `async mutationFn(){return parseResponse(${runtimeAccess}(undefined,clientOptions))}`
-  const inlineBody = `mutationKey:${inlineKey},${mutationFnBody}`
+  // Spread user options first, then the factory so the operation contract wins.
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
-    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...mutation,${inlineBody}}})}`
+    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...mutation,...${optionsGetterName}<TError>(clientOptions)}})}`
   }
-  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,${inlineBody}})}`
+  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,...${optionsGetterName}<TError>(clientOptions)})}`
 }
 
 function makeHookCode(
@@ -755,6 +915,7 @@ function makeHookCode(
     const queryHookName = makeHookName('', pathStr, config.hookPrefix)
     const pathFuncName = methodPath('', pathStr)
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
+    const optionsGetterName = makeQueryOptionsGetterName(pathStr)
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
@@ -762,6 +923,14 @@ function makeHookCode(
       honoPath,
       config,
       hasHeaderArgs,
+    )
+    const optionsGetterCode = makeQueryOptionsGetterCode(
+      optionsGetterName,
+      keyGetterName,
+      hasArgs,
+      argsType,
+      runtimeAccess,
+      config,
     )
     const hookCode = makeQueryHookCode(
       queryHookName,
@@ -775,6 +944,7 @@ function makeHookCode(
     // Generate infinite query key getter (only when infinite query hooks are enabled
     // AND endpoint declares `x-pagination: true`)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
+    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
     const infiniteKeyGetterCode = hasInfinite
@@ -785,6 +955,22 @@ function makeHookCode(
           honoPath,
           config,
           hasHeaderArgs,
+        )
+      : null
+    const infiniteOptionsGetterCode = hasInfinite
+      ? makeInfiniteQueryOptionsGetterCode(
+          infiniteOptionsGetterName,
+          infiniteKeyGetterName,
+          hasArgs,
+          argsType,
+          runtimeAccess,
+          responseType,
+          {
+            ...(config.isVueQuery ? { isVueQuery: true } : {}),
+            ...(config.hasInfiniteQueryOptionsHelper
+              ? { hasInfiniteQueryOptionsHelper: true }
+              : {}),
+          },
         )
       : null
     // Generate suspense query hook
@@ -812,7 +998,7 @@ function makeHookCode(
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
           infiniteHookName,
-          runtimeAccess,
+          infiniteOptionsGetterName,
           infiniteKeyGetterName,
           hasArgs,
           argsType,
@@ -829,13 +1015,12 @@ function makeHookCode(
           },
         )
       : null
-    // Generate suspense infinite query hook (only when infinite query is enabled for this endpoint)
     const suspenseInfiniteHookName = `${config.hookPrefix}SuspenseInfinite${capitalize(pathFuncName)}`
     const suspenseInfiniteHookCode =
       hasInfinite && config.suspenseInfiniteQueryFn && config.useSuspenseInfiniteQueryOptionsType
         ? makeSuspenseInfiniteQueryHookCode(
             suspenseInfiniteHookName,
-            runtimeAccess,
+            infiniteOptionsGetterName,
             infiniteKeyGetterName,
             hasArgs,
             argsType,
@@ -852,12 +1037,14 @@ function makeHookCode(
             },
           )
         : null
-    // Order: key → hook → suspenseHook → infiniteKey → infiniteHook → suspenseInfiniteHook
+    // Order: key → factory → hook → suspenseHook → infiniteKey → infiniteFactory → infiniteHook → suspenseInfiniteHook
     const parts = [
       keyGetterCode,
+      optionsGetterCode,
       hookCode,
       suspenseHookCode,
       infiniteKeyGetterCode,
+      infiniteOptionsGetterCode,
       infiniteHookCode,
       suspenseInfiniteHookCode,
     ].filter(Boolean)
@@ -869,14 +1056,22 @@ function makeHookCode(
       operationFileName,
     } as const
   }
-  // Mutation: inline mutationKey + mutationFn directly into the hook
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
-  const methodUpper = method.toUpperCase()
-  const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
+  // Mutation: emit factory + hook
+  const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
+  const optionsGetterCode = makeMutationOptionsGetterCode(
+    optionsGetterName,
+    hasArgs,
+    argsType,
+    runtimeAccess,
+    method,
+    honoPath,
+    responseType,
+    hasNoContent,
+    config,
+  )
   const hookCode = makeMutationHookCode(
     hookName,
-    inlineKey,
-    runtimeAccess,
+    optionsGetterName,
     hasArgs,
     argsType,
     responseType,
@@ -884,7 +1079,7 @@ function makeHookCode(
     hasNoContent,
   )
   return {
-    code: hookCode,
+    code: `${optionsGetterCode}\n\n${hookCode}`,
     isQuery: false,
     hasArgs,
     hasInfinite: false,
@@ -965,8 +1160,7 @@ function makeHookCodes(
  *
  * Imports include:
  * - Query/Mutation hooks from the framework package
- * - queryOptions/mutationOptions helpers when available
- * - UseQueryOptions/UseMutationOptions types for proper typing
+ * - UseQueryOptions/UseMutationOptions/InfiniteData types
  * - ClientRequestOptions, InferRequestType, parseResponse from Hono client
  * - client from importPath
  */
@@ -1015,6 +1209,12 @@ function makeHeader(
     ...(hasInfiniteQuery && config.infiniteQueryFn ? [config.infiniteQueryFn] : []),
     ...(hasInfiniteQuery && config.suspenseInfiniteQueryFn ? [config.suspenseInfiniteQueryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
+    // Framework option-factory helpers — emitted only when the lib config opts in.
+    // queryOptions/infiniteQueryOptions enable DataTag branding for queryClient.getQueryData;
+    // mutationOptions provides type-safe defaults for setMutationDefaults / reusable factories.
+    ...(hasQuery && config.hasQueryOptionsHelper ? ['queryOptions'] : []),
+    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['infiniteQueryOptions'] : []),
+    ...(hasMutation && config.hasMutationOptionsHelper ? ['mutationOptions'] : []),
   ]
   // Type imports for options - UseQueryOptions, UseMutationOptions, QueryFunctionContext
   const typeImports = [

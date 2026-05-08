@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -17,6 +17,20 @@ export function getItemsItemIdQueryKey(
 ) {
   const { header: _, ...keyArgs } = args
   return ['items', '/items/:itemId', keyArgs] as const
+}
+
+export function getItemsItemIdQueryOptions(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getItemsItemIdQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items[':itemId'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createItemsItemId<
@@ -56,6 +70,15 @@ export function createItemsItemId<
   })
 }
 
+export function getPutItemsItemIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
+      return parseResponse(client.items[':itemId'].$put(args, options))
+    },
+  }
+}
+
 export function createPutItemsItemId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -72,14 +95,19 @@ export function createPutItemsItemId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
-        return parseResponse(client.items[':itemId'].$put(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPutItemsItemIdMutationOptions<TError>(clientOptions) }
   })
+}
+
+export function getDeleteItemsItemIdMutationOptions<TError = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return {
+    mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
+    async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
+      return parseResponse(client.items[':itemId'].$delete(args, options))
+    },
+  }
 }
 
 export function createDeleteItemsItemId<TError = unknown>(
@@ -99,18 +127,26 @@ export function createDeleteItemsItemId<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
-      async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
-        return parseResponse(client.items[':itemId'].$delete(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getDeleteItemsItemIdMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
+}
+
+export function getItemsQueryOptions(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: ClientRequestOptions,
+) {
+  return queryOptions({
+    queryKey: getItemsQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createItems<

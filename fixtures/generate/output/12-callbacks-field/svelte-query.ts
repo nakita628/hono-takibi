@@ -1,4 +1,4 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
   QueryFunctionContext,
@@ -20,6 +20,15 @@ export function getPaymentsKey() {
   return ['payments'] as const
 }
 
+export function getPostOrdersMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['orders', '/orders', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
+      return parseResponse(client.orders.$post(args, options))
+    },
+  }
+}
+
 export function createPostOrders<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
@@ -32,14 +41,17 @@ export function createPostOrders<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['orders', '/orders', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.orders.$post>) {
-        return parseResponse(client.orders.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostOrdersMutationOptions<TError>(clientOptions) }
   })
+}
+
+export function getPostPaymentsMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['payments', '/payments', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
+      return parseResponse(client.payments.$post(args, options))
+    },
+  }
 }
 
 export function createPostPayments<TError = unknown>(
@@ -54,18 +66,23 @@ export function createPostPayments<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return {
-      ...mutation,
-      mutationKey: ['payments', '/payments', 'POST'] as const,
-      async mutationFn(args: InferRequestType<typeof client.payments.$post>) {
-        return parseResponse(client.payments.$post(args, clientOptions))
-      },
-    }
+    return { ...mutation, ...getPostPaymentsMutationOptions<TError>(clientOptions) }
   })
 }
 
 export function getItemsQueryKey() {
   return ['items', '/items'] as const
+}
+
+export function getItemsQueryOptions(options?: ClientRequestOptions) {
+  return queryOptions({
+    queryKey: getItemsQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  })
 }
 
 export function createItems<

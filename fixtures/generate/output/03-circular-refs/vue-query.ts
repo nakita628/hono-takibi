@@ -16,6 +16,17 @@ export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
 }
 
+export function getTreeQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getTreeQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
 export function useTree<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
   TError = unknown,
@@ -39,6 +50,15 @@ export function useTree<
   })
 }
 
+export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+  return {
+    mutationKey: ['tree', '/tree', 'POST'] as const,
+    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
+      return parseResponse(client.tree.$post(args, options))
+    },
+  }
+}
+
 export function usePostTree<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
@@ -48,17 +68,22 @@ export function usePostTree<TError = unknown>(options?: {
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationKey: ['tree', '/tree', 'POST'] as const,
-    async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return parseResponse(client.tree.$post(args, clientOptions))
-    },
-  })
+  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions<TError>(clientOptions) })
 }
 
 export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
+}
+
+export function getGraphQueryOptions(options?: ClientRequestOptions) {
+  return {
+    queryKey: getGraphQueryKey(),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
 }
 
 export function useGraph<
