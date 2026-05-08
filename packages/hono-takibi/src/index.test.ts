@@ -1810,7 +1810,7 @@ export const postUsersRoute = createRoute({
 
     const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
     expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
-import { UserExample, UserExampleExample } from '~/examples'
+import { UserExampleExample } from '~/examples'
 
 export const getUsersRoute = createRoute({
   method: 'get',
