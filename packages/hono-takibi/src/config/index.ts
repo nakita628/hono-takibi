@@ -5,8 +5,6 @@ import { pathToFileURL } from 'node:url'
 import { type FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
-import type { webhooks } from '../core/index.js'
-
 const ConfigSchema = z
   .object({
     input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {

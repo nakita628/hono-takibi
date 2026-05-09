@@ -1509,9 +1509,7 @@ export async function getHealth(options?: ClientRequestOptions) {
             get: {
               summary: 'Get user by ID',
               description: 'Returns the user matching the given id.',
-              parameters: [
-                { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-              ],
+              parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
               responses: { '200': { description: 'OK' } },
             },
           },

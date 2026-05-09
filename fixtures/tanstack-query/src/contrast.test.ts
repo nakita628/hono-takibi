@@ -179,6 +179,126 @@ describe('400 bad request (mutation) — parseResponse vs raw .json()', () => {
   })
 })
 
+/**
+ * Anti-pattern from axios-shaped mental models: `.then((res) => res.data)`.
+ * In hono's RPC client, `client.users.$get()` resolves to a `Response` (Fetch
+ * API), which has NO `.data` property — `res.data` is `undefined`. TanStack
+ * Query treats a queryFn returning `undefined` as a programmer error and
+ * surfaces a generic `"data is undefined"` Error in `state.error`. So the
+ * misuse is loud (good) but the surfaced error has nothing to do with the
+ * actual HTTP response — `statusCode`, `detail.data`, response body all lost.
+ */
+describe('axios-style `.then((res) => res.data)` on a Response — wrong shape', () => {
+  it('200: TanStack rejects with "data is undefined" — even though the request succeeded', async () => {
+    const queryClient = makeClient()
+    let captured: unknown = null
+    try {
+      await queryClient.fetchQuery({
+        queryKey: ['data-prop', 'user', '1'],
+        queryFn: async () => {
+          // biome-ignore lint/suspicious/noExplicitAny: deliberately accessing missing prop
+          const res = (await client.users[':id'].$get({ param: { id: '1' } })) as any
+          return res.data
+        },
+      })
+    } catch (e) {
+      captured = e
+    }
+    expect((captured as Error).message).toContain('data is undefined')
+    const state = queryClient.getQueryState(['data-prop', 'user', '1'])
+    expect(state?.status).toBe('error')
+    // ↑ Reports as error, but the diagnosis has nothing to do with HTTP —
+    // it is purely TanStack rejecting the bad return shape.
+  })
+
+  it('404: same generic "data is undefined" — actual 404 information is lost', async () => {
+    const queryClient = makeClient()
+    let captured: unknown = null
+    try {
+      await queryClient.fetchQuery({
+        queryKey: ['data-prop', 'user', '999'],
+        queryFn: async () => {
+          // biome-ignore lint/suspicious/noExplicitAny: deliberately accessing missing prop
+          const res = (await client.users[':id'].$get({ param: { id: '999' } })) as any
+          return res.data
+        },
+      })
+    } catch (e) {
+      captured = e
+    }
+    expect((captured as Error).message).toContain('data is undefined')
+    // ↑ The error message is the SAME for 200 and 404. The HTTP status,
+    // response body, and any meaningful diagnosis are gone.
+  })
+
+  it('three-pattern summary on the same 404', async () => {
+    const queryClient = makeClient()
+
+    // (1) parseResponse — generated
+    try {
+      await queryClient.fetchQuery(getUsersIdQueryOptions({ param: { id: '999' } }))
+    } catch {
+      // expected
+    }
+    const generated = queryClient.getQueryState(
+      getUsersIdQueryOptions({ param: { id: '999' } }).queryKey,
+    )
+
+    // (2) raw `.then(r => r.json())`
+    await queryClient.fetchQuery({
+      queryKey: ['s', 'raw-json'],
+      queryFn: async () => {
+        const res = await client.users[':id'].$get({ param: { id: '999' } })
+        return res.json()
+      },
+    })
+    const rawJson = queryClient.getQueryState(['s', 'raw-json'])
+
+    // (3) axios-style `.then(r => r.data)` — wrong shape
+    try {
+      await queryClient.fetchQuery({
+        queryKey: ['s', 'data-prop'],
+        queryFn: async () => {
+          // biome-ignore lint/suspicious/noExplicitAny: deliberately accessing missing prop
+          const res = (await client.users[':id'].$get({ param: { id: '999' } })) as any
+          return res.data
+        },
+      })
+    } catch {
+      // expected
+    }
+    const dataProp = queryClient.getQueryState(['s', 'data-prop'])
+
+    expect({
+      generated: {
+        status: generated?.status,
+        errorClass: (generated?.error as Error | null)?.constructor?.name,
+        statusCode: (generated?.error as DetailedError | null)?.statusCode,
+      },
+      rawJson: {
+        status: rawJson?.status,
+        hasError: rawJson?.error !== null,
+        data: rawJson?.data,
+      },
+      dataProp: {
+        status: dataProp?.status,
+        errorMessage: (dataProp?.error as Error | null)?.message,
+      },
+    }).toStrictEqual({
+      // ✅ Generated path: DetailedError with the real HTTP status.
+      generated: { status: 'error', errorClass: 'DetailedError', statusCode: 404 },
+      // ⚠ Raw .json(): error body lands in `data`, TanStack thinks success.
+      rawJson: { status: 'success', hasError: false, data: { error: 'Not Found' } },
+      // ❌ .then(res => res.data): TanStack rejects the bad shape; the actual
+      //    404 status / error body are gone forever.
+      dataProp: {
+        status: 'error',
+        errorMessage: '["s","data-prop"] data is undefined',
+      },
+    })
+  })
+})
+
 describe('500 + non-JSON body — raw .json() throws for the WRONG reason', () => {
   it('raw .json(): SyntaxError because body is not JSON, NOT because status is 500', async () => {
     const queryClient = makeClient()

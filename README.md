@@ -274,10 +274,6 @@ Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Que
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    exportSchemas: true,
-  },
   'tanstack-query': {
     output: './src/tanstack-query',
     import: '../client',
@@ -305,9 +301,6 @@ paths:
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-  },
   test: {
     output: './src/test.ts',
     import: '../index',
@@ -321,10 +314,6 @@ export default defineConfig({
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    readonly: true,
-  },
   mock: {
     output: './src/mock.ts',
   },
@@ -338,10 +327,6 @@ Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    readonly: true,
-  },
   docs: {
     output: './docs/api.md',
     entry: 'src/index.ts',
@@ -354,10 +339,6 @@ To generate `curl` commands instead of `hono request`:
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    readonly: true,
-  },
   docs: {
     output: './docs/api.md',
     curl: true,
@@ -422,7 +403,14 @@ export default defineConfig({
     routes: {
       output: './src/routes',
       split: true,
-      import: '@packages/routes', // Custom import path (monorepo support)
+      import: '@packages/routes',
+    },
+
+    // Split webhooks into separate files
+    webhooks: {
+      output: './src/webhooks',
+      split: true,
+      import: '@packages/webhooks',
     },
 
     // Split components into separate files
@@ -485,11 +473,6 @@ export default defineConfig({
         exportTypes: true,
         split: true,
         import: '../mediaTypes',
-      },
-      webhooks: {
-        output: './src/webhooks',
-        split: true,
-        import: '../webhooks',
       },
     },
   },
