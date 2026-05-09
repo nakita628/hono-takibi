@@ -1,0 +1,263 @@
+openapi: '3.1.0'
+info:
+  title: x-* Vendor Extension Messages
+  version: '1.0.0'
+  description: |
+    Exhaustive fixture exercising every documented x-*-message variant supported by hono-takibi.
+
+paths:
+  /form:
+    post:
+      operationId: postForm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Form'
+      responses:
+        '200':
+          description: OK
+
+  /composition:
+    post:
+      operationId: postComposition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Composition'
+      responses:
+        '200':
+          description: OK
+
+  /dictionary:
+    post:
+      operationId: postDictionary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dictionary'
+      responses:
+        '200':
+          description: OK
+
+  /merged:
+    post:
+      operationId: postMerged
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Merged'
+      responses:
+        '200':
+          description: OK
+
+  /merged-arrow:
+    post:
+      operationId: postMergedArrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergedArrow'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    # Field-level coverage:
+    #   x-error-message      → string / integer / number / boolean / array constructors
+    #   x-minimum-message    → string .min() / array .min() / number .gte()
+    #   x-maximum-message    → string .max() / array .max() / number .lte()
+    #   x-size-message       → string .length() / array .length()
+    #   x-pattern-message    → string .regex()
+    #   x-multipleOf-message → integer & number .multipleOf()
+    #   x-enum-error-messages → per-value enum literals
+    #   x-dependentRequired-message → object dependentRequired
+    Form:
+      type: object
+      required:
+        - username
+        - code
+        - slug
+        - age
+        - score
+        - count
+        - active
+        - tags
+        - pin
+        - role
+        - priority
+        - quota
+      dependentRequired:
+        token:
+          - tokenLabel
+      x-dependentRequired-message: 'tokenLabel is required when token is provided'
+      properties:
+        # x-error-message (string ctor) + x-minimum-message (.min()) + x-maximum-message (.max())
+        username:
+          type: string
+          minLength: 3
+          maxLength: 16
+          x-error-message: 'username must be a string'
+          x-minimum-message: 'username must be at least 3 characters'
+          x-maximum-message: 'username must be at most 16 characters'
+        # x-size-message (string .length())
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          x-size-message: 'code must be exactly 6 characters'
+        # x-pattern-message (.regex())
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          x-pattern-message: 'slug must be lowercase alphanumeric with hyphens'
+        # x-error-message (integer ctor) + x-minimum-message (.gte()) + x-maximum-message (.lte())
+        age:
+          type: integer
+          minimum: 0
+          maximum: 120
+          x-error-message: 'age must be an integer'
+          x-minimum-message: 'age must be >= 0'
+          x-maximum-message: 'age must be <= 120'
+        # x-error-message (number ctor) + x-multipleOf-message (number .multipleOf())
+        score:
+          type: number
+          multipleOf: 0.5
+          x-error-message: 'score must be a number'
+          x-multipleOf-message: 'score must be a multiple of 0.5'
+        # x-multipleOf-message (integer .multipleOf())
+        count:
+          type: integer
+          multipleOf: 5
+          x-multipleOf-message: 'count must be a multiple of 5'
+        # x-error-message (boolean ctor)
+        active:
+          type: boolean
+          x-error-message: 'active must be a boolean'
+        # x-error-message (array ctor) + x-minimum-message (array .min()) + x-maximum-message (array .max())
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-error-message: 'tags must be an array'
+          x-minimum-message: 'tags must contain at least 1 item'
+          x-maximum-message: 'tags must contain at most 5 items'
+        # x-size-message (array .length())
+        pin:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+          x-size-message: 'pin must contain exactly 4 digits'
+        # x-error-message (string enum union) + x-enum-error-messages (per-value)
+        role:
+          type: string
+          enum: [admin, editor, viewer]
+          x-error-message: 'role must be one of admin, editor, viewer'
+          x-enum-error-messages:
+            admin: 'role cannot be admin'
+            editor: 'role cannot be editor'
+            viewer: 'role cannot be viewer'
+        # x-error-message (integer enum union) + x-enum-error-messages (per-value)
+        priority:
+          type: integer
+          enum: [1, 2, 3]
+          x-error-message: 'priority must be 1, 2, or 3'
+          x-enum-error-messages:
+            '1': 'priority cannot be 1'
+            '2': 'priority cannot be 2'
+            '3': 'priority cannot be 3'
+        token:
+          type: string
+        tokenLabel:
+          type: string
+        # Arrow-function message — no args
+        nickname:
+          type: string
+          x-error-message: '() => "nickname is invalid"'
+        # Arrow-function message — (iss) inspects iss.input to branch between
+        # "missing" vs "wrong type" without needing two separate keys
+        quota:
+          type: integer
+          minimum: 0
+          x-error-message: '(iss) => iss.input === undefined ? "quota is required" : "quota must be an integer"'
+          x-minimum-message: '(iss) => "quota must be >= 0 (received: " + String(iss.input) + ")"'
+
+    # Composition extensions: x-anyOf-message, x-oneOf-message, x-not-message
+    Composition:
+      type: object
+      required:
+        - anyValue
+      properties:
+        anyValue:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'anyValue must be a string or integer'
+        oneValue:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'oneValue must match exactly one type'
+        notString:
+          not:
+            type: string
+          x-not-message: 'notString must not be a string'
+
+    # Object key extension: x-propertyNames-message
+    Dictionary:
+      type: object
+      additionalProperties:
+        type: string
+      propertyNames:
+        pattern: '^[a-z][a-z0-9_]*$'
+      x-propertyNames-message: 'keys must start with a lowercase letter and contain only [a-z0-9_]'
+
+    # x-allOf-message — string form (Pattern C: replaces sub-issue messages with this string)
+    Merged:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+              x-minimum-message: 'name must be at least 3 chars'
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+              x-minimum-message: 'age must be >= 0'
+      x-allOf-message: 'merged validation failed'
+
+    # x-allOf-message — arrow function form (issue-aware)
+    MergedArrow:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+      x-allOf-message: '(issue) => "merged failed at " + issue.path.join(".")'

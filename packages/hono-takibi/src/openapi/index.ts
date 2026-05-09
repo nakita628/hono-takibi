@@ -476,6 +476,7 @@ export type Schema = {
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
   readonly 'x-propertyNames-message'?: string
+  readonly 'x-allOf-message'?: string
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
