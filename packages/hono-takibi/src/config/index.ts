@@ -5,6 +5,8 @@ import { pathToFileURL } from 'node:url'
 import { type FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
+import type { webhooks } from '../core/index.js'
+
 const ConfigSchema = z
   .object({
     input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
@@ -43,6 +45,26 @@ const ConfigSchema = z
         exportMediaTypes: z.boolean().default(false),
         exportMediaTypesTypes: z.boolean().default(false),
         routes: z
+          .discriminatedUnion('split', [
+            z
+              .object({
+                split: z.literal(true),
+                output: z.string().regex(/^(?!.*\.ts$).+/, {
+                  error: 'split mode requires directory, not .ts file',
+                }),
+                import: z.string().exactOptional(),
+              })
+              .readonly(),
+            z
+              .object({
+                split: z.literal(false).optional().default(false),
+                output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
+                import: z.string().exactOptional(),
+              })
+              .readonly(),
+          ])
+          .exactOptional(),
+        webhooks: z
           .discriminatedUnion('split', [
             z
               .object({
@@ -288,26 +310,6 @@ const ConfigSchema = z
                     output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
                     import: z.string().exactOptional(),
                     exportTypes: z.boolean().default(false),
-                  })
-                  .readonly(),
-              ])
-              .exactOptional(),
-            webhooks: z
-              .discriminatedUnion('split', [
-                z
-                  .object({
-                    split: z.literal(true),
-                    output: z.string().regex(/^(?!.*\.ts$).+/, {
-                      error: 'split mode requires directory, not .ts file',
-                    }),
-                    import: z.string().exactOptional(),
-                  })
-                  .readonly(),
-                z
-                  .object({
-                    split: z.literal(false).optional().default(false),
-                    output: z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`)),
-                    import: z.string().exactOptional(),
                   })
                   .readonly(),
               ])

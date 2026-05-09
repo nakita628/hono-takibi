@@ -294,14 +294,12 @@ describe('parseConfig()', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
-          components: {
-            webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
-          },
+          webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
         },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value['zod-openapi']?.components?.webhooks?.import).toBe('@packages/webhooks')
+        expect(result.value['zod-openapi']?.webhooks?.import).toBe('@packages/webhooks')
       }
     })
   })

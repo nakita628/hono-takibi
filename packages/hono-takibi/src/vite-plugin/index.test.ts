@@ -664,6 +664,7 @@ describe('honoTakibiVite', () => {
     const configuration = {
       input: 'openapi.yaml',
       'zod-openapi': {
+        webhooks: { output: 'out/webhooks.ts' },
         components: {
           schemas: { output: 'out/schemas.ts' },
           parameters: { output: 'out/parameters.ts' },
@@ -676,7 +677,6 @@ describe('honoTakibiVite', () => {
           callbacks: { output: 'out/callbacks.ts' },
           pathItems: { output: 'out/pathItems.ts' },
           mediaTypes: { output: 'out/mediaTypes.ts' },
-          webhooks: { output: 'out/webhooks.ts' },
         },
       },
     }

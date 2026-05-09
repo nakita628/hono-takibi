@@ -375,15 +375,15 @@ async function runAllGenerationTasks(config: Config) {
   }
 
   function makeWebhooksJob() {
-    if (!config['zod-openapi']?.components?.webhooks) return undefined
+    if (!config['zod-openapi']?.webhooks) return undefined
     return runSplitAwareJob(
       'webhooks',
-      config['zod-openapi']?.components?.webhooks?.output,
-      config['zod-openapi']?.components?.webhooks?.split === true,
+      config['zod-openapi']?.webhooks?.output,
+      config['zod-openapi']?.webhooks?.split === true,
       (out) =>
         webhooks(
           openAPI,
-          { output: out, split: config['zod-openapi']?.components?.webhooks?.split ?? false },
+          { output: out, split: config['zod-openapi']?.webhooks?.split ?? false },
           config['zod-openapi']?.components,
           config['zod-openapi']?.readonly,
         ),
@@ -592,8 +592,8 @@ function extractOutputPaths(config: Config): readonly string[] {
     config['zod-openapi']?.components?.responses?.output,
     config['zod-openapi']?.components?.pathItems?.output,
     config['zod-openapi']?.components?.mediaTypes?.output,
-    config['zod-openapi']?.components?.webhooks?.output,
     config['zod-openapi']?.routes?.output,
+    config['zod-openapi']?.webhooks?.output,
     config.type?.output,
     config.rpc?.output,
     config.swr?.output,

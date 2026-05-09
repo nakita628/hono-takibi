@@ -127,6 +127,14 @@ export async function honoTakibi() {
           exportMediaTypesTypes: config['zod-openapi'].exportMediaTypesTypes,
         })
       : Promise.resolve(undefined),
+    config['zod-openapi']?.webhooks
+      ? webhooks(
+          openAPI,
+          config['zod-openapi'].webhooks,
+          config['zod-openapi'].components,
+          config['zod-openapi'].readonly,
+        )
+      : Promise.resolve(undefined),
     config['zod-openapi']?.components?.schemas
       ? schemas(
           openAPI.components?.schemas,
@@ -196,14 +204,6 @@ export async function honoTakibi() {
           config['zod-openapi'].components.mediaTypes.split,
           config['zod-openapi'].readonly,
           config['zod-openapi'].components,
-        )
-      : Promise.resolve(undefined),
-    config['zod-openapi']?.components?.webhooks
-      ? webhooks(
-          openAPI,
-          config['zod-openapi'].components.webhooks,
-          config['zod-openapi'].components,
-          config['zod-openapi'].readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.securitySchemes
