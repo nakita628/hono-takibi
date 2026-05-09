@@ -204,26 +204,14 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // x-enum-error-messages — per-value
+  // enum acceptance — `role` and `priority` use `enum` with a single
+  // whole-enum `x-error-message`. (The previous `x-enum-error-messages`
+  // extension was removed: per-literal `value === 'admin'` branches were
+  // dead code because a value either matches an enum entry — validation
+  // passes — or it doesn't, in which case it's some other value and the
+  // per-value lookup can't fire.)
   // ─────────────────────────────────────────────────────────
-  describe('x-enum-error-messages', () => {
-    const generatedSrc = readFileSync(
-      fileURLToPath(new URL('./generated.ts', import.meta.url)),
-      'utf8',
-    )
-
-    it('emits per-value literal messages for string enum', () => {
-      expect(generatedSrc).toContain("z.literal('admin', { error: 'role cannot be admin' })")
-      expect(generatedSrc).toContain("z.literal('editor', { error: 'role cannot be editor' })")
-      expect(generatedSrc).toContain("z.literal('viewer', { error: 'role cannot be viewer' })")
-    })
-
-    it('emits per-value literal messages for integer enum', () => {
-      expect(generatedSrc).toContain('z.literal(1, { error: \'priority cannot be 1\' })')
-      expect(generatedSrc).toContain('z.literal(2, { error: \'priority cannot be 2\' })')
-      expect(generatedSrc).toContain('z.literal(3, { error: \'priority cannot be 3\' })')
-    })
-
+  describe('enum acceptance', () => {
     it('accepts each valid string enum value', async () => {
       for (const role of ['admin', 'editor', 'viewer']) {
         const res = await postForm({ ...validForm, role })
@@ -357,8 +345,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(generatedSrc).toContain(
         "iss.input === undefined ? 'quota is required' : 'quota must be an integer'",
       )
+      // Template-literal form (no `+ String(...) +` concat) — the YAML
+      // expresses this with backtick strings; the generator emits the
+      // arrow source verbatim.
       expect(generatedSrc).toContain(
-        "error: (iss) => 'quota must be >= 0 (received: ' + String(iss.input) + ')'",
+        'error: (iss) => `quota must be >= 0 (received: ${iss.input})`',
       )
     })
 
@@ -405,32 +396,30 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(generatedSrc).toContain('const Schema = z')
       expect(generatedSrc).toContain('.check((ctx) =>')
       expect(generatedSrc).toContain('Schema.safeParse(ctx.value)')
-      expect(generatedSrc).toContain(".pipe(Schema)")
+      expect(generatedSrc).toContain('.pipe(Schema)')
       expect(generatedSrc).toContain("message: 'merged validation failed'")
     })
 
-    it('emits 11 code branches in Zod v4 official order', () => {
-      const order = [
-        'invalid_type',
-        'too_big',
-        'too_small',
-        'invalid_format',
-        'not_multiple_of',
-        'unrecognized_keys',
-        'invalid_union',
-        'invalid_key',
-        'invalid_element',
-        'invalid_value',
-        'custom',
-      ]
-      const positions = order.map((c) => generatedSrc.indexOf(`issue.code === '${c}'`))
-      expect(positions.every((p) => p > -1)).toBe(true)
-      const sorted = [...positions].sort((a, b) => a - b)
-      expect(positions).toStrictEqual(sorted)
+    // The old generator emitted 11 identical `if (issue.code === '...')`
+    // branches per issue — all pushing the same message. The collapsed
+    // form (B6 in the cleanup plan) drops the dispatch entirely and
+    // pushes once unconditionally; assert no stale issue.code branch
+    // survives.
+    it('does not emit per-issue.code if/else dispatch', () => {
+      expect(generatedSrc).not.toContain("issue.code === 'invalid_type'")
+      expect(generatedSrc).not.toContain("issue.code === 'too_big'")
     })
 
-    it('emits arrow-function call for arrow form', () => {
+    // For the arrow form (`x-allOf-message` is a function source),
+    // generator lifts the arrow into a single `const msgFn = ...` at
+    // the top of the IIFE and references it by name (B7) — no inline
+    // `(arrow)(issue)` re-wrap.
+    it('lifts arrow form to a single msgFn const referenced by name', () => {
       expect(generatedSrc).toContain(
+        "const msgFn = (issue) => 'merged failed at ' + issue.path.join('.')",
+      )
+      expect(generatedSrc).toContain('message: msgFn(issue)')
+      expect(generatedSrc).not.toContain(
         "((issue) => 'merged failed at ' + issue.path.join('.'))(issue)",
       )
     })

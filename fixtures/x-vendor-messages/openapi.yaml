@@ -80,7 +80,6 @@ components:
     #   x-size-message       → string .length() / array .length()
     #   x-pattern-message    → string .regex()
     #   x-multipleOf-message → integer & number .multipleOf()
-    #   x-enum-error-messages → per-value enum literals
     #   x-dependentRequired-message → object dependentRequired
     Form:
       type: object
@@ -162,24 +161,16 @@ components:
           minItems: 4
           maxItems: 4
           x-size-message: 'pin must contain exactly 4 digits'
-        # x-error-message (string enum union) + x-enum-error-messages (per-value)
+        # x-error-message on a string enum (whole-enum violation message)
         role:
           type: string
           enum: [admin, editor, viewer]
           x-error-message: 'role must be one of admin, editor, viewer'
-          x-enum-error-messages:
-            admin: 'role cannot be admin'
-            editor: 'role cannot be editor'
-            viewer: 'role cannot be viewer'
-        # x-error-message (integer enum union) + x-enum-error-messages (per-value)
+        # x-error-message on an integer enum
         priority:
           type: integer
           enum: [1, 2, 3]
           x-error-message: 'priority must be 1, 2, or 3'
-          x-enum-error-messages:
-            '1': 'priority cannot be 1'
-            '2': 'priority cannot be 2'
-            '3': 'priority cannot be 3'
         token:
           type: string
         tokenLabel:
@@ -194,7 +185,7 @@ components:
           type: integer
           minimum: 0
           x-error-message: '(iss) => iss.input === undefined ? "quota is required" : "quota must be an integer"'
-          x-minimum-message: '(iss) => "quota must be >= 0 (received: " + String(iss.input) + ")"'
+          x-minimum-message: '(iss) => `quota must be >= 0 (received: ${iss.input})`'
 
     # Composition extensions: x-anyOf-message, x-oneOf-message, x-not-message
     Composition:

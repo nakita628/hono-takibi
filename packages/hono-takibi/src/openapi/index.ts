@@ -480,7 +480,11 @@ export type Schema = {
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
-  readonly 'x-enum-error-messages'?: { readonly [k: string]: string }
+  // x-enum-error-messages was removed: by design `enum` lists *allowed*
+  // values, so a per-value "cannot be ..." message is dead code — when the
+  // input matches an enum entry, validation passes (no error to display);
+  // when it doesn't match, it's some other value and per-value lookup
+  // can't fire. Use `x-error-message` for the whole-enum message instead.
   // Vendor extension for branded types
   readonly 'x-brand'?: string
 }

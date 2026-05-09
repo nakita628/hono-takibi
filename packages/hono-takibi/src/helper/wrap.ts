@@ -185,6 +185,9 @@ export function wrap(
     'x-anyOf-message',
     'x-oneOf-message',
     'x-not-message',
+    // x-enum-error-messages: kept in this drop-list (NOT in the Schema
+    // type) so legacy YAML carrying the now-removed extension doesn't
+    // leak into z.object().meta(...) emission as a stray option.
     'x-enum-error-messages',
     'x-brand',
   ])

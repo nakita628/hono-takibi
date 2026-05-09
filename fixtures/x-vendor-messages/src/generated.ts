@@ -24,22 +24,12 @@ const FormSchema = z
       .min(1, { error: 'tags must contain at least 1 item' })
       .max(5, { error: 'tags must contain at most 5 items' }),
     pin: z.array(z.int()).length(4, { error: 'pin must contain exactly 4 digits' }),
-    role: z.union(
-      [
-        z.literal('admin', { error: 'role cannot be admin' }),
-        z.literal('editor', { error: 'role cannot be editor' }),
-        z.literal('viewer', { error: 'role cannot be viewer' }),
-      ],
-      { error: 'role must be one of admin, editor, viewer' },
-    ),
-    priority: z.union(
-      [
-        z.literal(1, { error: 'priority cannot be 1' }),
-        z.literal(2, { error: 'priority cannot be 2' }),
-        z.literal(3, { error: 'priority cannot be 3' }),
-      ],
-      { error: 'priority must be 1, 2, or 3' },
-    ),
+    role: z.enum(['admin', 'editor', 'viewer'], {
+      error: 'role must be one of admin, editor, viewer',
+    }),
+    priority: z.union([z.literal(1), z.literal(2), z.literal(3)], {
+      error: 'priority must be 1, 2, or 3',
+    }),
     token: z.string().exactOptional(),
     tokenLabel: z.string().exactOptional(),
     nickname: z.string({ error: () => 'nickname is invalid' }).exactOptional(),
@@ -48,7 +38,7 @@ const FormSchema = z
         error: (iss) =>
           iss.input === undefined ? 'quota is required' : 'quota must be an integer',
       })
-      .min(0, { error: (iss) => 'quota must be >= 0 (received: ' + String(iss.input) + ')' }),
+      .min(0, { error: (iss) => `quota must be >= 0 (received: ${iss.input})` }),
   })
   .refine((o) => !('token' in o) || 'tokenLabel' in o, {
     error: 'tokenLabel is required when token is provided',
