@@ -166,5 +166,367 @@ describe('parseResponse', () => {
         })
       }
     })
+
+    it('should throw DetailedError for 401 Unauthorized', async () => {
+      try {
+        await parseResponse(client['error-401'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(401)
+        expect(error.detail).toStrictEqual({
+          data: { error: 'Unauthorized' },
+          statusText: '',
+        })
+      }
+    })
+
+    it('should throw DetailedError for 403 Forbidden', async () => {
+      try {
+        await parseResponse(client['error-403'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(403)
+        expect(error.detail).toStrictEqual({
+          data: { error: 'Forbidden' },
+          statusText: '',
+        })
+      }
+    })
+
+    it('should throw DetailedError for 422 Unprocessable Entity with field details', async () => {
+      try {
+        await parseResponse(client['error-422'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(422)
+        expect(error.detail).toStrictEqual({
+          data: { error: 'Unprocessable Entity', fields: ['name'] },
+          statusText: '',
+        })
+      }
+    })
+
+    it('should expose `name` as "DetailedError"', async () => {
+      try {
+        await parseResponse(client['error-400'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(Error)
+        expect((e as Error).name).toBe('DetailedError')
+      }
+    })
+
+    it('should set DetailedError.message to "<status> <statusText>"', async () => {
+      try {
+        await parseResponse(client['error-404'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.message).toMatch(/^404\b/)
+      }
+    })
+
+    it('should leave DetailedError.code and .log undefined (not set by parseResponse)', async () => {
+      try {
+        await parseResponse(client['error-400'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.code).toBeUndefined()
+        expect(error.log).toBeUndefined()
+      }
+    })
+
+    it('should preserve text body in DetailedError.detail.data when Content-Type is text/plain', async () => {
+      try {
+        await parseResponse(
+          // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+          (client as any)['error-text'].$get(),
+        )
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(500)
+        expect(error.detail).toStrictEqual({
+          data: 'plain error body',
+          statusText: '',
+        })
+      }
+    })
+
+    it('should leave detail.data undefined when error response has no body', async () => {
+      try {
+        await parseResponse(
+          // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+          (client as any)['error-empty'].$get(),
+        )
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(500)
+        expect(error.detail?.data).toBeUndefined()
+      }
+    })
+
+    it('should treat body as text when Content-Type header is missing', async () => {
+      try {
+        await parseResponse(
+          // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+          (client as any)['error-no-content-type'].$get(),
+        )
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(500)
+        expect(error.detail).toStrictEqual({
+          data: 'no content-type',
+          statusText: '',
+        })
+      }
+    })
+
+    it('should parse vendor JSON Content-Type (application/vnd.api+json) as JSON in error detail', async () => {
+      try {
+        await parseResponse(
+          // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+          (client as any)['error-vendor-json'].$get(),
+        )
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(DetailedError)
+        const error = e as DetailedError
+        expect(error.statusCode).toBe(400)
+        expect(error.detail).toStrictEqual({
+          data: { error: 'vendor json error' },
+          statusText: '',
+        })
+      }
+    })
+
+    it('DetailedError should be catchable as a plain Error', async () => {
+      try {
+        await parseResponse(client['error-400'].$get())
+        expect.fail('expected to throw')
+      } catch (e) {
+        expect(e).toBeInstanceOf(Error)
+        expect(e).toBeInstanceOf(DetailedError)
+      }
+    })
+  })
+
+  /**
+   * Capture the full shape of the value `parseResponse` rejects with,
+   * not just `statusCode`. Each test asserts every enumerable property of
+   * `DetailedError` (`name`, `message`, `statusCode`, `detail`, `code`, `log`)
+   * in a single `toStrictEqual` so the reader can see exactly what is returned.
+   */
+  describe('error value shape', () => {
+    const captureError = async (promise: Promise<unknown>) => {
+      try {
+        await promise
+        return { thrown: false } as const
+      } catch (e) {
+        if (!(e instanceof DetailedError)) return { thrown: true, raw: e } as const
+        return {
+          thrown: true,
+          name: e.name,
+          message: e.message,
+          statusCode: e.statusCode,
+          detail: e.detail,
+          code: e.code,
+          log: e.log,
+          isError: e instanceof Error,
+          isDetailedError: e instanceof DetailedError,
+        } as const
+      }
+    }
+
+    it('400 with JSON body returns DetailedError with parsed JSON in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-400'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '400 ',
+        statusCode: 400,
+        detail: {
+          data: { error: 'Bad Request', code: 'INVALID_INPUT' },
+          statusText: '',
+        },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('404 with JSON body returns DetailedError with parsed JSON in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-404'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '404 ',
+        statusCode: 404,
+        detail: {
+          data: { error: 'Not Found', code: 'RESOURCE_NOT_FOUND' },
+          statusText: '',
+        },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('500 with JSON body returns DetailedError with parsed JSON in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-500'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '500 ',
+        statusCode: 500,
+        detail: {
+          data: { error: 'Internal Server Error', code: 'SERVER_ERROR' },
+          statusText: '',
+        },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('401 returns DetailedError with { error: "Unauthorized" } in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-401'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '401 ',
+        statusCode: 401,
+        detail: { data: { error: 'Unauthorized' }, statusText: '' },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('403 returns DetailedError with { error: "Forbidden" } in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-403'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '403 ',
+        statusCode: 403,
+        detail: { data: { error: 'Forbidden' }, statusText: '' },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('422 returns DetailedError with field details in detail.data', async () => {
+      const captured = await captureError(parseResponse(client['error-422'].$get()))
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '422 ',
+        statusCode: 422,
+        detail: {
+          data: { error: 'Unprocessable Entity', fields: ['name'] },
+          statusText: '',
+        },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('text/plain error body returns DetailedError with raw text in detail.data', async () => {
+      const captured = await captureError(
+        // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+        parseResponse((client as any)['error-text'].$get()),
+      )
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '500 ',
+        statusCode: 500,
+        detail: { data: 'plain error body', statusText: '' },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('empty body error returns DetailedError with detail.data === undefined', async () => {
+      const captured = await captureError(
+        // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+        parseResponse((client as any)['error-empty'].$get()),
+      )
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '500 ',
+        statusCode: 500,
+        detail: { data: undefined, statusText: '' },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('missing Content-Type returns DetailedError with body parsed as text', async () => {
+      const captured = await captureError(
+        // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+        parseResponse((client as any)['error-no-content-type'].$get()),
+      )
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '500 ',
+        statusCode: 500,
+        detail: { data: 'no content-type', statusText: '' },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
+
+    it('vendor JSON (application/vnd.api+json) returns DetailedError with parsed JSON', async () => {
+      const captured = await captureError(
+        // biome-ignore lint/suspicious/noExplicitAny: untyped server endpoint
+        parseResponse((client as any)['error-vendor-json'].$get()),
+      )
+      expect(captured).toStrictEqual({
+        thrown: true,
+        name: 'DetailedError',
+        message: '400 ',
+        statusCode: 400,
+        detail: {
+          data: { error: 'vendor json error' },
+          statusText: '',
+        },
+        code: undefined,
+        log: undefined,
+        isError: true,
+        isDetailedError: true,
+      })
+    })
   })
 })
