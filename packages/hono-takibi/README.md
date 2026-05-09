@@ -127,7 +127,6 @@ z.string({ error: 'Name is required' }).min(1, { error: 'Name cannot be empty' }
 | `x-size-message`              | `.length()`                                                       |
 | `x-pattern-message`           | `.regex()`                                                        |
 | `x-multipleOf-message`        | `.multipleOf()`                                                   |
-| `x-enum-error-messages`       | Per-value enum messages (`{ "value": "message" }`)                |
 | `x-oneOf-message`             | `oneOf`                                                           |
 | `x-anyOf-message`             | `anyOf`                                                           |
 | `x-allOf-message`             | `allOf`                                                           |
