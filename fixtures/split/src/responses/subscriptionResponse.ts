@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { WebhookSubscriptionSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { SubscriptionExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 
 export const SubscriptionResponseResponse = {
   description: 'A webhook subscription',

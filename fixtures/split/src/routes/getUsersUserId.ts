@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
+import { DefaultErrorResponse, NotFoundResponse, UserResponseResponse } from '../responses'
 import {
   IncludeQueryParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
   UserIdPathParamParamsSchema,
 } from '../parameters'
-import { DefaultErrorResponse, NotFoundResponse, UserResponseResponse } from '../responses'
 
 export const getUsersUserIdRoute = createRoute({
   method: 'get',

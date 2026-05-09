@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { CompanySchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { CompanyExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { GetCompanyLinkLink } from '../links'
 
 export const CompanyResponseResponse = {

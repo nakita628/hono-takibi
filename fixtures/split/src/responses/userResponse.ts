@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { UserSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { UserFullExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { GetCompanyFromUserLinkLink, GetUserLinkLink, ListOrdersForUserLinkLink } from '../links'
 
 export const UserResponseResponse = {

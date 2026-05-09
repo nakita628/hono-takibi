@@ -1,11 +1,11 @@
-import { TraceIdHeaderParamParamsSchema, UserIdPathParamParamsSchema } from '../parameters'
-import { UpdateUserRequestRequestBody } from '../requestBodies'
 import {
   DefaultErrorResponse,
   NotFoundResponse,
   UserResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
+import { TraceIdHeaderParamParamsSchema, UserIdPathParamParamsSchema } from '../parameters'
+import { UpdateUserRequestRequestBody } from '../requestBodies'
 
 export const UserPathItemPathItem = {
   get: {

@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { CursorSchema, MetaSchema, UserSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { UserListExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ListUsersNextPageLinkLink } from '../links'
 
 export const UserListResponseResponse = {

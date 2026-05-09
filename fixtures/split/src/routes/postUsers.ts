@@ -1,12 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { TraceIdHeaderParamParamsSchema } from '../parameters'
-import { CreateUserRequestRequestBody } from '../requestBodies'
 import {
   ConflictResponse,
   DefaultErrorResponse,
   UserResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
+import { TraceIdHeaderParamParamsSchema } from '../parameters'
+import { CreateUserRequestRequestBody } from '../requestBodies'
 
 export const postUsersRoute = createRoute({
   method: 'post',

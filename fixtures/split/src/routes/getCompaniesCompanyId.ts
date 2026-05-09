@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
+import { CompanyResponseResponse, DefaultErrorResponse, NotFoundResponse } from '../responses'
 import {
   CompanyIdPathParamParamsSchema,
   IncludeQueryParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
 } from '../parameters'
-import { CompanyResponseResponse, DefaultErrorResponse, NotFoundResponse } from '../responses'
 
 export const getCompaniesCompanyIdRoute = createRoute({
   method: 'get',

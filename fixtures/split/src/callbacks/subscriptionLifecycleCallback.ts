@@ -1,8 +1,8 @@
 import { z } from '@hono/zod-openapi'
 import { LinkSchema } from '../schemas'
+import { DefaultErrorResponse } from '../responses'
 import { TraceIdHeaderParamParamsSchema } from '../parameters'
 import { WebhookEventRequestRequestBody } from '../requestBodies'
-import { DefaultErrorResponse } from '../responses'
 import { TraceIdHeaderHeaderSchema } from '../headers'
 
 export const SubscriptionLifecycleCallbackCallback = {
