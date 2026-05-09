@@ -1,0 +1,396 @@
+openapi: '3.1.0'
+info:
+  title: Combinators Test API
+  version: '1.0.0'
+  description: |
+    Comprehensive fixture exercising all 4 OpenAPI combinators
+    (oneOf / anyOf / allOf / not), with and without x-*-message extensions.
+
+paths:
+  /one-of:
+    post:
+      operationId: postOneOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneOfBody'
+      responses:
+        '200':
+          description: OK
+
+  /any-of:
+    post:
+      operationId: postAnyOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnyOfBody'
+      responses:
+        '200':
+          description: OK
+
+  /all-of:
+    post:
+      operationId: postAllOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllOfBody'
+      responses:
+        '200':
+          description: OK
+
+  /not:
+    post:
+      operationId: postNot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotBody'
+      responses:
+        '200':
+          description: OK
+
+  /one-of-msg:
+    post:
+      operationId: postOneOfMsg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneOfWithMessage'
+      responses:
+        '200':
+          description: OK
+
+  /any-of-msg:
+    post:
+      operationId: postAnyOfMsg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnyOfWithMessage'
+      responses:
+        '200':
+          description: OK
+
+  /all-of-msg:
+    post:
+      operationId: postAllOfMsg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllOfWithMessage'
+      responses:
+        '200':
+          description: OK
+
+  /not-msg:
+    post:
+      operationId: postNotMsg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotWithMessage'
+      responses:
+        '200':
+          description: OK
+
+  /one-of-overlap:
+    post:
+      operationId: postOneOfOverlap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneOfOverlap'
+      responses:
+        '200':
+          description: OK
+
+  /any-of-overlap:
+    post:
+      operationId: postAnyOfOverlap
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnyOfOverlap'
+      responses:
+        '200':
+          description: OK
+
+  /all-of-chain:
+    post:
+      operationId: postAllOfChain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllOfChain'
+      responses:
+        '200':
+          description: OK
+
+  /not-const:
+    post:
+      operationId: postNotConst
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotConst'
+      responses:
+        '200':
+          description: OK
+
+  /all-of-arrow:
+    post:
+      operationId: postAllOfArrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllOfArrowMessage'
+      responses:
+        '200':
+          description: OK
+
+  /one-of-arrow:
+    post:
+      operationId: postOneOfArrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OneOfArrowMessage'
+      responses:
+        '200':
+          description: OK
+
+  /not-arrow:
+    post:
+      operationId: postNotArrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotArrowMessage'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    # ── oneOf — exactly one variant must match ───────────────
+    OneOfBody:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: integer
+
+    # ── anyOf — at least one variant must match ──────────────
+    AnyOfBody:
+      type: object
+      required: [value]
+      properties:
+        value:
+          anyOf:
+            - type: string
+            - type: integer
+
+    # ── allOf — all branches must succeed ────────────────────
+    AllOfBody:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+
+    # ── not — value must NOT match the negated schema ────────
+    NotBody:
+      type: object
+      required: [forbidden]
+      properties:
+        forbidden:
+          not:
+            type: string
+
+    # ── With x-*-message variants ────────────────────────────
+    OneOfWithMessage:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'value must match exactly one of: string | integer'
+
+    AnyOfWithMessage:
+      type: object
+      required: [value]
+      properties:
+        value:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'value must be a string or integer'
+
+    AllOfWithMessage:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+      x-allOf-message: 'allOf composition failed'
+
+    NotWithMessage:
+      type: object
+      required: [forbidden]
+      properties:
+        forbidden:
+          not:
+            type: string
+          x-not-message: 'forbidden must not be a string'
+
+    # ── Semantic correctness — oneOf with discriminator ─────
+    # Two object types that COULD overlap if discriminator absent.
+    # oneOf semantic: exactly one match required.
+    OneOfOverlap:
+      type: object
+      required: [payload]
+      properties:
+        payload:
+          oneOf:
+            - type: object
+              required: [kind, dog]
+              properties:
+                kind: { const: 'dog' }
+                dog: { type: string }
+            - type: object
+              required: [kind, cat]
+              properties:
+                kind: { const: 'cat' }
+                cat: { type: string }
+          discriminator:
+            propertyName: kind
+
+    # ── Semantic correctness — anyOf with overlapping schemas ─
+    # Both schemas can match the same input. anyOf semantic: at
+    # least one match — accepts even if multiple match.
+    AnyOfOverlap:
+      type: object
+      required: [payload]
+      properties:
+        payload:
+          anyOf:
+            - type: object
+              properties:
+                a: { type: integer }
+            - type: object
+              properties:
+                b: { type: integer }
+
+    # ── Semantic correctness — allOf with 3 branches ─────────
+    # Tests that allOf composes ALL branches, not just first 2.
+    AllOfChain:
+      allOf:
+        - type: object
+          required: [a]
+          properties:
+            a: { type: string }
+        - type: object
+          required: [b]
+          properties:
+            b: { type: integer }
+        - type: object
+          required: [c]
+          properties:
+            c: { type: boolean }
+
+    # ── Semantic correctness — not with const ─────────────────
+    NotConst:
+      type: object
+      required: [value]
+      properties:
+        value:
+          not:
+            const: 'forbidden-value'
+
+    # ── Arrow-function message variants ──────────────────────
+    AllOfArrowMessage:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+      x-allOf-message: '(issue) => "allOf failed at /" + issue.path.join("/")'
+
+    OneOfArrowMessage:
+      type: object
+      required: [value]
+      properties:
+        value:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: '(iss) => `value type incompatible (got ${typeof iss.input})`'
+
+    NotArrowMessage:
+      type: object
+      required: [forbidden]
+      properties:
+        forbidden:
+          not:
+            type: string
+          x-not-message: '(iss) => `forbidden cannot be string, got ${JSON.stringify(iss.input)}`'
