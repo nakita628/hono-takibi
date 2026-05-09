@@ -1311,3 +1311,298 @@ export async function getPostsIndex(
     }
   })
 })
+
+describe('rpc (docs: true)', () => {
+  it('should generate JSDoc with summary and method/path', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-summary-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Health check
+ *
+ * GET /health
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate JSDoc with both summary and description', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-both-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'List users',
+              description: 'Returns paginated list.\nSupports filtering.',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * List users
+ *
+ * Returns paginated list.
+ * Supports filtering.
+ *
+ * GET /users
+ */
+export async function getUsers(options?: ClientRequestOptions) {
+  return await client.users.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate JSDoc with description only', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-desc-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/ping': {
+            get: {
+              description: 'Pings the service.',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Pings the service.
+ *
+ * GET /ping
+ */
+export async function getPing(options?: ClientRequestOptions) {
+  return await client.ping.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should not generate JSDoc when neither summary nor description exists', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-none-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/silent': {
+            get: {
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+export async function getSilent(options?: ClientRequestOptions) {
+  return await client.silent.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should not generate JSDoc when docs is false (default)', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-false-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              description: 'Returns 200 if alive.',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client')
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate JSDoc combined with parseResponse', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-parseResponse-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users/{id}': {
+            get: {
+              summary: 'Get user by ID',
+              description: 'Returns the user matching the given id.',
+              parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', false, 'client', true, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Get user by ID
+ *
+ * Returns the user matching the given id.
+ *
+ * GET /users/{id}
+ */
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
+  return await parseResponse(client.users[':id'].$get(args, options))
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate split files with JSDoc', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-split-'))
+    try {
+      const out = path.join(dir, 'rpc')
+      const openAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/health': {
+            get: {
+              summary: 'Health check',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(openAPI, out, '../client', true, 'client', false, undefined, true)
+      if (!result.ok) throw new Error(result.error)
+
+      const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
+      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../client'
+
+/**
+ * Health check
+ *
+ * GET /health
+ */
+export async function getHealth(options?: ClientRequestOptions) {
+  return await client.health.$get(undefined, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('rpc (error behavior)', () => {
+  it('should return error when paths is invalid', async () => {
+    const invalidOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: 'not-an-object',
+    } as unknown as OpenAPI
+
+    const result = await rpc(invalidOpenAPI, '/tmp/should-not-exist.ts', '../client')
+    expect(result).toStrictEqual({ ok: false, error: 'Invalid OpenAPI paths' })
+  })
+
+  it('should return error when paths is missing', async () => {
+    const noPathsOpenAPI = {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+    } as unknown as OpenAPI
+
+    const result = await rpc(noPathsOpenAPI, '/tmp/should-not-exist.ts', '../client')
+    expect(result).toStrictEqual({ ok: false, error: 'Invalid OpenAPI paths' })
+  })
+})
