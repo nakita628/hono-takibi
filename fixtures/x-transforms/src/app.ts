@@ -1,6 +1,7 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   postCoerceRoute,
+  postCustomRoute,
   postFormatsRoute,
   postP2Route,
   postStringsRoute,
@@ -51,6 +52,13 @@ app.openapi(postFormatsRoute, async (c) => {
 
 app.openapi(postP2Route, async (c) => {
   const body = c.req.valid('json')
+  return c.json(body, 200)
+})
+
+app.openapi(postCustomRoute, async (c) => {
+  const body = c.req.valid('json')
+  // updatedAt is parsed as a Date instance — no need to call .toISOString().
+  // The output schema's codec re-encodes it to an ISO string on response.
   return c.json(body, 200)
 })
 

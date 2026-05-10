@@ -150,6 +150,22 @@ export function string(schema: Schema): string {
     return `z.hash(${JSON.stringify(algo)}${optsStr})`
   })()
 
+  // x-codec: "date" → bidirectional string ⇄ Date codec for date/date-time
+  // formats. Output stays as ISO string for OpenAPI/JSON, internal TS type is
+  // Date. Removes the need for `.toISOString()` calls in route handlers.
+  // Parameter names match Zod's official docs (isoString / date).
+  const codec = schema['x-codec']
+  if (
+    codec === 'date' &&
+    schema.format &&
+    DATE_FORMATS.has(schema.format) &&
+    !coerce &&
+    !hashBase
+  ) {
+    const isoFn = schema.format === 'date' ? 'z.iso.date()' : 'z.iso.datetime()'
+    return `z.codec(${isoFn},z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})`
+  }
+
   const format = schema.format && FORMAT_STRING[schema.format]
   const isTransformFormat = !!(schema.format && TRANSFORM_FORMATS.has(schema.format))
   const isValidationFormat = !!(format && !isTransformFormat)

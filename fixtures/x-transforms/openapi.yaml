@@ -78,6 +78,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/P2Form'
 
+  /custom:
+    post:
+      operationId: postCustom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomForm'
+
 components:
   schemas:
     StringForm:
@@ -248,3 +265,41 @@ components:
         withPrefault:
           type: string
           x-prefault: 'default-value'
+
+    CustomForm:
+      type: object
+      required:
+        - password
+        - confirmPassword
+        - normalizedEmail
+        - updatedAt
+      properties:
+        # .refine() — single check
+        password:
+          type: string
+          x-refine:
+            - fn: '(v) => v.length >= 8'
+              message: 'Password must be at least 8 characters'
+            - fn: '(v) => /[A-Z]/.test(v)'
+              message: 'Password must contain an uppercase letter'
+        # .refine() with custom error path
+        confirmPassword:
+          type: string
+        # superRefine on the whole object — declared on password for fixture demo
+        normalizedEmail:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+          x-superRefine:
+            - |
+              (v, ctx) => {
+                if (v.endsWith('@blocked.example')) {
+                  ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
+                }
+              }
+        # x-codec: date — string ⇄ Date bidirectional
+        updatedAt:
+          type: string
+          format: date-time
+          x-codec: date

@@ -880,6 +880,49 @@ describe('zodToOpenAPI', () => {
             { type: 'string', 'x-catch': 'fallback', 'x-brand': 'Tag' } as Schema,
             'z.string().catch("fallback").brand<"Tag">()',
           ],
+          // v2.4: x-refine / x-superRefine
+          [
+            {
+              type: 'string',
+              'x-refine': [{ fn: '(v) => v.length > 5', message: 'Too short' }],
+            } as Schema,
+            'z.string().refine((v) => v.length > 5,{message:"Too short"})',
+          ],
+          [
+            {
+              type: 'string',
+              'x-refine': [
+                { fn: '(v) => v.length > 5', message: 'Too short' },
+                { fn: '(v) => /^[a-z]/.test(v)', message: 'Lowercase start' },
+              ],
+            } as Schema,
+            'z.string().refine((v) => v.length > 5,{message:"Too short"}).refine((v) => /^[a-z]/.test(v),{message:"Lowercase start"})',
+          ],
+          [
+            {
+              type: 'string',
+              'x-refine': [{ fn: '(v) => v !== "x"', path: ['name'] }],
+            } as Schema,
+            'z.string().refine((v) => v !== "x",{path:["name"]})',
+          ],
+          [
+            {
+              type: 'string',
+              'x-superRefine': [
+                "(v, ctx) => { if (v === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) }",
+              ],
+            } as Schema,
+            "z.string().superRefine((v, ctx) => { if (v === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) })",
+          ],
+          // v2.4: x-codec for date (param names match Zod official docs)
+          [
+            { type: 'string', format: 'date-time', 'x-codec': 'date' } as Schema,
+            'z.codec(z.iso.datetime(),z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})',
+          ],
+          [
+            { type: 'string', format: 'date', 'x-codec': 'date' } as Schema,
+            'z.codec(z.iso.date(),z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

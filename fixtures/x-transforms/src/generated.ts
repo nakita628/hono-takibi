@@ -75,6 +75,31 @@ const P2FormSchema = z
   })
   .openapi('P2Form')
 
+const CustomFormSchema = z
+  .object({
+    password: z
+      .string()
+      .refine((v) => v.length >= 8, { message: 'Password must be at least 8 characters' })
+      .refine((v) => /[A-Z]/.test(v), { message: 'Password must contain an uppercase letter' }),
+    confirmPassword: z.string(),
+    normalizedEmail: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .pipe(z.email())
+      .superRefine((v, ctx) => {
+        if (v.endsWith('@blocked.example')) {
+          ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
+        }
+      }),
+    updatedAt: z.codec(z.iso.datetime(), z.date(), {
+      decode: (isoString) => new Date(isoString),
+      encode: (date) => date.toISOString(),
+    }),
+  })
+  .openapi({ required: ['password', 'confirmPassword', 'normalizedEmail', 'updatedAt'] })
+  .openapi('CustomForm')
+
 export const postStringsRoute = createRoute({
   method: 'post',
   path: '/strings',
@@ -118,5 +143,17 @@ export const postP2Route = createRoute({
   request: { body: { content: { 'application/json': { schema: P2FormSchema } }, required: true } },
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: P2FormSchema } } },
+  },
+})
+
+export const postCustomRoute = createRoute({
+  method: 'post',
+  path: '/custom',
+  operationId: 'postCustom',
+  request: {
+    body: { content: { 'application/json': { schema: CustomFormSchema } }, required: true },
+  },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: CustomFormSchema } } },
   },
 })

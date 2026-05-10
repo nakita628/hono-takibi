@@ -12,6 +12,7 @@ const postStrings = post('/strings')
 const postCoerce = post('/coerce')
 const postFormats = post('/formats')
 const postP2 = post('/p2')
+const postCustom = post('/custom')
 
 describe('x-trim / x-toLowerCase / x-toUpperCase / x-normalize (P1 transforms)', () => {
   it('trims whitespace from x-trim fields', async () => {
@@ -229,5 +230,49 @@ describe('P2: x-includes / x-startsWith / x-endsWith / x-catch / x-prefault', ()
     expect(res.status).toBe(200)
     const body = (await res.json()) as Record<string, unknown>
     expect(body.withPrefault).toBe('default-value')
+  })
+})
+
+describe('v2.4: x-refine / x-superRefine / x-codec', () => {
+  const validBody = {
+    password: 'Hunter2pw',
+    confirmPassword: 'Hunter2pw',
+    normalizedEmail: '  USER@Example.COM  ',
+    updatedAt: '2026-05-10T12:34:56.000Z',
+  }
+
+  it('accepts a valid custom payload', async () => {
+    const res = await postCustom(validBody)
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as Record<string, unknown>
+    expect(body.normalizedEmail).toBe('user@example.com')
+    // updatedAt is re-encoded to ISO string by the codec on response.
+    expect(body.updatedAt).toBe('2026-05-10T12:34:56.000Z')
+  })
+
+  it('rejects passwords shorter than 8 chars (x-refine #1)', async () => {
+    const res = await postCustom({ ...validBody, password: 'Aaaaaaa' })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('Password must be at least 8 characters')
+  })
+
+  it('rejects passwords without an uppercase letter (x-refine #2)', async () => {
+    const res = await postCustom({ ...validBody, password: 'hunter2pw' })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('Password must contain an uppercase letter')
+  })
+
+  it('rejects blocked email domains (x-superRefine)', async () => {
+    const res = await postCustom({ ...validBody, normalizedEmail: 'bad@blocked.example' })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('Blocked domain')
+  })
+
+  it('x-codec: date — invalid date strings are rejected', async () => {
+    const res = await postCustom({ ...validBody, updatedAt: 'not-a-date' })
+    expect(res.status).toBe(422)
   })
 })

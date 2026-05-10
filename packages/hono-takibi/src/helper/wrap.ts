@@ -149,8 +149,28 @@ export function wrap(
   /* P2: .readonly() applies Object.freeze() to the parsed output (distinct
    * from JSON Schema's readOnly which is a serialization hint). */
   const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
+  /* Custom validation: chain .refine() calls. Each entry carries an arrow
+   * function source and optional message/path. */
+  const refines = schema['x-refine']
+  const refineChain = Array.isArray(refines)
+    ? refines.reduce((acc, r) => {
+        const opts: string[] = []
+        if (r.message !== undefined) opts.push(`message:${JSON.stringify(r.message)}`)
+        if (r.path !== undefined) opts.push(`path:${JSON.stringify(r.path)}`)
+        const optsArg = opts.length > 0 ? `,{${opts.join(',')}}` : ''
+        return `${acc}.refine(${r.fn}${optsArg})`
+      }, fr)
+    : fr
+  /* Custom validation: chain .superRefine() calls. Each entry is an arrow
+   * function source `(val, ctx) => { ... }`. */
+  const superRefines = schema['x-superRefine']
+  const superRefineChain = Array.isArray(superRefines)
+    ? superRefines.reduce((acc, fn) => `${acc}.superRefine(${fn})`, refineChain)
+    : refineChain
   /* Apply .brand() for branded types */
-  const z = schema['x-brand'] ? `${fr}.brand<"${schema['x-brand']}">()` : fr
+  const z = schema['x-brand']
+    ? `${superRefineChain}.brand<"${schema['x-brand']}">()`
+    : superRefineChain
   /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',
@@ -227,6 +247,10 @@ export function wrap(
     'x-includes',
     'x-startsWith',
     'x-endsWith',
+    // Custom validation + codec (spec v2.4)
+    'x-refine',
+    'x-superRefine',
+    'x-codec',
   ])
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(

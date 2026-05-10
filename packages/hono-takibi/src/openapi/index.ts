@@ -523,6 +523,16 @@ export type Schema = {
   readonly 'x-includes'?: string
   readonly 'x-startsWith'?: string
   readonly 'x-endsWith'?: string
+  // Custom validation (spec v2.4)
+  readonly 'x-refine'?: readonly {
+    readonly fn: string
+    readonly message?: string
+    readonly path?: readonly string[]
+  }[]
+  readonly 'x-superRefine'?: readonly string[]
+  // Bidirectional codec (spec v2.4)
+  // - "date" with format: date-time / date → z.codec(...) for string ⇄ Date
+  readonly 'x-codec'?: 'date'
 }
 
 export type Parameter = {
