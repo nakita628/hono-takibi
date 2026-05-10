@@ -26,29 +26,36 @@ export function getApiReverseChibanIndexQueryKey() {
   return ['api', '/api/reverseChiban/'] as const
 }
 
-export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
-  return await parseResponse(client.api.reverseChiban.index.$get(undefined, options))
-}
-
 export function getApiReverseChibanIndexQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanIndexQueryKey>>) {
-      return getApiReverseChibanIndex({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseChiban.index.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useApiReverseChibanIndex<
-  TData = Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
+    >
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.index.$get>>>
+      >
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getApiReverseChibanIndex>>,
-    ReturnType<typeof getApiReverseChibanIndexQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -56,11 +63,13 @@ export function useApiReverseChibanIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanIndexQueryKey>>) {
-      return getApiReverseChibanIndex({
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseChiban.index.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -69,29 +78,32 @@ export function getApiReverseChibanQueryKey() {
   return ['api', '/api/reverseChiban'] as const
 }
 
-export async function getApiReverseChiban(options?: ClientRequestOptions) {
-  return await parseResponse(client.api.reverseChiban.$get(undefined, options))
-}
-
 export function getApiReverseChibanQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanQueryKey>>) {
-      return getApiReverseChiban({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseChiban.$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useApiReverseChiban<
-  TData = Awaited<ReturnType<typeof getApiReverseChiban>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiReverseChiban>>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseChiban.$get>>>>
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getApiReverseChiban>>,
-    ReturnType<typeof getApiReverseChibanQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -99,8 +111,13 @@ export function useApiReverseChiban<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseChibanQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiReverseChibanQueryKey>>) {
-      return getApiReverseChiban({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseChiban.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -111,34 +128,34 @@ export function getPostsIndexQueryKey(
   return ['posts', '/posts/', args] as const
 }
 
-export async function getPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.index.$get(args, options))
-}
-
 export function getPostsIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIndexQueryKey>>) {
-      return getPostsIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.posts.index.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
-export function usePostsIndex<TData = Awaited<ReturnType<typeof getPostsIndex>>, TError = unknown>(
+export function usePostsIndex<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
+  >,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.posts.index.$get>>,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getPostsIndex>>,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$get>>>>
+      >,
       TError,
-      TData,
-      Awaited<ReturnType<typeof getPostsIndex>>,
-      ReturnType<typeof getPostsIndexQueryKey>
+      TData
     >
     options?: ClientRequestOptions
   },
@@ -147,44 +164,36 @@ export function usePostsIndex<TData = Awaited<ReturnType<typeof getPostsIndex>>,
   return useQuery({
     ...queryOptions,
     queryKey: getPostsIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPostsIndexQueryKey>>) {
-      return getPostsIndex(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.posts.index.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
 
-export async function postPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.index.$post(args, options))
-}
-
-export function getPostPostsIndexMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostPostsIndexMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['posts', '/posts/', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.posts.index.$post>) {
-      return postPostsIndex(args, options)
+      return parseResponse(client.posts.index.$post(args, options))
     },
   }
 }
 
 export function usePostPostsIndex<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postPostsIndex>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.index.$post>>>>>,
     TError,
     InferRequestType<typeof client.posts.index.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostPostsIndexMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPostPostsIndexMutationOptions(clientOptions) })
 }
 
 export function getUsersIdIndexQueryKey(
@@ -193,37 +202,41 @@ export function getUsersIdIndexQueryKey(
   return ['users', '/users/:id/', args] as const
 }
 
-export async function getUsersIdIndex(
-  args: InferRequestType<(typeof client.users)[':id']['index']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users[':id'].index.$get(args, options))
-}
-
 export function getUsersIdIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdIndexQueryKey>>) {
-      return getUsersIdIndex(toValue(args), { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users[':id'].index.$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useUsersIdIndex<
-  TData = Awaited<ReturnType<typeof getUsersIdIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['index']['$get']>>,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getUsersIdIndex>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['index']['$get']>>>
+        >
+      >,
       TError,
-      TData,
-      Awaited<ReturnType<typeof getUsersIdIndex>>,
-      ReturnType<typeof getUsersIdIndexQueryKey>
+      TData
     >
     options?: ClientRequestOptions
   },
@@ -232,11 +245,13 @@ export function useUsersIdIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getUsersIdIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getUsersIdIndexQueryKey>>) {
-      return getUsersIdIndex(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users[':id'].index.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -245,29 +260,27 @@ export function getItemsIndexQueryKey() {
   return ['items', '/items/'] as const
 }
 
-export async function getItemsIndex(options?: ClientRequestOptions) {
-  return await parseResponse(client.items.index.$get(undefined, options))
-}
-
 export function getItemsIndexQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsIndexQueryKey>>) {
-      return getItemsIndex({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.index.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
 export function useItemsIndex<
-  TData = Awaited<ReturnType<typeof getItemsIndex>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getItemsIndex>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.index.$get>>>>>,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getItemsIndex>>,
-    ReturnType<typeof getItemsIndexQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -275,8 +288,13 @@ export function useItemsIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsIndexQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsIndexQueryKey>>) {
-      return getItemsIndex({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.index.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

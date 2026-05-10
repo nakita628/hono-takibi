@@ -1,12 +1,12 @@
 import { z } from '@hono/zod-openapi'
 import { OrderStatusSchema } from '../schemas'
-import { OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema } from '../parameters'
 import {
   DefaultErrorResponse,
   NotFoundResponse,
   OrderResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
+import { OrderIdPathParamParamsSchema, TraceIdHeaderParamParamsSchema } from '../parameters'
 
 export const OrderPathItemPathItem = {
   get: {

@@ -16,26 +16,25 @@ export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
 }
 
-export async function getTree(options?: ClientRequestOptions) {
-  return await parseResponse(client.tree.$get(undefined, options))
-}
-
 export function getTreeQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTreeQueryKey>>) {
-      return getTree({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
-export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = unknown>(options?: {
+export function useTree<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
+  TError = unknown,
+>(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getTree>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getTree>>,
-    ReturnType<typeof getTreeQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -43,64 +42,58 @@ export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = un
   return useQuery({
     ...queryOptions,
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getTreeQueryKey>>) {
-      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
     },
   })
 }
 
-export async function postTree(
-  args: InferRequestType<typeof client.tree.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.tree.$post(args, options))
-}
-
-export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostTreeMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return postTree(args, options)
+      return parseResponse(client.tree.$post(args, options))
     },
   }
 }
 
 export function usePostTree<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postTree>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
     TError,
     InferRequestType<typeof client.tree.$post>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions<TError>(clientOptions) })
+  return useMutation({ ...mutationOptions, ...getPostTreeMutationOptions(clientOptions) })
 }
 
 export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
 }
 
-export async function getGraph(options?: ClientRequestOptions) {
-  return await parseResponse(client.graph.$get(undefined, options))
-}
-
 export function getGraphQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getGraphQueryKey>>) {
-      return getGraph({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
-export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = unknown>(options?: {
+export function useGraph<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+  TError = unknown,
+>(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getGraph>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getGraph>>,
-    ReturnType<typeof getGraphQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -108,8 +101,13 @@ export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getGraphQueryKey>>) {
-      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.graph.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

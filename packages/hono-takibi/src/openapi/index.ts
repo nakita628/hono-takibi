@@ -221,12 +221,12 @@ export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 
 
 export type Ref =
   | `#/components/schemas/${string}`
-  | `#/components/parameters/${string}`
-  | `#/components/securitySchemes/${string}`
-  | `#/components/requestBodies/${string}`
   | `#/components/responses/${string}`
-  | `#/components/headers/${string}`
+  | `#/components/parameters/${string}`
   | `#/components/examples/${string}`
+  | `#/components/requestBodies/${string}`
+  | `#/components/headers/${string}`
+  | `#/components/securitySchemes/${string}`
   | `#/components/links/${string}`
   | `#/components/callbacks/${string}`
   | `#/components/pathItems/${string}`
@@ -476,10 +476,15 @@ export type Schema = {
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
   readonly 'x-propertyNames-message'?: string
+  readonly 'x-allOf-message'?: string
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
-  readonly 'x-enum-error-messages'?: { readonly [k: string]: string }
+  // x-enum-error-messages was removed: by design `enum` lists *allowed*
+  // values, so a per-value "cannot be ..." message is dead code — when the
+  // input matches an enum entry, validation passes (no error to display);
+  // when it doesn't match, it's some other value and per-value lookup
+  // can't fire. Use `x-error-message` for the whole-enum message instead.
   // Vendor extension for branded types
   readonly 'x-brand'?: string
 }

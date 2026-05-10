@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { TokenResponseSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { TokenResponseExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ListUsersLinkLink } from '../links'
 
 export const TokenResponseResponse = {

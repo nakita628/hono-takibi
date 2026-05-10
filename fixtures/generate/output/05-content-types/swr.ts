@@ -25,16 +25,9 @@ export function getUploadKey() {
   return ['upload'] as const
 }
 
-export async function postJson(
-  args: InferRequestType<typeof client.json.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.json.$post(args, options))
-}
-
 export function usePostJson<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postJson>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.json.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.json.$post>
@@ -49,22 +42,15 @@ export function usePostJson<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.json.$post> }) =>
-        postJson(arg, clientOptions),
+        parseResponse(client.json.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postForm(
-  args: InferRequestType<typeof client.form.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.form.$post(args, options))
-}
-
 export function usePostForm<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postForm>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.form.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.form.$post>
@@ -79,22 +65,15 @@ export function usePostForm<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.form.$post> }) =>
-        postForm(arg, clientOptions),
+        parseResponse(client.form.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postUpload(
-  args: InferRequestType<typeof client.upload.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.upload.$post(args, options))
-}
-
 export function usePostUpload<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postUpload>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.upload.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.upload.$post>
@@ -109,22 +88,15 @@ export function usePostUpload<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.upload.$post> }) =>
-        postUpload(arg, clientOptions),
+        parseResponse(client.upload.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postText(
-  args: InferRequestType<typeof client.text.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.text.$post(args, options))
-}
-
 export function usePostText<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postText>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.text.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.text.$post>
@@ -139,22 +111,19 @@ export function usePostText<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.text.$post> }) =>
-        postText(arg, clientOptions),
+        parseResponse(client.text.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postMultiContent(
-  args: InferRequestType<(typeof client)['multi-content']['$post']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client['multi-content'].$post(args, options))
-}
-
 export function usePostMultiContent<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postMultiContent>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
+      >
+    >,
     TError,
     Key,
     InferRequestType<(typeof client)['multi-content']['$post']>
@@ -171,7 +140,7 @@ export function usePostMultiContent<TError = unknown>(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
-      ) => postMultiContent(arg, clientOptions),
+      ) => parseResponse(client['multi-content'].$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }

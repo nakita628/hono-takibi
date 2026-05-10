@@ -27,21 +27,26 @@ export function getTreeQueryKey() {
   return ['tree', '/tree'] as const
 }
 
-export async function getTree(options?: ClientRequestOptions) {
-  return await parseResponse(client.tree.$get(undefined, options))
-}
-
 export function getTreeQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getTreeQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.tree.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
-export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
+export function useTree<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
+    TError,
+    TData
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -49,16 +54,22 @@ export function useTree<TData = Awaited<ReturnType<typeof getTree>>, TError = un
     ...queryOptions,
     queryKey: getTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return parseResponse(
+        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
     },
   })
 }
 
 export function useSuspenseTree<
-  TData = Awaited<ReturnType<typeof getTree>>,
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getTree>>, TError, TData>
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$get>>>>>,
+    TError,
+    TData
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -66,34 +77,29 @@ export function useSuspenseTree<
     ...queryOptions,
     queryKey: getTreeQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getTree({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return parseResponse(
+        client.tree.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      )
     },
   })
 }
 
-export async function postTree(
-  args: InferRequestType<typeof client.tree.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.tree.$post(args, options))
-}
-
 export function getPostTreeMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
   return mutationOptions<
-    Awaited<ReturnType<typeof postTree>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
     TError,
     InferRequestType<typeof client.tree.$post>
   >({
     mutationKey: ['tree', '/tree', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.tree.$post>) {
-      return postTree(args, options)
+      return parseResponse(client.tree.$post(args, options))
     },
   })
 }
 
 export function usePostTree<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postTree>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tree.$post>>>>>,
     TError,
     InferRequestType<typeof client.tree.$post>
   >
@@ -107,21 +113,26 @@ export function getGraphQueryKey() {
   return ['graph', '/graph'] as const
 }
 
-export async function getGraph(options?: ClientRequestOptions) {
-  return await parseResponse(client.graph.$get(undefined, options))
-}
-
 export function getGraphQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getGraphQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.graph.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
-export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = unknown>(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
+export function useGraph<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+    TError,
+    TData
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -129,16 +140,25 @@ export function useGraph<TData = Awaited<ReturnType<typeof getGraph>>, TError = 
     ...queryOptions,
     queryKey: getGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return parseResponse(
+        client.graph.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
 
 export function useSuspenseGraph<
-  TData = Awaited<ReturnType<typeof getGraph>>,
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<Awaited<ReturnType<typeof getGraph>>, TError, TData>
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+    TError,
+    TData
+  >
   options?: ClientRequestOptions
 }) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
@@ -146,7 +166,12 @@ export function useSuspenseGraph<
     ...queryOptions,
     queryKey: getGraphQueryKey(),
     queryFn({ signal }: QueryFunctionContext) {
-      return getGraph({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+      return parseResponse(
+        client.graph.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

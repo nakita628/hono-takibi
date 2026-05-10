@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
-import { TokenRequestRequestBody } from '../requestBodies'
 import { DefaultErrorResponse, TokenResponseResponse, ValidationErrorResponse } from '../responses'
+import { TokenRequestRequestBody } from '../requestBodies'
 
 export const postAuthTokenRoute = createRoute({
   method: 'post',

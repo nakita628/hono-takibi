@@ -18,32 +18,42 @@ export function getApiReverseGeocodeIndexQueryKey(
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
-export async function getApiReverseGeocodeIndex(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
-}
-
 export function getApiReverseGeocodeIndexQueryOptions(
   args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getApiReverseGeocodeIndex(args, { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseGeocode.index.$get(args, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   })
 }
 
 export function injectApiReverseGeocodeIndex<
-  TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseGeocode.index.$get>>>
+    >
+  >,
   TError = unknown,
 >(
   args: () => InferRequestType<typeof client.api.reverseGeocode.index.$get>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseGeocode.index.$get>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -53,25 +63,18 @@ export function injectApiReverseGeocodeIndex<
       ...query,
       queryKey: getApiReverseGeocodeIndexQueryKey(args()),
       queryFn({ signal }: QueryFunctionContext) {
-        return getApiReverseGeocodeIndex(args(), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        })
+        return parseResponse(
+          client.api.reverseGeocode.index.$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
 }
 
-export async function postApiV2PublicBookingAccountRegisterOauthIndex(
-  args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(
-    client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
-  )
-}
-
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -81,7 +84,9 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
       >,
     ) {
-      return postApiV2PublicBookingAccountRegisterOauthIndex(args, options)
+      return parseResponse(
+        client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+      )
     },
   }
 }
@@ -89,7 +94,15 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
 export function injectPostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
+            >
+          >
+        >
+      >,
       TError,
       InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
     >
@@ -100,21 +113,12 @@ export function injectPostApiV2PublicBookingAccountRegisterOauthIndex<TError = u
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
       ...mutation,
-      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
+      ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(clientOptions),
     }
   })
 }
 
-export async function postApiV2PublicBookingAccountRegisterEmail(
-  args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(
-    client.api.v2.public.booking.account.register.email.$post(args, options),
-  )
-}
-
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -122,7 +126,7 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TEr
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {
-      return postApiV2PublicBookingAccountRegisterEmail(args, options)
+      return parseResponse(client.api.v2.public.booking.account.register.email.$post(args, options))
     },
   }
 }
@@ -130,7 +134,13 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TEr
 export function injectPostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.api.v2.public.booking.account.register.email.$post>>
+          >
+        >
+      >,
       TError,
       InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
     >
@@ -141,7 +151,7 @@ export function injectPostApiV2PublicBookingAccountRegisterEmail<TError = unknow
     const { mutation, options: clientOptions } = options?.() ?? {}
     return {
       ...mutation,
-      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
+      ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(clientOptions),
     }
   })
 }

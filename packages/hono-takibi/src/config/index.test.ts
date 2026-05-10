@@ -294,14 +294,12 @@ describe('parseConfig()', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
-          components: {
-            webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
-          },
+          webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
         },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value['zod-openapi']?.components?.webhooks?.import).toBe('@packages/webhooks')
+        expect(result.value['zod-openapi']?.webhooks?.import).toBe('@packages/webhooks')
       }
     })
   })
@@ -914,14 +912,14 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('parseResponse is undefined when omitted', () => {
+    it.concurrent('parseResponse defaults to false when omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         rpc: { output: 'rpc/index.ts', import: '../client' },
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.rpc?.parseResponse).toBeUndefined()
+        expect(result.value.rpc?.parseResponse).toBe(false)
       }
     })
   })

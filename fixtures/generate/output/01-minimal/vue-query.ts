@@ -12,29 +12,25 @@ export function getHealthQueryKey() {
   return ['health', '/health'] as const
 }
 
-export async function getHealth(options?: ClientRequestOptions) {
-  return await parseResponse(client.health.$get(undefined, options))
-}
-
 export function getHealthQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHealthQueryKey>>) {
-      return getHealth({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.health.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
 export function useHealth<
-  TData = Awaited<ReturnType<typeof getHealth>>,
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getHealth>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getHealth>>,
-    ReturnType<typeof getHealthQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -42,8 +38,13 @@ export function useHealth<
   return useQuery({
     ...queryOptions,
     queryKey: getHealthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getHealthQueryKey>>) {
-      return getHealth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.health.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

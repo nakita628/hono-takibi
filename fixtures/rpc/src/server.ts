@@ -33,6 +33,29 @@ export const app = new Hono()
   .get('/error-500', (c) => {
     return c.json({ error: 'Internal Server Error', code: 'SERVER_ERROR' }, 500)
   })
+  .get('/error-401', (c) => {
+    return c.json({ error: 'Unauthorized' }, 401)
+  })
+  .get('/error-403', (c) => {
+    return c.json({ error: 'Forbidden' }, 403)
+  })
+  .get('/error-422', (c) => {
+    return c.json({ error: 'Unprocessable Entity', fields: ['name'] }, 422)
+  })
+  .get('/error-text', (c) => {
+    c.header('Content-Type', 'text/plain')
+    return c.body('plain error body', 500)
+  })
+  .get('/error-empty', (c) => {
+    return c.body(null, 500)
+  })
+  .get('/error-no-content-type', () => {
+    return new Response('no content-type', { status: 500 })
+  })
+  .get('/error-vendor-json', (c) => {
+    c.header('Content-Type', 'application/vnd.api+json')
+    return c.body(JSON.stringify({ error: 'vendor json error' }), 400)
+  })
   .post('/create', async (c) => {
     const body = await c.req.json<{ name: string }>()
     return c.json({ id: 1, name: body.name, created: true }, 201)

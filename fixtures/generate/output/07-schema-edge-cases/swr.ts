@@ -27,16 +27,9 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
-export async function postNullable(
-  args: InferRequestType<typeof client.nullable.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.nullable.$post(args, options))
-}
-
 export function usePostNullable<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postNullable>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.nullable.$post>
@@ -51,22 +44,17 @@ export function usePostNullable<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.nullable.$post> }) =>
-        postNullable(arg, clientOptions),
+        parseResponse(client.nullable.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postDiscriminated(
-  args: InferRequestType<typeof client.discriminated.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.discriminated.$post(args, options))
-}
-
 export function usePostDiscriminated<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postDiscriminated>>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.discriminated.$post>>>>
+    >,
     TError,
     Key,
     InferRequestType<typeof client.discriminated.$post>
@@ -81,7 +69,7 @@ export function usePostDiscriminated<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.discriminated.$post> }) =>
-        postDiscriminated(arg, clientOptions),
+        parseResponse(client.discriminated.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
@@ -91,10 +79,6 @@ export function getGetComposedKey() {
   return ['composed', '/composed'] as const
 }
 
-export async function getComposed(options?: ClientRequestOptions) {
-  return await parseResponse(client.composed.$get(undefined, options))
-}
-
 export function useGetComposed(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -102,7 +86,14 @@ export function useGetComposed(options?: {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetComposedKey()) : null
-  return { swrKey, ...useSWR(swrKey, async () => getComposed(clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.composed.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetComposed(options?: {
@@ -114,16 +105,16 @@ export function useImmutableGetComposed(options?: {
   const swrKey = enabled !== false ? (customKey ?? getGetComposedKey()) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getComposed(clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.composed.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
 export function getGetDeepNestedKey() {
   return ['deep-nested', '/deep-nested'] as const
-}
-
-export async function getDeepNested(options?: ClientRequestOptions) {
-  return await parseResponse(client['deep-nested'].$get(undefined, options))
 }
 
 export function useGetDeepNested(options?: {
@@ -133,7 +124,14 @@ export function useGetDeepNested(options?: {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetDeepNestedKey()) : null
-  return { swrKey, ...useSWR(swrKey, async () => getDeepNested(clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['deep-nested'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetDeepNested(options?: {
@@ -145,16 +143,16 @@ export function useImmutableGetDeepNested(options?: {
   const swrKey = enabled !== false ? (customKey ?? getGetDeepNestedKey()) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getDeepNested(clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client['deep-nested'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
 export function getGetAdditionalPropsKey() {
   return ['additional-props', '/additional-props'] as const
-}
-
-export async function getAdditionalProps(options?: ClientRequestOptions) {
-  return await parseResponse(client['additional-props'].$get(undefined, options))
 }
 
 export function useGetAdditionalProps(options?: {
@@ -166,7 +164,11 @@ export function useGetAdditionalProps(options?: {
   const swrKey = enabled !== false ? (customKey ?? getGetAdditionalPropsKey()) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getAdditionalProps(clientOptions), restSwrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['additional-props'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
@@ -179,6 +181,10 @@ export function useImmutableGetAdditionalProps(options?: {
   const swrKey = enabled !== false ? (customKey ?? getGetAdditionalPropsKey()) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getAdditionalProps(clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client['additional-props'].$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }

@@ -1059,20 +1059,20 @@ describe('zodToOpenAPI', () => {
             { enum: ['only'], 'x-error-message': 'onlyのみ' },
             `z.literal('only',{error:"onlyのみ"})`,
           ],
-          // x-error-message on number enum → z.union (individual literals also get errorArg)
+          // x-error-message on number enum → z.union with error on outer wrapper only
           [
             { enum: [1, 2, 3], 'x-error-message': '1-3のみ' },
-            'z.union([z.literal(1,{error:"1-3のみ"}),z.literal(2,{error:"1-3のみ"}),z.literal(3,{error:"1-3のみ"})],{error:"1-3のみ"})',
+            'z.union([z.literal(1),z.literal(2),z.literal(3)],{error:"1-3のみ"})',
           ],
           // x-error-message on single number enum → z.literal
           [
             { type: 'number', enum: [42], 'x-error-message': '42のみ' },
             'z.literal(42,{error:"42のみ"})',
           ],
-          // x-error-message on boolean enum → z.union (individual literals also get errorArg)
+          // x-error-message on boolean enum → z.union with error on outer wrapper only
           [
             { type: 'boolean', enum: [true, false], 'x-error-message': 'ブール値' },
-            'z.union([z.literal(true,{error:"ブール値"}),z.literal(false,{error:"ブール値"})],{error:"ブール値"})',
+            'z.union([z.literal(true),z.literal(false)],{error:"ブール値"})',
           ],
           // x-error-message with arrow function (no args)
           [

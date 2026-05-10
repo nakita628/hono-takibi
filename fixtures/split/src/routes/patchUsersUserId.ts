@@ -1,12 +1,12 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { TraceIdHeaderParamParamsSchema, UserIdPathParamParamsSchema } from '../parameters'
-import { UpdateUserRequestRequestBody } from '../requestBodies'
 import {
   DefaultErrorResponse,
   NotFoundResponse,
   UserResponseResponse,
   ValidationErrorResponse,
 } from '../responses'
+import { TraceIdHeaderParamParamsSchema, UserIdPathParamParamsSchema } from '../parameters'
+import { UpdateUserRequestRequestBody } from '../requestBodies'
 
 export const patchUsersUserIdRoute = createRoute({
   method: 'patch',

@@ -32,29 +32,25 @@ export function getPublicQueryKey() {
   return ['public', '/public'] as const
 }
 
-export async function getPublic(options?: ClientRequestOptions) {
-  return await parseResponse(client.public.$get(undefined, options))
-}
-
 export function getPublicQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
-      return getPublic({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.public.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
 export function usePublic<
-  TData = Awaited<ReturnType<typeof getPublic>>,
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getPublic>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getPublic>>,
-    ReturnType<typeof getPublicQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -62,8 +58,13 @@ export function usePublic<
   return useQuery({
     ...queryOptions,
     queryKey: getPublicQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getPublicQueryKey>>) {
-      return getPublic({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.public.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -72,29 +73,36 @@ export function getBearerProtectedQueryKey() {
   return ['bearer-protected', '/bearer-protected'] as const
 }
 
-export async function getBearerProtected(options?: ClientRequestOptions) {
-  return await parseResponse(client['bearer-protected'].$get(undefined, options))
-}
-
 export function getBearerProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
-      return getBearerProtected({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useBearerProtected<
-  TData = Awaited<ReturnType<typeof getBearerProtected>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)['bearer-protected']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBearerProtected>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['bearer-protected']['$get']>>>
+      >
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getBearerProtected>>,
-    ReturnType<typeof getBearerProtectedQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -102,8 +110,13 @@ export function useBearerProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBearerProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBearerProtectedQueryKey>>) {
-      return getBearerProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['bearer-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -112,29 +125,36 @@ export function getApiKeyProtectedQueryKey() {
   return ['api-key-protected', '/api-key-protected'] as const
 }
 
-export async function getApiKeyProtected(options?: ClientRequestOptions) {
-  return await parseResponse(client['api-key-protected'].$get(undefined, options))
-}
-
 export function getApiKeyProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
-      return getApiKeyProtected({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useApiKeyProtected<
-  TData = Awaited<ReturnType<typeof getApiKeyProtected>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)['api-key-protected']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiKeyProtected>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-key-protected']['$get']>>>
+      >
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getApiKeyProtected>>,
-    ReturnType<typeof getApiKeyProtectedQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -142,8 +162,13 @@ export function useApiKeyProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getApiKeyProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getApiKeyProtectedQueryKey>>) {
-      return getApiKeyProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['api-key-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -152,29 +177,36 @@ export function getBasicProtectedQueryKey() {
   return ['basic-protected', '/basic-protected'] as const
 }
 
-export async function getBasicProtected(options?: ClientRequestOptions) {
-  return await parseResponse(client['basic-protected'].$get(undefined, options))
-}
-
 export function getBasicProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
-      return getBasicProtected({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useBasicProtected<
-  TData = Awaited<ReturnType<typeof getBasicProtected>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)['basic-protected']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getBasicProtected>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['basic-protected']['$get']>>>
+      >
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getBasicProtected>>,
-    ReturnType<typeof getBasicProtectedQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -182,8 +214,13 @@ export function useBasicProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getBasicProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getBasicProtectedQueryKey>>) {
-      return getBasicProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['basic-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -192,29 +229,36 @@ export function getOauthProtectedQueryKey() {
   return ['oauth-protected', '/oauth-protected'] as const
 }
 
-export async function getOauthProtected(options?: ClientRequestOptions) {
-  return await parseResponse(client['oauth-protected'].$get(undefined, options))
-}
-
 export function getOauthProtectedQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
-      return getOauthProtected({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useOauthProtected<
-  TData = Awaited<ReturnType<typeof getOauthProtected>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-protected']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getOauthProtected>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-protected']['$get']>>>
+      >
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getOauthProtected>>,
-    ReturnType<typeof getOauthProtectedQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -222,8 +266,13 @@ export function useOauthProtected<
   return useQuery({
     ...queryOptions,
     queryKey: getOauthProtectedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getOauthProtectedQueryKey>>) {
-      return getOauthProtected({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['oauth-protected'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
@@ -232,29 +281,29 @@ export function getMultiAuthQueryKey() {
   return ['multi-auth', '/multi-auth'] as const
 }
 
-export async function getMultiAuth(options?: ClientRequestOptions) {
-  return await parseResponse(client['multi-auth'].$get(undefined, options))
-}
-
 export function getMultiAuthQueryOptions(options?: ClientRequestOptions) {
   return {
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
-      return getMultiAuth({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
 export function useMultiAuth<
-  TData = Awaited<ReturnType<typeof getMultiAuth>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
+  >,
   TError = unknown,
 >(options?: {
   query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getMultiAuth>>,
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
+    >,
     TError,
-    TData,
-    Awaited<ReturnType<typeof getMultiAuth>>,
-    ReturnType<typeof getMultiAuthQueryKey>
+    TData
   >
   options?: ClientRequestOptions
 }) {
@@ -262,8 +311,13 @@ export function useMultiAuth<
   return useQuery({
     ...queryOptions,
     queryKey: getMultiAuthQueryKey(),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getMultiAuthQueryKey>>) {
-      return getMultiAuth({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['multi-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

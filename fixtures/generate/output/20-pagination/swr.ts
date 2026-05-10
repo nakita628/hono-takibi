@@ -7,31 +7,24 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from './client'
 
-export function getHealthKey() {
-  return ['health'] as const
+export function getFeedsKey() {
+  return ['feeds'] as const
 }
 
-export function getPostsKey() {
-  return ['posts'] as const
+export function getItemsKey() {
+  return ['items'] as const
 }
 
 export function getUsersKey() {
   return ['users'] as const
 }
 
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args] as const
+export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', '/items', args] as const
 }
 
-export async function getUsers(
-  args: InferRequestType<typeof client.users.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.users.$get(args, options))
-}
-
-export function useGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
+export function useGetItems(
+  args: InferRequestType<typeof client.items.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     options?: ClientRequestOptions
@@ -39,133 +32,198 @@ export function useGetUsers(
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
-  return { swrKey, ...useSWR(swrKey, async () => getUsers(args, clientOptions), restSwrOptions) }
-}
-
-export function useImmutableGetUsers(
-  args: InferRequestType<typeof client.users.$get>,
-  options?: {
-    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetUsersKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getUsers(args, clientOptions), restSwrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.items.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
-export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+export function useImmutableGetItems(
+  args: InferRequestType<typeof client.items.$get>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.items.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
-export function useInfiniteGetUsers<TError = unknown>(
-  args: InferRequestType<typeof client.users.$get>,
+export function getGetItemsInfiniteKey(args: InferRequestType<typeof client.items.$get>) {
+  return ['items', '/items', args, 'infinite'] as const
+}
+
+export function useInfiniteGetItems<TError = unknown>(
+  args: InferRequestType<typeof client.items.$get>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getUsers>>, TError> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
+    swr?: SWRInfiniteConfiguration<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+      TError
+    > & { swrKey?: SWRInfiniteKeyLoader }
     options?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetUsersInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getUsers(args, clientOptions), restSwrOptions)
+    customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => parseResponse(client.items.$get(args, clientOptions)),
+    restSwrOptions,
+  )
 }
 
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', '/posts', args] as const
+export function getGetFeedsKey() {
+  return ['feeds', '/feeds'] as const
 }
 
-export async function getPosts(
-  args: InferRequestType<typeof client.posts.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.posts.$get(args, options))
-}
-
-export function useGetPosts(
-  args: InferRequestType<typeof client.posts.$get>,
-  options?: {
-    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    options?: ClientRequestOptions
-  },
-) {
+export function useGetFeeds(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetPostsKey(args)) : null
-  return { swrKey, ...useSWR(swrKey, async () => getPosts(args, clientOptions), restSwrOptions) }
-}
-
-export function useImmutableGetPosts(
-  args: InferRequestType<typeof client.posts.$get>,
-  options?: {
-    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-    options?: ClientRequestOptions
-  },
-) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetPostsKey(args)) : null
+  const swrKey = enabled !== false ? (customKey ?? getGetFeedsKey()) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getPosts(args, clientOptions), restSwrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.feeds.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
-export function getGetPostsInfiniteKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', '/posts', args, 'infinite'] as const
+export function useImmutableGetFeeds(options?: {
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetFeedsKey()) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.feeds.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
-export function useInfiniteGetPosts<TError = unknown>(
-  args: InferRequestType<typeof client.posts.$get>,
+export function getGetFeedsInfiniteKey() {
+  return ['feeds', '/feeds', 'infinite'] as const
+}
+
+export function useInfiniteGetFeeds<TError = unknown>(options: {
+  swr?: SWRInfiniteConfiguration<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>>,
+    TError
+  > & { swrKey?: SWRInfiniteKeyLoader }
+  options?: ClientRequestOptions
+}) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
+  const keyLoader =
+    customKeyLoader ?? ((index: number) => [...getGetFeedsInfiniteKey(), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => parseResponse(client.feeds.$get(undefined, clientOptions)),
+    restSwrOptions,
+  )
+}
+
+export function getGetUsersUserIdPostsKey(
+  args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+) {
+  return ['users', '/users/:userId/posts', args] as const
+}
+
+export function useGetUsersUserIdPosts(
+  args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdPostsKey(args)) : null
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].posts.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function useImmutableGetUsersUserIdPosts(
+  args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+  options?: {
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
+    options?: ClientRequestOptions
+  },
+) {
+  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const swrKey = enabled !== false ? (customKey ?? getGetUsersUserIdPostsKey(args)) : null
+  return {
+    swrKey,
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].posts.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
+}
+
+export function getGetUsersUserIdPostsInfiniteKey(
+  args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+) {
+  return ['users', '/users/:userId/posts', args, 'infinite'] as const
+}
+
+export function useInfiniteGetUsersUserIdPosts<TError = unknown>(
+  args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
   options: {
-    swr?: SWRInfiniteConfiguration<Awaited<ReturnType<typeof getPosts>>, TError> & {
-      swrKey?: SWRInfiniteKeyLoader
-    }
+    swr?: SWRInfiniteConfiguration<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':userId']['posts']['$get']>>
+          >
+        >
+      >,
+      TError
+    > & { swrKey?: SWRInfiniteKeyLoader }
     options?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
-    customKeyLoader ?? ((index: number) => [...getGetPostsInfiniteKey(args), index] as const)
-  return useSWRInfinite(keyLoader, async () => getPosts(args, clientOptions), restSwrOptions)
-}
-
-export function getGetHealthKey() {
-  return ['health', '/health'] as const
-}
-
-export async function getHealth(options?: ClientRequestOptions) {
-  return await parseResponse(client.health.$get(undefined, options))
-}
-
-export function useGetHealth(options?: {
-  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHealthKey()) : null
-  return { swrKey, ...useSWR(swrKey, async () => getHealth(clientOptions), restSwrOptions) }
-}
-
-export function useImmutableGetHealth(options?: {
-  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  options?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
-  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
-  const swrKey = enabled !== false ? (customKey ?? getGetHealthKey()) : null
-  return {
-    swrKey,
-    ...useSWRImmutable(swrKey, async () => getHealth(clientOptions), restSwrOptions),
-  }
+    customKeyLoader ??
+    ((index: number) => [...getGetUsersUserIdPostsInfiniteKey(args), index] as const)
+  return useSWRInfinite(
+    keyLoader,
+    async () => parseResponse(client.users[':userId'].posts.$get(args, clientOptions)),
+    restSwrOptions,
+  )
 }

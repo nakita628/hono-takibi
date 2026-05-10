@@ -17,37 +17,39 @@ export function getItemsItemIdQueryKey(
   return ['items', '/items/:itemId', keyArgs] as const
 }
 
-export async function getItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$get(args, options))
-}
-
 export function getItemsItemIdQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getItemsItemIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsItemIdQueryKey>>) {
-      return getItemsItemId(toValue(args), { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items[':itemId'].$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useItemsItemId<
-  TData = Awaited<ReturnType<typeof getItemsItemId>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$get']>>>>
+  >,
   TError = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.items)[':itemId']['$get']>>,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getItemsItemId>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$get']>>>
+        >
+      >,
       TError,
-      TData,
-      Awaited<ReturnType<typeof getItemsItemId>>,
-      ReturnType<typeof getItemsItemIdQueryKey>
+      TData
     >
     options?: ClientRequestOptions
   },
@@ -56,77 +58,66 @@ export function useItemsItemId<
   return useQuery({
     ...queryOptions,
     queryKey: getItemsItemIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsItemIdQueryKey>>) {
-      return getItemsItemId(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items[':itemId'].$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
 
-export async function putItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$put(args, options))
-}
-
-export function getPutItemsItemIdMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPutItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$put']>) {
-      return putItemsItemId(args, options)
+      return parseResponse(client.items[':itemId'].$put(args, options))
     },
   }
 }
 
 export function usePutItemsItemId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof putItemsItemId>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$put']>>>
+      >
+    >,
     TError,
     InferRequestType<(typeof client.items)[':itemId']['$put']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutItemsItemIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getPutItemsItemIdMutationOptions(clientOptions) })
 }
 
-export async function deleteItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$delete(args, options))
-}
-
-export function getDeleteItemsItemIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteItemsItemIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['items', '/items/:itemId', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) {
-      return deleteItemsItemId(args, options)
+      return parseResponse(client.items[':itemId'].$delete(args, options))
     },
   }
 }
 
 export function useDeleteItemsItemId<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+        >
+      >
+    | undefined,
     TError,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>
   >
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteItemsItemIdMutationOptions<TError>(clientOptions),
-  })
+  return useMutation({ ...mutationOptions, ...getDeleteItemsItemIdMutationOptions(clientOptions) })
 }
 
 export function getItemsQueryKey(
@@ -135,34 +126,30 @@ export function getItemsQueryKey(
   return ['items', '/items', args] as const
 }
 
-export async function getItems(
-  args: InferRequestType<typeof client.items.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items.$get(args, options))
-}
-
 export function getItemsQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
-      return getItems(toValue(args), { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.items.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
     },
   }
 }
 
-export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = unknown>(
+export function useItems<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
+  TError = unknown,
+>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getItems>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
       TError,
-      TData,
-      Awaited<ReturnType<typeof getItems>>,
-      ReturnType<typeof getItemsQueryKey>
+      TData
     >
     options?: ClientRequestOptions
   },
@@ -171,8 +158,13 @@ export function useItems<TData = Awaited<ReturnType<typeof getItems>>, TError = 
   return useQuery({
     ...queryOptions,
     queryKey: getItemsQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext<ReturnType<typeof getItemsQueryKey>>) {
-      return getItems(toValue(args), { ...clientOptions, init: { ...clientOptions?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.items.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }

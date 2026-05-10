@@ -1,0 +1,25 @@
+{
+  "name": "@fixtures/tanstack-query",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "takibi": "hono-takibi",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
+    "hono": "^4.11.7",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.0",
+    "happy-dom": "^15.11.7",
+    "hono-takibi": "workspace:^",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

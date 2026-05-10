@@ -1,109 +1,75 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const UserSchema = z
+export const ItemSchema = z
   .object({ id: z.string(), name: z.string() })
   .readonly()
   .openapi({ required: ['id', 'name'] })
-  .openapi('User')
+  .openapi('Item')
 
-export type User = z.infer<typeof UserSchema>
+export type Item = z.infer<typeof ItemSchema>
 
-export const UserPageSchema = z
-  .object({ items: z.array(UserSchema).readonly(), nextCursor: z.string().exactOptional() })
+export const ItemsPageSchema = z
+  .object({ items: z.array(ItemSchema).readonly(), nextCursor: z.string().exactOptional() })
   .readonly()
   .openapi({ required: ['items'] })
-  .openapi('UserPage')
+  .openapi('ItemsPage')
 
-export type UserPage = z.infer<typeof UserPageSchema>
+export type ItemsPage = z.infer<typeof ItemsPageSchema>
 
-export const PostSchema = z
-  .object({ id: z.string(), title: z.string() })
-  .readonly()
-  .openapi({ required: ['id', 'title'] })
-  .openapi('Post')
-
-export type Post = z.infer<typeof PostSchema>
-
-export const PostPageSchema = z
-  .object({ items: z.array(PostSchema).readonly(), nextCursor: z.string().exactOptional() })
-  .readonly()
-  .openapi({ required: ['items'] })
-  .openapi('PostPage')
-
-export type PostPage = z.infer<typeof PostPageSchema>
-
-export const getUsersRoute = createRoute({
+export const getItemsRoute = createRoute({
   method: 'get',
-  path: '/users',
-  operationId: 'getUsers',
+  path: '/items',
+  summary: 'List items with pagination',
+  operationId: 'listItems',
   request: {
     query: z.object({
-      cursor: z
-        .string()
-        .exactOptional()
-        .openapi({
-          param: { name: 'cursor', in: 'query', required: false, schema: { type: 'string' } },
-        }),
       limit: z.coerce
         .number()
         .pipe(z.int())
-        .default(20)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'limit',
-            in: 'query',
-            required: false,
-            schema: { type: 'integer', default: 20 },
-          },
-        }),
+        .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer' } } }),
+      cursor: z
+        .string()
+        .exactOptional()
+        .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
-    200: {
-      description: 'Paged users',
-      content: { 'application/json': { schema: UserPageSchema } },
-    },
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
   },
 } as const)
 
-export const getPostsRoute = createRoute({
+export const getFeedsRoute = createRoute({
   method: 'get',
-  path: '/posts',
-  operationId: 'getPosts',
+  path: '/feeds',
+  summary: 'Feed (paginated, no args)',
+  operationId: 'listFeeds',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
+  },
+} as const)
+
+export const getUsersUserIdPostsRoute = createRoute({
+  method: 'get',
+  path: '/users/{userId}/posts',
+  summary: "User's posts (paginated, path param)",
+  operationId: 'listUserPosts',
   request: {
+    params: z.object({
+      userId: z
+        .string()
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
     query: z.object({
       cursor: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'cursor', in: 'query', required: false, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
-    200: {
-      description: 'Paged posts',
-      content: { 'application/json': { schema: PostPageSchema } },
-    },
-  },
-} as const)
-
-export const getHealthRoute = createRoute({
-  method: 'get',
-  path: '/health',
-  operationId: 'getHealth',
-  responses: {
-    200: {
-      description: 'Health check',
-      content: {
-        'application/json': {
-          schema: z
-            .object({ status: z.string() })
-            .readonly()
-            .openapi({ required: ['status'] }),
-        },
-      },
-    },
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
   },
 } as const)

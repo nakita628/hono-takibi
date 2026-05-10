@@ -18,13 +18,6 @@ export function getGetItemsItemIdKey(
   return ['items', '/items/:itemId', keyArgs] as const
 }
 
-export async function getItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$get(args, options))
-}
-
 export function useGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
@@ -37,7 +30,11 @@ export function useGetItemsItemId(
   const swrKey = enabled !== false ? (customKey ?? getGetItemsItemIdKey(args)) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => getItemsItemId(args, clientOptions), restSwrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
@@ -53,20 +50,21 @@ export function useImmutableGetItemsItemId(
   const swrKey = enabled !== false ? (customKey ?? getGetItemsItemIdKey(args)) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getItemsItemId(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
-}
-
-export async function putItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$put']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$put(args, options))
 }
 
 export function usePutItemsItemId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof putItemsItemId>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$put']>>>
+      >
+    >,
     TError,
     Key,
     InferRequestType<(typeof client.items)[':itemId']['$put']>
@@ -83,22 +81,20 @@ export function usePutItemsItemId<TError = unknown>(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$put']> },
-      ) => putItemsItemId(arg, clientOptions),
+      ) => parseResponse(client.items[':itemId'].$put(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function deleteItemsItemId(
-  args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items[':itemId'].$delete(args, options))
-}
-
 export function useDeleteItemsItemId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof deleteItemsItemId>> | undefined,
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+        >
+      >
+    | undefined,
     TError,
     Key,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>
@@ -115,7 +111,7 @@ export function useDeleteItemsItemId<TError = unknown>(options?: {
       async (
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
-      ) => deleteItemsItemId(arg, clientOptions),
+      ) => parseResponse(client.items[':itemId'].$delete(arg, clientOptions)),
       restMutationOptions,
     ),
   }
@@ -123,13 +119,6 @@ export function useDeleteItemsItemId<TError = unknown>(options?: {
 
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
   return ['items', '/items', args] as const
-}
-
-export async function getItems(
-  args: InferRequestType<typeof client.items.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.items.$get(args, options))
 }
 
 export function useGetItems(
@@ -142,7 +131,14 @@ export function useGetItems(
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
-  return { swrKey, ...useSWR(swrKey, async () => getItems(args, clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.items.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetItems(
@@ -157,6 +153,10 @@ export function useImmutableGetItems(
   const swrKey = enabled !== false ? (customKey ?? getGetItemsKey(args)) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getItems(args, clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.items.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }

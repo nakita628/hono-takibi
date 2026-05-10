@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { CursorSchema, MetaSchema, OrderSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { OrderListExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ListOrdersNextPageLinkLink } from '../links'
 
 export const OrderListResponseResponse = {

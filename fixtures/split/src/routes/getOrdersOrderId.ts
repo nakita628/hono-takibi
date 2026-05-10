@@ -1,10 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
+import { DefaultErrorResponse, NotFoundResponse, OrderResponseResponse } from '../responses'
 import {
   IncludeQueryParamParamsSchema,
   OrderIdPathParamParamsSchema,
   TraceIdHeaderParamParamsSchema,
 } from '../parameters'
-import { DefaultErrorResponse, NotFoundResponse, OrderResponseResponse } from '../responses'
 
 export const getOrdersOrderIdRoute = createRoute({
   method: 'get',

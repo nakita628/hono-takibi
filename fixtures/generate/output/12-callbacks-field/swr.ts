@@ -19,16 +19,9 @@ export function getPaymentsKey() {
   return ['payments'] as const
 }
 
-export async function postOrders(
-  args: InferRequestType<typeof client.orders.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.orders.$post(args, options))
-}
-
 export function usePostOrders<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postOrders>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.orders.$post>
@@ -43,22 +36,15 @@ export function usePostOrders<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-        postOrders(arg, clientOptions),
+        parseResponse(client.orders.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
 }
 
-export async function postPayments(
-  args: InferRequestType<typeof client.payments.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.payments.$post(args, options))
-}
-
 export function usePostPayments<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof postPayments>>,
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.payments.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.payments.$post>
@@ -73,7 +59,7 @@ export function usePostPayments<TError = unknown>(options?: {
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.payments.$post> }) =>
-        postPayments(arg, clientOptions),
+        parseResponse(client.payments.$post(arg, clientOptions)),
       restMutationOptions,
     ),
   }
@@ -83,10 +69,6 @@ export function getGetItemsKey() {
   return ['items', '/items'] as const
 }
 
-export async function getItems(options?: ClientRequestOptions) {
-  return await parseResponse(client.items.$get(undefined, options))
-}
-
 export function useGetItems(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -94,7 +76,14 @@ export function useGetItems(options?: {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
-  return { swrKey, ...useSWR(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetItems(options?: {
@@ -104,5 +93,12 @@ export function useImmutableGetItems(options?: {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetItemsKey()) : null
-  return { swrKey, ...useSWRImmutable(swrKey, async () => getItems(clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.items.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }

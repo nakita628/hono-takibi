@@ -167,8 +167,8 @@ describe('Custom validation messages via x-* extensions', () => {
     expect(res.status).toBe(201)
   })
 
-  // ── x-enum-error-messages ────────────────────────────────
-  it('rejects invalid role with x-enum-error-messages (union-level)', async () => {
+  // ── x-error-message on enum ──────────────────────────────
+  it('rejects invalid role with x-error-message (whole-enum)', async () => {
     const res = await postUsers({ ...validInput, role: 'unknown' })
     expect(res.status).toBe(422)
     const body = await res.json()

@@ -7,6 +7,10 @@ export default defineConfig({
       output: 'src/routes',
       split: true,
     },
+    webhooks: {
+      output: 'src/webhooks',
+      split: true,
+    },
     components: {
       schemas: {
         output: 'src/schemas',
@@ -49,10 +53,6 @@ export default defineConfig({
       },
       pathItems: {
         output: 'src/pathItems',
-        split: true,
-      },
-      webhooks: {
-        output: 'src/webhooks',
         split: true,
       },
     },

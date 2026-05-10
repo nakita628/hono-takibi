@@ -16,26 +16,17 @@ export async function vueQuery(
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
-    // Vue Query's queryOptions() includes a thunk overload `() => UseQueryOptions`,
-    // which hijacks overload resolution when the factory takes MaybeRefOrGetter args
-    // (TQueryKey defaults to readonly unknown[], inference fails, last overload error).
-    // Plain object factory bypasses the helper and lets useQuery infer types directly.
-    hasQueryOptionsHelper: false,
     isVueQuery: true,
-    // Vue Query (5.100.9) intentionally does NOT export `useSuspenseQuery` /
-    // `useSuspenseInfiniteQuery` — Vue handles Suspense via the built-in
-    // `<Suspense>` component composed with the regular `useQuery`, so a separate
-    // suspense API is unnecessary. Omitting these config fields skips both the
-    // hook generation and the import emission for vue-query output.
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
-    // Helper is enabled (TanStack-official pattern). For Vue Query, the helper
-    // wraps the factory body in `infiniteQueryOptions(...)` and tags the
-    // queryKey with `DataTag<...>`. To keep typecheck green, the hook/factory
-    // pin TPageParam to a primitive constraint (see `helper/query.ts`); this
-    // matches the TanStack docs (`initialPageParam: 0`, `initialPageParam: ''`)
-    // and lets Vue Query's `MaybeRefDeep<TPageParam>` conditional simplify.
-    hasInfiniteQueryOptionsHelper: true,
+    // Vue Query's `infiniteQueryOptions()` types `initialPageParam` as `MaybeRefDeep<TPageParam>`
+    // which TS cannot narrow from a generic `TPageParam` parameter — generation fails to typecheck.
+    // Falling back to a plain `{queryKey, queryFn}` factory: users supply pagination via
+    // `options.query.initialPageParam` / `getNextPageParam` at the hook site instead.
+    // hasInfiniteQueryOptionsHelper omitted (defaults false).
+    //
+    // Vue Query (5.100.x) also does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
+    // suspense in Vue is handled at the component level via <Suspense>, not separate hooks.
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

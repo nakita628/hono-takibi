@@ -1,37 +1,31 @@
-<h1 id="pagination-api">Pagination API v1.0.0</h1>
+<h1 id="pagination-test">Pagination Test v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
-OpenAPI spec exercising the `x-pagination: true` extension.
-GET endpoints with this flag generate infinite query hooks
-(useInfiniteUsers / getUsersInfiniteQueryOptions / etc.) in
-every TanStack Query client (vue / react / svelte / solid /
-preact / angular).
+<h1 id="pagination-test-default">Default</h1>
 
-<h1 id="pagination-api-default">Default</h1>
+## List items with pagination
 
-## getUsers
-
-<a id="opIdgetUsers"></a>
+<a id="opIdlistItems"></a>
 
 > Code samples
 
 ```bash
 hono request \
   -X GET \
-  -P /users \
+  -P /items \
   -H 'Accept: application/json' \
   src/index.ts
 ```
 
-`GET /users`
+`GET /items`
 
-<h3 id="getusers-parameters">Parameters</h3>
+<h3 id="list-items-with-pagination-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|cursor|query|string|false|none|
 |limit|query|integer|false|none|
+|cursor|query|string|false|none|
 
 > Example responses
 
@@ -49,36 +43,79 @@ hono request \
 }
 ```
 
-<h3 id="getusers-responses">Responses</h3>
+<h3 id="list-items-with-pagination-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|Paged users|[UserPage](#schemauserpage)|
+|200|OK|OK|[ItemsPage](#schemaitemspage)|
 
 <aside class="success">
 This operation does not require authentication
 </aside>
 
-## getPosts
+## Feed (paginated, no args)
 
-<a id="opIdgetPosts"></a>
+<a id="opIdlistFeeds"></a>
 
 > Code samples
 
 ```bash
 hono request \
   -X GET \
-  -P /posts \
+  -P /feeds \
   -H 'Accept: application/json' \
   src/index.ts
 ```
 
-`GET /posts`
+`GET /feeds`
 
-<h3 id="getposts-parameters">Parameters</h3>
+> Example responses
+
+> 200 Response
+
+```json
+{
+  "items": [
+    {
+      "id": "string",
+      "name": "string"
+    }
+  ],
+  "nextCursor": "string"
+}
+```
+
+<h3 id="feed-paginated-no-args-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[ItemsPage](#schemaitemspage)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+## User's posts (paginated, path param)
+
+<a id="opIdlistUserPosts"></a>
+
+> Code samples
+
+```bash
+hono request \
+  -X GET \
+  -P /users/{userId}/posts \
+  -H 'Accept: application/json' \
+  src/index.ts
+```
+
+`GET /users/{userId}/posts`
+
+<h3 id="users-posts-paginated-path-param-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
+|userId|path|string|true|none|
 |cursor|query|string|false|none|
 
 > Example responses
@@ -90,62 +127,18 @@ hono request \
   "items": [
     {
       "id": "string",
-      "title": "string"
+      "name": "string"
     }
   ],
   "nextCursor": "string"
 }
 ```
 
-<h3 id="getposts-responses">Responses</h3>
+<h3 id="users-posts-paginated-path-param-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|200|OK|Paged posts|[PostPage](#schemapostpage)|
-
-<aside class="success">
-This operation does not require authentication
-</aside>
-
-## getHealth
-
-<a id="opIdgetHealth"></a>
-
-> Code samples
-
-```bash
-hono request \
-  -X GET \
-  -P /health \
-  -H 'Accept: application/json' \
-  src/index.ts
-```
-
-`GET /health`
-
-> Example responses
-
-> 200 Response
-
-```json
-{
-  "status": "string"
-}
-```
-
-<h3 id="gethealth-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|200|OK|Health check|Inline|
-
-<h3 id="gethealth-responseschema">Response Schema</h3>
-
-Status Code **200**
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|status|string|true|none|none|
+|200|OK|OK|[ItemsPage](#schemaitemspage)|
 
 <aside class="success">
 This operation does not require authentication
@@ -153,12 +146,12 @@ This operation does not require authentication
 
 # Schemas
 
-<h2 id="tocS_User">User</h2>
+<h2 id="tocS_Item">Item</h2>
 <!-- backwards compatibility -->
-<a id="schemauser"></a>
-<a id="schema_User"></a>
-<a id="tocSuser"></a>
-<a id="tocsuser"></a>
+<a id="schemaitem"></a>
+<a id="schema_Item"></a>
+<a id="tocSitem"></a>
+<a id="tocsitem"></a>
 
 ```json
 {
@@ -174,12 +167,12 @@ This operation does not require authentication
 |id|string|true|none|none|
 |name|string|true|none|none|
 
-<h2 id="tocS_UserPage">UserPage</h2>
+<h2 id="tocS_ItemsPage">ItemsPage</h2>
 <!-- backwards compatibility -->
-<a id="schemauserpage"></a>
-<a id="schema_UserPage"></a>
-<a id="tocSuserpage"></a>
-<a id="tocsuserpage"></a>
+<a id="schemaitemspage"></a>
+<a id="schema_ItemsPage"></a>
+<a id="tocSitemspage"></a>
+<a id="tocsitemspage"></a>
 
 ```json
 {
@@ -197,52 +190,5 @@ This operation does not require authentication
 
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
-|items|[[User](#schemauser)]|true|none|none|
-|nextCursor|string|false|none|none|
-
-<h2 id="tocS_Post">Post</h2>
-<!-- backwards compatibility -->
-<a id="schemapost"></a>
-<a id="schema_Post"></a>
-<a id="tocSpost"></a>
-<a id="tocspost"></a>
-
-```json
-{
-  "id": "string",
-  "title": "string"
-}
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|id|string|true|none|none|
-|title|string|true|none|none|
-
-<h2 id="tocS_PostPage">PostPage</h2>
-<!-- backwards compatibility -->
-<a id="schemapostpage"></a>
-<a id="schema_PostPage"></a>
-<a id="tocSpostpage"></a>
-<a id="tocspostpage"></a>
-
-```json
-{
-  "items": [
-    {
-      "id": "string",
-      "title": "string"
-    }
-  ],
-  "nextCursor": "string"
-}
-```
-
-### Properties
-
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|items|[[Post](#schemapost)]|true|none|none|
+|items|[[Item](#schemaitem)]|true|none|none|
 |nextCursor|string|false|none|none|

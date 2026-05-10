@@ -1,106 +1,81 @@
 import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
-const UserSchema = z
+const ItemSchema = z
   .object({ id: z.string(), name: z.string() })
   .openapi({ required: ['id', 'name'] })
-  .openapi('User')
+  .openapi('Item')
 
-const UserPageSchema = z
-  .object({ items: z.array(UserSchema), nextCursor: z.string().exactOptional() })
+const ItemsPageSchema = z
+  .object({ items: z.array(ItemSchema), nextCursor: z.string().exactOptional() })
   .openapi({ required: ['items'] })
-  .openapi('UserPage')
+  .openapi('ItemsPage')
 
-const PostSchema = z
-  .object({ id: z.string(), title: z.string() })
-  .openapi({ required: ['id', 'title'] })
-  .openapi('Post')
-
-const PostPageSchema = z
-  .object({ items: z.array(PostSchema), nextCursor: z.string().exactOptional() })
-  .openapi({ required: ['items'] })
-  .openapi('PostPage')
-
-export const getUsersRoute = createRoute({
+export const getItemsRoute = createRoute({
   method: 'get',
-  path: '/users',
-  operationId: 'getUsers',
+  path: '/items',
+  summary: 'List items with pagination',
+  operationId: 'listItems',
   request: {
     query: z.object({
-      cursor: z
-        .string()
-        .exactOptional()
-        .openapi({
-          param: { name: 'cursor', in: 'query', required: false, schema: { type: 'string' } },
-        }),
       limit: z.coerce
         .number()
         .pipe(z.int())
-        .default(20)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'limit',
-            in: 'query',
-            required: false,
-            schema: { type: 'integer', default: 20 },
-          },
-        }),
+        .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer' } } }),
+      cursor: z
+        .string()
+        .exactOptional()
+        .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
-    200: {
-      description: 'Paged users',
-      content: { 'application/json': { schema: UserPageSchema } },
-    },
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
   },
 })
 
-export const getPostsRoute = createRoute({
+export const getFeedsRoute = createRoute({
   method: 'get',
-  path: '/posts',
-  operationId: 'getPosts',
+  path: '/feeds',
+  summary: 'Feed (paginated, no args)',
+  operationId: 'listFeeds',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
+  },
+})
+
+export const getUsersUserIdPostsRoute = createRoute({
+  method: 'get',
+  path: '/users/{userId}/posts',
+  summary: "User's posts (paginated, path param)",
+  operationId: 'listUserPosts',
   request: {
+    params: z.object({
+      userId: z
+        .string()
+        .openapi({
+          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
     query: z.object({
       cursor: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'cursor', in: 'query', required: false, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
-    200: {
-      description: 'Paged posts',
-      content: { 'application/json': { schema: PostPageSchema } },
-    },
+    200: { description: 'OK', content: { 'application/json': { schema: ItemsPageSchema } } },
   },
 })
 
-export const getHealthRoute = createRoute({
-  method: 'get',
-  path: '/health',
-  operationId: 'getHealth',
-  responses: {
-    200: {
-      description: 'Health check',
-      content: {
-        'application/json': {
-          schema: z.object({ status: z.string() }).openapi({ required: ['status'] }),
-        },
-      },
-    },
-  },
-})
-
-function mockUser() {
+function mockItem() {
   return { id: faker.string.alpha({ length: { min: 5, max: 20 } }), name: faker.person.fullName() }
 }
 
-function mockUserPage() {
+function mockItemsPage() {
   return {
-    items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockUser()),
+    items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockItem()),
     nextCursor: faker.helpers.arrayElement([
       faker.string.alpha({ length: { min: 5, max: 20 } }),
       undefined,
@@ -108,37 +83,25 @@ function mockUserPage() {
   }
 }
 
-function mockPost() {
-  return { id: faker.string.alpha({ length: { min: 5, max: 20 } }), title: faker.lorem.sentence() }
+const getItemsRouteHandler: RouteHandler<typeof getItemsRoute> = async (c) => {
+  return c.json(mockItemsPage(), 200)
 }
 
-function mockPostPage() {
-  return {
-    items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockPost()),
-    nextCursor: faker.helpers.arrayElement([
-      faker.string.alpha({ length: { min: 5, max: 20 } }),
-      undefined,
-    ]),
-  }
+const getFeedsRouteHandler: RouteHandler<typeof getFeedsRoute> = async (c) => {
+  return c.json(mockItemsPage(), 200)
 }
 
-const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {
-  return c.json(mockUserPage(), 200)
-}
-
-const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
-  return c.json(mockPostPage(), 200)
-}
-
-const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
-  return c.json({ status: faker.helpers.arrayElement(['active', 'inactive', 'pending']) }, 200)
+const getUsersUserIdPostsRouteHandler: RouteHandler<typeof getUsersUserIdPostsRoute> = async (
+  c,
+) => {
+  return c.json(mockItemsPage(), 200)
 }
 
 const app = new OpenAPIHono()
 
 export const api = app
-  .openapi(getUsersRoute, getUsersRouteHandler)
-  .openapi(getPostsRoute, getPostsRouteHandler)
-  .openapi(getHealthRoute, getHealthRouteHandler)
+  .openapi(getItemsRoute, getItemsRouteHandler)
+  .openapi(getFeedsRoute, getFeedsRouteHandler)
+  .openapi(getUsersUserIdPostsRoute, getUsersUserIdPostsRouteHandler)
 
 export default app

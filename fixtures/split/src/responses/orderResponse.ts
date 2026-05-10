@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { OrderSchema } from '../schemas'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { OrderExampleExample } from '../examples'
+import { TraceIdHeaderHeaderSchema } from '../headers'
 import { GetOrderLinkLink, GetUserFromOrderLinkLink } from '../links'
 
 export const OrderResponseResponse = {

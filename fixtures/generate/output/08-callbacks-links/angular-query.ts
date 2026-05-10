@@ -16,20 +16,11 @@ export function getWebhooksKey() {
   return ['webhooks'] as const
 }
 
-export async function postSubscriptions(
-  args: InferRequestType<typeof client.subscriptions.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.subscriptions.$post(args, options))
-}
-
-export function getPostSubscriptionsMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostSubscriptionsMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.subscriptions.$post>) {
-      return postSubscriptions(args, options)
+      return parseResponse(client.subscriptions.$post(args, options))
     },
   }
 }
@@ -37,7 +28,9 @@ export function getPostSubscriptionsMutationOptions<TError = unknown>(
 export function injectPostSubscriptions<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postSubscriptions>>,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+      >,
       TError,
       InferRequestType<typeof client.subscriptions.$post>
     >
@@ -46,7 +39,7 @@ export function injectPostSubscriptions<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostSubscriptionsMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostSubscriptionsMutationOptions(clientOptions) }
   })
 }
 
@@ -56,32 +49,39 @@ export function getSubscriptionsIdQueryKey(
   return ['subscriptions', '/subscriptions/:id', args] as const
 }
 
-export async function getSubscriptionsId(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.subscriptions[':id'].$get(args, options))
-}
-
 export function getSubscriptionsIdQueryOptions(
   args: InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return queryOptions({
     queryKey: getSubscriptionsIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getSubscriptionsId(args, { ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.subscriptions[':id'].$get(args, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function injectSubscriptionsId<
-  TData = Awaited<ReturnType<typeof getSubscriptionsId>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client.subscriptions)[':id']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(
   args: () => InferRequestType<(typeof client.subscriptions)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getSubscriptionsId>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.subscriptions)[':id']['$get']>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -91,29 +91,22 @@ export function injectSubscriptionsId<
       ...query,
       queryKey: getSubscriptionsIdQueryKey(args()),
       queryFn({ signal }: QueryFunctionContext) {
-        return getSubscriptionsId(args(), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        })
+        return parseResponse(
+          client.subscriptions[':id'].$get(args(), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
 }
 
-export async function deleteSubscriptionsId(
-  args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.subscriptions[':id'].$delete(args, options))
-}
-
-export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getDeleteSubscriptionsIdMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['subscriptions', '/subscriptions/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.subscriptions)[':id']['$delete']>) {
-      return deleteSubscriptionsId(args, options)
+      return parseResponse(client.subscriptions[':id'].$delete(args, options))
     },
   }
 }
@@ -121,7 +114,14 @@ export function getDeleteSubscriptionsIdMutationOptions<TError = unknown>(
 export function injectDeleteSubscriptionsId<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof deleteSubscriptionsId>> | undefined,
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.subscriptions)[':id']['$delete']>>
+            >
+          >
+        >
+      | undefined,
       TError,
       InferRequestType<(typeof client.subscriptions)[':id']['$delete']>
     >
@@ -130,24 +130,15 @@ export function injectDeleteSubscriptionsId<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getDeleteSubscriptionsIdMutationOptions(clientOptions) }
   })
 }
 
-export async function postWebhooksTest(
-  args: InferRequestType<typeof client.webhooks.test.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.webhooks.test.$post(args, options))
-}
-
-export function getPostWebhooksTestMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostWebhooksTestMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['webhooks', '/webhooks/test', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.webhooks.test.$post>) {
-      return postWebhooksTest(args, options)
+      return parseResponse(client.webhooks.test.$post(args, options))
     },
   }
 }
@@ -155,7 +146,9 @@ export function getPostWebhooksTestMutationOptions<TError = unknown>(
 export function injectPostWebhooksTest<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postWebhooksTest>>,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.test.$post>>>>
+      >,
       TError,
       InferRequestType<typeof client.webhooks.test.$post>
     >
@@ -164,6 +157,6 @@ export function injectPostWebhooksTest<TError = unknown>(
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostWebhooksTestMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostWebhooksTestMutationOptions(clientOptions) }
   })
 }

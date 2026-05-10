@@ -13,10 +13,6 @@ export function getGetHealthKey() {
   return ['health', '/health'] as const
 }
 
-export async function getHealth(options?: ClientRequestOptions) {
-  return await parseResponse(client.health.$get(undefined, options))
-}
-
 export function useGetHealth(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   options?: ClientRequestOptions
@@ -24,7 +20,14 @@ export function useGetHealth(options?: {
   const { swr: swrOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
   const swrKey = enabled !== false ? (customKey ?? getGetHealthKey()) : null
-  return { swrKey, ...useSWR(swrKey, async () => getHealth(clientOptions), restSwrOptions) }
+  return {
+    swrKey,
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.health.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
+  }
 }
 
 export function useImmutableGetHealth(options?: {
@@ -36,6 +39,10 @@ export function useImmutableGetHealth(options?: {
   const swrKey = enabled !== false ? (customKey ?? getGetHealthKey()) : null
   return {
     swrKey,
-    ...useSWRImmutable(swrKey, async () => getHealth(clientOptions), restSwrOptions),
+    ...useSWRImmutable(
+      swrKey,
+      async () => parseResponse(client.health.$get(undefined, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }

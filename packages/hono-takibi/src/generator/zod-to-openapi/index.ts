@@ -63,6 +63,34 @@ export function zodToOpenAPI(
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
     if (isBareRef) return nullable ? `${schemas[0]}.nullable()` : schemas[0]
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
+    const allOfMessage = schema['x-allOf-message']
+    if (allOfMessage) {
+      const isArrow = /^\s*\(.*?\)\s*=>/.test(allOfMessage)
+      const msgExpr = isArrow ? `(${allOfMessage})(issue)` : JSON.stringify(allOfMessage)
+      // Issue code order follows Zod v4's official source declaration order
+      // (zod/v4/core/errors.d.ts).
+      const codes = [
+        'invalid_type',
+        'too_big',
+        'too_small',
+        'invalid_format',
+        'not_multiple_of',
+        'unrecognized_keys',
+        'invalid_union',
+        'invalid_key',
+        'invalid_element',
+        'invalid_value',
+        'custom',
+      ] as const
+      const branches = codes
+        .map(
+          (c, i) =>
+            `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push({...issue,input:issue.input,message:${msgExpr}})}`,
+        )
+        .join('')
+      const wrapped = `(()=>{const Schema=${z};return z.unknown().check((ctx)=>{const valid=Schema.safeParse(ctx.value);if(!valid.success){for(const issue of valid.error.issues){${branches}}}}).pipe(Schema)})()`
+      return wrap(wrapped, { ...schema, nullable }, meta)
+    }
     return wrap(z, { ...schema, nullable }, meta)
   }
   if (schema.anyOf !== undefined) {

@@ -16,42 +16,41 @@ export function getApiReverseGeocodeIndexQueryKey(
   return ['api', '/api/reverseGeocode/', args] as const
 }
 
-export async function getApiReverseGeocodeIndex(
-  args: InferRequestType<typeof client.api.reverseGeocode.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.api.reverseGeocode.index.$get(args, options))
-}
-
 export function getApiReverseGeocodeIndexQueryOptions(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
-      return getApiReverseGeocodeIndex(toValue(args), {
-        ...options,
-        init: { ...options?.init, signal },
-      })
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.api.reverseGeocode.index.$get(toValue(args), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   }
 }
 
 export function useApiReverseGeocodeIndex<
-  TData = Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseGeocode.index.$get>>>
+    >
+  >,
   TError = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.api.reverseGeocode.index.$get>>,
   options?: {
     query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.api.reverseGeocode.index.$get>>>
+        >
+      >,
       TError,
-      TData,
-      Awaited<ReturnType<typeof getApiReverseGeocodeIndex>>,
-      ReturnType<typeof getApiReverseGeocodeIndexQueryKey>
+      TData
     >
     options?: ClientRequestOptions
   },
@@ -60,27 +59,18 @@ export function useApiReverseGeocodeIndex<
   return useQuery({
     ...queryOptions,
     queryKey: getApiReverseGeocodeIndexQueryKey(args),
-    queryFn({
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getApiReverseGeocodeIndexQueryKey>>) {
-      return getApiReverseGeocodeIndex(toValue(args), {
-        ...clientOptions,
-        init: { ...clientOptions?.init, signal },
-      })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.api.reverseGeocode.index.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
     },
   })
 }
 
-export async function postApiV2PublicBookingAccountRegisterOauthIndex(
-  args: InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(
-    client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
-  )
-}
-
-export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -90,14 +80,24 @@ export function getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOption
         typeof client.api.v2.public.booking.account.register.oauth.index.$post
       >,
     ) {
-      return postApiV2PublicBookingAccountRegisterOauthIndex(args, options)
+      return parseResponse(
+        client.api.v2.public.booking.account.register.oauth.index.$post(args, options),
+      )
     },
   }
 }
 
 export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterOauthIndex>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
+          >
+        >
+      >
+    >,
     TError,
     InferRequestType<typeof client.api.v2.public.booking.account.register.oauth.index.$post>
   >
@@ -106,20 +106,11 @@ export function usePostApiV2PublicBookingAccountRegisterOauthIndex<TError = unkn
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions<TError>(clientOptions),
+    ...getPostApiV2PublicBookingAccountRegisterOauthIndexMutationOptions(clientOptions),
   })
 }
 
-export async function postApiV2PublicBookingAccountRegisterEmail(
-  args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(
-    client.api.v2.public.booking.account.register.email.$post(args, options),
-  )
-}
-
-export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError = unknown>(
+export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(
   options?: ClientRequestOptions,
 ) {
   return {
@@ -127,14 +118,20 @@ export function getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TEr
     async mutationFn(
       args: InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>,
     ) {
-      return postApiV2PublicBookingAccountRegisterEmail(args, options)
+      return parseResponse(client.api.v2.public.booking.account.register.email.$post(args, options))
     },
   }
 }
 
 export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(options?: {
   mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof postApiV2PublicBookingAccountRegisterEmail>>,
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.api.v2.public.booking.account.register.email.$post>>
+        >
+      >
+    >,
     TError,
     InferRequestType<typeof client.api.v2.public.booking.account.register.email.$post>
   >
@@ -143,6 +140,6 @@ export function usePostApiV2PublicBookingAccountRegisterEmail<TError = unknown>(
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   return useMutation({
     ...mutationOptions,
-    ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions<TError>(clientOptions),
+    ...getPostApiV2PublicBookingAccountRegisterEmailMutationOptions(clientOptions),
   })
 }

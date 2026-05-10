@@ -28,18 +28,11 @@ export function getNullableKey() {
   return ['nullable'] as const
 }
 
-export async function postNullable(
-  args: InferRequestType<typeof client.nullable.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.nullable.$post(args, options))
-}
-
-export function getPostNullableMutationOptions<TError = unknown>(options?: ClientRequestOptions) {
+export function getPostNullableMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['nullable', '/nullable', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.nullable.$post>) {
-      return postNullable(args, options)
+      return parseResponse(client.nullable.$post(args, options))
     },
   }
 }
@@ -47,7 +40,7 @@ export function getPostNullableMutationOptions<TError = unknown>(options?: Clien
 export function createPostNullable<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postNullable>>,
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$post>>>>>,
       TError,
       InferRequestType<typeof client.nullable.$post>
     >
@@ -56,24 +49,15 @@ export function createPostNullable<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostNullableMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostNullableMutationOptions(clientOptions) }
   })
 }
 
-export async function postDiscriminated(
-  args: InferRequestType<typeof client.discriminated.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await parseResponse(client.discriminated.$post(args, options))
-}
-
-export function getPostDiscriminatedMutationOptions<TError = unknown>(
-  options?: ClientRequestOptions,
-) {
+export function getPostDiscriminatedMutationOptions(options?: ClientRequestOptions) {
   return {
     mutationKey: ['discriminated', '/discriminated', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.discriminated.$post>) {
-      return postDiscriminated(args, options)
+      return parseResponse(client.discriminated.$post(args, options))
     },
   }
 }
@@ -81,7 +65,9 @@ export function getPostDiscriminatedMutationOptions<TError = unknown>(
 export function createPostDiscriminated<TError = unknown>(
   options?: () => {
     mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof postDiscriminated>>,
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.discriminated.$post>>>>
+      >,
       TError,
       InferRequestType<typeof client.discriminated.$post>
     >
@@ -90,7 +76,7 @@ export function createPostDiscriminated<TError = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostDiscriminatedMutationOptions<TError>(clientOptions) }
+    return { ...mutation, ...getPostDiscriminatedMutationOptions(clientOptions) }
   })
 }
 
@@ -98,22 +84,29 @@ export function getComposedQueryKey() {
   return ['composed', '/composed'] as const
 }
 
-export async function getComposed(options?: ClientRequestOptions) {
-  return await parseResponse(client.composed.$get(undefined, options))
-}
-
 export function getComposedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getComposedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getComposed({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client.composed.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
-export function createComposed<TData = Awaited<ReturnType<typeof getComposed>>, TError = unknown>(
+export function createComposed<
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.composed.$get>>>>
+  >,
+  TError = unknown,
+>(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getComposed>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.composed.$get>>>>>,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -123,7 +116,12 @@ export function createComposed<TData = Awaited<ReturnType<typeof getComposed>>, 
       ...query,
       queryKey: getComposedQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getComposed({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client.composed.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
@@ -133,25 +131,33 @@ export function getDeepNestedQueryKey() {
   return ['deep-nested', '/deep-nested'] as const
 }
 
-export async function getDeepNested(options?: ClientRequestOptions) {
-  return await parseResponse(client['deep-nested'].$get(undefined, options))
-}
-
 export function getDeepNestedQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getDeepNestedQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getDeepNested({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['deep-nested'].$get(undefined, { ...options, init: { ...options?.init, signal } }),
+      )
     },
   })
 }
 
 export function createDeepNested<
-  TData = Awaited<ReturnType<typeof getDeepNested>>,
+  TData = Awaited<
+    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nested']['$get']>>>>
+  >,
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getDeepNested>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nested']['$get']>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -161,7 +167,12 @@ export function createDeepNested<
       ...query,
       queryKey: getDeepNestedQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getDeepNested({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client['deep-nested'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })
@@ -171,25 +182,38 @@ export function getAdditionalPropsQueryKey() {
   return ['additional-props', '/additional-props'] as const
 }
 
-export async function getAdditionalProps(options?: ClientRequestOptions) {
-  return await parseResponse(client['additional-props'].$get(undefined, options))
-}
-
 export function getAdditionalPropsQueryOptions(options?: ClientRequestOptions) {
   return queryOptions({
     queryKey: getAdditionalPropsQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return getAdditionalProps({ ...options, init: { ...options?.init, signal } })
+    queryFn({ signal }) {
+      return parseResponse(
+        client['additional-props'].$get(undefined, {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
+      )
     },
   })
 }
 
 export function createAdditionalProps<
-  TData = Awaited<ReturnType<typeof getAdditionalProps>>,
+  TData = Awaited<
+    ReturnType<
+      typeof parseResponse<Awaited<ReturnType<(typeof client)['additional-props']['$get']>>>
+    >
+  >,
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<Awaited<ReturnType<typeof getAdditionalProps>>, TError, TData>
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['additional-props']['$get']>>>
+        >
+      >,
+      TError,
+      TData
+    >
     options?: ClientRequestOptions
   },
 ) {
@@ -199,7 +223,12 @@ export function createAdditionalProps<
       ...query,
       queryKey: getAdditionalPropsQueryKey(),
       queryFn({ signal }: QueryFunctionContext) {
-        return getAdditionalProps({ ...clientOptions, init: { ...clientOptions?.init, signal } })
+        return parseResponse(
+          client['additional-props'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
       },
     }
   })

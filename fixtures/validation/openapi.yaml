@@ -110,15 +110,11 @@ components:
           type: integer
           multipleOf: 5
           x-multipleOf-message: 'Score must be a multiple of 5'
-        # x-enum-error-messages (per-value enum messages)
+        # x-error-message on enum
         role:
           type: string
           enum: [admin, user, guest]
           x-error-message: 'Must be a valid role'
-          x-enum-error-messages:
-            admin: 'Select admin role'
-            user: 'Select user role'
-            guest: 'Select guest role'
     User:
       type: object
       properties:

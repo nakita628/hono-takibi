@@ -122,18 +122,20 @@ export function makeExportConst(
  * - Scans for OpenAPI component references by suffix pattern (e.g., `*Schema`, `*Response`)
  * - Excludes locally defined exports from import generation
  *
- * **OpenAPI Component Patterns** (ordered per OpenAPI 3.0 spec):
+ * **OpenAPI Component Patterns** (ordered per OpenAPI 3.0/3.1 spec):
  * | Suffix | Component Type | Example |
  * |--------|---------------|---------|
  * | `*Schema` | schemas | `UserSchema` |
- * | `*ParamsSchema` | parameters | `IdParamsSchema` |
- * | `*SecurityScheme` | securitySchemes | `BearerSecurityScheme` |
- * | `*RequestBody` | requestBodies | `CreateUserRequestBody` |
  * | `*Response` | responses | `UserResponse` |
- * | `*HeaderSchema` | headers | `AuthHeaderSchema` |
+ * | `*ParamsSchema` | parameters | `IdParamsSchema` |
  * | `*Example` | examples | `UserExample` |
+ * | `*RequestBody` | requestBodies | `CreateUserRequestBody` |
+ * | `*HeaderSchema` | headers | `AuthHeaderSchema` |
+ * | `*SecurityScheme` | securitySchemes | `BearerSecurityScheme` |
  * | `*Link` | links | `GetUserLink` |
  * | `*Callback` | callbacks | `WebhookCallback` |
+ * | `*PathItem` | pathItems | `UserPathItem` |
+ * | `*MediaTypeSchema` | mediaTypes | `JsonMediaTypeSchema` |
  *
  * @param code - The TypeScript code to analyze and prepend imports to.
  * @param fromFile - The absolute path of the file where code will be written.
@@ -156,8 +158,8 @@ export function makeExportConst(
  * // → "import{z}from'@hono/zod-openapi'\n\n..."
  * ```
  */
-/** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
+const EXPORT_CONST_PATTERN = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)/g
 
 /**
  * OpenAPI Components Object fields and the identifier suffix each one uses.
@@ -172,12 +174,12 @@ const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
  */
 const COMPONENT_SUFFIXES = [
   ['schemas', 'Schema'],
+  ['responses', 'Response'],
   ['parameters', 'ParamsSchema'],
+  ['examples', 'Example'],
+  ['requestBodies', 'RequestBody'],
   ['headers', 'HeaderSchema'],
   ['securitySchemes', 'SecurityScheme'],
-  ['requestBodies', 'RequestBody'],
-  ['responses', 'Response'],
-  ['examples', 'Example'],
   ['links', 'Link'],
   ['callbacks', 'Callback'],
   ['pathItems', 'PathItem'],
@@ -203,9 +205,6 @@ const SCAN = new RegExp(
   ].join('|'),
   'g',
 )
-
-/** Pattern to find locally exported constants */
-const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
 
 /**
  * Maps a captured identifier back to its component-type key by suffix.
