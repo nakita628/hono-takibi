@@ -7,6 +7,7 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   uuidv4: 'uuidv4()',
   uuidv6: 'uuidv6()',
   uuidv7: 'uuidv7()',
+  url: 'url()',
   uri: 'url()',
   emoji: 'emoji()',
   base64: 'base64()',
@@ -28,6 +29,9 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   duration: 'iso.duration()',
   binary: 'file()',
   e164: 'e164()',
+  guid: 'guid()',
+  httpUrl: 'httpUrl()',
+  hostname: 'hostname()',
   toLowerCase: 'toLowerCase()',
   toUpperCase: 'toUpperCase()',
   trim: 'trim()',
@@ -59,8 +63,12 @@ function buildFormatOptions(schema: Schema): readonly string[] {
   const opts: string[] = []
   switch (schema.format) {
     case 'email': {
+      // x-emailRegex wins over x-emailPattern when both are set.
+      const regex = schema['x-emailRegex']
       const preset = schema['x-emailPattern']
-      if (preset && EMAIL_PATTERN_PRESET[preset]) {
+      if (regex) {
+        opts.push(`pattern:/${regex}/`)
+      } else if (preset && EMAIL_PATTERN_PRESET[preset]) {
         opts.push(`pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`)
       }
       break
@@ -70,6 +78,7 @@ function buildFormatOptions(schema: Schema): readonly string[] {
       if (v) opts.push(`version:${JSON.stringify(v)}`)
       break
     }
+    case 'url':
     case 'uri': {
       const proto = schema['x-urlProtocol']
       const host = schema['x-urlHostname']
@@ -209,6 +218,20 @@ export function string(schema: Schema): string {
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
     schema.minLength === schema.maxLength
+  // P2 string substring checks. Each carries the original plain string so the
+  // round-trip to Zod preserves the user's literal (not a regex-escaped pattern).
+  const includes =
+    schema['x-includes'] !== undefined
+      ? `.includes(${JSON.stringify(schema['x-includes'])})`
+      : undefined
+  const startsWith =
+    schema['x-startsWith'] !== undefined
+      ? `.startsWith(${JSON.stringify(schema['x-startsWith'])})`
+      : undefined
+  const endsWith =
+    schema['x-endsWith'] !== undefined
+      ? `.endsWith(${JSON.stringify(schema['x-endsWith'])})`
+      : undefined
   return [
     base,
     pattern,
@@ -219,6 +242,9 @@ export function string(schema: Schema): string {
     !isFixedLength && schema.maxLength !== undefined
       ? `.max(${schema.maxLength}${maxMsgPart})`
       : undefined,
+    includes,
+    startsWith,
+    endsWith,
     endTrim || undefined,
     endLower || undefined,
     endUpper || undefined,

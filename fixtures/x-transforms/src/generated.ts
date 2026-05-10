@@ -36,6 +36,11 @@ const FormatOptionsSchema = z
     hs256Jwt: z.jwt({ alg: 'HS256' }),
     sha256Hash: z.hash('sha256', { enc: 'hex' }),
     phone: z.e164(),
+    customEmail: z.email({ pattern: /^.+@example\.com$/ }),
+    guidLike: z.guid(),
+    httpOnlyUrl: z.httpUrl(),
+    host: z.hostname(),
+    dotMac: z.mac({ delimiter: '.' }),
   })
   .openapi({
     required: [
@@ -48,9 +53,27 @@ const FormatOptionsSchema = z
       'hs256Jwt',
       'sha256Hash',
       'phone',
+      'customEmail',
+      'guidLike',
+      'httpOnlyUrl',
+      'host',
+      'dotMac',
     ],
   })
   .openapi('FormatOptions')
+
+const P2FormSchema = z
+  .object({
+    includesSlug: z.string().includes('/api/'),
+    startsWithHttps: z.string().startsWith('https://'),
+    endsWithTest: z.string().endsWith('.test'),
+    withCatch: z.int().catch(0),
+    withPrefault: z.string().prefault('default-value'),
+  })
+  .openapi({
+    required: ['includesSlug', 'startsWithHttps', 'endsWithTest', 'withCatch', 'withPrefault'],
+  })
+  .openapi('P2Form')
 
 export const postStringsRoute = createRoute({
   method: 'post',
@@ -85,5 +108,15 @@ export const postFormatsRoute = createRoute({
   },
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: FormatOptionsSchema } } },
+  },
+})
+
+export const postP2Route = createRoute({
+  method: 'post',
+  path: '/p2',
+  operationId: 'postP2',
+  request: { body: { content: { 'application/json': { schema: P2FormSchema } }, required: true } },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: P2FormSchema } } },
   },
 })

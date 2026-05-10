@@ -61,6 +61,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/FormatOptions'
 
+  /p2:
+    post:
+      operationId: postP2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/P2Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/P2Form'
+
 components:
   schemas:
     StringForm:
@@ -135,6 +152,11 @@ components:
         - hs256Jwt
         - sha256Hash
         - phone
+        - customEmail
+        - guidLike
+        - httpOnlyUrl
+        - host
+        - dotMac
       properties:
         emailHtml5:
           type: string
@@ -174,3 +196,55 @@ components:
         phone:
           type: string
           format: e164
+        # custom regex via x-emailRegex (separate from preset x-emailPattern)
+        customEmail:
+          type: string
+          format: email
+          x-emailRegex: '^.+@example\.com$'
+        # GUID (lenient UUID)
+        guidLike:
+          type: string
+          format: guid
+        # HTTP/HTTPS-only URL
+        httpOnlyUrl:
+          type: string
+          format: httpUrl
+        # Hostname-only
+        host:
+          type: string
+          format: hostname
+        # MAC with dot delimiter
+        dotMac:
+          type: string
+          format: mac
+          x-macDelimiter: '.'
+
+    P2Form:
+      type: object
+      required:
+        - includesSlug
+        - startsWithHttps
+        - endsWithTest
+        - withCatch
+        - withPrefault
+      properties:
+        # string .includes()
+        includesSlug:
+          type: string
+          x-includes: '/api/'
+        # string .startsWith()
+        startsWithHttps:
+          type: string
+          x-startsWith: 'https://'
+        # string .endsWith()
+        endsWithTest:
+          type: string
+          x-endsWith: '.test'
+        # .catch(fallback)
+        withCatch:
+          type: integer
+          x-catch: 0
+        # .prefault(value)
+        withPrefault:
+          type: string
+          x-prefault: 'default-value'

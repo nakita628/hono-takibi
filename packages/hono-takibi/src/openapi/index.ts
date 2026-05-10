@@ -193,7 +193,10 @@ export type FormatString =
   | 'uuidv4'
   | 'uuidv6'
   | 'uuidv7'
-  | 'uri'
+  | 'url' /* Zod-aligned canonical name */
+  | 'uri' /* OpenAPI/JSON Schema standard, kept for backward compatibility */
+  | 'httpUrl'
+  | 'hostname'
   | 'hex'
   | 'jwt'
   | 'emoji'
@@ -215,6 +218,7 @@ export type FormatString =
   | 'mac' /* MAC address */
   | 'hash' /* hash digest — requires x-hashAlg */
   | 'e164' /* E.164 phone */
+  | 'guid' /* UUID-like without strict RFC check */
   /* transforms */
   | 'toLowerCase' /* toLowerCase */
   | 'toUpperCase' /* toUpperCase */
@@ -498,6 +502,7 @@ export type Schema = {
   readonly 'x-coerce'?: boolean
   // P1 format-option extensions (spec v2.3)
   readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
+  readonly 'x-emailRegex'?: string
   readonly 'x-uuidVersion'?: 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8'
   readonly 'x-urlHostname'?: string
   readonly 'x-urlProtocol'?: string
@@ -505,10 +510,19 @@ export type Schema = {
   readonly 'x-isoPrecision'?: number
   readonly 'x-isoOffset'?: boolean
   readonly 'x-isoLocal'?: boolean
-  readonly 'x-macDelimiter'?: '-' | ':'
+  readonly 'x-macDelimiter'?: string
   readonly 'x-jwtAlg'?: string
   readonly 'x-hashAlg'?: 'sha1' | 'sha256' | 'sha384' | 'sha512' | 'md5'
   readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
+  // P2 extensions (spec v2.3)
+  // Note: x-finite / x-safe were considered but skipped — the corresponding
+  // Zod APIs (.finite() / .safe()) are deprecated.
+  readonly 'x-catch'?: unknown
+  readonly 'x-prefault'?: unknown
+  readonly 'x-freeze'?: boolean
+  readonly 'x-includes'?: string
+  readonly 'x-startsWith'?: string
+  readonly 'x-endsWith'?: string
 }
 
 export type Parameter = {

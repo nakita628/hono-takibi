@@ -2,6 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   postCoerceRoute,
   postFormatsRoute,
+  postP2Route,
   postStringsRoute,
 } from './generated.ts'
 
@@ -44,6 +45,11 @@ app.openapi(postCoerceRoute, async (c) => {
 })
 
 app.openapi(postFormatsRoute, async (c) => {
+  const body = c.req.valid('json')
+  return c.json(body, 200)
+})
+
+app.openapi(postP2Route, async (c) => {
   const body = c.req.valid('json')
   return c.json(body, 200)
 })

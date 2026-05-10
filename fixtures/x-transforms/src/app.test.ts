@@ -11,6 +11,7 @@ const post = (path: string) => (body: unknown) =>
 const postStrings = post('/strings')
 const postCoerce = post('/coerce')
 const postFormats = post('/formats')
+const postP2 = post('/p2')
 
 describe('x-trim / x-toLowerCase / x-toUpperCase / x-normalize (P1 transforms)', () => {
   it('trims whitespace from x-trim fields', async () => {
@@ -138,6 +139,11 @@ describe('x-* format options (P1)', () => {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
     sha256Hash: 'a'.repeat(64),
     phone: '+819012345678',
+    customEmail: 'foo@example.com',
+    guidLike: '01890a5d-ac96-8b4e-b1c2-3d4e5f6a7b8c',
+    httpOnlyUrl: 'https://example.com/api',
+    host: 'example.com',
+    dotMac: '01.23.45.67.89.ab',
   }
 
   it('accepts a fully valid format-options payload', async () => {
@@ -163,5 +169,65 @@ describe('x-* format options (P1)', () => {
   it('rejects sha256 hash strings of the wrong length', async () => {
     const res = await postFormats({ ...validBody, sha256Hash: 'a'.repeat(32) })
     expect(res.status).toBe(422)
+  })
+
+  it('rejects emails that do not match x-emailRegex', async () => {
+    const res = await postFormats({ ...validBody, customEmail: 'foo@other.com' })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects non-HTTP/HTTPS URLs for httpUrl format', async () => {
+    const res = await postFormats({ ...validBody, httpOnlyUrl: 'ftp://example.com/' })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects MAC addresses with the wrong delimiter when x-macDelimiter is "."', async () => {
+    const res = await postFormats({ ...validBody, dotMac: '01:23:45:67:89:ab' })
+    expect(res.status).toBe(422)
+  })
+})
+
+describe('P2: x-includes / x-startsWith / x-endsWith / x-catch / x-prefault', () => {
+  const validBody = {
+    includesSlug: 'GET /api/users',
+    startsWithHttps: 'https://example.com',
+    endsWithTest: 'something.test',
+    withCatch: 5,
+    withPrefault: 'hello',
+  }
+
+  it('accepts a fully valid P2 payload', async () => {
+    const res = await postP2(validBody)
+    expect(res.status).toBe(200)
+  })
+
+  it('rejects strings missing the x-includes substring', async () => {
+    const res = await postP2({ ...validBody, includesSlug: 'GET /v2/users' })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects strings without the x-startsWith prefix', async () => {
+    const res = await postP2({ ...validBody, startsWithHttps: 'http://example.com' })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects strings without the x-endsWith suffix', async () => {
+    const res = await postP2({ ...validBody, endsWithTest: 'foo.tst' })
+    expect(res.status).toBe(422)
+  })
+
+  it('uses the .catch fallback when validation would fail', async () => {
+    const res = await postP2({ ...validBody, withCatch: 'not-an-integer' })
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as Record<string, unknown>
+    expect(body.withCatch).toBe(0)
+  })
+
+  it('uses the .prefault value when the field is undefined', async () => {
+    const { withPrefault: _omitted, ...rest } = validBody
+    const res = await postP2(rest)
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as Record<string, unknown>
+    expect(body.withPrefault).toBe('default-value')
   })
 })

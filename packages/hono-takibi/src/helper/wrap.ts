@@ -139,8 +139,18 @@ export function wrap(
   const n = isNullable ? `${zod}.nullable()` : zod
   /* why schema.default !== undefined: because schema.default === 0 is falsy */
   const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+  /* P2: .prefault(value) applies a default value to the parse INPUT before
+   * validation runs (different from .default which fills missing output). */
+  const pf =
+    schema['x-prefault'] !== undefined ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})` : d
+  /* P2: .catch(fallback) returns the fallback when validation fails. */
+  const c =
+    schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
+  /* P2: .readonly() applies Object.freeze() to the parsed output (distinct
+   * from JSON Schema's readOnly which is a serialization hint). */
+  const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
   /* Apply .brand() for branded types */
-  const z = schema['x-brand'] ? `${d}.brand<"${schema['x-brand']}">()` : d
+  const z = schema['x-brand'] ? `${fr}.brand<"${schema['x-brand']}">()` : fr
   /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',
@@ -198,6 +208,7 @@ export function wrap(
     'x-coerce',
     // P1 format-option extensions (spec v2.3)
     'x-emailPattern',
+    'x-emailRegex',
     'x-uuidVersion',
     'x-urlHostname',
     'x-urlProtocol',
@@ -209,6 +220,13 @@ export function wrap(
     'x-jwtAlg',
     'x-hashAlg',
     'x-hashEnc',
+    // P2 extensions (spec v2.3) — x-finite / x-safe omitted (deprecated APIs)
+    'x-catch',
+    'x-prefault',
+    'x-freeze',
+    'x-includes',
+    'x-startsWith',
+    'x-endsWith',
   ])
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(

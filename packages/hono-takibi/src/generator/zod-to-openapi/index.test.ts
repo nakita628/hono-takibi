@@ -863,6 +863,23 @@ describe('zodToOpenAPI', () => {
             { type: 'boolean', 'x-coerce': true, 'x-error-message': 'ブール必須' },
             'z.coerce.boolean({error:"ブール必須"})',
           ],
+          // P2: x-catch / x-prefault / x-freeze (wrap.ts)
+          [{ type: 'boolean', 'x-catch': false }, 'z.boolean().catch(false)'],
+          [{ type: 'boolean', 'x-prefault': true }, 'z.boolean().prefault(true)'],
+          [
+            { type: 'boolean', default: true, 'x-catch': false },
+            'z.boolean().default(true).catch(false)',
+          ],
+          [
+            { type: 'boolean', 'x-prefault': true, 'x-catch': false },
+            'z.boolean().prefault(true).catch(false)',
+          ],
+          [{ type: 'object', 'x-freeze': true } as Schema, 'z.object({}).readonly()'],
+          [{ type: 'string', 'x-freeze': true } as Schema, 'z.string().readonly()'],
+          [
+            { type: 'string', 'x-catch': 'fallback', 'x-brand': 'Tag' } as Schema,
+            'z.string().catch("fallback").brand<"Tag">()',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

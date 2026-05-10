@@ -13,6 +13,7 @@ describe('string', () => {
     [{ type: 'string', format: 'uuidv4' }, 'z.uuidv4()'],
     [{ type: 'string', format: 'uuidv7' }, 'z.uuidv7()'],
     [{ type: 'string', format: 'uri' }, 'z.url()'],
+    [{ type: 'string', format: 'url' }, 'z.url()'],
     [{ type: 'string', format: 'emoji' }, 'z.emoji()'],
     [{ type: 'string', format: 'base64' }, 'z.base64()'],
     [{ type: 'string', format: 'nanoid' }, 'z.nanoid()'],
@@ -378,6 +379,60 @@ describe('string', () => {
           'x-toLowerCase': true,
         },
         'z.string().trim().toLowerCase().pipe(z.email({pattern:z.regexes.html5Email}))',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-emailRegex (custom regex) / format: guid / x-includes / x-startsWith / x-endsWith (P1+P2)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // custom email regex via x-emailRegex
+      [
+        { type: 'string', format: 'email', 'x-emailRegex': '^.+@example\\.com$' },
+        'z.email({pattern:/^.+@example\\.com$/})',
+      ],
+      // x-emailRegex wins over x-emailPattern when both are set
+      [
+        {
+          type: 'string',
+          format: 'email',
+          'x-emailPattern': 'html5',
+          'x-emailRegex': '^.+@example\\.com$',
+        },
+        'z.email({pattern:/^.+@example\\.com$/})',
+      ],
+      // GUID format (RFC-lenient)
+      [{ type: 'string', format: 'guid' }, 'z.guid()'],
+      [
+        { type: 'string', format: 'guid', 'x-error-message': 'GUID不正' },
+        'z.guid({error:"GUID不正"})',
+      ],
+      // httpUrl and hostname formats
+      [{ type: 'string', format: 'httpUrl' }, 'z.httpUrl()'],
+      [{ type: 'string', format: 'hostname' }, 'z.hostname()'],
+      [
+        { type: 'string', format: 'httpUrl', 'x-error-message': 'HTTP URLのみ' },
+        'z.httpUrl({error:"HTTP URLのみ"})',
+      ],
+      // mac with custom delimiter (any string now)
+      [{ type: 'string', format: 'mac', 'x-macDelimiter': '.' }, 'z.mac({delimiter:"."})'],
+      // P2 substring checks
+      [{ type: 'string', 'x-includes': '@example.com' }, 'z.string().includes("@example.com")'],
+      [{ type: 'string', 'x-startsWith': 'https://' }, 'z.string().startsWith("https://")'],
+      [{ type: 'string', 'x-endsWith': '.test' }, 'z.string().endsWith(".test")'],
+      // includes with special chars preserved exactly (no regex escape)
+      [{ type: 'string', 'x-includes': '.foo()' }, 'z.string().includes(".foo()")'],
+      // combined with length + transforms
+      [
+        {
+          type: 'string',
+          minLength: 1,
+          maxLength: 100,
+          'x-startsWith': 'foo',
+          'x-trim': true,
+        },
+        'z.string().min(1).max(100).startsWith("foo").trim()',
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
