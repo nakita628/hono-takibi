@@ -857,6 +857,12 @@ describe('zodToOpenAPI', () => {
             'z.boolean().nullable().default(true)',
           ],
           [{ type: ['boolean', 'null'], default: true }, 'z.boolean().nullable().default(true)'],
+          // P1: x-coerce
+          [{ type: 'boolean', 'x-coerce': true }, 'z.coerce.boolean()'],
+          [
+            { type: 'boolean', 'x-coerce': true, 'x-error-message': 'ブール必須' },
+            'z.coerce.boolean({error:"ブール必須"})',
+          ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
         })

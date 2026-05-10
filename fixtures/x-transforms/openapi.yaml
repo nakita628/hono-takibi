@@ -1,0 +1,176 @@
+openapi: '3.1.0'
+info:
+  title: x-* Transform / Coerce / Format-Option Extensions (P1)
+  version: '1.0.0'
+  description: |
+    Fixture exercising the P1 extensions:
+    - Transforms: x-trim, x-toLowerCase, x-toUpperCase, x-normalize
+    - Coerce: x-coerce
+    - Format options: x-emailPattern, x-uuidVersion, x-urlHostname/Protocol/Normalize,
+      x-isoPrecision/Offset/Local, x-macDelimiter, x-jwtAlg, x-hashAlg/Enc
+
+paths:
+  /strings:
+    post:
+      operationId: postStrings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StringForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringForm'
+
+  /coerce:
+    post:
+      operationId: postCoerce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoerceForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoerceForm'
+
+  /formats:
+    post:
+      operationId: postFormats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormatOptions'
+
+components:
+  schemas:
+    StringForm:
+      type: object
+      required:
+        - trimmed
+        - lowered
+        - uppered
+        - normalized
+        - emailNormalized
+        - allChained
+      properties:
+        trimmed:
+          type: string
+          x-trim: true
+        lowered:
+          type: string
+          x-toLowerCase: true
+        uppered:
+          type: string
+          x-toUpperCase: true
+        normalized:
+          type: string
+          x-normalize: NFC
+        emailNormalized:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+        allChained:
+          type: string
+          x-trim: true
+          x-toLowerCase: true
+          x-normalize: NFC
+
+    CoerceForm:
+      type: object
+      required:
+        - asString
+        - asDate
+        - asNumber
+        - asInt
+        - asBool
+      properties:
+        asString:
+          type: string
+          x-coerce: true
+        asDate:
+          type: string
+          format: date-time
+          x-coerce: true
+        asNumber:
+          type: number
+          x-coerce: true
+        asInt:
+          type: integer
+          x-coerce: true
+          minimum: 0
+        asBool:
+          type: boolean
+          x-coerce: true
+
+    FormatOptions:
+      type: object
+      required:
+        - emailHtml5
+        - uuidV8
+        - httpsUrl
+        - preciseDatetime
+        - localDatetime
+        - colonMac
+        - hs256Jwt
+        - sha256Hash
+        - phone
+      properties:
+        emailHtml5:
+          type: string
+          format: email
+          x-emailPattern: html5
+        uuidV8:
+          type: string
+          format: uuid
+          x-uuidVersion: v8
+        httpsUrl:
+          type: string
+          format: uri
+          x-urlProtocol: '^https$'
+          x-urlNormalize: true
+        preciseDatetime:
+          type: string
+          format: date-time
+          x-isoPrecision: 3
+          x-isoOffset: true
+        localDatetime:
+          type: string
+          format: date-time
+          x-isoLocal: true
+        colonMac:
+          type: string
+          format: mac
+          x-macDelimiter: ':'
+        hs256Jwt:
+          type: string
+          format: jwt
+          x-jwtAlg: HS256
+        sha256Hash:
+          type: string
+          format: hash
+          x-hashAlg: sha256
+          x-hashEnc: hex
+        phone:
+          type: string
+          format: e164

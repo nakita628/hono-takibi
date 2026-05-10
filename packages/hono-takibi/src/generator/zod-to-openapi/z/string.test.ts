@@ -207,6 +207,183 @@ describe('string', () => {
     })
   })
 
+  describe('x-trim / x-toLowerCase / x-toUpperCase / x-normalize (P1)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // single transform
+      [{ type: 'string', 'x-trim': true }, 'z.string().trim()'],
+      [{ type: 'string', 'x-toLowerCase': true }, 'z.string().toLowerCase()'],
+      [{ type: 'string', 'x-toUpperCase': true }, 'z.string().toUpperCase()'],
+      [{ type: 'string', 'x-normalize': 'NFC' }, 'z.string().normalize("NFC")'],
+      [{ type: 'string', 'x-normalize': 'NFKC' }, 'z.string().normalize("NFKC")'],
+      // chained: trim → case → normalize
+      [
+        { type: 'string', 'x-trim': true, 'x-toLowerCase': true },
+        'z.string().trim().toLowerCase()',
+      ],
+      [
+        { type: 'string', 'x-trim': true, 'x-toLowerCase': true, 'x-normalize': 'NFC' },
+        'z.string().trim().toLowerCase().normalize("NFC")',
+      ],
+      // combined with validation format → uses pipe pattern so transforms run
+      // before validation (canonical input normalization).
+      [
+        { type: 'string', format: 'email', 'x-trim': true, 'x-toLowerCase': true },
+        'z.string().trim().toLowerCase().pipe(z.email())',
+      ],
+      [{ type: 'string', format: 'uuid', 'x-trim': true }, 'z.string().trim().pipe(z.uuid())'],
+      // combined with length
+      [
+        { type: 'string', minLength: 1, maxLength: 100, 'x-trim': true },
+        'z.string().min(1).max(100).trim()',
+      ],
+      // idempotent: format:"trim" + x-trim → single .trim() via base, no extra
+      [{ type: 'string', format: 'trim', 'x-trim': true }, 'z.trim()'],
+      [{ type: 'string', format: 'toLowerCase', 'x-toLowerCase': true }, 'z.toLowerCase()'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-coerce (P1)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // bare coerce
+      [{ type: 'string', 'x-coerce': true }, 'z.coerce.string()'],
+      // coerce + date
+      [{ type: 'string', format: 'date-time', 'x-coerce': true }, 'z.coerce.date()'],
+      [{ type: 'string', format: 'date', 'x-coerce': true }, 'z.coerce.date()'],
+      // coerce + error message
+      [
+        { type: 'string', 'x-coerce': true, 'x-error-message': '文字列必須' },
+        'z.coerce.string({error:"文字列必須"})',
+      ],
+      [
+        { type: 'string', format: 'date-time', 'x-coerce': true, 'x-error-message': '日付不正' },
+        'z.coerce.date({error:"日付不正"})',
+      ],
+      // coerce + transforms
+      [
+        { type: 'string', 'x-coerce': true, 'x-trim': true, 'x-toLowerCase': true },
+        'z.coerce.string().trim().toLowerCase()',
+      ],
+      // coerce ignored for non-date format (out of P1 scope, base unchanged)
+      [{ type: 'string', format: 'email', 'x-coerce': true }, 'z.email()'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-emailPattern / x-uuidVersion / x-url* / x-iso* / x-mac* / x-jwt* / x-hash* (P1 format options)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // email presets
+      [
+        { type: 'string', format: 'email', 'x-emailPattern': 'html5' },
+        'z.email({pattern:z.regexes.html5Email})',
+      ],
+      [
+        { type: 'string', format: 'email', 'x-emailPattern': 'rfc5322' },
+        'z.email({pattern:z.regexes.rfc5322Email})',
+      ],
+      [
+        { type: 'string', format: 'email', 'x-emailPattern': 'unicode' },
+        'z.email({pattern:z.regexes.unicodeEmail})',
+      ],
+      // email + preset + error message
+      [
+        {
+          type: 'string',
+          format: 'email',
+          'x-emailPattern': 'html5',
+          'x-error-message': 'メール不正',
+        },
+        'z.email({pattern:z.regexes.html5Email,error:"メール不正"})',
+      ],
+      // uuid versions (v1/v2/v3/v5/v8 — non-dedicated formats)
+      [{ type: 'string', format: 'uuid', 'x-uuidVersion': 'v8' }, 'z.uuid({version:"v8"})'],
+      [{ type: 'string', format: 'uuid', 'x-uuidVersion': 'v1' }, 'z.uuid({version:"v1"})'],
+      // url constraints
+      [
+        { type: 'string', format: 'uri', 'x-urlProtocol': '^https?$' },
+        'z.url({protocol:/^https?$/})',
+      ],
+      [
+        { type: 'string', format: 'uri', 'x-urlHostname': '^example\\.com$' },
+        'z.url({hostname:/^example\\.com$/})',
+      ],
+      [{ type: 'string', format: 'uri', 'x-urlNormalize': true }, 'z.url({normalize:true})'],
+      // url all three
+      [
+        {
+          type: 'string',
+          format: 'uri',
+          'x-urlProtocol': '^https$',
+          'x-urlHostname': '^example\\.com$',
+          'x-urlNormalize': true,
+        },
+        'z.url({protocol:/^https$/,hostname:/^example\\.com$/,normalize:true})',
+      ],
+      // iso datetime options
+      [
+        { type: 'string', format: 'date-time', 'x-isoPrecision': 3 },
+        'z.iso.datetime({precision:3})',
+      ],
+      [
+        { type: 'string', format: 'date-time', 'x-isoOffset': true },
+        'z.iso.datetime({offset:true})',
+      ],
+      [{ type: 'string', format: 'date-time', 'x-isoLocal': true }, 'z.iso.datetime({local:true})'],
+      [
+        {
+          type: 'string',
+          format: 'date-time',
+          'x-isoPrecision': 3,
+          'x-isoOffset': true,
+          'x-isoLocal': true,
+        },
+        'z.iso.datetime({precision:3,offset:true,local:true})',
+      ],
+      // iso time precision
+      [{ type: 'string', format: 'time', 'x-isoPrecision': 0 }, 'z.iso.time({precision:0})'],
+      // mac delimiter
+      [{ type: 'string', format: 'mac', 'x-macDelimiter': ':' }, 'z.mac({delimiter:":"})'],
+      [{ type: 'string', format: 'mac', 'x-macDelimiter': '-' }, 'z.mac({delimiter:"-"})'],
+      // jwt alg
+      [{ type: 'string', format: 'jwt', 'x-jwtAlg': 'HS256' }, 'z.jwt({alg:"HS256"})'],
+      // hash (algo positional + enc option)
+      [{ type: 'string', format: 'hash', 'x-hashAlg': 'sha256' }, 'z.hash("sha256")'],
+      [
+        { type: 'string', format: 'hash', 'x-hashAlg': 'sha256', 'x-hashEnc': 'hex' },
+        'z.hash("sha256",{enc:"hex"})',
+      ],
+      [
+        {
+          type: 'string',
+          format: 'hash',
+          'x-hashAlg': 'sha512',
+          'x-hashEnc': 'base64url',
+          'x-error-message': 'ハッシュ不正',
+        },
+        'z.hash("sha512",{enc:"base64url",error:"ハッシュ不正"})',
+      ],
+      // hash without algo → fallback to z.string()
+      [{ type: 'string', format: 'hash' }, 'z.string()'],
+      // e164 phone
+      [{ type: 'string', format: 'e164' }, 'z.e164()'],
+      // option + transforms chain
+      [
+        {
+          type: 'string',
+          format: 'email',
+          'x-emailPattern': 'html5',
+          'x-trim': true,
+          'x-toLowerCase': true,
+        },
+        'z.string().trim().toLowerCase().pipe(z.email({pattern:z.regexes.html5Email}))',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
   describe('edge cases', () => {
     it.concurrent.each<[Schema, string]>([
       // only minLength

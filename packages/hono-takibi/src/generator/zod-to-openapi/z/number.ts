@@ -9,8 +9,10 @@ import { error } from '../../../utils/index.js'
 export function number(schema: Schema): string {
   const errorMessage = schema['x-error-message']
   const baseErrorArg = errorMessage ? error(errorMessage) : ''
-  const base =
-    schema.format === 'float' || schema.format === 'float32'
+  const coerce = schema['x-coerce'] === true
+  const base = coerce
+    ? `z.coerce.number(${baseErrorArg})`
+    : schema.format === 'float' || schema.format === 'float32'
       ? `z.float32(${baseErrorArg})`
       : schema.format === 'float64'
         ? `z.float64(${baseErrorArg})`

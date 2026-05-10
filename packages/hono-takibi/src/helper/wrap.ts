@@ -190,6 +190,25 @@ export function wrap(
     // leak into z.object().meta(...) emission as a stray option.
     'x-enum-error-messages',
     'x-brand',
+    // P1 transform/coerce extensions (spec v2.2)
+    'x-trim',
+    'x-toLowerCase',
+    'x-toUpperCase',
+    'x-normalize',
+    'x-coerce',
+    // P1 format-option extensions (spec v2.3)
+    'x-emailPattern',
+    'x-uuidVersion',
+    'x-urlHostname',
+    'x-urlProtocol',
+    'x-urlNormalize',
+    'x-isoPrecision',
+    'x-isoOffset',
+    'x-isoLocal',
+    'x-macDelimiter',
+    'x-jwtAlg',
+    'x-hashAlg',
+    'x-hashEnc',
   ])
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(

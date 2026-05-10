@@ -199,7 +199,9 @@ export function zodToOpenAPI(
   if (t.includes('integer')) return wrap(integer(schema), schema, meta)
   if (t.includes('boolean')) {
     const errorMessage = schema['x-error-message']
-    const base = errorMessage ? `z.boolean(${error(errorMessage)})` : 'z.boolean()'
+    const coerce = schema['x-coerce'] === true
+    const baseFn = coerce ? 'z.coerce.boolean' : 'z.boolean'
+    const base = errorMessage ? `${baseFn}(${error(errorMessage)})` : `${baseFn}()`
     return wrap(base, schema, meta)
   }
   if (t.includes('array')) {

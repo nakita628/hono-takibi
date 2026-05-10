@@ -9,8 +9,14 @@ import { error } from '../../../utils/index.js'
 export function integer(schema: Schema): string {
   const errorMessage = schema['x-error-message']
   const baseErrorArg = errorMessage ? error(errorMessage) : ''
-  const base =
-    schema.format === 'int32'
+  const coerce = schema['x-coerce'] === true
+  // For integer + coerce, emit z.coerce.number().int() since z.coerce.int()
+  // does not exist. bigint format keeps its dedicated coerce variant.
+  const base = coerce
+    ? schema.format === 'bigint'
+      ? `z.coerce.bigint(${baseErrorArg})`
+      : `z.coerce.number(${baseErrorArg}).int()`
+    : schema.format === 'int32'
       ? `z.int32(${baseErrorArg})`
       : schema.format === 'int64'
         ? `z.int64(${baseErrorArg})`

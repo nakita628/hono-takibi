@@ -212,6 +212,9 @@ export type FormatString =
   | 'date-time' /* ISO 8601; by default only `Z` timezone allowed */
   | 'duration' /* ISO 8601 duration */
   | 'binary'
+  | 'mac' /* MAC address */
+  | 'hash' /* hash digest — requires x-hashAlg */
+  | 'e164' /* E.164 phone */
   /* transforms */
   | 'toLowerCase' /* toLowerCase */
   | 'toUpperCase' /* toUpperCase */
@@ -487,6 +490,25 @@ export type Schema = {
   // can't fire. Use `x-error-message` for the whole-enum message instead.
   // Vendor extension for branded types
   readonly 'x-brand'?: string
+  // P1 transform/coerce extensions (spec v2.2)
+  readonly 'x-trim'?: boolean
+  readonly 'x-toLowerCase'?: boolean
+  readonly 'x-toUpperCase'?: boolean
+  readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
+  readonly 'x-coerce'?: boolean
+  // P1 format-option extensions (spec v2.3)
+  readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
+  readonly 'x-uuidVersion'?: 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8'
+  readonly 'x-urlHostname'?: string
+  readonly 'x-urlProtocol'?: string
+  readonly 'x-urlNormalize'?: boolean
+  readonly 'x-isoPrecision'?: number
+  readonly 'x-isoOffset'?: boolean
+  readonly 'x-isoLocal'?: boolean
+  readonly 'x-macDelimiter'?: '-' | ':'
+  readonly 'x-jwtAlg'?: string
+  readonly 'x-hashAlg'?: 'sha1' | 'sha256' | 'sha384' | 'sha512' | 'md5'
+  readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
 }
 
 export type Parameter = {

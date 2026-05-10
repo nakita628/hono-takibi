@@ -364,4 +364,20 @@ describe('integer', () => {
       expect(integer(input)).toBe(expected)
     })
   })
+
+  describe('x-coerce (P1)', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().int()'],
+      [
+        { type: 'integer', 'x-coerce': true, 'x-error-message': '整数必須' },
+        'z.coerce.number({error:"整数必須"}).int()',
+      ],
+      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().int().min(0)'],
+      [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().int()'],
+      // bigint keeps its dedicated coerce variant
+      [{ type: 'integer', format: 'bigint', 'x-coerce': true }, 'z.coerce.bigint()'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
 })

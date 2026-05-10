@@ -190,6 +190,25 @@ describe('x-error-message on multipleOf', () => {
   })
 })
 
+describe('x-coerce (P1)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'number', 'x-coerce': true }, 'z.coerce.number()'],
+    [
+      { type: 'number', 'x-coerce': true, 'x-error-message': '数値必須' },
+      'z.coerce.number({error:"数値必須"})',
+    ],
+    [{ type: 'number', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().min(0)'],
+    [
+      { type: 'number', 'x-coerce': true, minimum: 0, maximum: 100 },
+      'z.coerce.number().min(0).max(100)',
+    ],
+    // coerce overrides float/float64 — coerce.number is the canonical form
+    [{ type: 'number', format: 'float', 'x-coerce': true }, 'z.coerce.number()'],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
 describe('x-multipleOf-message', () => {
   it.concurrent.each<[Schema, string]>([
     // x-multipleOf-message overrides x-error-message for multipleOf
