@@ -35,6 +35,78 @@ describe('readConfig', () => {
       process.cwd = originalCwd
     }
   })
+
+  it('returns ok:true with parsed config when file has a valid default export', async () => {
+    const fs = await import('node:fs')
+    const dir = fs.mkdtempSync('/tmp/hono-takibi-test-happy-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: 'openapi.yaml', 'zod-openapi': { output: 'src/routes.ts' } }`,
+    )
+    const originalCwd = process.cwd.bind(process)
+    process.cwd = () => dir
+    try {
+      const result = await readConfig()
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.input).toBe('openapi.yaml')
+        expect(result.value['zod-openapi']?.output).toBe('src/routes.ts')
+      }
+    } finally {
+      process.cwd = originalCwd
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects a config file with no default export', async () => {
+    const fs = await import('node:fs')
+    const dir = fs.mkdtempSync('/tmp/hono-takibi-test-no-default-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      // Named export only — no `default`. The dynamic-import branch
+      // should refuse with the documented "must export default" string.
+      `export const config = { input: 'openapi.yaml' }`,
+    )
+    const originalCwd = process.cwd.bind(process)
+    process.cwd = () => dir
+    try {
+      const result = await readConfig()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe('Config must export default object')
+      }
+    } finally {
+      process.cwd = originalCwd
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('catches a thrown ImportError and surfaces it as an error string', async () => {
+    const fs = await import('node:fs')
+    const dir = fs.mkdtempSync('/tmp/hono-takibi-test-throws-')
+    // Syntactically invalid TS forces the dynamic `import()` to throw —
+    // the catch arm should turn that into `{ ok: false, error: <string> }`
+    // rather than letting the exception escape to the CLI.
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: 'openapi.yaml' invalid syntax here }`,
+    )
+    const originalCwd = process.cwd.bind(process)
+    process.cwd = () => dir
+    try {
+      const result = await readConfig()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+        expect(result.error.length).toBeGreaterThan(0)
+        // Should NOT be the missing-file message — the file exists.
+        expect(result.error.startsWith('Config not found')).toBe(false)
+      }
+    } finally {
+      process.cwd = originalCwd
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('parseConfig()', () => {

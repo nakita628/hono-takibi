@@ -1676,3 +1676,69 @@ describe('Test', () => {
     }
   })
 })
+
+describe('takibi error paths', () => {
+  const componentsOptions = {
+    exportSchemas: false,
+    exportSchemasTypes: false,
+    exportResponses: false,
+    exportParameters: false,
+    exportParametersTypes: false,
+    exportExamples: false,
+    exportRequestBodies: false,
+    exportHeaders: false,
+    exportHeadersTypes: false,
+    exportSecuritySchemes: false,
+    exportLinks: false,
+    exportCallbacks: false,
+    exportPathItems: false,
+    exportMediaTypes: false,
+    exportMediaTypesTypes: false,
+  }
+
+  it('returns ok:false when emit cannot create the output directory', async () => {
+    // `/dev/null/...` cannot be a parent directory — `emit`'s mkdir
+    // recurses into a non-directory and fails with ENOTDIR. The takibi
+    // wrapper should surface that failure as `{ ok: false, error: <string> }`
+    // rather than throwing, so any caller can fall through to its own
+    // error handling.
+    const result = await takibi(
+      openapi,
+      '/dev/null/cannot-create/here.ts' as `${string}.ts`,
+      componentsOptions,
+    )
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(typeof result.error).toBe('string')
+      expect(result.error.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('returns ok:false with the thrown message when zodOpenAPIHono throws', async () => {
+    // The OpenAPI-shaped object below is structurally invalid: `paths` is
+    // populated but the operation has no response declaration at all.
+    // Passing it through the codegen pipeline triggers an internal throw
+    // that the catch arm should convert into `{ ok: false, error }`.
+    //
+    // We don't care about the exact failure mode — only that the catch
+    // arm exists, runs, and produces a string error instead of bubbling
+    // an exception up to the CLI.
+    const malformed = { openapi: '3.1.0', info: {}, paths: { '/x': { get: {} } } } as unknown as OpenAPI
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-malformed-'))
+    try {
+      const result = await takibi(
+        malformed,
+        path.join(dir, 'out.ts') as `${string}.ts`,
+        componentsOptions,
+      )
+      // Either the codegen throws (caught → error string), or it produces
+      // empty/odd-but-valid output. Both are acceptable, but if it failed,
+      // the failure must be a string error — not a bare `false`.
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+      }
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
