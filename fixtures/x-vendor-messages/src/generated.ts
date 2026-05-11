@@ -214,6 +214,121 @@ const MergedArrowSchema = (() => {
   .openapi({ 'x-allOf-message': '(issue) => "merged failed at " + issue.path.join(".")' })
   .openapi('MergedArrow')
 
+const PaymentSchema = z
+  .object({
+    method: z.string(),
+    credit_card: z.string().exactOptional(),
+    billing_zip: z.string().exactOptional(),
+  })
+  .refine((o) => !('credit_card' in o) || 'billing_zip' in o, {
+    error: 'billing_zip is required when credit_card is provided',
+  })
+  .refine(
+    (o) =>
+      !('credit_card' in o) ||
+      z
+        .unknown()
+        .superRefine((v, ctx) => {
+          if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+            if (Object.hasOwn(v, 'credit_card')) {
+              const Schema = z.string().regex(/^[0-9]{16}$/)
+              if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success)
+                ctx.addIssue({ code: 'custom', message: 'invalid property' })
+            }
+          }
+        })
+        .safeParse(o).success,
+    { error: 'credit_card must be 16 digits when provided' },
+  )
+  .openapi({ required: ['method'] })
+  .openapi('Payment')
+
+const BoundsSchema = z
+  .object({
+    score: z
+      .number()
+      .min(0, { error: 'score must be >= 0' })
+      .lt(100, { error: 'score must be < 100' }),
+    ratio: z.number().gt(0, { error: 'ratio must be > 0' }).max(1, { error: 'ratio must be <= 1' }),
+  })
+  .openapi({ required: ['score', 'ratio'] })
+  .openapi('Bounds')
+
+const BasketSchema = z
+  .object({
+    items: z
+      .array(z.object({ kind: z.string() }).openapi({ required: ['kind'] }))
+      .refine(
+        (arr) => {
+          const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
+          return arr.filter((i) => Schema.safeParse(i).success).length >= 2
+        },
+        { error: 'must include at least 2 premium items' },
+      )
+      .refine(
+        (arr) => {
+          const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
+          return arr.filter((i) => Schema.safeParse(i).success).length <= 5
+        },
+        { error: 'must include at most 5 premium items' },
+      ),
+  })
+  .openapi({ required: ['items'] })
+  .openapi('Basket')
+
+const MiscSchema = z
+  .object({
+    color: z.enum(['red', 'green', 'blue'], { error: 'color must be one of red, green, blue' }),
+    kind: z.literal('admin', { error: 'kind must be exactly "admin"' }),
+    tags: z
+      .array(z.string())
+      .refine((items) => new Set(items).size === items.length, {
+        error: 'tags must contain unique values',
+      }),
+    sized: z.array(z.string()).refine(
+      (arr) => {
+        const Schema = z.literal('premium')
+        return arr.some((i) => Schema.safeParse(i).success)
+      },
+      { error: 'sized must contain at least one premium tag' },
+    ),
+    namespaced: z
+      .strictObject(
+        {
+          a: z.string().exactOptional(),
+          b: z.string().exactOptional(),
+          c: z.string().exactOptional(),
+        },
+        {
+          error: (issue) =>
+            issue.code === 'unrecognized_keys'
+              ? 'namespaced contains an unrecognized key'
+              : undefined,
+        },
+      )
+      .refine((o) => Object.keys(o).length >= 1, {
+        error: 'namespaced must have at least 1 property',
+      })
+      .refine((o) => Object.keys(o).length <= 3, {
+        error: 'namespaced must have at most 3 properties',
+      }),
+    prefixed: z
+      .looseObject({})
+      .refine(
+        (o) =>
+          Object.entries(o).every(
+            ([k, v]) => !new RegExp('^x_').test(k) || z.string().safeParse(v).success,
+          ),
+        { error: 'x_ keys must be strings' },
+      ),
+    payload: z.string({
+      error: (issue) =>
+        issue.input === undefined ? 'payload is required' : 'payload must be a string',
+    }),
+  })
+  .openapi({ required: ['color', 'kind', 'tags', 'sized', 'namespaced', 'prefixed', 'payload'] })
+  .openapi('Misc')
+
 export const postFormRoute = createRoute({
   method: 'post',
   path: '/form',
@@ -257,5 +372,37 @@ export const postMergedArrowRoute = createRoute({
   request: {
     body: { content: { 'application/json': { schema: MergedArrowSchema } }, required: true },
   },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postPaymentRoute = createRoute({
+  method: 'post',
+  path: '/payment',
+  operationId: 'postPayment',
+  request: { body: { content: { 'application/json': { schema: PaymentSchema } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postBoundsRoute = createRoute({
+  method: 'post',
+  path: '/bounds',
+  operationId: 'postBounds',
+  request: { body: { content: { 'application/json': { schema: BoundsSchema } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postBasketRoute = createRoute({
+  method: 'post',
+  path: '/basket',
+  operationId: 'postBasket',
+  request: { body: { content: { 'application/json': { schema: BasketSchema } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postMiscRoute = createRoute({
+  method: 'post',
+  path: '/misc',
+  operationId: 'postMisc',
+  request: { body: { content: { 'application/json': { schema: MiscSchema } }, required: true } },
   responses: { 200: { description: 'OK' } },
 })

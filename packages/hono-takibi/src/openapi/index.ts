@@ -475,44 +475,37 @@ export type Schema = {
   // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
   readonly 'x-error-message'?: string
   readonly 'x-size-message'?: string
-  readonly 'x-pattern-message'?: string
-  readonly 'x-minimum-message'?: string
-  readonly 'x-maximum-message'?: string
+  // v3.0: numeric / string-pattern専用に縮退（破壊的変更）
+  readonly 'x-pattern-message'?: string         // string `pattern` only
+  readonly 'x-minimum-message'?: string         // numeric `minimum` (inclusive) only
+  readonly 'x-maximum-message'?: string         // numeric `maximum` (inclusive) only
+  readonly 'x-exclusiveMinimum-message'?: string  // numeric `exclusiveMinimum` (>)
+  readonly 'x-exclusiveMaximum-message'?: string  // numeric `exclusiveMaximum` (<)
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
+  readonly 'x-dependentSchemas-message'?: string
   readonly 'x-propertyNames-message'?: string
   readonly 'x-allOf-message'?: string
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
-  // v2.5: extra message extensions (paired with errorMessage normalization)
+  // v2.5: extra message extensions
   readonly 'x-required-message'?: string
   readonly 'x-additionalProperties-message'?: string
   readonly 'x-uniqueItems-message'?: string
   readonly 'x-const-message'?: string
   readonly 'x-enum-message'?: string
-  // v2.5: ajv-errors-compatible errorMessage (input alias, normalized at parse time)
-  readonly errorMessage?:
-    | string
-    | {
-        readonly type?: string
-        readonly required?: string | { readonly [k: string]: string }
-        readonly properties?: { readonly [k: string]: string }
-        readonly items?: string
-        readonly minItems?: string
-        readonly maxItems?: string
-        readonly minLength?: string
-        readonly maxLength?: string
-        readonly minimum?: string
-        readonly maximum?: string
-        readonly multipleOf?: string
-        readonly pattern?: string
-        readonly additionalProperties?: string
-        readonly uniqueItems?: string
-        readonly const?: string
-        readonly enum?: string
-        readonly _?: string
-      }
+  // v3.0: keyword-specific message extensions (1 keyword = 1 message)
+  readonly 'x-minLength-message'?: string       // string minLength
+  readonly 'x-maxLength-message'?: string       // string maxLength
+  readonly 'x-minItems-message'?: string        // array minItems
+  readonly 'x-maxItems-message'?: string        // array maxItems
+  readonly 'x-minProperties-message'?: string   // object minProperties
+  readonly 'x-maxProperties-message'?: string   // object maxProperties
+  readonly 'x-patternProperties-message'?: string  // object patternProperties
+  readonly 'x-contains-message'?: string        // array contains (type-match presence)
+  readonly 'x-minContains-message'?: string     // array minContains (count lower bound)
+  readonly 'x-maxContains-message'?: string     // array maxContains (count upper bound)
   // v2.5: $comment pass-through
   readonly $comment?: string
   // v2.5: array contains validation (JSON Schema standard)

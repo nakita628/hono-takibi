@@ -71,7 +71,7 @@ describe('zodToOpenAPI', () => {
           ],
           nullable: true,
         },
-        'z.xor([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()',
+        'z.xor([z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"kind"))ctx.addIssue({code:\'custom\',message:\'missing required: kind\'});if(Object.hasOwn(v,"kind")){const Schema=z.literal("A");if(!Schema.safeParse(Reflect.get(v,"kind")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["kind"]}),z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"kind"))ctx.addIssue({code:\'custom\',message:\'missing required: kind\'});if(Object.hasOwn(v,"kind")){const Schema=z.literal("B");if(!Schema.safeParse(Reflect.get(v,"kind")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["kind"]})]).nullable()',
       ],
       [
         {
@@ -187,7 +187,7 @@ describe('zodToOpenAPI', () => {
             ],
             nullable: true,
           },
-          'z.union([z.object({kind:z.literal("A")}).openapi({"required":["kind"]}),z.object({kind:z.literal("B")}).openapi({"required":["kind"]})]).nullable()',
+          'z.union([z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"kind"))ctx.addIssue({code:\'custom\',message:\'missing required: kind\'});if(Object.hasOwn(v,"kind")){const Schema=z.literal("A");if(!Schema.safeParse(Reflect.get(v,"kind")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["kind"]}),z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"kind"))ctx.addIssue({code:\'custom\',message:\'missing required: kind\'});if(Object.hasOwn(v,"kind")){const Schema=z.literal("B");if(!Schema.safeParse(Reflect.get(v,"kind")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["kind"]})]).nullable()',
         ],
         [
           {
@@ -493,7 +493,7 @@ describe('zodToOpenAPI', () => {
       })
 
       describe('not fallback', () => {
-        it.concurrent.each<[Schema, string]>([[{ not: {} }, 'z.any()']])(
+        it.concurrent.each<[Schema, string]>([[{ not: {} }, 'z.never()']])(
           'zodToOpenAPI(%o) → %s',
           (input, expected) => {
             expect(zodToOpenAPI(input as Schema)).toBe(expected)
@@ -919,24 +919,6 @@ describe('zodToOpenAPI', () => {
             { type: 'string', format: 'date-time', 'x-codec': 'date' } as Schema,
             'z.codec(z.iso.datetime(),z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})',
           ],
-          // v2.5: errorMessage simple form (ajv-errors compat)
-          [
-            { type: 'string', errorMessage: 'Must be a string' } as Schema,
-            'z.string({error:"Must be a string"})',
-          ],
-          [
-            { type: 'string', errorMessage: { type: 'Bad string' } } as Schema,
-            'z.string({error:"Bad string"})',
-          ],
-          // x-error-message wins when both are set
-          [
-            {
-              type: 'string',
-              'x-error-message': 'Explicit',
-              errorMessage: 'Implicit',
-            } as Schema,
-            'z.string({error:"Explicit"})',
-          ],
           // v2.5: x-required-message + x-error-message
           [
             {
@@ -950,16 +932,6 @@ describe('zodToOpenAPI', () => {
             { type: 'string', 'x-required-message': 'Required only' } as Schema,
             'z.string({error:(issue)=>issue.input===undefined?"Required only":undefined})',
           ],
-          // v2.5: errorMessage detailed form on number
-          [
-            {
-              type: 'number',
-              minimum: 0,
-              maximum: 100,
-              errorMessage: { minimum: '≥0 required', maximum: '≤100 required' },
-            } as Schema,
-            'z.number().min(0,{error:"≥0 required"}).max(100,{error:"≤100 required"})',
-          ],
           // v2.5: x-const-message
           [
             { const: 'fixed', 'x-const-message': 'Must be "fixed"' } as Schema,
@@ -972,9 +944,10 @@ describe('zodToOpenAPI', () => {
               items: { type: 'number' },
               contains: { const: 5 },
             } as Schema,
-            'z.array(z.number()).refine((arr)=>{const Schema=z.literal(5);const matches=arr.filter((i)=>Schema.safeParse(i).success).length;return matches >= 1})',
+            'z.array(z.number()).refine((arr)=>{const Schema=z.literal(5);return arr.some((i)=>Schema.safeParse(i).success)})',
           ],
-          // v2.5: contains + minContains + maxContains
+          // v3.0: contains + minContains + maxContains → 2 separate refines for
+          // independent error messages (silent-bug fix).
           [
             {
               type: 'array',
@@ -983,7 +956,7 @@ describe('zodToOpenAPI', () => {
               minContains: 2,
               maxContains: 5,
             } as Schema,
-            'z.array(z.number()).refine((arr)=>{const Schema=z.number().min(0);const matches=arr.filter((i)=>Schema.safeParse(i).success).length;return matches >= 2&&matches <= 5})',
+            'z.array(z.number()).refine((arr)=>{const Schema=z.number().min(0);return arr.filter((i)=>Schema.safeParse(i).success).length>=2}).refine((arr)=>{const Schema=z.number().min(0);return arr.filter((i)=>Schema.safeParse(i).success).length<=5})',
           ],
           // v2.5: x-uniqueItems-message
           [
@@ -1005,29 +978,6 @@ describe('zodToOpenAPI', () => {
               'x-additionalProperties-message': 'No extra fields',
             } as Schema,
             `z.strictObject({name:z.string()},{error:(issue)=>issue.code==='unrecognized_keys'?"No extra fields":undefined}).openapi({"required":["name"]})`,
-          ],
-          // v2.5: errorMessage detailed form on object → propagates to children
-          [
-            {
-              type: 'object',
-              properties: { name: { type: 'string' }, age: { type: 'number' } },
-              required: ['name', 'age'],
-              errorMessage: {
-                properties: { name: 'Name must be a string' },
-                required: { age: 'Age is required' },
-              },
-            } as Schema,
-            'z.object({name:z.string({error:"Name must be a string"}),age:z.number({error:(issue)=>issue.input===undefined?"Age is required":undefined})}).openapi({"required":["name","age"]})',
-          ],
-          // v2.5: errorMessage.required as a single string applies to all required keys
-          [
-            {
-              type: 'object',
-              properties: { a: { type: 'string' }, b: { type: 'string' } },
-              required: ['a', 'b'],
-              errorMessage: { required: 'Field required' },
-            } as Schema,
-            'z.object({a:z.string({error:(issue)=>issue.input===undefined?"Field required":undefined}),b:z.string({error:(issue)=>issue.input===undefined?"Field required":undefined})}).openapi({"required":["a","b"]})',
           ],
           // $comment is silently dropped
           [{ type: 'string', $comment: 'this is a note' } as Schema, 'z.string()'],
@@ -1062,9 +1012,12 @@ describe('zodToOpenAPI', () => {
                 },
               },
             } as Schema,
-            'z.object({creditCard:z.string().exactOptional()}).refine((o)=>!(\'creditCard\' in o)||z.object({billingAddress:z.string()}).openapi({"required":["billingAddress"]}).safeParse(o).success)',
+            "z.object({creditCard:z.string().exactOptional()}).refine((o)=>!('creditCard' in o)||z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,\"billingAddress\"))ctx.addIssue({code:'custom',message:'missing required: billingAddress'});if(Object.hasOwn(v,\"billingAddress\")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,\"billingAddress\")).success)ctx.addIssue({code:'custom',message:'invalid property'})}}}).openapi({\"required\":[\"billingAddress\"]}).safeParse(o).success)",
           ],
-          // v2.6: if / then / else (then/else without type/properties → z.any())
+          // v2.6/v3.0: if / then / else
+          // v3.0 Phase A: then/else with type-less { required: [...] } now uses
+          // z.unknown().superRefine() for keyword-independent semantics.
+          /* eslint-disable unicorn/no-thenable -- testing JSON Schema then keyword */
           // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
           [
             {
@@ -1073,16 +1026,17 @@ describe('zodToOpenAPI', () => {
               then: { required: ['premiumFeature'] },
               else: { required: ['basicFeature'] },
             } as Schema,
-            'z.object({}).refine((o)=>z.object({type:z.literal("premium")}).openapi({"required":["type"]}).safeParse(o).success?z.any().openapi({"required":["premiumFeature"]}).safeParse(o).success:z.any().openapi({"required":["basicFeature"]}).safeParse(o).success)',
+            'z.object({}).refine((o)=>z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"type"))ctx.addIssue({code:\'custom\',message:\'missing required: type\'});if(Object.hasOwn(v,"type")){const Schema=z.literal("premium");if(!Schema.safeParse(Reflect.get(v,"type")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["type"]}).safeParse(o).success?z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"premiumFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: premiumFeature\'})}}).openapi({"required":["premiumFeature"]}).safeParse(o).success:z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"basicFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: basicFeature\'})}}).openapi({"required":["basicFeature"]}).safeParse(o).success)',
           ],
-          // v2.6: unevaluatedProperties: false
+          /* eslint-enable unicorn/no-thenable */
+          // v3.0: unevaluatedProperties: false (runtime annotation tracking)
           [
             {
               type: 'object',
               properties: { name: { type: 'string' } },
               unevaluatedProperties: false,
             } as Schema,
-            'z.object({name:z.string().exactOptional()}).refine((o)=>Object.keys(o).every((k)=>["name"].includes(k)))',
+            'z.object({name:z.string().exactOptional()}).refine((o)=>{const e=new Set();for(const k of ["name"])e.add(k);return Object.keys(o).every((k)=>e.has(k))})',
           ],
           // v2.6: unevaluatedItems: false
           [
@@ -1147,14 +1101,14 @@ describe('zodToOpenAPI', () => {
             } as Schema,
             'z.base64().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(InnerSchema)',
           ],
-          // unevaluatedProperties: Schema form (review finding from yuri 2.1)
+          // unevaluatedProperties: Schema form (v3.0 runtime tracking)
           [
             {
               type: 'object',
               properties: { name: { type: 'string' } },
               unevaluatedProperties: { type: 'string' },
             } as Schema,
-            'z.object({name:z.string().exactOptional()}).refine((o)=>Object.entries(o).every(([k,v])=>["name"].includes(k)||z.string().safeParse(v).success))',
+            'z.object({name:z.string().exactOptional()}).refine((o)=>{const e=new Set();for(const k of ["name"])e.add(k);return Object.entries(o).every(([k,v])=>e.has(k)||z.string().safeParse(v).success)})',
           ],
           // unevaluatedItems: Schema form
           [
@@ -1179,6 +1133,7 @@ describe('zodToOpenAPI', () => {
           ],
           // if-then only (no else) — review finding from loid B / yuri 2.2
           // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then
+          // eslint-disable-next-line unicorn/no-thenable -- testing JSON Schema then keyword
           [
             {
               type: 'object',
@@ -1197,6 +1152,25 @@ describe('zodToOpenAPI', () => {
               else: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
             } as Schema,
             'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).refine((o)=>z.object({kind:z.literal("a")}).openapi({"required":["kind"]}).safeParse(o).success?true:z.object({x:z.string()}).openapi({"required":["x"]}).safeParse(o).success)',
+          ],
+          // v2.8 edge cases
+          // contentEncoding: 8bit / quoted-printable → string fallback
+          [{ type: 'string', contentEncoding: '8bit' } as Schema, 'z.string()'],
+          [{ type: 'string', contentEncoding: 'quoted-printable' } as Schema, 'z.string()'],
+          // base64url + JSON + contentSchema
+          [
+            {
+              type: 'string',
+              contentEncoding: 'base64url',
+              contentMediaType: 'application/json',
+              contentSchema: { type: 'array', items: { type: 'number' } },
+            } as Schema,
+            'z.base64url().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(z.array(z.number()))',
+          ],
+          // contentMediaType non-json (no JSON parse, just decode to string)
+          [
+            { type: 'string', contentEncoding: 'base64', contentMediaType: 'text/plain' } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1316,14 +1290,14 @@ describe('zodToOpenAPI', () => {
             { type: 'string', format: 'email', 'x-error-message': 'Invalid email' },
             'z.email({error:"Invalid email"})',
           ],
-          // x-minimum-message / x-maximum-message on string
+          // x-minLength-message / x-maxLength-message on string (v3.0: split from numeric)
           [
             {
               type: 'string',
               minLength: 3,
               maxLength: 20,
-              'x-minimum-message': '3文字以上',
-              'x-maximum-message': '20文字以下',
+              'x-minLength-message': '3文字以上',
+              'x-maxLength-message': '20文字以下',
             },
             'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
           ],
@@ -1434,38 +1408,38 @@ describe('zodToOpenAPI', () => {
         })
       })
 
-      // x-*-message on array (min → x-minimum-message, max → x-maximum-message, length → x-size-message)
+      // v3.0: x-*-message on array — split from numeric/string umbrellas
       describe('x-*-message on array', () => {
         it.concurrent.each<[any, string]>([
-          // x-minimum-message on .min()
+          // x-minItems-message on .min()
           [
             {
               type: 'array',
               items: { type: 'number' },
               minItems: 1,
-              'x-minimum-message': 'At least 1',
+              'x-minItems-message': 'At least 1',
             },
             'z.array(z.number()).min(1,{error:"At least 1"})',
           ],
-          // x-maximum-message on .max()
+          // x-maxItems-message on .max()
           [
             {
               type: 'array',
               items: { type: 'number' },
               maxItems: 5,
-              'x-maximum-message': 'At most 5',
+              'x-maxItems-message': 'At most 5',
             },
             'z.array(z.number()).max(5,{error:"At most 5"})',
           ],
-          // x-minimum-message + x-maximum-message on .min().max()
+          // x-minItems-message + x-maxItems-message
           [
             {
               type: 'array',
               items: { type: 'string' },
               minItems: 1,
               maxItems: 10,
-              'x-minimum-message': '1個以上',
-              'x-maximum-message': '10個以下',
+              'x-minItems-message': '1個以上',
+              'x-maxItems-message': '10個以下',
             },
             'z.array(z.string()).min(1,{error:"1個以上"}).max(10,{error:"10個以下"})',
           ],
@@ -1480,13 +1454,13 @@ describe('zodToOpenAPI', () => {
             },
             'z.array(z.string()).length(3,{error:"Exactly 3"})',
           ],
-          // x-pattern-message on uniqueItems .refine()
+          // x-uniqueItems-message on uniqueItems .refine()
           [
             {
               type: 'array',
               items: { type: 'string' },
               uniqueItems: true,
-              'x-pattern-message': '重複不可',
+              'x-uniqueItems-message': '重複不可',
             },
             'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
           ],
@@ -1508,7 +1482,7 @@ describe('zodToOpenAPI', () => {
             },
             'z.tuple([z.string(),z.number()],{error:"タプル不正"})',
           ],
-          // all combined: x-error-message + x-minimum-message + x-maximum-message + x-pattern-message
+          // all combined: separate messages per keyword
           [
             {
               type: 'array',
@@ -1517,9 +1491,9 @@ describe('zodToOpenAPI', () => {
               maxItems: 5,
               uniqueItems: true,
               'x-error-message': '配列必須',
-              'x-minimum-message': '1個以上',
-              'x-maximum-message': '5個以下',
-              'x-pattern-message': '重複不可',
+              'x-minItems-message': '1個以上',
+              'x-maxItems-message': '5個以下',
+              'x-uniqueItems-message': '重複不可',
             },
             'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
           ],
@@ -1528,31 +1502,28 @@ describe('zodToOpenAPI', () => {
         })
       })
 
-      // x-minimum-message / x-maximum-message on object
-      describe('x-minimum/maximum-message on object', () => {
+      // v3.0: x-minProperties-message / x-maxProperties-message on object
+      describe('x-minProperties/maxProperties-message on object', () => {
         it.concurrent.each<[Schema, string]>([
-          // minProperties → x-minimum-message
           [
-            { type: 'object', minProperties: 1, 'x-minimum-message': 'At least 1' },
+            { type: 'object', minProperties: 1, 'x-minProperties-message': 'At least 1' },
             'z.object({}).refine((o)=>Object.keys(o).length>=1,{error:"At least 1"})',
           ],
-          // maxProperties → x-maximum-message
           [
-            { type: 'object', maxProperties: 5, 'x-maximum-message': 'At most 5' },
+            { type: 'object', maxProperties: 5, 'x-maxProperties-message': 'At most 5' },
             'z.object({}).refine((o)=>Object.keys(o).length<=5,{error:"At most 5"})',
           ],
-          // both
           [
             {
               type: 'object',
               minProperties: 2,
               maxProperties: 10,
-              'x-minimum-message': '2個以上',
-              'x-maximum-message': '10個以下',
+              'x-minProperties-message': '2個以上',
+              'x-maxProperties-message': '10個以下',
             },
             'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2個以上"}).refine((o)=>Object.keys(o).length<=10,{error:"10個以下"})',
           ],
-          // dependentRequired → x-error-message
+          // dependentRequired → x-error-message fallback
           [
             {
               type: 'object',
@@ -1566,24 +1537,24 @@ describe('zodToOpenAPI', () => {
         })
       })
 
-      // x-pattern-message on object
-      describe('x-pattern-message on object', () => {
+      // v3.0: x-propertyNames-message / x-patternProperties-message on object
+      describe('x-propertyNames-message / x-patternProperties-message on object', () => {
         it.concurrent.each<[Schema, string]>([
           [
             {
               type: 'object',
               propertyNames: { pattern: '^[a-z]+$' },
-              'x-pattern-message': 'lowercase keys',
+              'x-propertyNames-message': 'lowercase keys',
             },
-            'z.object({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys"})',
+            'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys"})',
           ],
           [
             {
               type: 'object',
               patternProperties: { '^S_': { type: 'string' } },
-              'x-pattern-message': 'S_ keys must be strings',
+              'x-patternProperties-message': 'S_ keys must be strings',
             },
-            'z.object({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
+            'z.looseObject({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1746,14 +1717,18 @@ describe('zodToOpenAPI', () => {
       expect(zodToOpenAPI({ anyOf: [] })).toBe('z.any()')
     })
 
-    it.concurrent('const with object value', () => {
+    it.concurrent('const with object value (v3.0: typeless-refine for deep equality)', () => {
       const result = zodToOpenAPI({ const: { key: 'value' } })
-      expect(result).toBe('z.custom<{"key":"value"}>()')
+      expect(result).toBe(
+        'z.unknown().superRefine((v,ctx)=>{if(JSON.stringify({"key":"value"})!==JSON.stringify(v))ctx.addIssue({code:\'custom\',message:\'const mismatch\'})})',
+      )
     })
 
-    it.concurrent('const with array value', () => {
+    it.concurrent('const with array value (v3.0: typeless-refine for deep equality)', () => {
       const result = zodToOpenAPI({ const: [1, 2, 3] })
-      expect(result).toBe('z.custom<[1,2,3]>()')
+      expect(result).toBe(
+        "z.unknown().superRefine((v,ctx)=>{if(JSON.stringify([1,2,3])!==JSON.stringify(v))ctx.addIssue({code:'custom',message:'const mismatch'})})",
+      )
     })
 
     it.concurrent('const with string value', () => {

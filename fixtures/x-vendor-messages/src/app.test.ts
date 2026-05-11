@@ -30,6 +30,20 @@ const postComposition = post('/composition')
 const postDictionary = post('/dictionary')
 const postMerged = post('/merged')
 const postMergedArrow = post('/merged-arrow')
+const postPayment = post('/payment')
+const postBounds = post('/bounds')
+const postBasket = post('/basket')
+const postMisc = post('/misc')
+
+const validMisc = {
+  color: 'red',
+  kind: 'admin',
+  tags: ['a', 'b'],
+  sized: ['premium', 'basic'],
+  namespaced: { a: '1' },
+  prefixed: { x_one: 'ok' },
+  payload: 'ok',
+}
 
 const errorsOf = async (res: Response) =>
   ((await res.json()) as { errors: { pointer: string; detail: string }[] }).errors
@@ -102,24 +116,25 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // x-minimum-message — .min() / .gte()
+  // v3.0: 1 keyword = 1 message (split from previous shared umbrellas)
+  // x-minLength-message (string), x-minItems-message (array), x-minimum-message (numeric)
   // ─────────────────────────────────────────────────────────
-  describe('x-minimum-message', () => {
-    it('string .min(): rejects short username', async () => {
+  describe('x-minLength-message / x-minItems-message / x-minimum-message', () => {
+    it('x-minLength-message: rejects short username (string)', async () => {
       const res = await postForm({ ...validForm, username: 'ab' })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/username', detail: 'username must be at least 3 characters' },
       ])
     })
 
-    it('array .min(): rejects empty tags array', async () => {
+    it('x-minItems-message: rejects empty tags array', async () => {
       const res = await postForm({ ...validForm, tags: [] })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/tags', detail: 'tags must contain at least 1 item' },
       ])
     })
 
-    it('integer .gte(): rejects negative age', async () => {
+    it('x-minimum-message: rejects negative age (integer)', async () => {
       const res = await postForm({ ...validForm, age: -1 })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/age', detail: 'age must be >= 0' },
@@ -128,24 +143,24 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // x-maximum-message — .max() / .lte()
+  // x-maxLength-message / x-maxItems-message / x-maximum-message
   // ─────────────────────────────────────────────────────────
-  describe('x-maximum-message', () => {
-    it('string .max(): rejects too-long username', async () => {
+  describe('x-maxLength-message / x-maxItems-message / x-maximum-message', () => {
+    it('x-maxLength-message: rejects too-long username (string)', async () => {
       const res = await postForm({ ...validForm, username: 'a'.repeat(17) })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/username', detail: 'username must be at most 16 characters' },
       ])
     })
 
-    it('array .max(): rejects too many tags', async () => {
+    it('x-maxItems-message: rejects too many tags', async () => {
       const res = await postForm({ ...validForm, tags: ['a', 'b', 'c', 'd', 'e', 'f'] })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/tags', detail: 'tags must contain at most 5 items' },
       ])
     })
 
-    it('integer .lte(): rejects age above maximum', async () => {
+    it('x-maximum-message: rejects age above maximum (integer)', async () => {
       const res = await postForm({ ...validForm, age: 200 })
       expect(await errorsOf(res)).toStrictEqual([
         { pointer: '/age', detail: 'age must be <= 120' },
@@ -326,6 +341,209 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
+  // x-dependentSchemas-message — distinct from x-dependentRequired-message.
+  // dependentRequired: missing required dep key. dependentSchemas: sub-schema
+  // validation failed (e.g. wrong format for the dep-gated key itself).
+  // ─────────────────────────────────────────────────────────
+  describe('x-dependentSchemas-message', () => {
+    it('rejects credit_card without billing_zip via x-dependentRequired-message', async () => {
+      const res = await postPayment({ method: 'cc', credit_card: '4111111111111111' })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/', detail: 'billing_zip is required when credit_card is provided' },
+      ])
+    })
+
+    it('rejects malformed credit_card via x-dependentSchemas-message', async () => {
+      const res = await postPayment({
+        method: 'cc',
+        credit_card: '123',
+        billing_zip: '00000',
+      })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/', detail: 'credit_card must be 16 digits when provided' },
+      ])
+    })
+
+    it('accepts well-formed credit_card with billing_zip', async () => {
+      const res = await postPayment({
+        method: 'cc',
+        credit_card: '4111111111111111',
+        billing_zip: '00000',
+      })
+      expect(res.status).toBe(200)
+    })
+
+    it('accepts payment without credit_card', async () => {
+      const res = await postPayment({ method: 'cash' })
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // x-exclusiveMinimum-message / x-exclusiveMaximum-message —
+  // distinct from inclusive min/max. Silent bug fix.
+  // ─────────────────────────────────────────────────────────
+  describe('x-exclusiveMinimum-message / x-exclusiveMaximum-message', () => {
+    it('x-minimum-message fires for inclusive lower bound (score < 0)', async () => {
+      const res = await postBounds({ score: -1, ratio: 0.5 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/score', detail: 'score must be >= 0' },
+      ])
+    })
+
+    it('x-exclusiveMaximum-message fires for exclusive upper bound (score = 100)', async () => {
+      const res = await postBounds({ score: 100, ratio: 0.5 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/score', detail: 'score must be < 100' },
+      ])
+    })
+
+    it('x-exclusiveMinimum-message fires for exclusive lower bound (ratio = 0)', async () => {
+      const res = await postBounds({ score: 50, ratio: 0 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/ratio', detail: 'ratio must be > 0' },
+      ])
+    })
+
+    it('x-maximum-message fires for inclusive upper bound (ratio > 1)', async () => {
+      const res = await postBounds({ score: 50, ratio: 1.5 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/ratio', detail: 'ratio must be <= 1' },
+      ])
+    })
+
+    it('accepts boundary-valid values', async () => {
+      const res = await postBounds({ score: 0, ratio: 1 })
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // x-minContains-message / x-maxContains-message —
+  // distinct from x-contains-message. v3.0 silent-bug fix.
+  // ─────────────────────────────────────────────────────────
+  describe('x-minContains-message / x-maxContains-message', () => {
+    const item = (kind: string) => ({ kind })
+
+    it('x-minContains-message fires when fewer than 2 premium items', async () => {
+      const res = await postBasket({
+        items: [item('premium'), item('basic'), item('basic')],
+      })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/items', detail: 'must include at least 2 premium items' },
+      ])
+    })
+
+    it('x-maxContains-message fires when more than 5 premium items', async () => {
+      const res = await postBasket({
+        items: [
+          item('premium'),
+          item('premium'),
+          item('premium'),
+          item('premium'),
+          item('premium'),
+          item('premium'),
+        ],
+      })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/items', detail: 'must include at most 5 premium items' },
+      ])
+    })
+
+    it('accepts basket within bounds (2-5 premium items)', async () => {
+      const res = await postBasket({
+        items: [item('premium'), item('premium'), item('basic')],
+      })
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // Coverage backfill — runtime tests for x-*-message extensions
+  // that were previously codegen-only (yuri-検問 batch).
+  // ─────────────────────────────────────────────────────────
+  describe('coverage backfill (Misc)', () => {
+    it('x-enum-message: rejects color not in enum', async () => {
+      const res = await postMisc({ ...validMisc, color: 'purple' })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/color', detail: 'color must be one of red, green, blue' },
+      ])
+    })
+
+    // Zod v4's `z.enum` emits the same issue code (invalid_value) for both
+    // type and value mismatches, so x-enum-message dominates for both.
+    it('x-enum-message also fires for non-string color (Zod treats it as invalid_value)', async () => {
+      const res = await postMisc({ ...validMisc, color: 42 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/color', detail: 'color must be one of red, green, blue' },
+      ])
+    })
+
+    it('x-const-message: rejects wrong literal value', async () => {
+      const res = await postMisc({ ...validMisc, kind: 'user' })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/kind', detail: 'kind must be exactly "admin"' },
+      ])
+    })
+
+    it('x-uniqueItems-message: rejects duplicate elements', async () => {
+      const res = await postMisc({ ...validMisc, tags: ['a', 'a'] })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/tags', detail: 'tags must contain unique values' },
+      ])
+    })
+
+    it('x-contains-message (alone): rejects array without premium tag', async () => {
+      const res = await postMisc({ ...validMisc, sized: ['basic', 'standard'] })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/sized', detail: 'sized must contain at least one premium tag' },
+      ])
+    })
+
+    it('x-minProperties-message: rejects empty namespaced', async () => {
+      const res = await postMisc({ ...validMisc, namespaced: {} })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/namespaced', detail: 'namespaced must have at least 1 property' },
+      ])
+    })
+
+    it('x-additionalProperties-message: rejects unknown key', async () => {
+      const res = await postMisc({
+        ...validMisc,
+        namespaced: { a: '1', b: '2', c: '3', d: '4' },
+      })
+      const errs = await errorsOf(res)
+      expect(errs.some((e) => e.detail === 'namespaced contains an unrecognized key')).toBe(true)
+    })
+
+    it('x-patternProperties-message: rejects wrong-typed x_ key', async () => {
+      const res = await postMisc({ ...validMisc, prefixed: { x_one: 42 } })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/prefixed', detail: 'x_ keys must be strings' },
+      ])
+    })
+
+    it('x-required-message: distinct message for missing payload', async () => {
+      const res = await postMisc({ ...validMisc, payload: undefined })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/payload', detail: 'payload is required' },
+      ])
+    })
+
+    it('x-error-message (string field): distinct message for non-string payload', async () => {
+      const res = await postMisc({ ...validMisc, payload: 42 })
+      expect(await errorsOf(res)).toStrictEqual([
+        { pointer: '/payload', detail: 'payload must be a string' },
+      ])
+    })
+
+    it('accepts a fully valid Misc payload', async () => {
+      const res = await postMisc(validMisc)
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
   // Arrow-function messages — issue-aware customization
   //   `error()` helper detects /^\s*\(.*?\)\s*=>/ and emits the
   //   arrow function as-is, so users can branch on `iss.input`,
@@ -400,26 +618,33 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(generatedSrc).toContain("message: 'merged validation failed'")
     })
 
-    // The old generator emitted 11 identical `if (issue.code === '...')`
-    // branches per issue — all pushing the same message. The collapsed
-    // form (B6 in the cleanup plan) drops the dispatch entirely and
-    // pushes once unconditionally; assert no stale issue.code branch
-    // survives.
-    it('does not emit per-issue.code if/else dispatch', () => {
-      expect(generatedSrc).not.toContain("issue.code === 'invalid_type'")
-      expect(generatedSrc).not.toContain("issue.code === 'too_big'")
+    // The per-issue.code if/else dispatch is intentional: ctx.issues expects a
+    // discriminated union narrowed by `code`. A generic spread without the
+    // discriminant triggers TS errors at the call site. Assert the full set of
+    // 11 Zod v4 codes is enumerated so the generated source compiles.
+    it('emits per-issue.code if/else dispatch over all 11 Zod v4 codes', () => {
+      const codes = [
+        'invalid_type',
+        'too_big',
+        'too_small',
+        'invalid_format',
+        'not_multiple_of',
+        'unrecognized_keys',
+        'invalid_union',
+        'invalid_key',
+        'invalid_element',
+        'invalid_value',
+        'custom',
+      ] as const
+      for (const c of codes) {
+        expect(generatedSrc).toContain(`issue.code === '${c}'`)
+      }
     })
 
     // For the arrow form (`x-allOf-message` is a function source),
-    // generator lifts the arrow into a single `const msgFn = ...` at
-    // the top of the IIFE and references it by name (B7) — no inline
-    // `(arrow)(issue)` re-wrap.
-    it('lifts arrow form to a single msgFn const referenced by name', () => {
+    // generator wraps the arrow inline as `(arrow)(issue)` per branch.
+    it('emits arrow form inline as (arrow)(issue)', () => {
       expect(generatedSrc).toContain(
-        "const msgFn = (issue) => 'merged failed at ' + issue.path.join('.')",
-      )
-      expect(generatedSrc).toContain('message: msgFn(issue)')
-      expect(generatedSrc).not.toContain(
         "((issue) => 'merged failed at ' + issue.path.join('.'))(issue)",
       )
     })

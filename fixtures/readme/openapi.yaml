@@ -1,0 +1,599 @@
+openapi: '3.1.0'
+info:
+  title: README Examples — Executable Documentation
+  version: '1.0.0'
+  description: |
+    Each schema below corresponds to a code block shown in
+    `packages/hono-takibi/README.md`. The fixture proves the documented
+    behavior is correct by running the generated Zod against representative
+    inputs and asserting the resulting issues (or success) exactly match
+    what the README claims.
+
+paths:
+  /messages:
+    post:
+      operationId: postMessages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Messages'
+      responses:
+        '200': { description: OK }
+
+  /transforms:
+    post:
+      operationId: postTransforms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transforms'
+      responses:
+        '200': { description: OK }
+
+  /coerce:
+    post:
+      operationId: postCoerce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coerce'
+      responses:
+        '200': { description: OK }
+
+  /codec:
+    post:
+      operationId: postCodec
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Codec'
+      responses:
+        '200': { description: OK }
+
+  /custom-validation:
+    post:
+      operationId: postCustomValidation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomValidation'
+      responses:
+        '200': { description: OK }
+
+  /defaults:
+    post:
+      operationId: postDefaults
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Defaults'
+      responses:
+        '200': { description: OK }
+
+  /content-checks:
+    post:
+      operationId: postContentChecks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentChecks'
+      responses:
+        '200': { description: OK }
+
+  /formats:
+    post:
+      operationId: postFormats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Formats'
+      responses:
+        '200': { description: OK }
+
+  /branded:
+    post:
+      operationId: postBranded
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cat'
+      responses:
+        '200': { description: OK }
+
+  /numeric:
+    post:
+      operationId: postNumeric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Numeric'
+      responses:
+        '200': { description: OK }
+
+  /array-edge:
+    post:
+      operationId: postArrayEdge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArrayEdge'
+      responses:
+        '200': { description: OK }
+
+  /object-edge:
+    post:
+      operationId: postObjectEdge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjectEdge'
+      responses:
+        '200': { description: OK }
+
+  /combinators:
+    post:
+      operationId: postCombinators
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Combinators'
+      responses:
+        '200': { description: OK }
+
+  /enums:
+    post:
+      operationId: postEnums
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Enums'
+      responses:
+        '200': { description: OK }
+
+components:
+  schemas:
+    # ──────────────────────────────────────────────────────────
+    # README: ## Custom Validation Error Messages (主要 example)
+    # ──────────────────────────────────────────────────────────
+    Messages:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          x-error-message: 'Name must be a string'
+          x-minLength-message: 'Name cannot be empty'
+          x-maxLength-message: 'Name must be at most 50 characters'
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — String Pre-validation Transforms
+    # ──────────────────────────────────────────────────────────
+    Transforms:
+      type: object
+      required: [email, slug, country, text]
+      properties:
+        # x-trim — z.string().trim().pipe(z.email())
+        email:
+          type: string
+          format: email
+          x-trim: true
+        # x-toLowerCase — z.string().toLowerCase().regex(...)
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          x-toLowerCase: true
+        # x-toUpperCase
+        country:
+          type: string
+          x-toUpperCase: true
+        # x-normalize — Unicode NFC
+        text:
+          type: string
+          x-normalize: 'NFC'
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — Type Coercion (x-coerce)
+    # ──────────────────────────────────────────────────────────
+    Coerce:
+      type: object
+      required: [asNumber, asInt, asBool, asDate]
+      properties:
+        asNumber:
+          type: number
+          x-coerce: true
+        asInt:
+          type: integer
+          minimum: 0
+          x-coerce: true
+        asBool:
+          type: boolean
+          x-coerce: true
+        asDate:
+          type: string
+          format: date-time
+          x-coerce: true
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — Codec (x-codec: date)
+    # ──────────────────────────────────────────────────────────
+    Codec:
+      type: object
+      required: [updatedAt]
+      properties:
+        updatedAt:
+          type: string
+          format: date-time
+          x-codec: date
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — Custom Validation
+    # ──────────────────────────────────────────────────────────
+    CustomValidation:
+      type: object
+      required: [password, normalizedEmail]
+      properties:
+        # x-refine — multiple .refine() chained
+        password:
+          type: string
+          x-refine:
+            - fn: '(v) => v.length >= 8'
+              message: 'Password must be at least 8 characters'
+            - fn: '(v) => /[A-Z]/.test(v)'
+              message: 'Password must contain an uppercase letter'
+        # x-superRefine — issue-level control via ctx.addIssue
+        normalizedEmail:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+          x-superRefine:
+            - |
+              (v, ctx) => {
+                if (v.endsWith('@blocked.example')) {
+                  ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
+                }
+              }
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — Default & Fallback & Freeze
+    # ──────────────────────────────────────────────────────────
+    Defaults:
+      type: object
+      required: [greeting, retries, config]
+      properties:
+        # x-prefault — substituted when undefined
+        greeting:
+          type: string
+          x-prefault: 'hello'
+        # x-catch — fallback on validation failure
+        retries:
+          type: integer
+          x-catch: 0
+        # x-freeze — readonly wrapping
+        config:
+          type: object
+          x-freeze: true
+          properties:
+            name:
+              type: string
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — String Content Checks
+    # ──────────────────────────────────────────────────────────
+    ContentChecks:
+      type: object
+      required: [url, path]
+      properties:
+        # x-startsWith + x-endsWith
+        url:
+          type: string
+          x-startsWith: 'https://'
+          x-endsWith: '.com'
+        # x-includes
+        path:
+          type: string
+          x-includes: '/api/'
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Behavior Extensions — Format-Specific Options
+    # ──────────────────────────────────────────────────────────
+    Formats:
+      type: object
+      required:
+        - htmlEmail
+        - customEmail
+        - uuidV7
+        - httpsUrl
+        - preciseDatetime
+        - localDatetime
+        - mac
+        - token
+        - sha256
+      properties:
+        # x-emailPattern (preset: html5 / browser / unicode)
+        htmlEmail:
+          type: string
+          format: email
+          x-emailPattern: 'html5'
+        # x-emailRegex (custom regex)
+        customEmail:
+          type: string
+          format: email
+          x-emailRegex: '^.+@example\.com$'
+        # x-uuidVersion
+        uuidV7:
+          type: string
+          format: uuid
+          x-uuidVersion: 'v7'
+        # x-urlProtocol + x-urlNormalize
+        httpsUrl:
+          type: string
+          format: uri
+          x-urlProtocol: '^https$'
+          x-urlNormalize: true
+        # x-isoPrecision + x-isoOffset
+        preciseDatetime:
+          type: string
+          format: date-time
+          x-isoPrecision: 3
+          x-isoOffset: true
+        # x-isoLocal
+        localDatetime:
+          type: string
+          format: date-time
+          x-isoLocal: true
+        # x-macDelimiter
+        mac:
+          type: string
+          format: mac
+          x-macDelimiter: ':'
+        # x-jwtAlg
+        token:
+          type: string
+          format: jwt
+          x-jwtAlg: 'HS256'
+        # x-hashAlg + x-hashEnc
+        sha256:
+          type: string
+          format: hash
+          x-hashAlg: 'sha256'
+          x-hashEnc: 'hex'
+
+    # ──────────────────────────────────────────────────────────
+    # README: ## Branded Types — x-brand
+    # ──────────────────────────────────────────────────────────
+    Cat:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+      x-brand: Cat
+
+    # ──────────────────────────────────────────────────────────
+    # Numeric: 全 message extension の組み合わせ
+    # ──────────────────────────────────────────────────────────
+    Numeric:
+      type: object
+      required: [age, ratio, price, quantity, exact]
+      properties:
+        # inclusive min/max + 別メッセージ
+        age:
+          type: integer
+          minimum: 0
+          maximum: 120
+          x-minimum-message: 'age must be >= 0'
+          x-maximum-message: 'age must be <= 120'
+        # exclusive min/max
+        ratio:
+          type: number
+          exclusiveMinimum: 0
+          exclusiveMaximum: 1
+          x-exclusiveMinimum-message: 'ratio must be > 0'
+          x-exclusiveMaximum-message: 'ratio must be < 1'
+        # multipleOf
+        price:
+          type: number
+          multipleOf: 0.5
+          x-multipleOf-message: 'price must be a multiple of 0.5'
+        # required + type 分離
+        quantity:
+          type: integer
+          x-required-message: 'quantity is required'
+          x-error-message: 'quantity must be an integer'
+        # const
+        exact:
+          type: integer
+          const: 42
+          x-const-message: 'exact must be 42'
+
+    # ──────────────────────────────────────────────────────────
+    # Array: 全 message extension の組み合わせ
+    # ──────────────────────────────────────────────────────────
+    ArrayEdge:
+      type: object
+      required: [tags, unique, basket]
+      properties:
+        # minItems / maxItems
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-minItems-message: 'tags must have at least 1 item'
+          x-maxItems-message: 'tags must have at most 5 items'
+        # uniqueItems
+        unique:
+          type: array
+          items:
+            type: integer
+          uniqueItems: true
+          x-uniqueItems-message: 'unique must contain distinct integers'
+        # contains/minContains/maxContains 全部
+        basket:
+          type: array
+          items:
+            type: object
+            properties:
+              tier:
+                type: string
+            required: [tier]
+          contains:
+            type: object
+            properties:
+              tier:
+                type: string
+                enum: [premium]
+            required: [tier]
+          minContains: 1
+          maxContains: 3
+          x-contains-message: 'basket must contain at least one premium item'
+          x-minContains-message: 'basket must contain at least 1 premium'
+          x-maxContains-message: 'basket must contain at most 3 premium'
+
+    # ──────────────────────────────────────────────────────────
+    # Object: 全 message extension の組み合わせ
+    # ──────────────────────────────────────────────────────────
+    ObjectEdge:
+      type: object
+      required: [profile, namespace, dependent]
+      properties:
+        # minProperties / maxProperties
+        profile:
+          type: object
+          minProperties: 1
+          maxProperties: 3
+          additionalProperties: false
+          properties:
+            a:
+              type: string
+            b:
+              type: string
+            c:
+              type: string
+          x-minProperties-message: 'profile must have at least 1 property'
+          x-maxProperties-message: 'profile must have at most 3 properties'
+          x-additionalProperties-message: 'profile contains an unknown key'
+        # propertyNames + patternProperties
+        namespace:
+          type: object
+          propertyNames:
+            pattern: '^[a-z][a-z0-9_]*$'
+          patternProperties:
+            '^x_':
+              type: string
+          x-propertyNames-message: 'keys must start lowercase letter + [a-z0-9_]'
+          x-patternProperties-message: 'x_ keys must be strings'
+        # dependentRequired + dependentSchemas
+        dependent:
+          type: object
+          properties:
+            cc:
+              type: string
+            billing:
+              type: string
+          dependentRequired:
+            cc: [billing]
+          dependentSchemas:
+            cc:
+              properties:
+                cc:
+                  type: string
+                  pattern: '^[0-9]{16}$'
+          x-dependentRequired-message: 'billing required when cc provided'
+          x-dependentSchemas-message: 'cc must be 16 digits'
+
+    # ──────────────────────────────────────────────────────────
+    # Combinators: allOf / anyOf / oneOf / not
+    # ──────────────────────────────────────────────────────────
+    Combinators:
+      type: object
+      required: [merged, picked, exclusive, banned]
+      properties:
+        # allOf
+        merged:
+          allOf:
+            - type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+            - type: object
+              required: [age]
+              properties:
+                age:
+                  type: integer
+                  minimum: 0
+          x-allOf-message: 'merged validation failed'
+        # anyOf
+        picked:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'picked must be string or integer'
+        # oneOf (exclusive)
+        exclusive:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'exclusive must match exactly one type'
+        # not
+        banned:
+          not:
+            const: 'forbidden'
+          x-not-message: 'banned cannot be "forbidden"'
+
+    # ──────────────────────────────────────────────────────────
+    # Enums: string / integer / boolean enum variations
+    # ──────────────────────────────────────────────────────────
+    Enums:
+      type: object
+      required: [role, priority, accepted]
+      properties:
+        # string enum
+        role:
+          type: string
+          enum: [admin, editor, viewer]
+          x-enum-message: 'role must be admin / editor / viewer'
+          x-error-message: 'role must be a string'
+        # integer enum (z.union of literals)
+        priority:
+          type: integer
+          enum: [1, 2, 3]
+          x-error-message: 'priority must be 1, 2, or 3'
+        # boolean enum
+        accepted:
+          type: boolean
+          enum: [true]
+          x-error-message: 'accepted must be true'

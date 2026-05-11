@@ -95,16 +95,16 @@ describe('string', () => {
     })
   })
 
-  describe('x-minimum-message / x-maximum-message', () => {
+  describe('x-minLength-message / x-maxLength-message', () => {
     it.concurrent.each<[Schema, string]>([
       // x-minimum-message on .min()
       [
-        { type: 'string', minLength: 1, 'x-minimum-message': '1文字以上' },
+        { type: 'string', minLength: 1, 'x-minLength-message': '1文字以上' },
         'z.string().min(1,{error:"1文字以上"})',
       ],
       // x-maximum-message on .max()
       [
-        { type: 'string', maxLength: 100, 'x-maximum-message': '100文字以下' },
+        { type: 'string', maxLength: 100, 'x-maxLength-message': '100文字以下' },
         'z.string().max(100,{error:"100文字以下"})',
       ],
       // both
@@ -113,8 +113,8 @@ describe('string', () => {
           type: 'string',
           minLength: 3,
           maxLength: 20,
-          'x-minimum-message': '3文字以上',
-          'x-maximum-message': '20文字以下',
+          'x-minLength-message': '3文字以上',
+          'x-maxLength-message': '20文字以下',
         },
         'z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})',
       ],
@@ -132,8 +132,8 @@ describe('string', () => {
           minLength: 5,
           maxLength: 100,
           'x-error-message': 'メール不正',
-          'x-minimum-message': '5文字以上',
-          'x-maximum-message': '100文字以下',
+          'x-minLength-message': '5文字以上',
+          'x-maxLength-message': '100文字以下',
         },
         'z.email({error:"メール不正"}).min(5,{error:"5文字以上"}).max(100,{error:"100文字以下"})',
       ],
@@ -175,8 +175,8 @@ describe('string', () => {
           maxLength: 2000,
           'x-error-message': 'URL不正',
           'x-pattern-message': 'httpsのみ',
-          'x-minimum-message': '10文字以上',
-          'x-maximum-message': '2000文字以下',
+          'x-minLength-message': '10文字以上',
+          'x-maxLength-message': '2000文字以下',
         },
         'z.url({error:"URL不正"}).regex(/^https:\\/\\//,{error:"httpsのみ"}).min(10,{error:"10文字以上"}).max(2000,{error:"2000文字以下"})',
       ],
@@ -232,10 +232,10 @@ describe('string', () => {
         'z.string().trim().toLowerCase().pipe(z.email())',
       ],
       [{ type: 'string', format: 'uuid', 'x-trim': true }, 'z.string().trim().pipe(z.uuid())'],
-      // combined with length
+      // combined with length: pre-validation transforms run BEFORE refinements
       [
         { type: 'string', minLength: 1, maxLength: 100, 'x-trim': true },
-        'z.string().min(1).max(100).trim()',
+        'z.string().trim().min(1).max(100)',
       ],
       // idempotent: format:"trim" + x-trim → single .trim() via base, no extra
       [{ type: 'string', format: 'trim', 'x-trim': true }, 'z.trim()'],
@@ -432,7 +432,7 @@ describe('string', () => {
           'x-startsWith': 'foo',
           'x-trim': true,
         },
-        'z.string().min(1).max(100).startsWith("foo").trim()',
+        'z.string().trim().min(1).max(100).startsWith("foo")',
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)

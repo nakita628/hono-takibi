@@ -344,8 +344,9 @@ components:
         - name
         - tags
         - status
-      $comment: ajv-errors 互換のメッセージ + contains + x-required-message テスト
+      $comment: x-required-message + contains + x-additionalProperties-message テスト
       additionalProperties: false
+      x-additionalProperties-message: '未知のフィールドは許可されません'
       properties:
         # x-required-message: required と type で別メッセージ
         name:
@@ -365,9 +366,6 @@ components:
         status:
           const: active
           x-const-message: 'ステータスは active のみ'
-      # ajv-errors errorMessage detailed form
-      errorMessage:
-        additionalProperties: '未知のフィールドは許可されません'
 
     V26Form:
       type: object

@@ -121,7 +121,7 @@ function buildFormatOptions(schema: Schema): readonly string[] {
  * Builds a Zod string schema from an OpenAPI string schema, applying format,
  * pattern, length constraints, vendor extensions for messages
  * (`x-error-message` / `x-pattern-message` / `x-size-message` /
- * `x-minimum-message` / `x-maximum-message`), P1 transform extensions
+ * `x-minLength-message` / `x-maxLength-message`), P1 transform extensions
  * (`x-coerce`, `x-trim`, `x-toLowerCase`, `x-toUpperCase`, `x-normalize`),
  * and P1 format-option extensions (`x-emailPattern`, `x-uuidVersion`,
  * `x-urlHostname` / `x-urlProtocol` / `x-urlNormalize`, `x-isoPrecision` /
@@ -208,6 +208,10 @@ export function string(schema: Schema): string {
   const upperX = schema['x-toUpperCase'] === true
   const normalizeX = schema['x-normalize']
   const hasPreTransform = trimX || lowerX || upperX || !!normalizeX
+  // For validation formats (e.g. `email`), transforms must wrap via `.pipe()`
+  // so they apply before the format's own check. For plain `z.string()` chains
+  // (no format), transforms are inserted before refinements in the method
+  // chain order — see the return array below.
   const usePipe = isValidationFormat && hasPreTransform && !coerce
 
   const buildValidationBase = (): string => {
@@ -260,10 +264,12 @@ export function string(schema: Schema): string {
     : undefined
   const sizeMessage = schema['x-size-message']
   const sizeMsgPart = sizeMessage ? `,${error(sizeMessage)}` : ''
-  const minimumMessage = schema['x-minimum-message']
-  const minMsgPart = minimumMessage ? `,${error(minimumMessage)}` : ''
-  const maximumMessage = schema['x-maximum-message']
-  const maxMsgPart = maximumMessage ? `,${error(maximumMessage)}` : ''
+  // v3.0: string length uses x-minLength-message / x-maxLength-message (split
+  // from the previous shared x-minimum-message / x-maximum-message umbrellas).
+  const minLengthMessage = schema['x-minLength-message']
+  const minMsgPart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
+  const maxLengthMessage = schema['x-maxLength-message']
+  const maxMsgPart = maxLengthMessage ? `,${error(maxLengthMessage)}` : ''
   const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
@@ -284,6 +290,13 @@ export function string(schema: Schema): string {
       : undefined
   return [
     base,
+    // Pre-validation transforms come BEFORE refinements so input is normalized
+    // first (`z.string().toLowerCase().regex(...)`). For validation-format
+    // schemas these are already inside the pipe — `endTrim` et al. are empty.
+    endTrim || undefined,
+    endLower || undefined,
+    endUpper || undefined,
+    endNormalize || undefined,
     pattern,
     isFixedLength ? `.length(${schema.minLength}${sizeMsgPart})` : undefined,
     !isFixedLength && schema.minLength !== undefined
@@ -295,10 +308,6 @@ export function string(schema: Schema): string {
     includes,
     startsWith,
     endsWith,
-    endTrim || undefined,
-    endLower || undefined,
-    endUpper || undefined,
-    endNormalize || undefined,
   ]
     .filter((v) => v !== undefined)
     .join('')

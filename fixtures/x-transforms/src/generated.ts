@@ -107,11 +107,16 @@ const V25FormSchema = z
         error: (issue) =>
           issue.input === undefined ? '名前は必須です' : '名前は文字列である必要があります',
       }),
-      tags: z.array(z.string()).refine((arr) => {
-        const Schema = z.literal('important')
-        const matches = arr.filter((i) => Schema.safeParse(i).success).length
-        return matches >= 1 && matches <= 3
-      }),
+      tags: z
+        .array(z.string())
+        .refine((arr) => {
+          const Schema = z.literal('important')
+          return arr.filter((i) => Schema.safeParse(i).success).length >= 1
+        })
+        .refine((arr) => {
+          const Schema = z.literal('important')
+          return arr.filter((i) => Schema.safeParse(i).success).length <= 3
+        }),
       status: z.literal('active', { error: 'ステータスは active のみ' }),
     },
     {

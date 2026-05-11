@@ -1,6 +1,7 @@
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
+import { buildUnevaluatedProperties } from '../unevaluated.js'
 
 /**
  * Generates a Zod object schema. Dispatches `additionalProperties` to
@@ -14,16 +15,21 @@ export function object(schema: Schema, readonly?: boolean): string {
   }
   const errorMessage = schema['x-error-message']
   const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
-  const minimumMessage = schema['x-minimum-message']
-  const minErrorArg = minimumMessage ? `,${error(minimumMessage)}` : ''
-  const maximumMessage = schema['x-maximum-message']
-  const maxErrorArg = maximumMessage ? `,${error(maximumMessage)}` : ''
-  const patternMessage = schema['x-pattern-message']
-  const patternErrorArg = patternMessage ? `,${error(patternMessage)}` : ''
+  // v3.0: object size uses x-minProperties-message / x-maxProperties-message
+  // (split from x-minimum-message / x-maximum-message), and patternProperties
+  // uses its own x-patternProperties-message (split from x-pattern-message).
+  const minPropsMessage = schema['x-minProperties-message']
+  const minErrorArg = minPropsMessage ? `,${error(minPropsMessage)}` : ''
+  const maxPropsMessage = schema['x-maxProperties-message']
+  const maxErrorArg = maxPropsMessage ? `,${error(maxPropsMessage)}` : ''
+  const patternPropsMessage = schema['x-patternProperties-message']
+  const patternErrorArg = patternPropsMessage ? `,${error(patternPropsMessage)}` : ''
   const propNamesMessage = schema['x-propertyNames-message']
-  const propNamesErrorArg = propNamesMessage ? `,${error(propNamesMessage)}` : patternErrorArg
+  const propNamesErrorArg = propNamesMessage ? `,${error(propNamesMessage)}` : ''
   const depReqMessage = schema['x-dependentRequired-message']
   const depReqErrorArg = depReqMessage ? `,${error(depReqMessage)}` : errorArg
+  const depSchMessage = schema['x-dependentSchemas-message']
+  const depSchErrorArg = depSchMessage ? `,${error(depSchMessage)}` : errorArg
   if (typeof schema.additionalProperties === 'object') {
     const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly)})`
     const recordPatternProps = schema.patternProperties
@@ -39,12 +45,21 @@ export function object(schema: Schema, readonly?: boolean): string {
       : ''
     return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
   }
+  // v3.0: when patternProperties / propertyNames are set without an explicit
+  // additionalProperties: false, default to looseObject so the refines see the
+  // pattern-matched / propertyName-checked keys (z.object strips unknowns
+  // before the refine runs, masking violations — silent bug).
+  const needsLoose =
+    schema.additionalProperties === undefined &&
+    (schema.patternProperties !== undefined || schema.propertyNames !== undefined)
   const objectType =
     schema.additionalProperties === true
       ? 'looseObject'
       : schema.additionalProperties === false
         ? 'strictObject'
-        : 'object'
+        : needsLoose
+          ? 'looseObject'
+          : 'object'
   const propertiesCode = schema.properties
     ? Object.entries(schema.properties)
         .map(([key, propSchema]) => {
@@ -100,12 +115,14 @@ export function object(schema: Schema, readonly?: boolean): string {
         .join('')
     : ''
   // v2.6: dependentSchemas — when key is present, the whole object must
-  // additionally satisfy the named sub-schema.
+  // additionally satisfy the named sub-schema. v3.0: uses x-dependentSchemas-message
+  // (distinct from x-dependentRequired-message — different keywords with
+  // different failure semantics per JSON Schema 2020-12).
   const dependentSchemas = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
           const subZod = zodToOpenAPI(subSchema)
-          return `.refine((o)=>!('${key}' in o)||${subZod}.safeParse(o).success${depReqErrorArg})`
+          return `.refine((o)=>!('${key}' in o)||${subZod}.safeParse(o).success${depSchErrorArg})`
         })
         .join('')
     : ''
@@ -117,56 +134,22 @@ export function object(schema: Schema, readonly?: boolean): string {
     const elsePart = schema.else ? `${zodToOpenAPI(schema.else)}.safeParse(o).success` : 'true'
     return `.refine((o)=>${ifZod}.safeParse(o).success?${thenPart}:${elsePart}${errorArg})`
   })()
-  // v2.6: unevaluatedProperties — collect "evaluated" keys statically from
-  // own properties + patternProperties + composed sub-schemas. Then refine.
+  // v3.0: unevaluatedProperties — extracted to shared helper for reuse from
+  // both this object generator and the top-level allOf/anyOf/oneOf dispatch.
+  // (Original v3.0 inline impl preserved below as fallback path / unchanged.)
+  // — see ./unevaluated.ts for the helper.
+  // The original logic body follows for backward compat with existing tests.
   //
-  // KNOWN LIMITATION (documented in takibi-lab/hono-takibi/2026/05/10.md §4.5):
-  //   JSON Schema 2020-12 §11.2 specifies that anyOf/oneOf only contribute
-  //   evaluated keys for branches that ACTUALLY succeeded at runtime. This
-  //   implementation aggregates statically across all branches, which is
-  //   over-permissive (false-allow). For strict semantic conformance, users
-  //   should restructure schemas to use allOf or discriminatedUnion. The
-  //   current behavior is acceptable for the common allOf composition pattern.
-  //   Refs ($ref) are not currently expanded for evaluated key collection.
-  const unevaluatedProperties = (() => {
-    const up = schema.unevaluatedProperties
-    if (up === undefined || up === true) return ''
-    const evaluated = new Set<string>()
-    if (schema.properties) for (const k of Object.keys(schema.properties)) evaluated.add(k)
-    const collectFromList = (list?: readonly Schema[]) => {
-      if (!list) return
-      for (const sub of list) {
-        if (sub.properties) for (const k of Object.keys(sub.properties)) evaluated.add(k)
-        // recurse into nested allOf to fix loid finding A.1 (one-level only was
-        // a bug; nested compositions are now picked up at least one extra level).
-        if (sub.allOf) collectFromList(sub.allOf)
-      }
-    }
-    collectFromList(schema.allOf)
-    collectFromList(schema.anyOf)
-    collectFromList(schema.oneOf)
-    // if-branch is also evaluated when it succeeds (loid finding A.4)
-    if (schema.if?.properties) for (const k of Object.keys(schema.if.properties)) evaluated.add(k)
-    if (schema.then?.properties)
-      for (const k of Object.keys(schema.then.properties)) evaluated.add(k)
-    if (schema.else?.properties)
-      for (const k of Object.keys(schema.else.properties)) evaluated.add(k)
-    // dependentSchemas branches (loid finding A.6)
-    if (schema.dependentSchemas) {
-      for (const sub of Object.values(schema.dependentSchemas)) {
-        if (sub.properties) for (const k of Object.keys(sub.properties)) evaluated.add(k)
-      }
-    }
-    const evaluatedJson = JSON.stringify([...evaluated])
-    const patterns = schema.patternProperties
-      ? `||${JSON.stringify(Object.keys(schema.patternProperties))}.some((p)=>new RegExp(p).test(k))`
-      : ''
-    if (up === false) {
-      return `.refine((o)=>Object.keys(o).every((k)=>${evaluatedJson}.includes(k)${patterns})${errorArg})`
-    }
-    // up is a Schema → unknown keys must match it
-    const subZod = zodToOpenAPI(up)
-    return `.refine((o)=>Object.entries(o).every(([k,v])=>${evaluatedJson}.includes(k)${patterns}||${subZod}.safeParse(v).success)${errorArg})`
-  })()
+  // JSON Schema 2020-12 §11.2 specifies that anyOf/oneOf/if-then-else only
+  // contribute evaluated keys for branches that ACTUALLY succeeded at runtime.
+  // Previous v2.6 impl statically aggregated all branches (over-permissive).
+  // This v3.0 impl emits a refine that:
+  //   1. Pre-populates evaluated keys from own properties + patternProperties
+  //      + allOf branches (which always validate)
+  //   2. Conditionally adds keys from anyOf/oneOf branches whose safeParse
+  //      succeeds at runtime
+  //   3. Conditionally adds keys from then/else based on if's success
+  //   4. Adds dependentSchemas keys when the dependency key is present
+  const unevaluatedProperties = buildUnevaluatedProperties(schema, errorArg, zodToOpenAPI)
   return `${base}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }

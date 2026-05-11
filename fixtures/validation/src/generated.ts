@@ -28,16 +28,7 @@ const CreateUserSchema = z
       .min(1, { error: 'Priority must be >= 1' })
       .max(10, { error: 'Priority must be <= 10' }),
     score: z.int().multipleOf(5, { error: 'Score must be a multiple of 5' }).exactOptional(),
-    role: z
-      .union(
-        [
-          z.literal('admin', { error: 'Select admin role' }),
-          z.literal('user', { error: 'Select user role' }),
-          z.literal('guest', { error: 'Select guest role' }),
-        ],
-        { error: 'Must be a valid role' },
-      )
-      .exactOptional(),
+    role: z.enum(['admin', 'user', 'guest'], { error: 'Must be a valid role' }).exactOptional(),
   })
   .refine((o) => !('password' in o) || 'code' in o, {
     error: 'Code is required when password is provided',
