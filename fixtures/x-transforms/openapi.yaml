@@ -95,6 +95,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/CustomForm'
 
+  /v25:
+    post:
+      operationId: postV25
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V25Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V25Form'
+
+  /v26:
+    post:
+      operationId: postV26
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V26Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V26Form'
+
 components:
   schemas:
     StringForm:
@@ -303,3 +337,74 @@ components:
           type: string
           format: date-time
           x-codec: date
+
+    V25Form:
+      type: object
+      required:
+        - name
+        - tags
+        - status
+      $comment: ajv-errors 互換のメッセージ + contains + x-required-message テスト
+      additionalProperties: false
+      properties:
+        # x-required-message: required と type で別メッセージ
+        name:
+          type: string
+          x-required-message: '名前は必須です'
+          x-error-message: '名前は文字列である必要があります'
+        # contains: 配列に最低1個の "important" タグ
+        tags:
+          type: array
+          items:
+            type: string
+          contains:
+            const: important
+          minContains: 1
+          maxContains: 3
+        # const + x-const-message
+        status:
+          const: active
+          x-const-message: 'ステータスは active のみ'
+      # ajv-errors errorMessage detailed form
+      errorMessage:
+        additionalProperties: '未知のフィールドは許可されません'
+
+    V26Form:
+      type: object
+      required:
+        - kind
+        - settings
+      properties:
+        kind:
+          type: string
+          enum: [premium, basic]
+        # if/then/else
+        feature:
+          type: string
+        # dependentSchemas: kind="premium" のとき feature 必須
+        # contentEncoding + contentMediaType + contentSchema
+        settings:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/json
+          contentSchema:
+            type: object
+            required: [theme]
+            properties:
+              theme:
+                type: string
+                enum: [light, dark]
+      if:
+        type: object
+        properties:
+          kind:
+            const: premium
+        required: [kind]
+      then:
+        type: object
+        required: [feature]
+        properties:
+          feature: { type: string }
+      else:
+        type: object
+        required: []

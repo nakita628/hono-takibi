@@ -919,9 +919,284 @@ describe('zodToOpenAPI', () => {
             { type: 'string', format: 'date-time', 'x-codec': 'date' } as Schema,
             'z.codec(z.iso.datetime(),z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})',
           ],
+          // v2.5: errorMessage simple form (ajv-errors compat)
           [
-            { type: 'string', format: 'date', 'x-codec': 'date' } as Schema,
-            'z.codec(z.iso.date(),z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})',
+            { type: 'string', errorMessage: 'Must be a string' } as Schema,
+            'z.string({error:"Must be a string"})',
+          ],
+          [
+            { type: 'string', errorMessage: { type: 'Bad string' } } as Schema,
+            'z.string({error:"Bad string"})',
+          ],
+          // x-error-message wins when both are set
+          [
+            {
+              type: 'string',
+              'x-error-message': 'Explicit',
+              errorMessage: 'Implicit',
+            } as Schema,
+            'z.string({error:"Explicit"})',
+          ],
+          // v2.5: x-required-message + x-error-message
+          [
+            {
+              type: 'string',
+              'x-error-message': 'Type wrong',
+              'x-required-message': 'Required',
+            } as Schema,
+            'z.string({error:(issue)=>issue.input===undefined?"Required":"Type wrong"})',
+          ],
+          [
+            { type: 'string', 'x-required-message': 'Required only' } as Schema,
+            'z.string({error:(issue)=>issue.input===undefined?"Required only":undefined})',
+          ],
+          // v2.5: errorMessage detailed form on number
+          [
+            {
+              type: 'number',
+              minimum: 0,
+              maximum: 100,
+              errorMessage: { minimum: '≥0 required', maximum: '≤100 required' },
+            } as Schema,
+            'z.number().min(0,{error:"≥0 required"}).max(100,{error:"≤100 required"})',
+          ],
+          // v2.5: x-const-message
+          [
+            { const: 'fixed', 'x-const-message': 'Must be "fixed"' } as Schema,
+            'z.literal("fixed",{error:"Must be \\"fixed\\""})',
+          ],
+          // v2.5: contains (default minContains = 1)
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              contains: { const: 5 },
+            } as Schema,
+            'z.array(z.number()).refine((arr)=>{const Schema=z.literal(5);const matches=arr.filter((i)=>Schema.safeParse(i).success).length;return matches >= 1})',
+          ],
+          // v2.5: contains + minContains + maxContains
+          [
+            {
+              type: 'array',
+              items: { type: 'number' },
+              contains: { type: 'number', minimum: 0 },
+              minContains: 2,
+              maxContains: 5,
+            } as Schema,
+            'z.array(z.number()).refine((arr)=>{const Schema=z.number().min(0);const matches=arr.filter((i)=>Schema.safeParse(i).success).length;return matches >= 2&&matches <= 5})',
+          ],
+          // v2.5: x-uniqueItems-message
+          [
+            {
+              type: 'array',
+              items: { type: 'string' },
+              uniqueItems: true,
+              'x-uniqueItems-message': 'Duplicates not allowed',
+            } as Schema,
+            'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"Duplicates not allowed"})',
+          ],
+          // v2.5: x-additionalProperties-message on strictObject
+          [
+            {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              required: ['name'],
+              additionalProperties: false,
+              'x-additionalProperties-message': 'No extra fields',
+            } as Schema,
+            `z.strictObject({name:z.string()},{error:(issue)=>issue.code==='unrecognized_keys'?"No extra fields":undefined}).openapi({"required":["name"]})`,
+          ],
+          // v2.5: errorMessage detailed form on object → propagates to children
+          [
+            {
+              type: 'object',
+              properties: { name: { type: 'string' }, age: { type: 'number' } },
+              required: ['name', 'age'],
+              errorMessage: {
+                properties: { name: 'Name must be a string' },
+                required: { age: 'Age is required' },
+              },
+            } as Schema,
+            'z.object({name:z.string({error:"Name must be a string"}),age:z.number({error:(issue)=>issue.input===undefined?"Age is required":undefined})}).openapi({"required":["name","age"]})',
+          ],
+          // v2.5: errorMessage.required as a single string applies to all required keys
+          [
+            {
+              type: 'object',
+              properties: { a: { type: 'string' }, b: { type: 'string' } },
+              required: ['a', 'b'],
+              errorMessage: { required: 'Field required' },
+            } as Schema,
+            'z.object({a:z.string({error:(issue)=>issue.input===undefined?"Field required":undefined}),b:z.string({error:(issue)=>issue.input===undefined?"Field required":undefined})}).openapi({"required":["a","b"]})',
+          ],
+          // $comment is silently dropped
+          [{ type: 'string', $comment: 'this is a note' } as Schema, 'z.string()'],
+          // v2.6: contentEncoding base64 only
+          [
+            { type: 'string', contentEncoding: 'base64' } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+          ],
+          // v2.6: base64 + JSON contentMediaType + contentSchema
+          [
+            {
+              type: 'string',
+              contentEncoding: 'base64',
+              contentMediaType: 'application/json',
+              contentSchema: {
+                type: 'object',
+                properties: { name: { type: 'string' } },
+                required: ['name'],
+              },
+            } as Schema,
+            'z.base64().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
+          ],
+          // v2.6: dependentSchemas
+          [
+            {
+              type: 'object',
+              properties: { creditCard: { type: 'string' } },
+              dependentSchemas: {
+                creditCard: {
+                  properties: { billingAddress: { type: 'string' } },
+                  required: ['billingAddress'],
+                },
+              },
+            } as Schema,
+            'z.object({creditCard:z.string().exactOptional()}).refine((o)=>!(\'creditCard\' in o)||z.object({billingAddress:z.string()}).openapi({"required":["billingAddress"]}).safeParse(o).success)',
+          ],
+          // v2.6: if / then / else (then/else without type/properties → z.any())
+          // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
+          [
+            {
+              type: 'object',
+              if: { properties: { type: { const: 'premium' } }, required: ['type'] },
+              then: { required: ['premiumFeature'] },
+              else: { required: ['basicFeature'] },
+            } as Schema,
+            'z.object({}).refine((o)=>z.object({type:z.literal("premium")}).openapi({"required":["type"]}).safeParse(o).success?z.any().openapi({"required":["premiumFeature"]}).safeParse(o).success:z.any().openapi({"required":["basicFeature"]}).safeParse(o).success)',
+          ],
+          // v2.6: unevaluatedProperties: false
+          [
+            {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              unevaluatedProperties: false,
+            } as Schema,
+            'z.object({name:z.string().exactOptional()}).refine((o)=>Object.keys(o).every((k)=>["name"].includes(k)))',
+          ],
+          // v2.6: unevaluatedItems: false
+          [
+            {
+              type: 'array',
+              prefixItems: [{ type: 'string' }, { type: 'number' }],
+              unevaluatedItems: false,
+            } as Schema,
+            'z.tuple([z.string(),z.number()]).refine((arr)=>arr.length<=2)',
+          ],
+          // v2.7: JSON Schema 2020-12 Core meta keywords pass-through
+          [
+            { type: 'string', $schema: 'https://json-schema.org/draft/2020-12/schema' } as Schema,
+            'z.string().openapi({"$schema":"https://json-schema.org/draft/2020-12/schema"})',
+          ],
+          [
+            { type: 'string', $id: 'https://example.com/schemas/user.json' } as Schema,
+            'z.string().openapi({"$id":"https://example.com/schemas/user.json"})',
+          ],
+          [
+            { type: 'string', $anchor: 'user-name' } as Schema,
+            'z.string().openapi({"$anchor":"user-name"})',
+          ],
+          [
+            { type: 'string', $dynamicAnchor: 'meta' } as Schema,
+            'z.string().openapi({"$dynamicAnchor":"meta"})',
+          ],
+          [
+            { type: 'string', $dynamicRef: '#meta' } as Schema,
+            'z.string().openapi({"$dynamicRef":"#meta"})',
+          ],
+          [
+            {
+              type: 'string',
+              $vocabulary: { 'https://json-schema.org/draft/2020-12/vocab/core': true },
+            } as Schema,
+            'z.string().openapi({"$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true}})',
+          ],
+          // v2.7 fix: $defs pass-through (review finding from yuri 2.2)
+          [
+            {
+              type: 'string',
+              $defs: { Email: { type: 'string', format: 'email' } },
+            } as Schema,
+            'z.string().openapi({"$defs":{"Email":{"type":"string","format":"email"}}})',
+          ],
+          // contentEncoding additional variants (review finding from loid C / yuri 2.1)
+          [
+            { type: 'string', contentEncoding: 'base64url' } as Schema,
+            'z.base64url().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+          ],
+          // binary/7bit/8bit/quoted-printable fall back to plain z.string() (no decode)
+          [{ type: 'string', contentEncoding: 'binary' } as Schema, 'z.string()'],
+          [{ type: 'string', contentEncoding: '7bit' } as Schema, 'z.string()'],
+          // contentSchema with $ref (review finding from yuri 3.1 — dead code fix)
+          [
+            {
+              type: 'string',
+              contentEncoding: 'base64',
+              contentMediaType: 'application/json',
+              contentSchema: { $ref: '#/components/schemas/Inner' },
+            } as Schema,
+            'z.base64().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(InnerSchema)',
+          ],
+          // unevaluatedProperties: Schema form (review finding from yuri 2.1)
+          [
+            {
+              type: 'object',
+              properties: { name: { type: 'string' } },
+              unevaluatedProperties: { type: 'string' },
+            } as Schema,
+            'z.object({name:z.string().exactOptional()}).refine((o)=>Object.entries(o).every(([k,v])=>["name"].includes(k)||z.string().safeParse(v).success))',
+          ],
+          // unevaluatedItems: Schema form
+          [
+            {
+              type: 'array',
+              prefixItems: [{ type: 'string' }],
+              unevaluatedItems: { type: 'number' },
+            } as Schema,
+            'z.tuple([z.string()]).refine((arr)=>{const Schema=z.number();return arr.slice(1).every((i)=>Schema.safeParse(i).success)})',
+          ],
+          // dependentSchemas: multiple keys
+          [
+            {
+              type: 'object',
+              properties: { a: { type: 'string' }, b: { type: 'string' } },
+              dependentSchemas: {
+                a: { type: 'object', required: ['b'], properties: { b: { type: 'string' } } },
+                b: { type: 'object', required: ['a'], properties: { a: { type: 'string' } } },
+              },
+            } as Schema,
+            'z.object({a:z.string().exactOptional(),b:z.string().exactOptional()}).refine((o)=>!(\'a\' in o)||z.object({b:z.string()}).openapi({"required":["b"]}).safeParse(o).success).refine((o)=>!(\'b\' in o)||z.object({a:z.string()}).openapi({"required":["a"]}).safeParse(o).success)',
+          ],
+          // if-then only (no else) — review finding from loid B / yuri 2.2
+          // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then
+          [
+            {
+              type: 'object',
+              properties: { kind: { type: 'string' }, x: { type: 'string' } },
+              if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
+              then: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
+            } as Schema,
+            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).refine((o)=>z.object({kind:z.literal("a")}).openapi({"required":["kind"]}).safeParse(o).success?z.object({x:z.string()}).openapi({"required":["x"]}).safeParse(o).success:true)',
+          ],
+          // if-else only (no then)
+          [
+            {
+              type: 'object',
+              properties: { kind: { type: 'string' }, x: { type: 'string' } },
+              if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
+              else: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
+            } as Schema,
+            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).refine((o)=>z.object({kind:z.literal("a")}).openapi({"required":["kind"]}).safeParse(o).success?true:z.object({x:z.string()}).openapi({"required":["x"]}).safeParse(o).success)',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)

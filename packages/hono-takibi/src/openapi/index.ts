@@ -472,8 +472,6 @@ export type Schema = {
   readonly dependentRequired?: {
     readonly [k: string]: readonly string[]
   }
-  readonly contentEncoding?: string
-  readonly contentMediaType?: string
   // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
   readonly 'x-error-message'?: string
   readonly 'x-size-message'?: string
@@ -487,6 +485,68 @@ export type Schema = {
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
+  // v2.5: extra message extensions (paired with errorMessage normalization)
+  readonly 'x-required-message'?: string
+  readonly 'x-additionalProperties-message'?: string
+  readonly 'x-uniqueItems-message'?: string
+  readonly 'x-const-message'?: string
+  readonly 'x-enum-message'?: string
+  // v2.5: ajv-errors-compatible errorMessage (input alias, normalized at parse time)
+  readonly errorMessage?:
+    | string
+    | {
+        readonly type?: string
+        readonly required?: string | { readonly [k: string]: string }
+        readonly properties?: { readonly [k: string]: string }
+        readonly items?: string
+        readonly minItems?: string
+        readonly maxItems?: string
+        readonly minLength?: string
+        readonly maxLength?: string
+        readonly minimum?: string
+        readonly maximum?: string
+        readonly multipleOf?: string
+        readonly pattern?: string
+        readonly additionalProperties?: string
+        readonly uniqueItems?: string
+        readonly const?: string
+        readonly enum?: string
+        readonly _?: string
+      }
+  // v2.5: $comment pass-through
+  readonly $comment?: string
+  // v2.5: array contains validation (JSON Schema standard)
+  readonly contains?: Schema
+  readonly minContains?: number
+  readonly maxContains?: number
+  // v2.6: content* (encoded payload validation)
+  readonly contentEncoding?:
+    | 'base64'
+    | 'base64url'
+    | 'binary'
+    | '7bit'
+    | '8bit'
+    | 'quoted-printable'
+  readonly contentMediaType?: string
+  readonly contentSchema?: Schema
+  // v2.6: dependentSchemas (full conditional sub-schema)
+  readonly dependentSchemas?: { readonly [k: string]: Schema }
+  // v2.6: if / then / else (JSON Schema standard conditional)
+  readonly if?: Schema
+  readonly then?: Schema
+  readonly else?: Schema
+  // v2.6: unevaluated*
+  readonly unevaluatedProperties?: boolean | Schema
+  readonly unevaluatedItems?: boolean | Schema
+  // v2.7: JSON Schema 2020-12 Core meta keywords (pass-through to .openapi())
+  // These have no validation effect — they're documentation/identification only.
+  readonly $schema?: string
+  readonly $id?: string
+  readonly $anchor?: string
+  readonly $dynamicAnchor?: string
+  readonly $dynamicRef?: string
+  readonly $vocabulary?: { readonly [k: string]: boolean }
+  readonly $defs?: { readonly [k: string]: Schema }
   // x-enum-error-messages was removed: by design `enum` lists *allowed*
   // values, so a per-value "cannot be ..." message is dead code — when the
   // input matches an enum entry, validation passes (no error to display);

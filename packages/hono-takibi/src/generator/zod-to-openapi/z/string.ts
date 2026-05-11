@@ -1,5 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
-import { error } from '../../../utils/index.js'
+import { baseError, error } from '../../../utils/index.js'
+import { zodToOpenAPI } from '../index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
   email: 'email()',
@@ -135,13 +136,15 @@ function buildFormatOptions(schema: Schema): readonly string[] {
  */
 export function string(schema: Schema): string {
   const errorMessage = schema['x-error-message']
+  const requiredMessage = schema['x-required-message']
+  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const coerce = schema['x-coerce'] === true
 
   // Hash: z.hash(algo, { enc }) — special case, algo is a required positional arg.
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
     const algo = schema['x-hashAlg']
-    if (!algo) return errorMessage ? `z.string(${error(errorMessage)})` : 'z.string()'
+    if (!algo) return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     const enc = schema['x-hashEnc']
     const opts: string[] = []
     if (enc) opts.push(`enc:${JSON.stringify(enc)}`)
@@ -166,6 +169,35 @@ export function string(schema: Schema): string {
     return `z.codec(${isoFn},z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})`
   }
 
+  // v2.6: contentEncoding + contentMediaType + contentSchema
+  // Decodes the encoded payload, optionally JSON-parses it, then validates
+  // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
+  const enc = schema.contentEncoding
+  const mediaType = schema.contentMediaType
+  const contentSchema = schema.contentSchema
+  if ((enc !== undefined || mediaType !== undefined || contentSchema !== undefined) && !hashBase) {
+    const baseStr = (() => {
+      if (enc === 'base64') return 'z.base64()'
+      if (enc === 'base64url') return 'z.base64url()'
+      // Other encodings (binary, 7bit, 8bit, quoted-printable) fall back to
+      // a plain string with no decode step.
+      return 'z.string()'
+    })()
+    const decodeStep = (() => {
+      // Pure base64 → bytes (here: decoded UTF-8 string via atob)
+      if (enc !== 'base64' && enc !== 'base64url') return ''
+      // application/json (or json subtypes) → parse to value
+      if (mediaType && /json/i.test(mediaType)) {
+        return '.transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8")))'
+      }
+      return '.transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))'
+    })()
+    // contentSchema may be a $ref or inline schema; both branches recurse
+    // through zodToOpenAPI which already handles refs via makeRef.
+    const validateStep = contentSchema ? `.pipe(${zodToOpenAPI(contentSchema)})` : ''
+    return `${baseStr}${decodeStep}${validateStep}`
+  }
+
   const format = schema.format && FORMAT_STRING[schema.format]
   const isTransformFormat = !!(schema.format && TRANSFORM_FORMATS.has(schema.format))
   const isValidationFormat = !!(format && !isTransformFormat)
@@ -181,16 +213,18 @@ export function string(schema: Schema): string {
   const buildValidationBase = (): string => {
     if (hashBase) return hashBase
     if (coerce && schema.format && DATE_FORMATS.has(schema.format)) {
-      return errorMessage ? `z.coerce.date(${error(errorMessage)})` : 'z.coerce.date()'
+      return baseErrorArg ? `z.coerce.date(${baseErrorArg})` : 'z.coerce.date()'
     }
     if (!format) {
-      if (coerce)
-        return errorMessage ? `z.coerce.string(${error(errorMessage)})` : 'z.coerce.string()'
-      return errorMessage ? `z.string(${error(errorMessage)})` : 'z.string()'
+      if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
+      return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     }
     const fmtOpts = isValidationFormat ? buildFormatOptions(schema) : []
-    const includeError = !!errorMessage && isValidationFormat
-    const allOpts = includeError ? [...fmtOpts, errorInner(errorMessage ?? '')] : [...fmtOpts]
+    const includeBaseError = !!baseErrorArg && isValidationFormat
+    // baseErrorArg already wraps in `{...}`. Strip the outer braces to merge
+    // with format options.
+    const baseInner = includeBaseError ? baseErrorArg.slice(1, -1) : ''
+    const allOpts = includeBaseError ? [...fmtOpts, baseInner] : [...fmtOpts]
     if (allOpts.length > 0) {
       return `z.${format.replace(/\(\)$/, `({${allOpts.join(',')}})`)}`
     }

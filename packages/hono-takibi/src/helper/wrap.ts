@@ -20,22 +20,13 @@ export function wrap(
     isOptional?: boolean
   },
 ) {
-  /* Properties not supported or causing type issues with zod-to-openapi */
+  /* Properties truly not supported. v2.7: JSON Schema 2020-12 Core meta
+   * keywords ($schema/$id/$anchor/$dynamicAnchor/$dynamicRef/$vocabulary) now
+   * pass through to .openapi({...}) for full spec coverage. Only legacy
+   * pre-2019-09 keywords ($recursiveRef/$recursiveAnchor — replaced by
+   * $dynamicRef/$dynamicAnchor in 2020-12) and non-standard underscore
+   * variants remain dropped. */
   const unsupportedProps = new Set([
-    'contains',
-    'minContains',
-    'maxContains',
-    'dependentSchemas',
-    'unevaluatedProperties',
-    'unevaluatedItems',
-    'if',
-    'then',
-    'else',
-    'contentSchema',
-    'contentEncoding',
-    'contentMediaType',
-    '$schema',
-    '$id',
     '$recursiveRef',
     '$recursiveAnchor',
     'optional',
@@ -215,6 +206,27 @@ export function wrap(
     'x-anyOf-message',
     'x-oneOf-message',
     'x-not-message',
+    // v2.5
+    'x-required-message',
+    'x-additionalProperties-message',
+    'x-uniqueItems-message',
+    'x-const-message',
+    'x-enum-message',
+    'errorMessage',
+    '$comment',
+    'contains',
+    'minContains',
+    'maxContains',
+    // v2.6: full JSON Schema 2020-12 coverage
+    'contentEncoding',
+    'contentMediaType',
+    'contentSchema',
+    'dependentSchemas',
+    'if',
+    'then',
+    'else',
+    'unevaluatedProperties',
+    'unevaluatedItems',
     // x-enum-error-messages: kept in this drop-list (NOT in the Schema
     // type) so legacy YAML carrying the now-removed extension doesn't
     // leak into z.object().meta(...) emission as a stray option.

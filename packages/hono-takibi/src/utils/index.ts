@@ -295,6 +295,23 @@ export function error(message: string) {
   return `{error:${JSON.stringify(message)}}` as const
 }
 
+/**
+ * Builds the base `{error:...}` argument for a Zod v4 schema constructor when
+ * either or both of `x-error-message` (type / generic) and `x-required-message`
+ * (input is undefined) are present.
+ *
+ * Combined behavior uses Zod's issue-aware function form:
+ * `{ error: (issue) => issue.input === undefined ? required : type }`.
+ */
+export function baseError(typeMessage: string | undefined, requiredMessage: string | undefined) {
+  if (requiredMessage === undefined && typeMessage === undefined) return ''
+  if (requiredMessage === undefined && typeMessage !== undefined) return error(typeMessage)
+  if (requiredMessage !== undefined && typeMessage === undefined) {
+    return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}` as const
+  }
+  return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(typeMessage)}}` as const
+}
+
 export function makeInferRequestType(
   clientName: string,
   pathResult: {

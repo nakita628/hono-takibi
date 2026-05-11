@@ -538,14 +538,16 @@ describe('wrap', () => {
       expect(result).toBe('z.array(z.string()).openapi({"description":"arr"})')
     })
 
-    it.concurrent('should filter out $schema property', () => {
+    it.concurrent('should pass through $schema property (v2.7 — Core meta)', () => {
       const schema = {
         type: 'string',
         $schema: 'http://json-schema.org/draft-07/schema#',
         description: 'test',
       } as unknown as Schema
       const result = wrap('z.string()', schema)
-      expect(result).toBe('z.string().openapi({"description":"test"})')
+      expect(result).toBe(
+        'z.string().openapi({"$schema":"http://json-schema.org/draft-07/schema#","description":"test"})',
+      )
     })
 
     it.concurrent('should filter out contentEncoding property', () => {

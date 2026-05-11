@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { error } from '../../../utils/index.js'
+import { baseError, error } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema for number types (number / float32 / float64), with
@@ -8,7 +8,8 @@ import { error } from '../../../utils/index.js'
  */
 export function number(schema: Schema): string {
   const errorMessage = schema['x-error-message']
-  const baseErrorArg = errorMessage ? error(errorMessage) : ''
+  const requiredMessage = schema['x-required-message']
+  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const coerce = schema['x-coerce'] === true
   const base = coerce
     ? `z.coerce.number(${baseErrorArg})`

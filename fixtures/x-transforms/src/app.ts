@@ -5,6 +5,8 @@ import {
   postFormatsRoute,
   postP2Route,
   postStringsRoute,
+  postV25Route,
+  postV26Route,
 } from './generated.ts'
 
 const app = new OpenAPIHono({
@@ -60,6 +62,19 @@ app.openapi(postCustomRoute, async (c) => {
   // updatedAt is parsed as a Date instance — no need to call .toISOString().
   // The output schema's codec re-encodes it to an ISO string on response.
   return c.json(body, 200)
+})
+
+app.openapi(postV25Route, async (c) => {
+  const body = c.req.valid('json')
+  return c.json(body, 200)
+})
+
+app.openapi(postV26Route, async (c) => {
+  const body = c.req.valid('json')
+  // The contentEncoding pipeline decodes settings into an object during
+  // validation; cast for the response (which expects the encoded string shape).
+  // biome-ignore lint/suspicious/noExplicitAny: response shape mismatch with decoded body
+  return c.json(body as any, 200)
 })
 
 export default app

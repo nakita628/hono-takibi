@@ -1,3 +1,4 @@
+import { normalizeErrorMessage } from '../../helper/errorMessage.js'
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
@@ -5,7 +6,7 @@ import { error, normalizeTypes } from '../../utils/index.js'
 import { string, number, integer, object, _enum } from './z/index.js'
 
 export function zodToOpenAPI(
-  schema: Schema,
+  rawSchema: Schema,
   meta?: {
     parameters?: Parameter
     headers?: Header
@@ -21,7 +22,11 @@ export function zodToOpenAPI(
   },
   readonly?: boolean,
 ): string {
-  if (schema === undefined) throw new Error('Schema is undefined')
+  if (rawSchema === undefined) throw new Error('Schema is undefined')
+  // v2.5: rewrite ajv-errors `errorMessage` to internal `x-*-message` series
+  // before any generator runs. Per-property children are rewritten in-place so
+  // recursive calls receive the normalized form.
+  const schema = normalizeErrorMessage(rawSchema)
   // isOptional should only affect the outermost schema; strip for recursive calls.
   const innerMeta = meta?.isOptional
     ? (() => {
@@ -178,7 +183,9 @@ export function zodToOpenAPI(
   }
   if (schema.const !== undefined) {
     const value = schema.const
-    const errorMessage = schema['x-error-message']
+    // v2.5: x-const-message overrides x-error-message for the literal mismatch
+    const constMessage = schema['x-const-message'] ?? schema['x-error-message']
+    const errorMessage = constMessage
     const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
     // z.literal supports only primitives in Zod 4; fall back to z.custom for objects/arrays.
     const isPrimitive =
@@ -199,21 +206,59 @@ export function zodToOpenAPI(
   if (t.includes('integer')) return wrap(integer(schema), schema, meta)
   if (t.includes('boolean')) {
     const errorMessage = schema['x-error-message']
+    const requiredMessage = schema['x-required-message']
     const coerce = schema['x-coerce'] === true
     const baseFn = coerce ? 'z.coerce.boolean' : 'z.boolean'
-    const base = errorMessage ? `${baseFn}(${error(errorMessage)})` : `${baseFn}()`
+    const arg = (() => {
+      if (requiredMessage === undefined && errorMessage === undefined) return ''
+      if (requiredMessage === undefined && errorMessage !== undefined) return error(errorMessage)
+      if (requiredMessage !== undefined && errorMessage === undefined)
+        return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}`
+      return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(errorMessage)}}`
+    })()
+    const base = arg ? `${baseFn}(${arg})` : `${baseFn}()`
     return wrap(base, schema, meta)
   }
   if (t.includes('array')) {
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
     const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
+    // v2.5: contains / minContains / maxContains. Default minContains is 1 per
+    // JSON Schema 2020-12. The contains schema is inlined as a Zod expression
+    // and used to count matching elements via safeParse.
+    const containsChain = (() => {
+      const c = schema.contains
+      if (!c) return ''
+      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, innerMeta, readonly)
+      const minC = schema.minContains ?? 1
+      const maxC = schema.maxContains
+      const conditions = [`matches >= ${minC}`]
+      if (maxC !== undefined) conditions.push(`matches <= ${maxC}`)
+      const fn = `(arr)=>{const Schema=${containsZod};const matches=arr.filter((i)=>Schema.safeParse(i).success).length;return ${conditions.join('&&')}}`
+      const containsMsg = arrayErrorMessage
+      const msgArg = containsMsg ? `,${error(containsMsg)}` : ''
+      return `.refine(${fn}${msgArg})`
+    })()
+    // v2.6: unevaluatedItems — items beyond prefixItems must satisfy the
+    // schema (false → no extras allowed). Calculates the prefixItems length so
+    // the refine knows where the "evaluated by prefix" boundary is.
+    const unevaluatedItemsChain = (() => {
+      const ui = schema.unevaluatedItems
+      if (ui === undefined || ui === true) return ''
+      const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
+      if (ui === false) {
+        return `.refine((arr)=>arr.length<=${prefixCount}${arrayErrorArg})`
+      }
+      const subZod = zodToOpenAPI(ui, innerMeta, readonly)
+      return `.refine((arr)=>{const Schema=${subZod};return arr.slice(${prefixCount}).every((i)=>Schema.safeParse(i).success)}${arrayErrorArg})`
+    })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const tupleItems = schema.prefixItems.map((item) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, readonly),
       )
       const z = `z.tuple([${tupleItems.join(',')}]${arrayErrorArg})`
-      return wrap(`${z}${readonlyMod}`, schema, meta)
+      // v2.6: tuple may also be constrained by unevaluatedItems
+      return wrap(`${z}${unevaluatedItemsChain}${readonlyMod}`, schema, meta)
     }
     // items can be Schema or readonly Schema[] (Draft-04 tuple validation).
     const itemSchema: Schema | undefined = Array.isArray(schema.items)
@@ -227,34 +272,49 @@ export function zodToOpenAPI(
     const z = `z.array(${item}${arrayErrorArg})`
     const patternMessage = schema['x-pattern-message']
     const patternErrorArg = patternMessage ? `,${error(patternMessage)}` : ''
-    const unique =
-      schema.uniqueItems === true
-        ? `.refine((items)=>new Set(items).size===items.length${patternErrorArg})`
-        : ''
     const sizeMessage = schema['x-size-message']
     const sizeErrorArg = sizeMessage ? `,${error(sizeMessage)}` : ''
     const minMessage = schema['x-minimum-message']
     const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
     const maxMessage = schema['x-maximum-message']
     const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
+    // v2.5: x-uniqueItems-message overrides x-pattern-message for uniqueness
+    const uniqueMessage = schema['x-uniqueItems-message']
+    const uniqueErrorArg = uniqueMessage ? `,${error(uniqueMessage)}` : patternErrorArg
+    const uniqueChain =
+      schema.uniqueItems === true
+        ? `.refine((items)=>new Set(items).size===items.length${uniqueErrorArg})`
+        : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
         ? wrap(
-            `${z}.length(${schema.minItems}${sizeErrorArg})${unique}${readonlyMod}`,
+            `${z}.length(${schema.minItems}${sizeErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
             schema,
             meta,
           )
         : wrap(
-            `${z}.min(${schema.minItems}${minErrorArg}).max(${schema.maxItems}${maxErrorArg})${unique}${readonlyMod}`,
+            `${z}.min(${schema.minItems}${minErrorArg}).max(${schema.maxItems}${maxErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
             schema,
             meta,
           )
     }
     if (typeof schema.minItems === 'number')
-      return wrap(`${z}.min(${schema.minItems}${minErrorArg})${unique}${readonlyMod}`, schema, meta)
+      return wrap(
+        `${z}.min(${schema.minItems}${minErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
+        schema,
+        meta,
+      )
     if (typeof schema.maxItems === 'number')
-      return wrap(`${z}.max(${schema.maxItems}${maxErrorArg})${unique}${readonlyMod}`, schema, meta)
-    return wrap(`${z}${unique}${readonlyMod}`, schema, meta)
+      return wrap(
+        `${z}.max(${schema.maxItems}${maxErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
+        schema,
+        meta,
+      )
+    return wrap(
+      `${z}${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
+      schema,
+      meta,
+    )
   }
   if (t.includes('object')) return wrap(object(schema, readonly), schema, meta)
   if (t.includes('date')) {

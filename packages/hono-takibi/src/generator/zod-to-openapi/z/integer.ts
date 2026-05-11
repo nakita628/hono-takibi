@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { error } from '../../../utils/index.js'
+import { baseError, error } from '../../../utils/index.js'
 
 /**
  * Generates a Zod schema for integer types (int32 / int64 / bigint), with
@@ -8,7 +8,8 @@ import { error } from '../../../utils/index.js'
  */
 export function integer(schema: Schema): string {
   const errorMessage = schema['x-error-message']
-  const baseErrorArg = errorMessage ? error(errorMessage) : ''
+  const requiredMessage = schema['x-required-message']
+  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const coerce = schema['x-coerce'] === true
   // For integer + coerce, emit z.coerce.number().int() since z.coerce.int()
   // does not exist. bigint format keeps its dedicated coerce variant.

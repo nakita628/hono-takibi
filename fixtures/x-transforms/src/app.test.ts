@@ -13,6 +13,8 @@ const postCoerce = post('/coerce')
 const postFormats = post('/formats')
 const postP2 = post('/p2')
 const postCustom = post('/custom')
+const postV25 = post('/v25')
+const postV26 = post('/v26')
 
 describe('x-trim / x-toLowerCase / x-toUpperCase / x-normalize (P1 transforms)', () => {
   it('trims whitespace from x-trim fields', async () => {
@@ -274,5 +276,139 @@ describe('v2.4: x-refine / x-superRefine / x-codec', () => {
   it('x-codec: date — invalid date strings are rejected', async () => {
     const res = await postCustom({ ...validBody, updatedAt: 'not-a-date' })
     expect(res.status).toBe(422)
+  })
+})
+
+describe('v2.5: x-required-message / contains / x-const-message / errorMessage', () => {
+  const validBody = {
+    name: 'Alice',
+    tags: ['important', 'normal'],
+    status: 'active',
+  }
+
+  it('accepts a valid v2.5 payload', async () => {
+    const res = await postV25(validBody)
+    expect(res.status).toBe(200)
+  })
+
+  it('uses x-required-message when name is missing', async () => {
+    const { name: _, ...rest } = validBody
+    const res = await postV25(rest)
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('名前は必須です')
+  })
+
+  it('uses x-error-message when name has wrong type', async () => {
+    const res = await postV25({ ...validBody, name: 42 })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('名前は文字列である必要があります')
+  })
+
+  it('rejects when tags do not contain "important"', async () => {
+    const res = await postV25({ ...validBody, tags: ['a', 'b', 'c'] })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects when too many "important" tags (maxContains exceeded)', async () => {
+    const res = await postV25({
+      ...validBody,
+      tags: ['important', 'important', 'important', 'important'],
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('uses x-const-message for status mismatch', async () => {
+    const res = await postV25({ ...validBody, status: 'inactive' })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('ステータスは active のみ')
+  })
+
+  it('uses errorMessage.additionalProperties for extra fields (strictObject)', async () => {
+    const res = await postV25({ ...validBody, extra: 'not allowed' })
+    expect(res.status).toBe(422)
+    const body = (await res.json()) as { errors: { detail: string }[] }
+    expect(body.errors[0].detail).toBe('未知のフィールドは許可されません')
+  })
+})
+
+describe('v2.6: contentEncoding / dependentSchemas / if-then-else', () => {
+  // base64-encoded JSON: {"theme":"dark"}
+  const validSettings = Buffer.from(JSON.stringify({ theme: 'dark' })).toString('base64')
+
+  it('accepts a valid premium payload (if=premium → then requires feature)', async () => {
+    const res = await postV26({
+      kind: 'premium',
+      feature: 'pro-mode',
+      settings: validSettings,
+    })
+    expect(res.status).toBe(200)
+  })
+
+  it('accepts a valid basic payload (if=basic → else, no feature required)', async () => {
+    const res = await postV26({
+      kind: 'basic',
+      settings: validSettings,
+    })
+    expect(res.status).toBe(200)
+  })
+
+  it('rejects premium without feature (then requires feature)', async () => {
+    const res = await postV26({
+      kind: 'premium',
+      settings: validSettings,
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects when settings has invalid theme value (contentSchema validation)', async () => {
+    const badSettings = Buffer.from(JSON.stringify({ theme: 'rainbow' })).toString('base64')
+    const res = await postV26({
+      kind: 'basic',
+      settings: badSettings,
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('rejects when settings is not valid base64', async () => {
+    const res = await postV26({
+      kind: 'basic',
+      settings: '!!!not-base64!!!',
+    })
+    expect(res.status).toBe(422)
+  })
+
+  // Review-driven negative tests (loid B / yusukebe 1 / yuri 2.4):
+  // Verify that if/then/else actually rejects missing required keys, not just
+  // the .openapi({required:[...]}) metadata pass-through.
+
+  it('if-then: rejects when then-required key is missing (semantic verification)', async () => {
+    // kind=premium triggers then which requires "feature"
+    const res = await postV26({
+      kind: 'premium',
+      settings: validSettings,
+      // feature intentionally omitted
+    })
+    expect(res.status).toBe(422)
+  })
+
+  it('if-else: basic does NOT trigger then-required, so missing feature is OK', async () => {
+    const res = await postV26({
+      kind: 'basic',
+      settings: validSettings,
+      // feature intentionally omitted — should pass because if=premium is false
+    })
+    expect(res.status).toBe(200)
+  })
+
+  it('if-else: premium WITH feature passes (the canonical happy path)', async () => {
+    const res = await postV26({
+      kind: 'premium',
+      feature: 'pro-mode',
+      settings: validSettings,
+    })
+    expect(res.status).toBe(200)
   })
 })
