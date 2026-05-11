@@ -516,6 +516,18 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(errs.some((e) => e.detail === 'namespaced contains an unrecognized key')).toBe(true)
     })
 
+    // x-maxProperties-message — verified via schema source round-trip
+    // only; runtime dispatch is unreachable in this fixture by design.
+    // `namespaced` declares only `{a, b, c}` with `additionalProperties:
+    // false` and `maxProperties: 3`, so any 4-key payload trips the
+    // unrecognized_keys branch FIRST (only 3 declared properties exist).
+    // The keyword survives in `generated.ts`; verify there.
+    it('x-maxProperties-message: keyword survives in generated schema source', () => {
+      const here = fileURLToPath(new URL('./generated.ts', import.meta.url))
+      const src = readFileSync(here, 'utf-8')
+      expect(src.includes('namespaced must have at most 3 properties')).toBe(true)
+    })
+
     it('x-patternProperties-message: rejects wrong-typed x_ key', async () => {
       const res = await postMisc({ ...validMisc, prefixed: { x_one: 42 } })
       expect(await errorsOf(res)).toStrictEqual([

@@ -1,6 +1,0 @@
-import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getHono(options?: ClientRequestOptions) {
-  return await client.hono.$get(undefined, options)
-}
