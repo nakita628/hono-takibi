@@ -33,6 +33,7 @@ const postMergedArrow = post('/merged-arrow')
 const postPayment = post('/payment')
 const postBounds = post('/bounds')
 const postBasket = post('/basket')
+const postContainsDefault = post('/contains-default')
 const postMisc = post('/misc')
 
 const validMisc = {
@@ -306,7 +307,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       const res = await postDictionary({ BadKey: 'x' })
       expect(await errorsOf(res)).toStrictEqual([
         {
-          pointer: '/',
+          pointer: '/BadKey',
           detail: 'keys must start with a lowercase letter and contain only [a-z0-9_]',
         },
       ])
@@ -471,6 +472,94 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
+  // v3.2: contains / minContains / maxContains dynamic default messages
+  // (no x-* slot, defaults embed the actual matched count)
+  // ─────────────────────────────────────────────────────────
+  describe('contains dynamic default messages (no x-* slot)', () => {
+    const validBody = {
+      tags: ['special', 'a', 'b'],
+      scores: [95, 99, 80],
+      ints: [1, 2, 3],
+    }
+
+    it('accepts a fully valid body', async () => {
+      const res = await postContainsDefault(validBody)
+      expect(res.status).toBe(200)
+    })
+
+    it('contains alone — dynamic message includes "got 0"', async () => {
+      const res = await postContainsDefault({ ...validBody, tags: ['a', 'b'] })
+      const errs = await errorsOf(res)
+      expect(errs).toContainEqual({
+        pointer: '/tags',
+        detail: 'Expected at least 1 item matching contains schema, got 0',
+      })
+    })
+
+    it('minContains: 2 — dynamic message includes actual matched count', async () => {
+      const res = await postContainsDefault({ ...validBody, scores: [95, 50] })
+      const errs = await errorsOf(res)
+      expect(errs).toContainEqual({
+        pointer: '/scores',
+        detail: 'Expected at least 2 matching items, got 1',
+      })
+    })
+
+    it('maxContains: 3 — dynamic message includes actual matched count', async () => {
+      const res = await postContainsDefault({ ...validBody, ints: [1, 2, 3, 4] })
+      const errs = await errorsOf(res)
+      expect(errs).toContainEqual({
+        pointer: '/ints',
+        detail: 'Expected at most 3 matching items, got 4',
+      })
+    })
+
+    it('minContains: 2 — empty array reports "got 0"', async () => {
+      const res = await postContainsDefault({ ...validBody, scores: [] })
+      const errs = await errorsOf(res)
+      expect(errs).toContainEqual({
+        pointer: '/scores',
+        detail: 'Expected at least 2 matching items, got 0',
+      })
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // v3.2: writeOnly OAS YAML propagation snapshot
+  // (verifies .openapi({writeOnly: true}) survives into the OpenAPI document)
+  // ─────────────────────────────────────────────────────────
+  describe('writeOnly OAS metadata propagation', () => {
+    const getDoc = () =>
+      app.getOpenAPI31Document({
+        openapi: '3.1.0',
+        info: { title: 'x-vendor-messages', version: '1.0.0' },
+      })
+    const getWriteOnlyComponent = () => {
+      const doc = getDoc()
+      const schemas = doc.components?.schemas as
+        | { WriteOnly?: { properties?: Record<string, { writeOnly?: boolean }> } }
+        | undefined
+      return schemas?.WriteOnly
+    }
+
+    it('writeOnly: true survives into generated OpenAPI document', () => {
+      const writeOnly = getWriteOnlyComponent()
+      expect(writeOnly).toBeDefined()
+      expect(writeOnly?.properties?.password?.writeOnly).toBe(true)
+    })
+
+    it('non-writeOnly properties do NOT carry the flag', () => {
+      const writeOnly = getWriteOnlyComponent()
+      expect(writeOnly?.properties?.name?.writeOnly).toBeUndefined()
+    })
+
+    it('runtime parse accepts password (writeOnly does not affect parse)', async () => {
+      const res = await post('/write-only')({ name: 'taro', password: 'secret' })
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
   // Coverage backfill — runtime tests for x-*-message extensions
   // that were previously codegen-only (yuri-検問 batch).
   // ─────────────────────────────────────────────────────────
@@ -498,10 +587,10 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       ])
     })
 
-    it('x-uniqueItems-message: rejects duplicate elements', async () => {
+    it('x-uniqueItems-message: rejects duplicate elements with index pointer', async () => {
       const res = await postMisc({ ...validMisc, tags: ['a', 'a'] })
       expect(await errorsOf(res)).toStrictEqual([
-        { pointer: '/tags', detail: 'tags must contain unique values' },
+        { pointer: '/tags/1', detail: 'tags must contain unique values' },
       ])
     })
 

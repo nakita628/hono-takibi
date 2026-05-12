@@ -3,12 +3,14 @@ import {
   postBasketRoute,
   postBoundsRoute,
   postCompositionRoute,
+  postContainsDefaultRoute,
   postDictionaryRoute,
   postFormRoute,
   postMergedArrowRoute,
   postMergedRoute,
   postMiscRoute,
   postPaymentRoute,
+  postWriteOnlyRoute,
 } from './generated.ts'
 
 const app = new OpenAPIHono({
@@ -40,6 +42,8 @@ app.openapi(postMergedArrowRoute, (c) => c.json({}, 200))
 app.openapi(postPaymentRoute, (c) => c.json({}, 200))
 app.openapi(postBoundsRoute, (c) => c.json({}, 200))
 app.openapi(postBasketRoute, (c) => c.json({}, 200))
+app.openapi(postContainsDefaultRoute, (c) => c.json({}, 200))
+app.openapi(postWriteOnlyRoute, (c) => c.json({}, 200))
 app.openapi(postMiscRoute, (c) => c.json({}, 200))
 
 export default app

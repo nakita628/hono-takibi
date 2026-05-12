@@ -288,6 +288,12 @@ export function zodToOpenAPI(
     //   - maxContains explicit: "count above upper bound" → x-maxContains-message
     // Falls back to x-contains-message → x-error-message for each.
     // minContains: 0 makes the lower-bound refine vacuous and is skipped.
+    // v3.2: contains / minContains / maxContains use superRefine so the
+    // matched count appears in the error message (e.g. "got 1, need >= 2").
+    // refine could only emit a static message — the matched/required values
+    // would be invisible to defaultHook consumers (RFC 9457 detail field).
+    // path stays `[]` since the constraint is array-cardinality, not
+    // per-element; consumers wanting per-element issues should use items.
     const containsChain = (() => {
       const c = schema.contains
       if (!c) return ''
@@ -297,28 +303,36 @@ export function zodToOpenAPI(
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
       // contains alone (no min/max): "at least 1 matches"
       if (minC === undefined && maxC === undefined) {
-        const msgArg = fallback ? `,${error(fallback)}` : ''
-        return `.refine((arr)=>{const Schema=${containsZod};return arr.some((i)=>Schema.safeParse(i).success)}${msgArg})`
+        const msgExpr = fallback
+          ? JSON.stringify(fallback)
+          : '"Expected at least 1 item matching contains schema, got "+matched'
+        return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1)ctx.addIssue({code:"custom",message:${msgExpr}})})`
       }
       // minContains refine (default 1 per spec); skipped when explicit 0.
       const effectiveMin = minC ?? 1
-      const minRefine =
+      const minMsg = schema['x-minContains-message'] ?? fallback
+      const minStmt =
         effectiveMin > 0
           ? (() => {
-              const minMsg = schema['x-minContains-message'] ?? fallback
-              const minMsgArg = minMsg ? `,${error(minMsg)}` : ''
-              return `.refine((arr)=>{const Schema=${containsZod};return arr.filter((i)=>Schema.safeParse(i).success).length>=${effectiveMin}}${minMsgArg})`
+              const msgExpr = minMsg
+                ? JSON.stringify(minMsg)
+                : `"Expected at least ${effectiveMin} matching items, got "+matched`
+              return `if(matched<${effectiveMin})ctx.addIssue({code:"custom",message:${msgExpr}})`
             })()
-          : ''
-      const maxRefine =
+          : undefined
+      const maxMsg = schema['x-maxContains-message'] ?? fallback
+      const maxStmt =
         maxC !== undefined
           ? (() => {
-              const maxMsg = schema['x-maxContains-message'] ?? fallback
-              const maxMsgArg = maxMsg ? `,${error(maxMsg)}` : ''
-              return `.refine((arr)=>{const Schema=${containsZod};return arr.filter((i)=>Schema.safeParse(i).success).length<=${maxC}}${maxMsgArg})`
+              const msgExpr = maxMsg
+                ? JSON.stringify(maxMsg)
+                : `"Expected at most ${maxC} matching items, got "+matched`
+              return `if(matched>${maxC})ctx.addIssue({code:"custom",message:${msgExpr}})`
             })()
-          : ''
-      return `${minRefine}${maxRefine}`
+          : undefined
+      const stmts = [minStmt, maxStmt].filter((v): v is string => v !== undefined)
+      if (stmts.length === 0) return ''
+      return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;${stmts.join(';')}})`
     })()
     // v2.6: unevaluatedItems — items beyond prefixItems must satisfy the
     // schema (false → no extras allowed). Calculates the prefixItems length so

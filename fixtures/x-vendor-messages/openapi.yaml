@@ -110,6 +110,32 @@ paths:
         '200':
           description: OK
 
+  /write-only:
+    post:
+      operationId: postWriteOnly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteOnly'
+      responses:
+        '200':
+          description: OK
+
+  /contains-default:
+    post:
+      operationId: postContainsDefault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContainsDefault'
+      responses:
+        '200':
+          description: OK
+
   /misc:
     post:
       operationId: postMisc
@@ -380,6 +406,53 @@ components:
           maxContains: 5
           x-minContains-message: 'must include at least 2 premium items'
           x-maxContains-message: 'must include at most 5 premium items'
+
+    # v3.2: writeOnly OAS metadata propagation. Verifies that a property
+    # marked writeOnly in the OpenAPI source survives codegen and ends up
+    # in the generated OpenAPI document via .openapi({writeOnly: true}).
+    WriteOnly:
+      type: object
+      required: [name, password]
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+
+    # v3.2: contains / minContains / maxContains WITHOUT custom messages.
+    # Verifies the dynamic default messages embed the actual matched count
+    # (e.g. "Expected at least 2 matching items, got 1") so downstream
+    # defaultHook consumers can show actionable detail without slot setup.
+    ContainsDefault:
+      type: object
+      required: [tags, scores, ints]
+      properties:
+        # contains alone (no min/max) → "Expected at least 1 item matching contains schema, got N"
+        tags:
+          type: array
+          items:
+            type: string
+          contains:
+            const: 'special'
+        # minContains: 2 → "Expected at least 2 matching items, got N"
+        scores:
+          type: array
+          items:
+            type: number
+          contains:
+            type: number
+            minimum: 90
+          minContains: 2
+        # minContains + maxContains → both dynamic
+        ints:
+          type: array
+          items:
+            type: number
+          contains:
+            type: integer
+          minContains: 2
+          maxContains: 3
 
     # Coverage backfill — runtime tests for x-*-message extensions that were
     # previously only covered by codegen unit tests. Each property exercises

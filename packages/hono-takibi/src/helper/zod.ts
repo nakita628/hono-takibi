@@ -74,13 +74,27 @@ function buildObjectChecks(schema: Schema, recurse: (s: Schema) => string): read
           `if(!Object.hasOwn(v,${JSON.stringify(key)}))ctx.addIssue({code:'custom',message:'missing required: ${JSON.stringify(key).slice(1, -1)}'})`,
       )
     : []
+  // v3.2: typeless route honors x-minProperties-message / x-maxProperties-message
+  // slots so users can override the default English messages (matches the
+  // object route's existing slot behavior — previously typeless ignored the
+  // slot, a silent inconsistency).
   const minPropsCheck =
     typeof schema.minProperties === 'number'
-      ? `if(Object.keys(v).length<${schema.minProperties})ctx.addIssue({code:'custom',message:'too few properties'})`
+      ? (() => {
+          const msg = schema['x-minProperties-message']
+            ? JSON.stringify(schema['x-minProperties-message'])
+            : `'too few properties'`
+          return `if(Object.keys(v).length<${schema.minProperties})ctx.addIssue({code:'custom',message:${msg}})`
+        })()
       : undefined
   const maxPropsCheck =
     typeof schema.maxProperties === 'number'
-      ? `if(Object.keys(v).length>${schema.maxProperties})ctx.addIssue({code:'custom',message:'too many properties'})`
+      ? (() => {
+          const msg = schema['x-maxProperties-message']
+            ? JSON.stringify(schema['x-maxProperties-message'])
+            : `'too many properties'`
+          return `if(Object.keys(v).length>${schema.maxProperties})ctx.addIssue({code:'custom',message:${msg}})`
+        })()
       : undefined
   const propertyChecks = schema.properties
     ? Object.entries(schema.properties).map(
