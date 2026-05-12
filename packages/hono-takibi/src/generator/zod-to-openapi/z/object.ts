@@ -23,20 +23,26 @@ export function object(schema: Schema, readonly?: boolean): string {
   const maxPropsMessage = schema['x-maxProperties-message']
   const maxErrorArg = maxPropsMessage ? `,${error(maxPropsMessage)}` : ''
   const patternPropsMessage = schema['x-patternProperties-message']
-  const patternErrorArg = patternPropsMessage ? `,${error(patternPropsMessage)}` : ''
   const propNamesMessage = schema['x-propertyNames-message']
   const propNamesErrorArg = propNamesMessage ? `,${error(propNamesMessage)}` : ''
   const depReqMessage = schema['x-dependentRequired-message']
-  const depReqErrorArg = depReqMessage ? `,${error(depReqMessage)}` : errorArg
-  const depSchMessage = schema['x-dependentSchemas-message']
-  const depSchErrorArg = depSchMessage ? `,${error(depSchMessage)}` : errorArg
+  // v3.1: x-dependentSchemas-message is intentionally retained as a slot but
+  // is no longer applied to inner sub-issues (would force code='custom' and
+  // erase code/expected). Survives in the OpenAPI roundtrip via wrap().
+  // v3.1: superRefine emits sub-path + preserves issue code/message instead of
+  // collapsing everything into a single `custom` issue at the parent path.
+  // The pattern message slot, if set, OVERRIDES the inner issue's message
+  // (otherwise we keep Zod's native message verbatim — code/expected stay).
+  const patternPropsMessageOverride = patternPropsMessage
+    ? `,message:${JSON.stringify(patternPropsMessage)}`
+    : ''
   if (typeof schema.additionalProperties === 'object') {
     const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly)})`
     const recordPatternProps = schema.patternProperties
       ? Object.entries(schema.patternProperties)
           .map(([pattern, propSchema]) => {
             const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-            return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success)${patternErrorArg})`
+            return `.superRefine((o,ctx)=>{const Re=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}}))})})`
           })
           .join('')
       : ''
@@ -98,41 +104,63 @@ export function object(schema: Schema, readonly?: boolean): string {
     : schema.propertyNames?.enum
       ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k))${propNamesErrorArg})`
       : ''
+  // v3.1: patternProperties uses superRefine + closure-captured RegExp/Schema
+  // (RegExp built once per parse, not per-key) so sub-issue path/code/message
+  // survive. The pattern message slot OVERRIDES the inner issue message when
+  // set; otherwise Zod's native message stays.
   const patternProperties = schema.patternProperties
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
           const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-          return `.refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp(${JSON.stringify(pattern)}).test(k)||${zodSchema}.safeParse(v).success)${patternErrorArg})`
+          return `.superRefine((o,ctx)=>{const Re=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}}))})})`
         })
         .join('')
     : ''
+  // v3.1: dependentRequired uses superRefine and emits one issue per missing
+  // dep, with `path: [d]` so JSON pointer locates the missing key. The
+  // x-dependentRequired-message (or x-error-message fallback) overrides the
+  // default message; default = "requires \"<dep>\" when \"<key>\" present".
   const dependentRequired = schema.dependentRequired
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
-          const depsCheck = deps.map((d) => `'${d}' in o`).join('&&')
-          return `.refine((o)=>!('${key}' in o)||(${depsCheck})${depReqErrorArg})`
+          const stmts = deps
+            .map((d) => {
+              const fallback = depReqMessage ?? errorMessage
+              const msg = fallback ?? `requires "${d}" when "${key}" present`
+              const msgExpr = /^\s*\(.*?\)\s*=>/.test(msg)
+                ? `(${msg})({code:'custom',path:[${JSON.stringify(d)}],input:o})`
+                : JSON.stringify(msg)
+              return `if(!Object.hasOwn(o,${JSON.stringify(d)}))ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(d)}]})`
+            })
+            .join(';')
+          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)}))return;${stmts}})`
         })
         .join('')
     : ''
-  // v2.6: dependentSchemas — when key is present, the whole object must
-  // additionally satisfy the named sub-schema. v3.0: uses x-dependentSchemas-message
-  // (distinct from x-dependentRequired-message — different keywords with
-  // different failure semantics per JSON Schema 2020-12).
+  // v3.1: dependentSchemas uses superRefine and propagates inner issues with
+  // their original path/code/expected — the x-dependentSchemas-message slot is
+  // INTENTIONALLY no longer applied to inner sub-issues (would force them all
+  // to `code: 'custom'` and lose code/expected). The slot is still consumed
+  // for backward-compat (it survives in the OpenAPI annotation roundtrip)
+  // but does not override propagated messages.
   const dependentSchemas = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
           const subZod = zodToOpenAPI(subSchema)
-          return `.refine((o)=>!('${key}' in o)||${subZod}.safeParse(o).success${depSchErrorArg})`
+          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)}))return;const Schema=${subZod};const valid=Schema.safeParse(o);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:issue.path}))})`
         })
         .join('')
     : ''
-  // v2.6: if / then / else — conditional sub-schema evaluation
+  // v3.1: if/then/else uses superRefine + closure-captured branch schema;
+  // inner issues propagate with original path/code. When neither then nor
+  // else is set, no refine is emitted (no-op).
   const ifThenElse = (() => {
     if (!schema.if) return ''
+    if (!schema.then && !schema.else) return ''
     const ifZod = zodToOpenAPI(schema.if)
-    const thenPart = schema.then ? `${zodToOpenAPI(schema.then)}.safeParse(o).success` : 'true'
-    const elsePart = schema.else ? `${zodToOpenAPI(schema.else)}.safeParse(o).success` : 'true'
-    return `.refine((o)=>${ifZod}.safeParse(o).success?${thenPart}:${elsePart}${errorArg})`
+    const thenZod = schema.then ? zodToOpenAPI(schema.then) : 'undefined'
+    const elseZod = schema.else ? zodToOpenAPI(schema.else) : 'undefined'
+    return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:issue.path}))})`
   })()
   // v3.0: unevaluatedProperties — extracted to shared helper for reuse from
   // both this object generator and the top-level allOf/anyOf/oneOf dispatch.

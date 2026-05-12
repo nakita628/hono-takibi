@@ -323,6 +323,10 @@ export function zodToOpenAPI(
     // v2.6: unevaluatedItems — items beyond prefixItems must satisfy the
     // schema (false → no extras allowed). Calculates the prefixItems length so
     // the refine knows where the "evaluated by prefix" boundary is.
+    // v3.1: Schema form uses superRefine + closure-captured Schema so inner
+    // sub-issues (path/code/message) survive instead of collapsing into a
+    // single `custom` issue at the parent path. The length-cap form (false)
+    // stays as a refine — no inner issues to propagate.
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
@@ -331,30 +335,36 @@ export function zodToOpenAPI(
         return `.refine((arr)=>arr.length<=${prefixCount}${arrayErrorArg})`
       }
       const subZod = zodToOpenAPI(ui, innerMeta, readonly)
-      return `.refine((arr)=>{const Schema=${subZod};return arr.slice(${prefixCount}).every((i)=>Schema.safeParse(i).success)}${arrayErrorArg})`
+      return `.superRefine((arr,ctx)=>{const Schema=${subZod};arr.slice(${prefixCount}).forEach((v,idx)=>{const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]}))})})`
     })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
-      const tupleItems = schema.prefixItems.map((item) =>
+      const prefixCodes = schema.prefixItems.map((item) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, readonly),
       )
-      const prefCount = schema.prefixItems.length
-      // v3.0 Phase D (P0 fix): trailing-items schemas must be encoded as the
-      // `rest` argument of `z.tuple([...], rest)` — not as `.refine(...)`.
-      // Zod's tuple is fixed-length; without rest, any extra element triggers
-      // `too_big` BEFORE refine runs, so the trailing-items check is unreachable
-      // (input ["a", true, 1] never reaches `.refine` for a 2-prefix tuple).
+      // v3.1 Phase E (P0 re-fix): prefixItems is encoded as
+      // `z.array(z.unknown()).superRefine(...)` — NOT `z.tuple([...], rest)`.
+      //
+      // Why not z.tuple:
+      //   1. JSON Schema 2020-12 §10.3.1.1 says prefixItems "does not constrain
+      //      the length of the array". The official test suite asserts that
+      //      `[]` and `["a"]` are VALID against a 2-element prefixItems schema
+      //      (incomplete-prefix arrays must pass).
+      //   2. Zod's `z.tuple([A, B], Rest)` REQUIRES at least 2 elements (fixed
+      //      prefix length is enforced as a minimum). `[]` and `["a"]` would
+      //      both fail with "expected ... received undefined" — a silent P0 bug
+      //      we hit on 2026-05-12.
       //
       // Precedence (JSON Schema 2020-12 §11.2): `unevaluatedItems` is stricter
       // than `items` because it applies only to items not already "evaluated"
       // by prefixItems/items annotations. When both are present we honour
       // `unevaluatedItems` and ignore `items`.
       //
-      //   unevaluatedItems: <Schema> → rest = that schema, no length cap
-      //   unevaluatedItems: false    → no rest, length cap == prefCount
+      //   unevaluatedItems: <Schema> → validate trailing items against schema
+      //   unevaluatedItems: false    → trailing items not allowed (length cap)
       //   unevaluatedItems: undefined / true:
-      //     items: <Schema>          → rest = items schema
-      //     items: false             → no rest, length cap == prefCount
-      //     items: absent / true     → no rest, no cap (extras allowed, untyped)
+      //     items: <Schema>          → validate trailing items against schema
+      //     items: false             → trailing items not allowed (length cap)
+      //     items: absent / true     → trailing items allowed, untyped
       const ui = schema.unevaluatedItems
       const uiIsBool = (ui as unknown) === true || (ui as unknown) === false
       const uiSchema: Schema | undefined =
@@ -374,14 +384,20 @@ export function zodToOpenAPI(
           ? makeRef(restSchema.$ref)
           : zodToOpenAPI(restSchema, innerMeta, readonly)
         : ''
-      const lengthCap =
+      const lengthCapped =
         (ui as unknown) === false || (ui === undefined && (itemsField as unknown) === false)
-          ? `.refine((arr)=>arr.length<=${prefCount}${arrayErrorArg})`
-          : ''
-      const z = restCode
-        ? `z.tuple([${tupleItems.join(',')}],${restCode}${arrayErrorArg})`
-        : `z.tuple([${tupleItems.join(',')}]${arrayErrorArg})`
-      return wrap(`${z}${lengthCap}${readonlyMod}`, schema, meta)
+      const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];Prefix.slice(0,arr.length).forEach((Schema,i)=>{const valid=Schema.safeParse(arr[i]);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[i,...issue.path]}))})`
+      const restCheck = restCode
+        ? `;const Rest=${restCode};arr.slice(Prefix.length).forEach((v,i)=>{const valid=Rest.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]}))})`
+        : ''
+      const capCheck = lengthCapped
+        ? `;if(arr.length>Prefix.length)ctx.addIssue({code:"custom",message:"unevaluated items not allowed"})`
+        : ''
+      const arrayCtor = arrayErrorArg
+        ? `z.array(z.unknown()${arrayErrorArg})`
+        : 'z.array(z.unknown())'
+      const z = `${arrayCtor}.superRefine((arr,ctx)=>{${prefixCheck}${restCheck}${capCheck}})`
+      return wrap(`${z}${readonlyMod}`, schema, meta)
     }
     // v3.0 Phase C: items: false (no prefixItems) → only empty array valid
     if ((schema.items as unknown) === false) {

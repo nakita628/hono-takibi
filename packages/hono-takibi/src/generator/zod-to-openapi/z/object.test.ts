@@ -98,13 +98,16 @@ describe('object', () => {
 
   describe('x-error-message (dependentRequired)', () => {
     it.concurrent.each<[Schema, string]>([
+      // v3.1: dependentRequired emits superRefine — one issue per missing dep
+      // at `path:[d]`, x-error-message used as fallback when no
+      // x-dependentRequired-message is set.
       [
         {
           type: 'object',
           dependentRequired: { foo: ['bar'] },
           'x-error-message': 'fooにはbarが必要',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -113,7 +116,8 @@ describe('object', () => {
 
   describe('x-dependentRequired-message', () => {
     it.concurrent.each<[Schema, string]>([
-      // x-dependentRequired-message overrides x-error-message for dependentRequired
+      // v3.1: dependentRequired uses superRefine, emits per-dep issues with
+      // path:[d]. x-dependentRequired-message overrides x-error-message.
       [
         {
           type: 'object',
@@ -121,7 +125,7 @@ describe('object', () => {
           'x-error-message': 'オブジェクト必須',
           'x-dependentRequired-message': 'fooにはbarが必要',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})})`,
       ],
       // x-dependentRequired-message alone (no x-error-message)
       [
@@ -130,7 +134,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'] },
           'x-dependentRequired-message': 'fooにはbarが必要',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})})`,
       ],
       // fallback: no x-dependentRequired-message → x-error-message used
       [
@@ -139,24 +143,25 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'] },
           'x-error-message': 'エラー',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"エラー"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"エラー",path:["bar"]})})`,
       ],
-      // no message at all → no errorArg
+      // no message at all → default 'requires "<dep>" when "<key>" present'
       [
         {
           type: 'object',
           dependentRequired: { foo: ['bar'] },
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o))`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"requires \\"bar\\" when \\"foo\\" present",path:["bar"]})})`,
       ],
       // multiple deps per key (foo requires both bar and baz)
+      // v3.1: each missing dep emits its own issue at path:[d]
       [
         {
           type: 'object',
           dependentRequired: { foo: ['bar', 'baz'] },
           'x-dependentRequired-message': '依存エラー',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o&&'baz' in o),{error:"依存エラー"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]});if(!Object.hasOwn(o,"baz"))ctx.addIssue({code:'custom',message:"依存エラー",path:["baz"]})})`,
       ],
       // multiple dependentRequired entries
       [
@@ -165,7 +170,7 @@ describe('object', () => {
           dependentRequired: { foo: ['bar'], baz: ['qux'] },
           'x-dependentRequired-message': '依存エラー',
         },
-        `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"依存エラー"}).refine((o)=>!('baz' in o)||('qux' in o),{error:"依存エラー"})`,
+        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"依存エラー",path:["bar"]})}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"baz"))return;if(!Object.hasOwn(o,"qux"))ctx.addIssue({code:'custom',message:"依存エラー",path:["qux"]})})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -193,13 +198,15 @@ describe('object', () => {
         'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>["a","b","c"].includes(k)),{error:"Keys must be a, b, or c"})',
       ],
       // patternProperties + x-patternProperties-message
+      // v3.1: superRefine with closure-captured RegExp/Schema; the message
+      // slot OVERRIDES inner sub-issue messages (path/code preserved).
       [
         {
           type: 'object',
           patternProperties: { '^S_': { type: 'string' } },
           'x-patternProperties-message': 'S_ prefixed keys must be strings',
         },
-        'z.looseObject({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ prefixed keys must be strings"})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const Re=new RegExp("^S_");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"}))})})',
       ],
       // record path (additionalProperties: Schema) + x-propertyNames-message
       [
@@ -212,6 +219,7 @@ describe('object', () => {
         'z.record(z.string(),z.string()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys only"})',
       ],
       // record path (additionalProperties: Schema) + patternProperties + x-patternProperties-message
+      // v3.1: same superRefine pattern as object path
       [
         {
           type: 'object',
@@ -219,7 +227,7 @@ describe('object', () => {
           patternProperties: { '^x-': { type: 'string' } },
           'x-patternProperties-message': 'x- keys must be strings',
         },
-        'z.record(z.string(),z.number()).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^x-").test(k)||z.string().safeParse(v).success),{error:"x- keys must be strings"})',
+        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const Re=new RegExp("^x-");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"}))})})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -273,7 +281,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x-の値は文字列のみ',
           'x-propertyNames-message': 'キー名は小文字のみ',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^x-").test(k)||z.string().safeParse(v).success),{error:"x-の値は文字列のみ"})',
+        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"}).superRefine((o,ctx)=>{const Re=new RegExp("^x-");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x-の値は文字列のみ"}))})})',
       ],
       // object path with properties + propertyNames pattern
       [
@@ -313,7 +321,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x_の値は整数のみ',
           'x-propertyNames-message': 'キー名は英小文字とアンダースコアのみ',
         },
-        'z.record(z.string(),z.number()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z_]+$").test(k)),{error:"キー名は英小文字とアンダースコアのみ"}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^x_").test(k)||z.int().safeParse(v).success),{error:"x_の値は整数のみ"})',
+        'z.record(z.string(),z.number()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z_]+$").test(k)),{error:"キー名は英小文字とアンダースコアのみ"}).superRefine((o,ctx)=>{const Re=new RegExp("^x_");const Schema=z.int();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"}))})})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -513,6 +521,7 @@ describe('object', () => {
   describe('combined x-* messages', () => {
     it.concurrent.each<[Schema, string]>([
       // all constraints with separate messages
+      // v3.1: dependentRequired uses superRefine, emits per-dep issue at path:[d]
       [
         {
           type: 'object',
@@ -525,7 +534,7 @@ describe('object', () => {
           'x-propertyNames-message': 'キー名は小文字',
           'x-dependentRequired-message': 'emailにはnameが必要',
         },
-        `z.looseObject({}).refine((o)=>Object.keys(o).length>=1,{error:"最低1つ"}).refine((o)=>Object.keys(o).length<=10,{error:"最大10"}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字"}).refine((o)=>!('email' in o)||('name' in o),{error:"emailにはnameが必要"})`,
+        `z.looseObject({}).refine((o)=>Object.keys(o).length>=1,{error:"最低1つ"}).refine((o)=>Object.keys(o).length<=10,{error:"最大10"}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字"}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"email"))return;if(!Object.hasOwn(o,"name"))ctx.addIssue({code:'custom',message:"emailにはnameが必要",path:["name"]})})`,
       ],
       // x-error-message as fallback for dependentRequired, independent minProperties
       [
@@ -536,7 +545,7 @@ describe('object', () => {
           'x-error-message': 'オブジェクトエラー',
           'x-minProperties-message': '最低2つ必要',
         },
-        `z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"最低2つ必要"}).refine((o)=>!('a' in o)||('b' in o),{error:"オブジェクトエラー"})`,
+        `z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"最低2つ必要"}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"a"))return;if(!Object.hasOwn(o,"b"))ctx.addIssue({code:'custom',message:"オブジェクトエラー",path:["b"]})})`,
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)

@@ -322,10 +322,12 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // x-dependentRequired-message
   // ─────────────────────────────────────────────────────────
   describe('x-dependentRequired-message', () => {
+    // v3.1: dependentRequired emits per-dep issues with `path:[d]` so the
+    // JSON pointer locates the missing key (was `/` in earlier versions).
     it('rejects token without tokenLabel', async () => {
       const res = await postForm({ ...validForm, token: 't' })
       expect(await errorsOf(res)).toStrictEqual([
-        { pointer: '/', detail: 'tokenLabel is required when token is provided' },
+        { pointer: '/tokenLabel', detail: 'tokenLabel is required when token is provided' },
       ])
     })
 
@@ -346,21 +348,31 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // validation failed (e.g. wrong format for the dep-gated key itself).
   // ─────────────────────────────────────────────────────────
   describe('x-dependentSchemas-message', () => {
+    // v3.1: dependentRequired now reports `/billing_zip` (the missing dep)
+    // rather than `/` — per-dep issue at path:[d]. x-dependentRequired-message
+    // still overrides the default text.
     it('rejects credit_card without billing_zip via x-dependentRequired-message', async () => {
       const res = await postPayment({ method: 'cc', credit_card: '4111111111111111' })
       expect(await errorsOf(res)).toStrictEqual([
-        { pointer: '/', detail: 'billing_zip is required when credit_card is provided' },
+        { pointer: '/billing_zip', detail: 'billing_zip is required when credit_card is provided' },
       ])
     })
 
-    it('rejects malformed credit_card via x-dependentSchemas-message', async () => {
+    // v3.1: dependentSchemas now PROPAGATES the inner sub-schema's issue
+    // verbatim (path/code/message) instead of overwriting with
+    // x-dependentSchemas-message. Overriding with a single 'custom' issue
+    // erased the discriminant and forced everything to message='custom' —
+    // unrecoverable for downstream RFC 9457 mappers. The slot remains in the
+    // OpenAPI annotation roundtrip; this assertion validates the PROPAGATED
+    // inner detail (the sub-schema's emitTypelessRefine 'invalid property').
+    it('rejects malformed credit_card with propagated sub-issue (v3.1 superRefine)', async () => {
       const res = await postPayment({
         method: 'cc',
         credit_card: '123',
         billing_zip: '00000',
       })
       expect(await errorsOf(res)).toStrictEqual([
-        { pointer: '/', detail: 'credit_card must be 16 digits when provided' },
+        { pointer: '/', detail: 'invalid property' },
       ])
     })
 
@@ -528,10 +540,15 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(src.includes('namespaced must have at most 3 properties')).toBe(true)
     })
 
-    it('x-patternProperties-message: rejects wrong-typed x_ key', async () => {
+    // v3.1: patternProperties uses superRefine + closure-captured Schema and
+    // propagates the path with the matched KEY appended (was `/prefixed` in
+    // earlier versions; now `/prefixed/x_one` — the actual offender). The
+    // x-patternProperties-message OVERRIDES the inner issue's message while
+    // keeping the precise path/code intact.
+    it('x-patternProperties-message: rejects wrong-typed x_ key (path includes key)', async () => {
       const res = await postMisc({ ...validMisc, prefixed: { x_one: 42 } })
       expect(await errorsOf(res)).toStrictEqual([
-        { pointer: '/prefixed', detail: 'x_ keys must be strings' },
+        { pointer: '/prefixed/x_one', detail: 'x_ keys must be strings' },
       ])
     })
 

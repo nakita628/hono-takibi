@@ -40,8 +40,14 @@ const FormSchema = z
       })
       .min(0, { error: (iss) => `quota must be >= 0 (received: ${iss.input})` }),
   })
-  .refine((o) => !('token' in o) || 'tokenLabel' in o, {
-    error: 'tokenLabel is required when token is provided',
+  .superRefine((o, ctx) => {
+    if (!Object.hasOwn(o, 'token')) return
+    if (!Object.hasOwn(o, 'tokenLabel'))
+      ctx.addIssue({
+        code: 'custom',
+        message: 'tokenLabel is required when token is provided',
+        path: ['tokenLabel'],
+      })
   })
   .openapi({
     required: [
@@ -124,9 +130,7 @@ const MergedSchema = (() => {
       }
     })
     .pipe(Schema)
-})()
-  .openapi({ 'x-allOf-message': 'merged validation failed' })
-  .openapi('Merged')
+})().openapi('Merged')
 
 const MergedArrowSchema = (() => {
   const Schema = z
@@ -210,9 +214,7 @@ const MergedArrowSchema = (() => {
       }
     })
     .pipe(Schema)
-})()
-  .openapi({ 'x-allOf-message': '(issue) => "merged failed at " + issue.path.join(".")' })
-  .openapi('MergedArrow')
+})().openapi('MergedArrow')
 
 const PaymentSchema = z
   .object({
@@ -220,26 +222,30 @@ const PaymentSchema = z
     credit_card: z.string().exactOptional(),
     billing_zip: z.string().exactOptional(),
   })
-  .refine((o) => !('credit_card' in o) || 'billing_zip' in o, {
-    error: 'billing_zip is required when credit_card is provided',
+  .superRefine((o, ctx) => {
+    if (!Object.hasOwn(o, 'credit_card')) return
+    if (!Object.hasOwn(o, 'billing_zip'))
+      ctx.addIssue({
+        code: 'custom',
+        message: 'billing_zip is required when credit_card is provided',
+        path: ['billing_zip'],
+      })
   })
-  .refine(
-    (o) =>
-      !('credit_card' in o) ||
-      z
-        .unknown()
-        .superRefine((v, ctx) => {
-          if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-            if (Object.hasOwn(v, 'credit_card')) {
-              const Schema = z.string().regex(/^[0-9]{16}$/)
-              if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success)
-                ctx.addIssue({ code: 'custom', message: 'invalid property' })
-            }
-          }
-        })
-        .safeParse(o).success,
-    { error: 'credit_card must be 16 digits when provided' },
-  )
+  .superRefine((o, ctx) => {
+    if (!Object.hasOwn(o, 'credit_card')) return
+    const Schema = z.unknown().superRefine((v, ctx) => {
+      if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
+        if (Object.hasOwn(v, 'credit_card')) {
+          const Schema = z.string().regex(/^[0-9]{16}$/)
+          if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success)
+            ctx.addIssue({ code: 'custom', message: 'invalid property' })
+        }
+      }
+    })
+    const valid = Schema.safeParse(o)
+    if (!valid.success)
+      valid.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: issue.path }))
+  })
   .openapi({ required: ['method'] })
   .openapi('Payment')
 
@@ -312,15 +318,22 @@ const MiscSchema = z
       .refine((o) => Object.keys(o).length <= 3, {
         error: 'namespaced must have at most 3 properties',
       }),
-    prefixed: z
-      .looseObject({})
-      .refine(
-        (o) =>
-          Object.entries(o).every(
-            ([k, v]) => !new RegExp('^x_').test(k) || z.string().safeParse(v).success,
-          ),
-        { error: 'x_ keys must be strings' },
-      ),
+    prefixed: z.looseObject({}).superRefine((o, ctx) => {
+      const Re = new RegExp('^x_')
+      const Schema = z.string()
+      Object.entries(o).forEach(([k, v]) => {
+        if (!Re.test(k)) return
+        const valid = Schema.safeParse(v)
+        if (!valid.success)
+          valid.error.issues.forEach((issue) =>
+            ctx.addIssue({
+              ...issue,
+              path: [k, ...issue.path],
+              message: 'x_ keys must be strings',
+            }),
+          )
+      })
+    }),
     payload: z.string({
       error: (issue) =>
         issue.input === undefined ? 'payload is required' : 'payload must be a string',
