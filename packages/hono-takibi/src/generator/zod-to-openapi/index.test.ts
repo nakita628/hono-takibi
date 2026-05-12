@@ -986,7 +986,9 @@ describe('zodToOpenAPI', () => {
             { type: 'string', contentEncoding: 'base64' } as Schema,
             'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
           ],
-          // v2.6: base64 + JSON contentMediaType + contentSchema
+          // v2.6 / v3.1 fix #7: base64 + JSON contentMediaType + contentSchema.
+          // JSON.parse is wrapped in try/catch with ctx.addIssue so SyntaxError
+          // surfaces as a Zod issue rather than an uncaught throw at safeParse time.
           [
             {
               type: 'string',
@@ -998,7 +1000,7 @@ describe('zodToOpenAPI', () => {
                 required: ['name'],
               },
             } as Schema,
-            'z.base64().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
+            'z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           ],
           // v2.6: dependentSchemas
           [
@@ -1091,7 +1093,8 @@ describe('zodToOpenAPI', () => {
           // binary/7bit/8bit/quoted-printable fall back to plain z.string() (no decode)
           [{ type: 'string', contentEncoding: 'binary' } as Schema, 'z.string()'],
           [{ type: 'string', contentEncoding: '7bit' } as Schema, 'z.string()'],
-          // contentSchema with $ref (review finding from yuri 3.1 — dead code fix)
+          // contentSchema with $ref (review finding from yuri 3.1 — dead code fix).
+          // v3.1 fix #7: JSON.parse wrapped in try/catch + ctx.addIssue.
           [
             {
               type: 'string',
@@ -1099,7 +1102,7 @@ describe('zodToOpenAPI', () => {
               contentMediaType: 'application/json',
               contentSchema: { $ref: '#/components/schemas/Inner' },
             } as Schema,
-            'z.base64().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(InnerSchema)',
+            'z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(InnerSchema)',
           ],
           // unevaluatedProperties: Schema form (v3.0 runtime tracking)
           [
@@ -1110,14 +1113,16 @@ describe('zodToOpenAPI', () => {
             } as Schema,
             'z.object({name:z.string().exactOptional()}).refine((o)=>{const e=new Set();for(const k of ["name"])e.add(k);return Object.entries(o).every(([k,v])=>e.has(k)||z.string().safeParse(v).success)})',
           ],
-          // unevaluatedItems: Schema form
+          // unevaluatedItems: Schema form (P0 fix: encoded as z.tuple rest arg
+          // — tuples are fixed-length, so a trailing-element refine never runs;
+          // rest semantics are needed to validate items beyond prefixItems)
           [
             {
               type: 'array',
               prefixItems: [{ type: 'string' }],
               unevaluatedItems: { type: 'number' },
             } as Schema,
-            'z.tuple([z.string()]).refine((arr)=>{const Schema=z.number();return arr.slice(1).every((i)=>Schema.safeParse(i).success)})',
+            'z.tuple([z.string()],z.number())',
           ],
           // dependentSchemas: multiple keys
           [
@@ -1157,7 +1162,7 @@ describe('zodToOpenAPI', () => {
           // contentEncoding: 8bit / quoted-printable → string fallback
           [{ type: 'string', contentEncoding: '8bit' } as Schema, 'z.string()'],
           [{ type: 'string', contentEncoding: 'quoted-printable' } as Schema, 'z.string()'],
-          // base64url + JSON + contentSchema
+          // base64url + JSON + contentSchema (v3.1 fix #7: try/catch + ctx.addIssue).
           [
             {
               type: 'string',
@@ -1165,12 +1170,44 @@ describe('zodToOpenAPI', () => {
               contentMediaType: 'application/json',
               contentSchema: { type: 'array', items: { type: 'number' } },
             } as Schema,
-            'z.base64url().transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))).pipe(z.array(z.number()))',
+            'z.base64url().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.array(z.number()))',
           ],
-          // contentMediaType non-json (no JSON parse, just decode to string)
+          // contentMediaType non-json text family (no JSON parse, UTF-8 decode preserved).
           [
             { type: 'string', contentEncoding: 'base64', contentMediaType: 'text/plain' } as Schema,
             'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+          ],
+          // v3.1 fix #5: binary MIME (image/*, audio/*, video/*, application/octet-stream)
+          // → Uint8Array (UTF-8 decoding would corrupt non-text bytes — e.g. PNG magic
+          // 0x89 expands to 0xC2 0x89).
+          [
+            { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+          ],
+          [
+            { type: 'string', contentEncoding: 'base64', contentMediaType: 'audio/mpeg' } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+          ],
+          [
+            { type: 'string', contentEncoding: 'base64', contentMediaType: 'video/mp4' } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+          ],
+          [
+            {
+              type: 'string',
+              contentEncoding: 'base64',
+              contentMediaType: 'application/octet-stream',
+            } as Schema,
+            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+          ],
+          // base64url + binary MIME mirrors base64 binary handling.
+          [
+            {
+              type: 'string',
+              contentEncoding: 'base64url',
+              contentMediaType: 'image/jpeg',
+            } as Schema,
+            'z.base64url().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
