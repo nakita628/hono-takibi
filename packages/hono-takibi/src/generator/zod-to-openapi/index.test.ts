@@ -24,30 +24,32 @@ describe('zodToOpenAPI', () => {
 
   describe('prefixItems (tuple)', () => {
     it.concurrent.each<[Schema, string]>([
-      // Basic tuple
+      // Basic prefixItems — emitted as z.array(z.unknown()).superRefine(...) so
+      // shorter arrays remain valid per JSON Schema 2020-12 §10.3.1.1
+      // ("does not constrain the length of the array").
       [
         {
           type: 'array',
           prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
         },
-        'z.tuple([z.string(),z.number(),z.boolean()])',
+        'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number(),z.boolean()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}})',
       ],
-      // Tuple with $ref
+      // prefixItems with $ref
       [
         {
           type: 'array',
           prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
         },
-        'z.tuple([NameSchema,z.number()])',
+        'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[NameSchema,z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}})',
       ],
-      // Tuple with description
+      // prefixItems with description
       [
         {
           type: 'array',
           prefixItems: [{ type: 'string' }, { type: 'number' }],
           description: 'A tuple of name and age',
         },
-        'z.tuple([z.string(),z.number()]).openapi({"description":"A tuple of name and age"})',
+        'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}}).openapi({"description":"A tuple of name and age"})',
       ],
     ])('zodToOpenAPI(%o) → %s', (input, expected) => {
       expect(zodToOpenAPI(input as Schema)).toBe(expected)
@@ -966,7 +968,7 @@ describe('zodToOpenAPI', () => {
               uniqueItems: true,
               'x-uniqueItems-message': 'Duplicates not allowed',
             } as Schema,
-            'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"Duplicates not allowed"})',
+            'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"Duplicates not allowed"});else seen.set(key,i)}})',
           ],
           // v2.5: x-additionalProperties-message on strictObject
           [
@@ -1002,7 +1004,9 @@ describe('zodToOpenAPI', () => {
             } as Schema,
             'z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           ],
-          // v2.6: dependentSchemas
+          // v2.6: dependentSchemas. v3.1: superRefine + closure-captured Schema;
+          // inner sub-issues propagate with original path/code instead of
+          // collapsing into a single `custom` at the parent.
           [
             {
               type: 'object',
@@ -1014,11 +1018,13 @@ describe('zodToOpenAPI', () => {
                 },
               },
             } as Schema,
-            "z.object({creditCard:z.string().exactOptional()}).refine((o)=>!('creditCard' in o)||z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,\"billingAddress\"))ctx.addIssue({code:'custom',message:'missing required: billingAddress'});if(Object.hasOwn(v,\"billingAddress\")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,\"billingAddress\")).success)ctx.addIssue({code:'custom',message:'invalid property'})}}}).openapi({\"required\":[\"billingAddress\"]}).safeParse(o).success)",
+            'z.object({creditCard:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"creditCard"))return;const Schema=z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"billingAddress"))ctx.addIssue({code:\'custom\',message:\'missing required: billingAddress\'});if(Object.hasOwn(v,"billingAddress")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"billingAddress")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["billingAddress"]});const valid=Schema.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})',
           ],
           // v2.6/v3.0: if / then / else
           // v3.0 Phase A: then/else with type-less { required: [...] } now uses
           // z.unknown().superRefine() for keyword-independent semantics.
+          // v3.1: outer if/then/else uses superRefine + closure-captured branch
+          // so inner issues from the branch survive.
           /* eslint-disable unicorn/no-thenable -- testing JSON Schema then keyword */
           // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
           [
@@ -1028,7 +1034,7 @@ describe('zodToOpenAPI', () => {
               then: { required: ['premiumFeature'] },
               else: { required: ['basicFeature'] },
             } as Schema,
-            'z.object({}).refine((o)=>z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"type"))ctx.addIssue({code:\'custom\',message:\'missing required: type\'});if(Object.hasOwn(v,"type")){const Schema=z.literal("premium");if(!Schema.safeParse(Reflect.get(v,"type")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["type"]}).safeParse(o).success?z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"premiumFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: premiumFeature\'})}}).openapi({"required":["premiumFeature"]}).safeParse(o).success:z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"basicFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: basicFeature\'})}}).openapi({"required":["basicFeature"]}).safeParse(o).success)',
+            'z.object({}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"type"))ctx.addIssue({code:\'custom\',message:\'missing required: type\'});if(Object.hasOwn(v,"type")){const Schema=z.literal("premium");if(!Schema.safeParse(Reflect.get(v,"type")).success)ctx.addIssue({code:\'custom\',message:\'invalid property\'})}}}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"premiumFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: premiumFeature\'})}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((v,ctx)=>{if(typeof v===\'object\'&&v!==null&&!Array.isArray(v)){if(!Object.hasOwn(v,"basicFeature"))ctx.addIssue({code:\'custom\',message:\'missing required: basicFeature\'})}}).openapi({"required":["basicFeature"]});if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})',
           ],
           /* eslint-enable unicorn/no-thenable */
           // v3.0: unevaluatedProperties: false (runtime annotation tracking)
@@ -1038,16 +1044,16 @@ describe('zodToOpenAPI', () => {
               properties: { name: { type: 'string' } },
               unevaluatedProperties: false,
             } as Schema,
-            'z.object({name:z.string().exactOptional()}).refine((o)=>{const e=new Set();for(const k of ["name"])e.add(k);return Object.keys(o).every((k)=>e.has(k))})',
+            'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const e=new Set();for(const k of ["name"])e.add(k);for(const k of Object.keys(o)){if(!e.has(k))ctx.addIssue({code:"custom",path:[k],message:"Unknown property: "+k})}})',
           ],
-          // v2.6: unevaluatedItems: false
+          // v2.6: unevaluatedItems: false → length-cap inside the superRefine
           [
             {
               type: 'array',
               prefixItems: [{ type: 'string' }, { type: 'number' }],
               unevaluatedItems: false,
             } as Schema,
-            'z.tuple([z.string(),z.number()]).refine((arr)=>arr.length<=2)',
+            'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})};for(let i=Prefix.length;i<arr.length;i++)ctx.addIssue({code:"custom",path:[i],message:"Unevaluated item at index "+i})})',
           ],
           // v2.7: JSON Schema 2020-12 Core meta keywords pass-through
           [
@@ -1111,20 +1117,21 @@ describe('zodToOpenAPI', () => {
               properties: { name: { type: 'string' } },
               unevaluatedProperties: { type: 'string' },
             } as Schema,
-            'z.object({name:z.string().exactOptional()}).refine((o)=>{const e=new Set();for(const k of ["name"])e.add(k);return Object.entries(o).every(([k,v])=>e.has(k)||z.string().safeParse(v).success)})',
+            'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const e=new Set();for(const k of ["name"])e.add(k);const Schema=z.string();for(const [k,v] of Object.entries(o)){if(e.has(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path]})}})',
           ],
-          // unevaluatedItems: Schema form (P0 fix: encoded as z.tuple rest arg
-          // — tuples are fixed-length, so a trailing-element refine never runs;
-          // rest semantics are needed to validate items beyond prefixItems)
+          // unevaluatedItems: Schema form (P0 re-fix: emitted via superRefine so
+          // shorter arrays remain valid per JSON Schema 2020-12 §10.3.1.1, while
+          // trailing items are still validated by the rest schema)
           [
             {
               type: 'array',
               prefixItems: [{ type: 'string' }],
               unevaluatedItems: { type: 'number' },
             } as Schema,
-            'z.tuple([z.string()],z.number())',
+            'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})};const Rest=z.number();for(const [i,v] of arr.slice(Prefix.length).entries()){const valid=Rest.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}})',
           ],
           // dependentSchemas: multiple keys
+          // v3.1: each entry emits its own superRefine, sub-issues propagate
           [
             {
               type: 'object',
@@ -1134,9 +1141,10 @@ describe('zodToOpenAPI', () => {
                 b: { type: 'object', required: ['a'], properties: { a: { type: 'string' } } },
               },
             } as Schema,
-            'z.object({a:z.string().exactOptional(),b:z.string().exactOptional()}).refine((o)=>!(\'a\' in o)||z.object({b:z.string()}).openapi({"required":["b"]}).safeParse(o).success).refine((o)=>!(\'b\' in o)||z.object({a:z.string()}).openapi({"required":["a"]}).safeParse(o).success)',
+            'z.object({a:z.string().exactOptional(),b:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"a"))return;const Schema=z.object({b:z.string()}).openapi({"required":["b"]});const valid=Schema.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"b"))return;const Schema=z.object({a:z.string()}).openapi({"required":["a"]});const valid=Schema.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})',
           ],
           // if-then only (no else) — review finding from loid B / yuri 2.2
+          // v3.1: when else absent, Branch is undefined for the false case → no-op
           // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then
           // eslint-disable-next-line unicorn/no-thenable -- testing JSON Schema then keyword
           [
@@ -1146,7 +1154,7 @@ describe('zodToOpenAPI', () => {
               if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
               then: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
             } as Schema,
-            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).refine((o)=>z.object({kind:z.literal("a")}).openapi({"required":["kind"]}).safeParse(o).success?z.object({x:z.string()}).openapi({"required":["x"]}).safeParse(o).success:true)',
+            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.object({kind:z.literal("a")}).openapi({"required":["kind"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({x:z.string()}).openapi({"required":["x"]}):undefined;if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})',
           ],
           // if-else only (no then)
           [
@@ -1156,7 +1164,7 @@ describe('zodToOpenAPI', () => {
               if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
               else: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
             } as Schema,
-            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).refine((o)=>z.object({kind:z.literal("a")}).openapi({"required":["kind"]}).safeParse(o).success?true:z.object({x:z.string()}).openapi({"required":["x"]}).safeParse(o).success)',
+            'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.object({kind:z.literal("a")}).openapi({"required":["kind"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?undefined:z.object({x:z.string()}).openapi({"required":["x"]});if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})',
           ],
           // v2.8 edge cases
           // contentEncoding: 8bit / quoted-printable → string fallback
@@ -1276,7 +1284,7 @@ describe('zodToOpenAPI', () => {
           ],
           [
             { type: 'array', items: { type: 'string' }, uniqueItems: true },
-            'z.array(z.string()).refine((items)=>new Set(items).size===items.length)',
+            'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"Duplicate of index "+seen.get(key)});else seen.set(key,i)}})',
           ],
           [
             { type: 'array', items: { type: 'string' }, default: [] },
@@ -1499,7 +1507,7 @@ describe('zodToOpenAPI', () => {
               uniqueItems: true,
               'x-uniqueItems-message': '重複不可',
             },
-            'z.array(z.string()).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
+            'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"重複不可"});else seen.set(key,i)}})',
           ],
           // x-error-message on z.array() constructor
           [
@@ -1510,14 +1518,14 @@ describe('zodToOpenAPI', () => {
             },
             'z.array(z.string(),{error:"配列必須"})',
           ],
-          // x-error-message on z.tuple() (prefixItems)
+          // x-error-message on prefixItems → propagates to outer z.array(z.unknown())
           [
             {
               type: 'array',
               prefixItems: [{ type: 'string' }, { type: 'number' }],
               'x-error-message': 'タプル不正',
             },
-            'z.tuple([z.string(),z.number()],{error:"タプル不正"})',
+            'z.array(z.unknown(),{error:"タプル不正"}).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}})',
           ],
           // all combined: separate messages per keyword
           [
@@ -1532,7 +1540,7 @@ describe('zodToOpenAPI', () => {
               'x-maxItems-message': '5個以下',
               'x-uniqueItems-message': '重複不可',
             },
-            'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).refine((items)=>new Set(items).size===items.length,{error:"重複不可"})',
+            'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"重複不可"});else seen.set(key,i)}})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1561,13 +1569,14 @@ describe('zodToOpenAPI', () => {
             'z.object({}).refine((o)=>Object.keys(o).length>=2,{error:"2個以上"}).refine((o)=>Object.keys(o).length<=10,{error:"10個以下"})',
           ],
           // dependentRequired → x-error-message fallback
+          // v3.1: superRefine + per-dep issue at path:[d]
           [
             {
               type: 'object',
               dependentRequired: { foo: ['bar'] },
               'x-error-message': 'fooにはbarが必要',
             },
-            `z.object({}).refine((o)=>!('foo' in o)||('bar' in o),{error:"fooにはbarが必要"})`,
+            `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo"))return;if(!Object.hasOwn(o,"bar"))ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})})`,
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1583,7 +1592,7 @@ describe('zodToOpenAPI', () => {
               propertyNames: { pattern: '^[a-z]+$' },
               'x-propertyNames-message': 'lowercase keys',
             },
-            'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys"})',
+            'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"lowercase keys"})}})',
           ],
           [
             {
@@ -1591,7 +1600,7 @@ describe('zodToOpenAPI', () => {
               patternProperties: { '^S_': { type: 'string' } },
               'x-patternProperties-message': 'S_ keys must be strings',
             },
-            'z.looseObject({}).refine((o)=>Object.entries(o).every(([k,v])=>!new RegExp("^S_").test(k)||z.string().safeParse(v).success),{error:"S_ keys must be strings"})',
+            'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ keys must be strings"})}})',
           ],
         ])('zodToOpenAPI(%o) → %s', (input, expected) => {
           expect(zodToOpenAPI(input)).toBe(expected)
@@ -1687,13 +1696,13 @@ describe('zodToOpenAPI', () => {
         { type: 'array', items: { $ref: '#/components/schemas/Item' } },
         'z.array(ItemSchema).readonly()',
       ],
-      // readonly tuple (prefixItems)
+      // readonly prefixItems
       [
         {
           type: 'array',
           prefixItems: [{ type: 'string' }, { type: 'number' }],
         },
-        'z.tuple([z.string(),z.number()]).readonly()',
+        'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}}).readonly()',
       ],
       // readonly object (required array triggers .openapi)
       [
@@ -1792,7 +1801,7 @@ describe('zodToOpenAPI', () => {
 
     it.concurrent('array with uniqueItems', () => {
       expect(zodToOpenAPI({ type: 'array', items: { type: 'number' }, uniqueItems: true })).toBe(
-        'z.array(z.number()).refine((items)=>new Set(items).size===items.length)',
+        'z.array(z.number()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"Duplicate of index "+seen.get(key)});else seen.set(key,i)}})',
       )
     })
 

@@ -332,10 +332,15 @@ export function zodToOpenAPI(
       if (ui === undefined || ui === true) return ''
       const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
       if (ui === false) {
-        return `.refine((arr)=>arr.length<=${prefixCount}${arrayErrorArg})`
+        // v3.2: emit per-extra-index issue so the offending position appears
+        // in the JSON pointer (RFC 9457). messageOverride wins.
+        const msg = arrayErrorMessage
+          ? JSON.stringify(arrayErrorMessage)
+          : '"Unevaluated item at index "+i'
+        return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++)ctx.addIssue({code:"custom",path:[i],message:${msg}})})`
       }
       const subZod = zodToOpenAPI(ui, innerMeta, readonly)
-      return `.superRefine((arr,ctx)=>{const Schema=${subZod};arr.slice(${prefixCount}).forEach((v,idx)=>{const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]}))})})`
+      return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,v] of arr.slice(${prefixCount}).entries()){const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]})}})`
     })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const prefixCodes = schema.prefixItems.map((item) =>
@@ -386,12 +391,17 @@ export function zodToOpenAPI(
         : ''
       const lengthCapped =
         (ui as unknown) === false || (ui === undefined && (itemsField as unknown) === false)
-      const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];Prefix.slice(0,arr.length).forEach((Schema,i)=>{const valid=Schema.safeParse(arr[i]);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[i,...issue.path]}))})`
+      const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const valid=Schema.safeParse(arr[i]);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[i,...issue.path]})}`
       const restCheck = restCode
-        ? `;const Rest=${restCode};arr.slice(Prefix.length).forEach((v,i)=>{const valid=Rest.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]}))})`
+        ? `;const Rest=${restCode};for(const [i,v] of arr.slice(Prefix.length).entries()){const valid=Rest.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}`
         : ''
+      // v3.2: per-extra-index issue with `path: [i]` so the offending position
+      // appears in the JSON pointer (RFC 9457). messageOverride wins.
+      const capMsg = arrayErrorMessage
+        ? JSON.stringify(arrayErrorMessage)
+        : '"Unevaluated item at index "+i'
       const capCheck = lengthCapped
-        ? `;if(arr.length>Prefix.length)ctx.addIssue({code:"custom",message:"unevaluated items not allowed"})`
+        ? `;for(let i=Prefix.length;i<arr.length;i++)ctx.addIssue({code:"custom",path:[i],message:${capMsg}})`
         : ''
       const arrayCtor = arrayErrorArg
         ? `z.array(z.unknown()${arrayErrorArg})`
@@ -425,13 +435,17 @@ export function zodToOpenAPI(
     const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
     const maxMessage = schema['x-maxItems-message']
     const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
-    // v2.5: x-uniqueItems-message — independent message slot; used to fall back
-    // to x-pattern-message which was a misnomer; default empty now.
+    // v2.5: x-uniqueItems-message — independent message slot.
     const uniqueMessage = schema['x-uniqueItems-message']
-    const uniqueErrorArg = uniqueMessage ? `,${error(uniqueMessage)}` : ''
+    // v3.2: uniqueItems uses superRefine + per-duplicate addIssue with
+    // `path: [duplicateIdx]` so frontends can highlight the offending row.
+    // The first occurrence is recorded; subsequent duplicates report the
+    // index of their earlier twin in the message.
+    const uniqueDefaultMsg = '"Duplicate of index "+seen.get(key)'
+    const uniqueMsgExpr = uniqueMessage ? JSON.stringify(uniqueMessage) : uniqueDefaultMsg
     const uniqueChain =
       schema.uniqueItems === true
-        ? `.refine((items)=>new Set(items).size===items.length${uniqueErrorArg})`
+        ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:${uniqueMsgExpr}});else seen.set(key,i)}})`
         : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems

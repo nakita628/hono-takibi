@@ -24,7 +24,6 @@ export function object(schema: Schema, readonly?: boolean): string {
   const maxErrorArg = maxPropsMessage ? `,${error(maxPropsMessage)}` : ''
   const patternPropsMessage = schema['x-patternProperties-message']
   const propNamesMessage = schema['x-propertyNames-message']
-  const propNamesErrorArg = propNamesMessage ? `,${error(propNamesMessage)}` : ''
   const depReqMessage = schema['x-dependentRequired-message']
   // v3.1: x-dependentSchemas-message is intentionally retained as a slot but
   // is no longer applied to inner sub-issues (would force code='custom' and
@@ -42,12 +41,18 @@ export function object(schema: Schema, readonly?: boolean): string {
       ? Object.entries(schema.patternProperties)
           .map(([pattern, propSchema]) => {
             const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-            return `.superRefine((o,ctx)=>{const Re=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}}))})})`
+            return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}})`
           })
           .join('')
       : ''
     const recordPropNames = schema.propertyNames?.pattern
-      ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k))${propNamesErrorArg})`
+      ? (() => {
+          const pat = schema.propertyNames.pattern
+          const msg = propNamesMessage
+            ? JSON.stringify(propNamesMessage)
+            : `"Property name '"+k+"' does not match pattern ${pat.replace(/"/g, '\\"')}"`
+          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pat)});for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:${msg}})}})`
+        })()
       : ''
     return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
   }
@@ -55,9 +60,14 @@ export function object(schema: Schema, readonly?: boolean): string {
   // additionalProperties: false, default to looseObject so the refines see the
   // pattern-matched / propertyName-checked keys (z.object strips unknowns
   // before the refine runs, masking violations — silent bug).
+  // v3.2: unevaluatedProperties also requires loose mode — z.object strips
+  // unknown keys *before* the superRefine runs, so the per-key issue emission
+  // never sees the offending properties (silent pass-through bug).
   const needsLoose =
     schema.additionalProperties === undefined &&
-    (schema.patternProperties !== undefined || schema.propertyNames !== undefined)
+    (schema.patternProperties !== undefined ||
+      schema.propertyNames !== undefined ||
+      schema.unevaluatedProperties !== undefined)
   const objectType =
     schema.additionalProperties === true
       ? 'looseObject'
@@ -100,9 +110,21 @@ export function object(schema: Schema, readonly?: boolean): string {
       ? `.refine((o)=>Object.keys(o).length<=${schema.maxProperties}${maxErrorArg})`
       : ''
   const propertyNames = schema.propertyNames?.pattern
-    ? `.refine((o)=>Object.keys(o).every((k)=>new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k))${propNamesErrorArg})`
+    ? (() => {
+        const pat = schema.propertyNames.pattern
+        const msg = propNamesMessage
+          ? JSON.stringify(propNamesMessage)
+          : `"Property name '"+k+"' does not match pattern ${pat.replace(/"/g, '\\"')}"`
+        return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pat)});for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:${msg}})}})`
+      })()
     : schema.propertyNames?.enum
-      ? `.refine((o)=>Object.keys(o).every((k)=>${JSON.stringify(schema.propertyNames.enum)}.includes(k))${propNamesErrorArg})`
+      ? (() => {
+          const allowed = JSON.stringify(schema.propertyNames.enum)
+          const msg = propNamesMessage
+            ? JSON.stringify(propNamesMessage)
+            : `"Property name '"+k+"' is not in allowed list"`
+          return `.superRefine((o,ctx)=>{const allowed=${allowed};for(const k of Object.keys(o)){if(!allowed.includes(k))ctx.addIssue({code:"custom",path:[k],message:${msg}})}})`
+        })()
       : ''
   // v3.1: patternProperties uses superRefine + closure-captured RegExp/Schema
   // (RegExp built once per parse, not per-key) so sub-issue path/code/message
@@ -112,7 +134,7 @@ export function object(schema: Schema, readonly?: boolean): string {
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
           const zodSchema = zodToOpenAPI(propSchema, undefined, readonly)
-          return `.superRefine((o,ctx)=>{const Re=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}}))})})`
+          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}})`
         })
         .join('')
     : ''
@@ -147,7 +169,7 @@ export function object(schema: Schema, readonly?: boolean): string {
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
           const subZod = zodToOpenAPI(subSchema)
-          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)}))return;const Schema=${subZod};const valid=Schema.safeParse(o);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:issue.path}))})`
+          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)}))return;const Schema=${subZod};const valid=Schema.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})`
         })
         .join('')
     : ''
@@ -160,7 +182,7 @@ export function object(schema: Schema, readonly?: boolean): string {
     const ifZod = zodToOpenAPI(schema.if)
     const thenZod = schema.then ? zodToOpenAPI(schema.then) : 'undefined'
     const elseZod = schema.else ? zodToOpenAPI(schema.else) : 'undefined'
-    return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:issue.path}))})`
+    return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch)return;const valid=Branch.safeParse(o);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:issue.path})})`
   })()
   // v3.0: unevaluatedProperties — extracted to shared helper for reuse from
   // both this object generator and the top-level allOf/anyOf/oneOf dispatch.
@@ -178,6 +200,11 @@ export function object(schema: Schema, readonly?: boolean): string {
   //      succeeds at runtime
   //   3. Conditionally adds keys from then/else based on if's success
   //   4. Adds dependentSchemas keys when the dependency key is present
-  const unevaluatedProperties = buildUnevaluatedProperties(schema, errorArg, zodToOpenAPI)
+  const unevaluatedProperties = buildUnevaluatedProperties(
+    schema,
+    errorArg,
+    zodToOpenAPI,
+    errorMessage,
+  )
   return `${base}${minProperties}${maxProperties}${propertyNames}${patternProperties}${dependentRequired}${dependentSchemas}${ifThenElse}${unevaluatedProperties}${readonly ? '.readonly()' : ''}`
 }

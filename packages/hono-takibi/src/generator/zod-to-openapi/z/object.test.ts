@@ -186,7 +186,7 @@ describe('object', () => {
           propertyNames: { pattern: '^[a-z]+$' },
           'x-propertyNames-message': 'Keys must be lowercase',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"Keys must be lowercase"})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"Keys must be lowercase"})}})',
       ],
       // propertyNames.enum + x-propertyNames-message
       [
@@ -195,7 +195,7 @@ describe('object', () => {
           propertyNames: { enum: ['a', 'b', 'c'] },
           'x-propertyNames-message': 'Keys must be a, b, or c',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>["a","b","c"].includes(k)),{error:"Keys must be a, b, or c"})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b","c"];for(const k of Object.keys(o)){if(!allowed.includes(k))ctx.addIssue({code:"custom",path:[k],message:"Keys must be a, b, or c"})}})',
       ],
       // patternProperties + x-patternProperties-message
       // v3.1: superRefine with closure-captured RegExp/Schema; the message
@@ -206,7 +206,7 @@ describe('object', () => {
           patternProperties: { '^S_': { type: 'string' } },
           'x-patternProperties-message': 'S_ prefixed keys must be strings',
         },
-        'z.looseObject({}).superRefine((o,ctx)=>{const Re=new RegExp("^S_");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"}))})})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"})}})',
       ],
       // record path (additionalProperties: Schema) + x-propertyNames-message
       [
@@ -216,7 +216,7 @@ describe('object', () => {
           propertyNames: { pattern: '^[a-z]+$' },
           'x-propertyNames-message': 'lowercase keys only',
         },
-        'z.record(z.string(),z.string()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"lowercase keys only"})',
+        'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"lowercase keys only"})}})',
       ],
       // record path (additionalProperties: Schema) + patternProperties + x-patternProperties-message
       // v3.1: same superRefine pattern as object path
@@ -227,7 +227,7 @@ describe('object', () => {
           patternProperties: { '^x-': { type: 'string' } },
           'x-patternProperties-message': 'x- keys must be strings',
         },
-        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const Re=new RegExp("^x-");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"}))})})',
+        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"})}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -243,7 +243,7 @@ describe('object', () => {
           propertyNames: { pattern: '^[a-z]+$' },
           'x-propertyNames-message': 'キー名は小文字のみ',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字のみ"})}})',
       ],
       // x-propertyNames-message with enum
       [
@@ -252,7 +252,7 @@ describe('object', () => {
           propertyNames: { enum: ['a', 'b', 'c'] },
           'x-propertyNames-message': 'a,b,cのみ',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>["a","b","c"].includes(k)),{error:"a,b,cのみ"})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b","c"];for(const k of Object.keys(o)){if(!allowed.includes(k))ctx.addIssue({code:"custom",path:[k],message:"a,b,cのみ"})}})',
       ],
       // x-propertyNames-message on record path
       [
@@ -262,7 +262,7 @@ describe('object', () => {
           propertyNames: { pattern: '^[a-z]+$' },
           'x-propertyNames-message': 'キー名は小文字のみ',
         },
-        'z.record(z.string(),z.string()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"})',
+        'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字のみ"})}})',
       ],
       // no message at all → no errorArg
       [
@@ -270,7 +270,7 @@ describe('object', () => {
           type: 'object',
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)))',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"Property name \'"+k+"\' does not match pattern ^[a-z]+$"})}})',
       ],
       // propertyNames + patternProperties with separate messages
       [
@@ -281,7 +281,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x-の値は文字列のみ',
           'x-propertyNames-message': 'キー名は小文字のみ',
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字のみ"}).superRefine((o,ctx)=>{const Re=new RegExp("^x-");const Schema=z.string();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x-の値は文字列のみ"}))})})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字のみ"})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path],message:"x-の値は文字列のみ"})}})',
       ],
       // object path with properties + propertyNames pattern
       [
@@ -292,7 +292,7 @@ describe('object', () => {
           propertyNames: { pattern: '^[a-z]+$' },
           'x-propertyNames-message': 'キー名は小文字英字のみ',
         },
-        'z.looseObject({name:z.string()}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字英字のみ"})',
+        'z.looseObject({name:z.string()}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字英字のみ"})}})',
       ],
       // enum no message
       [
@@ -300,7 +300,7 @@ describe('object', () => {
           type: 'object',
           propertyNames: { enum: ['a', 'b'] },
         },
-        'z.looseObject({}).refine((o)=>Object.keys(o).every((k)=>["a","b"].includes(k)))',
+        'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b"];for(const k of Object.keys(o)){if(!allowed.includes(k))ctx.addIssue({code:"custom",path:[k],message:"Property name \'"+k+"\' is not in allowed list"})}})',
       ],
       // record path: no message
       [
@@ -309,7 +309,7 @@ describe('object', () => {
           additionalProperties: { type: 'string' },
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        'z.record(z.string(),z.string()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)))',
+        'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"Property name \'"+k+"\' does not match pattern ^[a-z]+$"})}})',
       ],
       // record path: propertyNames + patternProperties with separate messages
       [
@@ -321,7 +321,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x_の値は整数のみ',
           'x-propertyNames-message': 'キー名は英小文字とアンダースコアのみ',
         },
-        'z.record(z.string(),z.number()).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z_]+$").test(k)),{error:"キー名は英小文字とアンダースコアのみ"}).superRefine((o,ctx)=>{const Re=new RegExp("^x_");const Schema=z.int();Object.entries(o).forEach(([k,v])=>{if(!Re.test(k))return;const valid=Schema.safeParse(v);if(!valid.success)valid.error.issues.forEach((issue)=>ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"}))})})',
+        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z_]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は英小文字とアンダースコアのみ"})}}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.int();for(const [k,v] of Object.entries(o)){if(!regex.test(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"})}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -534,7 +534,7 @@ describe('object', () => {
           'x-propertyNames-message': 'キー名は小文字',
           'x-dependentRequired-message': 'emailにはnameが必要',
         },
-        `z.looseObject({}).refine((o)=>Object.keys(o).length>=1,{error:"最低1つ"}).refine((o)=>Object.keys(o).length<=10,{error:"最大10"}).refine((o)=>Object.keys(o).every((k)=>new RegExp("^[a-z]+$").test(k)),{error:"キー名は小文字"}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"email"))return;if(!Object.hasOwn(o,"name"))ctx.addIssue({code:'custom',message:"emailにはnameが必要",path:["name"]})})`,
+        `z.looseObject({}).refine((o)=>Object.keys(o).length>=1,{error:"最低1つ"}).refine((o)=>Object.keys(o).length<=10,{error:"最大10"}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k))ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字"})}}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"email"))return;if(!Object.hasOwn(o,"name"))ctx.addIssue({code:'custom',message:"emailにはnameが必要",path:["name"]})})`,
       ],
       // x-error-message as fallback for dependentRequired, independent minProperties
       [

@@ -371,8 +371,9 @@ function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string): str
 
 export function buildUnevaluatedProperties(
   schema: Schema,
-  errorArg: string,
+  _errorArg: string,
   recurse: (s: Schema) => string,
+  messageOverride?: string,
 ): string {
   const up = schema.unevaluatedProperties
   if (up === undefined || up === true) return ''
@@ -421,12 +422,7 @@ export function buildUnevaluatedProperties(
         })
         .filter((v): v is string => v !== undefined)
     : []
-  const finalStmt =
-    up === false
-      ? `return Object.keys(o).every((k)=>e.has(k))`
-      : `return Object.entries(o).every(([k,v])=>e.has(k)||${recurse(up)}.safeParse(v).success)`
-
-  const stmts = [
+  const evalStmts = [
     'const e=new Set()',
     ownStmt,
     patternStmt,
@@ -435,8 +431,20 @@ export function buildUnevaluatedProperties(
     ...oneOfStmts,
     ...ifStmts,
     ...depSchemaStmts,
-    finalStmt,
   ].filter((v): v is string => v !== undefined)
+  // v3.2: superRefine emits per-key issues with `path: [k]` so the offending
+  // property name surfaces as a JSON pointer in zod-openapi-hono's defaultHook
+  // output (RFC 9457 Problem Details). messageOverride wins over the default
+  // "Unknown property" wording.
+  const defaultMsg = '"Unknown property: "+k'
+  const msgExpr = messageOverride !== undefined ? JSON.stringify(messageOverride) : defaultMsg
+  const finalStmt =
+    up === false
+      ? `for(const k of Object.keys(o)){if(!e.has(k))ctx.addIssue({code:"custom",path:[k],message:${msgExpr}})}`
+      : (() => {
+          const subZod = recurse(up)
+          return `const Schema=${subZod};for(const [k,v] of Object.entries(o)){if(e.has(k))continue;const valid=Schema.safeParse(v);if(!valid.success)for(const issue of valid.error.issues)ctx.addIssue({...issue,path:[k,...issue.path]})}`
+        })()
 
-  return `.refine((o)=>{${stmts.join(';')}}${errorArg})`
+  return `.superRefine((o,ctx)=>{${[...evalStmts, finalStmt].join(';')}})`
 }
