@@ -1,7 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
-import { zodToOpenAPI } from '../index.js'
-import { buildUnevaluatedProperties } from '../unevaluated.js'
+import { buildUnevaluatedProperties, zodToOpenAPI } from '../index.js'
 
 /**
  * Generates a Zod object schema. Dispatches `additionalProperties` to

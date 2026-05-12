@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { Schema } from '../../openapi/index.js'
-import { emitTypelessRefine, hasTypelessConstraint } from './typeless-refine.js'
+import { emitTypelessRefine, hasTypelessConstraint } from './index.js'
 
 // Stub recurse callback — emits a deterministic sentinel including type
 // so each branch's emitted call is identifiable in the asserted output.

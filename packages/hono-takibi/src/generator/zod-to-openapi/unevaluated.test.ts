@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { Schema } from '../../openapi/index.js'
-import { buildUnevaluatedProperties } from './unevaluated.js'
+import { buildUnevaluatedProperties } from './index.js'
 
 // Stub `recurse` callback — returns a deterministic sentinel that includes
 // the schema's `type` so each branch's emitted call is identifiable in the
