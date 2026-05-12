@@ -184,12 +184,27 @@ export function string(schema: Schema): string {
       return 'z.string()'
     })()
     const decodeStep = (() => {
-      // Pure base64 → bytes (here: decoded UTF-8 string via atob)
+      // Only base64 / base64url drive a decode. Other encodings (binary,
+      // 7bit, 8bit, quoted-printable) flow through as plain strings.
       if (enc !== 'base64' && enc !== 'base64url') return ''
-      // application/json (or json subtypes) → parse to value
-      if (mediaType && /json/i.test(mediaType)) {
-        return '.transform((b64)=>JSON.parse(typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8")))'
+      // MIME-family classification. Binary families MUST stay as raw bytes
+      // (UTF-8 stringification corrupts non-text payloads — e.g. PNG magic
+      // 0x89 expands to 0xC2 0x89). JSON families round-trip through
+      // JSON.parse with a guarded try/catch so syntax errors surface as
+      // Zod issues instead of uncaught exceptions.
+      const mt = mediaType ? mediaType.toLowerCase() : ''
+      const isBinary = /^(image|audio|video)\//.test(mt) || mt === 'application/octet-stream'
+      const isJson = mt.length > 0 && /json/.test(mt)
+      // Bug #5 fix: binary MIME → Uint8Array (no UTF-8 decoding).
+      if (isBinary) {
+        return '.transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))'
       }
+      // Bug #7 fix: JSON MIME → try/catch + ctx.addIssue so SyntaxError
+      // becomes a Zod issue rather than an uncaught throw at safeParse time.
+      if (isJson) {
+        return '.transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}})'
+      }
+      // Text / unspecified MIME → preserve previous UTF-8 decoding behavior.
       return '.transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))'
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
