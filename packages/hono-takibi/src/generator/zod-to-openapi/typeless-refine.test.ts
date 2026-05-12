@@ -103,10 +103,7 @@ describe('emitTypelessRefine', () => {
     })
 
     it('emits a per-pattern loop for patternProperties', () => {
-      const out = emitTypelessRefine(
-        { patternProperties: { '^x-': { type: 'string' } } },
-        recurse,
-      )
+      const out = emitTypelessRefine({ patternProperties: { '^x-': { type: 'string' } } }, recurse)
       expect(out.includes(`new RegExp("^x-").test(k)`)).toBe(true)
       expect(out.includes(`pattern property invalid: '+k`)).toBe(true)
     })
@@ -285,33 +282,26 @@ describe('emitTypelessRefine', () => {
     })
 
     it('allOf emits one safeParse per branch', () => {
-      const out = emitTypelessRefine(
-        { allOf: [{ type: 'string' }, { type: 'number' }] },
-        recurse,
-      )
+      const out = emitTypelessRefine({ allOf: [{ type: 'string' }, { type: 'number' }] }, recurse)
       const matches = out.match(/allOf branch failed/g) ?? []
       expect(matches.length).toBe(2)
     })
 
     it('anyOf collapses to a single OR-chain', () => {
-      const out = emitTypelessRefine(
-        { anyOf: [{ type: 'string' }, { type: 'number' }] },
-        recurse,
-      )
-      expect(out.includes(`__rec(string).safeParse(v).success||__rec(number).safeParse(v).success`)).toBe(
-        true,
-      )
+      const out = emitTypelessRefine({ anyOf: [{ type: 'string' }, { type: 'number' }] }, recurse)
+      expect(
+        out.includes(`__rec(string).safeParse(v).success||__rec(number).safeParse(v).success`),
+      ).toBe(true)
       expect(out.includes(`anyOf failed`)).toBe(true)
     })
 
     it('oneOf sums success-flags and asserts === 1 (exclusive match)', () => {
-      const out = emitTypelessRefine(
-        { oneOf: [{ type: 'string' }, { type: 'number' }] },
-        recurse,
-      )
-      expect(out.includes(`(__rec(string).safeParse(v).success?1:0)+(__rec(number).safeParse(v).success?1:0)`)).toBe(
-        true,
-      )
+      const out = emitTypelessRefine({ oneOf: [{ type: 'string' }, { type: 'number' }] }, recurse)
+      expect(
+        out.includes(
+          `(__rec(string).safeParse(v).success?1:0)+(__rec(number).safeParse(v).success?1:0)`,
+        ),
+      ).toBe(true)
       expect(out.includes(`oneOf must match exactly one`)).toBe(true)
     })
 

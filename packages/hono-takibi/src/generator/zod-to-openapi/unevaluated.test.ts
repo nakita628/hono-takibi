@@ -187,9 +187,7 @@ describe('buildUnevaluatedProperties', () => {
         recurse,
       )
       expect(
-        out.includes(
-          `if("credit_card" in o)for(const k of ["billing_address"])e.add(k)`,
-        ),
+        out.includes(`if("credit_card" in o)for(const k of ["billing_address"])e.add(k)`),
       ).toBe(true)
     })
 

@@ -476,11 +476,11 @@ export type Schema = {
   readonly 'x-error-message'?: string
   readonly 'x-size-message'?: string
   // v3.0: numeric / string-pattern専用に縮退（破壊的変更）
-  readonly 'x-pattern-message'?: string         // string `pattern` only
-  readonly 'x-minimum-message'?: string         // numeric `minimum` (inclusive) only
-  readonly 'x-maximum-message'?: string         // numeric `maximum` (inclusive) only
-  readonly 'x-exclusiveMinimum-message'?: string  // numeric `exclusiveMinimum` (>)
-  readonly 'x-exclusiveMaximum-message'?: string  // numeric `exclusiveMaximum` (<)
+  readonly 'x-pattern-message'?: string // string `pattern` only
+  readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
+  readonly 'x-maximum-message'?: string // numeric `maximum` (inclusive) only
+  readonly 'x-exclusiveMinimum-message'?: string // numeric `exclusiveMinimum` (>)
+  readonly 'x-exclusiveMaximum-message'?: string // numeric `exclusiveMaximum` (<)
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
   readonly 'x-dependentSchemas-message'?: string
@@ -496,16 +496,16 @@ export type Schema = {
   readonly 'x-const-message'?: string
   readonly 'x-enum-message'?: string
   // v3.0: keyword-specific message extensions (1 keyword = 1 message)
-  readonly 'x-minLength-message'?: string       // string minLength
-  readonly 'x-maxLength-message'?: string       // string maxLength
-  readonly 'x-minItems-message'?: string        // array minItems
-  readonly 'x-maxItems-message'?: string        // array maxItems
-  readonly 'x-minProperties-message'?: string   // object minProperties
-  readonly 'x-maxProperties-message'?: string   // object maxProperties
-  readonly 'x-patternProperties-message'?: string  // object patternProperties
-  readonly 'x-contains-message'?: string        // array contains (type-match presence)
-  readonly 'x-minContains-message'?: string     // array minContains (count lower bound)
-  readonly 'x-maxContains-message'?: string     // array maxContains (count upper bound)
+  readonly 'x-minLength-message'?: string // string minLength
+  readonly 'x-maxLength-message'?: string // string maxLength
+  readonly 'x-minItems-message'?: string // array minItems
+  readonly 'x-maxItems-message'?: string // array maxItems
+  readonly 'x-minProperties-message'?: string // object minProperties
+  readonly 'x-maxProperties-message'?: string // object maxProperties
+  readonly 'x-patternProperties-message'?: string // object patternProperties
+  readonly 'x-contains-message'?: string // array contains (type-match presence)
+  readonly 'x-minContains-message'?: string // array minContains (count lower bound)
+  readonly 'x-maxContains-message'?: string // array maxContains (count upper bound)
   // v2.5: $comment pass-through
   readonly $comment?: string
   // v2.5: array contains validation (JSON Schema standard)
@@ -551,6 +551,8 @@ export type Schema = {
   readonly 'x-trim'?: boolean
   readonly 'x-toLowerCase'?: boolean
   readonly 'x-toUpperCase'?: boolean
+  readonly 'x-lowercase'?: boolean
+  readonly 'x-uppercase'?: boolean
   readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
   readonly 'x-coerce'?: boolean
   // P1 format-option extensions (spec v2.3)

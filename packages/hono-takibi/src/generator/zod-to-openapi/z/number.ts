@@ -15,7 +15,7 @@ export function number(schema: Schema): string {
     ? `z.coerce.number(${baseErrorArg})`
     : schema.format === 'float' || schema.format === 'float32'
       ? `z.float32(${baseErrorArg})`
-      : schema.format === 'float64'
+      : schema.format === 'float64' || schema.format === 'double'
         ? `z.float64(${baseErrorArg})`
         : `z.number(${baseErrorArg})`
   // v3.0: separate inclusive/exclusive message slots — silent bug fix

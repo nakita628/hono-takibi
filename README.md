@@ -127,63 +127,63 @@ z.string({ error: 'Name must be a string' })
 
 #### Common (any schema type)
 
-| Extension              | Applies to                                                          |
-| ---------------------- | ------------------------------------------------------------------- |
-| `x-error-message`      | Schema constructor (type mismatch / generic fallback)               |
-| `x-required-message`   | `issue.input === undefined` (missing required field)                |
-| `x-const-message`      | `const` (literal mismatch)                                          |
-| `x-enum-message`       | `enum` (value not in list)                                          |
+| Extension            | Applies to                                            |
+| -------------------- | ----------------------------------------------------- |
+| `x-error-message`    | Schema constructor (type mismatch / generic fallback) |
+| `x-required-message` | `issue.input === undefined` (missing required field)  |
+| `x-const-message`    | `const` (literal mismatch)                            |
+| `x-enum-message`     | `enum` (value not in list)                            |
 
 #### Numeric (`number` / `integer`)
 
-| Extension                    | Applies to                                                  |
-| ---------------------------- | ----------------------------------------------------------- |
-| `x-minimum-message`          | `minimum` (`.min()` / `.gte()`)                             |
-| `x-maximum-message`          | `maximum` (`.max()` / `.lte()`)                             |
-| `x-exclusiveMinimum-message` | `exclusiveMinimum` (`.gt()` / `.positive()`)                |
-| `x-exclusiveMaximum-message` | `exclusiveMaximum` (`.lt()` / `.negative()`)                |
-| `x-multipleOf-message`       | `.multipleOf()`                                             |
+| Extension                    | Applies to                                   |
+| ---------------------------- | -------------------------------------------- |
+| `x-minimum-message`          | `minimum` (`.min()` / `.gte()`)              |
+| `x-maximum-message`          | `maximum` (`.max()` / `.lte()`)              |
+| `x-exclusiveMinimum-message` | `exclusiveMinimum` (`.gt()` / `.positive()`) |
+| `x-exclusiveMaximum-message` | `exclusiveMaximum` (`.lt()` / `.negative()`) |
+| `x-multipleOf-message`       | `.multipleOf()`                              |
 
 #### String
 
-| Extension              | Applies to                            |
-| ---------------------- | ------------------------------------- |
-| `x-minLength-message`  | `minLength` (`.min()`)                |
-| `x-maxLength-message`  | `maxLength` (`.max()`)                |
-| `x-pattern-message`    | `pattern` (`.regex()`)                |
-| `x-size-message`       | `minLength === maxLength` (`.length()`) |
+| Extension             | Applies to                              |
+| --------------------- | --------------------------------------- |
+| `x-minLength-message` | `minLength` (`.min()`)                  |
+| `x-maxLength-message` | `maxLength` (`.max()`)                  |
+| `x-pattern-message`   | `pattern` (`.regex()`)                  |
+| `x-size-message`      | `minLength === maxLength` (`.length()`) |
 
 #### Array
 
-| Extension                  | Applies to                                       |
-| -------------------------- | ------------------------------------------------ |
-| `x-minItems-message`       | `minItems` (`.min()`)                            |
-| `x-maxItems-message`       | `maxItems` (`.max()`)                            |
-| `x-uniqueItems-message`    | `uniqueItems` (`.refine()` Set check)            |
-| `x-contains-message`       | `contains` alone (at least 1 type-match)         |
-| `x-minContains-message`    | `minContains` (count lower bound)                |
-| `x-maxContains-message`    | `maxContains` (count upper bound)                |
+| Extension               | Applies to                               |
+| ----------------------- | ---------------------------------------- |
+| `x-minItems-message`    | `minItems` (`.min()`)                    |
+| `x-maxItems-message`    | `maxItems` (`.max()`)                    |
+| `x-uniqueItems-message` | `uniqueItems` (`.refine()` Set check)    |
+| `x-contains-message`    | `contains` alone (at least 1 type-match) |
+| `x-minContains-message` | `minContains` (count lower bound)        |
+| `x-maxContains-message` | `maxContains` (count upper bound)        |
 
 #### Object
 
-| Extension                       | Applies to                                                |
-| ------------------------------- | --------------------------------------------------------- |
-| `x-minProperties-message`       | `minProperties` (`.refine()` keys count)                  |
-| `x-maxProperties-message`       | `maxProperties` (`.refine()` keys count)                  |
-| `x-additionalProperties-message`| `additionalProperties: false` (`unrecognized_keys`)       |
-| `x-propertyNames-message`       | `propertyNames` pattern / enum check                      |
-| `x-patternProperties-message`   | `patternProperties` value check                           |
-| `x-dependentRequired-message`   | `dependentRequired` (key A ⇒ key B required)              |
-| `x-dependentSchemas-message`    | `dependentSchemas` (key A ⇒ sub-schema applies)           |
+| Extension                        | Applies to                                          |
+| -------------------------------- | --------------------------------------------------- |
+| `x-minProperties-message`        | `minProperties` (`.refine()` keys count)            |
+| `x-maxProperties-message`        | `maxProperties` (`.refine()` keys count)            |
+| `x-additionalProperties-message` | `additionalProperties: false` (`unrecognized_keys`) |
+| `x-propertyNames-message`        | `propertyNames` pattern / enum check                |
+| `x-patternProperties-message`    | `patternProperties` value check                     |
+| `x-dependentRequired-message`    | `dependentRequired` (key A ⇒ key B required)        |
+| `x-dependentSchemas-message`     | `dependentSchemas` (key A ⇒ sub-schema applies)     |
 
 #### Combinators
 
-| Extension          | Applies to                                  |
-| ------------------ | ------------------------------------------- |
-| `x-allOf-message`  | `allOf` composition                         |
-| `x-anyOf-message`  | `anyOf` (`z.union`)                         |
-| `x-oneOf-message`  | `oneOf` (`z.xor` / `z.discriminatedUnion`)  |
-| `x-not-message`    | `not` predicate                             |
+| Extension         | Applies to                                 |
+| ----------------- | ------------------------------------------ |
+| `x-allOf-message` | `allOf` composition                        |
+| `x-anyOf-message` | `anyOf` (`z.union`)                        |
+| `x-oneOf-message` | `oneOf` (`z.xor` / `z.discriminatedUnion`) |
+| `x-not-message`   | `not` predicate                            |
 
 ## Behavior Extensions
 
@@ -217,7 +217,9 @@ slug:
 ```
 
 ```ts
-z.string().toLowerCase().regex(/^[a-z0-9-]+$/)
+z.string()
+  .toLowerCase()
+  .regex(/^[a-z0-9-]+$/)
 ```
 
 #### `x-toUpperCase`
@@ -283,14 +285,10 @@ updatedAt:
 ```
 
 ```ts
-z.codec(
-  z.iso.datetime(),
-  z.date(),
-  {
-    decode: (isoString) => new Date(isoString),
-    encode: (date) => date.toISOString(),
-  },
-)
+z.codec(z.iso.datetime(), z.date(), {
+  decode: (isoString) => new Date(isoString),
+  encode: (date) => date.toISOString(),
+})
 ```
 
 ### Custom Validation
@@ -420,11 +418,11 @@ Per-format fine-tuning options that map to Zod v4's format constructors.
 htmlEmail:
   type: string
   format: email
-  x-emailPattern: 'html5'   # preset: html5 / browser / unicode
+  x-emailPattern: 'html5' # preset: html5 / browser / unicode
 customEmail:
   type: string
   format: email
-  x-emailRegex: '^.+@example\.com$'  # custom regex
+  x-emailRegex: '^.+@example\.com$' # custom regex
 ```
 
 ```ts
@@ -438,7 +436,7 @@ z.email({ pattern: /^.+@example\.com$/ })
 uuidV7:
   type: string
   format: uuid
-  x-uuidVersion: v7   # v1 / v4 / v6 / v7 / v8
+  x-uuidVersion: v7 # v1 / v4 / v6 / v7 / v8
 ```
 
 ```ts
@@ -465,12 +463,12 @@ z.url({ protocol: /^https$/, normalize: true })
 preciseDatetime:
   type: string
   format: date-time
-  x-isoPrecision: 3   # fractional second digits
-  x-isoOffset: true   # require timezone offset
+  x-isoPrecision: 3 # fractional second digits
+  x-isoOffset: true # require timezone offset
 localDatetime:
   type: string
   format: date-time
-  x-isoLocal: true    # allow datetimes without timezone
+  x-isoLocal: true # allow datetimes without timezone
 ```
 
 ```ts
@@ -484,7 +482,7 @@ z.iso.datetime({ local: true })
 mac:
   type: string
   format: mac
-  x-macDelimiter: ':'   # ':' / '-' / '.'
+  x-macDelimiter: ':' # ':' / '-' / '.'
 ```
 
 ```ts
@@ -511,7 +509,7 @@ sha256:
   type: string
   format: hash
   x-hashAlg: 'sha256'
-  x-hashEnc: 'hex'   # 'hex' / 'base64' / 'base64url'
+  x-hashEnc: 'hex' # 'hex' / 'base64' / 'base64url'
 ```
 
 ```ts

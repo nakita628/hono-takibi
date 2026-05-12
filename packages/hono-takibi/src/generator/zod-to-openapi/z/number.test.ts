@@ -40,6 +40,9 @@ describe('type: number, format: float', () => {
   it.concurrent.each<[Schema, string]>([
     [{ type: 'number', format: 'float' }, 'z.float32()'],
     [{ type: 'number', format: 'float64' }, 'z.float64()'],
+    // 'double' is the OpenAPI standard alias for IEEE 754 binary64 — same wire
+    // shape as float64, so map it to z.float64 to match the FormatNumber type.
+    [{ type: 'number', format: 'double' }, 'z.float64()'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })

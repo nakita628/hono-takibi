@@ -245,6 +245,31 @@ describe('string', () => {
     })
   })
 
+  describe('x-lowercase / x-uppercase (validation, distinct from transforms)', () => {
+    it.concurrent.each<[Schema, string]>([
+      // single validation
+      [{ type: 'string', 'x-lowercase': true }, 'z.string().lowercase()'],
+      [{ type: 'string', 'x-uppercase': true }, 'z.string().uppercase()'],
+      // coexist with the *transform* extensions: input is mapped first, then
+      // the validation enforces the case constraint.
+      [
+        { type: 'string', 'x-toLowerCase': true, 'x-lowercase': true },
+        'z.string().toLowerCase().lowercase()',
+      ],
+      [
+        { type: 'string', 'x-toUpperCase': true, 'x-uppercase': true },
+        'z.string().toUpperCase().uppercase()',
+      ],
+      // coexist with length constraints — validation comes after refinements
+      [
+        { type: 'string', minLength: 1, maxLength: 10, 'x-lowercase': true },
+        'z.string().min(1).max(10).lowercase()',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
   describe('x-coerce (P1)', () => {
     it.concurrent.each<[Schema, string]>([
       // bare coerce

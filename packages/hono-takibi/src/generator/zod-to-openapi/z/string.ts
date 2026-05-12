@@ -288,6 +288,13 @@ export function string(schema: Schema): string {
     schema['x-endsWith'] !== undefined
       ? `.endsWith(${JSON.stringify(schema['x-endsWith'])})`
       : undefined
+  // x-lowercase / x-uppercase are *validation* checks (.lowercase() /
+  // .uppercase()), distinct from the *transform* extensions x-toLowerCase /
+  // x-toUpperCase (.toLowerCase() / .toUpperCase()). Both can coexist on the
+  // same field — the input is mapped first, then the validation enforces the
+  // case constraint.
+  const lowercaseValidate = schema['x-lowercase'] === true ? '.lowercase()' : undefined
+  const uppercaseValidate = schema['x-uppercase'] === true ? '.uppercase()' : undefined
   return [
     base,
     // Pre-validation transforms come BEFORE refinements so input is normalized
@@ -308,6 +315,8 @@ export function string(schema: Schema): string {
     includes,
     startsWith,
     endsWith,
+    lowercaseValidate,
+    uppercaseValidate,
   ]
     .filter((v) => v !== undefined)
     .join('')

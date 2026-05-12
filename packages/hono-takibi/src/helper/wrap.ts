@@ -203,6 +203,7 @@ export function wrap(
     'x-multipleOf-message',
     'x-dependentRequired-message',
     'x-propertyNames-message',
+    'x-allOf-message',
     'x-anyOf-message',
     'x-oneOf-message',
     'x-not-message',
@@ -251,6 +252,8 @@ export function wrap(
     'x-toUpperCase',
     'x-normalize',
     'x-coerce',
+    'x-lowercase',
+    'x-uppercase',
     // P1 format-option extensions (spec v2.3)
     'x-emailPattern',
     'x-emailRegex',

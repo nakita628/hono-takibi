@@ -1723,7 +1723,11 @@ describe('takibi error paths', () => {
     // We don't care about the exact failure mode — only that the catch
     // arm exists, runs, and produces a string error instead of bubbling
     // an exception up to the CLI.
-    const malformed = { openapi: '3.1.0', info: {}, paths: { '/x': { get: {} } } } as unknown as OpenAPI
+    const malformed = {
+      openapi: '3.1.0',
+      info: {},
+      paths: { '/x': { get: {} } },
+    } as unknown as OpenAPI
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-malformed-'))
     try {
       const result = await takibi(

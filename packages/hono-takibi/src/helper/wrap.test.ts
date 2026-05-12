@@ -511,6 +511,29 @@ describe('wrap', () => {
       expect(result).toBe('z.number().max(100,{error:"100以下"})')
     })
 
+    it.concurrent('should not include x-allOf-message in openapi()', () => {
+      const result = wrap('z.intersection(z.string(),z.string())', {
+        type: 'string',
+        allOf: [{ type: 'string' }, { type: 'string' }],
+        'x-allOf-message': 'allOf失敗',
+      })
+      expect(result).toBe('z.intersection(z.string(),z.string())')
+    })
+
+    it.concurrent('should not include x-uppercase / x-lowercase in openapi()', () => {
+      const result = wrap('z.string().uppercase()', {
+        type: 'string',
+        'x-uppercase': true,
+        description: 'Uppercase only',
+      })
+      expect(result).toBe('z.string().uppercase().openapi({"description":"Uppercase only"})')
+      const result2 = wrap('z.string().lowercase()', {
+        type: 'string',
+        'x-lowercase': true,
+      })
+      expect(result2).toBe('z.string().lowercase()')
+    })
+
     it.concurrent('should not include any x-* messages in openapi() with description', () => {
       const result = wrap('z.number().min(0,{error:"0以上"}).max(100,{error:"100以下"})', {
         type: 'number',
