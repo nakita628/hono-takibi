@@ -83,8 +83,16 @@ const CompositionSchema = z
 
 const DictionarySchema = z
   .record(z.string(), z.string())
-  .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z][a-z0-9_]*$').test(k)), {
-    error: 'keys must start with a lowercase letter and contain only [a-z0-9_]',
+  .superRefine((o, ctx) => {
+    const regex = new RegExp('^[a-z][a-z0-9_]*$')
+    for (const k of Object.keys(o)) {
+      if (!regex.test(k))
+        ctx.addIssue({
+          code: 'custom',
+          path: [k],
+          message: 'keys must start with a lowercase letter and contain only [a-z0-9_]',
+        })
+    }
   })
   .openapi('Dictionary')
 
@@ -244,7 +252,7 @@ const PaymentSchema = z
     })
     const valid = Schema.safeParse(o)
     if (!valid.success)
-      valid.error.issues.forEach((issue) => ctx.addIssue({ ...issue, path: issue.path }))
+      for (const issue of valid.error.issues) ctx.addIssue({ ...issue, path: issue.path })
   })
   .openapi({ required: ['method'] })
   .openapi('Payment')
@@ -264,40 +272,80 @@ const BasketSchema = z
   .object({
     items: z
       .array(z.object({ kind: z.string() }).openapi({ required: ['kind'] }))
-      .refine(
-        (arr) => {
-          const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
-          return arr.filter((i) => Schema.safeParse(i).success).length >= 2
-        },
-        { error: 'must include at least 2 premium items' },
-      )
-      .refine(
-        (arr) => {
-          const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
-          return arr.filter((i) => Schema.safeParse(i).success).length <= 5
-        },
-        { error: 'must include at most 5 premium items' },
-      ),
+      .superRefine((arr, ctx) => {
+        const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
+        const matched = arr.filter((i) => Schema.safeParse(i).success).length
+        if (matched < 2)
+          ctx.addIssue({ code: 'custom', message: 'must include at least 2 premium items' })
+        if (matched > 5)
+          ctx.addIssue({ code: 'custom', message: 'must include at most 5 premium items' })
+      }),
   })
   .openapi({ required: ['items'] })
   .openapi('Basket')
+
+const WriteOnlySchema = z
+  .object({ name: z.string(), password: z.string().openapi({ writeOnly: true }) })
+  .openapi({ required: ['name', 'password'] })
+  .openapi('WriteOnly')
+
+const ContainsDefaultSchema = z
+  .object({
+    tags: z.array(z.string()).superRefine((arr, ctx) => {
+      const Schema = z.literal('special')
+      const matched = arr.filter((i) => Schema.safeParse(i).success).length
+      if (matched < 1)
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Expected at least 1 item matching contains schema, got ' + matched,
+        })
+    }),
+    scores: z.array(z.number()).superRefine((arr, ctx) => {
+      const Schema = z.number().min(90)
+      const matched = arr.filter((i) => Schema.safeParse(i).success).length
+      if (matched < 2)
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Expected at least 2 matching items, got ' + matched,
+        })
+    }),
+    ints: z.array(z.number()).superRefine((arr, ctx) => {
+      const Schema = z.int()
+      const matched = arr.filter((i) => Schema.safeParse(i).success).length
+      if (matched < 2)
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Expected at least 2 matching items, got ' + matched,
+        })
+      if (matched > 3)
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Expected at most 3 matching items, got ' + matched,
+        })
+    }),
+  })
+  .openapi({ required: ['tags', 'scores', 'ints'] })
+  .openapi('ContainsDefault')
 
 const MiscSchema = z
   .object({
     color: z.enum(['red', 'green', 'blue'], { error: 'color must be one of red, green, blue' }),
     kind: z.literal('admin', { error: 'kind must be exactly "admin"' }),
-    tags: z
-      .array(z.string())
-      .refine((items) => new Set(items).size === items.length, {
-        error: 'tags must contain unique values',
-      }),
-    sized: z.array(z.string()).refine(
-      (arr) => {
-        const Schema = z.literal('premium')
-        return arr.some((i) => Schema.safeParse(i).success)
-      },
-      { error: 'sized must contain at least one premium tag' },
-    ),
+    tags: z.array(z.string()).superRefine((items, ctx) => {
+      const seen = new Map()
+      for (const [i, v] of items.entries()) {
+        const key = JSON.stringify(v)
+        if (seen.has(key))
+          ctx.addIssue({ code: 'custom', path: [i], message: 'tags must contain unique values' })
+        else seen.set(key, i)
+      }
+    }),
+    sized: z.array(z.string()).superRefine((arr, ctx) => {
+      const Schema = z.literal('premium')
+      const matched = arr.filter((i) => Schema.safeParse(i).success).length
+      if (matched < 1)
+        ctx.addIssue({ code: 'custom', message: 'sized must contain at least one premium tag' })
+    }),
     namespaced: z
       .strictObject(
         {
@@ -319,20 +367,15 @@ const MiscSchema = z
         error: 'namespaced must have at most 3 properties',
       }),
     prefixed: z.looseObject({}).superRefine((o, ctx) => {
-      const Re = new RegExp('^x_')
+      const regex = new RegExp('^x_')
       const Schema = z.string()
-      Object.entries(o).forEach(([k, v]) => {
-        if (!Re.test(k)) return
+      for (const [k, v] of Object.entries(o)) {
+        if (!regex.test(k)) continue
         const valid = Schema.safeParse(v)
         if (!valid.success)
-          valid.error.issues.forEach((issue) =>
-            ctx.addIssue({
-              ...issue,
-              path: [k, ...issue.path],
-              message: 'x_ keys must be strings',
-            }),
-          )
-      })
+          for (const issue of valid.error.issues)
+            ctx.addIssue({ ...issue, path: [k, ...issue.path], message: 'x_ keys must be strings' })
+      }
     }),
     payload: z.string({
       error: (issue) =>
@@ -409,6 +452,26 @@ export const postBasketRoute = createRoute({
   path: '/basket',
   operationId: 'postBasket',
   request: { body: { content: { 'application/json': { schema: BasketSchema } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postWriteOnlyRoute = createRoute({
+  method: 'post',
+  path: '/write-only',
+  operationId: 'postWriteOnly',
+  request: {
+    body: { content: { 'application/json': { schema: WriteOnlySchema } }, required: true },
+  },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postContainsDefaultRoute = createRoute({
+  method: 'post',
+  path: '/contains-default',
+  operationId: 'postContainsDefault',
+  request: {
+    body: { content: { 'application/json': { schema: ContainsDefaultSchema } }, required: true },
+  },
   responses: { 200: { description: 'OK' } },
 })
 

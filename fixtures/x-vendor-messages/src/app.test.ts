@@ -3,55 +3,26 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import app from './app.ts'
 
-const validForm = {
-  username: 'taro',
-  code: 'ABC123',
-  slug: 'hello-world',
-  age: 25,
-  score: 1.5,
-  count: 10,
-  active: true,
-  tags: ['dev'],
-  pin: [1, 2, 3, 4],
-  role: 'admin',
-  priority: 1,
-  quota: 5,
-}
-
-const post = (path: string) => (body: Record<string, unknown>) =>
-  app.request(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-
-const postForm = post('/form')
-const postComposition = post('/composition')
-const postDictionary = post('/dictionary')
-const postMerged = post('/merged')
-const postMergedArrow = post('/merged-arrow')
-const postPayment = post('/payment')
-const postBounds = post('/bounds')
-const postBasket = post('/basket')
-const postContainsDefault = post('/contains-default')
-const postMisc = post('/misc')
-
-const validMisc = {
-  color: 'red',
-  kind: 'admin',
-  tags: ['a', 'b'],
-  sized: ['premium', 'basic'],
-  namespaced: { a: '1' },
-  prefixed: { x_one: 'ok' },
-  payload: 'ok',
-}
-
-const errorsOf = async (res: Response) =>
-  ((await res.json()) as { errors: { pointer: string; detail: string }[] }).errors
-
 describe('x-* vendor extension messages — exhaustive variants', () => {
   it('accepts a fully valid form', async () => {
-    const res = await postForm(validForm)
+    const res = await app.request('/form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+              username: 'taro',
+              code: 'ABC123',
+              slug: 'hello-world',
+              age: 25,
+              score: 1.5,
+              count: 10,
+              active: true,
+              tags: ['dev'],
+              pin: [1, 2, 3, 4],
+              role: 'admin',
+              priority: 1,
+              quota: 5,
+            }),
+    })
     expect(res.status).toBe(200)
   })
 
@@ -60,57 +31,183 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-error-message (schema constructor)', () => {
     it('string: rejects non-string username', async () => {
-      const res = await postForm({ ...validForm, username: 42 })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 42,
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/username', detail: 'username must be a string' },
       ])
     })
 
     it('integer: rejects non-integer age', async () => {
-      const res = await postForm({ ...validForm, age: 'thirty' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 'thirty',
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/age', detail: 'age must be an integer' },
       ])
     })
 
     it('number: rejects non-number score', async () => {
-      const res = await postForm({ ...validForm, score: 'one' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 'one',
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/score', detail: 'score must be a number' },
       ])
     })
 
     it('boolean: rejects non-boolean active', async () => {
-      const res = await postForm({ ...validForm, active: 'yes' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: 'yes',
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/active', detail: 'active must be a boolean' },
       ])
     })
 
     it('array: rejects non-array tags', async () => {
-      const res = await postForm({ ...validForm, tags: 'dev' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: 'dev',
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/tags', detail: 'tags must be an array' },
       ])
     })
 
     it('string enum: rejects value outside enum (union top-level)', async () => {
-      const res = await postForm({ ...validForm, role: 'guest' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'guest',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/role', detail: 'role must be one of admin, editor, viewer' },
       ])
     })
 
     it('integer enum: rejects value outside enum (union top-level)', async () => {
-      const res = await postForm({ ...validForm, priority: 99 })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 99,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/priority', detail: 'priority must be 1, 2, or 3' },
       ])
     })
@@ -122,22 +219,76 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-minLength-message / x-minItems-message / x-minimum-message', () => {
     it('x-minLength-message: rejects short username (string)', async () => {
-      const res = await postForm({ ...validForm, username: 'ab' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'ab',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/username', detail: 'username must be at least 3 characters' },
       ])
     })
 
     it('x-minItems-message: rejects empty tags array', async () => {
-      const res = await postForm({ ...validForm, tags: [] })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: [],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/tags', detail: 'tags must contain at least 1 item' },
       ])
     })
 
     it('x-minimum-message: rejects negative age (integer)', async () => {
-      const res = await postForm({ ...validForm, age: -1 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: -1,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/age', detail: 'age must be >= 0' },
       ])
     })
@@ -148,22 +299,76 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-maxLength-message / x-maxItems-message / x-maximum-message', () => {
     it('x-maxLength-message: rejects too-long username (string)', async () => {
-      const res = await postForm({ ...validForm, username: 'a'.repeat(17) })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'a'.repeat(17),
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/username', detail: 'username must be at most 16 characters' },
       ])
     })
 
     it('x-maxItems-message: rejects too many tags', async () => {
-      const res = await postForm({ ...validForm, tags: ['a', 'b', 'c', 'd', 'e', 'f'] })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['a', 'b', 'c', 'd', 'e', 'f'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/tags', detail: 'tags must contain at most 5 items' },
       ])
     })
 
     it('x-maximum-message: rejects age above maximum (integer)', async () => {
-      const res = await postForm({ ...validForm, age: 200 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 200,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/age', detail: 'age must be <= 120' },
       ])
     })
@@ -174,15 +379,51 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-size-message', () => {
     it('string .length(): rejects wrong-length code', async () => {
-      const res = await postForm({ ...validForm, code: 'ABC' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/code', detail: 'code must be exactly 6 characters' },
       ])
     })
 
     it('array .length(): rejects wrong-length pin', async () => {
-      const res = await postForm({ ...validForm, pin: [1, 2, 3] })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/pin', detail: 'pin must contain exactly 4 digits' },
       ])
     })
@@ -193,8 +434,26 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-pattern-message', () => {
     it('rejects slug with uppercase characters', async () => {
-      const res = await postForm({ ...validForm, slug: 'NotASlug' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'NotASlug',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/slug', detail: 'slug must be lowercase alphanumeric with hyphens' },
       ])
     })
@@ -205,15 +464,51 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-multipleOf-message', () => {
     it('number .multipleOf(): rejects score that is not a multiple of 0.5', async () => {
-      const res = await postForm({ ...validForm, score: 0.3 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 0.3,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/score', detail: 'score must be a multiple of 0.5' },
       ])
     })
 
     it('integer .multipleOf(): rejects count that is not a multiple of 5', async () => {
-      const res = await postForm({ ...validForm, count: 7 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 7,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/count', detail: 'count must be a multiple of 5' },
       ])
     })
@@ -230,14 +525,48 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   describe('enum acceptance', () => {
     it('accepts each valid string enum value', async () => {
       for (const role of ['admin', 'editor', 'viewer']) {
-        const res = await postForm({ ...validForm, role })
+        const res = await app.request('/form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: 'taro',
+            code: 'ABC123',
+            slug: 'hello-world',
+            age: 25,
+            score: 1.5,
+            count: 10,
+            active: true,
+            tags: ['dev'],
+            pin: [1, 2, 3, 4],
+            role,
+            priority: 1,
+            quota: 5,
+          }),
+        })
         expect(res.status).toBe(200)
       }
     })
 
     it('accepts each valid integer enum value', async () => {
       for (const priority of [1, 2, 3]) {
-        const res = await postForm({ ...validForm, priority })
+        const res = await app.request('/form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: 'taro',
+            code: 'ABC123',
+            slug: 'hello-world',
+            age: 25,
+            score: 1.5,
+            count: 10,
+            active: true,
+            tags: ['dev'],
+            pin: [1, 2, 3, 4],
+            role: 'admin',
+            priority,
+            quota: 5,
+          }),
+        })
         expect(res.status).toBe(200)
       }
     })
@@ -248,19 +577,32 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-anyOf-message', () => {
     it('rejects boolean for anyValue', async () => {
-      const res = await postComposition({ anyValue: true })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: true }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/anyValue', detail: 'anyValue must be a string or integer' },
       ])
     })
 
     it('accepts string for anyValue', async () => {
-      const res = await postComposition({ anyValue: 'hello' })
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 'hello' }),
+      })
       expect(res.status).toBe(200)
     })
 
     it('accepts integer for anyValue', async () => {
-      const res = await postComposition({ anyValue: 42 })
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 42 }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -270,14 +612,23 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-oneOf-message', () => {
     it('rejects boolean for oneValue (zero matches)', async () => {
-      const res = await postComposition({ anyValue: 'ok', oneValue: true })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 'ok', oneValue: true }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/oneValue', detail: 'oneValue must match exactly one type' },
       ])
     })
 
     it('accepts string for oneValue', async () => {
-      const res = await postComposition({ anyValue: 'ok', oneValue: 'text' })
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 'ok', oneValue: 'text' }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -287,14 +638,23 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-not-message', () => {
     it('rejects string for notString', async () => {
-      const res = await postComposition({ anyValue: 'ok', notString: 'forbidden' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 'ok', notString: 'forbidden' }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/notString', detail: 'notString must not be a string' },
       ])
     })
 
     it('accepts non-string for notString', async () => {
-      const res = await postComposition({ anyValue: 'ok', notString: 42 })
+      const res = await app.request('/composition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ anyValue: 'ok', notString: 42 }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -304,8 +664,13 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-propertyNames-message', () => {
     it('rejects keys violating the pattern', async () => {
-      const res = await postDictionary({ BadKey: 'x' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/dictionary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ BadKey: 'x' }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         {
           pointer: '/BadKey',
           detail: 'keys must start with a lowercase letter and contain only [a-z0-9_]',
@@ -314,7 +679,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
 
     it('accepts compliant keys', async () => {
-      const res = await postDictionary({ ok_key: 'x', another1: 'y' })
+      const res = await app.request('/dictionary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ok_key: 'x', another1: 'y' }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -326,19 +695,74 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // v3.1: dependentRequired emits per-dep issues with `path:[d]` so the
     // JSON pointer locates the missing key (was `/` in earlier versions).
     it('rejects token without tokenLabel', async () => {
-      const res = await postForm({ ...validForm, token: 't' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+                token: 't',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/tokenLabel', detail: 'tokenLabel is required when token is provided' },
       ])
     })
 
     it('accepts token paired with tokenLabel', async () => {
-      const res = await postForm({ ...validForm, token: 't', tokenLabel: 'lbl' })
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+                token: 't',
+                tokenLabel: 'lbl',
+              }),
+      })
       expect(res.status).toBe(200)
     })
 
     it('accepts neither token nor tokenLabel', async () => {
-      const res = await postForm(validForm)
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+              }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -353,8 +777,13 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // rather than `/` — per-dep issue at path:[d]. x-dependentRequired-message
     // still overrides the default text.
     it('rejects credit_card without billing_zip via x-dependentRequired-message', async () => {
-      const res = await postPayment({ method: 'cc', credit_card: '4111111111111111' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method: 'cc', credit_card: '4111111111111111' }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/billing_zip', detail: 'billing_zip is required when credit_card is provided' },
       ])
     })
@@ -367,27 +796,40 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // OpenAPI annotation roundtrip; this assertion validates the PROPAGATED
     // inner detail (the sub-schema's emitTypelessRefine 'invalid property').
     it('rejects malformed credit_card with propagated sub-issue (v3.1 superRefine)', async () => {
-      const res = await postPayment({
-        method: 'cc',
-        credit_card: '123',
-        billing_zip: '00000',
+      const res = await app.request('/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                      method: 'cc',
+                      credit_card: '123',
+                      billing_zip: '00000',
+                    }),
       })
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/', detail: 'invalid property' },
       ])
     })
 
     it('accepts well-formed credit_card with billing_zip', async () => {
-      const res = await postPayment({
-        method: 'cc',
-        credit_card: '4111111111111111',
-        billing_zip: '00000',
+      const res = await app.request('/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                      method: 'cc',
+                      credit_card: '4111111111111111',
+                      billing_zip: '00000',
+                    }),
       })
       expect(res.status).toBe(200)
     })
 
     it('accepts payment without credit_card', async () => {
-      const res = await postPayment({ method: 'cash' })
+      const res = await app.request('/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method: 'cash' }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -398,35 +840,59 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('x-exclusiveMinimum-message / x-exclusiveMaximum-message', () => {
     it('x-minimum-message fires for inclusive lower bound (score < 0)', async () => {
-      const res = await postBounds({ score: -1, ratio: 0.5 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/bounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: -1, ratio: 0.5 }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/score', detail: 'score must be >= 0' },
       ])
     })
 
     it('x-exclusiveMaximum-message fires for exclusive upper bound (score = 100)', async () => {
-      const res = await postBounds({ score: 100, ratio: 0.5 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/bounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: 100, ratio: 0.5 }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/score', detail: 'score must be < 100' },
       ])
     })
 
     it('x-exclusiveMinimum-message fires for exclusive lower bound (ratio = 0)', async () => {
-      const res = await postBounds({ score: 50, ratio: 0 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/bounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: 50, ratio: 0 }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/ratio', detail: 'ratio must be > 0' },
       ])
     })
 
     it('x-maximum-message fires for inclusive upper bound (ratio > 1)', async () => {
-      const res = await postBounds({ score: 50, ratio: 1.5 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/bounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: 50, ratio: 1.5 }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/ratio', detail: 'ratio must be <= 1' },
       ])
     })
 
     it('accepts boundary-valid values', async () => {
-      const res = await postBounds({ score: 0, ratio: 1 })
+      const res = await app.request('/bounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: 0, ratio: 1 }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -439,33 +905,47 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     const item = (kind: string) => ({ kind })
 
     it('x-minContains-message fires when fewer than 2 premium items', async () => {
-      const res = await postBasket({
-        items: [item('premium'), item('basic'), item('basic')],
+      const res = await app.request('/basket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                      items: [item('premium'), item('basic'), item('basic')],
+                    }),
       })
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/items', detail: 'must include at least 2 premium items' },
       ])
     })
 
     it('x-maxContains-message fires when more than 5 premium items', async () => {
-      const res = await postBasket({
-        items: [
-          item('premium'),
-          item('premium'),
-          item('premium'),
-          item('premium'),
-          item('premium'),
-          item('premium'),
-        ],
+      const res = await app.request('/basket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                      items: [
+                        item('premium'),
+                        item('premium'),
+                        item('premium'),
+                        item('premium'),
+                        item('premium'),
+                        item('premium'),
+                      ],
+                    }),
       })
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/items', detail: 'must include at most 5 premium items' },
       ])
     })
 
     it('accepts basket within bounds (2-5 premium items)', async () => {
-      const res = await postBasket({
-        items: [item('premium'), item('premium'), item('basic')],
+      const res = await app.request('/basket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                      items: [item('premium'), item('premium'), item('basic')],
+                    }),
       })
       expect(res.status).toBe(200)
     })
@@ -476,48 +956,82 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // (no x-* slot, defaults embed the actual matched count)
   // ─────────────────────────────────────────────────────────
   describe('contains dynamic default messages (no x-* slot)', () => {
-    const validBody = {
-      tags: ['special', 'a', 'b'],
-      scores: [95, 99, 80],
-      ints: [1, 2, 3],
-    }
-
     it('accepts a fully valid body', async () => {
-      const res = await postContainsDefault(validBody)
+      const res = await app.request('/contains-default', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tags: ['special', 'a', 'b'],
+          scores: [95, 99, 80],
+          ints: [1, 2, 3],
+        }),
+      })
       expect(res.status).toBe(200)
     })
 
     it('contains alone — dynamic message includes "got 0"', async () => {
-      const res = await postContainsDefault({ ...validBody, tags: ['a', 'b'] })
-      const errs = await errorsOf(res)
-      expect(errs).toContainEqual({
+      const res = await app.request('/contains-default', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tags: ['a', 'b'],
+          scores: [95, 99, 80],
+          ints: [1, 2, 3],
+        }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toContainEqual({
         pointer: '/tags',
         detail: 'Expected at least 1 item matching contains schema, got 0',
       })
     })
 
     it('minContains: 2 — dynamic message includes actual matched count', async () => {
-      const res = await postContainsDefault({ ...validBody, scores: [95, 50] })
-      const errs = await errorsOf(res)
-      expect(errs).toContainEqual({
+      const res = await app.request('/contains-default', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tags: ['special', 'a', 'b'],
+          scores: [95, 50],
+          ints: [1, 2, 3],
+        }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toContainEqual({
         pointer: '/scores',
         detail: 'Expected at least 2 matching items, got 1',
       })
     })
 
     it('maxContains: 3 — dynamic message includes actual matched count', async () => {
-      const res = await postContainsDefault({ ...validBody, ints: [1, 2, 3, 4] })
-      const errs = await errorsOf(res)
-      expect(errs).toContainEqual({
+      const res = await app.request('/contains-default', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tags: ['special', 'a', 'b'],
+          scores: [95, 99, 80],
+          ints: [1, 2, 3, 4],
+        }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toContainEqual({
         pointer: '/ints',
         detail: 'Expected at most 3 matching items, got 4',
       })
     })
 
     it('minContains: 2 — empty array reports "got 0"', async () => {
-      const res = await postContainsDefault({ ...validBody, scores: [] })
-      const errs = await errorsOf(res)
-      expect(errs).toContainEqual({
+      const res = await app.request('/contains-default', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tags: ['special', 'a', 'b'],
+          scores: [],
+          ints: [1, 2, 3],
+        }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toContainEqual({
         pointer: '/scores',
         detail: 'Expected at least 2 matching items, got 0',
       })
@@ -554,7 +1068,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
 
     it('runtime parse accepts password (writeOnly does not affect parse)', async () => {
-      const res = await post('/write-only')({ name: 'taro', password: 'secret' })
+      const res = await app.request('/write-only', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'taro', password: 'secret' }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -565,8 +1083,21 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('coverage backfill (Misc)', () => {
     it('x-enum-message: rejects color not in enum', async () => {
-      const res = await postMisc({ ...validMisc, color: 'purple' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'purple',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/color', detail: 'color must be one of red, green, blue' },
       ])
     })
@@ -574,47 +1105,121 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // Zod v4's `z.enum` emits the same issue code (invalid_value) for both
     // type and value mismatches, so x-enum-message dominates for both.
     it('x-enum-message also fires for non-string color (Zod treats it as invalid_value)', async () => {
-      const res = await postMisc({ ...validMisc, color: 42 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 42,
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/color', detail: 'color must be one of red, green, blue' },
       ])
     })
 
     it('x-const-message: rejects wrong literal value', async () => {
-      const res = await postMisc({ ...validMisc, kind: 'user' })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'user',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/kind', detail: 'kind must be exactly "admin"' },
       ])
     })
 
     it('x-uniqueItems-message: rejects duplicate elements with index pointer', async () => {
-      const res = await postMisc({ ...validMisc, tags: ['a', 'a'] })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'a'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/tags/1', detail: 'tags must contain unique values' },
       ])
     })
 
     it('x-contains-message (alone): rejects array without premium tag', async () => {
-      const res = await postMisc({ ...validMisc, sized: ['basic', 'standard'] })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['basic', 'standard'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/sized', detail: 'sized must contain at least one premium tag' },
       ])
     })
 
     it('x-minProperties-message: rejects empty namespaced', async () => {
-      const res = await postMisc({ ...validMisc, namespaced: {} })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: {},
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/namespaced', detail: 'namespaced must have at least 1 property' },
       ])
     })
 
     it('x-additionalProperties-message: rejects unknown key', async () => {
-      const res = await postMisc({
-        ...validMisc,
-        namespaced: { a: '1', b: '2', c: '3', d: '4' },
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1', b: '2', c: '3', d: '4' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
       })
-      const errs = await errorsOf(res)
-      expect(errs.some((e) => e.detail === 'namespaced contains an unrecognized key')).toBe(true)
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors.some((e) => e.detail === 'namespaced contains an unrecognized key')).toBe(true)
     })
 
     // x-maxProperties-message — verified via schema source round-trip
@@ -635,28 +1240,78 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // x-patternProperties-message OVERRIDES the inner issue's message while
     // keeping the precise path/code intact.
     it('x-patternProperties-message: rejects wrong-typed x_ key (path includes key)', async () => {
-      const res = await postMisc({ ...validMisc, prefixed: { x_one: 42 } })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 42 },
+                payload: 'ok',
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/prefixed/x_one', detail: 'x_ keys must be strings' },
       ])
     })
 
     it('x-required-message: distinct message for missing payload', async () => {
-      const res = await postMisc({ ...validMisc, payload: undefined })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/payload', detail: 'payload is required' },
       ])
     })
 
     it('x-error-message (string field): distinct message for non-string payload', async () => {
-      const res = await postMisc({ ...validMisc, payload: 42 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 42,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/payload', detail: 'payload must be a string' },
       ])
     })
 
     it('accepts a fully valid Misc payload', async () => {
-      const res = await postMisc(validMisc)
+      const res = await app.request('/misc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                color: 'red',
+                kind: 'admin',
+                tags: ['a', 'b'],
+                sized: ['premium', 'basic'],
+                namespaced: { a: '1' },
+                prefixed: { x_one: 'ok' },
+                payload: 'ok',
+              }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -690,28 +1345,99 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
 
     it('no-arg arrow: rejects non-string nickname with custom message', async () => {
-      const res = await postForm({ ...validForm, nickname: 123 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 5,
+                nickname: 123,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/nickname', detail: 'nickname is invalid' },
       ])
     })
 
     it('(iss)-arg arrow: distinguishes "missing" from "wrong type" via iss.input', async () => {
-      const { quota: _omit, ...withoutQuota } = validForm
-      const missing = await postForm(withoutQuota)
-      expect(await errorsOf(missing)).toStrictEqual([
+      const missing = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: 'taro',
+          code: 'ABC123',
+          slug: 'hello-world',
+          age: 25,
+          score: 1.5,
+          count: 10,
+          active: true,
+          tags: ['dev'],
+          pin: [1, 2, 3, 4],
+          role: 'admin',
+          priority: 1,
+        }),
+      })
+      const body = (await missing.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/quota', detail: 'quota is required' },
       ])
 
-      const wrongType = await postForm({ ...validForm, quota: 'abc' })
-      expect(await errorsOf(wrongType)).toStrictEqual([
+      const wrongType = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: 'abc',
+              }),
+      })
+      const body2 = (await wrongType.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body2.errors).toStrictEqual([
         { pointer: '/quota', detail: 'quota must be an integer' },
       ])
     })
 
     it('(iss)-arg arrow: interpolates iss.input into the .min() message', async () => {
-      const res = await postForm({ ...validForm, quota: -7 })
-      expect(await errorsOf(res)).toStrictEqual([
+      const res = await app.request('/form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority: 1,
+                quota: -7,
+              }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/quota', detail: 'quota must be >= 0 (received: -7)' },
       ])
     })
@@ -768,46 +1494,74 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
 
     it('accepts a fully valid merged payload', async () => {
-      const res = await postMerged({ name: 'taro', age: 25 })
+      const res = await app.request('/merged', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'taro', age: 25 }),
+      })
       expect(res.status).toBe(200)
     })
 
     it('replaces sub-issue messages with x-allOf-message (string form, single failure)', async () => {
-      const res = await postMerged({ name: 'a', age: 25 })
+      const res = await app.request('/merged', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'a', age: 25 }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/name', detail: 'merged validation failed' },
       ])
     })
 
     it('preserves multiple sub-paths with x-allOf-message (string form, both fail)', async () => {
-      const res = await postMerged({ name: 'a', age: -1 })
+      const res = await app.request('/merged', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'a', age: -1 }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/name', detail: 'merged validation failed' },
         { pointer: '/age', detail: 'merged validation failed' },
       ])
     })
 
     it('preserves required-field path when sub-property missing', async () => {
-      const res = await postMerged({ age: 25 })
+      const res = await app.request('/merged', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ age: 25 }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/name', detail: 'merged validation failed' },
       ])
     })
 
     it('arrow form: dynamic message based on issue.path', async () => {
-      const res = await postMergedArrow({ name: 'a', age: -1 })
+      const res = await app.request('/merged-arrow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'a', age: -1 }),
+      })
       expect(res.status).toBe(422)
-      expect(await errorsOf(res)).toStrictEqual([
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
         { pointer: '/name', detail: 'merged failed at name' },
         { pointer: '/age', detail: 'merged failed at age' },
       ])
     })
 
     it('arrow form: accepts valid payload', async () => {
-      const res = await postMergedArrow({ name: 'taro', age: 25 })
+      const res = await app.request('/merged-arrow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'taro', age: 25 }),
+      })
       expect(res.status).toBe(200)
     })
   })
@@ -816,22 +1570,27 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // Aggregate: all custom messages surface together
   // ─────────────────────────────────────────────────────────
   it('aggregates all custom messages on multi-field failure', async () => {
-    const res = await postForm({
-      username: 'ab',
-      code: 'ABC',
-      slug: 'BAD',
-      age: -1,
-      score: 0.3,
-      count: 7,
-      active: 'yes',
-      tags: [],
-      pin: [1, 2, 3],
-      role: 'guest',
-      priority: 99,
-      // quota omitted → arrow-function "is required" branch
+    const res = await app.request('/form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+                  username: 'ab',
+                  code: 'ABC',
+                  slug: 'BAD',
+                  age: -1,
+                  score: 0.3,
+                  count: 7,
+                  active: 'yes',
+                  tags: [],
+                  pin: [1, 2, 3],
+                  role: 'guest',
+                  priority: 99,
+                  // quota omitted → arrow-function "is required" branch
+                }),
     })
     expect(res.status).toBe(422)
-    expect(await errorsOf(res)).toStrictEqual([
+    const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+    expect(body.errors).toStrictEqual([
       { pointer: '/username', detail: 'username must be at least 3 characters' },
       { pointer: '/code', detail: 'code must be exactly 6 characters' },
       { pointer: '/slug', detail: 'slug must be lowercase alphanumeric with hyphens' },
