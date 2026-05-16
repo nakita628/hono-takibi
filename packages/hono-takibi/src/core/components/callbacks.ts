@@ -70,7 +70,11 @@ export async function callbacks(
           ? `export const ${name} = {${callbackCode}}${asConst}\n`
           : `export const ${name} = {}${asConst}\n`
         const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
-        return emit(makeImports(body, filePath, components, split), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(body, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(makeBarrel(callbacks), outDir, path.join(outDir, 'index.ts')),
     ])
@@ -91,7 +95,11 @@ export async function callbacks(
     })
     .filter((v) => v !== undefined)
     .join('\n\n')
-  const emitResult = await emit(makeImports(code, output, components, split), path.dirname(output), output)
+  const emitResult = await emit(
+    makeImports(code, output, components, split),
+    path.dirname(output),
+    output,
+  )
   if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated callbacks code written to ${output}` } as const
 }

@@ -4786,9 +4786,7 @@ describe('zodToOpenAPI', () => {
             format: 'date-time',
             'x-codec': 'date',
           } as Schema)
-          expect(generated).toBe(
-            'date',
-          )
+          expect(generated).toBe('date')
           // runtime skipped: z.codec API surface evaluation can be brittle
         })
         // ----- v2.5: x-required-message / x-error-message / x-const-message -----
@@ -11294,9 +11292,7 @@ describe('zodToOpenAPI', () => {
           format: 'date-time',
           'x-codec': 'date',
         } as Schema),
-      ).toBe(
-        'date',
-      )
+      ).toBe('date')
     })
     it.concurrent('runtime: "2024-01-02T03:04:05Z" PASSES', () => {
       const valid = CodecDt.safeParse('2024-01-02T03:04:05Z')
