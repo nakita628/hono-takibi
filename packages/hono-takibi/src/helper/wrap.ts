@@ -153,9 +153,7 @@ export function wrap(
   const pipe = schema['x-pipe']
   const replaced = preprocess ?? transform ?? pipe ?? superRefineChain
   /* Apply .brand() for branded types */
-  const z = schema['x-brand']
-    ? `${replaced}.brand<"${schema['x-brand']}">()`
-    : replaced
+  const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
   /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',

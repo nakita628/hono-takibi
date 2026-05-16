@@ -1,5 +1,6 @@
 import type { $ZodIssueCode } from 'zod/v4/core'
-import { buildUnevaluatedProperties } from '../../../helper/zod.js'
+
+import { makeUnevaluatedProperties } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
@@ -146,9 +147,7 @@ export function object(schema: Schema, readonly?: boolean): string {
     typeof schema.maxProperties === 'number'
       ? `.refine((val)=>Object.keys(val).length<=${schema.maxProperties}${maxErrorArg})`
       : ''
-  const propNamesMsgField = propNamesMessage
-    ? `,message:${JSON.stringify(propNamesMessage)}`
-    : ''
+  const propNamesMsgField = propNamesMessage ? `,message:${JSON.stringify(propNamesMessage)}` : ''
   const propertyNames = schema.propertyNames?.pattern
     ? (() => {
         const pat = schema.propertyNames.pattern
@@ -230,7 +229,7 @@ export function object(schema: Schema, readonly?: boolean): string {
   //      succeeds at runtime
   //   3. Conditionally adds keys from then/else based on if's success
   //   4. Adds dependentSchemas keys when the dependency key is present
-  const unevaluatedProperties = buildUnevaluatedProperties(
+  const unevaluatedProperties = makeUnevaluatedProperties(
     schema,
     errorArg,
     zodToOpenAPI,

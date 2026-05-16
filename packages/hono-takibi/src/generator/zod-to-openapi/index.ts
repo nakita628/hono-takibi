@@ -1,4 +1,5 @@
 import type { $ZodIssueCode } from 'zod/v4/core'
+
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import { emitTypelessRefine, hasTypelessConstraint } from '../../helper/zod.js'
@@ -208,7 +209,11 @@ export function zodToOpenAPI(
       }
       // Complex sub-schema: full safeParse-based check
       const zod = zodToOpenAPI(not, innerMeta, readonly)
-      return wrap(`z.any().refine((val) => !${zod}.safeParse(val).success${notErrorArg})`, schema, meta)
+      return wrap(
+        `z.any().refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
+        schema,
+        meta,
+      )
     }
     return wrap('z.any()', schema, meta)
   }

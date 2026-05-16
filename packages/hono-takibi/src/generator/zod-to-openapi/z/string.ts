@@ -60,7 +60,7 @@ function errorInner(message: string): string {
  * constructors like `z.email({ pattern })`, `z.iso.datetime({ precision })`.
  * Returns an empty array when no options apply.
  */
-function buildFormatOptions(schema: Schema): readonly string[] {
+function makeFormatOptions(schema: Schema): readonly string[] {
   const opts: string[] = []
   switch (schema.format) {
     case 'email': {
@@ -231,7 +231,7 @@ export function string(schema: Schema): string {
 
   const formatMessage = schema['x-format-message']
 
-  const buildValidationBase = (): string => {
+  const makeValidationBase = (): string => {
     if (hashBase) return hashBase
     if (coerce && schema.format && DATE_FORMATS.has(schema.format)) {
       // coerced date constructor to keep precedence consistent with the
@@ -244,7 +244,7 @@ export function string(schema: Schema): string {
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     }
-    const fmtOpts = isValidationFormat ? buildFormatOptions(schema) : []
+    const fmtOpts = isValidationFormat ? makeFormatOptions(schema) : []
     const includeBaseError = !!baseErrorArg && isValidationFormat
     // baseErrorArg already wraps in `{...}`. Strip the outer braces to merge
     // with format options.
@@ -273,8 +273,8 @@ export function string(schema: Schema): string {
   const postNormalize = normalizeX ? `.normalize("${normalizeX}")` : ''
 
   const base = usePipe
-    ? `z.string()${postTrim}${postLower}${postUpper}${postNormalize}.pipe(${buildValidationBase()})`
-    : buildValidationBase()
+    ? `z.string()${postTrim}${postLower}${postUpper}${postNormalize}.pipe(${makeValidationBase()})`
+    : makeValidationBase()
   // When piped, transforms live before `.pipe(...)`. Otherwise they trail the
   // validation chain (after .min/.max/.length).
   const endTrim = usePipe ? '' : postTrim

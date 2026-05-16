@@ -128,82 +128,82 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 #### Common (any schema type)
 
-| Extension | Applies to |
-| --- | --- |
-| `x-error-message` | All schemas (top-level fallback) |
-| `x-required-message` | Required properties |
-| `x-const-message` | `const` |
-| `x-enum-message` | `enum` |
+| Extension            | Applies to                       |
+| -------------------- | -------------------------------- |
+| `x-error-message`    | All schemas (top-level fallback) |
+| `x-required-message` | Required properties              |
+| `x-const-message`    | `const`                          |
+| `x-enum-message`     | `enum`                           |
 
 #### Numeric (number / integer)
 
-| Extension | Applies to |
-| --- | --- |
-| `x-minimum-message` | `minimum` |
-| `x-maximum-message` | `maximum` |
+| Extension                    | Applies to         |
+| ---------------------------- | ------------------ |
+| `x-minimum-message`          | `minimum`          |
+| `x-maximum-message`          | `maximum`          |
 | `x-exclusiveMinimum-message` | `exclusiveMinimum` |
 | `x-exclusiveMaximum-message` | `exclusiveMaximum` |
-| `x-multipleOf-message` | `multipleOf` |
+| `x-multipleOf-message`       | `multipleOf`       |
 
 #### String
 
-| Extension | Applies to |
-| --- | --- |
-| `x-minLength-message` | `minLength` |
-| `x-maxLength-message` | `maxLength` |
-| `x-pattern-message` | `pattern` |
-| `x-format-message` | `format` |
-| `x-length-message` | Exact length (`minLength` === `maxLength`) |
+| Extension             | Applies to                                 |
+| --------------------- | ------------------------------------------ |
+| `x-minLength-message` | `minLength`                                |
+| `x-maxLength-message` | `maxLength`                                |
+| `x-pattern-message`   | `pattern`                                  |
+| `x-format-message`    | `format`                                   |
+| `x-length-message`    | Exact length (`minLength` === `maxLength`) |
 
 #### Array
 
-| Extension | Applies to |
-| --- | --- |
-| `x-minItems-message` | `minItems` |
-| `x-maxItems-message` | `maxItems` |
+| Extension               | Applies to    |
+| ----------------------- | ------------- |
+| `x-minItems-message`    | `minItems`    |
+| `x-maxItems-message`    | `maxItems`    |
 | `x-uniqueItems-message` | `uniqueItems` |
-| `x-contains-message` | `contains` |
+| `x-contains-message`    | `contains`    |
 | `x-minContains-message` | `minContains` |
 | `x-maxContains-message` | `maxContains` |
 
 #### Object
 
-| Extension | Applies to |
-| --- | --- |
-| `x-minProperties-message` | `minProperties` |
-| `x-maxProperties-message` | `maxProperties` |
+| Extension                        | Applies to             |
+| -------------------------------- | ---------------------- |
+| `x-minProperties-message`        | `minProperties`        |
+| `x-maxProperties-message`        | `maxProperties`        |
 | `x-additionalProperties-message` | `additionalProperties` |
-| `x-propertyNames-message` | `propertyNames` |
-| `x-patternProperties-message` | `patternProperties` |
-| `x-dependentRequired-message` | `dependentRequired` |
-| `x-dependentSchemas-message` | `dependentSchemas` |
+| `x-propertyNames-message`        | `propertyNames`        |
+| `x-patternProperties-message`    | `patternProperties`    |
+| `x-dependentRequired-message`    | `dependentRequired`    |
+| `x-dependentSchemas-message`     | `dependentSchemas`     |
 
 #### Combinators
 
-| Extension | Applies to |
-| --- | --- |
-| `x-allOf-message` | `allOf` |
-| `x-anyOf-message` | `anyOf` |
-| `x-oneOf-message` | `oneOf` |
-| `x-not-message` | `not` |
+| Extension         | Applies to |
+| ----------------- | ---------- |
+| `x-allOf-message` | `allOf`    |
+| `x-anyOf-message` | `anyOf`    |
+| `x-oneOf-message` | `oneOf`    |
+| `x-not-message`   | `not`      |
 
 #### Conditional
 
-| Extension | Applies to |
-| --- | --- |
-| `x-if-message` | `if` |
-| `x-then-message` | `then` |
-| `x-else-message` | `else` |
+| Extension        | Applies to |
+| ---------------- | ---------- |
+| `x-if-message`   | `if`       |
+| `x-then-message` | `then`     |
+| `x-else-message` | `else`     |
 
 #### Typeless / Array Applicator
 
-| Extension | Applies to |
-| --- | --- |
-| `x-properties-message` | `properties` (typeless schemas) |
-| `x-prefixItems-message` | `prefixItems` |
-| `x-items-message` | `items` |
-| `x-unevaluatedProperties-message` | `unevaluatedProperties` |
-| `x-unevaluatedItems-message` | `unevaluatedItems` |
+| Extension                         | Applies to                      |
+| --------------------------------- | ------------------------------- |
+| `x-properties-message`            | `properties` (typeless schemas) |
+| `x-prefixItems-message`           | `prefixItems`                   |
+| `x-items-message`                 | `items`                         |
+| `x-unevaluatedProperties-message` | `unevaluatedProperties`         |
+| `x-unevaluatedItems-message`      | `unevaluatedItems`              |
 
 ## Behavior Extensions
 
@@ -218,18 +218,18 @@ Callback arguments use `val` by convention (matches Zod docs).
 
 Apply normalization to a string **before** validation runs. When combined with a validation format, the pipeline becomes `z.string().<transforms>.pipe(z.<format>())`.
 
-| Extension | Generated | Value |
-| --- | --- | --- |
-| `x-trim` | `z.string().trim()` | `true` |
-| `x-toLowerCase` | `z.string().toLowerCase()` | `true` |
-| `x-toUpperCase` | `z.string().toUpperCase()` | `true` |
-| `x-normalize` | `z.string().normalize('NFC')` | `'NFC'` / `'NFD'` / `'NFKC'` / `'NFKD'` |
+| Extension       | Generated                     | Value                                   |
+| --------------- | ----------------------------- | --------------------------------------- |
+| `x-trim`        | `z.string().trim()`           | `true`                                  |
+| `x-toLowerCase` | `z.string().toLowerCase()`    | `true`                                  |
+| `x-toUpperCase` | `z.string().toUpperCase()`    | `true`                                  |
+| `x-normalize`   | `z.string().normalize('NFC')` | `'NFC'` / `'NFD'` / `'NFKC'` / `'NFKD'` |
 
 ```yaml
 email:
   type: string
   format: email
-  x-trim: true        # z.string().trim().pipe(z.email())
+  x-trim: true # z.string().trim().pipe(z.email())
 ```
 
 ### Preprocess (Input Normalization)
@@ -245,7 +245,7 @@ username:
 ```
 
 ```ts
-z.preprocess((val) => typeof val === "string" ? val.trim() : val, z.string())
+z.preprocess((val) => (typeof val === 'string' ? val.trim() : val), z.string())
 ```
 
 Spec reference: [`z.preprocess`](https://zod.dev/api?id=preprocess).
@@ -287,7 +287,10 @@ updatedAt:
 ```
 
 ```ts
-z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })
+z.codec(z.iso.datetime(), z.date(), {
+  decode: (val) => new Date(val),
+  encode: (val) => val.toISOString(),
+})
 ```
 
 Authors can define any codec — string ⇄ Date, base64 ⇄ Uint8Array, encrypted ⇄ decrypted object, custom domain types, etc. The full Zod API (`z.codec`, `z.iso.*`, `z.codec.map` once available) is reachable.
@@ -451,38 +454,38 @@ Per-format fine-tuning options that map to Zod v4's format constructors.
 htmlEmail:
   type: string
   format: email
-  x-emailPattern: 'html5'   # email pattern preset
+  x-emailPattern: 'html5' # email pattern preset
 uuidV7:
   type: string
   format: uuid
-  x-uuidVersion: v7         # uuid version
+  x-uuidVersion: v7 # uuid version
 httpsUrl:
   type: string
   format: uri
-  x-urlProtocol: '^https$'  # url protocol regex
+  x-urlProtocol: '^https$' # url protocol regex
   x-urlNormalize: true
 preciseDatetime:
   type: string
   format: date-time
-  x-isoPrecision: 3         # iso datetime precision / offset / local
+  x-isoPrecision: 3 # iso datetime precision / offset / local
   x-isoOffset: true
 ```
 
-| Extension | Maps to | Values |
-| --- | --- | --- |
-| `x-emailPattern` | `z.email({ pattern })` | `html5` / `browser` / `unicode` |
-| `x-emailRegex` | `z.email({ pattern: /.../ })` | custom regex string |
-| `x-uuidVersion` | `z.uuid({ version })` | `v1` / `v4` / `v6` / `v7` / `v8` |
-| `x-urlProtocol` | `z.url({ protocol: /.../ })` | regex string |
-| `x-urlHostname` | `z.url({ hostname: /.../ })` | regex string |
-| `x-urlNormalize` | `z.url({ normalize })` | `true` / `false` |
-| `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits |
-| `x-isoOffset` | `z.iso.datetime({ offset })` | `true` / `false` |
-| `x-isoLocal` | `z.iso.datetime({ local })` | `true` / `false` |
-| `x-macDelimiter` | `z.mac({ delimiter })` | `:` / `-` / `.` |
-| `x-jwtAlg` | `z.jwt({ alg })` | `HS256` etc. |
-| `x-hashAlg` | `z.hash(alg, ...)` | `sha256` etc. |
-| `x-hashEnc` | `z.hash(alg, { enc })` | `hex` / `base64` / `base64url` |
+| Extension        | Maps to                         | Values                           |
+| ---------------- | ------------------------------- | -------------------------------- |
+| `x-emailPattern` | `z.email({ pattern })`          | `html5` / `browser` / `unicode`  |
+| `x-emailRegex`   | `z.email({ pattern: /.../ })`   | custom regex string              |
+| `x-uuidVersion`  | `z.uuid({ version })`           | `v1` / `v4` / `v6` / `v7` / `v8` |
+| `x-urlProtocol`  | `z.url({ protocol: /.../ })`    | regex string                     |
+| `x-urlHostname`  | `z.url({ hostname: /.../ })`    | regex string                     |
+| `x-urlNormalize` | `z.url({ normalize })`          | `true` / `false`                 |
+| `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits         |
+| `x-isoOffset`    | `z.iso.datetime({ offset })`    | `true` / `false`                 |
+| `x-isoLocal`     | `z.iso.datetime({ local })`     | `true` / `false`                 |
+| `x-macDelimiter` | `z.mac({ delimiter })`          | `:` / `-` / `.`                  |
+| `x-jwtAlg`       | `z.jwt({ alg })`                | `HS256` etc.                     |
+| `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                    |
+| `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`   |
 
 ## Branded Types
 

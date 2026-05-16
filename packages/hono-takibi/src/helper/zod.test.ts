@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
-import { buildUnevaluatedProperties, emitTypelessRefine, hasTypelessConstraint } from './zod.js'
+import { makeUnevaluatedProperties, emitTypelessRefine, hasTypelessConstraint } from './zod.js'
 
 const recurse = zodToOpenAPI
 
@@ -266,14 +266,14 @@ describe('helper/zod', () => {
     })
   })
 
-  describe('buildUnevaluatedProperties', () => {
+  describe('makeUnevaluatedProperties', () => {
     it('returns empty string when unevaluatedProperties is undefined', () => {
-      expect(buildUnevaluatedProperties({ type: 'object' } as Schema, 'err', recurse)).toBe('')
+      expect(makeUnevaluatedProperties({ type: 'object' } as Schema, 'err', recurse)).toBe('')
     })
 
     it('returns empty string when unevaluatedProperties is true', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           { type: 'object', unevaluatedProperties: true } as Schema,
           'err',
           recurse,
@@ -283,7 +283,7 @@ describe('helper/zod', () => {
 
     it('emits .superRefine for unevaluatedProperties: false with own properties', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
@@ -298,7 +298,7 @@ describe('helper/zod', () => {
 
     it('emits .superRefine for unevaluatedProperties: <schema> branch', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: { type: 'number' },
@@ -313,7 +313,7 @@ describe('helper/zod', () => {
 
     it('emits patternProperties stmts and allOf branches into evaluated key set', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             patternProperties: { '^x_': { type: 'string' } },
@@ -330,7 +330,7 @@ describe('helper/zod', () => {
 
     it('emits anyOf / oneOf conditional branches and dependentSchemas', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             // type: 'object' を明示しないと anyOf/oneOf/if の sub-schema は typeless 経路で
             // z.unknown().superRefine(...) に展開される。本テストは object 経路で安定させたい
@@ -353,7 +353,7 @@ describe('helper/zod', () => {
       // `type: 'object'` だけ持つ anyOf sub は evaluated key を提供しないので skip され、
       // evalStmts には evaluator が積まれない (= 既知 key だけが許される)。
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             anyOf: [{ type: 'object' }],
@@ -371,7 +371,7 @@ describe('helper/zod', () => {
       // type:'object' を明示しないと if subschema は typeless 経路で展開されるので、
       // ifZod の安定化のため if のみ type 指定。then/else も同様。
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             if: { type: 'object', properties: { a: { type: 'string' } } },
             // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
@@ -389,7 +389,7 @@ describe('helper/zod', () => {
 
     it('honors x-unevaluatedProperties-message slot (precedence over messageOverride)', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
@@ -406,7 +406,7 @@ describe('helper/zod', () => {
 
     it('uses messageOverride when slot is absent', () => {
       expect(
-        buildUnevaluatedProperties(
+        makeUnevaluatedProperties(
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,

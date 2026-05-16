@@ -1214,7 +1214,9 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ not: { type: ['string', 'number'] } } as Schema)).toBe(
             `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'))`,
           )
-          const runtime = z.any().refine((val) => typeof val !== 'string' && typeof val !== 'number')
+          const runtime = z
+            .any()
+            .refine((val) => typeof val !== 'string' && typeof val !== 'number')
           expect(runtime.safeParse(true).success).toBe(true)
           const r1 = runtime.safeParse('abc')
           expect(r1.success).toBe(false)
@@ -1239,7 +1241,9 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
             } as Schema),
-          ).toBe('z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success)')
+          ).toBe(
+            'z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success)',
+          )
           const runtime = z
             .any()
             .refine((val) => !z.union([z.string(), z.number()]).safeParse(val).success)
@@ -1301,7 +1305,9 @@ describe('zodToOpenAPI', () => {
               'x-not-message': '文字列は不可',
             } as Schema),
           ).toBe(`z.any().refine((val) => typeof val !== 'string',{error:"文字列は不可"})`)
-          const runtime = z.any().refine((val) => typeof val !== 'string', { error: '文字列は不可' })
+          const runtime = z
+            .any()
+            .refine((val) => typeof val !== 'string', { error: '文字列は不可' })
           expect(runtime.safeParse(123).success).toBe(true)
           const r = runtime.safeParse('abc')
           expect(r.success).toBe(false)
@@ -1335,7 +1341,9 @@ describe('zodToOpenAPI', () => {
               'x-not-message': '1,2,3は不可',
             } as Schema),
           ).toBe('z.any().refine((val) => ![1,2,3].includes(val),{error:"1,2,3は不可"})')
-          const runtime = z.any().refine((val) => ![1, 2, 3].includes(val), { error: '1,2,3は不可' })
+          const runtime = z
+            .any()
+            .refine((val) => ![1, 2, 3].includes(val), { error: '1,2,3は不可' })
           expect(runtime.safeParse(4).success).toBe(true)
           const r = runtime.safeParse(2)
           expect(r.success).toBe(false)
@@ -1376,9 +1384,11 @@ describe('zodToOpenAPI', () => {
           ).toBe(
             `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'),{error:"文字列・数値は不可"})`,
           )
-          const runtime = z.any().refine((val) => typeof val !== 'string' && typeof val !== 'number', {
-            error: '文字列・数値は不可',
-          })
+          const runtime = z
+            .any()
+            .refine((val) => typeof val !== 'string' && typeof val !== 'number', {
+              error: '文字列・数値は不可',
+            })
           expect(runtime.safeParse(true).success).toBe(true)
           const r1 = runtime.safeParse('abc')
           expect(r1.success).toBe(false)

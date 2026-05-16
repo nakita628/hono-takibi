@@ -1,4 +1,5 @@
 import type { $ZodIssueCode } from 'zod/v4/core'
+
 import { isSchemaObject } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 
@@ -165,7 +166,7 @@ function issueObj(messageExpr: string | undefined, pathExpr?: string): string {
 // (`v[k]`) doesn't — for that we use `Reflect.get(v, k)`, which is valid JS
 // and avoids a TS `as` cast. The `any` it returns is immediately consumed by
 // `Schema.safeParse(unknown)` so it never escapes into a typed variable.
-function buildObjectChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   const ownKeysJson = JSON.stringify(Object.keys(schema.properties ?? {}))
   const patternsJson = JSON.stringify(Object.keys(schema.patternProperties ?? {}))
 
@@ -255,7 +256,7 @@ function buildObjectChecks(schema: Schema, recurse: (s: Schema) => string): read
   ].filter((s): s is string => s !== undefined)
 }
 
-function buildArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   // Local type guard — Array.isArray's predicate (arg is any[]) does not
   // narrow `readonly Schema[]` from a union, so define one inline. Boolean
   // schemas (JSON Schema 2020-12 §10.3.1.2) are handled at the call site.
@@ -334,7 +335,7 @@ function buildArrayChecks(schema: Schema, recurse: (s: Schema) => string): reado
   ].filter((s): s is string => s !== undefined)
 }
 
-function buildStringChecks(schema: Schema): readonly string[] {
+function makeStringChecks(schema: Schema): readonly string[] {
   const minMsg = messageFor(schema, 'minLength')
   const minCheck =
     typeof schema.minLength === 'number'
@@ -352,7 +353,7 @@ function buildStringChecks(schema: Schema): readonly string[] {
   return [minCheck, maxCheck, patternCheck].filter((s): s is string => s !== undefined)
 }
 
-function buildNumberChecks(schema: Schema): readonly string[] {
+function makeNumberChecks(schema: Schema): readonly string[] {
   // Draft 4: exclusiveMinimum: true folds the boundary into the minimum check
   // (use `<=` instead of `<`); exclusiveMinimum: number adds a separate check.
   const minimumIsExclusive = schema.exclusiveMinimum === true && typeof schema.minimum === 'number'
@@ -391,7 +392,7 @@ function buildNumberChecks(schema: Schema): readonly string[] {
   )
 }
 
-function buildGenericChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
+function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   // deepEqual via JSON.stringify (handles primitives + null + arrays + objects)
   const enumMsg = messageFor(schema, 'enum')
   const enumCheck = Array.isArray(schema.enum)
@@ -450,11 +451,11 @@ function buildGenericChecks(schema: Schema, recurse: (s: Schema) => string): rea
 }
 
 export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => string): string {
-  const objectChecks = buildObjectChecks(schema, recurse)
-  const arrayChecks = buildArrayChecks(schema, recurse)
-  const stringChecks = buildStringChecks(schema)
-  const numberChecks = buildNumberChecks(schema)
-  const genericChecks = buildGenericChecks(schema, recurse)
+  const objectChecks = makeObjectChecks(schema, recurse)
+  const arrayChecks = makeArrayChecks(schema, recurse)
+  const stringChecks = makeStringChecks(schema)
+  const numberChecks = makeNumberChecks(schema)
+  const genericChecks = makeGenericChecks(schema, recurse)
 
   const blocks = [
     objectChecks.length > 0
@@ -523,7 +524,7 @@ function conditionalBranchStmt(sub: Schema, recurse: (s: Schema) => string): str
   return ifBody ? `if(${recurse(sub)}.safeParse(o).success){${ifBody}}` : undefined
 }
 
-export function buildUnevaluatedProperties(
+export function makeUnevaluatedProperties(
   schema: Schema,
   _errorArg: string,
   recurse: (s: Schema) => string,
@@ -590,7 +591,7 @@ export function buildUnevaluatedProperties(
   ].filter((s): s is string => s !== undefined)
   // Message precedence: slot-message > caller override > undefined (omit so
   // Zod uses its default). The literal uses double-quoted `"custom"` to match
-  // buildUnevaluatedProperties' existing quoting convention; emitTypelessRefine
+  // makeUnevaluatedProperties' existing quoting convention; emitTypelessRefine
   // uses single quotes (see `issueObj`).
   const slotMsg = messageFor(schema, 'unevaluatedProperties')
   const overrideMsg = messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
