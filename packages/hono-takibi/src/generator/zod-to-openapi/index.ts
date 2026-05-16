@@ -1,5 +1,3 @@
-import type { $ZodIssueCode } from 'zod/v4/core'
-
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import { emitTypelessRefine, hasTypelessConstraint } from '../../helper/zod.js'
@@ -50,7 +48,7 @@ export function zodToOpenAPI(
     s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
   const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
   if (schema.allOf !== undefined) {
-    const effectiveAllOf: readonly Schema[] =
+    const effectiveAllOf =
       schema.properties !== undefined
         ? [
             ...schema.allOf,
@@ -101,7 +99,7 @@ export function zodToOpenAPI(
         'invalid_element',
         'invalid_value',
         'custom',
-      ] as const satisfies readonly $ZodIssueCode[]
+      ] as const
       const branches = codes
         .map(
           (c, i) =>
