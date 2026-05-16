@@ -592,16 +592,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 ## Behavior Extensions
 
-`x-*` extensions map to Zod runtime behaviors in two forms:
-
-- **Expression extensions** — `x-codec` / `x-preprocess` / `x-transform` / `x-pipe` / `x-refine` / `x-superRefine`. Each value is a complete Zod expression string. Paste Zod docs examples directly. The first four **replace** the base schema (mutually exclusive, precedence: `x-codec` > `x-preprocess` > `x-transform` > `x-pipe`); the latter two are appended as chain fragments (`.refine(...)` / `.superRefine(...)`).
-- **Value extensions** — `x-brand` / `x-prefault` / `x-catch` / `x-freeze` / `x-coerce` / `x-trim` / `x-toLowerCase` / `x-toUpperCase` / `x-normalize` / format-specific options. Each takes a boolean / literal / enum value.
-
-Callback arguments use `val` by convention (matches Zod docs).
-
 ### String Pre-validation Transforms
-
-Apply normalization to a string **before** validation runs. When combined with a validation format, the pipeline becomes `z.string().<transforms>.pipe(z.<format>())`.
 
 | Extension       | Generated                     | Value                                   |
 | --------------- | ----------------------------- | --------------------------------------- |
@@ -611,17 +602,19 @@ Apply normalization to a string **before** validation runs. When combined with a
 | `x-normalize`   | `z.string().normalize('NFC')` | `'NFC'` / `'NFD'` / `'NFKC'` / `'NFKD'` |
 
 ```yaml
-email:
+homepage:
   type: string
-  format: email
-  x-trim: true # z.string().trim().pipe(z.email())
+  format: url
+  x-trim: true
+```
+
+```ts
+z.string().trim().pipe(z.url())
 ```
 
 ### Preprocess (Input Normalization)
 
 #### `x-preprocess`
-
-Complete `z.preprocess(...)` expression.
 
 ```yaml
 username:
@@ -636,8 +629,6 @@ z.preprocess((val) => (typeof val === 'string' ? val.trim() : val), z.string())
 ### Type Coercion
 
 #### `x-coerce`
-
-Forces input to be coerced into the target type before validation (`z.coerce.*`).
 
 ```yaml
 asNumber:
@@ -654,13 +645,9 @@ z.coerce.number()
 z.coerce.date()
 ```
 
-Supported types: `string`, `number`, `integer`, `boolean`, `date-time` / `date`.
-
 ### Codec (Bidirectional Transform)
 
 #### `x-codec`
-
-Complete `z.codec(...)` expression.
 
 ```yaml
 updatedAt:
@@ -676,13 +663,9 @@ z.codec(z.iso.datetime(), z.date(), {
 })
 ```
 
-Authors can define any codec — string ⇄ Date, base64 ⇄ Uint8Array, encrypted ⇄ decrypted object, custom domain types, etc. The full Zod API (`z.codec`, `z.iso.*`, `z.codec.map` once available) is reachable.
-
 ### Custom Validation
 
 #### `x-refine`
-
-Complete `.refine(...)` chain fragment string. Chain multiple checks with `.refine(...).refine(...)`.
 
 ```yaml
 password:
@@ -697,8 +680,6 @@ z.string()
 ```
 
 #### `x-superRefine`
-
-Complete `.superRefine(...)` chain fragment string for issue-level control (`ctx.addIssue`). Chain multiple checks with `.superRefine(...).superRefine(...)`.
 
 ```yaml
 normalizedEmail:
@@ -719,8 +700,6 @@ z.email().superRefine((val, ctx) => {
 
 #### `x-transform`
 
-Complete Zod expression ending in `.transform(...)`.
-
 ```yaml
 code:
   type: string
@@ -732,8 +711,6 @@ z.string().transform((val) => val.toUpperCase())
 ```
 
 #### `x-pipe`
-
-Complete Zod expression ending in `.pipe(...)`.
 
 ```yaml
 port:
@@ -749,8 +726,6 @@ z.string().pipe(z.number().int().positive())
 
 #### `x-prefault`
 
-`z.prefault(value)` — substitutes the value when input is `undefined`.
-
 ```yaml
 greeting:
   type: string
@@ -762,8 +737,6 @@ z.string().prefault('hello')
 ```
 
 #### `x-catch`
-
-`z.catch(value)` — falls back to the value when validation fails.
 
 ```yaml
 retries:
@@ -778,8 +751,6 @@ z.int().catch(0)
 ### Immutability
 
 #### `x-freeze`
-
-Wraps with `.readonly()` for compile-time `Readonly<T>` typing.
 
 ```yaml
 config:
@@ -798,8 +769,6 @@ z.object({ name: z.string() }).readonly()
 
 #### `x-startsWith` / `x-endsWith` / `x-includes`
 
-Literal substring checks (preserved as raw strings, not regex-escaped).
-
 ```yaml
 url:
   type: string
@@ -816,8 +785,6 @@ z.string().includes('/api/')
 ```
 
 ### Format-Specific Options
-
-Per-format fine-tuning options that map to Zod v4's format constructors.
 
 ```yaml
 htmlEmail:
