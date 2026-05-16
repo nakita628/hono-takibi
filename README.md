@@ -152,7 +152,6 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-minLength-message` | `minLength`                                |
 | `x-maxLength-message` | `maxLength`                                |
 | `x-pattern-message`   | `pattern`                                  |
-| `x-format-message`    | `format`                                   |
 | `x-length-message`    | Exact length (`minLength` === `maxLength`) |
 
 #### Array
@@ -295,7 +294,7 @@ z.codec(z.iso.datetime(), z.date(), {
 
 Authors can define any codec — string ⇄ Date, base64 ⇄ Uint8Array, encrypted ⇄ decrypted object, custom domain types, etc. The full Zod API (`z.codec`, `z.iso.*`, `z.codec.map` once available) is reachable.
 
-> **Warning**: When `x-codec` is present, the base schema is replaced and `x-format-message` is a no-op on this branch.
+> **Warning**: When `x-codec` is present, the base schema is replaced and `x-error-message` is a no-op on this branch.
 
 > **Warning**: For request bodies that must round-trip (parse on input, re-encode on output), use `x-codec` rather than `x-transform`. `x-transform` is one-directional; only `x-codec` keeps wire format and runtime value bidirectionally consistent. See [Transform & Pipe](#transform--pipe).
 

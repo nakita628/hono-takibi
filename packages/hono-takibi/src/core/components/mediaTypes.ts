@@ -56,8 +56,6 @@ export async function mediaTypes(
   const keys = Object.keys(mediaTypes)
   if (keys.length === 0) return { ok: true, value: 'No mediaTypes found' } as const
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, components, split)
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
     const indexCode = `${keys
@@ -76,15 +74,27 @@ export async function mediaTypes(
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
           const body = `export const ${name} = ${refName}\n`
-          return emit(toFileCode(body, filePath), path.dirname(filePath), filePath)
+          return emit(
+            makeImports(body, filePath, components, split),
+            path.dirname(filePath),
+            filePath,
+          )
         }
         if (typeof v === 'object' && v !== null && 'schema' in v) {
           const zodCode = zodToOpenAPI(v.schema)
           const schemaCode = zodToOpenAPISchema(name, zodCode, true, false, true, readonly)
-          return emit(toFileCode(schemaCode, filePath), path.dirname(filePath), filePath)
+          return emit(
+            makeImports(schemaCode, filePath, components, split),
+            path.dirname(filePath),
+            filePath,
+          )
         }
         const body = `export const ${name} = z.unknown()\n`
-        return emit(toFileCode(body, filePath), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(body, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
     ])

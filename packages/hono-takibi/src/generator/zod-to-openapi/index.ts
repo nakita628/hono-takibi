@@ -8,7 +8,7 @@ import { error, normalizeTypes } from '../../utils/index.js'
 import { _enum, integer, number, object, string } from './z/index.js'
 
 export function zodToOpenAPI(
-  rawSchema: Schema | boolean,
+  schema: Schema | boolean,
   meta?: {
     parameters?: Parameter
     headers?: Header
@@ -30,17 +30,12 @@ export function zodToOpenAPI(
   const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
     typeof items === 'object' && !Array.isArray(items)
 
-  // Defensive runtime guard: callers may upcast `unknown` schemas; we keep
-  // this check to surface clearer errors than property-access failures.
-  if (rawSchema === undefined) throw new Error('Schema is undefined')
   // Boolean schemas (JSON Schema 2020-12 §4.3.2):
   //   true  ↔ matches any value (z.any())
   //   false ↔ matches no value  (z.never())
-  // The function signature accepts `Schema | boolean` so callers don't need
-  // to pre-screen — boolean inputs are normalised here.
-  if (rawSchema === true) return wrap('z.any()', {}, meta)
-  if (rawSchema === false) return wrap('z.never()', {}, meta)
-  const schema: Schema = rawSchema
+  if (schema === undefined) throw new Error('Schema is undefined')
+  if (schema === true) return wrap('z.any()', {}, meta)
+  if (schema === false) return wrap('z.never()', {}, meta)
   // isOptional should only affect the outermost schema; strip for recursive calls.
   const innerMeta = meta?.isOptional
     ? (() => {

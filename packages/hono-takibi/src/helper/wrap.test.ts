@@ -534,15 +534,6 @@ describe('wrap', () => {
       expect(result2).toBe('z.string().lowercase()')
     })
 
-    it.concurrent('should not include x-format-message in openapi()', () => {
-      const result = wrap('z.email({error:"メール不正"})', {
-        type: 'string',
-        format: 'email',
-        'x-format-message': 'メール不正',
-      })
-      expect(result).toBe('z.email({error:"メール不正"})')
-    })
-
     it.concurrent('should not include x-properties-message in openapi()', () => {
       const result = wrap('z.object({name:z.string()})', {
         type: 'object',

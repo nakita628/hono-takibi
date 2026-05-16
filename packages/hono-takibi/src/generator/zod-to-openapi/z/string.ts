@@ -157,9 +157,7 @@ export function string(schema: Schema): string {
 
   // x-codec: bidirectional codec between an input string schema and a runtime
   // value. The user-supplied string (complete `z.codec(...)` expression)
-  // replaces the base schema verbatim. `x-format-message` is a no-op here
-  // since codec returns a wrapped schema where Zod's `{error}` option is not
-  // the failure surface.
+  // replaces the base schema verbatim.
   const codec = schema['x-codec']
   if (codec !== undefined && !coerce && !hashBase) {
     return codec
@@ -167,8 +165,7 @@ export function string(schema: Schema): string {
 
   // Decodes the encoded payload, optionally JSON-parses it, then validates
   // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
-  // schema is keyed by `contentEncoding` / `contentMediaType`). Therefore
-  // `x-format-message` is structurally inapplicable here.
+  // schema is keyed by `contentEncoding` / `contentMediaType`).
   const enc = schema.contentEncoding
   const mediaType = schema.contentMediaType
   const contentSchema = schema.contentSchema
@@ -229,18 +226,12 @@ export function string(schema: Schema): string {
   // chain order — see the return array below.
   const usePipe = isValidationFormat && hasPreTransform && !coerce
 
-  const formatMessage = schema['x-format-message']
-
   const makeValidationBase = (): string => {
     if (hashBase) return hashBase
     if (coerce && schema.format && DATE_FORMATS.has(schema.format)) {
-      // coerced date constructor to keep precedence consistent with the
-      // validation-format path below.
-      const fmtArg = formatMessage ? `{${errorInner(formatMessage)}}` : baseErrorArg
-      return fmtArg ? `z.coerce.date(${fmtArg})` : 'z.coerce.date()'
+      return baseErrorArg ? `z.coerce.date(${baseErrorArg})` : 'z.coerce.date()'
     }
     if (!format) {
-      // No format → `x-format-message` is structurally inapplicable (no-op).
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     }
@@ -249,12 +240,7 @@ export function string(schema: Schema): string {
     // baseErrorArg already wraps in `{...}`. Strip the outer braces to merge
     // with format options.
     const baseInner = includeBaseError ? baseErrorArg.slice(1, -1) : ''
-    // Precedence: `x-format-message` > `x-error-message` > Zod default.
-    // Only applies on the validation-format path; transform formats (trim /
-    // toLowerCase / toUpperCase) skip this and fall through with no `{error}`.
-    const effectiveErrorInner =
-      isValidationFormat && formatMessage ? errorInner(formatMessage) : baseInner
-    const allOpts = effectiveErrorInner ? [...fmtOpts, effectiveErrorInner] : [...fmtOpts]
+    const allOpts = baseInner ? [...fmtOpts, baseInner] : [...fmtOpts]
     if (allOpts.length > 0) {
       return `z.${format.replace(/\(\)$/, `({${allOpts.join(',')}})`)}`
     }

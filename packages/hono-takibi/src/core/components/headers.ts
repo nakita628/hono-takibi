@@ -54,8 +54,6 @@ export async function headers(
   if (!headers) return { ok: false, error: 'No headers found' } as const
   const headerNames = Object.keys(headers)
   if (headerNames.length === 0) return { ok: true, value: 'No headers found' } as const
-  const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, components, split)
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
     const results = await Promise.all([
@@ -63,7 +61,11 @@ export async function headers(
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
         const code = headersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${uncapitalize(headerName)}.ts`)
-        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(code, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
@@ -75,7 +77,11 @@ export async function headers(
     } as const
   }
   const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
-  const emitResult = await emit(toFileCode(headerDefinitions, output), path.dirname(output), output)
+  const emitResult = await emit(
+    makeImports(headerDefinitions, output, components, split),
+    path.dirname(output),
+    output,
+  )
   if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated headers code written to ${output}` } as const
 }

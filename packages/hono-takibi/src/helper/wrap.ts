@@ -273,7 +273,6 @@ export function wrap(
     // via @hono/zod-openapi's `.openapi({...})` emission. These are all
     // consumed by the generator (validator messages) and have no business
     // surfacing in the externally-visible schema.
-    'x-format-message',
     'x-properties-message',
     'x-prefixItems-message',
     'x-items-message',

@@ -50,8 +50,6 @@ export async function responses(
   if (!responses) return { ok: false, error: 'No responses found' } as const
   const responseNames = Object.keys(responses)
   if (responseNames.length === 0) return { ok: true, value: 'No responses found' } as const
-  const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, components, split)
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
     const results = await Promise.all([
@@ -59,7 +57,11 @@ export async function responses(
         const singleComponent = { responses: { [responseName]: responses[responseName] } }
         const code = responsesCode(singleComponent, true, readonly)
         const filePath = path.join(outDir, `${uncapitalize(responseName)}.ts`)
-        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(code, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
@@ -72,7 +74,7 @@ export async function responses(
   }
   const responseDefinitions = responsesCode({ responses }, true, readonly)
   const emitResult = await emit(
-    toFileCode(responseDefinitions, output),
+    makeImports(responseDefinitions, output, components, split),
     path.dirname(output),
     output,
   )

@@ -50,8 +50,6 @@ export async function requestBodies(
   if (!requestBodies) return { ok: false, error: 'No requestBodies found' } as const
   const bodyNames = Object.keys(requestBodies)
   if (bodyNames.length === 0) return { ok: true, value: 'No requestBodies found' } as const
-  const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, components, split)
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
     const results = await Promise.all([
@@ -59,7 +57,11 @@ export async function requestBodies(
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
         const code = requestBodiesCode(singleComponent, true, readonly)
         const filePath = path.join(outDir, `${uncapitalize(bodyName)}.ts`)
-        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(code, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
     ])
@@ -71,7 +73,11 @@ export async function requestBodies(
     } as const
   }
   const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
-  const emitResult = await emit(toFileCode(bodyDefinitions, output), path.dirname(output), output)
+  const emitResult = await emit(
+    makeImports(bodyDefinitions, output, components, split),
+    path.dirname(output),
+    output,
+  )
   if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
   return { ok: true, value: `Generated requestBodies code written to ${output}` } as const
 }

@@ -493,11 +493,6 @@ export type Schema = {
    */
   readonly 'x-length-message'?: string
   readonly 'x-pattern-message'?: string // string `pattern` only
-  /**
-   *
-   *
-   */
-  readonly 'x-format-message'?: string
   readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
   readonly 'x-maximum-message'?: string // numeric `maximum` (inclusive) only
   readonly 'x-exclusiveMinimum-message'?: string // numeric `exclusiveMinimum` (>)
