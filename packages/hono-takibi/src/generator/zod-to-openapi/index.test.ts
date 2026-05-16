@@ -5346,6 +5346,7 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             properties: { kind: { type: 'string' }, x: { type: 'string' } },
             if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
             then: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
           } as Schema)
           expect(generated).toBe(
@@ -5799,10 +5800,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string()).max(10)')
           const runtime = z.array(z.string()).max(10)
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse(new Array(11).fill('a'))
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(Array.from({ length: 11 }, () => 'a'))
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_big',
@@ -11714,6 +11715,7 @@ describe('zodToOpenAPI', () => {
           properties: { country: { type: 'string' }, postalCode: { type: 'string' } },
           required: ['country'],
           if: { properties: { country: { const: 'JP' } } },
+          // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
           then: {
             properties: { postalCode: { type: 'string', pattern: '^\\d{3}-\\d{4}$' } },
           },
