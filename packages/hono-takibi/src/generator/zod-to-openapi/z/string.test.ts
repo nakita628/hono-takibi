@@ -571,4 +571,40 @@ describe('string', () => {
       }
     })
   })
+
+  describe('edge case combinations', () => {
+    it.concurrent.each<[Schema, string]>([
+      // url + x-coerce → coerce ignored (only DATE_FORMATS accept coerce)
+      [{ type: 'string', format: 'url', 'x-coerce': true }, 'z.url()'],
+      // base64 + binary MIME → Uint8Array decode path (preserves raw bytes)
+      [
+        { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' },
+        'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
+      ],
+      // base64url + text MIME → UTF-8 string decode path
+      [
+        { type: 'string', contentEncoding: 'base64url', contentMediaType: 'text/plain' },
+        'z.base64url().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
+      ],
+      // contentEncoding: binary alone → falls through to plain z.string()
+      [{ type: 'string', contentEncoding: 'binary' }, 'z.string()'],
+      // hash format + x-codec → hashBase wins, codec is ignored
+      [
+        {
+          type: 'string',
+          format: 'hash',
+          'x-hashAlg': 'sha256',
+          'x-codec': 'z.codec(z.string(),z.string(),{decode:(v)=>v,encode:(v)=>v})',
+        },
+        'z.hash("sha256")',
+      ],
+      // email + x-normalize: NFKD → pre-validation transform via pipe
+      [
+        { type: 'string', format: 'email', 'x-normalize': 'NFKD' },
+        'z.string().normalize("NFKD").pipe(z.email())',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
 })
