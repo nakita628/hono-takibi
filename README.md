@@ -104,7 +104,7 @@ export const getRoute = createRoute({
 
 ## Custom Validation Error Messages
 
-Use `x-*` vendor extensions to attach custom Zod error messages, with **one extension per JSON Schema keyword** (1:1 mapping). Each failure mode produces a distinct message — no silent collisions.
+Use `x-*` vendor extensions to attach custom Zod error messages, with **one extension per JSON Schema keyword** (1:1 mapping). The extension name follows the pattern `x-<jsonSchemaKeyword>-message` (e.g. `x-minLength-message`, `x-pattern-message`), plus four generic forms: `x-error-message`, `x-required-message`, `x-const-message`, `x-enum-message`.
 
 ```yaml
 name:
@@ -117,136 +117,138 @@ name:
 ```
 
 ```ts
-// Generated output
 z.string({ error: 'Name must be a string' })
   .min(1, { error: 'Name cannot be empty' })
   .max(50, { error: 'Name must be at most 50 characters' })
 ```
 
-### Extension Reference (30 total)
+### Extension Reference
+
+All custom message extensions follow the `x-<keyword>-message` naming convention and map directly to Zod validator error messages.
 
 #### Common (any schema type)
 
-| Extension            | Applies to                                            |
-| -------------------- | ----------------------------------------------------- |
-| `x-error-message`    | Schema constructor (type mismatch / generic fallback) |
-| `x-required-message` | `issue.input === undefined` (missing required field)  |
-| `x-const-message`    | `const` (literal mismatch)                            |
-| `x-enum-message`     | `enum` (value not in list)                            |
+| Extension | Applies to |
+| --- | --- |
+| `x-error-message` | All schemas (top-level fallback) |
+| `x-required-message` | Required properties |
+| `x-const-message` | `const` |
+| `x-enum-message` | `enum` |
 
-#### Numeric (`number` / `integer`)
+#### Numeric (number / integer)
 
-| Extension                    | Applies to                                   |
-| ---------------------------- | -------------------------------------------- |
-| `x-minimum-message`          | `minimum` (`.min()` / `.gte()`)              |
-| `x-maximum-message`          | `maximum` (`.max()` / `.lte()`)              |
-| `x-exclusiveMinimum-message` | `exclusiveMinimum` (`.gt()` / `.positive()`) |
-| `x-exclusiveMaximum-message` | `exclusiveMaximum` (`.lt()` / `.negative()`) |
-| `x-multipleOf-message`       | `.multipleOf()`                              |
+| Extension | Applies to |
+| --- | --- |
+| `x-minimum-message` | `minimum` |
+| `x-maximum-message` | `maximum` |
+| `x-exclusiveMinimum-message` | `exclusiveMinimum` |
+| `x-exclusiveMaximum-message` | `exclusiveMaximum` |
+| `x-multipleOf-message` | `multipleOf` |
 
 #### String
 
-| Extension             | Applies to                              |
-| --------------------- | --------------------------------------- |
-| `x-minLength-message` | `minLength` (`.min()`)                  |
-| `x-maxLength-message` | `maxLength` (`.max()`)                  |
-| `x-pattern-message`   | `pattern` (`.regex()`)                  |
-| `x-size-message`      | `minLength === maxLength` (`.length()`) |
+| Extension | Applies to |
+| --- | --- |
+| `x-minLength-message` | `minLength` |
+| `x-maxLength-message` | `maxLength` |
+| `x-pattern-message` | `pattern` |
+| `x-format-message` | `format` |
+| `x-length-message` | Exact length (`minLength` === `maxLength`) |
 
 #### Array
 
-| Extension               | Applies to                               |
-| ----------------------- | ---------------------------------------- |
-| `x-minItems-message`    | `minItems` (`.min()`)                    |
-| `x-maxItems-message`    | `maxItems` (`.max()`)                    |
-| `x-uniqueItems-message` | `uniqueItems` (`.refine()` Set check)    |
-| `x-contains-message`    | `contains` alone (at least 1 type-match) |
-| `x-minContains-message` | `minContains` (count lower bound)        |
-| `x-maxContains-message` | `maxContains` (count upper bound)        |
+| Extension | Applies to |
+| --- | --- |
+| `x-minItems-message` | `minItems` |
+| `x-maxItems-message` | `maxItems` |
+| `x-uniqueItems-message` | `uniqueItems` |
+| `x-contains-message` | `contains` |
+| `x-minContains-message` | `minContains` |
+| `x-maxContains-message` | `maxContains` |
 
 #### Object
 
-| Extension                        | Applies to                                          |
-| -------------------------------- | --------------------------------------------------- |
-| `x-minProperties-message`        | `minProperties` (`.refine()` keys count)            |
-| `x-maxProperties-message`        | `maxProperties` (`.refine()` keys count)            |
-| `x-additionalProperties-message` | `additionalProperties: false` (`unrecognized_keys`) |
-| `x-propertyNames-message`        | `propertyNames` pattern / enum check                |
-| `x-patternProperties-message`    | `patternProperties` value check                     |
-| `x-dependentRequired-message`    | `dependentRequired` (key A ⇒ key B required)        |
-| `x-dependentSchemas-message`     | `dependentSchemas` (key A ⇒ sub-schema applies)     |
+| Extension | Applies to |
+| --- | --- |
+| `x-minProperties-message` | `minProperties` |
+| `x-maxProperties-message` | `maxProperties` |
+| `x-additionalProperties-message` | `additionalProperties` |
+| `x-propertyNames-message` | `propertyNames` |
+| `x-patternProperties-message` | `patternProperties` |
+| `x-dependentRequired-message` | `dependentRequired` |
+| `x-dependentSchemas-message` | `dependentSchemas` |
 
 #### Combinators
 
-| Extension         | Applies to                                 |
-| ----------------- | ------------------------------------------ |
-| `x-allOf-message` | `allOf` composition                        |
-| `x-anyOf-message` | `anyOf` (`z.union`)                        |
-| `x-oneOf-message` | `oneOf` (`z.xor` / `z.discriminatedUnion`) |
-| `x-not-message`   | `not` predicate                            |
+| Extension | Applies to |
+| --- | --- |
+| `x-allOf-message` | `allOf` |
+| `x-anyOf-message` | `anyOf` |
+| `x-oneOf-message` | `oneOf` |
+| `x-not-message` | `not` |
+
+#### Conditional
+
+| Extension | Applies to |
+| --- | --- |
+| `x-if-message` | `if` |
+| `x-then-message` | `then` |
+| `x-else-message` | `else` |
+
+#### Typeless / Array Applicator
+
+| Extension | Applies to |
+| --- | --- |
+| `x-properties-message` | `properties` (typeless schemas) |
+| `x-prefixItems-message` | `prefixItems` |
+| `x-items-message` | `items` |
+| `x-unevaluatedProperties-message` | `unevaluatedProperties` |
+| `x-unevaluatedItems-message` | `unevaluatedItems` |
 
 ## Behavior Extensions
 
-Beyond error messages, hono-takibi maps additional `x-*` extensions to Zod runtime behaviors: pre-validation transforms, type coercion, codecs, custom validation, default/fallback values, immutability, and format-specific options.
+`x-*` extensions map to Zod runtime behaviors in two forms:
+
+- **Expression extensions** — `x-codec` / `x-preprocess` / `x-transform` / `x-pipe` / `x-refine` / `x-superRefine`. Each value is a complete Zod expression string. Paste Zod docs examples directly. The first four **replace** the base schema (mutually exclusive, precedence: `x-codec` > `x-preprocess` > `x-transform` > `x-pipe`); the latter two are appended as chain fragments (`.refine(...)` / `.superRefine(...)`).
+- **Value extensions** — `x-brand` / `x-prefault` / `x-catch` / `x-freeze` / `x-coerce` / `x-trim` / `x-toLowerCase` / `x-toUpperCase` / `x-normalize` / format-specific options. Each takes a boolean / literal / enum value.
+
+Callback arguments use `val` by convention (matches Zod docs).
 
 ### String Pre-validation Transforms
 
-Apply normalization to a string **before** validation runs. When combined with a validation format (e.g. `email`), the pipeline becomes `z.string().<transforms>.pipe(z.<format>())` so canonical forms are validated.
+Apply normalization to a string **before** validation runs. When combined with a validation format, the pipeline becomes `z.string().<transforms>.pipe(z.<format>())`.
 
-#### `x-trim`
+| Extension | Generated | Value |
+| --- | --- | --- |
+| `x-trim` | `z.string().trim()` | `true` |
+| `x-toLowerCase` | `z.string().toLowerCase()` | `true` |
+| `x-toUpperCase` | `z.string().toUpperCase()` | `true` |
+| `x-normalize` | `z.string().normalize('NFC')` | `'NFC'` / `'NFD'` / `'NFKC'` / `'NFKD'` |
 
 ```yaml
 email:
   type: string
   format: email
-  x-trim: true
+  x-trim: true        # z.string().trim().pipe(z.email())
 ```
 
-```ts
-// Generated
-z.string().trim().pipe(z.email())
-```
+### Preprocess (Input Normalization)
 
-#### `x-toLowerCase`
+#### `x-preprocess`
+
+Complete `z.preprocess(...)` expression.
 
 ```yaml
-slug:
+username:
   type: string
-  pattern: '^[a-z0-9-]+$'
-  x-toLowerCase: true
+  x-preprocess: 'z.preprocess((val) => typeof val === "string" ? val.trim() : val, z.string())'
 ```
 
 ```ts
-z.string()
-  .toLowerCase()
-  .regex(/^[a-z0-9-]+$/)
+z.preprocess((val) => typeof val === "string" ? val.trim() : val, z.string())
 ```
 
-#### `x-toUpperCase`
-
-```yaml
-country:
-  type: string
-  x-toUpperCase: true
-```
-
-```ts
-z.string().toUpperCase()
-```
-
-#### `x-normalize`
-
-Unicode normalization (NFC / NFD / NFKC / NFKD).
-
-```yaml
-text:
-  type: string
-  x-normalize: 'NFC'
-```
-
-```ts
-z.string().normalize('NFC')
-```
+Spec reference: [`z.preprocess`](https://zod.dev/api?id=preprocess).
 
 ### Type Coercion
 
@@ -273,70 +275,103 @@ Supported types: `string`, `number`, `integer`, `boolean`, `date-time` / `date`.
 
 ### Codec (Bidirectional Transform)
 
-#### `x-codec: date`
+#### `x-codec`
 
-Generates `z.codec()` for date / date-time formats — the input is an ISO string (validated against `z.iso.datetime()` / `z.iso.date()`), the parsed runtime value is a JavaScript `Date`. Removes the need for manual `.toISOString()` calls in route handlers.
+Complete `z.codec(...)` expression.
 
 ```yaml
 updatedAt:
   type: string
   format: date-time
-  x-codec: date
+  x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })'
 ```
 
 ```ts
-z.codec(z.iso.datetime(), z.date(), {
-  decode: (isoString) => new Date(isoString),
-  encode: (date) => date.toISOString(),
-})
+z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })
 ```
+
+Authors can define any codec — string ⇄ Date, base64 ⇄ Uint8Array, encrypted ⇄ decrypted object, custom domain types, etc. The full Zod API (`z.codec`, `z.iso.*`, `z.codec.map` once available) is reachable.
+
+> **Warning**: When `x-codec` is present, the base schema is replaced and `x-format-message` is a no-op on this branch.
+
+> **Warning**: For request bodies that must round-trip (parse on input, re-encode on output), use `x-codec` rather than `x-transform`. `x-transform` is one-directional; only `x-codec` keeps wire format and runtime value bidirectionally consistent. See [Transform & Pipe](#transform--pipe).
+
+Spec reference: [`z.codec`](https://zod.dev/api?id=codecs).
 
 ### Custom Validation
 
 #### `x-refine`
 
-Apply one or more `.refine()` checks. Each entry is `{ fn, message, path? }`.
+Complete `.refine(...)` chain fragment string. Chain multiple checks with `.refine(...).refine(...)`.
 
 ```yaml
 password:
   type: string
-  x-refine:
-    - fn: '(v) => v.length >= 8'
-      message: 'Password must be at least 8 characters'
-    - fn: '(v) => /[A-Z]/.test(v)'
-      message: 'Password must contain an uppercase letter'
+  x-refine: '.refine((val) => val.length >= 8, { message: "Password must be at least 8 characters" }).refine((val) => /[A-Z]/.test(val), { message: "Password must contain an uppercase letter" })'
 ```
 
 ```ts
 z.string()
-  .refine((v) => v.length >= 8, { message: 'Password must be at least 8 characters' })
-  .refine((v) => /[A-Z]/.test(v), { message: 'Password must contain an uppercase letter' })
+  .refine((val) => val.length >= 8, { message: 'Password must be at least 8 characters' })
+  .refine((val) => /[A-Z]/.test(val), { message: 'Password must contain an uppercase letter' })
 ```
 
 #### `x-superRefine`
 
-Apply `.superRefine()` for issue-level control (`ctx.addIssue`).
+Complete `.superRefine(...)` chain fragment string for issue-level control (`ctx.addIssue`). Chain multiple checks with `.superRefine(...).superRefine(...)`.
 
 ```yaml
 normalizedEmail:
   type: string
   format: email
-  x-superRefine:
-    - |
-      (v, ctx) => {
-        if (v.endsWith('@blocked.example')) {
-          ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
-        }
-      }
+  x-superRefine: '.superRefine((val, ctx) => { if (val.endsWith("@blocked.example")) ctx.addIssue({ code: "custom", message: "Blocked domain" }) })'
 ```
 
 ```ts
-z.email().superRefine((v, ctx) => {
-  if (v.endsWith('@blocked.example')) {
+z.email().superRefine((val, ctx) => {
+  if (val.endsWith('@blocked.example')) {
     ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
   }
 })
 ```
+
+### Transform & Pipe
+
+#### `x-transform`
+
+Complete Zod expression ending in `.transform(...)`.
+
+```yaml
+code:
+  type: string
+  x-transform: 'z.string().transform((val) => val.toUpperCase())'
+```
+
+```ts
+z.string().transform((val) => val.toUpperCase())
+```
+
+> **Warning**: `x-transform` widens the gap between `z.input<T>` and `z.output<T>`. In Hono, `c.req.valid('json')` returns `z.output<T>`, so the value seen inside a handler is the transformed shape. For request-side bidirectional conversion, use `x-codec` instead.
+
+Spec reference: [`.transform`](https://zod.dev/api?id=transform).
+
+#### `x-pipe`
+
+Complete Zod expression ending in `.pipe(...)`.
+
+```yaml
+port:
+  type: string
+  x-pipe: 'z.string().pipe(z.number().int().positive())'
+```
+
+```ts
+z.string().pipe(z.number().int().positive())
+```
+
+> **Warning**: `x-pipe` decouples the OpenAPI schema (`type: string`) from the runtime TypeScript type (`number`). Generated OpenAPI documents still advertise the input type to clients, while the Hono handler receives the piped output type. Prefer `x-codec` when bidirectional symmetry matters.
+
+Spec reference: [`.pipe`](https://zod.dev/api?id=pipes).
 
 ### Default & Fallback Values
 
@@ -412,109 +447,42 @@ z.string().includes('/api/')
 
 Per-format fine-tuning options that map to Zod v4's format constructors.
 
-#### Email — `x-emailPattern` / `x-emailRegex`
-
 ```yaml
 htmlEmail:
   type: string
   format: email
-  x-emailPattern: 'html5' # preset: html5 / browser / unicode
-customEmail:
-  type: string
-  format: email
-  x-emailRegex: '^.+@example\.com$' # custom regex
-```
-
-```ts
-z.email({ pattern: z.regexes.html5Email })
-z.email({ pattern: /^.+@example\.com$/ })
-```
-
-#### UUID — `x-uuidVersion`
-
-```yaml
+  x-emailPattern: 'html5'   # email pattern preset
 uuidV7:
   type: string
   format: uuid
-  x-uuidVersion: v7 # v1 / v4 / v6 / v7 / v8
-```
-
-```ts
-z.uuid({ version: 'v7' })
-```
-
-#### URL — `x-urlProtocol` / `x-urlHostname` / `x-urlNormalize`
-
-```yaml
+  x-uuidVersion: v7         # uuid version
 httpsUrl:
   type: string
   format: uri
-  x-urlProtocol: '^https$'
+  x-urlProtocol: '^https$'  # url protocol regex
   x-urlNormalize: true
-```
-
-```ts
-z.url({ protocol: /^https$/, normalize: true })
-```
-
-#### ISO datetime — `x-isoPrecision` / `x-isoOffset` / `x-isoLocal`
-
-```yaml
 preciseDatetime:
   type: string
   format: date-time
-  x-isoPrecision: 3 # fractional second digits
-  x-isoOffset: true # require timezone offset
-localDatetime:
-  type: string
-  format: date-time
-  x-isoLocal: true # allow datetimes without timezone
+  x-isoPrecision: 3         # iso datetime precision / offset / local
+  x-isoOffset: true
 ```
 
-```ts
-z.iso.datetime({ precision: 3, offset: true })
-z.iso.datetime({ local: true })
-```
-
-#### MAC — `x-macDelimiter`
-
-```yaml
-mac:
-  type: string
-  format: mac
-  x-macDelimiter: ':' # ':' / '-' / '.'
-```
-
-```ts
-z.mac({ delimiter: ':' })
-```
-
-#### JWT — `x-jwtAlg`
-
-```yaml
-token:
-  type: string
-  format: jwt
-  x-jwtAlg: 'HS256'
-```
-
-```ts
-z.jwt({ alg: 'HS256' })
-```
-
-#### Hash — `x-hashAlg` / `x-hashEnc`
-
-```yaml
-sha256:
-  type: string
-  format: hash
-  x-hashAlg: 'sha256'
-  x-hashEnc: 'hex' # 'hex' / 'base64' / 'base64url'
-```
-
-```ts
-z.hash('sha256', { enc: 'hex' })
-```
+| Extension | Maps to | Values |
+| --- | --- | --- |
+| `x-emailPattern` | `z.email({ pattern })` | `html5` / `browser` / `unicode` |
+| `x-emailRegex` | `z.email({ pattern: /.../ })` | custom regex string |
+| `x-uuidVersion` | `z.uuid({ version })` | `v1` / `v4` / `v6` / `v7` / `v8` |
+| `x-urlProtocol` | `z.url({ protocol: /.../ })` | regex string |
+| `x-urlHostname` | `z.url({ hostname: /.../ })` | regex string |
+| `x-urlNormalize` | `z.url({ normalize })` | `true` / `false` |
+| `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits |
+| `x-isoOffset` | `z.iso.datetime({ offset })` | `true` / `false` |
+| `x-isoLocal` | `z.iso.datetime({ local })` | `true` / `false` |
+| `x-macDelimiter` | `z.mac({ delimiter })` | `:` / `-` / `.` |
+| `x-jwtAlg` | `z.jwt({ alg })` | `HS256` etc. |
+| `x-hashAlg` | `z.hash(alg, ...)` | `sha256` etc. |
+| `x-hashEnc` | `z.hash(alg, { enc })` | `hex` / `base64` / `base64url` |
 
 ## Branded Types
 

@@ -18,7 +18,6 @@ export function number(schema: Schema): string {
       : schema.format === 'float64' || schema.format === 'double'
         ? `z.float64(${baseErrorArg})`
         : `z.number(${baseErrorArg})`
-  // v3.0: separate inclusive/exclusive message slots — silent bug fix
   // (`.min()` uses x-minimum-message, `.gt()` / `.positive()` uses
   // x-exclusiveMinimum-message; same for max).
   const minimumMessage = schema['x-minimum-message']

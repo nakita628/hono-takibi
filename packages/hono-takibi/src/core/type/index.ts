@@ -456,6 +456,13 @@ function makeArrayTypeString(
 ) {
   if (!schema.items) return 'unknown[]'
   const items = schema.items
+  // JSON Schema 2020-12 §10.3.1.2 boolean items:
+  //   items: true  → trailing items unconstrained (unknown[])
+  //   items: false → trailing items disallowed; with no prefixItems the type
+  //                  collapses to []. We surface a tuple of length 0.
+  if (typeof items === 'boolean') {
+    return items ? 'unknown[]' : '[]'
+  }
   if (isSchemaArray(items)) {
     return items.length > 1
       ? `[${items.map((item) => makeSchemaTypeString(item, components, visited)).join(',')}]`

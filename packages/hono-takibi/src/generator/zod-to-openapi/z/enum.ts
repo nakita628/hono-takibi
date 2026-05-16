@@ -30,7 +30,6 @@ export function _enum(schema: Schema): string {
     if (typeof v === 'number' || typeof v === 'boolean') return String(v)
     return JSON.stringify(v)
   }
-  // v3.0: x-enum-message overrides x-error-message for the enum wrapper.
   // Zod v4 `z.enum` emits a single issue code (`invalid_value`) for both type
   // and value mismatches, so a per-code dispatch isn't possible — the
   // override is a clearer name for the enum case (no new capability).

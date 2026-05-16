@@ -20,7 +20,7 @@ export function wrap(
     isOptional?: boolean
   },
 ) {
-  /* Properties truly not supported. v2.7: JSON Schema 2020-12 Core meta
+  /* Properties truly not supported. JSON Schema 2020-12 Core meta
    * keywords ($schema/$id/$anchor/$dynamicAnchor/$dynamicRef/$vocabulary) now
    * pass through to .openapi({...}) for full spec coverage. Only legacy
    * pre-2019-09 keywords ($recursiveRef/$recursiveAnchor — replaced by
@@ -140,28 +140,22 @@ export function wrap(
   /* P2: .readonly() applies Object.freeze() to the parsed output (distinct
    * from JSON Schema's readOnly which is a serialization hint). */
   const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
-  /* Custom validation: chain .refine() calls. Each entry carries an arrow
-   * function source and optional message/path. */
-  const refines = schema['x-refine']
-  const refineChain = Array.isArray(refines)
-    ? refines.reduce((acc, r) => {
-        const opts: string[] = []
-        if (r.message !== undefined) opts.push(`message:${JSON.stringify(r.message)}`)
-        if (r.path !== undefined) opts.push(`path:${JSON.stringify(r.path)}`)
-        const optsArg = opts.length > 0 ? `,{${opts.join(',')}}` : ''
-        return `${acc}.refine(${r.fn}${optsArg})`
-      }, fr)
-    : fr
-  /* Custom validation: chain .superRefine() calls. Each entry is an arrow
-   * function source `(val, ctx) => { ... }`. */
-  const superRefines = schema['x-superRefine']
-  const superRefineChain = Array.isArray(superRefines)
-    ? superRefines.reduce((acc, fn) => `${acc}.superRefine(${fn})`, refineChain)
-    : refineChain
+  /* Custom validation: append `.refine(...)` / `.superRefine(...)` chain
+   * fragment strings verbatim. */
+  const refineChain = `${fr}${schema['x-refine'] ?? ''}`
+  const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
+  /* x-preprocess / x-transform / x-pipe: each is a complete Zod expression
+   * string and replaces the base schema verbatim (same convention as x-codec).
+   * Mutual exclusion: only one replacing extension can take effect per schema.
+   * Precedence: x-preprocess > x-transform > x-pipe (preprocess wraps outer). */
+  const preprocess = schema['x-preprocess']
+  const transform = schema['x-transform']
+  const pipe = schema['x-pipe']
+  const replaced = preprocess ?? transform ?? pipe ?? superRefineChain
   /* Apply .brand() for branded types */
   const z = schema['x-brand']
-    ? `${superRefineChain}.brand<"${schema['x-brand']}">()`
-    : superRefineChain
+    ? `${replaced}.brand<"${schema['x-brand']}">()`
+    : replaced
   /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',
@@ -196,7 +190,7 @@ export function wrap(
     '$ref',
     'prefixItems',
     'x-error-message',
-    'x-size-message',
+    'x-length-message',
     'x-pattern-message',
     'x-minimum-message',
     'x-maximum-message',
@@ -207,13 +201,11 @@ export function wrap(
     'x-anyOf-message',
     'x-oneOf-message',
     'x-not-message',
-    // v2.5
     'x-required-message',
     'x-additionalProperties-message',
     'x-uniqueItems-message',
     'x-const-message',
     'x-enum-message',
-    // v3.0: keyword-specific message extensions (split from shared umbrellas)
     'x-dependentSchemas-message',
     'x-minLength-message',
     'x-maxLength-message',
@@ -231,7 +223,7 @@ export function wrap(
     'contains',
     'minContains',
     'maxContains',
-    // v2.6: full JSON Schema 2020-12 coverage
+    // full JSON Schema 2020-12 coverage
     'contentEncoding',
     'contentMediaType',
     'contentSchema',
@@ -246,7 +238,6 @@ export function wrap(
     // leak into z.object().meta(...) emission as a stray option.
     'x-enum-error-messages',
     'x-brand',
-    // P1 transform/coerce extensions (spec v2.2)
     'x-trim',
     'x-toLowerCase',
     'x-toUpperCase',
@@ -254,7 +245,6 @@ export function wrap(
     'x-coerce',
     'x-lowercase',
     'x-uppercase',
-    // P1 format-option extensions (spec v2.3)
     'x-emailPattern',
     'x-emailRegex',
     'x-uuidVersion',
@@ -268,17 +258,32 @@ export function wrap(
     'x-jwtAlg',
     'x-hashAlg',
     'x-hashEnc',
-    // P2 extensions (spec v2.3) — x-finite / x-safe omitted (deprecated APIs)
+    // x-finite / x-safe omitted (deprecated Zod APIs)
     'x-catch',
     'x-prefault',
     'x-freeze',
     'x-includes',
     'x-startsWith',
     'x-endsWith',
-    // Custom validation + codec (spec v2.4)
     'x-refine',
     'x-superRefine',
     'x-codec',
+    'x-preprocess',
+    'x-transform',
+    'x-pipe',
+    // previously-missing slots that leaked into the public OpenAPI doc
+    // via @hono/zod-openapi's `.openapi({...})` emission. These are all
+    // consumed by the generator (validator messages) and have no business
+    // surfacing in the externally-visible schema.
+    'x-format-message',
+    'x-properties-message',
+    'x-prefixItems-message',
+    'x-items-message',
+    'x-unevaluatedProperties-message',
+    'x-unevaluatedItems-message',
+    'x-if-message',
+    'x-then-message',
+    'x-else-message',
   ])
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(

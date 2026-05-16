@@ -1031,9 +1031,9 @@ describe('zodToOpenAPI', () => {
       describe('not.type (single)', () => {
         it.concurrent('not.type: excludes string', () => {
           expect(zodToOpenAPI({ not: { type: 'string' } } as Schema)).toBe(
-            `z.any().refine((v) => typeof v !== 'string')`,
+            `z.any().refine((val) => typeof val !== 'string')`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'string')
+          const runtime = z.any().refine((val) => typeof val !== 'string')
           expect(runtime.safeParse(123).success).toBe(true)
           const r = runtime.safeParse('abc')
           expect(r.success).toBe(false)
@@ -1045,9 +1045,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes number', () => {
           expect(zodToOpenAPI({ not: { type: 'number' } } as Schema)).toBe(
-            `z.any().refine((v) => typeof v !== 'number')`,
+            `z.any().refine((val) => typeof val !== 'number')`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'number')
+          const runtime = z.any().refine((val) => typeof val !== 'number')
           expect(runtime.safeParse('abc').success).toBe(true)
           const r = runtime.safeParse(1)
           expect(r.success).toBe(false)
@@ -1059,9 +1059,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes integer (Number.isInteger)', () => {
           expect(zodToOpenAPI({ not: { type: 'integer' } } as Schema)).toBe(
-            `z.any().refine((v) => typeof v !== 'number' || !Number.isInteger(v))`,
+            `z.any().refine((val) => typeof val !== 'number' || !Number.isInteger(val))`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'number' || !Number.isInteger(v))
+          const runtime = z.any().refine((val) => typeof val !== 'number' || !Number.isInteger(val))
           expect(runtime.safeParse('abc').success).toBe(true)
           expect(runtime.safeParse(1.5).success).toBe(true)
           const r = runtime.safeParse(1)
@@ -1074,9 +1074,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes boolean', () => {
           expect(zodToOpenAPI({ not: { type: 'boolean' } } as Schema)).toBe(
-            `z.any().refine((v) => typeof v !== 'boolean')`,
+            `z.any().refine((val) => typeof val !== 'boolean')`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'boolean')
+          const runtime = z.any().refine((val) => typeof val !== 'boolean')
           expect(runtime.safeParse('abc').success).toBe(true)
           const r = runtime.safeParse(true)
           expect(r.success).toBe(false)
@@ -1088,9 +1088,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes array', () => {
           expect(zodToOpenAPI({ not: { type: 'array' } } as Schema)).toBe(
-            'z.any().refine((v) => !Array.isArray(v))',
+            'z.any().refine((val) => !Array.isArray(val))',
           )
-          const runtime = z.any().refine((v) => !Array.isArray(v))
+          const runtime = z.any().refine((val) => !Array.isArray(val))
           expect(runtime.safeParse('abc').success).toBe(true)
           const r = runtime.safeParse([1, 2])
           expect(r.success).toBe(false)
@@ -1102,11 +1102,11 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes object (but allows arrays/null)', () => {
           expect(zodToOpenAPI({ not: { type: 'object' } } as Schema)).toBe(
-            `z.any().refine((v) => typeof v !== 'object' || v === null || Array.isArray(v))`,
+            `z.any().refine((val) => typeof val !== 'object' || val === null || Array.isArray(val))`,
           )
           const runtime = z
             .any()
-            .refine((v) => typeof v !== 'object' || v === null || Array.isArray(v))
+            .refine((val) => typeof val !== 'object' || val === null || Array.isArray(val))
           expect(runtime.safeParse('abc').success).toBe(true)
           expect(runtime.safeParse([1]).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
@@ -1120,9 +1120,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.type: excludes null', () => {
           expect(zodToOpenAPI({ not: { type: 'null' } } as Schema)).toBe(
-            'z.any().refine((v) => v !== null)',
+            'z.any().refine((val) => val !== null)',
           )
-          const runtime = z.any().refine((v) => v !== null)
+          const runtime = z.any().refine((val) => val !== null)
           expect(runtime.safeParse('abc').success).toBe(true)
           const r = runtime.safeParse(null)
           expect(r.success).toBe(false)
@@ -1137,9 +1137,9 @@ describe('zodToOpenAPI', () => {
       describe('not.const', () => {
         it.concurrent('not.const: excludes literal "admin"', () => {
           expect(zodToOpenAPI({ not: { const: 'admin' } } as Schema)).toBe(
-            `z.any().refine((v) => v !== "admin")`,
+            `z.any().refine((val) => val !== "admin")`,
           )
-          const runtime = z.any().refine((v) => v !== 'admin')
+          const runtime = z.any().refine((val) => val !== 'admin')
           expect(runtime.safeParse('user').success).toBe(true)
           const r = runtime.safeParse('admin')
           expect(r.success).toBe(false)
@@ -1151,9 +1151,9 @@ describe('zodToOpenAPI', () => {
         })
         it.concurrent('not.const: excludes literal 42', () => {
           expect(zodToOpenAPI({ not: { const: 42 } } as Schema)).toBe(
-            'z.any().refine((v) => v !== 42)',
+            'z.any().refine((val) => val !== 42)',
           )
-          const runtime = z.any().refine((v) => v !== 42)
+          const runtime = z.any().refine((val) => val !== 42)
           expect(runtime.safeParse(7).success).toBe(true)
           const r = runtime.safeParse(42)
           expect(r.success).toBe(false)
@@ -1168,9 +1168,9 @@ describe('zodToOpenAPI', () => {
       describe('not.enum', () => {
         it.concurrent('not.enum: excludes ["a","b","c"]', () => {
           expect(zodToOpenAPI({ not: { enum: ['a', 'b', 'c'] } } as Schema)).toBe(
-            `z.any().refine((v) => !["a","b","c"].includes(v))`,
+            `z.any().refine((val) => !["a","b","c"].includes(val))`,
           )
-          const runtime = z.any().refine((v) => !['a', 'b', 'c'].includes(v))
+          const runtime = z.any().refine((val) => !['a', 'b', 'c'].includes(val))
           expect(runtime.safeParse('d').success).toBe(true)
           const r1 = runtime.safeParse('a')
           expect(r1.success).toBe(false)
@@ -1195,9 +1195,9 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { $ref: '#/components/schemas/Forbidden' },
             } as Schema),
-          ).toBe('z.any().refine((v) => !ForbiddenSchema.safeParse(v).success)')
+          ).toBe('z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)')
           const ForbiddenSchema = z.string()
-          const runtime = z.any().refine((v) => !ForbiddenSchema.safeParse(v).success)
+          const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)
           expect(runtime.safeParse(123).success).toBe(true)
           const r = runtime.safeParse('abc')
           expect(r.success).toBe(false)
@@ -1212,9 +1212,9 @@ describe('zodToOpenAPI', () => {
       describe('not.type (array)', () => {
         it.concurrent('not.type (array): excludes string and number', () => {
           expect(zodToOpenAPI({ not: { type: ['string', 'number'] } } as Schema)).toBe(
-            `z.any().refine((v) => (typeof v !== 'string') && (typeof v !== 'number'))`,
+            `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'))`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'string' && typeof v !== 'number')
+          const runtime = z.any().refine((val) => typeof val !== 'string' && typeof val !== 'number')
           expect(runtime.safeParse(true).success).toBe(true)
           const r1 = runtime.safeParse('abc')
           expect(r1.success).toBe(false)
@@ -1239,10 +1239,10 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
             } as Schema),
-          ).toBe('z.any().refine((v) => !z.union([z.string(),z.number()]).safeParse(v).success)')
+          ).toBe('z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success)')
           const runtime = z
             .any()
-            .refine((v) => !z.union([z.string(), z.number()]).safeParse(v).success)
+            .refine((val) => !z.union([z.string(), z.number()]).safeParse(val).success)
           expect(runtime.safeParse(true).success).toBe(true)
           const r1 = runtime.safeParse('abc')
           expect(r1.success).toBe(false)
@@ -1300,8 +1300,8 @@ describe('zodToOpenAPI', () => {
               not: { type: 'string' },
               'x-not-message': '文字列は不可',
             } as Schema),
-          ).toBe(`z.any().refine((v) => typeof v !== 'string',{error:"文字列は不可"})`)
-          const runtime = z.any().refine((v) => typeof v !== 'string', { error: '文字列は不可' })
+          ).toBe(`z.any().refine((val) => typeof val !== 'string',{error:"文字列は不可"})`)
+          const runtime = z.any().refine((val) => typeof val !== 'string', { error: '文字列は不可' })
           expect(runtime.safeParse(123).success).toBe(true)
           const r = runtime.safeParse('abc')
           expect(r.success).toBe(false)
@@ -1317,8 +1317,8 @@ describe('zodToOpenAPI', () => {
               not: { const: 42 },
               'x-not-message': '42は不可',
             } as Schema),
-          ).toBe('z.any().refine((v) => v !== 42,{error:"42は不可"})')
-          const runtime = z.any().refine((v) => v !== 42, { error: '42は不可' })
+          ).toBe('z.any().refine((val) => val !== 42,{error:"42は不可"})')
+          const runtime = z.any().refine((val) => val !== 42, { error: '42は不可' })
           expect(runtime.safeParse(7).success).toBe(true)
           const r = runtime.safeParse(42)
           expect(r.success).toBe(false)
@@ -1334,8 +1334,8 @@ describe('zodToOpenAPI', () => {
               not: { enum: [1, 2, 3] },
               'x-not-message': '1,2,3は不可',
             } as Schema),
-          ).toBe('z.any().refine((v) => ![1,2,3].includes(v),{error:"1,2,3は不可"})')
-          const runtime = z.any().refine((v) => ![1, 2, 3].includes(v), { error: '1,2,3は不可' })
+          ).toBe('z.any().refine((val) => ![1,2,3].includes(val),{error:"1,2,3は不可"})')
+          const runtime = z.any().refine((val) => ![1, 2, 3].includes(val), { error: '1,2,3は不可' })
           expect(runtime.safeParse(4).success).toBe(true)
           const r = runtime.safeParse(2)
           expect(r.success).toBe(false)
@@ -1352,12 +1352,12 @@ describe('zodToOpenAPI', () => {
               'x-not-message': '禁止スキーマ不可',
             } as Schema),
           ).toBe(
-            'z.any().refine((v) => !ForbiddenSchema.safeParse(v).success,{error:"禁止スキーマ不可"})',
+            'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"})',
           )
           const ForbiddenSchema = z.string()
           const runtime = z
             .any()
-            .refine((v) => !ForbiddenSchema.safeParse(v).success, { error: '禁止スキーマ不可' })
+            .refine((val) => !ForbiddenSchema.safeParse(val).success, { error: '禁止スキーマ不可' })
           expect(runtime.safeParse(123).success).toBe(true)
           const r = runtime.safeParse('abc')
           expect(r.success).toBe(false)
@@ -1374,9 +1374,9 @@ describe('zodToOpenAPI', () => {
               'x-not-message': '文字列・数値は不可',
             } as Schema),
           ).toBe(
-            `z.any().refine((v) => (typeof v !== 'string') && (typeof v !== 'number'),{error:"文字列・数値は不可"})`,
+            `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'),{error:"文字列・数値は不可"})`,
           )
-          const runtime = z.any().refine((v) => typeof v !== 'string' && typeof v !== 'number', {
+          const runtime = z.any().refine((val) => typeof val !== 'string' && typeof val !== 'number', {
             error: '文字列・数値は不可',
           })
           expect(runtime.safeParse(true).success).toBe(true)
@@ -1402,11 +1402,11 @@ describe('zodToOpenAPI', () => {
               'x-not-message': 'union不可',
             } as Schema),
           ).toBe(
-            'z.any().refine((v) => !z.union([z.string(),z.number()]).safeParse(v).success,{error:"union不可"})',
+            'z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success,{error:"union不可"})',
           )
           const runtime = z
             .any()
-            .refine((v) => !z.union([z.string(), z.number()]).safeParse(v).success, {
+            .refine((val) => !z.union([z.string(), z.number()]).safeParse(val).success, {
               error: 'union不可',
             })
           expect(runtime.safeParse(true).success).toBe(true)
@@ -4696,10 +4696,10 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               type: 'string',
-              'x-refine': [{ fn: '(v) => v.length > 5', message: 'Too short' }],
+              'x-refine': '.refine((val) => val.length > 5,{message:"Too short"})',
             } as Schema),
-          ).toBe('z.string().refine((v) => v.length > 5,{message:"Too short"})')
-          const runtime = z.string().refine((v) => v.length > 5, { message: 'Too short' })
+          ).toBe('z.string().refine((val) => val.length > 5,{message:"Too short"})')
+          const runtime = z.string().refine((val) => val.length > 5, { message: 'Too short' })
           expect(runtime.safeParse('hello!').success).toBe(true)
           const r = runtime.safeParse('hi')
           expect(r.success).toBe(false)
@@ -4713,18 +4713,16 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               type: 'string',
-              'x-refine': [
-                { fn: '(v) => v.length > 5', message: 'Too short' },
-                { fn: '(v) => /^[a-z]/.test(v)', message: 'Lowercase start' },
-              ],
+              'x-refine':
+                '.refine((val) => val.length > 5,{message:"Too short"}).refine((val) => /^[a-z]/.test(val),{message:"Lowercase start"})',
             } as Schema),
           ).toBe(
-            'z.string().refine((v) => v.length > 5,{message:"Too short"}).refine((v) => /^[a-z]/.test(v),{message:"Lowercase start"})',
+            'z.string().refine((val) => val.length > 5,{message:"Too short"}).refine((val) => /^[a-z]/.test(val),{message:"Lowercase start"})',
           )
           const runtime = z
             .string()
-            .refine((v) => v.length > 5, { message: 'Too short' })
-            .refine((v) => /^[a-z]/.test(v), { message: 'Lowercase start' })
+            .refine((val) => val.length > 5, { message: 'Too short' })
+            .refine((val) => /^[a-z]/.test(val), { message: 'Lowercase start' })
           expect(runtime.safeParse('hello!').success).toBe(true)
           const r = runtime.safeParse('Hello!')
           expect(r.success).toBe(false)
@@ -4738,10 +4736,10 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               type: 'string',
-              'x-refine': [{ fn: '(v) => v !== "x"', path: ['name'] }],
+              'x-refine': '.refine((val) => val !== "x",{path:["name"]})',
             } as Schema),
-          ).toBe('z.string().refine((v) => v !== "x",{path:["name"]})')
-          const runtime = z.string().refine((v) => v !== 'x', { path: ['name'] })
+          ).toBe('z.string().refine((val) => val !== "x",{path:["name"]})')
+          const runtime = z.string().refine((val) => val !== 'x', { path: ['name'] })
           expect(runtime.safeParse('y').success).toBe(true)
           const r = runtime.safeParse('x')
           expect(r.success).toBe(false)
@@ -4755,9 +4753,8 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               type: 'string',
-              'x-superRefine': [
-                "(v, ctx) => { if (v === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) }",
-              ],
+              'x-superRefine':
+                ".superRefine((v, ctx) => { if (v === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) })",
             } as Schema),
           ).toBe(
             "z.string().superRefine((v, ctx) => { if (v === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) })",
@@ -5002,7 +4999,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+            'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
           // runtime skipped: depends on env atob/Buffer; codegen-only verification
         })
@@ -5019,7 +5016,7 @@ describe('zodToOpenAPI', () => {
             },
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
+            'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5181,7 +5178,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64url',
           } as Schema)
           expect(generated).toBe(
-            'z.base64url().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+            'z.base64url().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5232,7 +5229,7 @@ describe('zodToOpenAPI', () => {
             contentSchema: { $ref: '#/components/schemas/Inner' },
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(InnerSchema)',
+            'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(InnerSchema)',
           )
           // runtime skipped: InnerSchema is external identifier
         })
@@ -5410,7 +5407,7 @@ describe('zodToOpenAPI', () => {
             contentSchema: { type: 'array', items: { type: 'number' } },
           } as Schema)
           expect(generated).toBe(
-            'z.base64url().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.array(z.number()))',
+            'z.base64url().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.array(z.number()))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5422,7 +5419,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'text/plain',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))',
+            'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5434,7 +5431,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/png',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5445,7 +5442,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'audio/mpeg',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5456,7 +5453,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'video/mp4',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5467,7 +5464,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'application/octet-stream',
           } as Schema)
           expect(generated).toBe(
-            'z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+            'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -5479,7 +5476,7 @@ describe('zodToOpenAPI', () => {
             contentMediaType: 'image/jpeg',
           } as Schema)
           expect(generated).toBe(
-            'z.base64url().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))',
+            'z.base64url().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
@@ -7867,7 +7864,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({image:z.base64().transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64"))).exactOptional()})',
+        'z.object({image:z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64"))).exactOptional()})',
       )
     })
 
@@ -7925,7 +7922,7 @@ describe('zodToOpenAPI', () => {
           },
         }),
       ).toBe(
-        'z.object({style:z.base64().transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()})).exactOptional()})',
+        'z.object({style:z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}}).pipe(z.object({name:z.string().exactOptional()})).exactOptional()})',
       )
     })
 
@@ -9331,15 +9328,15 @@ describe('zodToOpenAPI', () => {
   //   codegen wraps each entry as `.refine(fn, {message, path})`
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 x-refine: single predicate (English message)', () => {
-    const RefineSingle = z.number().refine((v) => v > 0, { message: 'must be positive' })
+    const RefineSingle = z.number().refine((val) => val > 0, { message: 'must be positive' })
 
     it.concurrent('codegen: emits .refine(fn, {message})', () => {
       expect(
         zodToOpenAPI({
           type: 'number',
-          'x-refine': [{ fn: '(v) => v > 0', message: 'must be positive' }],
+          'x-refine': '.refine((val) => val > 0,{message:"must be positive"})',
         } as Schema),
-      ).toBe('z.number().refine((v) => v > 0,{message:"must be positive"})')
+      ).toBe('z.number().refine((val) => val > 0,{message:"must be positive"})')
     })
     it.concurrent('runtime: 5 PASSES', () => {
       expect(RefineSingle.safeParse(5).success).toBe(true)
@@ -9356,15 +9353,15 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-refine: single predicate (日本語 message)', () => {
-    const RefineJp = z.number().refine((v) => v > 0, { message: '正の数でなければなりません' })
+    const RefineJp = z.number().refine((val) => val > 0, { message: '正の数でなければなりません' })
 
     it.concurrent('codegen: emits .refine with 日本語 message', () => {
       expect(
         zodToOpenAPI({
           type: 'number',
-          'x-refine': [{ fn: '(v) => v > 0', message: '正の数でなければなりません' }],
+          'x-refine': '.refine((val) => val > 0,{message:"正の数でなければなりません"})',
         } as Schema),
-      ).toBe('z.number().refine((v) => v > 0,{message:"正の数でなければなりません"})')
+      ).toBe('z.number().refine((val) => val > 0,{message:"正の数でなければなりません"})')
     })
     it.concurrent('runtime: 1 PASSES', () => {
       expect(RefineJp.safeParse(1).success).toBe(true)
@@ -9403,16 +9400,11 @@ describe('zodToOpenAPI', () => {
             confirmPassword: { type: 'string' },
           },
           required: ['password', 'confirmPassword'],
-          'x-refine': [
-            {
-              fn: '(v) => v.password === v.confirmPassword',
-              message: 'パスワードが一致しません',
-              path: ['confirmPassword'],
-            },
-          ],
+          'x-refine':
+            '.refine((val) => val.password === val.confirmPassword,{message:"パスワードが一致しません",path:["confirmPassword"]})',
         } as Schema),
       ).toBe(
-        'z.object({password:z.string(),confirmPassword:z.string()}).refine((v) => v.password === v.confirmPassword,{message:"パスワードが一致しません",path:["confirmPassword"]}).openapi({"required":["password","confirmPassword"]})',
+        'z.object({password:z.string(),confirmPassword:z.string()}).refine((val) => val.password === val.confirmPassword,{message:"パスワードが一致しません",path:["confirmPassword"]}).openapi({"required":["password","confirmPassword"]})',
       )
     })
     it.concurrent('runtime: matching passwords PASS', () => {
@@ -9444,13 +9436,11 @@ describe('zodToOpenAPI', () => {
       expect(
         zodToOpenAPI({
           type: 'number',
-          'x-refine': [
-            { fn: '(v) => v > 0', message: '正の数で必要です' },
-            { fn: '(v) => v < 100', message: '100未満で必要です' },
-          ],
+          'x-refine':
+            '.refine((val) => val > 0,{message:"正の数で必要です"}).refine((val) => val < 100,{message:"100未満で必要です"})',
         } as Schema),
       ).toBe(
-        'z.number().refine((v) => v > 0,{message:"正の数で必要です"}).refine((v) => v < 100,{message:"100未満で必要です"})',
+        'z.number().refine((val) => val > 0,{message:"正の数で必要です"}).refine((val) => val < 100,{message:"100未満で必要です"})',
       )
     })
     it.concurrent('runtime: 50 PASSES', () => {
@@ -9491,9 +9481,8 @@ describe('zodToOpenAPI', () => {
       expect(
         zodToOpenAPI({
           type: 'string',
-          'x-superRefine': [
-            '(val, ctx) => { if (val.includes(\' \')) ctx.addIssue({ code: "custom", path: [], message: "スペースは含められません" }) }',
-          ],
+          'x-superRefine':
+            '.superRefine((val, ctx) => { if (val.includes(\' \')) ctx.addIssue({ code: "custom", path: [], message: "スペースは含められません" }) })',
         } as Schema),
       ).toBe(
         'z.string().superRefine((val, ctx) => { if (val.includes(\' \')) ctx.addIssue({ code: "custom", path: [], message: "スペースは含められません" }) })',
@@ -9537,9 +9526,8 @@ describe('zodToOpenAPI', () => {
           type: 'object',
           properties: { password: { type: 'string' } },
           required: ['password'],
-          'x-superRefine': [
-            '(val, ctx) => { if (val.password.length < 8) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードは8文字以上で必要です" }); if (!/[0-9]/.test(val.password)) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードに数字を含めてください" }) }',
-          ],
+          'x-superRefine':
+            '.superRefine((val, ctx) => { if (val.password.length < 8) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードは8文字以上で必要です" }); if (!/[0-9]/.test(val.password)) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードに数字を含めてください" }) })',
         } as Schema),
       ).toBe(
         'z.object({password:z.string()}).superRefine((val, ctx) => { if (val.password.length < 8) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードは8文字以上で必要です" }); if (!/[0-9]/.test(val.password)) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードに数字を含めてください" }) }).openapi({"required":["password"]})',
@@ -9583,10 +9571,8 @@ describe('zodToOpenAPI', () => {
       expect(
         zodToOpenAPI({
           type: 'string',
-          'x-superRefine': [
-            '(val, ctx) => { if (val.length < 3) ctx.addIssue({ code: "custom", path: [], message: "3文字以上必要です" }) }',
-            '(val, ctx) => { if (!/^[a-z]/.test(val)) ctx.addIssue({ code: "custom", path: [], message: "小文字で始めてください" }) }',
-          ],
+          'x-superRefine':
+            '.superRefine((val, ctx) => { if (val.length < 3) ctx.addIssue({ code: "custom", path: [], message: "3文字以上必要です" }) }).superRefine((val, ctx) => { if (!/^[a-z]/.test(val)) ctx.addIssue({ code: "custom", path: [], message: "小文字で始めてください" }) })',
         } as Schema),
       ).toBe(
         'z.string().superRefine((val, ctx) => { if (val.length < 3) ctx.addIssue({ code: "custom", path: [], message: "3文字以上必要です" }) }).superRefine((val, ctx) => { if (!/^[a-z]/.test(val)) ctx.addIssue({ code: "custom", path: [], message: "小文字で始めてください" }) })',
@@ -9835,12 +9821,8 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'array',
           items: { type: 'number' },
-          'x-refine': [
-            {
-              fn: '(arr) => arr.every((v) => v > 0)',
-              message: 'すべての要素は正の数で必要です',
-            },
-          ],
+          'x-refine':
+            '.refine((arr) => arr.every((v) => v > 0),{message:"すべての要素は正の数で必要です"})',
         } as Schema),
       ).toBe(
         'z.array(z.number()).refine((arr) => arr.every((v) => v > 0),{message:"すべての要素は正の数で必要です"})',
@@ -9888,16 +9870,11 @@ describe('zodToOpenAPI', () => {
             },
           },
           required: ['user'],
-          'x-refine': [
-            {
-              fn: '(v) => v.user.profile.age >= 18',
-              message: '18歳以上で必要です',
-              path: ['user', 'profile', 'age'],
-            },
-          ],
+          'x-refine':
+            '.refine((val) => val.user.profile.age >= 18,{message:"18歳以上で必要です",path:["user","profile","age"]})',
         } as Schema),
       ).toBe(
-        'z.object({user:z.object({profile:z.object({age:z.number()}).openapi({"required":["age"]})}).openapi({"required":["profile"]})}).refine((v) => v.user.profile.age >= 18,{message:"18歳以上で必要です",path:["user","profile","age"]}).openapi({"required":["user"]})',
+        'z.object({user:z.object({profile:z.object({age:z.number()}).openapi({"required":["age"]})}).openapi({"required":["profile"]})}).refine((val) => val.user.profile.age >= 18,{message:"18歳以上で必要です",path:["user","profile","age"]}).openapi({"required":["user"]})',
       )
     })
     it.concurrent('runtime: 18 (boundary) PASSES', () => {
@@ -9938,9 +9915,8 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'array',
           items: { type: 'string' },
-          'x-superRefine': [
-            '(arr, ctx) => { for (const [i, v] of arr.entries()) { if (v.length === 0) ctx.addIssue({ code: "custom", path: [i], message: `${i}番目の要素は空文字列にできません` }) } }',
-          ],
+          'x-superRefine':
+            '.superRefine((arr, ctx) => { for (const [i, v] of arr.entries()) { if (v.length === 0) ctx.addIssue({ code: "custom", path: [i], message: `${i}番目の要素は空文字列にできません` }) } })',
         } as Schema),
       ).toBe(
         'z.array(z.string()).superRefine((arr, ctx) => { for (const [i, v] of arr.entries()) { if (v.length === 0) ctx.addIssue({ code: "custom", path: [i], message: `${i}番目の要素は空文字列にできません` }) } })',
@@ -9991,9 +9967,8 @@ describe('zodToOpenAPI', () => {
             endDate: { type: 'string' },
           },
           required: ['startDate', 'endDate'],
-          'x-superRefine': [
-            '(val, ctx) => { if (val.startDate > val.endDate) { ctx.addIssue({ code: "custom", path: ["startDate"], message: "開始日は終了日より前である必要があります" }); ctx.addIssue({ code: "custom", path: ["endDate"], message: "終了日は開始日より後である必要があります" }) } }',
-          ],
+          'x-superRefine':
+            '.superRefine((val, ctx) => { if (val.startDate > val.endDate) { ctx.addIssue({ code: "custom", path: ["startDate"], message: "開始日は終了日より前である必要があります" }); ctx.addIssue({ code: "custom", path: ["endDate"], message: "終了日は開始日より後である必要があります" }) } })',
         } as Schema),
       ).toBe(
         'z.object({startDate:z.string(),endDate:z.string()}).superRefine((val, ctx) => { if (val.startDate > val.endDate) { ctx.addIssue({ code: "custom", path: ["startDate"], message: "開始日は終了日より前である必要があります" }); ctx.addIssue({ code: "custom", path: ["endDate"], message: "終了日は開始日より後である必要があります" }) } }).openapi({"required":["startDate","endDate"]})',
@@ -10163,7 +10138,7 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 日本語: x-not-message', () => {
-    const JpNot = z.any().refine((v) => typeof v !== 'string', {
+    const JpNot = z.any().refine((val) => typeof val !== 'string', {
       error: '文字列以外で入力してください',
     })
 
@@ -10174,7 +10149,7 @@ describe('zodToOpenAPI', () => {
           'x-not-message': '文字列以外で入力してください',
         } as Schema),
       ).toBe(
-        'z.any().refine((v) => typeof v !== \'string\',{error:"文字列以外で入力してください"})',
+        'z.any().refine((val) => typeof val !== \'string\',{error:"文字列以外で入力してください"})',
       )
     })
     it.concurrent('runtime: 42 PASSES (not a string)', () => {

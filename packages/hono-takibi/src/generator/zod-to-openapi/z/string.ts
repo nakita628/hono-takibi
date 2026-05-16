@@ -120,7 +120,7 @@ function buildFormatOptions(schema: Schema): readonly string[] {
 /**
  * Builds a Zod string schema from an OpenAPI string schema, applying format,
  * pattern, length constraints, vendor extensions for messages
- * (`x-error-message` / `x-pattern-message` / `x-size-message` /
+ * (`x-error-message` / `x-pattern-message` / `x-length-message` /
  * `x-minLength-message` / `x-maxLength-message`), P1 transform extensions
  * (`x-coerce`, `x-trim`, `x-toLowerCase`, `x-toUpperCase`, `x-normalize`),
  * and P1 format-option extensions (`x-emailPattern`, `x-uuidVersion`,
@@ -141,6 +141,8 @@ export function string(schema: Schema): string {
   const coerce = schema['x-coerce'] === true
 
   // Hash: z.hash(algo, { enc }) — special case, algo is a required positional arg.
+  // `x-error-message` directly via `errorInner` below; the format-specific slot
+  // is reserved for the standard validation-format constructors (email/uuid/url/...).
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
     const algo = schema['x-hashAlg']
@@ -153,25 +155,20 @@ export function string(schema: Schema): string {
     return `z.hash(${JSON.stringify(algo)}${optsStr})`
   })()
 
-  // x-codec: "date" → bidirectional string ⇄ Date codec for date/date-time
-  // formats. Output stays as ISO string for OpenAPI/JSON, internal TS type is
-  // Date. Removes the need for `.toISOString()` calls in route handlers.
-  // Parameter names match Zod's official docs (isoString / date).
+  // x-codec: bidirectional codec between an input string schema and a runtime
+  // value. The user-supplied string (complete `z.codec(...)` expression)
+  // replaces the base schema verbatim. `x-format-message` is a no-op here
+  // since codec returns a wrapped schema where Zod's `{error}` option is not
+  // the failure surface.
   const codec = schema['x-codec']
-  if (
-    codec === 'date' &&
-    schema.format &&
-    DATE_FORMATS.has(schema.format) &&
-    !coerce &&
-    !hashBase
-  ) {
-    const isoFn = schema.format === 'date' ? 'z.iso.date()' : 'z.iso.datetime()'
-    return `z.codec(${isoFn},z.date(),{decode:(isoString)=>new Date(isoString),encode:(date)=>date.toISOString()})`
+  if (codec !== undefined && !coerce && !hashBase) {
+    return codec
   }
 
-  // v2.6: contentEncoding + contentMediaType + contentSchema
   // Decodes the encoded payload, optionally JSON-parses it, then validates
   // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
+  // schema is keyed by `contentEncoding` / `contentMediaType`). Therefore
+  // `x-format-message` is structurally inapplicable here.
   const enc = schema.contentEncoding
   const mediaType = schema.contentMediaType
   const contentSchema = schema.contentSchema
@@ -197,15 +194,18 @@ export function string(schema: Schema): string {
       const isJson = mt.length > 0 && /json/.test(mt)
       // Bug #5 fix: binary MIME → Uint8Array (no UTF-8 decoding).
       if (isBinary) {
-        return '.transform((b64)=>typeof atob==="function"?Uint8Array.from(atob(b64),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(b64,"base64")))'
+        return '.transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))'
       }
-      // Bug #7 fix: JSON MIME → try/catch + ctx.addIssue so SyntaxError
-      // becomes a Zod issue rather than an uncaught throw at safeParse time.
+      // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
+      // issue rather than an uncaught throw at safeParse time. JSON Schema
       if (isJson) {
-        return '.transform((b64,ctx)=>{try{const s=typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"invalid base64-json: "+(e instanceof Error?e.message:String(e))});return z.NEVER}})'
+        const issueExpr = errorMessage
+          ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:e instanceof Error?e.message:String(e)}}`
+          : '{code:"custom",params:{cause:e instanceof Error?e.message:String(e)}}'
+        return `.transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue(${issueExpr});return z.NEVER}})`
       }
       // Text / unspecified MIME → preserve previous UTF-8 decoding behavior.
-      return '.transform((b64)=>typeof atob==="function"?atob(b64):Buffer.from(b64,"base64").toString("utf8"))'
+      return '.transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))'
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
     // through zodToOpenAPI which already handles refs via makeRef.
@@ -229,12 +229,18 @@ export function string(schema: Schema): string {
   // chain order — see the return array below.
   const usePipe = isValidationFormat && hasPreTransform && !coerce
 
+  const formatMessage = schema['x-format-message']
+
   const buildValidationBase = (): string => {
     if (hashBase) return hashBase
     if (coerce && schema.format && DATE_FORMATS.has(schema.format)) {
-      return baseErrorArg ? `z.coerce.date(${baseErrorArg})` : 'z.coerce.date()'
+      // coerced date constructor to keep precedence consistent with the
+      // validation-format path below.
+      const fmtArg = formatMessage ? `{${errorInner(formatMessage)}}` : baseErrorArg
+      return fmtArg ? `z.coerce.date(${fmtArg})` : 'z.coerce.date()'
     }
     if (!format) {
+      // No format → `x-format-message` is structurally inapplicable (no-op).
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     }
@@ -243,7 +249,12 @@ export function string(schema: Schema): string {
     // baseErrorArg already wraps in `{...}`. Strip the outer braces to merge
     // with format options.
     const baseInner = includeBaseError ? baseErrorArg.slice(1, -1) : ''
-    const allOpts = includeBaseError ? [...fmtOpts, baseInner] : [...fmtOpts]
+    // Precedence: `x-format-message` > `x-error-message` > Zod default.
+    // Only applies on the validation-format path; transform formats (trim /
+    // toLowerCase / toUpperCase) skip this and fall through with no `{error}`.
+    const effectiveErrorInner =
+      isValidationFormat && formatMessage ? errorInner(formatMessage) : baseInner
+    const allOpts = effectiveErrorInner ? [...fmtOpts, effectiveErrorInner] : [...fmtOpts]
     if (allOpts.length > 0) {
       return `z.${format.replace(/\(\)$/, `({${allOpts.join(',')}})`)}`
     }
@@ -277,9 +288,8 @@ export function string(schema: Schema): string {
   const pattern = schema.pattern
     ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
     : undefined
-  const sizeMessage = schema['x-size-message']
-  const sizeMsgPart = sizeMessage ? `,${error(sizeMessage)}` : ''
-  // v3.0: string length uses x-minLength-message / x-maxLength-message (split
+  const lengthMessage = schema['x-length-message']
+  const sizeMsgPart = lengthMessage ? `,${error(lengthMessage)}` : ''
   // from the previous shared x-minimum-message / x-maximum-message umbrellas).
   const minLengthMessage = schema['x-minLength-message']
   const minMsgPart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
@@ -310,7 +320,7 @@ export function string(schema: Schema): string {
   // case constraint.
   const lowercaseValidate = schema['x-lowercase'] === true ? '.lowercase()' : undefined
   const uppercaseValidate = schema['x-uppercase'] === true ? '.uppercase()' : undefined
-  return [
+  const chain = [
     base,
     // Pre-validation transforms come BEFORE refinements so input is normalized
     // first (`z.string().toLowerCase().regex(...)`). For validation-format
@@ -335,4 +345,5 @@ export function string(schema: Schema): string {
   ]
     .filter((v) => v !== undefined)
     .join('')
+  return chain
 }

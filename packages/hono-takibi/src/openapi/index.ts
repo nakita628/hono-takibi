@@ -441,7 +441,13 @@ export type Schema = {
     readonly [k: string]: Schema
   }
   readonly required?: readonly string[]
-  readonly items?: Schema | readonly Schema[]
+  /**
+   * JSON Schema 2020-12 §10.3.1.2: `items` may be a schema, a tuple of schemas
+   * (Draft-04 compat), or a boolean schema (`true` = any item allowed,
+   * `false` = no trailing items / length cap). Boolean form is exercised when
+   * paired with `prefixItems` to enforce a strict tuple shape.
+   */
+  readonly items?: Schema | readonly Schema[] | boolean
   /** JSON Schema 2020-12: Tuple validation */
   readonly prefixItems?: readonly Schema[]
   readonly enum?: readonly (
@@ -473,10 +479,25 @@ export type Schema = {
     readonly [k: string]: readonly string[]
   }
   // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
+  /**
+   *
+   *
+   *
+   *
+   */
   readonly 'x-error-message'?: string
-  readonly 'x-size-message'?: string
-  // v3.0: numeric / string-pattern専用に縮退（破壊的変更）
+  /**
+   *
+   *
+   *
+   */
+  readonly 'x-length-message'?: string
   readonly 'x-pattern-message'?: string // string `pattern` only
+  /**
+   *
+   *
+   */
+  readonly 'x-format-message'?: string
   readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
   readonly 'x-maximum-message'?: string // numeric `maximum` (inclusive) only
   readonly 'x-exclusiveMinimum-message'?: string // numeric `exclusiveMinimum` (>)
@@ -489,13 +510,11 @@ export type Schema = {
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
-  // v2.5: extra message extensions
   readonly 'x-required-message'?: string
   readonly 'x-additionalProperties-message'?: string
   readonly 'x-uniqueItems-message'?: string
   readonly 'x-const-message'?: string
   readonly 'x-enum-message'?: string
-  // v3.0: keyword-specific message extensions (1 keyword = 1 message)
   readonly 'x-minLength-message'?: string // string minLength
   readonly 'x-maxLength-message'?: string // string maxLength
   readonly 'x-minItems-message'?: string // array minItems
@@ -506,13 +525,23 @@ export type Schema = {
   readonly 'x-contains-message'?: string // array contains (type-match presence)
   readonly 'x-minContains-message'?: string // array minContains (count lower bound)
   readonly 'x-maxContains-message'?: string // array maxContains (count upper bound)
-  // v2.5: $comment pass-through
+  // schemas so generated validators stop emitting hardcoded English defaults.
+  // Slot absent → `ctx.addIssue` omits `message` → Zod's built-in default
+  // ('Invalid input') is used, picking up future locale config automatically.
+  //
+  readonly 'x-properties-message'?: string // failed per-property validation in a typeless object
+  readonly 'x-prefixItems-message'?: string // failed tuple position validation
+  readonly 'x-items-message'?: string // failed trailing items validation (incl. `items: false`)
+  readonly 'x-unevaluatedProperties-message'?: string // unevaluatedProperties violation
+  readonly 'x-unevaluatedItems-message'?: string // unevaluatedItems violation
+  readonly 'x-if-message'?: string // failed `then`/`else` branch under `if` (shared fallback)
+  readonly 'x-then-message'?: string // failed `then` branch (overrides x-if-message for then)
+  readonly 'x-else-message'?: string // failed `else` branch (overrides x-if-message for else)
   readonly $comment?: string
-  // v2.5: array contains validation (JSON Schema standard)
+  // array contains validation (JSON Schema standard)
   readonly contains?: Schema
   readonly minContains?: number
   readonly maxContains?: number
-  // v2.6: content* (encoded payload validation)
   readonly contentEncoding?:
     | 'base64'
     | 'base64url'
@@ -522,16 +551,14 @@ export type Schema = {
     | 'quoted-printable'
   readonly contentMediaType?: string
   readonly contentSchema?: Schema
-  // v2.6: dependentSchemas (full conditional sub-schema)
   readonly dependentSchemas?: { readonly [k: string]: Schema }
-  // v2.6: if / then / else (JSON Schema standard conditional)
+  // if / then / else (JSON Schema standard conditional)
   readonly if?: Schema
   readonly then?: Schema
   readonly else?: Schema
-  // v2.6: unevaluated*
   readonly unevaluatedProperties?: boolean | Schema
   readonly unevaluatedItems?: boolean | Schema
-  // v2.7: JSON Schema 2020-12 Core meta keywords (pass-through to .openapi())
+  // JSON Schema 2020-12 Core meta keywords (pass-through to .openapi())
   // These have no validation effect — they're documentation/identification only.
   readonly $schema?: string
   readonly $id?: string
@@ -547,7 +574,7 @@ export type Schema = {
   // can't fire. Use `x-error-message` for the whole-enum message instead.
   // Vendor extension for branded types
   readonly 'x-brand'?: string
-  // P1 transform/coerce extensions (spec v2.2)
+  // P1 transform/coerce extensions
   readonly 'x-trim'?: boolean
   readonly 'x-toLowerCase'?: boolean
   readonly 'x-toUpperCase'?: boolean
@@ -555,7 +582,7 @@ export type Schema = {
   readonly 'x-uppercase'?: boolean
   readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
   readonly 'x-coerce'?: boolean
-  // P1 format-option extensions (spec v2.3)
+  // P1 format-option extensions
   readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
   readonly 'x-emailRegex'?: string
   readonly 'x-uuidVersion'?: 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8'
@@ -569,7 +596,7 @@ export type Schema = {
   readonly 'x-jwtAlg'?: string
   readonly 'x-hashAlg'?: 'sha1' | 'sha256' | 'sha384' | 'sha512' | 'md5'
   readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
-  // P2 extensions (spec v2.3)
+  // P2 extensions
   // Note: x-finite / x-safe were considered but skipped — the corresponding
   // Zod APIs (.finite() / .safe()) are deprecated.
   readonly 'x-catch'?: unknown
@@ -578,16 +605,28 @@ export type Schema = {
   readonly 'x-includes'?: string
   readonly 'x-startsWith'?: string
   readonly 'x-endsWith'?: string
-  // Custom validation (spec v2.4)
-  readonly 'x-refine'?: readonly {
-    readonly fn: string
-    readonly message?: string
-    readonly path?: readonly string[]
-  }[]
-  readonly 'x-superRefine'?: readonly string[]
-  // Bidirectional codec (spec v2.4)
-  // - "date" with format: date-time / date → z.codec(...) for string ⇄ Date
-  readonly 'x-codec'?: 'date'
+  // Custom validation. Complete `.refine(...)` / `.superRefine(...)` chain
+  // fragment string appended to the schema verbatim. Multiple checks are
+  // written as a chain: `.refine(...).refine(...)`. Paste Zod docs examples
+  // directly.
+  readonly 'x-refine'?: string
+  readonly 'x-superRefine'?: string
+  // Bidirectional codec. The value is a complete `z.codec(...)` expression
+  // string and replaces the base schema verbatim. Authors can paste the Zod
+  // docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+  readonly 'x-codec'?: string
+  // Pre-validation normalization. The value is a complete `z.preprocess(...)`
+  // expression string and replaces the base schema verbatim (same convention
+  // as x-codec). Paste Zod docs example directly.
+  readonly 'x-preprocess'?: string
+  // Post-validation transform. The value is a complete Zod expression string
+  // (e.g. `z.string().transform((val) => ...)`) and replaces the base schema
+  // verbatim (same convention as x-codec).
+  readonly 'x-transform'?: string
+  // Schema-level pipe. The value is a complete Zod expression string (e.g.
+  // `z.string().pipe(z.number())`) and replaces the base schema verbatim
+  // (same convention as x-codec).
+  readonly 'x-pipe'?: string
 }
 
 export type Parameter = {

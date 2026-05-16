@@ -41,13 +41,16 @@ const FormSchema = z
       .min(0, { error: (iss) => `quota must be >= 0 (received: ${iss.input})` }),
   })
   .superRefine((o, ctx) => {
-    if (!Object.hasOwn(o, 'token')) return
-    if (!Object.hasOwn(o, 'tokenLabel'))
+    if (!Object.hasOwn(o, 'token')) {
+      return
+    }
+    if (!Object.hasOwn(o, 'tokenLabel')) {
       ctx.addIssue({
         code: 'custom',
         message: 'tokenLabel is required when token is provided',
         path: ['tokenLabel'],
       })
+    }
   })
   .openapi({
     required: [
@@ -86,12 +89,13 @@ const DictionarySchema = z
   .superRefine((o, ctx) => {
     const regex = new RegExp('^[a-z][a-z0-9_]*$')
     for (const k of Object.keys(o)) {
-      if (!regex.test(k))
+      if (!regex.test(k)) {
         ctx.addIssue({
           code: 'custom',
           path: [k],
           message: 'keys must start with a lowercase letter and contain only [a-z0-9_]',
         })
+      }
     }
   })
   .openapi('Dictionary')
@@ -108,9 +112,9 @@ const MergedSchema = (() => {
   return z
     .unknown()
     .check((ctx) => {
-      const valid = Schema.safeParse(ctx.value)
-      if (!valid.success) {
-        for (const issue of valid.error.issues) {
+      const result = Schema.safeParse(ctx.value)
+      if (!result.success) {
+        for (const issue of result.error.issues) {
           if (issue.code === 'invalid_type') {
             ctx.issues.push({ ...issue, input: issue.input, message: 'merged validation failed' })
           } else if (issue.code === 'too_big') {
@@ -148,9 +152,9 @@ const MergedArrowSchema = (() => {
   return z
     .unknown()
     .check((ctx) => {
-      const valid = Schema.safeParse(ctx.value)
-      if (!valid.success) {
-        for (const issue of valid.error.issues) {
+      const result = Schema.safeParse(ctx.value)
+      if (!result.success) {
+        for (const issue of result.error.issues) {
           if (issue.code === 'invalid_type') {
             ctx.issues.push({
               ...issue,
@@ -231,28 +235,37 @@ const PaymentSchema = z
     billing_zip: z.string().exactOptional(),
   })
   .superRefine((o, ctx) => {
-    if (!Object.hasOwn(o, 'credit_card')) return
-    if (!Object.hasOwn(o, 'billing_zip'))
+    if (!Object.hasOwn(o, 'credit_card')) {
+      return
+    }
+    if (!Object.hasOwn(o, 'billing_zip')) {
       ctx.addIssue({
         code: 'custom',
         message: 'billing_zip is required when credit_card is provided',
         path: ['billing_zip'],
       })
+    }
   })
   .superRefine((o, ctx) => {
-    if (!Object.hasOwn(o, 'credit_card')) return
+    if (!Object.hasOwn(o, 'credit_card')) {
+      return
+    }
     const Schema = z.unknown().superRefine((v, ctx) => {
       if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
         if (Object.hasOwn(v, 'credit_card')) {
           const Schema = z.string().regex(/^[0-9]{16}$/)
-          if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success)
-            ctx.addIssue({ code: 'custom', message: 'invalid property' })
+          if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success) {
+            ctx.addIssue({ code: 'custom' })
+          }
         }
       }
     })
-    const valid = Schema.safeParse(o)
-    if (!valid.success)
-      for (const issue of valid.error.issues) ctx.addIssue({ ...issue, path: issue.path })
+    const result = Schema.safeParse(o)
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        ctx.addIssue({ ...issue, path: issue.path })
+      }
+    }
   })
   .openapi({ required: ['method'] })
   .openapi('Payment')
@@ -275,10 +288,12 @@ const BasketSchema = z
       .superRefine((arr, ctx) => {
         const Schema = z.object({ kind: z.literal('premium') }).openapi({ required: ['kind'] })
         const matched = arr.filter((i) => Schema.safeParse(i).success).length
-        if (matched < 2)
+        if (matched < 2) {
           ctx.addIssue({ code: 'custom', message: 'must include at least 2 premium items' })
-        if (matched > 5)
+        }
+        if (matched > 5) {
           ctx.addIssue({ code: 'custom', message: 'must include at most 5 premium items' })
+        }
       }),
   })
   .openapi({ required: ['items'] })
@@ -294,34 +309,26 @@ const ContainsDefaultSchema = z
     tags: z.array(z.string()).superRefine((arr, ctx) => {
       const Schema = z.literal('special')
       const matched = arr.filter((i) => Schema.safeParse(i).success).length
-      if (matched < 1)
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Expected at least 1 item matching contains schema, got ' + matched,
-        })
+      if (matched < 1) {
+        ctx.addIssue({ code: 'custom' })
+      }
     }),
     scores: z.array(z.number()).superRefine((arr, ctx) => {
       const Schema = z.number().min(90)
       const matched = arr.filter((i) => Schema.safeParse(i).success).length
-      if (matched < 2)
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Expected at least 2 matching items, got ' + matched,
-        })
+      if (matched < 2) {
+        ctx.addIssue({ code: 'custom' })
+      }
     }),
     ints: z.array(z.number()).superRefine((arr, ctx) => {
       const Schema = z.int()
       const matched = arr.filter((i) => Schema.safeParse(i).success).length
-      if (matched < 2)
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Expected at least 2 matching items, got ' + matched,
-        })
-      if (matched > 3)
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Expected at most 3 matching items, got ' + matched,
-        })
+      if (matched < 2) {
+        ctx.addIssue({ code: 'custom' })
+      }
+      if (matched > 3) {
+        ctx.addIssue({ code: 'custom' })
+      }
     }),
   })
   .openapi({ required: ['tags', 'scores', 'ints'] })
@@ -343,8 +350,9 @@ const MiscSchema = z
     sized: z.array(z.string()).superRefine((arr, ctx) => {
       const Schema = z.literal('premium')
       const matched = arr.filter((i) => Schema.safeParse(i).success).length
-      if (matched < 1)
+      if (matched < 1) {
         ctx.addIssue({ code: 'custom', message: 'sized must contain at least one premium tag' })
+      }
     }),
     namespaced: z
       .strictObject(
@@ -370,11 +378,15 @@ const MiscSchema = z
       const regex = new RegExp('^x_')
       const Schema = z.string()
       for (const [k, v] of Object.entries(o)) {
-        if (!regex.test(k)) continue
-        const valid = Schema.safeParse(v)
-        if (!valid.success)
-          for (const issue of valid.error.issues)
+        if (!regex.test(k)) {
+          continue
+        }
+        const result = Schema.safeParse(v)
+        if (!result.success) {
+          for (const issue of result.error.issues) {
             ctx.addIssue({ ...issue, path: [k, ...issue.path], message: 'x_ keys must be strings' })
+          }
+        }
       }
     }),
     payload: z.string({

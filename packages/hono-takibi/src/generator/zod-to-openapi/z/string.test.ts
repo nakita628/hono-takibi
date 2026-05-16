@@ -81,14 +81,26 @@ describe('string', () => {
     })
   })
 
-  describe('x-size-message', () => {
+  describe('x-length-message (Zod .length() chainable)', () => {
     it.concurrent.each<[Schema, string]>([
-      // x-size-message on .length() (minLength === maxLength)
+      // 単独指定で .length() を生成
       [
-        { type: 'string', minLength: 5, maxLength: 5, 'x-size-message': '5文字' },
+        { type: 'string', minLength: 5, maxLength: 5, 'x-length-message': '5文字' },
         'z.string().length(5,{error:"5文字"})',
       ],
-      // No x-size-message → existing behavior
+      // 固定長確定時 x-length-message が x-minLength-message / x-maxLength-message より優先
+      [
+        {
+          type: 'string',
+          minLength: 5,
+          maxLength: 5,
+          'x-length-message': '固定長エラー',
+          'x-minLength-message': 'min エラー',
+          'x-maxLength-message': 'max エラー',
+        },
+        'z.string().length(5,{error:"固定長エラー"})',
+      ],
+      // No x-length-message → existing behavior
       [{ type: 'string', minLength: 3, maxLength: 20 }, 'z.string().min(3).max(20)'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
@@ -481,6 +493,171 @@ describe('string', () => {
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('v0.11.0 x-format-message: format 違反専用メッセージ', () => {
+    it.concurrent.each<[Schema, string]>([
+      // A: format + x-format-message のみ → constructor 引数に渡る
+      [
+        { type: 'string', format: 'email', 'x-format-message': 'MSG_FMT' },
+        'z.email({error:"MSG_FMT"})',
+      ],
+      // B: 優先順位 x-format-message > x-error-message
+      [
+        {
+          type: 'string',
+          format: 'uuid',
+          'x-format-message': 'F',
+          'x-error-message': 'E',
+        },
+        'z.uuid({error:"F"})',
+      ],
+      // C: format options (x-urlHostname) と x-format-message が合流
+      [
+        {
+          type: 'string',
+          format: 'url',
+          'x-format-message': 'M',
+          'x-urlHostname': 'example.com',
+        },
+        'z.url({hostname:/example.com/,error:"M"})',
+      ],
+      // D: transform format (trim) では no-op (出力に X が含まれない)
+      [{ type: 'string', format: 'trim', 'x-format-message': 'X' }, 'z.trim()'],
+      // E: format 未指定では no-op
+      [{ type: 'string', 'x-format-message': 'X' }, 'z.string()'],
+      // 追加: ipv4 でも動作する
+      [
+        { type: 'string', format: 'ipv4', 'x-format-message': 'IPv4 invalid' },
+        'z.ipv4({error:"IPv4 invalid"})',
+      ],
+      // 追加: refinements (.min) は引き続き適用される
+      [
+        { type: 'string', format: 'email', minLength: 5, 'x-format-message': 'MSG' },
+        'z.email({error:"MSG"}).min(5)',
+      ],
+      // 追加: 3 拡張同居でも x-format-message が最優先
+      [
+        {
+          type: 'string',
+          format: 'url',
+          'x-urlHostname': 'a.com',
+          'x-format-message': 'F',
+          'x-error-message': 'E',
+        },
+        'z.url({hostname:/a.com/,error:"F"})',
+      ],
+      // 追加: hash format は x-format-message 非対象 (x-error-message を維持)
+      [
+        {
+          type: 'string',
+          format: 'hash',
+          'x-hashAlg': 'sha256',
+          'x-format-message': 'IGNORED',
+          'x-error-message': 'E2',
+        },
+        'z.hash("sha256",{error:"E2"})',
+      ],
+      // 追加: x-codec 経路では no-op (codec の wrap が優先)
+      [
+        {
+          type: 'string',
+          format: 'date-time',
+          'x-codec':
+            'z.codec(z.iso.datetime(),z.date(),{decode:(val)=>new Date(val),encode:(val)=>val.toISOString()})',
+          'x-format-message': 'IGNORED',
+        },
+        'z.codec(z.iso.datetime(),z.date(),{decode:(val)=>new Date(val),encode:(val)=>val.toISOString()})',
+      ],
+      // 追加: coerce + date は一貫性のため x-format-message を優先消費
+      [
+        {
+          type: 'string',
+          format: 'date-time',
+          'x-coerce': true,
+          'x-format-message': 'BAD',
+        },
+        'z.coerce.date({error:"BAD"})',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  // v0.13.0: contentSchema (base64+JSON decode transform 失敗) の message
+  // 経路を Zod default 委譲化。`x-error-message` 指定時のみ message 上書き、
+  // 未指定時は message field を完全省略し Zod default に委ねる。SyntaxError
+  // 文言 (e.message) は両ケースとも `params.cause` に逃がしてデバッグ用に保全。
+  describe('v0.13.0 contentSchema base64-json: x-error-message 上書き + params.cause 保全', () => {
+    // ケース A: `x-error-message` 指定時は `message:"<指定値>"` で上書き、
+    //          かつ SyntaxError 文言は params.cause に保全。
+    it.concurrent('A: x-error-message 指定時はメッセージを上書き', () => {
+      const out = string({
+        type: 'string',
+        contentEncoding: 'base64',
+        contentMediaType: 'application/json',
+        contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
+        'x-error-message': 'デコード失敗',
+      })
+      expect(out).toBe(
+        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}))',
+      )
+    })
+
+    // ケース B: `x-error-message` 未指定時は message field を完全省略し
+    //          Zod default (`'Invalid input'`, `z.config({locales})` で i18n)
+    //          に委譲。`params.cause` は常に保全。
+    it.concurrent('B: x-error-message 未指定時は message 省略 + params.cause 保全', () => {
+      const out = string({
+        type: 'string',
+        contentEncoding: 'base64',
+        contentMediaType: 'application/json',
+        contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
+      })
+      expect(out).toBe(
+        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}))',
+      )
+    })
+
+    // ケース C: ランタイム動作確認 — 生成コードと同等の Zod schema を TS で
+    //          手動構築し、`x-error-message: 'M'` 指定時の上書きが Zod ランタイム
+    //          上で実際に `issue.message === 'M'` を生むことを検証する。
+    //          (index.test.ts の `v3.2 sample #7` と同じ「手動 mirror」パターン。
+    //          `new Function` / `eval` を避けるため typescript-eslint
+    //          `no-implied-eval` 警告を増やさない設計。)
+    it.concurrent('C: ランタイム: x-error-message="M" 指定時、不正 base64 で issue.message === "M"', async () => {
+      // codegen 出力が `message:"M"` 文字列を含むこと自体は ケース A の
+      // `toBe` 完全一致で既に検証済み。ここでは生成コードと等価な Zod schema を
+      // TS で手動構築 (index.test.ts `v3.2 sample #7` と同じ pattern) し、
+      // Zod ランタイム上で `x-error-message` の上書きが `issue.message` に
+      // 反映されることを完全一致で確認する。
+      const { z } = await import('zod')
+      const schema = z
+        .base64()
+        .transform((val, ctx) => {
+          try {
+            const s =
+              typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
+            return JSON.parse(s)
+          } catch (e) {
+            // v0.13.0: codegen は message="M" + params.cause を併用
+            ctx.addIssue({
+              code: 'custom',
+              message: 'M',
+              params: { cause: e instanceof Error ? e.message : String(e) },
+            })
+            return z.NEVER
+          }
+        })
+        .pipe(z.object({ x: z.string().exactOptional() }))
+      // 不正な base64-json (有効 base64 だが非 JSON) → catch ブロックに入る。
+      const invalidB64Json = Buffer.from('not-json', 'utf8').toString('base64')
+      const result = schema.safeParse(invalidB64Json)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('M')
+      }
     })
   })
 })

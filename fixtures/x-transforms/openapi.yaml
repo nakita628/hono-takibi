@@ -308,35 +308,25 @@ components:
         - normalizedEmail
         - updatedAt
       properties:
-        # .refine() — single check
+        # .refine() — complete chain fragment string
         password:
           type: string
-          x-refine:
-            - fn: '(v) => v.length >= 8'
-              message: 'Password must be at least 8 characters'
-            - fn: '(v) => /[A-Z]/.test(v)'
-              message: 'Password must contain an uppercase letter'
+          x-refine: '.refine((val) => val.length >= 8, { message: "Password must be at least 8 characters" }).refine((val) => /[A-Z]/.test(val), { message: "Password must contain an uppercase letter" })'
         # .refine() with custom error path
         confirmPassword:
           type: string
-        # superRefine on the whole object — declared on password for fixture demo
+        # superRefine — complete chain fragment string
         normalizedEmail:
           type: string
           format: email
           x-trim: true
           x-toLowerCase: true
-          x-superRefine:
-            - |
-              (v, ctx) => {
-                if (v.endsWith('@blocked.example')) {
-                  ctx.addIssue({ code: 'custom', message: 'Blocked domain' })
-                }
-              }
-        # x-codec: date — string ⇄ Date bidirectional
+          x-superRefine: '.superRefine((val, ctx) => { if (val.endsWith("@blocked.example")) ctx.addIssue({ code: "custom", message: "Blocked domain" }) })'
+        # x-codec — complete z.codec(...) expression (string ⇄ Date bidirectional)
         updatedAt:
           type: string
           format: date-time
-          x-codec: date
+          x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })'
 
     V25Form:
       type: object

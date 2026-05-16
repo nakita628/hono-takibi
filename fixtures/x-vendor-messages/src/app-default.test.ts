@@ -816,8 +816,8 @@ describe('x-vendor-messages — default behavior (no hook, raw ZodError, status 
 
     // v3.1: dependentSchemas now PROPAGATES the inner sub-schema's issue
     // verbatim instead of overriding with x-dependentSchemas-message. The
-    // emitTypelessRefine path emits 'invalid property' from the embedded
-    // pattern check on credit_card.
+    // emitTypelessRefine path omits `message` (no x-* slot) → Zod's built-in
+    // default 'Invalid input' flows through.
     it('x-dependentSchemas-message: malformed dep value emits the propagated inner sub-issue', async () => {
       const res = await app.request('/payment', {
         method: 'POST',
@@ -834,7 +834,7 @@ describe('x-vendor-messages — default behavior (no hook, raw ZodError, status 
         error: {
           name: 'ZodError',
           message:
-            '[\n  {\n    "code": "custom",\n    "message": "invalid property",\n    "path": []\n  }\n]',
+            '[\n  {\n    "code": "custom",\n    "path": [],\n    "message": "Invalid input"\n  }\n]',
         },
       })
     })

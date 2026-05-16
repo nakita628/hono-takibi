@@ -29,7 +29,6 @@ export function integer(schema: Schema): string {
     if (schema.format === 'int64') return `${n}n`
     return `${n}`
   }
-  // v3.0: separate inclusive (.min()) / exclusive (.gt() / .positive()) message slots
   const minimumMessage = schema['x-minimum-message']
   const exclusiveMinMessage = schema['x-exclusiveMinimum-message']
   const minErrorArg = minimumMessage ? error(minimumMessage) : ''

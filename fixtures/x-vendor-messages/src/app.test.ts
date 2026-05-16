@@ -794,7 +794,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     // erased the discriminant and forced everything to message='custom' —
     // unrecoverable for downstream RFC 9457 mappers. The slot remains in the
     // OpenAPI annotation roundtrip; this assertion validates the PROPAGATED
-    // inner detail (the sub-schema's emitTypelessRefine 'invalid property').
+    // inner detail (the sub-schema's emitTypelessRefine — message field
+    // omitted, Zod default 'Invalid input' flows through).
     it('rejects malformed credit_card with propagated sub-issue (v3.1 superRefine)', async () => {
       const res = await app.request('/payment', {
         method: 'POST',
@@ -807,7 +808,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       })
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toStrictEqual([
-        { pointer: '/', detail: 'invalid property' },
+        { pointer: '/', detail: 'Invalid input' },
       ])
     })
 
@@ -952,10 +953,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // v3.2: contains / minContains / maxContains dynamic default messages
-  // (no x-* slot, defaults embed the actual matched count)
+  // v3.5 (2026-05-14): contains / minContains / maxContains の x-* 未指定時は
+  // message を完全に省略し、Zod の built-in default ('Invalid input') に委ねる。
+  // 動的な matched カウント表示は廃止 (loid/yuri/yusukebe 合議)。
   // ─────────────────────────────────────────────────────────
-  describe('contains dynamic default messages (no x-* slot)', () => {
+  describe('contains default messages (no x-* slot) — falls back to Zod default', () => {
     it('accepts a fully valid body', async () => {
       const res = await app.request('/contains-default', {
         method: 'POST',
@@ -969,7 +971,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(res.status).toBe(200)
     })
 
-    it('contains alone — dynamic message includes "got 0"', async () => {
+    it('contains alone — Zod default "Invalid input" on /tags', async () => {
       const res = await app.request('/contains-default', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -982,11 +984,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toContainEqual({
         pointer: '/tags',
-        detail: 'Expected at least 1 item matching contains schema, got 0',
+        detail: 'Invalid input',
       })
     })
 
-    it('minContains: 2 — dynamic message includes actual matched count', async () => {
+    it('minContains: 2 — Zod default "Invalid input" on /scores', async () => {
       const res = await app.request('/contains-default', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -999,11 +1001,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toContainEqual({
         pointer: '/scores',
-        detail: 'Expected at least 2 matching items, got 1',
+        detail: 'Invalid input',
       })
     })
 
-    it('maxContains: 3 — dynamic message includes actual matched count', async () => {
+    it('maxContains: 3 — Zod default "Invalid input" on /ints', async () => {
       const res = await app.request('/contains-default', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1016,11 +1018,11 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toContainEqual({
         pointer: '/ints',
-        detail: 'Expected at most 3 matching items, got 4',
+        detail: 'Invalid input',
       })
     })
 
-    it('minContains: 2 — empty array reports "got 0"', async () => {
+    it('minContains: 2 — empty array reports Zod default', async () => {
       const res = await app.request('/contains-default', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1033,7 +1035,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toContainEqual({
         pointer: '/scores',
-        detail: 'Expected at least 2 matching items, got 0',
+        detail: 'Invalid input',
       })
     })
   })
