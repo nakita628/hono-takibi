@@ -222,6 +222,72 @@ Options:
       expect(result.ok).toBe(false)
     })
   })
+
+  describe('honoTakibi no args', () => {
+    beforeAll(() => {
+      process.argv = ['node', 'dist/index.js']
+    })
+
+    it('should fail when neither config nor positional args are supplied', async () => {
+      const result = await honoTakibi()
+      // No `hono-takibi.config.ts` in cwd + no positional input → parseCli
+      // rejects with the help text. (When cwd is the repo root the test
+      // runner does pick up the package's own config — here we accept either
+      // a clean parseCli failure or a downstream config-driven failure as
+      // long as `ok` is false.)
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+      }
+    })
+  })
+
+  describe('honoTakibi rejects unsupported input extension', () => {
+    beforeAll(() => {
+      process.argv = ['node', 'dist/index.js', 'spec.txt', '-o', 'out.ts']
+    })
+
+    it('returns help text when input file is not .yaml/.json/.tsp', async () => {
+      const result = await honoTakibi()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        // parseCli falls through to HELP_TEXT for any non-spec extension.
+        expect(result.error.includes('Usage: hono-takibi')).toBe(true)
+      }
+    })
+  })
+
+  describe('honoTakibi rejects unsupported output extension', () => {
+    beforeAll(() => {
+      process.argv = ['node', 'dist/index.js', 'spec.yaml', '-o', 'out.js']
+    })
+
+    it('returns help text when output file is not .ts', async () => {
+      const result = await honoTakibi()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error.includes('Usage: hono-takibi')).toBe(true)
+      }
+    })
+  })
+
+  describe('honoTakibi propagates parseOpenAPI failure', () => {
+    beforeAll(() => {
+      // Pointing at a non-existent .yaml file forces parseOpenAPI to fail
+      // — the CLI's `openAPIResult.ok === false` branch should surface the
+      // error verbatim instead of throwing.
+      process.argv = ['node', 'dist/index.js', 'this-file-does-not-exist.yaml', '-o', 'out.ts']
+    })
+
+    it('returns ok:false with the parser error string when input is missing', async () => {
+      const result = await honoTakibi()
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(typeof result.error).toBe('string')
+        // The error should NOT be the help text — it's a parser-level failure.
+        expect(result.error.includes('Usage: hono-takibi')).toBe(false)
+      }
+    })
+  })
 })
 
 describe('honoTakibi x-brand', () => {

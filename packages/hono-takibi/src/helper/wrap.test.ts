@@ -474,14 +474,14 @@ describe('wrap', () => {
       expect(result).toBe('z.email({error:"メール不正"}).openapi({"description":"Email field"})')
     })
 
-    it.concurrent('should not include x-size-message in openapi()', () => {
-      const result = wrap('z.string().min(3,{error:"3-20文字"}).max(20,{error:"3-20文字"})', {
+    it.concurrent('should not include x-length-message in openapi()', () => {
+      const result = wrap('z.string().length(5,{error:"5文字"})', {
         type: 'string',
-        minLength: 3,
-        maxLength: 20,
-        'x-size-message': '3-20文字',
+        minLength: 5,
+        maxLength: 5,
+        'x-length-message': '5文字',
       })
-      expect(result).toBe('z.string().min(3,{error:"3-20文字"}).max(20,{error:"3-20文字"})')
+      expect(result).toBe('z.string().length(5,{error:"5文字"})')
     })
 
     it.concurrent('should not include x-pattern-message in openapi()', () => {
@@ -511,6 +511,113 @@ describe('wrap', () => {
       expect(result).toBe('z.number().max(100,{error:"100以下"})')
     })
 
+    it.concurrent('should not include x-allOf-message in openapi()', () => {
+      const result = wrap('z.intersection(z.string(),z.string())', {
+        type: 'string',
+        allOf: [{ type: 'string' }, { type: 'string' }],
+        'x-allOf-message': 'allOf失敗',
+      })
+      expect(result).toBe('z.intersection(z.string(),z.string())')
+    })
+
+    it.concurrent('should not include x-uppercase / x-lowercase in openapi()', () => {
+      const result = wrap('z.string().uppercase()', {
+        type: 'string',
+        'x-uppercase': true,
+        description: 'Uppercase only',
+      })
+      expect(result).toBe('z.string().uppercase().openapi({"description":"Uppercase only"})')
+      const result2 = wrap('z.string().lowercase()', {
+        type: 'string',
+        'x-lowercase': true,
+      })
+      expect(result2).toBe('z.string().lowercase()')
+    })
+
+    it.concurrent('should not include x-properties-message in openapi()', () => {
+      const result = wrap('z.object({name:z.string()})', {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        'x-properties-message': 'プロパティ検証失敗',
+      })
+      expect(result).toBe('z.object({name:z.string()})')
+    })
+
+    it.concurrent('should not include x-prefixItems-message in openapi()', () => {
+      const result = wrap('z.tuple([z.string(),z.number()])', {
+        type: 'array',
+        prefixItems: [{ type: 'string' }, { type: 'number' }],
+        'x-prefixItems-message': 'タプル位置違反',
+      })
+      expect(result).toBe('z.tuple([z.string(),z.number()])')
+    })
+
+    it.concurrent('should not include x-items-message in openapi()', () => {
+      const result = wrap('z.array(z.string())', {
+        type: 'array',
+        items: { type: 'string' },
+        'x-items-message': '配列要素違反',
+      })
+      expect(result).toBe('z.array(z.string())')
+    })
+
+    it.concurrent('should not include x-unevaluatedProperties-message in openapi()', () => {
+      const result = wrap('z.object({name:z.string()}).strict()', {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        unevaluatedProperties: false,
+        'x-unevaluatedProperties-message': '未評価プロパティ違反',
+      })
+      expect(result).toBe('z.object({name:z.string()}).strict()')
+    })
+
+    it.concurrent('should not include x-unevaluatedItems-message in openapi()', () => {
+      const result = wrap('z.array(z.string())', {
+        type: 'array',
+        items: { type: 'string' },
+        unevaluatedItems: false,
+        'x-unevaluatedItems-message': '未評価要素違反',
+      })
+      expect(result).toBe('z.array(z.string())')
+    })
+
+    /* eslint-disable unicorn/no-thenable -- testing JSON Schema then keyword */
+    // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
+    it.concurrent('should not include x-if-message in openapi()', () => {
+      const result = wrap('z.object({a:z.string()})', {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        if: { properties: { a: { const: 'x' } } },
+        then: { required: ['a'] },
+        'x-if-message': 'if分岐失敗',
+      })
+      expect(result).toBe('z.object({a:z.string()})')
+    })
+
+    // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
+    it.concurrent('should not include x-then-message in openapi()', () => {
+      const result = wrap('z.object({a:z.string()})', {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        if: { properties: { a: { const: 'x' } } },
+        then: { required: ['a'] },
+        'x-then-message': 'then分岐失敗',
+      })
+      expect(result).toBe('z.object({a:z.string()})')
+    })
+
+    it.concurrent('should not include x-else-message in openapi()', () => {
+      const result = wrap('z.object({a:z.string()})', {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        if: { properties: { a: { const: 'x' } } },
+        else: { required: ['a'] },
+        'x-else-message': 'else分岐失敗',
+      })
+      expect(result).toBe('z.object({a:z.string()})')
+    })
+    /* eslint-enable unicorn/no-thenable */
+
     it.concurrent('should not include any x-* messages in openapi() with description', () => {
       const result = wrap('z.number().min(0,{error:"0以上"}).max(100,{error:"100以下"})', {
         type: 'number',
@@ -538,14 +645,16 @@ describe('wrap', () => {
       expect(result).toBe('z.array(z.string()).openapi({"description":"arr"})')
     })
 
-    it.concurrent('should filter out $schema property', () => {
+    it.concurrent('should pass through $schema property (v2.7 — Core meta)', () => {
       const schema = {
         type: 'string',
         $schema: 'http://json-schema.org/draft-07/schema#',
         description: 'test',
       } as unknown as Schema
       const result = wrap('z.string()', schema)
-      expect(result).toBe('z.string().openapi({"description":"test"})')
+      expect(result).toBe(
+        'z.string().openapi({"$schema":"http://json-schema.org/draft-07/schema#","description":"test"})',
+      )
     })
 
     it.concurrent('should filter out contentEncoding property', () => {

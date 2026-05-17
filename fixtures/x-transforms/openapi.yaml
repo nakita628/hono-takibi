@@ -1,0 +1,398 @@
+openapi: '3.1.0'
+info:
+  title: x-* Transform / Coerce / Format-Option Extensions (P1)
+  version: '1.0.0'
+  description: |
+    Fixture exercising the P1 extensions:
+    - Transforms: x-trim, x-toLowerCase, x-toUpperCase, x-normalize
+    - Coerce: x-coerce
+    - Format options: x-emailPattern, x-uuidVersion, x-urlHostname/Protocol/Normalize,
+      x-isoPrecision/Offset/Local, x-macDelimiter, x-jwtAlg, x-hashAlg/Enc
+
+paths:
+  /strings:
+    post:
+      operationId: postStrings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StringForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringForm'
+
+  /coerce:
+    post:
+      operationId: postCoerce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoerceForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoerceForm'
+
+  /formats:
+    post:
+      operationId: postFormats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormatOptions'
+
+  /p2:
+    post:
+      operationId: postP2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/P2Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/P2Form'
+
+  /custom:
+    post:
+      operationId: postCustom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomForm'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomForm'
+
+  /v25:
+    post:
+      operationId: postV25
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V25Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V25Form'
+
+  /v26:
+    post:
+      operationId: postV26
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/V26Form'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/V26Form'
+
+components:
+  schemas:
+    StringForm:
+      type: object
+      required:
+        - trimmed
+        - lowered
+        - uppered
+        - normalized
+        - emailNormalized
+        - allChained
+      properties:
+        trimmed:
+          type: string
+          x-trim: true
+        lowered:
+          type: string
+          x-toLowerCase: true
+        uppered:
+          type: string
+          x-toUpperCase: true
+        normalized:
+          type: string
+          x-normalize: NFC
+        emailNormalized:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+        allChained:
+          type: string
+          x-trim: true
+          x-toLowerCase: true
+          x-normalize: NFC
+
+    CoerceForm:
+      type: object
+      required:
+        - asString
+        - asDate
+        - asNumber
+        - asInt
+        - asBool
+      properties:
+        asString:
+          type: string
+          x-coerce: true
+        asDate:
+          type: string
+          format: date-time
+          x-coerce: true
+        asNumber:
+          type: number
+          x-coerce: true
+        asInt:
+          type: integer
+          x-coerce: true
+          minimum: 0
+        asBool:
+          type: boolean
+          x-coerce: true
+
+    FormatOptions:
+      type: object
+      required:
+        - emailHtml5
+        - uuidV8
+        - httpsUrl
+        - preciseDatetime
+        - localDatetime
+        - colonMac
+        - hs256Jwt
+        - sha256Hash
+        - phone
+        - customEmail
+        - guidLike
+        - httpOnlyUrl
+        - host
+        - dotMac
+      properties:
+        emailHtml5:
+          type: string
+          format: email
+          x-emailPattern: html5
+        uuidV8:
+          type: string
+          format: uuid
+          x-uuidVersion: v8
+        httpsUrl:
+          type: string
+          format: uri
+          x-urlProtocol: '^https$'
+          x-urlNormalize: true
+        preciseDatetime:
+          type: string
+          format: date-time
+          x-isoPrecision: 3
+          x-isoOffset: true
+        localDatetime:
+          type: string
+          format: date-time
+          x-isoLocal: true
+        colonMac:
+          type: string
+          format: mac
+          x-macDelimiter: ':'
+        hs256Jwt:
+          type: string
+          format: jwt
+          x-jwtAlg: HS256
+        sha256Hash:
+          type: string
+          format: hash
+          x-hashAlg: sha256
+          x-hashEnc: hex
+        phone:
+          type: string
+          format: e164
+        # custom regex via x-emailRegex (separate from preset x-emailPattern)
+        customEmail:
+          type: string
+          format: email
+          x-emailRegex: '^.+@example\.com$'
+        # GUID (lenient UUID)
+        guidLike:
+          type: string
+          format: guid
+        # HTTP/HTTPS-only URL
+        httpOnlyUrl:
+          type: string
+          format: httpUrl
+        # Hostname-only
+        host:
+          type: string
+          format: hostname
+        # MAC with dot delimiter
+        dotMac:
+          type: string
+          format: mac
+          x-macDelimiter: '.'
+
+    P2Form:
+      type: object
+      required:
+        - includesSlug
+        - startsWithHttps
+        - endsWithTest
+        - withCatch
+        - withPrefault
+      properties:
+        # string .includes()
+        includesSlug:
+          type: string
+          x-includes: '/api/'
+        # string .startsWith()
+        startsWithHttps:
+          type: string
+          x-startsWith: 'https://'
+        # string .endsWith()
+        endsWithTest:
+          type: string
+          x-endsWith: '.test'
+        # .catch(fallback)
+        withCatch:
+          type: integer
+          x-catch: 0
+        # .prefault(value)
+        withPrefault:
+          type: string
+          x-prefault: 'default-value'
+
+    CustomForm:
+      type: object
+      required:
+        - password
+        - confirmPassword
+        - normalizedEmail
+        - updatedAt
+      properties:
+        # .refine() — complete chain fragment string
+        password:
+          type: string
+          x-refine: '.refine((val) => val.length >= 8, { message: "Password must be at least 8 characters" }).refine((val) => /[A-Z]/.test(val), { message: "Password must contain an uppercase letter" })'
+        # .refine() with custom error path
+        confirmPassword:
+          type: string
+        # superRefine — complete chain fragment string
+        normalizedEmail:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+          x-superRefine: '.superRefine((val, ctx) => { if (val.endsWith("@blocked.example")) ctx.addIssue({ code: "custom", message: "Blocked domain" }) })'
+        # x-codec — complete z.codec(...) expression (string ⇄ Date bidirectional)
+        updatedAt:
+          type: string
+          format: date-time
+          x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })'
+
+    V25Form:
+      type: object
+      required:
+        - name
+        - tags
+        - status
+      $comment: x-required-message + contains + x-additionalProperties-message テスト
+      additionalProperties: false
+      x-additionalProperties-message: '未知のフィールドは許可されません'
+      properties:
+        # x-required-message: required と type で別メッセージ
+        name:
+          type: string
+          x-required-message: '名前は必須です'
+          x-error-message: '名前は文字列である必要があります'
+        # contains: 配列に最低1個の "important" タグ
+        tags:
+          type: array
+          items:
+            type: string
+          contains:
+            const: important
+          minContains: 1
+          maxContains: 3
+        # const + x-const-message
+        status:
+          const: active
+          x-const-message: 'ステータスは active のみ'
+
+    V26Form:
+      type: object
+      required:
+        - kind
+        - settings
+      properties:
+        kind:
+          type: string
+          enum: [premium, basic]
+        # if/then/else
+        feature:
+          type: string
+        # dependentSchemas: kind="premium" のとき feature 必須
+        # contentEncoding + contentMediaType + contentSchema
+        settings:
+          type: string
+          contentEncoding: base64
+          contentMediaType: application/json
+          contentSchema:
+            type: object
+            required: [theme]
+            properties:
+              theme:
+                type: string
+                enum: [light, dark]
+      if:
+        type: object
+        properties:
+          kind:
+            const: premium
+        required: [kind]
+      then:
+        type: object
+        required: [feature]
+        properties:
+          feature: { type: string }
+      else:
+        type: object
+        required: []

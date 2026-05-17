@@ -175,7 +175,7 @@ describe('integer', () => {
           type: 'integer',
           minimum: 0,
           exclusiveMinimum: true,
-          'x-minimum-message': '正の数',
+          'x-exclusiveMinimum-message': '正の数',
         },
         'z.int().positive({error:"正の数"})',
       ],
@@ -193,7 +193,7 @@ describe('integer', () => {
           type: 'integer',
           minimum: 100,
           exclusiveMinimum: true,
-          'x-minimum-message': '100超',
+          'x-exclusiveMinimum-message': '100超',
         },
         'z.int().gt(100,{error:"100超"})',
       ],
@@ -213,7 +213,7 @@ describe('integer', () => {
           type: 'integer',
           maximum: 0,
           exclusiveMaximum: true,
-          'x-maximum-message': '負の数',
+          'x-exclusiveMaximum-message': '負の数',
         },
         'z.int().negative({error:"負の数"})',
       ],
@@ -243,7 +243,7 @@ describe('integer', () => {
           format: 'int64',
           minimum: 0,
           exclusiveMinimum: true,
-          'x-minimum-message': '正',
+          'x-exclusiveMinimum-message': '正',
         },
         'z.int64().positive({error:"正"})',
       ],
@@ -275,7 +275,7 @@ describe('integer', () => {
           format: 'bigint',
           minimum: 0,
           exclusiveMinimum: true,
-          'x-minimum-message': '正',
+          'x-exclusiveMinimum-message': '正',
         },
         'z.bigint().positive({error:"正"})',
       ],
@@ -360,6 +360,22 @@ describe('integer', () => {
         { type: 'integer', multipleOf: 2, 'x-error-message': '整数必須' },
         'z.int({error:"整数必須"}).multipleOf(2,{error:"整数必須"})',
       ],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
+
+  describe('x-coerce (P1)', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().int()'],
+      [
+        { type: 'integer', 'x-coerce': true, 'x-error-message': '整数必須' },
+        'z.coerce.number({error:"整数必須"}).int()',
+      ],
+      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().int().min(0)'],
+      [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().int()'],
+      // bigint keeps its dedicated coerce variant
+      [{ type: 'integer', format: 'bigint', 'x-coerce': true }, 'z.coerce.bigint()'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
     })

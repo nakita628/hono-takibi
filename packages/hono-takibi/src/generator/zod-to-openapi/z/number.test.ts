@@ -40,6 +40,9 @@ describe('type: number, format: float', () => {
   it.concurrent.each<[Schema, string]>([
     [{ type: 'number', format: 'float' }, 'z.float32()'],
     [{ type: 'number', format: 'float64' }, 'z.float64()'],
+    // 'double' is the OpenAPI standard alias for IEEE 754 binary64 — same wire
+    // shape as float64, so map it to z.float64 to match the FormatNumber type.
+    [{ type: 'number', format: 'double' }, 'z.float64()'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -83,7 +86,7 @@ describe('x-minimum-message', () => {
         type: 'number',
         minimum: 0,
         exclusiveMinimum: true,
-        'x-minimum-message': '正の数',
+        'x-exclusiveMinimum-message': '正の数',
       },
       'z.number().positive({error:"正の数"})',
     ],
@@ -101,12 +104,12 @@ describe('x-minimum-message', () => {
         type: 'number',
         minimum: 100,
         exclusiveMinimum: true,
-        'x-minimum-message': '100超',
+        'x-exclusiveMinimum-message': '100超',
       },
       'z.number().gt(100,{error:"100超"})',
     ],
     [
-      { type: 'number', exclusiveMinimum: 5, 'x-minimum-message': '5超' },
+      { type: 'number', exclusiveMinimum: 5, 'x-exclusiveMinimum-message': '5超' },
       'z.number().gt(5,{error:"5超"})',
     ],
   ])('number(%o) → %s', (input, expected) => {
@@ -125,7 +128,7 @@ describe('x-maximum-message', () => {
         type: 'number',
         maximum: 0,
         exclusiveMaximum: true,
-        'x-maximum-message': '負の数',
+        'x-exclusiveMaximum-message': '負の数',
       },
       'z.number().negative({error:"負の数"})',
     ],
@@ -143,12 +146,12 @@ describe('x-maximum-message', () => {
         type: 'number',
         maximum: 100,
         exclusiveMaximum: true,
-        'x-maximum-message': '100未満',
+        'x-exclusiveMaximum-message': '100未満',
       },
       'z.number().lt(100,{error:"100未満"})',
     ],
     [
-      { type: 'number', exclusiveMaximum: 50, 'x-maximum-message': '50未満' },
+      { type: 'number', exclusiveMaximum: 50, 'x-exclusiveMaximum-message': '50未満' },
       'z.number().lt(50,{error:"50未満"})',
     ],
   ])('number(%o) → %s', (input, expected) => {
@@ -185,6 +188,25 @@ describe('x-error-message on multipleOf', () => {
     ],
     // No x-error-message → existing behavior
     [{ type: 'number', multipleOf: 3 }, 'z.number().multipleOf(3)'],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
+describe('x-coerce (P1)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'number', 'x-coerce': true }, 'z.coerce.number()'],
+    [
+      { type: 'number', 'x-coerce': true, 'x-error-message': '数値必須' },
+      'z.coerce.number({error:"数値必須"})',
+    ],
+    [{ type: 'number', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().min(0)'],
+    [
+      { type: 'number', 'x-coerce': true, minimum: 0, maximum: 100 },
+      'z.coerce.number().min(0).max(100)',
+    ],
+    // coerce overrides float/float64 — coerce.number is the canonical form
+    [{ type: 'number', format: 'float', 'x-coerce': true }, 'z.coerce.number()'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })

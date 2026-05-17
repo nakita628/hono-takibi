@@ -20,22 +20,13 @@ export function wrap(
     isOptional?: boolean
   },
 ) {
-  /* Properties not supported or causing type issues with zod-to-openapi */
+  /* Properties truly not supported. JSON Schema 2020-12 Core meta
+   * keywords ($schema/$id/$anchor/$dynamicAnchor/$dynamicRef/$vocabulary) now
+   * pass through to .openapi({...}) for full spec coverage. Only legacy
+   * pre-2019-09 keywords ($recursiveRef/$recursiveAnchor — replaced by
+   * $dynamicRef/$dynamicAnchor in 2020-12) and non-standard underscore
+   * variants remain dropped. */
   const unsupportedProps = new Set([
-    'contains',
-    'minContains',
-    'maxContains',
-    'dependentSchemas',
-    'unevaluatedProperties',
-    'unevaluatedItems',
-    'if',
-    'then',
-    'else',
-    'contentSchema',
-    'contentEncoding',
-    'contentMediaType',
-    '$schema',
-    '$id',
     '$recursiveRef',
     '$recursiveAnchor',
     'optional',
@@ -139,8 +130,30 @@ export function wrap(
   const n = isNullable ? `${zod}.nullable()` : zod
   /* why schema.default !== undefined: because schema.default === 0 is falsy */
   const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+  /* P2: .prefault(value) applies a default value to the parse INPUT before
+   * validation runs (different from .default which fills missing output). */
+  const pf =
+    schema['x-prefault'] !== undefined ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})` : d
+  /* P2: .catch(fallback) returns the fallback when validation fails. */
+  const c =
+    schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
+  /* P2: .readonly() applies Object.freeze() to the parsed output (distinct
+   * from JSON Schema's readOnly which is a serialization hint). */
+  const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
+  /* Custom validation: append `.refine(...)` / `.superRefine(...)` chain
+   * fragment strings verbatim. */
+  const refineChain = `${fr}${schema['x-refine'] ?? ''}`
+  const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
+  /* x-preprocess / x-transform / x-pipe: each is a complete Zod expression
+   * string and replaces the base schema verbatim (same convention as x-codec).
+   * Mutual exclusion: only one replacing extension can take effect per schema.
+   * Precedence: x-preprocess > x-transform > x-pipe (preprocess wraps outer). */
+  const preprocess = schema['x-preprocess']
+  const transform = schema['x-transform']
+  const pipe = schema['x-pipe']
+  const replaced = preprocess ?? transform ?? pipe ?? superRefineChain
   /* Apply .brand() for branded types */
-  const z = schema['x-brand'] ? `${d}.brand<"${schema['x-brand']}">()` : d
+  const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
   /* zod method chain already expressed properties (to prevent double management) */
   const zodExpressedProps = new Set([
     'type',
@@ -175,21 +188,99 @@ export function wrap(
     '$ref',
     'prefixItems',
     'x-error-message',
-    'x-size-message',
+    'x-length-message',
     'x-pattern-message',
     'x-minimum-message',
     'x-maximum-message',
     'x-multipleOf-message',
     'x-dependentRequired-message',
     'x-propertyNames-message',
+    'x-allOf-message',
     'x-anyOf-message',
     'x-oneOf-message',
     'x-not-message',
+    'x-required-message',
+    'x-additionalProperties-message',
+    'x-uniqueItems-message',
+    'x-const-message',
+    'x-enum-message',
+    'x-dependentSchemas-message',
+    'x-minLength-message',
+    'x-maxLength-message',
+    'x-minItems-message',
+    'x-maxItems-message',
+    'x-minProperties-message',
+    'x-maxProperties-message',
+    'x-patternProperties-message',
+    'x-contains-message',
+    'x-exclusiveMinimum-message',
+    'x-exclusiveMaximum-message',
+    'x-minContains-message',
+    'x-maxContains-message',
+    '$comment',
+    'contains',
+    'minContains',
+    'maxContains',
+    // full JSON Schema 2020-12 coverage
+    'contentEncoding',
+    'contentMediaType',
+    'contentSchema',
+    'dependentSchemas',
+    'if',
+    'then',
+    'else',
+    'unevaluatedProperties',
+    'unevaluatedItems',
     // x-enum-error-messages: kept in this drop-list (NOT in the Schema
     // type) so legacy YAML carrying the now-removed extension doesn't
     // leak into z.object().meta(...) emission as a stray option.
     'x-enum-error-messages',
     'x-brand',
+    'x-trim',
+    'x-toLowerCase',
+    'x-toUpperCase',
+    'x-normalize',
+    'x-coerce',
+    'x-lowercase',
+    'x-uppercase',
+    'x-emailPattern',
+    'x-emailRegex',
+    'x-uuidVersion',
+    'x-urlHostname',
+    'x-urlProtocol',
+    'x-urlNormalize',
+    'x-isoPrecision',
+    'x-isoOffset',
+    'x-isoLocal',
+    'x-macDelimiter',
+    'x-jwtAlg',
+    'x-hashAlg',
+    'x-hashEnc',
+    // x-finite / x-safe omitted (deprecated Zod APIs)
+    'x-catch',
+    'x-prefault',
+    'x-freeze',
+    'x-includes',
+    'x-startsWith',
+    'x-endsWith',
+    'x-refine',
+    'x-superRefine',
+    'x-codec',
+    'x-preprocess',
+    'x-transform',
+    'x-pipe',
+    // previously-missing slots that leaked into the public OpenAPI doc
+    // via @hono/zod-openapi's `.openapi({...})` emission. These are all
+    // consumed by the generator (validator messages) and have no business
+    // surfacing in the externally-visible schema.
+    'x-properties-message',
+    'x-prefixItems-message',
+    'x-items-message',
+    'x-unevaluatedProperties-message',
+    'x-unevaluatedItems-message',
+    'x-if-message',
+    'x-then-message',
+    'x-else-message',
   ])
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(

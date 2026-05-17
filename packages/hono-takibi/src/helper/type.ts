@@ -122,6 +122,12 @@ function makeArrayTypeString(
   const prefix = readonly ? 'readonly ' : ''
   if (!schema.items) return `${prefix}unknown[]`
   const items = schema.items
+  // JSON Schema 2020-12 §10.3.1.2 boolean items:
+  //   items: true  → trailing items unconstrained (unknown[])
+  //   items: false → trailing items disallowed; collapses to an empty tuple.
+  if (typeof items === 'boolean') {
+    return items ? `${prefix}unknown[]` : readonly ? 'readonly []' : '[]'
+  }
   if (isSchemaArray(items)) {
     const firstItem = items[0]
     if (items.length > 1) {

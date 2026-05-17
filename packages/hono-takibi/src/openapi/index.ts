@@ -193,7 +193,10 @@ export type FormatString =
   | 'uuidv4'
   | 'uuidv6'
   | 'uuidv7'
-  | 'uri'
+  | 'url' /* Zod-aligned canonical name */
+  | 'uri' /* OpenAPI/JSON Schema standard, kept for backward compatibility */
+  | 'httpUrl'
+  | 'hostname'
   | 'hex'
   | 'jwt'
   | 'emoji'
@@ -212,6 +215,10 @@ export type FormatString =
   | 'date-time' /* ISO 8601; by default only `Z` timezone allowed */
   | 'duration' /* ISO 8601 duration */
   | 'binary'
+  | 'mac' /* MAC address */
+  | 'hash' /* hash digest — requires x-hashAlg */
+  | 'e164' /* E.164 phone */
+  | 'guid' /* UUID-like without strict RFC check */
   /* transforms */
   | 'toLowerCase' /* toLowerCase */
   | 'toUpperCase' /* toUpperCase */
@@ -434,7 +441,13 @@ export type Schema = {
     readonly [k: string]: Schema
   }
   readonly required?: readonly string[]
-  readonly items?: Schema | readonly Schema[]
+  /**
+   * JSON Schema 2020-12 §10.3.1.2: `items` may be a schema, a tuple of schemas
+   * (Draft-04 compat), or a boolean schema (`true` = any item allowed,
+   * `false` = no trailing items / length cap). Boolean form is exercised when
+   * paired with `prefixItems` to enforce a strict tuple shape.
+   */
+  readonly items?: Schema | readonly Schema[] | boolean
   /** JSON Schema 2020-12: Tuple validation */
   readonly prefixItems?: readonly Schema[]
   readonly enum?: readonly (
@@ -465,21 +478,90 @@ export type Schema = {
   readonly dependentRequired?: {
     readonly [k: string]: readonly string[]
   }
-  readonly contentEncoding?: string
-  readonly contentMediaType?: string
   // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
+  /**
+   *
+   *
+   *
+   *
+   */
   readonly 'x-error-message'?: string
-  readonly 'x-size-message'?: string
-  readonly 'x-pattern-message'?: string
-  readonly 'x-minimum-message'?: string
-  readonly 'x-maximum-message'?: string
+  /**
+   *
+   *
+   *
+   */
+  readonly 'x-length-message'?: string
+  readonly 'x-pattern-message'?: string // string `pattern` only
+  readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
+  readonly 'x-maximum-message'?: string // numeric `maximum` (inclusive) only
+  readonly 'x-exclusiveMinimum-message'?: string // numeric `exclusiveMinimum` (>)
+  readonly 'x-exclusiveMaximum-message'?: string // numeric `exclusiveMaximum` (<)
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
+  readonly 'x-dependentSchemas-message'?: string
   readonly 'x-propertyNames-message'?: string
   readonly 'x-allOf-message'?: string
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
+  readonly 'x-required-message'?: string
+  readonly 'x-additionalProperties-message'?: string
+  readonly 'x-uniqueItems-message'?: string
+  readonly 'x-const-message'?: string
+  readonly 'x-enum-message'?: string
+  readonly 'x-minLength-message'?: string // string minLength
+  readonly 'x-maxLength-message'?: string // string maxLength
+  readonly 'x-minItems-message'?: string // array minItems
+  readonly 'x-maxItems-message'?: string // array maxItems
+  readonly 'x-minProperties-message'?: string // object minProperties
+  readonly 'x-maxProperties-message'?: string // object maxProperties
+  readonly 'x-patternProperties-message'?: string // object patternProperties
+  readonly 'x-contains-message'?: string // array contains (type-match presence)
+  readonly 'x-minContains-message'?: string // array minContains (count lower bound)
+  readonly 'x-maxContains-message'?: string // array maxContains (count upper bound)
+  // schemas so generated validators stop emitting hardcoded English defaults.
+  // Slot absent → `ctx.addIssue` omits `message` → Zod's built-in default
+  // ('Invalid input') is used, picking up future locale config automatically.
+  //
+  readonly 'x-properties-message'?: string // failed per-property validation in a typeless object
+  readonly 'x-prefixItems-message'?: string // failed tuple position validation
+  readonly 'x-items-message'?: string // failed trailing items validation (incl. `items: false`)
+  readonly 'x-unevaluatedProperties-message'?: string // unevaluatedProperties violation
+  readonly 'x-unevaluatedItems-message'?: string // unevaluatedItems violation
+  readonly 'x-if-message'?: string // failed `then`/`else` branch under `if` (shared fallback)
+  readonly 'x-then-message'?: string // failed `then` branch (overrides x-if-message for then)
+  readonly 'x-else-message'?: string // failed `else` branch (overrides x-if-message for else)
+  readonly $comment?: string
+  // array contains validation (JSON Schema standard)
+  readonly contains?: Schema
+  readonly minContains?: number
+  readonly maxContains?: number
+  readonly contentEncoding?:
+    | 'base64'
+    | 'base64url'
+    | 'binary'
+    | '7bit'
+    | '8bit'
+    | 'quoted-printable'
+  readonly contentMediaType?: string
+  readonly contentSchema?: Schema
+  readonly dependentSchemas?: { readonly [k: string]: Schema }
+  // if / then / else (JSON Schema standard conditional)
+  readonly if?: Schema
+  readonly then?: Schema
+  readonly else?: Schema
+  readonly unevaluatedProperties?: boolean | Schema
+  readonly unevaluatedItems?: boolean | Schema
+  // JSON Schema 2020-12 Core meta keywords (pass-through to .openapi())
+  // These have no validation effect — they're documentation/identification only.
+  readonly $schema?: string
+  readonly $id?: string
+  readonly $anchor?: string
+  readonly $dynamicAnchor?: string
+  readonly $dynamicRef?: string
+  readonly $vocabulary?: { readonly [k: string]: boolean }
+  readonly $defs?: { readonly [k: string]: Schema }
   // x-enum-error-messages was removed: by design `enum` lists *allowed*
   // values, so a per-value "cannot be ..." message is dead code — when the
   // input matches an enum entry, validation passes (no error to display);
@@ -487,6 +569,59 @@ export type Schema = {
   // can't fire. Use `x-error-message` for the whole-enum message instead.
   // Vendor extension for branded types
   readonly 'x-brand'?: string
+  // P1 transform/coerce extensions
+  readonly 'x-trim'?: boolean
+  readonly 'x-toLowerCase'?: boolean
+  readonly 'x-toUpperCase'?: boolean
+  readonly 'x-lowercase'?: boolean
+  readonly 'x-uppercase'?: boolean
+  readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
+  readonly 'x-coerce'?: boolean
+  // P1 format-option extensions
+  readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
+  readonly 'x-emailRegex'?: string
+  readonly 'x-uuidVersion'?: 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8'
+  readonly 'x-urlHostname'?: string
+  readonly 'x-urlProtocol'?: string
+  readonly 'x-urlNormalize'?: boolean
+  readonly 'x-isoPrecision'?: number
+  readonly 'x-isoOffset'?: boolean
+  readonly 'x-isoLocal'?: boolean
+  readonly 'x-macDelimiter'?: string
+  readonly 'x-jwtAlg'?: string
+  readonly 'x-hashAlg'?: 'sha1' | 'sha256' | 'sha384' | 'sha512' | 'md5'
+  readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
+  // P2 extensions
+  // Note: x-finite / x-safe were considered but skipped — the corresponding
+  // Zod APIs (.finite() / .safe()) are deprecated.
+  readonly 'x-catch'?: unknown
+  readonly 'x-prefault'?: unknown
+  readonly 'x-freeze'?: boolean
+  readonly 'x-includes'?: string
+  readonly 'x-startsWith'?: string
+  readonly 'x-endsWith'?: string
+  // Custom validation. Complete `.refine(...)` / `.superRefine(...)` chain
+  // fragment string appended to the schema verbatim. Multiple checks are
+  // written as a chain: `.refine(...).refine(...)`. Paste Zod docs examples
+  // directly.
+  readonly 'x-refine'?: string
+  readonly 'x-superRefine'?: string
+  // Bidirectional codec. The value is a complete `z.codec(...)` expression
+  // string and replaces the base schema verbatim. Authors can paste the Zod
+  // docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+  readonly 'x-codec'?: string
+  // Pre-validation normalization. The value is a complete `z.preprocess(...)`
+  // expression string and replaces the base schema verbatim (same convention
+  // as x-codec). Paste Zod docs example directly.
+  readonly 'x-preprocess'?: string
+  // Post-validation transform. The value is a complete Zod expression string
+  // (e.g. `z.string().transform((val) => ...)`) and replaces the base schema
+  // verbatim (same convention as x-codec).
+  readonly 'x-transform'?: string
+  // Schema-level pipe. The value is a complete Zod expression string (e.g.
+  // `z.string().pipe(z.number())`) and replaces the base schema verbatim
+  // (same convention as x-codec).
+  readonly 'x-pipe'?: string
 }
 
 export type Parameter = {

@@ -54,8 +54,6 @@ export async function parameters(
   if (!parameters) return { ok: false, error: 'No parameters found' } as const
   const parameterNames = Object.keys(parameters)
   if (parameterNames.length === 0) return { ok: true, value: 'No parameters found' } as const
-  const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, components, split)
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
     const results = await Promise.all([
@@ -63,7 +61,11 @@ export async function parameters(
         const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }
         const code = parametersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${uncapitalize(parameterName)}.ts`)
-        return emit(toFileCode(code, filePath), path.dirname(filePath), filePath)
+        return emit(
+          makeImports(code, filePath, components, split),
+          path.dirname(filePath),
+          filePath,
+        )
       }),
       emit(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
     ])
@@ -76,7 +78,7 @@ export async function parameters(
   }
   const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
   const emitResult = await emit(
-    toFileCode(parameterDefinitions, output),
+    makeImports(parameterDefinitions, output, components, split),
     path.dirname(output),
     output,
   )

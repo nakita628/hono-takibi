@@ -118,6 +118,17 @@ export function isSchemaArray(v: Schema | readonly Schema[]): v is readonly Sche
   return Array.isArray(v)
 }
 
+/**
+ * JSON Schema 2020-12 §4.3.2 / §10.3.1.2 type guard for schema-vs-boolean
+ * discrimination. `items`, `additionalProperties`, `unevaluatedItems`, and
+ * `unevaluatedProperties` may be either an object schema or a boolean schema
+ * (`true` = pass-through, `false` = reject). This narrows the union to the
+ * object form so callers can recurse without `as` casts.
+ */
+export function isSchemaObject(v: Schema | readonly Schema[] | boolean | undefined): v is Schema {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
 export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } {
   return typeof v === 'object' && v !== null && 'schema' in v
 }

@@ -71,12 +71,94 @@ paths:
         '200':
           description: OK
 
+  /payment:
+    post:
+      operationId: postPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '200':
+          description: OK
+
+  /bounds:
+    post:
+      operationId: postBounds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bounds'
+      responses:
+        '200':
+          description: OK
+
+  /basket:
+    post:
+      operationId: postBasket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Basket'
+      responses:
+        '200':
+          description: OK
+
+  /write-only:
+    post:
+      operationId: postWriteOnly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteOnly'
+      responses:
+        '200':
+          description: OK
+
+  /contains-default:
+    post:
+      operationId: postContainsDefault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContainsDefault'
+      responses:
+        '200':
+          description: OK
+
+  /misc:
+    post:
+      operationId: postMisc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Misc'
+      responses:
+        '200':
+          description: OK
+
 components:
   schemas:
-    # Field-level coverage:
+    # Field-level coverage (v3.0: 1 keyword = 1 message):
     #   x-error-message      → string / integer / number / boolean / array constructors
-    #   x-minimum-message    → string .min() / array .min() / number .gte()
-    #   x-maximum-message    → string .max() / array .max() / number .lte()
+    #   x-minimum-message    → number .gte()
+    #   x-maximum-message    → number .lte()
+    #   x-minLength-message  → string .min()
+    #   x-maxLength-message  → string .max()
+    #   x-minItems-message   → array .min()
+    #   x-maxItems-message   → array .max()
     #   x-size-message       → string .length() / array .length()
     #   x-pattern-message    → string .regex()
     #   x-multipleOf-message → integer & number .multipleOf()
@@ -101,14 +183,14 @@ components:
           - tokenLabel
       x-dependentRequired-message: 'tokenLabel is required when token is provided'
       properties:
-        # x-error-message (string ctor) + x-minimum-message (.min()) + x-maximum-message (.max())
+        # x-error-message (string ctor) + x-minLength-message + x-maxLength-message
         username:
           type: string
           minLength: 3
           maxLength: 16
           x-error-message: 'username must be a string'
-          x-minimum-message: 'username must be at least 3 characters'
-          x-maximum-message: 'username must be at most 16 characters'
+          x-minLength-message: 'username must be at least 3 characters'
+          x-maxLength-message: 'username must be at most 16 characters'
         # x-size-message (string .length())
         code:
           type: string
@@ -143,7 +225,7 @@ components:
         active:
           type: boolean
           x-error-message: 'active must be a boolean'
-        # x-error-message (array ctor) + x-minimum-message (array .min()) + x-maximum-message (array .max())
+        # x-error-message (array ctor) + x-minItems-message + x-maxItems-message
         tags:
           type: array
           items:
@@ -151,8 +233,8 @@ components:
           minItems: 1
           maxItems: 5
           x-error-message: 'tags must be an array'
-          x-minimum-message: 'tags must contain at least 1 item'
-          x-maximum-message: 'tags must contain at most 5 items'
+          x-minItems-message: 'tags must contain at least 1 item'
+          x-maxItems-message: 'tags must contain at most 5 items'
         # x-size-message (array .length())
         pin:
           type: array
@@ -226,7 +308,7 @@ components:
             name:
               type: string
               minLength: 3
-              x-minimum-message: 'name must be at least 3 chars'
+              x-minLength-message: 'name must be at least 3 chars'
         - type: object
           required: [age]
           properties:
@@ -252,3 +334,186 @@ components:
               type: integer
               minimum: 0
       x-allOf-message: '(issue) => "merged failed at " + issue.path.join(".")'
+
+    # x-dependentSchemas-message — distinct from x-dependentRequired-message.
+    # dependentRequired fires when the dependency key exists but a required
+    # property is missing. dependentSchemas fires when the dependency key
+    # exists and the sub-schema validation against the whole object fails.
+    Payment:
+      type: object
+      required: [method]
+      properties:
+        method:
+          type: string
+        credit_card:
+          type: string
+        billing_zip:
+          type: string
+      dependentRequired:
+        credit_card: [billing_zip]
+      dependentSchemas:
+        credit_card:
+          properties:
+            credit_card:
+              type: string
+              pattern: '^[0-9]{16}$'
+      x-dependentRequired-message: 'billing_zip is required when credit_card is provided'
+      x-dependentSchemas-message: 'credit_card must be 16 digits when provided'
+
+    # x-exclusiveMinimum-message / x-exclusiveMaximum-message — distinct from
+    # x-minimum-message / x-maximum-message. inclusive vs exclusive boundary
+    # constraints must be expressible with independent messages (silent bug fix).
+    Bounds:
+      type: object
+      required: [score, ratio]
+      properties:
+        score:
+          type: number
+          minimum: 0
+          exclusiveMaximum: 100
+          x-minimum-message: 'score must be >= 0'
+          x-exclusiveMaximum-message: 'score must be < 100'
+        ratio:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1
+          x-exclusiveMinimum-message: 'ratio must be > 0'
+          x-maximum-message: 'ratio must be <= 1'
+
+    # x-minContains-message / x-maxContains-message — independent from
+    # x-contains-message. v3.0 silent-bug fix: each failure mode gets a
+    # distinct message instead of all collapsing under x-contains-message.
+    Basket:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [kind]
+            properties:
+              kind:
+                type: string
+          contains:
+            type: object
+            required: [kind]
+            properties:
+              kind:
+                type: string
+                enum: [premium]
+          minContains: 2
+          maxContains: 5
+          x-minContains-message: 'must include at least 2 premium items'
+          x-maxContains-message: 'must include at most 5 premium items'
+
+    # v3.2: writeOnly OAS metadata propagation. Verifies that a property
+    # marked writeOnly in the OpenAPI source survives codegen and ends up
+    # in the generated OpenAPI document via .openapi({writeOnly: true}).
+    WriteOnly:
+      type: object
+      required: [name, password]
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+
+    # v3.2: contains / minContains / maxContains WITHOUT custom messages.
+    # Verifies the dynamic default messages embed the actual matched count
+    # (e.g. "Expected at least 2 matching items, got 1") so downstream
+    # defaultHook consumers can show actionable detail without slot setup.
+    ContainsDefault:
+      type: object
+      required: [tags, scores, ints]
+      properties:
+        # contains alone (no min/max) → "Expected at least 1 item matching contains schema, got N"
+        tags:
+          type: array
+          items:
+            type: string
+          contains:
+            const: 'special'
+        # minContains: 2 → "Expected at least 2 matching items, got N"
+        scores:
+          type: array
+          items:
+            type: number
+          contains:
+            type: number
+            minimum: 90
+          minContains: 2
+        # minContains + maxContains → both dynamic
+        ints:
+          type: array
+          items:
+            type: number
+          contains:
+            type: integer
+          minContains: 2
+          maxContains: 3
+
+    # Coverage backfill — runtime tests for x-*-message extensions that were
+    # previously only covered by codegen unit tests. Each property exercises
+    # one extension under a runtime POST + JSON safeParse + issue.message
+    # toStrictEqual assertion (yuri-検問 batch).
+    Misc:
+      type: object
+      required: [color, kind, tags, sized, namespaced, prefixed, payload]
+      properties:
+        # x-enum-message — value not in enum (vs x-error-message for type)
+        color:
+          type: string
+          enum: [red, green, blue]
+          x-error-message: 'color must be a string'
+          x-enum-message: 'color must be one of red, green, blue'
+        # x-const-message — wrong literal value
+        kind:
+          type: string
+          const: 'admin'
+          x-const-message: 'kind must be exactly "admin"'
+        # x-uniqueItems-message — duplicate elements
+        tags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          x-uniqueItems-message: 'tags must contain unique values'
+        # x-contains-message — when contains alone (no min/max)
+        sized:
+          type: array
+          items:
+            type: string
+          contains:
+            type: string
+            enum: [premium]
+          x-contains-message: 'sized must contain at least one premium tag'
+        # x-minProperties-message + x-maxProperties-message + x-additionalProperties-message
+        namespaced:
+          type: object
+          minProperties: 1
+          maxProperties: 3
+          additionalProperties: false
+          properties:
+            a:
+              type: string
+            b:
+              type: string
+            c:
+              type: string
+          x-minProperties-message: 'namespaced must have at least 1 property'
+          x-maxProperties-message: 'namespaced must have at most 3 properties'
+          x-additionalProperties-message: 'namespaced contains an unrecognized key'
+        # x-patternProperties-message
+        prefixed:
+          type: object
+          patternProperties:
+            '^x_':
+              type: string
+          x-patternProperties-message: 'x_ keys must be strings'
+        # x-required-message — distinct message when input is undefined
+        payload:
+          type: string
+          x-required-message: 'payload is required'
+          x-error-message: 'payload must be a string'
