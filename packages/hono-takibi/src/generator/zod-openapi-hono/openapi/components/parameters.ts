@@ -50,7 +50,7 @@ export function parametersCode(
       const z = isPrimitiveNumeric
         ? baseSchema
         : isStringWire && schema?.type === 'boolean'
-          ? baseSchema.replace('boolean', 'stringbool')
+          ? baseSchema.replace(/\bz\.boolean\(/g, 'z.stringbool(')
           : isStringWire && schema?.type === 'date'
             ? `z.coerce.${baseSchema.replace('z.', '')}`
             : isStringWire && (schema?.type === 'object' || schema?.type === 'array')

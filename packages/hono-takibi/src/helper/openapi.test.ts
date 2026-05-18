@@ -505,6 +505,14 @@ describe('openapi helper', () => {
         'z.stringbool().exactOptional().openapi({param:{"name":"active","in":"query","schema":{"type":"boolean"}}})',
       )
     })
+    it.concurrent('preserves z.coerce.boolean() for query boolean with x-coerce (no z.coerce.stringbool crash)', () => {
+      const result = makeParameters([
+        { name: 'flag', in: 'query', schema: { type: 'boolean', 'x-coerce': true } },
+      ])
+      expect(result.query.flag).toBe(
+        'z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true}}})',
+      )
+    })
     it.concurrent('handles parameters with content instead of schema', () => {
       const result = makeParameters([
         {

@@ -464,7 +464,7 @@ export function makeParameters(
       ? baseSchema
       : isStringWire && schema.type === 'boolean'
         ? baseSchema
-            .replace('boolean', 'stringbool')
+            .replace(/\bz\.boolean\(/g, 'z.stringbool(')
             .replace(/\.default\("true"\)/g, '.default(true)')
             .replace(/\.default\("false"\)/g, '.default(false)')
         : isStringWire && schema.type === 'date'
