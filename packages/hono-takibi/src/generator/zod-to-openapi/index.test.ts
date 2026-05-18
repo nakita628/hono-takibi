@@ -7197,7 +7197,9 @@ describe('zodToOpenAPI', () => {
   describe('readonly parameter', () => {
     it.concurrent('readonly: array of strings', () => {
       expect(
-        zodToOpenAPI({ type: 'array', items: { type: 'string' } } as Schema, undefined, true),
+        zodToOpenAPI({ type: 'array', items: { type: 'string' } } as Schema, undefined, {
+          readonly: true,
+        }),
       ).toBe('z.array(z.string()).readonly()')
       const runtime = z.array(z.string()).readonly()
       expect(runtime.safeParse(['a']).success).toBe(true)
@@ -7216,7 +7218,9 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('readonly: array of numbers', () => {
       expect(
-        zodToOpenAPI({ type: 'array', items: { type: 'number' } } as Schema, undefined, true),
+        zodToOpenAPI({ type: 'array', items: { type: 'number' } } as Schema, undefined, {
+          readonly: true,
+        }),
       ).toBe('z.array(z.number()).readonly()')
       const runtime = z.array(z.number()).readonly()
       expect(runtime.safeParse([1, 2]).success).toBe(true)
@@ -7237,7 +7241,7 @@ describe('zodToOpenAPI', () => {
       const generated = zodToOpenAPI(
         { type: 'array', items: { $ref: '#/components/schemas/Item' } } as Schema,
         undefined,
-        true,
+        { readonly: true },
       )
       expect(generated).toBe('z.array(ItemSchema).readonly()')
       // skip runtime: generated code references ItemSchema (external identifier)
@@ -7250,7 +7254,7 @@ describe('zodToOpenAPI', () => {
             prefixItems: [{ type: 'string' }, { type: 'number' }],
           } as Schema,
           undefined,
-          true,
+          { readonly: true },
         ),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}}).readonly()',
@@ -7295,7 +7299,7 @@ describe('zodToOpenAPI', () => {
           required: ['name'],
         } as Schema,
         undefined,
-        true,
+        { readonly: true },
       )
       expect(generated).toBe(
         'z.object({name:z.string()}).readonly().openapi({"required":["name"]})',
@@ -7303,7 +7307,9 @@ describe('zodToOpenAPI', () => {
       // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
     })
     it.concurrent('readonly: string primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'string' } as Schema, undefined, true)).toBe('z.string()')
+      expect(zodToOpenAPI({ type: 'string' } as Schema, undefined, { readonly: true })).toBe(
+        'z.string()',
+      )
       const runtime = z.string()
       expect(runtime.safeParse('foo').success).toBe(true)
       const r = runtime.safeParse(1)
@@ -7320,7 +7326,9 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('readonly: number primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'number' } as Schema, undefined, true)).toBe('z.number()')
+      expect(zodToOpenAPI({ type: 'number' } as Schema, undefined, { readonly: true })).toBe(
+        'z.number()',
+      )
       const runtime = z.number()
       expect(runtime.safeParse(1).success).toBe(true)
       const r = runtime.safeParse('x')
@@ -7337,7 +7345,9 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('readonly: boolean primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'boolean' } as Schema, undefined, true)).toBe('z.boolean()')
+      expect(zodToOpenAPI({ type: 'boolean' } as Schema, undefined, { readonly: true })).toBe(
+        'z.boolean()',
+      )
       const runtime = z.boolean()
       expect(runtime.safeParse(true).success).toBe(true)
       const r = runtime.safeParse('x')
@@ -7440,7 +7450,9 @@ describe('zodToOpenAPI', () => {
 
     it.concurrent('readonly array with minItems', () => {
       expect(
-        zodToOpenAPI({ type: 'array', items: { type: 'string' }, minItems: 1 }, undefined, true),
+        zodToOpenAPI({ type: 'array', items: { type: 'string' }, minItems: 1 }, undefined, {
+          readonly: true,
+        }),
       ).toBe('z.array(z.string()).min(1).readonly()')
     })
 
@@ -11046,6 +11058,76 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('runtime: "" → false', () => {
       const valid = CB.safeParse('')
+      expect(valid.success).toBe(true)
+      if (valid.success) expect(valid.data).toBe(false)
+    })
+  })
+
+  describe('x-stringbool: z.stringbool()', () => {
+    it.concurrent('codegen: x-stringbool=true → z.stringbool()', () => {
+      expect(zodToOpenAPI({ type: 'boolean', 'x-stringbool': true } as Schema)).toBe(
+        'z.stringbool()',
+      )
+    })
+
+    it.concurrent('codegen: x-stringbool with truthy/falsy → z.stringbool({...})', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-stringbool': { truthy: ['yes', 'on'], falsy: ['no', 'off'] },
+        } as Schema),
+      ).toBe('z.stringbool({"truthy":["yes","on"],"falsy":["no","off"]})')
+    })
+
+    it.concurrent('codegen: x-stringbool with case=sensitive → z.stringbool({...})', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-stringbool': { case: 'sensitive' },
+        } as Schema),
+      ).toBe('z.stringbool({"case":"sensitive"})')
+    })
+
+    it.concurrent('codegen: x-stringbool=true + x-error-message → z.stringbool({error})', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-stringbool': true,
+          'x-error-message': 'must be bool-ish',
+        } as Schema),
+      ).toBe('z.stringbool({error:"must be bool-ish"})')
+    })
+
+    it.concurrent('codegen: x-stringbool with truthy + x-error-message merges arg', () => {
+      expect(
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-stringbool': { truthy: ['yes'] },
+          'x-error-message': 'bad bool',
+        } as Schema),
+      ).toBe('z.stringbool({"truthy":["yes"],error:"bad bool"})')
+    })
+
+    it.concurrent('codegen: x-coerce + x-stringbool → throws', () => {
+      expect(() =>
+        zodToOpenAPI({
+          type: 'boolean',
+          'x-coerce': true,
+          'x-stringbool': true,
+        } as Schema),
+      ).toThrow(/mutually exclusive/)
+    })
+
+    it.concurrent('runtime: "yes" → true with custom truthy', () => {
+      const S = z.stringbool({ truthy: ['yes'], falsy: ['no'] })
+      const valid = S.safeParse('yes')
+      expect(valid.success).toBe(true)
+      if (valid.success) expect(valid.data).toBe(true)
+    })
+
+    it.concurrent('runtime: "false" → false with default falsy', () => {
+      const S = z.stringbool()
+      const valid = S.safeParse('false')
       expect(valid.success).toBe(true)
       if (valid.success) expect(valid.data).toBe(false)
     })

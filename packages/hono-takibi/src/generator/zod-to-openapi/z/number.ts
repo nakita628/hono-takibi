@@ -6,18 +6,23 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max/multipleOf constraints and `x-*-message` vendor extensions translated
  * to Zod v4 `{error: "msg"}` parameters.
  */
-export function number(schema: Schema): string {
+export function number(schema: Schema, coerce?: boolean): string {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const baseErrorArg = baseError(errorMessage, requiredMessage)
-  const coerce = schema['x-coerce'] === true
-  const base = coerce
-    ? `z.coerce.number(${baseErrorArg})`
-    : schema.format === 'float' || schema.format === 'float32'
-      ? `z.float32(${baseErrorArg})`
-      : schema.format === 'float64' || schema.format === 'double'
-        ? `z.float64(${baseErrorArg})`
-        : `z.number(${baseErrorArg})`
+  const xCoerce = schema['x-coerce'] === true
+  const isFloat32 = schema.format === 'float' || schema.format === 'float32'
+  const isFloat64 = schema.format === 'float64' || schema.format === 'double'
+  const wirePipe = coerce === true && (isFloat32 || isFloat64)
+  const wirePlain = coerce === true && !isFloat32 && !isFloat64
+  const base =
+    xCoerce || wirePlain
+      ? `z.coerce.number(${baseErrorArg})`
+      : isFloat32
+        ? `z.float32(${baseErrorArg})`
+        : isFloat64
+          ? `z.float64(${baseErrorArg})`
+          : `z.number(${baseErrorArg})`
   // (`.min()` uses x-minimum-message, `.gt()` / `.positive()` uses
   // x-exclusiveMinimum-message; same for max).
   const minimumMessage = schema['x-minimum-message']
@@ -78,5 +83,6 @@ export function number(schema: Schema): string {
     schema.multipleOf !== undefined
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`
       : undefined
-  return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  return wirePipe ? `z.coerce.number().pipe(${innerChain})` : innerChain
 }

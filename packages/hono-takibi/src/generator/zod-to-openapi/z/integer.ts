@@ -6,24 +6,32 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max constraints and `x-minimum-message` / `x-maximum-message` vendor
  * extensions translated to Zod v4 `{error: "msg"}` parameters.
  */
-export function integer(schema: Schema): string {
+export function integer(schema: Schema, coerce?: boolean): string {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const baseErrorArg = baseError(errorMessage, requiredMessage)
-  const coerce = schema['x-coerce'] === true
-  // For integer + coerce, emit z.coerce.number().int() since z.coerce.int()
+  const xCoerce = schema['x-coerce'] === true
+  const isBigint = schema.format === 'bigint'
+  const isInt32 = schema.format === 'int32'
+  const isInt64 = schema.format === 'int64'
+  const wireBigintBase = coerce === true && isBigint
+  const wireBigintPipe = coerce === true && isInt64
+  const wireNumberPipe = coerce === true && !isBigint && !isInt64
+  // For integer + x-coerce, emit z.coerce.number().int() since z.coerce.int()
   // does not exist. bigint format keeps its dedicated coerce variant.
-  const base = coerce
-    ? schema.format === 'bigint'
+  const base = xCoerce
+    ? isBigint
       ? `z.coerce.bigint(${baseErrorArg})`
       : `z.coerce.number(${baseErrorArg}).int()`
-    : schema.format === 'int32'
-      ? `z.int32(${baseErrorArg})`
-      : schema.format === 'int64'
-        ? `z.int64(${baseErrorArg})`
-        : schema.format === 'bigint'
-          ? `z.bigint(${baseErrorArg})`
-          : `z.int(${baseErrorArg})`
+    : wireBigintBase
+      ? `z.coerce.bigint(${baseErrorArg})`
+      : isInt32
+        ? `z.int32(${baseErrorArg})`
+        : isInt64
+          ? `z.int64(${baseErrorArg})`
+          : isBigint
+            ? `z.bigint(${baseErrorArg})`
+            : `z.int(${baseErrorArg})`
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`
     if (schema.format === 'int64') return `${n}n`
@@ -95,5 +103,8 @@ export function integer(schema: Schema): string {
     schema.multipleOf !== undefined && typeof schema.multipleOf === 'number'
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrorArg})`
       : undefined
-  return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  if (wireNumberPipe) return `z.coerce.number().pipe(${innerChain})`
+  if (wireBigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
+  return innerChain
 }

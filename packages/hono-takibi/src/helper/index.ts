@@ -1,6 +1,5 @@
 export * from './ast.js'
 export * from './code.js'
-export * from './coerce.js'
 export * from './exports.js'
 export * from './rpc.js'
 export * from './openapi.js'

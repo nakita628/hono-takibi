@@ -184,7 +184,10 @@ export function analyzeCircularSchemas(
     schemaNames.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]),
   )
   const zSchemaMap = new Map(
-    schemaNames.map((n) => [n, zodToOpenAPI(schemas[n], undefined, readonly)]),
+    schemaNames.map((n) => [
+      n,
+      zodToOpenAPI(schemas[n], undefined, readonly === true ? { readonly: true } : undefined),
+    ]),
   )
   const depsMap = new Map(
     schemaNames.map((n) => {

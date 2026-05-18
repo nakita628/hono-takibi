@@ -21,7 +21,6 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { coerce } from './../helper/index.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
@@ -188,7 +187,7 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
     'schema' in headers && headers.schema
-      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly)}`
+      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     'content' in headers && headers.content
       ? `content:${makeContent(headers.content, readonly).join(',')}`
@@ -358,9 +357,11 @@ export function makeMedia(media: Media, readonly?: boolean) {
         .join(',')
     : undefined
   const result = [
-    media.schema ? `schema:${zodToOpenAPI(media.schema, undefined, readonly)}` : undefined,
+    media.schema
+      ? `schema:${zodToOpenAPI(media.schema, undefined, readonly === true ? { readonly: true } : undefined)}`
+      : undefined,
     media.itemSchema
-      ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly)}`
+      ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
@@ -445,32 +446,41 @@ export function makeParameters(
       acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
-    const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
-    // Path and query parameters arrive as strings on the wire — coerce them
-    // to the schema-declared type. Header/cookie are left untouched.
+    // Path/query primitive number/integer get the `coerce` hint so the emitter
+    // produces `z.coerce.X().pipe(z.Y()...)` directly. Boolean/date/object/
+    // array containers still string-replace post-hoc (out of scope here).
     const isStringWire = param.in === 'query' || param.in === 'path'
-    const z =
+    const isPrimitiveNumeric =
       isStringWire && (schema.type === 'number' || schema.type === 'integer')
-        ? coerce(baseSchema, schema.type, schema.format)
-        : isStringWire && schema.type === 'boolean'
-          ? baseSchema
-              .replace('boolean', 'stringbool')
-              .replace(/\.default\("true"\)/g, '.default(true)')
-              .replace(/\.default\("false"\)/g, '.default(false)')
-          : isStringWire && schema.type === 'date'
-            ? `z.coerce.${baseSchema.replace('z.', '')}`
-            : isStringWire && (schema.type === 'object' || schema.type === 'array')
-              ? baseSchema
-                  .replace(
-                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
-                    (_: string, type: string, constraints: string) =>
-                      `z.coerce.number().pipe(z.${type}()${constraints})`,
-                  )
-                  .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                  .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                  .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                  .replace(/z\.date\(\)/g, 'z.coerce.date()')
-              : baseSchema
+    const baseSchema = zodToOpenAPI(
+      schema,
+      { parameters: param },
+      {
+        ...(isPrimitiveNumeric ? { coerce: true } : {}),
+        ...(readonly === true ? { readonly: true } : {}),
+      },
+    )
+    const z = isPrimitiveNumeric
+      ? baseSchema
+      : isStringWire && schema.type === 'boolean'
+        ? baseSchema
+            .replace('boolean', 'stringbool')
+            .replace(/\.default\("true"\)/g, '.default(true)')
+            .replace(/\.default\("false"\)/g, '.default(false)')
+        : isStringWire && schema.type === 'date'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : isStringWire && (schema.type === 'object' || schema.type === 'array')
+            ? baseSchema
+                .replace(
+                  /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                  (_: string, type: string, constraints: string) =>
+                    `z.coerce.number().pipe(z.${type}()${constraints})`,
+                )
+                .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
+                .replace(/z\.number\(\)/g, 'z.coerce.number()')
+                .replace(/z\.boolean\(\)/g, 'z.stringbool()')
+                .replace(/z\.date\(\)/g, 'z.coerce.date()')
+            : baseSchema
     acc[param.in][makeSafeKey(param.name)] = z
     return acc
   }, {})
@@ -516,7 +526,11 @@ function makeOperationParameters(
       return makeRef(param.$ref)
     }
     if (isParameter(param) && param.schema) {
-      return zodToOpenAPI(param.schema, { parameters: param }, readonly)
+      return zodToOpenAPI(
+        param.schema,
+        { parameters: param },
+        readonly === true ? { readonly: true } : undefined,
+      )
     }
     return JSON.stringify(param)
   })

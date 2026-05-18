@@ -241,6 +241,7 @@ export function wrap(
     'x-toUpperCase',
     'x-normalize',
     'x-coerce',
+    'x-stringbool',
     'x-lowercase',
     'x-uppercase',
     'x-emailPattern',

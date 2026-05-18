@@ -20,8 +20,21 @@ export function zodToOpenAPI(
      */
     discriminatorKey?: string
   },
-  readonly?: boolean,
+  options?: {
+    /**
+     * Path/query/header parameters arrive as strings on the wire. When true,
+     * primitive number/integer emitters emit `z.coerce.X().pipe(z.Y()...)`
+     * (or `z.coerce.bigint()` for `format: bigint`) directly. Boolean uses
+     * `x-stringbool` for explicit opt-in; wire-implicit boolean coercion is
+     * still handled by string-replace at the caller (out of scope). Not
+     * propagated into object/array subschemas.
+     */
+    coerce?: boolean
+    /** Append `.readonly()` to array/object schemas. */
+    readonly?: boolean
+  },
 ): string {
+  const readonly = options?.readonly
   // Local type guard — Array.isArray's predicate (arg is any[]) does not
   // narrow `readonly Schema[]` from a union, so define one inline. Boolean
   // schemas (JSON Schema 2020-12 §10.3.1.2) are screened out separately.
@@ -67,7 +80,7 @@ export function zodToOpenAPI(
     const nonNull = effectiveAllOf.filter((s) => !isNullType(s))
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta)
     const schemas = nonNull.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, options),
     )
     const isBareRef =
       schemas.length === 1 &&
@@ -114,7 +127,7 @@ export function zodToOpenAPI(
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) return wrap('z.any()', schema, meta)
     const anyOfSchemas = schema.anyOf.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, options),
     )
     const anyOfMessage = schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
@@ -126,7 +139,7 @@ export function zodToOpenAPI(
     // fall back to xor when oneOf contains a $ref or allOf member.
     const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, readonly),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta, options),
     )
     const discriminator = schema.discriminator?.propertyName
     const oneOfMessage = schema['x-oneOf-message'] ?? schema['x-error-message']
@@ -201,7 +214,7 @@ export function zodToOpenAPI(
         return wrap(`z.never(${notErrorArg.slice(1)})`, schema, meta)
       }
       // Complex sub-schema: full safeParse-based check
-      const zod = zodToOpenAPI(not, innerMeta, readonly)
+      const zod = zodToOpenAPI(not, innerMeta, options)
       return wrap(
         `z.any().refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
         schema,
@@ -225,7 +238,7 @@ export function zodToOpenAPI(
       typeof value === 'boolean'
     if (!isPrimitive) {
       return wrap(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, readonly)),
+        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, options)),
         schema,
         meta,
       )
@@ -241,7 +254,7 @@ export function zodToOpenAPI(
     const hasNonPrimitive = schema.enum.some((e) => typeof e === 'object' && e !== null)
     if (hasNonPrimitive) {
       return wrap(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, readonly)),
+        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, options)),
         schema,
         meta,
       )
@@ -258,7 +271,7 @@ export function zodToOpenAPI(
     hasTypelessConstraint(schema)
   ) {
     return wrap(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, readonly)),
+      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, options)),
       schema,
       meta,
     )
@@ -266,13 +279,18 @@ export function zodToOpenAPI(
   if (schema.properties !== undefined) return wrap(object(schema, readonly), schema, meta)
   const t = normalizeTypes(schema.type)
   if (t.includes('string')) return wrap(string(schema), schema, meta)
-  if (t.includes('number')) return wrap(number(schema), schema, meta)
-  if (t.includes('integer')) return wrap(integer(schema), schema, meta)
+  if (t.includes('number')) return wrap(number(schema, options?.coerce), schema, meta)
+  if (t.includes('integer')) return wrap(integer(schema, options?.coerce), schema, meta)
   if (t.includes('boolean')) {
     const errorMessage = schema['x-error-message']
     const requiredMessage = schema['x-required-message']
-    const coerce = schema['x-coerce'] === true
-    const baseFn = coerce ? 'z.coerce.boolean' : 'z.boolean'
+    const xCoerce = schema['x-coerce'] === true
+    const xStringbool = schema['x-stringbool']
+    if (xCoerce && xStringbool !== undefined) {
+      throw new Error(
+        'x-coerce and x-stringbool are mutually exclusive on a boolean schema. Remove one.',
+      )
+    }
     const arg = (() => {
       if (requiredMessage === undefined && errorMessage === undefined) return ''
       if (requiredMessage === undefined && errorMessage !== undefined) return error(errorMessage)
@@ -280,6 +298,21 @@ export function zodToOpenAPI(
         return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}`
       return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(errorMessage)}}`
     })()
+    if (xStringbool !== undefined) {
+      const opts = xStringbool === true ? null : xStringbool
+      const optsStr = opts
+        ? JSON.stringify({
+            ...(opts.truthy !== undefined ? { truthy: opts.truthy } : {}),
+            ...(opts.falsy !== undefined ? { falsy: opts.falsy } : {}),
+            ...(opts.case !== undefined ? { case: opts.case } : {}),
+          })
+        : ''
+      const combinedArg =
+        optsStr && arg ? `${optsStr.slice(0, -1)},${arg.slice(1)}` : optsStr || arg
+      const base = combinedArg ? `z.stringbool(${combinedArg})` : 'z.stringbool()'
+      return wrap(base, schema, meta)
+    }
+    const baseFn = xCoerce ? 'z.coerce.boolean' : 'z.boolean'
     const base = arg ? `${baseFn}(${arg})` : `${baseFn}()`
     return wrap(base, schema, meta)
   }
@@ -298,7 +331,7 @@ export function zodToOpenAPI(
     const containsChain = (() => {
       const c = schema.contains
       if (!c) return ''
-      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, innerMeta, readonly)
+      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, innerMeta, options)
       const minC = schema.minContains
       const maxC = schema.maxContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
@@ -363,12 +396,12 @@ export function zodToOpenAPI(
         const msgPart = slot ? `,message:${JSON.stringify(slot)}` : ''
         return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${msgPart}})}})`
       }
-      const subZod = zodToOpenAPI(ui, innerMeta, readonly)
+      const subZod = zodToOpenAPI(ui, innerMeta, options)
       return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,v] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevalItemsMessageOverride}})}}}})`
     })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const prefixCodes = schema.prefixItems.map((item) =>
-        item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, readonly),
+        item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, innerMeta, options),
       )
       // prefixItems is encoded as
       // `z.array(z.unknown()).superRefine(...)` — NOT `z.tuple([...], rest)`.
@@ -409,7 +442,7 @@ export function zodToOpenAPI(
       const restCode = restSchema
         ? restSchema.$ref
           ? makeRef(restSchema.$ref)
-          : zodToOpenAPI(restSchema, innerMeta, readonly)
+          : zodToOpenAPI(restSchema, innerMeta, options)
         : ''
       const lengthCapped = ui === false || (ui === undefined && itemsField === false)
       // the rest/cap message slot tracks the
@@ -456,7 +489,7 @@ export function zodToOpenAPI(
     const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
-        : zodToOpenAPI(itemSchema, innerMeta, readonly)
+        : zodToOpenAPI(itemSchema, innerMeta, options)
       : 'z.any()'
     const z = `z.array(${item}${arrayErrorArg})`
     const lengthMessage = schema['x-length-message']
@@ -523,7 +556,7 @@ export function zodToOpenAPI(
   // value's type matches. Preserves JSON Schema's keyword-independent semantics.
   if (t.length === 0 && hasTypelessConstraint(schema)) {
     return wrap(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, readonly)),
+      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, innerMeta, options)),
       schema,
       meta,
     )

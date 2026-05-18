@@ -577,6 +577,19 @@ export type Schema = {
   readonly 'x-uppercase'?: boolean
   readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
   readonly 'x-coerce'?: boolean
+  /**
+   * Opt into `z.stringbool()` for boolean schemas. Use `true` for the default
+   * truthy/falsy lists, or pass an object to customize. Mutually exclusive
+   * with `x-coerce: true` on the same schema (build error).
+   * @see https://zod.dev/api?id=stringbool
+   */
+  readonly 'x-stringbool'?:
+    | true
+    | {
+        readonly truthy?: readonly string[]
+        readonly falsy?: readonly string[]
+        readonly case?: 'sensitive' | 'insensitive'
+      }
   // P1 format-option extensions
   readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
   readonly 'x-emailRegex'?: string
