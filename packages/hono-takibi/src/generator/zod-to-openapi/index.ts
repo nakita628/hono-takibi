@@ -157,7 +157,25 @@ export function zodToOpenAPI(
     const anyOfMessage =
       schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
-    return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`, schema, meta, options)
+    const unionZ = `z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`
+    // JSON Schema 2020-12 §10: keywords combine via AND. When `properties` or
+    // `required` accompanies `anyOf`, the union (OR) must be intersected with
+    // the type-shape constraint, otherwise the latter is silently dropped
+    // before generation. Aligned with the `effectiveAllOf` strategy in the
+    // allOf branch above.
+    const hasShape =
+      (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
+      (Array.isArray(schema.required) && schema.required.length > 0)
+    if (hasShape) {
+      const shapeSchema: Schema = {
+        type: 'object',
+        ...(schema.properties ? { properties: schema.properties } : {}),
+        ...(schema.required ? { required: schema.required } : {}),
+      }
+      const shapeZ = zodToOpenAPI(shapeSchema, undefined, childOptions)
+      return wrap(`${unionZ}.and(${shapeZ})`, schema, meta, options)
+    }
+    return wrap(unionZ, schema, meta, options)
   }
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta, options)

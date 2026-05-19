@@ -427,7 +427,13 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     : []
   // x-implication-message takes precedence on the anyOf path (alias for the
   // implication pattern); falls back to x-anyOf-message then x-error-message.
-  const anyOfMsg = messageFor(schema, 'implication') ?? messageFor(schema, 'anyOf')
+  // Explicit three-tier resolution avoids messageFor's implicit x-error-message
+  // fallback inside slot resolution, which would otherwise let x-error-message
+  // jump ahead of x-anyOf-message when x-implication-message is absent.
+  const anyOfMsg =
+    pickMessage(schema, 'x-implication-message') ??
+    pickMessage(schema, 'x-anyOf-message') ??
+    pickMessage(schema, 'x-error-message')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
       ? `if(!(${schema.anyOf.map((sub) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMsg)})}`

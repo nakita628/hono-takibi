@@ -437,6 +437,12 @@ const ImplicationSchema = z
     ],
     { error: 'licenseNumber is required when hasLicense is true' },
   )
+  .and(
+    z.object({
+      hasLicense: z.boolean().exactOptional(),
+      licenseNumber: z.string().exactOptional(),
+    }),
+  )
   .openapi({ 'x-implication-message': 'licenseNumber is required when hasLicense is true' })
   .openapi('Implication')
 

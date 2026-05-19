@@ -1673,5 +1673,18 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       })
       expect(res.status).toBe(200)
     })
+
+    // D1 fix: properties accompanying anyOf used to be silently dropped at the
+    // anyOf code path (the generator returned z.union(...) without intersecting
+    // the type-shape). Now AND-composed via .and(z.object({...})), so type
+    // violations on declared properties surface as validation errors.
+    it('rejects type violation on hasLicense (boolean, not string)', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: 'not-a-bool', licenseNumber: 'L-001' }),
+      })
+      expect(res.status).toBe(422)
+    })
   })
 })
