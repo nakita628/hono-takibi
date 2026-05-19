@@ -124,6 +124,7 @@ const MESSAGE_SLOTS = {
   anyOf: 'x-anyOf-message',
   oneOf: 'x-oneOf-message',
   not: 'x-not-message',
+  implication: 'x-implication-message',
   if: 'x-if-message',
   // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
   then: 'x-then-message',
@@ -241,7 +242,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const depSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const r=Schema.safeParse(val);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path${depSchMsgField}})}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${depSchMsgField}})}}}`,
       )
     : []
   const unevaluatedPropsMsg = messageFor(schema, 'unevaluatedProperties')
@@ -393,7 +394,7 @@ function makeNumberChecks(schema: Schema): readonly string[] {
   const multipleOfMsg = messageFor(schema, 'multipleOf')
   const multipleOfCheck =
     typeof schema.multipleOf === 'number'
-      ? `{const r=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(r>1e-10){ctx.addIssue(${issueObj(multipleOfMsg)})}}`
+      ? `{const mod=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(mod>1e-10){ctx.addIssue(${issueObj(multipleOfMsg)})}}`
       : undefined
   return [minCheck, exMinCheck, maxCheck, exMaxCheck, multipleOfCheck].filter(
     (s): s is string => s !== undefined,
@@ -411,14 +412,22 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     schema.const !== undefined
       ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){ctx.addIssue(${issueObj(constMsg)})}`
       : undefined
+  // JSON Schema 2020-12 §10.2.1.1: allOf is an applicator — sub-schema
+  // issues propagate. When x-allOf-message (or its x-error-message fallback)
+  // is set, the inner issue's `message` is replaced while `code` / `path`
+  // / `expected` are preserved (override semantics, aligned with
+  // x-dependentSchemas-message and related applicator slots).
   const allOfMsg = messageFor(schema, 'allOf')
+  const allOfMsgField = allOfMsg !== undefined ? `,message:${JSON.stringify(allOfMsg)}` : ''
   const allOfChecks = Array.isArray(schema.allOf)
     ? schema.allOf.map(
         (sub) =>
-          `{const Schema=${recurse(sub)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(allOfMsg)})}}`,
+          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMsgField}})}}}`,
       )
     : []
-  const anyOfMsg = messageFor(schema, 'anyOf')
+  // x-implication-message takes precedence on the anyOf path (alias for the
+  // implication pattern); falls back to x-anyOf-message then x-error-message.
+  const anyOfMsg = messageFor(schema, 'implication') ?? messageFor(schema, 'anyOf')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
       ? `if(!(${schema.anyOf.map((sub) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMsg)})}`

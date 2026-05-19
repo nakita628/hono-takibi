@@ -162,6 +162,19 @@ paths:
         '200':
           description: OK
 
+  /implication:
+    post:
+      operationId: postImplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Implication'
+      responses:
+        '200':
+          description: OK
+
 components:
   schemas:
     # Field-level coverage (v3.0: 1 keyword = 1 message):
@@ -530,6 +543,26 @@ components:
           type: string
           x-required-message: 'payload is required'
           x-error-message: 'payload must be a string'
+
+    # x-implication-message — semantic alias for the A → B implication
+    # pattern encoded as anyOf:[{not:A},{required:B}]. Takes precedence over
+    # x-anyOf-message on the anyOf path and reads more clearly when the
+    # author's intent is "if hasLicense=true then licenseNumber is required".
+    Implication:
+      type: object
+      properties:
+        hasLicense:
+          type: boolean
+        licenseNumber:
+          type: string
+      anyOf:
+        - not:
+            required: [hasLicense]
+            properties:
+              hasLicense:
+                const: true
+        - required: [licenseNumber]
+      x-implication-message: 'licenseNumber is required when hasLicense is true'
 
     # allOf + unevaluatedProperties:false — JSON Schema 2020-12 §11.2.
     # The composed ZodIntersection strips excess keys via z.object().strip

@@ -514,12 +514,12 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 #### Common (any schema type)
 
-| Extension            | Applies to                       |
-| -------------------- | -------------------------------- |
+| Extension            | Applies to                                                     |
+| -------------------- | -------------------------------------------------------------- |
 | `x-error-message`    | All schemas (fallback when keyword-specific message is absent) |
-| `x-required-message` | Required properties              |
-| `x-const-message`    | `const`                          |
-| `x-enum-message`     | `enum`                           |
+| `x-required-message` | Required properties                                            |
+| `x-const-message`    | `const`                                                        |
+| `x-enum-message`     | `enum`                                                         |
 
 #### Numeric (number / integer)
 
@@ -565,12 +565,13 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 #### Combinators
 
-| Extension         | Applies to |
-| ----------------- | ---------- |
-| `x-allOf-message` | `allOf`    |
-| `x-anyOf-message` | `anyOf`    |
-| `x-oneOf-message` | `oneOf`    |
-| `x-not-message`   | `not`      |
+| Extension               | Applies to                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `x-allOf-message`       | `allOf`                                                                                                          |
+| `x-anyOf-message`       | `anyOf`                                                                                                          |
+| `x-oneOf-message`       | `oneOf`                                                                                                          |
+| `x-not-message`         | `not`                                                                                                            |
+| `x-implication-message` | Implication pattern (`A → B`) encoded as `anyOf:[{not:A},{required:B}]`; takes precedence over `x-anyOf-message` |
 
 #### Conditional
 

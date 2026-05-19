@@ -1636,4 +1636,42 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(res.status).toBe(200)
     })
   })
+
+  // ─────────────────────────────────────────────────────────
+  // x-implication-message — semantic alias for the implication pattern
+  // (A → B) encoded as anyOf:[{not:A},{required:B}]. Takes precedence over
+  // x-anyOf-message on the anyOf code path and surfaces the author's
+  // intent verbatim when the implication is violated.
+  // ─────────────────────────────────────────────────────────
+  describe('x-implication-message (anyOf + not + required)', () => {
+    it('rejects hasLicense=true without licenseNumber with the implication message', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: true }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
+        { pointer: '/', detail: 'licenseNumber is required when hasLicense is true' },
+      ])
+    })
+
+    it('accepts hasLicense=true with licenseNumber', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: true, licenseNumber: 'L-001' }),
+      })
+      expect(res.status).toBe(200)
+    })
+
+    it('accepts hasLicense=false (antecedent is false, implication trivially holds)', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: false }),
+      })
+      expect(res.status).toBe(200)
+    })
+  })
 })

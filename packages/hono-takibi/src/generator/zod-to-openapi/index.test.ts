@@ -15,10 +15,10 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('runtime: a $ref-equivalent schema rejects an object with the wrong field type', () => {
       const TestSchema = z.object({ name: z.string() })
-      const r = TestSchema.safeParse({ name: 123 })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = TestSchema.safeParse({ name: 123 })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -42,10 +42,10 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('runtime: z.array of a $ref-equivalent rejects an array containing a bad element', () => {
       const ArrayOfTest = z.array(z.object({ name: z.string() }))
-      const r = ArrayOfTest.safeParse([{ name: 'foo' }, { name: 123 }])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = ArrayOfTest.safeParse([{ name: 'foo' }, { name: 123 }])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -57,10 +57,10 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('runtime: z.array of a $ref-equivalent rejects a non-array input', () => {
       const ArrayOfTest = z.array(z.object({ name: z.string() }))
-      const r = ArrayOfTest.safeParse('not an array')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = ArrayOfTest.safeParse('not an array')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'array',
             code: 'invalid_type',
@@ -130,10 +130,10 @@ describe('zodToOpenAPI', () => {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
         }
       })
-      const r = PrefixSchema.safeParse(['foo', 'not-a-number', true])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = PrefixSchema.safeParse(['foo', 'not-a-number', true])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'number',
             code: 'invalid_type',
@@ -153,10 +153,10 @@ describe('zodToOpenAPI', () => {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
         }
       })
-      const r = PrefixSchema.safeParse('not array')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = PrefixSchema.safeParse('not array')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'array',
             code: 'invalid_type',
@@ -202,10 +202,10 @@ describe('zodToOpenAPI', () => {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
         }
       })
-      const r = PrefixSchema.safeParse(['', 42])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = PrefixSchema.safeParse(['', 42])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'too_small',
@@ -266,10 +266,10 @@ describe('zodToOpenAPI', () => {
       const ASchema = z.object({ kind: z.literal('a') })
       const BSchema = z.object({ kind: z.literal('b') })
       const OneOf = z.xor([ASchema, BSchema])
-      const r = OneOf.safeParse({ kind: 'c' })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = OneOf.safeParse({ kind: 'c' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_union',
             errors: [
@@ -333,10 +333,10 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('runtime: x-oneOf-message variant rejects an input matching no branch', () => {
       const OneOf = z.xor([z.string(), z.number()], { error: 'いずれか1つを指定' })
-      const r = OneOf.safeParse(true)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = OneOf.safeParse(true)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_union',
             errors: [
@@ -410,10 +410,10 @@ describe('zodToOpenAPI', () => {
           z.object({ status: z.literal('failed'), error: z.string() }),
         ])
         // success branch requires `data`, not `error`.
-        const r = DU.safeParse({ status: 'success', error: 'bar' })
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = DU.safeParse({ status: 'success', error: 'bar' })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -428,10 +428,10 @@ describe('zodToOpenAPI', () => {
           z.object({ status: z.literal('success'), data: z.string() }),
           z.object({ status: z.literal('failed'), error: z.string() }),
         ])
-        const r = DU.safeParse({ status: 'pending' })
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = DU.safeParse({ status: 'pending' })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [],
@@ -486,10 +486,10 @@ describe('zodToOpenAPI', () => {
           ],
           { error: '型が不正' },
         )
-        const r = DU.safeParse({ type: 'c' })
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = DU.safeParse({ type: 'c' })
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [],
@@ -535,10 +535,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()])
         expect(runtime.safeParse('x').success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -575,10 +575,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()]).nullable()
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -614,10 +614,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()]).nullable()
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -654,10 +654,10 @@ describe('zodToOpenAPI', () => {
         expect(runtime.safeParse('abc').success).toBe(true)
         expect(runtime.safeParse(1).success).toBe(true)
         expect(runtime.safeParse(true).success).toBe(true)
-        const r = runtime.safeParse(null)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(null)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -700,10 +700,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()])
         expect(runtime.safeParse('x').success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -740,10 +740,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.string(), z.number()]).nullable()
         expect(runtime.safeParse('abc').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -779,10 +779,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()], { error: '文字列か数値を指定' })
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -818,10 +818,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         const runtime = z.union([z.string(), z.number()], { error: '猫か犬を指定' })
         expect(runtime.safeParse('x').success).toBe(true)
-        const r = runtime.safeParse(true)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1061,12 +1061,12 @@ describe('zodToOpenAPI', () => {
               }
             })
             .pipe(Schema)
-          const r = wrapped.safeParse({ a: 1, b: 'x' })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues[0]?.message).toBe('allOf failed')
-            expect(r.error.issues[0]?.code).toBe('invalid_type')
-            expect(r.error.issues[0]?.path).toStrictEqual(['a'])
+          const result = wrapped.safeParse({ a: 1, b: 'x' })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues[0]?.message).toBe('allOf failed')
+            expect(result.error.issues[0]?.code).toBe('invalid_type')
+            expect(result.error.issues[0]?.path).toStrictEqual(['a'])
           }
         })
         it.concurrent('runtime: x-error-message fallback fires when x-allOf-message is absent', () => {
@@ -1084,10 +1084,10 @@ describe('zodToOpenAPI', () => {
               }
             })
             .pipe(Schema)
-          const r = wrapped.safeParse({ a: 1, b: 'x' })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues[0]?.message).toBe('shared error')
+          const result = wrapped.safeParse({ a: 1, b: 'x' })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues[0]?.message).toBe('shared error')
           }
         })
       })
@@ -1102,10 +1102,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => typeof val !== 'string')
           expect(runtime.safeParse(123).success).toBe(true)
-          const r = runtime.safeParse('abc')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abc')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1116,10 +1116,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => typeof val !== 'number')
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1131,10 +1131,10 @@ describe('zodToOpenAPI', () => {
           const runtime = z.any().refine((val) => typeof val !== 'number' || !Number.isInteger(val))
           expect(runtime.safeParse('abc').success).toBe(true)
           expect(runtime.safeParse(1.5).success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1145,10 +1145,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => typeof val !== 'boolean')
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse(true)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(true)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1159,10 +1159,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => !Array.isArray(val))
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse([1, 2])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1, 2])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1177,10 +1177,10 @@ describe('zodToOpenAPI', () => {
           expect(runtime.safeParse('abc').success).toBe(true)
           expect(runtime.safeParse([1]).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse({ a: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ a: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1191,10 +1191,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => val !== null)
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse(null)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(null)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1208,10 +1208,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => val !== 'admin')
           expect(runtime.safeParse('user').success).toBe(true)
-          const r = runtime.safeParse('admin')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('admin')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1222,10 +1222,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.any().refine((val) => val !== 42)
           expect(runtime.safeParse(7).success).toBe(true)
-          const r = runtime.safeParse(42)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(42)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1266,10 +1266,10 @@ describe('zodToOpenAPI', () => {
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)
           expect(runtime.safeParse(123).success).toBe(true)
-          const r = runtime.safeParse('abc')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abc')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Invalid input' },
             ])
           }
@@ -1376,10 +1376,10 @@ describe('zodToOpenAPI', () => {
             .any()
             .refine((val) => typeof val !== 'string', { error: '文字列は不可' })
           expect(runtime.safeParse(123).success).toBe(true)
-          const r = runtime.safeParse('abc')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abc')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: '文字列は不可' },
             ])
           }
@@ -1393,10 +1393,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.any().refine((val) => val !== 42,{error:"42は不可"})')
           const runtime = z.any().refine((val) => val !== 42, { error: '42は不可' })
           expect(runtime.safeParse(7).success).toBe(true)
-          const r = runtime.safeParse(42)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(42)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: '42は不可' },
             ])
           }
@@ -1412,10 +1412,10 @@ describe('zodToOpenAPI', () => {
             .any()
             .refine((val) => ![1, 2, 3].includes(val), { error: '1,2,3は不可' })
           expect(runtime.safeParse(4).success).toBe(true)
-          const r = runtime.safeParse(2)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(2)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: '1,2,3は不可' },
             ])
           }
@@ -1434,10 +1434,10 @@ describe('zodToOpenAPI', () => {
             .any()
             .refine((val) => !ForbiddenSchema.safeParse(val).success, { error: '禁止スキーマ不可' })
           expect(runtime.safeParse(123).success).toBe(true)
-          const r = runtime.safeParse('abc')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abc')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: '禁止スキーマ不可' },
             ])
           }
@@ -1487,10 +1487,10 @@ describe('zodToOpenAPI', () => {
               error: 'union不可',
             })
           expect(runtime.safeParse(true).success).toBe(true)
-          const r = runtime.safeParse('abc')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abc')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'union不可' },
             ])
           }
@@ -1503,10 +1503,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ const: 'fixed' } as Schema)).toBe('z.literal("fixed")')
         const runtime = z.literal('fixed')
         expect(runtime.safeParse('fixed').success).toBe(true)
-        const r = runtime.safeParse('other')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('other')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['fixed'],
@@ -1523,10 +1523,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.literal('fixed').nullable()
         expect(runtime.safeParse('fixed').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('other')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('other')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['fixed'],
@@ -1543,10 +1543,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.literal('fixed').nullable()
         expect(runtime.safeParse('fixed').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('other')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('other')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['fixed'],
@@ -1564,10 +1564,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ enum: ['A', 'B'] } as Schema)).toBe('z.enum(["A","B"])')
         const runtime = z.enum(['A', 'B'])
         expect(runtime.safeParse('A').success).toBe(true)
-        const r = runtime.safeParse('C')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('C')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['A', 'B'],
@@ -1588,10 +1588,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.enum(['A', 'B']).nullable()
         expect(runtime.safeParse('A').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('C')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('C')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['A', 'B'],
@@ -1608,10 +1608,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.enum(['A', 'B']).nullable()
         expect(runtime.safeParse('A').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('C')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('C')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['A', 'B'],
@@ -1627,10 +1627,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.union([z.literal(1), z.literal(2)])
         expect(runtime.safeParse(1).success).toBe(true)
-        const r = runtime.safeParse(3)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(3)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1668,10 +1668,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse(2).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(3)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(3)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1705,10 +1705,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse(2).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(3)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(3)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1742,10 +1742,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.literal(true), z.literal(false)])
         expect(runtime.safeParse(true).success).toBe(true)
         expect(runtime.safeParse(false).success).toBe(true)
-        const r = runtime.safeParse('a')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('a')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1783,10 +1783,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.literal(true), z.literal(false)]).nullable()
         expect(runtime.safeParse(true).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('a')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('a')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1823,10 +1823,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.union([z.literal(true), z.literal(false)]).nullable()
         expect(runtime.safeParse(false).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('a')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('a')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -1857,10 +1857,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ enum: [null] } as Schema)).toBe('z.literal(null)')
         const runtime = z.literal(null)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(0)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(0)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: [null],
@@ -1876,10 +1876,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.literal(null).nullable()
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(0)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(0)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: [null],
@@ -1893,10 +1893,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ enum: ['abc'] } as Schema)).toBe(`z.literal('abc')`)
         const runtime = z.literal('abc')
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse('xyz')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('xyz')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['abc'],
@@ -1917,10 +1917,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.literal('abc').nullable()
         expect(runtime.safeParse('abc').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('xyz')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('xyz')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['abc'],
@@ -1937,10 +1937,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.literal('abc').nullable()
         expect(runtime.safeParse('abc').success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse('xyz')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('xyz')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: ['abc'],
@@ -1956,10 +1956,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.tuple([z.literal(1), z.literal(2)])
         expect(runtime.safeParse([1, 2]).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: [2],
@@ -1980,10 +1980,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.tuple([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse([1, 2]).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: [2],
@@ -2000,10 +2000,10 @@ describe('zodToOpenAPI', () => {
         const runtime = z.tuple([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse([1, 2]).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_value',
               values: [2],
@@ -2031,10 +2031,10 @@ describe('zodToOpenAPI', () => {
         ])
         expect(runtime.safeParse([1, 2]).success).toBe(true)
         expect(runtime.safeParse([3, 4]).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -2085,10 +2085,10 @@ describe('zodToOpenAPI', () => {
           .nullable()
         expect(runtime.safeParse([3, 4]).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -2138,10 +2138,10 @@ describe('zodToOpenAPI', () => {
           .nullable()
         expect(runtime.safeParse([3, 4]).success).toBe(true)
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse([1, 3])
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse([1, 3])
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_union',
               errors: [
@@ -2182,10 +2182,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string' } as Schema)).toBe('z.string()')
         const runtime = z.string()
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2202,10 +2202,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.string().nullable()
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2220,10 +2220,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: ['string', 'null'] } as Schema)).toBe('z.string().nullable()')
         const runtime = z.string().nullable()
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2240,10 +2240,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.string().min(1).max(10)
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse('')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'too_small',
@@ -2262,10 +2262,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.string().regex(/^\w+$/)
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse('!@#')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('!@#')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2284,10 +2284,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.string().default('test')
         expect(runtime.safeParse('abc').success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2308,10 +2308,10 @@ describe('zodToOpenAPI', () => {
         ).toBe('z.string().nullable().default("test")')
         const runtime = z.string().nullable().default('test')
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2331,10 +2331,10 @@ describe('zodToOpenAPI', () => {
         ).toBe('z.string().nullable().default("test")')
         const runtime = z.string().nullable().default('test')
         expect(runtime.safeParse(null).success).toBe(true)
-        const r = runtime.safeParse(123)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse(123)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'string',
               code: 'invalid_type',
@@ -2349,10 +2349,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'email' } as Schema)).toBe('z.email()')
         const runtime = z.email()
         expect(runtime.safeParse('a@b.com').success).toBe(true)
-        const r = runtime.safeParse('notmail')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('notmail')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2370,10 +2370,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'uuid' } as Schema)).toBe('z.uuid()')
         const runtime = z.uuid()
         expect(runtime.safeParse('550e8400-e29b-41d4-a716-446655440000').success).toBe(true)
-        const r = runtime.safeParse('not-uuid')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-uuid')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2391,10 +2391,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'uuidv4' } as Schema)).toBe('z.uuidv4()')
         const runtime = z.uuidv4()
         expect(runtime.safeParse('550e8400-e29b-41d4-a716-446655440000').success).toBe(true)
-        const r = runtime.safeParse('not-uuid')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-uuid')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2412,10 +2412,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'uuidv7' } as Schema)).toBe('z.uuidv7()')
         const runtime = z.uuidv7()
         expect(runtime.safeParse('018f4d1b-3b8c-7000-8000-000000000000').success).toBe(true)
-        const r = runtime.safeParse('not-uuid')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-uuid')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2433,10 +2433,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'uri' } as Schema)).toBe('z.url()')
         const runtime = z.url()
         expect(runtime.safeParse('https://example.com').success).toBe(true)
-        const r = runtime.safeParse('not a url')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not a url')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_format',
               format: 'url',
@@ -2451,10 +2451,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'emoji' } as Schema)).toBe('z.emoji()')
         const runtime = z.emoji()
         expect(runtime.safeParse('🎉').success).toBe(true)
-        const r = runtime.safeParse('abc')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('abc')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2471,10 +2471,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'base64' } as Schema)).toBe('z.base64()')
         const runtime = z.base64()
         expect(runtime.safeParse('aGVsbG8=').success).toBe(true)
-        const r = runtime.safeParse('!!!not-base64!!!')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('!!!not-base64!!!')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_format',
               format: 'base64',
@@ -2489,10 +2489,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'nanoid' } as Schema)).toBe('z.nanoid()')
         const runtime = z.nanoid()
         expect(runtime.safeParse('V1StGXR8_Z5jdHi6B-myT').success).toBe(true)
-        const r = runtime.safeParse('short')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('short')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2509,10 +2509,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'cuid' } as Schema)).toBe('z.cuid()')
         const runtime = z.cuid()
         expect(runtime.safeParse('cjld2cjxh0000qzrmn831i7rn').success).toBe(true)
-        const r = runtime.safeParse('not-cuid')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-cuid')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2529,10 +2529,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'cuid2' } as Schema)).toBe('z.cuid2()')
         const runtime = z.cuid2()
         expect(runtime.safeParse('tz4a98xxat96iws9zmbrgj3a').success).toBe(true)
-        const r = runtime.safeParse('NOT_CUID2')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('NOT_CUID2')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2549,10 +2549,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'ulid' } as Schema)).toBe('z.ulid()')
         const runtime = z.ulid()
         expect(runtime.safeParse('01HXY0RQXKQZ8JK4F1J6Y2W3VZ').success).toBe(true)
-        const r = runtime.safeParse('not-ulid')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-ulid')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2569,10 +2569,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'ipv4' } as Schema)).toBe('z.ipv4()')
         const runtime = z.ipv4()
         expect(runtime.safeParse('127.0.0.1').success).toBe(true)
-        const r = runtime.safeParse('999.999.999.999')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('999.999.999.999')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2590,10 +2590,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'ipv6' } as Schema)).toBe('z.ipv6()')
         const runtime = z.ipv6()
         expect(runtime.safeParse('::1').success).toBe(true)
-        const r = runtime.safeParse('not-ipv6')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-ipv6')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_format',
               format: 'ipv6',
@@ -2608,10 +2608,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'cidrv4' } as Schema)).toBe('z.cidrv4()')
         const runtime = z.cidrv4()
         expect(runtime.safeParse('10.0.0.0/8').success).toBe(true)
-        const r = runtime.safeParse('not-cidr')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-cidr')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2629,10 +2629,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'cidrv6' } as Schema)).toBe('z.cidrv6()')
         const runtime = z.cidrv6()
         expect(runtime.safeParse('::/0').success).toBe(true)
-        const r = runtime.safeParse('not-cidr')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-cidr')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_format',
               format: 'cidrv6',
@@ -2647,10 +2647,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'date' } as Schema)).toBe('z.iso.date()')
         const runtime = z.iso.date()
         expect(runtime.safeParse('2024-01-01').success).toBe(true)
-        const r = runtime.safeParse('not-date')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-date')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2668,10 +2668,10 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'time' } as Schema)).toBe('z.iso.time()')
         const runtime = z.iso.time()
         expect(runtime.safeParse('12:34:56').success).toBe(true)
-        const r = runtime.safeParse('not-time')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-time')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2690,10 +2690,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.iso.datetime()
         expect(runtime.safeParse('2024-01-01T00:00:00Z').success).toBe(true)
-        const r = runtime.safeParse('not-datetime')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-datetime')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2713,10 +2713,10 @@ describe('zodToOpenAPI', () => {
         )
         const runtime = z.iso.duration()
         expect(runtime.safeParse('P1Y').success).toBe(true)
-        const r = runtime.safeParse('not-duration')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-duration')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               origin: 'string',
               code: 'invalid_format',
@@ -2733,10 +2733,10 @@ describe('zodToOpenAPI', () => {
       it.concurrent('string format: binary → z.file() (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'binary' } as Schema)).toBe('z.file()')
         const runtime = z.file()
-        const r = runtime.safeParse('plain string')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('plain string')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               expected: 'file',
               code: 'invalid_type',
@@ -2755,10 +2755,10 @@ describe('zodToOpenAPI', () => {
             'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
           ).success,
         ).toBe(true)
-        const r = runtime.safeParse('not-jwt')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues).toStrictEqual([
+        const result = runtime.safeParse('not-jwt')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues).toStrictEqual([
             {
               code: 'invalid_format',
               format: 'jwt',
@@ -2776,10 +2776,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'number' } as Schema)).toBe('z.number()')
             const runtime = z.number()
             expect(runtime.safeParse(1.5).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -2795,10 +2795,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -2814,10 +2814,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -2837,10 +2837,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().positive()')
             const runtime = z.number().positive()
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -2862,10 +2862,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().nonnegative()')
             const runtime = z.number().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -2887,10 +2887,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().negative()')
             const runtime = z.number().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -2912,10 +2912,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().nonpositive()')
             const runtime = z.number().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -2933,10 +2933,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
-            const r = runtime.safeParse(99)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(99)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -2952,10 +2952,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'number', minimum: 0 } as Schema)).toBe('z.number().min(0)')
             const runtime = z.number().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -2977,10 +2977,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().gt(100)')
             const runtime = z.number().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -2998,10 +2998,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
-            const r = runtime.safeParse(101)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(101)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3017,10 +3017,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'number', maximum: 0 } as Schema)).toBe('z.number().max(0)')
             const runtime = z.number().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3042,10 +3042,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().lt(100)')
             const runtime = z.number().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3063,10 +3063,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
-            const r = runtime.safeParse(3)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(3)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'not_multiple_of',
@@ -3083,10 +3083,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.number().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3106,10 +3106,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().nullable().default(100)')
             const runtime = z.number().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3128,10 +3128,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.number().nullable().default(100)')
             const runtime = z.number().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3148,10 +3148,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'number', format: 'float' } as Schema)).toBe('z.float32()')
             const runtime = z.float32()
             expect(runtime.safeParse(1.5).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3171,10 +3171,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.float32().nullable()')
             const runtime = z.float32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3194,10 +3194,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.float32().nullable()')
             const runtime = z.float32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3213,10 +3213,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.float64()
             expect(runtime.safeParse(1.5).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3236,10 +3236,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.float64().nullable()')
             const runtime = z.float64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3259,10 +3259,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.float64().nullable()')
             const runtime = z.float64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3282,10 +3282,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'integer' } as Schema)).toBe('z.int()')
             const runtime = z.int()
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse(1.5)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1.5)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'int',
                   format: 'safeint',
@@ -3302,10 +3302,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3319,10 +3319,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: ['integer', 'null'] } as Schema)).toBe('z.int().nullable()')
             const runtime = z.int().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3342,10 +3342,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().positive()')
             const runtime = z.int().positive()
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3367,10 +3367,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().nonnegative()')
             const runtime = z.int().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3392,10 +3392,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().negative()')
             const runtime = z.int().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3417,10 +3417,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().nonpositive()')
             const runtime = z.int().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3438,10 +3438,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
-            const r = runtime.safeParse(99)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(99)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3457,10 +3457,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'integer', minimum: 0 } as Schema)).toBe('z.int().min(0)')
             const runtime = z.int().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3482,10 +3482,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().gt(100)')
             const runtime = z.int().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3503,10 +3503,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
-            const r = runtime.safeParse(101)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(101)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3522,10 +3522,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'integer', maximum: 0 } as Schema)).toBe('z.int().max(0)')
             const runtime = z.int().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3547,10 +3547,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().lt(100)')
             const runtime = z.int().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3568,10 +3568,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3589,10 +3589,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
-            const r = runtime.safeParse(3)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(3)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'not_multiple_of',
@@ -3609,10 +3609,10 @@ describe('zodToOpenAPI', () => {
             )
             const runtime = z.int().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3632,10 +3632,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().nullable().default(100)')
             const runtime = z.int().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3654,10 +3654,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int().nullable().default(100)')
             const runtime = z.int().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3674,10 +3674,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'integer', format: 'int32' } as Schema)).toBe('z.int32()')
             const runtime = z.int32()
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3697,10 +3697,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nullable()')
             const runtime = z.int32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3719,10 +3719,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nullable()')
             const runtime = z.int32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -3743,10 +3743,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().positive()')
             const runtime = z.int32().positive()
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3769,10 +3769,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nonnegative()')
             const runtime = z.int32().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3795,10 +3795,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().negative()')
             const runtime = z.int32().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
-            const r = runtime.safeParse(0)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3821,10 +3821,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nonpositive()')
             const runtime = z.int32().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3846,10 +3846,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().min(100)')
             const runtime = z.int32().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
-            const r = runtime.safeParse(99)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(99)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3871,10 +3871,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().min(0)')
             const runtime = z.int32().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(-1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3897,10 +3897,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().gt(100)')
             const runtime = z.int32().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_small',
@@ -3922,10 +3922,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().max(100)')
             const runtime = z.int32().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
-            const r = runtime.safeParse(101)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(101)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3947,10 +3947,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().max(0)')
             const runtime = z.int32().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
-            const r = runtime.safeParse(1)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3973,10 +3973,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().lt(100)')
             const runtime = z.int32().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -3998,10 +3998,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().lt(100)')
             const runtime = z.int32().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
-            const r = runtime.safeParse(100)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'too_big',
@@ -4023,10 +4023,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().multipleOf(2)')
             const runtime = z.int32().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
-            const r = runtime.safeParse(3)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(3)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'number',
                   code: 'not_multiple_of',
@@ -4047,10 +4047,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().default(100)')
             const runtime = z.int32().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -4071,10 +4071,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nullable().default(100)')
             const runtime = z.int32().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -4094,10 +4094,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int32().nullable().default(100)')
             const runtime = z.int32().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'number',
                   code: 'invalid_type',
@@ -4114,10 +4114,10 @@ describe('zodToOpenAPI', () => {
             expect(zodToOpenAPI({ type: 'integer', format: 'int64' } as Schema)).toBe('z.int64()')
             const runtime = z.int64()
             expect(runtime.safeParse(1n).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4137,10 +4137,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nullable()')
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4159,10 +4159,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nullable()')
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4183,10 +4183,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().positive()')
             const runtime = z.int64().positive()
             expect(runtime.safeParse(1n).success).toBe(true)
-            const r = runtime.safeParse(0n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_small',
@@ -4209,10 +4209,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nonnegative()')
             const runtime = z.int64().nonnegative()
             expect(runtime.safeParse(0n).success).toBe(true)
-            const r = runtime.safeParse(-1n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_small',
@@ -4235,10 +4235,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().negative()')
             const runtime = z.int64().negative()
             expect(runtime.safeParse(-1n).success).toBe(true)
-            const r = runtime.safeParse(0n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(0n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4261,10 +4261,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nonpositive()')
             const runtime = z.int64().nonpositive()
             expect(runtime.safeParse(0n).success).toBe(true)
-            const r = runtime.safeParse(1n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4286,10 +4286,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().min(100n)')
             const runtime = z.int64().min(100n)
             expect(runtime.safeParse(200n).success).toBe(true)
-            const r = runtime.safeParse(99n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(99n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_small',
@@ -4311,10 +4311,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().min(0n)')
             const runtime = z.int64().min(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
-            const r = runtime.safeParse(-1n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(-1n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_small',
@@ -4337,10 +4337,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().gt(100n)')
             const runtime = z.int64().gt(100n)
             expect(runtime.safeParse(101n).success).toBe(true)
-            const r = runtime.safeParse(100n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_small',
@@ -4362,10 +4362,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().max(100n)')
             const runtime = z.int64().max(100n)
             expect(runtime.safeParse(50n).success).toBe(true)
-            const r = runtime.safeParse(101n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(101n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4387,10 +4387,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().max(0n)')
             const runtime = z.int64().max(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
-            const r = runtime.safeParse(1n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(1n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4413,10 +4413,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().lt(100n)')
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
-            const r = runtime.safeParse(100n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4438,10 +4438,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().lt(100n)')
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
-            const r = runtime.safeParse(100n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(100n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'too_big',
@@ -4463,10 +4463,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().multipleOf(2n)')
             const runtime = z.int64().multipleOf(2n)
             expect(runtime.safeParse(4n).success).toBe(true)
-            const r = runtime.safeParse(3n)
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse(3n)
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   origin: 'bigint',
                   code: 'not_multiple_of',
@@ -4487,10 +4487,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().default(100n)')
             const runtime = z.int64().default(100n)
             expect(runtime.safeParse(1n).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4511,10 +4511,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nullable().default(100n)')
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4534,10 +4534,10 @@ describe('zodToOpenAPI', () => {
             ).toBe('z.int64().nullable().default(100n)')
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
-            const r = runtime.safeParse('a')
-            expect(r.success).toBe(false)
-            if (!r.success) {
-              expect(r.error.issues).toStrictEqual([
+            const result = runtime.safeParse('a')
+            expect(result.success).toBe(false)
+            if (!result.success) {
+              expect(result.error.issues).toStrictEqual([
                 {
                   expected: 'bigint',
                   code: 'invalid_type',
@@ -4557,10 +4557,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ type: 'boolean' } as Schema)).toBe('z.boolean()')
           const runtime = z.boolean()
           expect(runtime.safeParse(true).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4576,10 +4576,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.boolean().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4595,10 +4595,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.boolean().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4614,10 +4614,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.boolean().default(true)
           expect(runtime.safeParse(false).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4637,10 +4637,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.boolean().nullable().default(true)')
           const runtime = z.boolean().nullable().default(true)
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4659,10 +4659,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.boolean().nullable().default(true)')
           const runtime = z.boolean().nullable().default(true)
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4706,10 +4706,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.boolean().prefault(true)
           expect(runtime.safeParse(undefined).success).toBe(true)
-          const r = runtime.safeParse('a')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('a')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -4776,10 +4776,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string().refine((val) => val.length > 5,{message:"Too short"})')
           const runtime = z.string().refine((val) => val.length > 5, { message: 'Too short' })
           expect(runtime.safeParse('hello!').success).toBe(true)
-          const r = runtime.safeParse('hi')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('hi')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Too short' },
             ])
           }
@@ -4799,10 +4799,10 @@ describe('zodToOpenAPI', () => {
             .refine((val) => val.length > 5, { message: 'Too short' })
             .refine((val) => /^[a-z]/.test(val), { message: 'Lowercase start' })
           expect(runtime.safeParse('hello!').success).toBe(true)
-          const r = runtime.safeParse('Hello!')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('Hello!')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [], message: 'Lowercase start' },
             ])
           }
@@ -4816,10 +4816,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string().refine((val) => val !== "x",{path:["name"]})')
           const runtime = z.string().refine((val) => val !== 'x', { path: ['name'] })
           expect(runtime.safeParse('y').success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: ['name'], message: 'Invalid input' },
             ])
           }
@@ -4838,10 +4838,10 @@ describe('zodToOpenAPI', () => {
             if (val === 'forbidden') ctx.addIssue({ code: 'custom', message: 'no' })
           })
           expect(runtime.safeParse('ok').success).toBe(true)
-          const r = runtime.safeParse('forbidden')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([{ code: 'custom', message: 'no', path: [] }])
+          const result = runtime.safeParse('forbidden')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([{ code: 'custom', message: 'no', path: [] }])
           }
         })
         // ----- v2.4: x-codec for date -----
@@ -4915,10 +4915,10 @@ describe('zodToOpenAPI', () => {
             error: (issue) => (issue.input === undefined ? 'Required' : 'Type wrong'),
           })
           expect(runtime.safeParse('ok').success).toBe(true)
-          const r = runtime.safeParse(undefined)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(undefined)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -4939,10 +4939,10 @@ describe('zodToOpenAPI', () => {
             error: (issue) => (issue.input === undefined ? 'Required only' : undefined),
           })
           expect(runtime.safeParse('ok').success).toBe(true)
-          const r = runtime.safeParse(undefined)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(undefined)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -4961,10 +4961,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.literal("fixed",{error:"Must be \\"fixed\\""})')
           const runtime = z.literal('fixed', { error: 'Must be "fixed"' })
           expect(runtime.safeParse('fixed').success).toBe(true)
-          const r = runtime.safeParse('other')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('other')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: ['fixed'],
@@ -4995,10 +4995,10 @@ describe('zodToOpenAPI', () => {
               })
           })
           expect(runtime.safeParse([1, 5]).success).toBe(true)
-          const r = runtime.safeParse([1, 2])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1, 2])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'custom',
                 message: 'Expected at least 1 item matching contains schema, got 0',
@@ -5034,10 +5034,10 @@ describe('zodToOpenAPI', () => {
               })
           })
           expect(runtime.safeParse([0, 1]).success).toBe(true)
-          const r = runtime.safeParse([0])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([0])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'custom',
                 message: 'Expected at least 2 matching items, got 1',
@@ -5068,10 +5068,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse(['a', 'b']).success).toBe(true)
-          const r = runtime.safeParse(['a', 'a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a', 'a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [1], message: 'Duplicates not allowed' },
             ])
           }
@@ -5100,10 +5100,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('ok').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5196,10 +5196,10 @@ describe('zodToOpenAPI', () => {
               }
             })
           expect(runtime.safeParse({ name: 'foo' }).success).toBe(true)
-          const r = runtime.safeParse({ name: 'foo', extra: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ name: 'foo', extra: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: ['extra'], message: 'Unknown property: extra' },
             ])
           }
@@ -5227,10 +5227,10 @@ describe('zodToOpenAPI', () => {
               ctx.addIssue({ code: 'custom', path: [i], message: 'Unevaluated item at index ' + i })
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
-          const r = runtime.safeParse(['a', 1, 'extra'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a', 1, 'extra'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [2], message: 'Unevaluated item at index 2' },
             ])
           }
@@ -5309,10 +5309,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5328,10 +5328,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5380,10 +5380,10 @@ describe('zodToOpenAPI', () => {
               }
             })
           expect(runtime.safeParse({ name: 'foo', extra: 'str' }).success).toBe(true)
-          const r = runtime.safeParse({ name: 'foo', extra: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ name: 'foo', extra: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5421,10 +5421,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse(['a', 1, 2]).success).toBe(true)
-          const r = runtime.safeParse(['a', 'b'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a', 'b'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'number',
                 code: 'invalid_type',
@@ -5485,10 +5485,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5507,10 +5507,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5610,10 +5610,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ type: 'object' } as Schema)).toBe('z.object({})')
           const runtime = z.object({})
           expect(runtime.safeParse({}).success).toBe(true)
-          const r = runtime.safeParse('string')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('string')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'object',
                 code: 'invalid_type',
@@ -5630,10 +5630,10 @@ describe('zodToOpenAPI', () => {
           const runtime = z.object({}).nullable()
           expect(runtime.safeParse({}).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse('string')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('string')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'object',
                 code: 'invalid_type',
@@ -5698,10 +5698,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.record(z.string(),z.string())')
           const runtime = z.record(z.string(), z.string())
           expect(runtime.safeParse({ a: 'foo' }).success).toBe(true)
-          const r = runtime.safeParse({ a: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ a: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5751,10 +5751,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string())')
           const runtime = z.array(z.string())
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse([1])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -5773,10 +5773,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.number())')
           const runtime = z.array(z.number())
           expect(runtime.safeParse([1, 2]).success).toBe(true)
-          const r = runtime.safeParse(['a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'number',
                 code: 'invalid_type',
@@ -5795,10 +5795,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.int())')
           const runtime = z.array(z.int())
           expect(runtime.safeParse([1]).success).toBe(true)
-          const r = runtime.safeParse([1.5])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1.5])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'int',
                 format: 'safeint',
@@ -5818,10 +5818,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.boolean())')
           const runtime = z.array(z.boolean())
           expect(runtime.safeParse([true]).success).toBe(true)
-          const r = runtime.safeParse([1])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -5840,10 +5840,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.object({}))')
           const runtime = z.array(z.object({}))
           expect(runtime.safeParse([{}]).success).toBe(true)
-          const r = runtime.safeParse(['a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'object',
                 code: 'invalid_type',
@@ -5886,10 +5886,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string()).min(1)')
           const runtime = z.array(z.string()).min(1)
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse([])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_small',
@@ -5937,10 +5937,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string()).min(1).max(10)')
           const runtime = z.array(z.string()).min(1).max(10)
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse([])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_small',
@@ -5976,10 +5976,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse(['a', 'b']).success).toBe(true)
-          const r = runtime.safeParse(['a', 'a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a', 'a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [1], message: 'Duplicate of index 0' },
             ])
           }
@@ -6076,10 +6076,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ type: 'null' } as Schema)).toBe('z.null().nullable()')
           const runtime = z.null().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse(123)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(123)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'null',
                 code: 'invalid_type',
@@ -6093,10 +6093,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ type: ['null'] } as Schema)).toBe('z.null().nullable()')
           const runtime = z.null().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse(123)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(123)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'null',
                 code: 'invalid_type',
@@ -6120,10 +6120,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.email({error:"Invalid email"})')
           const runtime = z.email({ error: 'Invalid email' })
           expect(runtime.safeParse('a@b.co').success).toBe(true)
-          const r = runtime.safeParse('not-email')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('not-email')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'string',
                 code: 'invalid_format',
@@ -6148,10 +6148,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})')
           const runtime = z.string().min(3, { error: '3文字以上' }).max(20, { error: '20文字以下' })
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse('ab')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('ab')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'string',
                 code: 'too_small',
@@ -6173,10 +6173,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string().regex(/^[a-z]+$/,{error:"lowercase only"})')
           const runtime = z.string().regex(/^[a-z]+$/, { error: 'lowercase only' })
           expect(runtime.safeParse('abc').success).toBe(true)
-          const r = runtime.safeParse('ABC')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('ABC')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'string',
                 code: 'invalid_format',
@@ -6198,10 +6198,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.number().min(0,{error:"Must be >= 0"})')
           const runtime = z.number().min(0, { error: 'Must be >= 0' })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse(-1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(-1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'too_small',
@@ -6223,10 +6223,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.number().max(100,{error:"Must be <= 100"})')
           const runtime = z.number().max(100, { error: 'Must be <= 100' })
           expect(runtime.safeParse(50).success).toBe(true)
-          const r = runtime.safeParse(101)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(101)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'too_big',
@@ -6248,10 +6248,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.int().min(1,{error:"1以上"})')
           const runtime = z.int().min(1, { error: '1以上' })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse(0)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(0)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'too_small',
@@ -6274,10 +6274,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.int64().max(100n,{error:"100以下"})')
           const runtime = z.int64().max(100n, { error: '100以下' })
           expect(runtime.safeParse(50n).success).toBe(true)
-          const r = runtime.safeParse(101n)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(101n)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'bigint',
                 code: 'too_big',
@@ -6312,10 +6312,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string().length(5).openapi({"x-size-message":"Exactly 5"})')
           const runtime = z.string().length(5, { error: 'Exactly 5' })
           expect(runtime.safeParse('abcde').success).toBe(true)
-          const r = runtime.safeParse('abcd')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('abcd')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'string',
                 code: 'too_small',
@@ -6337,10 +6337,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string({error:"文字列必須"})')
           const runtime = z.string({ error: '文字列必須' })
           expect(runtime.safeParse('x').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -6359,10 +6359,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.number({error:"数値必須"})')
           const runtime = z.number({ error: '数値必須' })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'number',
                 code: 'invalid_type',
@@ -6382,10 +6382,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.float32({error:"float必須"})')
           const runtime = z.float32({ error: 'float必須' })
           expect(runtime.safeParse(1.5).success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'number',
                 code: 'invalid_type',
@@ -6404,10 +6404,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.int({error:"整数必須"})')
           const runtime = z.int({ error: '整数必須' })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse(1.5)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1.5)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'int',
                 format: 'safeint',
@@ -6427,10 +6427,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.boolean({error:"ブール必須"})')
           const runtime = z.boolean({ error: 'ブール必須' })
           expect(runtime.safeParse(true).success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'boolean',
                 code: 'invalid_type',
@@ -6551,10 +6551,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string(),{error:"配列必須"})')
           const runtime = z.array(z.string(), { error: '配列必須' })
           expect(runtime.safeParse(['x']).success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'array',
                 code: 'invalid_type',
@@ -6573,10 +6573,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.null({error:"null必須"}).nullable()')
           const runtime = z.null({ error: 'null必須' }).nullable()
           expect(runtime.safeParse(null).success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'null',
                 code: 'invalid_type',
@@ -6595,10 +6595,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.enum(["A","B"],{error:"無効な値"})')
           const runtime = z.enum(['A', 'B'], { error: '無効な値' })
           expect(runtime.safeParse('A').success).toBe(true)
-          const r = runtime.safeParse('C')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('C')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: ['A', 'B'],
@@ -6617,10 +6617,10 @@ describe('zodToOpenAPI', () => {
           ).toBe(`z.literal('only',{error:"onlyのみ"})`)
           const runtime = z.literal('only', { error: 'onlyのみ' })
           expect(runtime.safeParse('only').success).toBe(true)
-          const r = runtime.safeParse('other')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('other')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: ['only'],
@@ -6639,10 +6639,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.union([z.literal(1),z.literal(2),z.literal(3)],{error:"1-3のみ"})')
           const runtime = z.union([z.literal(1), z.literal(2), z.literal(3)], { error: '1-3のみ' })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse(4)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(4)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_union',
                 errors: [
@@ -6687,10 +6687,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.literal(42,{error:"42のみ"})')
           const runtime = z.literal(42, { error: '42のみ' })
           expect(runtime.safeParse(42).success).toBe(true)
-          const r = runtime.safeParse(43)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(43)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: [42],
@@ -6710,10 +6710,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.union([z.literal(true),z.literal(false)],{error:"ブール値"})')
           const runtime = z.union([z.literal(true), z.literal(false)], { error: 'ブール値' })
           expect(runtime.safeParse(true).success).toBe(true)
-          const r = runtime.safeParse('x')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('x')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_union',
                 errors: [
@@ -6749,10 +6749,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.string({error:()=>"required"})')
           const runtime = z.string({ error: () => 'required' })
           expect(runtime.safeParse('x').success).toBe(true)
-          const r = runtime.safeParse(1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -6774,10 +6774,10 @@ describe('zodToOpenAPI', () => {
             .number()
             .min(0, { error: (iss) => (iss.input === undefined ? 'required' : 'invalid') })
           expect(runtime.safeParse(1).success).toBe(true)
-          const r = runtime.safeParse(-1)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(-1)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'too_small',
@@ -6804,10 +6804,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.number()).min(1,{error:"At least 1"})')
           const runtime = z.array(z.number()).min(1, { error: 'At least 1' })
           expect(runtime.safeParse([1]).success).toBe(true)
-          const r = runtime.safeParse([])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_small',
@@ -6830,10 +6830,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.number()).max(5,{error:"At most 5"})')
           const runtime = z.array(z.number()).max(5, { error: 'At most 5' })
           expect(runtime.safeParse([1, 2]).success).toBe(true)
-          const r = runtime.safeParse([1, 2, 3, 4, 5, 6])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1, 2, 3, 4, 5, 6])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_big',
@@ -6861,10 +6861,10 @@ describe('zodToOpenAPI', () => {
             .min(1, { error: '1個以上' })
             .max(10, { error: '10個以下' })
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse([])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_small',
@@ -6888,10 +6888,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string()).length(3).openapi({"x-size-message":"Exactly 3"})')
           const runtime = z.array(z.string()).length(3, { error: 'Exactly 3' })
           expect(runtime.safeParse(['a', 'b', 'c']).success).toBe(true)
-          const r = runtime.safeParse(['a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'array',
                 code: 'too_small',
@@ -6924,10 +6924,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse(['a', 'b']).success).toBe(true)
-          const r = runtime.safeParse(['a', 'a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(['a', 'a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: [1], message: '重複不可' },
             ])
           }
@@ -6942,10 +6942,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.array(z.string(),{error:"配列必須"})')
           const runtime = z.array(z.string(), { error: '配列必須' })
           expect(runtime.safeParse(['a']).success).toBe(true)
-          const r = runtime.safeParse('not array')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('not array')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'array',
                 code: 'invalid_type',
@@ -6975,10 +6975,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
-          const r = runtime.safeParse([1, 'a'])
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse([1, 'a'])
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -7118,10 +7118,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse({ foo: 1 }).success).toBe(true)
-          const r = runtime.safeParse({ FOO: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ FOO: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               { code: 'custom', path: ['FOO'], message: 'lowercase keys' },
             ])
           }
@@ -7152,10 +7152,10 @@ describe('zodToOpenAPI', () => {
             }
           })
           expect(runtime.safeParse({ S_foo: 'bar' }).success).toBe(true)
-          const r = runtime.safeParse({ S_foo: 1 })
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse({ S_foo: 1 })
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'string',
                 code: 'invalid_type',
@@ -7178,10 +7178,10 @@ describe('zodToOpenAPI', () => {
           ).toBe(`z.literal("fixed",{error:"fixedのみ"})`)
           const runtime = z.literal('fixed', { error: 'fixedのみ' })
           expect(runtime.safeParse('fixed').success).toBe(true)
-          const r = runtime.safeParse('other')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('other')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: ['fixed'],
@@ -7197,10 +7197,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.literal(42, { error: '42のみ' })
           expect(runtime.safeParse(42).success).toBe(true)
-          const r = runtime.safeParse(0)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(0)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: [42],
@@ -7216,10 +7216,10 @@ describe('zodToOpenAPI', () => {
           )
           const runtime = z.literal(true, { error: 'trueのみ' })
           expect(runtime.safeParse(true).success).toBe(true)
-          const r = runtime.safeParse(false)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(false)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: [true],
@@ -7233,10 +7233,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ const: 'fixed' } as Schema)).toBe(`z.literal("fixed")`)
           const runtime = z.literal('fixed')
           expect(runtime.safeParse('fixed').success).toBe(true)
-          const r = runtime.safeParse('other')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('other')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 code: 'invalid_value',
                 values: ['fixed'],
@@ -7260,10 +7260,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.number({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})')
           const runtime = z.number({ error: '偶数のみ' }).multipleOf(2, { error: '偶数のみ' })
           expect(runtime.safeParse(4).success).toBe(true)
-          const r = runtime.safeParse(3)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(3)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'not_multiple_of',
@@ -7284,10 +7284,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.int({error:"3の倍数"}).multipleOf(3,{error:"3の倍数"})')
           const runtime = z.int({ error: '3の倍数' }).multipleOf(3, { error: '3の倍数' })
           expect(runtime.safeParse(9).success).toBe(true)
-          const r = runtime.safeParse(4)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(4)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'number',
                 code: 'not_multiple_of',
@@ -7309,10 +7309,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})')
           const runtime = z.int64({ error: '5の倍数' }).multipleOf(5n, { error: '5の倍数' })
           expect(runtime.safeParse(10n).success).toBe(true)
-          const r = runtime.safeParse(3n)
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse(3n)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 origin: 'bigint',
                 code: 'not_multiple_of',
@@ -7336,10 +7336,10 @@ describe('zodToOpenAPI', () => {
           ).toBe('z.date({error:"日付必須"})')
           const runtime = z.date({ error: '日付必須' })
           expect(runtime.safeParse(new Date()).success).toBe(true)
-          const r = runtime.safeParse('not date')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('not date')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'date',
                 code: 'invalid_type',
@@ -7353,10 +7353,10 @@ describe('zodToOpenAPI', () => {
           expect(zodToOpenAPI({ type: 'date' } as Schema)).toBe('z.date()')
           const runtime = z.date()
           expect(runtime.safeParse(new Date()).success).toBe(true)
-          const r = runtime.safeParse('not date')
-          expect(r.success).toBe(false)
-          if (!r.success) {
-            expect(r.error.issues).toStrictEqual([
+          const result = runtime.safeParse('not date')
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.issues).toStrictEqual([
               {
                 expected: 'date',
                 code: 'invalid_type',
@@ -7417,10 +7417,10 @@ describe('zodToOpenAPI', () => {
       ).toBe('z.array(z.string()).readonly()')
       const runtime = z.array(z.string()).readonly()
       expect(runtime.safeParse(['a']).success).toBe(true)
-      const r = runtime.safeParse([1])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse([1])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -7438,10 +7438,10 @@ describe('zodToOpenAPI', () => {
       ).toBe('z.array(z.number()).readonly()')
       const runtime = z.array(z.number()).readonly()
       expect(runtime.safeParse([1, 2]).success).toBe(true)
-      const r = runtime.safeParse(['a'])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse(['a'])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'number',
             code: 'invalid_type',
@@ -7486,10 +7486,10 @@ describe('zodToOpenAPI', () => {
         })
         .readonly()
       expect(runtime.safeParse(['a', 1]).success).toBe(true)
-      const r = runtime.safeParse([1, 'a'])
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse([1, 'a'])
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -7526,10 +7526,10 @@ describe('zodToOpenAPI', () => {
       )
       const runtime = z.string()
       expect(runtime.safeParse('foo').success).toBe(true)
-      const r = runtime.safeParse(1)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse(1)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -7545,10 +7545,10 @@ describe('zodToOpenAPI', () => {
       )
       const runtime = z.number()
       expect(runtime.safeParse(1).success).toBe(true)
-      const r = runtime.safeParse('x')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse('x')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'number',
             code: 'invalid_type',
@@ -7564,10 +7564,10 @@ describe('zodToOpenAPI', () => {
       )
       const runtime = z.boolean()
       expect(runtime.safeParse(true).success).toBe(true)
-      const r = runtime.safeParse('x')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = runtime.safeParse('x')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'boolean',
             code: 'invalid_type',
@@ -8397,10 +8397,10 @@ describe('zodToOpenAPI', () => {
       expect(z.email().safeParse('taro@example.com').success).toBe(true)
     })
     it.concurrent('runtime: "not-an-email" FAILS', () => {
-      const r = z.email().safeParse('not-an-email')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.email().safeParse('not-an-email')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'invalid_format',
@@ -8423,10 +8423,10 @@ describe('zodToOpenAPI', () => {
       expect(z.uuid().safeParse('123e4567-e89b-12d3-a456-426614174000').success).toBe(true)
     })
     it.concurrent('runtime: non-uuid FAILS', () => {
-      const r = z.uuid().safeParse('abc')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.uuid().safeParse('abc')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'invalid_format',
@@ -8449,10 +8449,10 @@ describe('zodToOpenAPI', () => {
       expect(z.iso.datetime().safeParse('2026-05-12T10:30:00Z').success).toBe(true)
     })
     it.concurrent('runtime: "2026/05/12" FAILS (not ISO)', () => {
-      const r = z.iso.datetime().safeParse('2026/05/12')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.iso.datetime().safeParse('2026/05/12')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'invalid_format',
@@ -8475,10 +8475,10 @@ describe('zodToOpenAPI', () => {
       expect(z.iso.date().safeParse('2026-05-12').success).toBe(true)
     })
     it.concurrent('runtime: "2026-13-01" FAILS (invalid month)', () => {
-      const r = z.iso.date().safeParse('2026-13-01')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.iso.date().safeParse('2026-13-01')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'invalid_format',
@@ -8501,10 +8501,10 @@ describe('zodToOpenAPI', () => {
       expect(z.ipv4().safeParse('192.168.0.1').success).toBe(true)
     })
     it.concurrent('runtime: "999.999.999.999" FAILS', () => {
-      const r = z.ipv4().safeParse('999.999.999.999')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.ipv4().safeParse('999.999.999.999')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'invalid_format',
@@ -8527,10 +8527,10 @@ describe('zodToOpenAPI', () => {
       expect(z.url().safeParse('https://example.com').success).toBe(true)
     })
     it.concurrent('runtime: "not a url" FAILS', () => {
-      const r = z.url().safeParse('not a url')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.url().safeParse('not a url')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_format',
             format: 'url',
@@ -8625,10 +8625,10 @@ describe('zodToOpenAPI', () => {
       expect(z.string().length(5).safeParse('12345').success).toBe(true)
     })
     it.concurrent('runtime: "1234" FAILS (too short)', () => {
-      const r = z.string().length(5).safeParse('1234')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.string().length(5).safeParse('1234')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'too_small',
@@ -8642,10 +8642,10 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('runtime: "123456" FAILS (too long)', () => {
-      const r = z.string().length(5).safeParse('123456')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.string().length(5).safeParse('123456')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'string',
             code: 'too_big',
@@ -8679,10 +8679,10 @@ describe('zodToOpenAPI', () => {
       expect(z.number().min(0).max(100).safeParse(100).success).toBe(true)
     })
     it.concurrent('runtime: -1 FAILS', () => {
-      const r = z.number().min(0).max(100).safeParse(-1)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.number().min(0).max(100).safeParse(-1)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'number',
             code: 'too_small',
@@ -8695,10 +8695,10 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('runtime: 101 FAILS', () => {
-      const r = z.number().min(0).max(100).safeParse(101)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.number().min(0).max(100).safeParse(101)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'number',
             code: 'too_big',
@@ -8720,10 +8720,10 @@ describe('zodToOpenAPI', () => {
       expect(z.number().multipleOf(0.5).safeParse(1.5).success).toBe(true)
     })
     it.concurrent('runtime: 1.3 FAILS', () => {
-      const r = z.number().multipleOf(0.5).safeParse(1.3)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.number().multipleOf(0.5).safeParse(1.3)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'number',
             code: 'not_multiple_of',
@@ -8744,10 +8744,10 @@ describe('zodToOpenAPI', () => {
       expect(z.int().gt(0).safeParse(1).success).toBe(true)
     })
     it.concurrent('runtime: 0 FAILS (exclusive)', () => {
-      const r = z.int().gt(0).safeParse(0)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.int().gt(0).safeParse(0)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             origin: 'number',
             code: 'too_small',
@@ -8760,10 +8760,10 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('runtime: 1.5 FAILS (not integer)', () => {
-      const r = z.int().gt(0).safeParse(1.5)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.int().gt(0).safeParse(1.5)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'int',
             format: 'safeint',
@@ -8789,10 +8789,10 @@ describe('zodToOpenAPI', () => {
       expect(z.enum(['red', 'green', 'blue']).safeParse('red').success).toBe(true)
     })
     it.concurrent('runtime: "yellow" FAILS', () => {
-      const r = z.enum(['red', 'green', 'blue']).safeParse('yellow')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.enum(['red', 'green', 'blue']).safeParse('yellow')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_value',
             values: ['red', 'green', 'blue'],
@@ -8812,10 +8812,10 @@ describe('zodToOpenAPI', () => {
       expect(z.literal('fixed').safeParse('fixed').success).toBe(true)
     })
     it.concurrent('runtime: "other" FAILS', () => {
-      const r = z.literal('fixed').safeParse('other')
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.literal('fixed').safeParse('other')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_value',
             values: ['fixed'],
@@ -8835,10 +8835,10 @@ describe('zodToOpenAPI', () => {
       expect(z.literal(42).safeParse(42).success).toBe(true)
     })
     it.concurrent('runtime: 43 FAILS', () => {
-      const r = z.literal(42).safeParse(43)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.literal(42).safeParse(43)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_value',
             values: [42],
@@ -8872,10 +8872,10 @@ describe('zodToOpenAPI', () => {
       expect(AllOfSchema.safeParse({ a: 'x', b: 1 }).success).toBe(true)
     })
     it.concurrent('runtime: {a:"x"} FAILS (b missing)', () => {
-      const r = AllOfSchema.safeParse({ a: 'x' })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = AllOfSchema.safeParse({ a: 'x' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'number',
             code: 'invalid_type',
@@ -8886,10 +8886,10 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('runtime: {b:1} FAILS (a missing)', () => {
-      const r = AllOfSchema.safeParse({ b: 1 })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = AllOfSchema.safeParse({ b: 1 })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -8916,10 +8916,10 @@ describe('zodToOpenAPI', () => {
       expect(AnyOfSchema.safeParse(1).success).toBe(true)
     })
     it.concurrent('runtime: true FAILS (neither string nor number)', () => {
-      const r = AnyOfSchema.safeParse(true)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = AnyOfSchema.safeParse(true)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_union',
             errors: [
@@ -8982,10 +8982,10 @@ describe('zodToOpenAPI', () => {
       expect(OneOfSchema.safeParse({ kind: 'dog', bark: true }).success).toBe(true)
     })
     it.concurrent('runtime: {kind:"cat", bark:true} FAILS (wrong shape for cat)', () => {
-      const r = OneOfSchema.safeParse({ kind: 'cat', bark: true })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = OneOfSchema.safeParse({ kind: 'cat', bark: true })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'boolean',
             code: 'invalid_type',
@@ -8996,10 +8996,10 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('runtime: {kind:"fish"} FAILS (unknown discriminator)', () => {
-      const r = OneOfSchema.safeParse({ kind: 'fish' })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = OneOfSchema.safeParse({ kind: 'fish' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_union',
             errors: [],
@@ -9068,10 +9068,10 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('実行時: いずれかのサブスキーマと型が矛盾する入力は弾かれる', () => {
       const AllOfSchema = z.object({ name: z.string() }).and(z.object({ age: z.int() }))
-      const r = AllOfSchema.safeParse({ name: 'foo', age: 'bar' })
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = AllOfSchema.safeParse({ name: 'foo', age: 'bar' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'number',
             code: 'invalid_type',
@@ -9274,10 +9274,10 @@ describe('zodToOpenAPI', () => {
       // oneOf なので「2つ一致」は不正となり、弾かれなければならない。
       // anyOf であれば通っていた — これが anyOf と oneOf の本質的な違い。
       const Overlap = z.xor([z.int(), z.number()])
-      const r = Overlap.safeParse(7)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = Overlap.safeParse(7)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             code: 'invalid_union',
             errors: [],
@@ -9341,10 +9341,10 @@ describe('zodToOpenAPI', () => {
       expect(z.string().nullable().safeParse(null).success).toBe(true)
     })
     it.concurrent('runtime: 1 FAILS', () => {
-      const r = z.string().nullable().safeParse(1)
-      expect(r.success).toBe(false)
-      if (!r.success) {
-        expect(r.error.issues).toStrictEqual([
+      const result = z.string().nullable().safeParse(1)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues).toStrictEqual([
           {
             expected: 'string',
             code: 'invalid_type',
@@ -11634,94 +11634,94 @@ describe('zodToOpenAPI', () => {
     describe('x-stringbool: runtime — default truthy/falsy lists', () => {
       const S = z.stringbool()
       it.concurrent('runtime default: "true" → true', () => {
-        const r = S.safeParse('true')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('true')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "1" → true', () => {
-        const r = S.safeParse('1')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('1')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "yes" → true', () => {
-        const r = S.safeParse('yes')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('yes')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "on" → true', () => {
-        const r = S.safeParse('on')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('on')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "y" → true', () => {
-        const r = S.safeParse('y')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('y')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "enabled" → true', () => {
-        const r = S.safeParse('enabled')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('enabled')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "0" → false', () => {
-        const r = S.safeParse('0')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(false)
+        const result = S.safeParse('0')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "no" → false', () => {
-        const r = S.safeParse('no')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(false)
+        const result = S.safeParse('no')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "off" → false', () => {
-        const r = S.safeParse('off')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(false)
+        const result = S.safeParse('off')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "disabled" → false', () => {
-        const r = S.safeParse('disabled')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(false)
+        const result = S.safeParse('disabled')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: case-insensitive "TRUE" → true', () => {
-        const r = S.safeParse('TRUE')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('TRUE')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: case-insensitive "Yes" → true', () => {
-        const r = S.safeParse('Yes')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('Yes')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: unknown string fails', () => {
-        const r = S.safeParse('maybe')
-        expect(r.success).toBe(false)
+        const result = S.safeParse('maybe')
+        expect(result.success).toBe(false)
       })
       it.concurrent('runtime default: non-string (boolean) fails', () => {
-        const r = S.safeParse(true)
-        expect(r.success).toBe(false)
+        const result = S.safeParse(true)
+        expect(result.success).toBe(false)
       })
     })
 
     describe('x-stringbool: runtime — custom truthy/falsy override defaults', () => {
       const S = z.stringbool({ truthy: ['oui'], falsy: ['non'] })
       it.concurrent('runtime custom: "oui" → true', () => {
-        const r = S.safeParse('oui')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(true)
+        const result = S.safeParse('oui')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(true)
       })
       it.concurrent('runtime custom: "non" → false', () => {
-        const r = S.safeParse('non')
-        expect(r.success).toBe(true)
-        if (r.success) expect(r.data).toBe(false)
+        const result = S.safeParse('non')
+        expect(result.success).toBe(true)
+        if (result.success) expect(result.data).toBe(false)
       })
       it.concurrent('runtime custom: default "true" no longer accepted', () => {
-        const r = S.safeParse('true')
-        expect(r.success).toBe(false)
+        const result = S.safeParse('true')
+        expect(result.success).toBe(false)
       })
       it.concurrent('runtime custom: default "false" no longer accepted', () => {
-        const r = S.safeParse('false')
-        expect(r.success).toBe(false)
+        const result = S.safeParse('false')
+        expect(result.success).toBe(false)
       })
     })
 
@@ -11747,20 +11747,20 @@ describe('zodToOpenAPI', () => {
     describe('x-stringbool: runtime — custom error message', () => {
       it.concurrent('runtime: x-error-message surfaces on invalid input', () => {
         const S = z.stringbool({ error: 'must be bool-ish' })
-        const r = S.safeParse('garbage')
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues[0]?.message).toBe('must be bool-ish')
+        const result = S.safeParse('garbage')
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0]?.message).toBe('must be bool-ish')
         }
       })
       it.concurrent('runtime: x-required-message via fn for undefined input', () => {
         const S = z.stringbool({
           error: (issue) => (issue.input === undefined ? 'Required' : undefined),
         })
-        const r = S.safeParse(undefined)
-        expect(r.success).toBe(false)
-        if (!r.success) {
-          expect(r.error.issues[0]?.message).toBe('Required')
+        const result = S.safeParse(undefined)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0]?.message).toBe('Required')
         }
       })
     })

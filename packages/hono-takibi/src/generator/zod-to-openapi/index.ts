@@ -151,7 +151,11 @@ export function zodToOpenAPI(
     const anyOfSchemas = schema.anyOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
-    const anyOfMessage = schema['x-anyOf-message'] ?? schema['x-error-message']
+    // x-implication-message is a semantic alias for the anyOf+not+required
+    // implication pattern (A → B). It takes precedence over x-anyOf-message
+    // on the anyOf code path, with x-error-message as the final fallback.
+    const anyOfMessage =
+      schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
     return wrap(`z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`, schema, meta, options)
   }

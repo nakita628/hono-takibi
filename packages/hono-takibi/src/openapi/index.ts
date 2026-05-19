@@ -495,6 +495,14 @@ export type Schema = {
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
+  /**
+   * Semantic alias for the implication pattern (`A → B`) encoded as
+   * `anyOf:[{not:A},{required:B}]`. Takes precedence over `x-anyOf-message`
+   * in the anyOf code path, then falls back to `x-error-message`. Acts as a
+   * documentation aid — explicitly marking the schema author's intent — and
+   * is silently ignored on schemas without `anyOf`.
+   */
+  readonly 'x-implication-message'?: string
   readonly 'x-required-message'?: string
   readonly 'x-additionalProperties-message'?: string
   readonly 'x-uniqueItems-message'?: string

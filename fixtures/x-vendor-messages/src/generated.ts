@@ -401,6 +401,45 @@ const MiscSchema = z
   .openapi({ required: ['color', 'kind', 'tags', 'sized', 'namespaced', 'prefixed', 'payload'] })
   .openapi('Misc')
 
+const ImplicationSchema = z
+  .union(
+    [
+      z.any().refine(
+        (val) =>
+          !z
+            .unknown()
+            .superRefine((val, ctx) => {
+              if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                if (!Object.hasOwn(val, 'hasLicense')) {
+                  ctx.addIssue({ code: 'custom' })
+                }
+                if (Object.hasOwn(val, 'hasLicense')) {
+                  const Schema = z.literal(true)
+                  if (!Schema.safeParse(Reflect.get(val, 'hasLicense')).success) {
+                    ctx.addIssue({ code: 'custom' })
+                  }
+                }
+              }
+            })
+            .openapi({ required: ['hasLicense'] })
+            .safeParse(val).success,
+      ),
+      z
+        .unknown()
+        .superRefine((val, ctx) => {
+          if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+            if (!Object.hasOwn(val, 'licenseNumber')) {
+              ctx.addIssue({ code: 'custom' })
+            }
+          }
+        })
+        .openapi({ required: ['licenseNumber'] }),
+    ],
+    { error: 'licenseNumber is required when hasLicense is true' },
+  )
+  .openapi({ 'x-implication-message': 'licenseNumber is required when hasLicense is true' })
+  .openapi('Implication')
+
 const StrictAllOfSchema = (() => {
   const Schema = z
     .object({ id: z.string() })
@@ -544,6 +583,16 @@ export const postStrictAllofRoute = createRoute({
   operationId: 'postStrictAllOf',
   request: {
     body: { content: { 'application/json': { schema: StrictAllOfSchema } }, required: true },
+  },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postImplicationRoute = createRoute({
+  method: 'post',
+  path: '/implication',
+  operationId: 'postImplication',
+  request: {
+    body: { content: { 'application/json': { schema: ImplicationSchema } }, required: true },
   },
   responses: { 200: { description: 'OK' } },
 })
