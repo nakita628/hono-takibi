@@ -134,7 +134,14 @@ function makeFormatOptions(schema: Schema): readonly string[] {
  * before validation runs. This makes canonical email normalization
  * (`{ format: email, x-trim: true, x-toLowerCase: true }`) work as expected.
  */
-export function string(schema: Schema): string {
+export function string(
+  schema: Schema,
+  options?: {
+    coerce?: boolean
+    readonly?: boolean
+    isOptional?: boolean
+  },
+): string {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const baseErrorArg = baseError(errorMessage, requiredMessage)
@@ -205,8 +212,11 @@ export function string(schema: Schema): string {
       return '.transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))'
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
-    // through zodToOpenAPI which already handles refs via makeRef.
-    const validateStep = contentSchema ? `.pipe(${zodToOpenAPI(contentSchema)})` : ''
+    // through zodToOpenAPI which already handles refs via makeRef. Propagate
+    // `options` so nested array/object receives `.readonly()` when requested.
+    const validateStep = contentSchema
+      ? `.pipe(${zodToOpenAPI(contentSchema, undefined, options)})`
+      : ''
     return `${baseStr}${decodeStep}${validateStep}`
   }
 

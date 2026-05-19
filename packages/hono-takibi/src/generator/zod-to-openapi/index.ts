@@ -283,7 +283,7 @@ export function zodToOpenAPI(
   if (schema.properties !== undefined)
     return wrap(object(schema, childOptions), schema, meta, options)
   const t = normalizeTypes(schema.type)
-  if (t.includes('string')) return wrap(string(schema), schema, meta, options)
+  if (t.includes('string')) return wrap(string(schema, childOptions), schema, meta, options)
   if (t.includes('number')) return wrap(number(schema, options), schema, meta, options)
   if (t.includes('integer')) return wrap(integer(schema, options), schema, meta, options)
   if (t.includes('boolean')) {
@@ -305,13 +305,18 @@ export function zodToOpenAPI(
     })()
     if (xStringbool !== undefined) {
       const opts = xStringbool === true ? null : xStringbool
-      const optsStr = opts
-        ? JSON.stringify({
+      const optsObj = opts
+        ? {
             ...(opts.truthy !== undefined ? { truthy: opts.truthy } : {}),
             ...(opts.falsy !== undefined ? { falsy: opts.falsy } : {}),
             ...(opts.case !== undefined ? { case: opts.case } : {}),
-          })
-        : ''
+          }
+        : null
+      /* Only serialize when there is at least one key to emit. An empty
+       * `optsObj` would otherwise produce `'{}'`, and the subsequent merge
+       * (`optsStr.slice(0,-1)` + `,` + `arg.slice(1)`) would inject a leading
+       * comma — `z.stringbool({,error:"…"})` — breaking the generated TS. */
+      const optsStr = optsObj && Object.keys(optsObj).length > 0 ? JSON.stringify(optsObj) : ''
       const combinedArg =
         optsStr && arg ? `${optsStr.slice(0, -1)},${arg.slice(1)}` : optsStr || arg
       const base = combinedArg ? `z.stringbool(${combinedArg})` : 'z.stringbool()'

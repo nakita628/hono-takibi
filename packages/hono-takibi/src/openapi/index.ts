@@ -478,19 +478,10 @@ export type Schema = {
   readonly dependentRequired?: {
     readonly [k: string]: readonly string[]
   }
-  // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
-  /**
-   *
-   *
-   *
-   *
-   */
+  // Vendor extensions for custom validation messages (OpenAPI Generator compatible).
+  // Per-slot precedence: x-<keyword>-message > x-error-message > Zod default.
+  // See `helper/zod.ts#messageFor` for the resolution chain.
   readonly 'x-error-message'?: string
-  /**
-   *
-   *
-   *
-   */
   readonly 'x-length-message'?: string
   readonly 'x-pattern-message'?: string // string `pattern` only
   readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
@@ -499,6 +490,16 @@ export type Schema = {
   readonly 'x-exclusiveMaximum-message'?: string // numeric `exclusiveMaximum` (<)
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
+  /**
+   * @deprecated
+   * `dependentSchemas` is a JSON Schema 2020-12 §10.2.2.4 **applicator** —
+   * sub-schema issues propagate verbatim. The parent-level message slot is
+   * therefore ineffective by design (intentionally not applied in either the
+   * type'd object path nor the typeless path). To override the validation
+   * message, set the message slot on the sub-schema itself.
+   *
+   * Kept for OpenAPI annotation roundtrip; will be removed in v1.0.
+   */
   readonly 'x-dependentSchemas-message'?: string
   readonly 'x-propertyNames-message'?: string
   readonly 'x-allOf-message'?: string
@@ -619,9 +620,20 @@ export type Schema = {
   // directly.
   readonly 'x-refine'?: string
   readonly 'x-superRefine'?: string
-  // Bidirectional codec. The value is a complete `z.codec(...)` expression
-  // string and replaces the base schema verbatim. Authors can paste the Zod
-  // docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+  /**
+   * Bidirectional codec. The value is a complete `z.codec(...)` expression
+   * string and replaces the base schema verbatim. Authors can paste the Zod
+   * docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+   *
+   * Applied to any schema type. The author is responsible for ensuring the
+   * codec's input side matches the surrounding wire shape; the generator does
+   * not introspect the expression. Precedence among replacing extensions
+   * (outermost wins): `x-preprocess` > `x-transform` > `x-pipe` > `x-codec`.
+   * On `type: 'string'` with `format: ^sha\\d+$` or `x-coerce: true`, the
+   * string emitter consumes the codec first — those exclusions are intentional.
+   *
+   * @see https://zod.dev/codecs
+   */
   readonly 'x-codec'?: string
   // Pre-validation normalization. The value is a complete `z.preprocess(...)`
   // expression string and replaces the base schema verbatim (same convention

@@ -1024,6 +1024,56 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI(input)).toBe(expected)
         // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
       })
+
+      // x-allOf-message: per-issue dispatch overrides each sub-issue's message
+      // while preserving its discriminant (code/path). Covers the
+      // `x-allOf-message > x-error-message > default` precedence chain.
+      describe('x-allOf-message (runtime precedence)', () => {
+        it.concurrent('runtime: x-allOf-message overrides sub-issue message verbatim', () => {
+          const Schema = z.object({ a: z.string() }).and(z.object({ b: z.string() }))
+          const wrapped = z
+            .unknown()
+            .check((ctx) => {
+              const result = Schema.safeParse(ctx.value)
+              if (!result.success) {
+                for (const issue of result.error.issues) {
+                  if (issue.code === 'invalid_type') {
+                    ctx.issues.push({ ...issue, input: issue.input, message: 'allOf failed' })
+                  }
+                }
+              }
+            })
+            .pipe(Schema)
+          const r = wrapped.safeParse({ a: 1, b: 'x' })
+          expect(r.success).toBe(false)
+          if (!r.success) {
+            expect(r.error.issues[0]?.message).toBe('allOf failed')
+            expect(r.error.issues[0]?.code).toBe('invalid_type')
+            expect(r.error.issues[0]?.path).toStrictEqual(['a'])
+          }
+        })
+        it.concurrent('runtime: x-error-message fallback fires when x-allOf-message is absent', () => {
+          const Schema = z.object({ a: z.string() }).and(z.object({ b: z.string() }))
+          const wrapped = z
+            .unknown()
+            .check((ctx) => {
+              const result = Schema.safeParse(ctx.value)
+              if (!result.success) {
+                for (const issue of result.error.issues) {
+                  if (issue.code === 'invalid_type') {
+                    ctx.issues.push({ ...issue, input: issue.input, message: 'shared error' })
+                  }
+                }
+              }
+            })
+            .pipe(Schema)
+          const r = wrapped.safeParse({ a: 1, b: 'x' })
+          expect(r.success).toBe(false)
+          if (!r.success) {
+            expect(r.error.issues[0]?.message).toBe('shared error')
+          }
+        })
+      })
     })
 
     // not
@@ -4788,6 +4838,54 @@ describe('zodToOpenAPI', () => {
           } as Schema)
           expect(generated).toBe('date')
           // runtime skipped: z.codec API surface evaluation can be brittle
+        })
+        // x-codec on non-string types: applied verbatim via wrap chain.
+        // Author owns correctness of the codec expression; the generator
+        // does not introspect or validate the replacement.
+        it.concurrent('number: x-codec replaces base verbatim', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'number',
+              'x-codec':
+                'z.codec(z.number(),z.date(),{decode:(n)=>new Date(n),encode:(d)=>d.getTime()})',
+            } as Schema),
+          ).toBe('z.codec(z.number(),z.date(),{decode:(n)=>new Date(n),encode:(d)=>d.getTime()})')
+        })
+        it.concurrent('object: x-codec replaces base verbatim', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'object',
+              properties: { a: { type: 'string' } },
+              'x-codec': 'CUSTOM_CODEC',
+            } as Schema),
+          ).toBe('CUSTOM_CODEC')
+        })
+        it.concurrent('array: x-codec replaces base verbatim', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              'x-codec': 'CUSTOM_CODEC',
+            } as Schema),
+          ).toBe('CUSTOM_CODEC')
+        })
+        it.concurrent('precedence: x-preprocess wins over x-codec', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'number',
+              'x-preprocess': 'PRE',
+              'x-codec': 'CODEC',
+            } as Schema),
+          ).toBe('PRE')
+        })
+        it.concurrent('precedence: x-pipe wins over x-codec', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'number',
+              'x-pipe': 'PIPE',
+              'x-codec': 'CODEC',
+            } as Schema),
+          ).toBe('PIPE')
         })
         // ----- v2.5: x-required-message / x-error-message / x-const-message -----
         it.concurrent('string: x-error-message + x-required-message → custom error fn', () => {
@@ -11133,6 +11231,422 @@ describe('zodToOpenAPI', () => {
       const valid = S.safeParse('false')
       expect(valid.success).toBe(true)
       if (valid.success) expect(valid.data).toBe(false)
+    })
+
+    describe('x-stringbool: codegen — single option', () => {
+      it.concurrent('codegen: truthy only', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { truthy: ['yes'] },
+          } as Schema),
+        ).toBe('z.stringbool({"truthy":["yes"]})')
+      })
+      it.concurrent('codegen: falsy only', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { falsy: ['no'] },
+          } as Schema),
+        ).toBe('z.stringbool({"falsy":["no"]})')
+      })
+      it.concurrent('codegen: case=insensitive only', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { case: 'insensitive' },
+          } as Schema),
+        ).toBe('z.stringbool({"case":"insensitive"})')
+      })
+      it.concurrent('codegen: all three options (truthy + falsy + case=sensitive)', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': {
+              truthy: ['Y', 'yes', '1'],
+              falsy: ['N', 'no', '0'],
+              case: 'sensitive',
+            },
+          } as Schema),
+        ).toBe('z.stringbool({"truthy":["Y","yes","1"],"falsy":["N","no","0"],"case":"sensitive"})')
+      })
+      it.concurrent('codegen: empty options object → z.stringbool() (no empty options arg emitted)', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': {},
+          } as Schema),
+        ).toBe('z.stringbool()')
+      })
+      it.concurrent('codegen: empty truthy array preserved', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { truthy: [] },
+          } as Schema),
+        ).toBe('z.stringbool({"truthy":[]})')
+      })
+      it.concurrent('codegen: empty falsy array preserved', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { falsy: [] },
+          } as Schema),
+        ).toBe('z.stringbool({"falsy":[]})')
+      })
+      it.concurrent('codegen: unicode strings in truthy/falsy', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { truthy: ['はい', 'oui'], falsy: ['いいえ', 'non'] },
+          } as Schema),
+        ).toBe('z.stringbool({"truthy":["はい","oui"],"falsy":["いいえ","non"]})')
+      })
+      it.concurrent('codegen: special chars (quotes, backslash) JSON-encoded', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { truthy: ['a"b', 'c\\d'] },
+          } as Schema),
+        ).toBe('z.stringbool({"truthy":["a\\"b","c\\\\d"]})')
+      })
+    })
+
+    describe('x-stringbool: codegen — error message composition', () => {
+      it.concurrent('codegen: x-stringbool=true + x-required-message only → custom error fn', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-required-message': 'Required',
+          } as Schema),
+        ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"Required":undefined})')
+      })
+      it.concurrent('codegen: x-stringbool=true + both messages → required+type fn', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-error-message': 'Bad',
+            'x-required-message': 'Need',
+          } as Schema),
+        ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"Need":"Bad"})')
+      })
+      it.concurrent('codegen: x-stringbool with options + both messages → merged arg', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { truthy: ['yes'], falsy: ['no'] },
+            'x-error-message': 'Bad',
+            'x-required-message': 'Need',
+          } as Schema),
+        ).toBe(
+          'z.stringbool({"truthy":["yes"],"falsy":["no"],error:(issue)=>issue.input===undefined?"Need":"Bad"})',
+        )
+      })
+      it.concurrent('codegen: x-stringbool with case + x-error-message → merged', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': { case: 'sensitive' },
+            'x-error-message': 'strict',
+          } as Schema),
+        ).toBe('z.stringbool({"case":"sensitive",error:"strict"})')
+      })
+      it.concurrent('codegen: empty x-stringbool object + x-error-message → no leading comma in arg', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': {},
+            'x-error-message': 'bad',
+          } as Schema),
+        ).toBe('z.stringbool({error:"bad"})')
+      })
+      it.concurrent('codegen: empty x-stringbool object + x-required-message → no leading comma in arg', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': {},
+            'x-required-message': 'need',
+          } as Schema),
+        ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"need":undefined})')
+      })
+    })
+
+    describe('x-stringbool: codegen — composition with wrapping extensions', () => {
+      it.concurrent('codegen: x-stringbool=true + default=true → .default(true)', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            default: true,
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.stringbool().default(true)')
+      })
+      it.concurrent('codegen: x-stringbool=true + nullable=true → .nullable()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            nullable: true,
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.stringbool().nullable()')
+      })
+      it.concurrent('codegen: x-stringbool=true + type=[boolean,null] → .nullable()', () => {
+        expect(
+          zodToOpenAPI({
+            type: ['boolean', 'null'],
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.stringbool().nullable()')
+      })
+      it.concurrent('codegen: x-stringbool=true + nullable + default → nullable().default()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            nullable: true,
+            default: false,
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.stringbool().nullable().default(false)')
+      })
+      it.concurrent('codegen: x-stringbool=true + x-brand → .brand<"Flag">()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-brand': 'Flag',
+          } as Schema),
+        ).toBe('z.stringbool().brand<"Flag">()')
+      })
+      it.concurrent('codegen: x-stringbool=true + x-catch=false → .catch(false)', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-catch': false,
+          } as Schema),
+        ).toBe('z.stringbool().catch(false)')
+      })
+      it.concurrent('codegen: x-stringbool=true + x-prefault=true → .prefault(true)', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-prefault': true,
+          } as Schema),
+        ).toBe('z.stringbool().prefault(true)')
+      })
+      it.concurrent('codegen: x-stringbool=true + x-freeze=true → .readonly()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-freeze': true,
+          } as Schema),
+        ).toBe('z.stringbool().readonly()')
+      })
+      it.concurrent('codegen: x-stringbool=true + x-refine appends verbatim', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-refine': '.refine((v)=>v===true)',
+          } as Schema),
+        ).toBe('z.stringbool().refine((v)=>v===true)')
+      })
+    })
+
+    describe('x-stringbool: codegen — precedence with replacing extensions', () => {
+      it.concurrent('codegen: x-preprocess wins over x-stringbool', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-preprocess': 'PRE',
+          } as Schema),
+        ).toBe('PRE')
+      })
+      it.concurrent('codegen: x-transform wins over x-stringbool', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-transform': 'TRANSFORM',
+          } as Schema),
+        ).toBe('TRANSFORM')
+      })
+      it.concurrent('codegen: x-pipe wins over x-stringbool', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-pipe': 'PIPE',
+          } as Schema),
+        ).toBe('PIPE')
+      })
+      it.concurrent('codegen: x-codec wins over x-stringbool', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'boolean',
+            'x-stringbool': true,
+            'x-codec': 'CODEC',
+          } as Schema),
+        ).toBe('CODEC')
+      })
+    })
+
+    describe('x-stringbool: codegen — silently ignored on non-boolean types', () => {
+      it.concurrent('codegen: x-stringbool on type=string → plain z.string()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'string',
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.string()')
+      })
+      it.concurrent('codegen: x-stringbool on type=number → plain z.number()', () => {
+        expect(
+          zodToOpenAPI({
+            type: 'number',
+            'x-stringbool': true,
+          } as Schema),
+        ).toBe('z.number()')
+      })
+    })
+
+    describe('x-stringbool: runtime — default truthy/falsy lists', () => {
+      const S = z.stringbool()
+      it.concurrent('runtime default: "true" → true', () => {
+        const r = S.safeParse('true')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "1" → true', () => {
+        const r = S.safeParse('1')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "yes" → true', () => {
+        const r = S.safeParse('yes')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "on" → true', () => {
+        const r = S.safeParse('on')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "y" → true', () => {
+        const r = S.safeParse('y')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "enabled" → true', () => {
+        const r = S.safeParse('enabled')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: "0" → false', () => {
+        const r = S.safeParse('0')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(false)
+      })
+      it.concurrent('runtime default: "no" → false', () => {
+        const r = S.safeParse('no')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(false)
+      })
+      it.concurrent('runtime default: "off" → false', () => {
+        const r = S.safeParse('off')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(false)
+      })
+      it.concurrent('runtime default: "disabled" → false', () => {
+        const r = S.safeParse('disabled')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(false)
+      })
+      it.concurrent('runtime default: case-insensitive "TRUE" → true', () => {
+        const r = S.safeParse('TRUE')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: case-insensitive "Yes" → true', () => {
+        const r = S.safeParse('Yes')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime default: unknown string fails', () => {
+        const r = S.safeParse('maybe')
+        expect(r.success).toBe(false)
+      })
+      it.concurrent('runtime default: non-string (boolean) fails', () => {
+        const r = S.safeParse(true)
+        expect(r.success).toBe(false)
+      })
+    })
+
+    describe('x-stringbool: runtime — custom truthy/falsy override defaults', () => {
+      const S = z.stringbool({ truthy: ['oui'], falsy: ['non'] })
+      it.concurrent('runtime custom: "oui" → true', () => {
+        const r = S.safeParse('oui')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(true)
+      })
+      it.concurrent('runtime custom: "non" → false', () => {
+        const r = S.safeParse('non')
+        expect(r.success).toBe(true)
+        if (r.success) expect(r.data).toBe(false)
+      })
+      it.concurrent('runtime custom: default "true" no longer accepted', () => {
+        const r = S.safeParse('true')
+        expect(r.success).toBe(false)
+      })
+      it.concurrent('runtime custom: default "false" no longer accepted', () => {
+        const r = S.safeParse('false')
+        expect(r.success).toBe(false)
+      })
+    })
+
+    describe('x-stringbool: runtime — case sensitivity', () => {
+      it.concurrent('runtime case=sensitive: "true" → true, "TRUE" → fail', () => {
+        const S = z.stringbool({ case: 'sensitive' })
+        expect(S.safeParse('true').success).toBe(true)
+        expect(S.safeParse('TRUE').success).toBe(false)
+      })
+      it.concurrent('runtime case=insensitive (default): "TRUE" → true', () => {
+        const S = z.stringbool({ case: 'insensitive' })
+        expect(S.safeParse('TRUE').success).toBe(true)
+      })
+      it.concurrent('runtime case=sensitive custom: matches exact only', () => {
+        const S = z.stringbool({ truthy: ['Y'], falsy: ['N'], case: 'sensitive' })
+        expect(S.safeParse('Y').success).toBe(true)
+        expect(S.safeParse('y').success).toBe(false)
+        expect(S.safeParse('N').success).toBe(true)
+        expect(S.safeParse('n').success).toBe(false)
+      })
+    })
+
+    describe('x-stringbool: runtime — custom error message', () => {
+      it.concurrent('runtime: x-error-message surfaces on invalid input', () => {
+        const S = z.stringbool({ error: 'must be bool-ish' })
+        const r = S.safeParse('garbage')
+        expect(r.success).toBe(false)
+        if (!r.success) {
+          expect(r.error.issues[0]?.message).toBe('must be bool-ish')
+        }
+      })
+      it.concurrent('runtime: x-required-message via fn for undefined input', () => {
+        const S = z.stringbool({
+          error: (issue) => (issue.input === undefined ? 'Required' : undefined),
+        })
+        const r = S.safeParse(undefined)
+        expect(r.success).toBe(false)
+        if (!r.success) {
+          expect(r.error.issues[0]?.message).toBe('Required')
+        }
+      })
     })
   })
 

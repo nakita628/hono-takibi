@@ -133,9 +133,10 @@ const MESSAGE_SLOTS = {
 } as const satisfies Record<string, keyof Schema>
 
 /**
- *
+ * Resolves the message string for a slot. Precedence:
+ *   1. `x-<keyword>-message` (the slot itself)
+ *   2. `x-error-message` (shared fallback, except for `error` / `then` / `else`)
  *   3. Zod default ('Invalid input')
- *
  */
 function messageFor(schema: Schema, key: keyof typeof MESSAGE_SLOTS): string | undefined {
   const direct = pickMessage(schema, MESSAGE_SLOTS[key])
@@ -229,11 +230,14 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
         })
         .filter((s): s is string => s !== undefined)
     : []
-  const depSchemasMsg = messageFor(schema, 'dependentSchemas')
+  /* JSON Schema 2020-12 §10.2.2.4: `dependentSchemas` is an applicator —
+   * sub-schema issues propagate verbatim. Aligned with the type'd object
+   * path in `z/object.ts`. x-dependentSchemas-message is no longer applied
+   * here (slot is @deprecated). */
   const depSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(v,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(v).success){ctx.addIssue(${issueObj(depSchemasMsg)})}}`,
+          `if(Object.hasOwn(v,${JSON.stringify(key)})){const Schema=${recurse(sub)};const r=Schema.safeParse(v);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path})}}}`,
       )
     : []
   const unevaluatedPropsMsg = messageFor(schema, 'unevaluatedProperties')

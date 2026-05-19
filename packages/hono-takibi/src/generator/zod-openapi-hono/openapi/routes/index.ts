@@ -76,23 +76,26 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     .flatMap(([path, pathItem]) => {
       if (!pathItem) return [] as const
       const resolved = resolvePathItem(pathItem)
-      return (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
-        .filter((m) => resolved[m]?.responses)
-        .map((method) => {
-          const operation = resolved[method]!
-          const parameters = [
-            ...(resolved.parameters ?? ([] as const)),
-            ...(operation.parameters ?? ([] as const)),
-          ]
-            .map(resolveParameter)
-            .filter((p) => p !== undefined)
-          return makeRoute(
+      return (
+        ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
+      ).flatMap((method) => {
+        const operation = resolved[method]
+        if (!operation?.responses) return [] as const
+        const parameters = [
+          ...(resolved.parameters ?? ([] as const)),
+          ...(operation.parameters ?? ([] as const)),
+        ]
+          .map(resolveParameter)
+          .filter((p) => p !== undefined)
+        return [
+          makeRoute(
             path,
             method,
             parameters.length > 0 ? { ...operation, parameters } : operation,
             readonly,
-          )
-        })
+          ),
+        ]
+      })
     })
     .filter(Boolean)
     .join('\n\n')

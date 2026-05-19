@@ -93,7 +93,7 @@ describe('helper/zod', () => {
       )
     })
 
-    it('emits dependentSchemas guard (typeless)', () => {
+    it('emits dependentSchemas guard (typeless, propagates sub-issues)', () => {
       expect(
         emitTypelessRefine(
           {
@@ -102,7 +102,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"b")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"b")).success){ctx.addIssue({code:'custom'})}}}});if(!Schema.safeParse(v).success){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"b")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"b")).success){ctx.addIssue({code:'custom'})}}}});const r=Schema.safeParse(v);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path})}}}}})`,
       )
     })
 
