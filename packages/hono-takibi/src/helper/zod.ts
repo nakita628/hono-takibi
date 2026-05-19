@@ -231,13 +231,17 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
         .filter((s): s is string => s !== undefined)
     : []
   /* JSON Schema 2020-12 §10.2.2.4: `dependentSchemas` is an applicator —
-   * sub-schema issues propagate verbatim. Aligned with the type'd object
-   * path in `z/object.ts`. x-dependentSchemas-message is no longer applied
-   * here (slot is @deprecated). */
+   * sub-schema issues propagate. When `x-dependentSchemas-message` (or its
+   * `x-error-message` fallback) is set, the inner issue's `message` is
+   * replaced while `code` / `path` / `expected` are preserved (override
+   * semantics, aligned with `x-allOf-message` and related applicator slots). */
+  const depSchemasMsg = messageFor(schema, 'dependentSchemas')
+  const depSchMsgField =
+    depSchemasMsg !== undefined ? `,message:${JSON.stringify(depSchemasMsg)}` : ''
   const depSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const r=Schema.safeParse(val);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path})}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const r=Schema.safeParse(val);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path${depSchMsgField}})}}}`,
       )
     : []
   const unevaluatedPropsMsg = messageFor(schema, 'unevaluatedProperties')
@@ -610,4 +614,95 @@ export function makeUnevaluatedProperties(
         })()
 
   return `.superRefine((o,ctx)=>{${[...evalStmts, finalStmt].join(';')}})`
+}
+
+/**
+ * Same as `makeUnevaluatedProperties` but returns the body of a
+ * `z.unknown().check((ctx)=>{...})` callback instead of `.superRefine(...)`.
+ *
+ * Needed when the composed schema is a `ZodIntersection` (allOf with multiple
+ * `z.object(...)` members) — Zod's object strip mode removes excess keys before
+ * `superRefine` sees them, so the unevaluated check from inside the composed
+ * schema never observes the raw input. By calling this from a `z.unknown()`
+ * wrapper we operate on `ctx.value` (the request payload), preserving the
+ * keys needed for §11.2 semantics.
+ *
+ * Returns `''` when `unevaluatedProperties` is absent or `true` — the caller
+ * can detect "no check needed" by checking the return for emptiness.
+ */
+export function makeUnevaluatedPropertiesCheck(
+  schema: Schema,
+  recurse: (s: Schema) => string,
+  messageOverride?: string,
+): string {
+  const up = schema.unevaluatedProperties
+  if (up === undefined || up === true) {
+    return ''
+  }
+  const ownStmt = ownPropsStmt(schema)
+  const patternStmt = patternPropsStmt(schema)
+  const allOfStmts = schema.allOf ? collectAllOfStmts(schema.allOf) : []
+  const anyOfStmts = schema.anyOf
+    ? schema.anyOf
+        .map((sub) => conditionalBranchStmt(sub, recurse))
+        .filter((s): s is string => s !== undefined)
+    : []
+  const oneOfStmts = schema.oneOf
+    ? schema.oneOf
+        .map((sub) => conditionalBranchStmt(sub, recurse))
+        .filter((s): s is string => s !== undefined)
+    : []
+  const ifSchema = schema.if
+  const ifStmts = ifSchema
+    ? (() => {
+        const ifOkStmt = `const ifOk=${recurse(ifSchema)}.safeParse(o).success`
+        const ifKeys = ifSchema.properties ? Object.keys(ifSchema.properties) : []
+        const thenKeys = schema.then?.properties ? Object.keys(schema.then.properties) : []
+        const elseKeys = schema.else?.properties ? Object.keys(schema.else.properties) : []
+        return [
+          ifOkStmt,
+          ifKeys.length > 0
+            ? `if(ifOk){for(const k of ${JSON.stringify(ifKeys)}){e.add(k)}}`
+            : undefined,
+          thenKeys.length > 0
+            ? `if(ifOk){for(const k of ${JSON.stringify(thenKeys)}){e.add(k)}}`
+            : undefined,
+          elseKeys.length > 0
+            ? `if(!ifOk){for(const k of ${JSON.stringify(elseKeys)}){e.add(k)}}`
+            : undefined,
+        ].filter((s): s is string => s !== undefined)
+      })()
+    : []
+  const depSchemaStmts = schema.dependentSchemas
+    ? Object.entries(schema.dependentSchemas)
+        .map(([key, sub]) => {
+          const keys = sub.properties ? Object.keys(sub.properties) : []
+          return keys.length > 0
+            ? `if(${JSON.stringify(key)} in o){for(const k of ${JSON.stringify(keys)}){e.add(k)}}`
+            : undefined
+        })
+        .filter((s): s is string => s !== undefined)
+    : []
+  const evalStmts = [
+    'const e=new Set()',
+    ownStmt,
+    patternStmt,
+    ...allOfStmts,
+    ...anyOfStmts,
+    ...oneOfStmts,
+    ...ifStmts,
+    ...depSchemaStmts,
+  ].filter((s): s is string => s !== undefined)
+  const slotMsg = messageFor(schema, 'unevaluatedProperties')
+  const overrideMsg = messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
+  const finalMsg = slotMsg ?? overrideMsg
+  const messageField = finalMsg !== undefined ? `,message:${finalMsg}` : ''
+  const finalStmt =
+    up === false
+      ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`
+      : (() => {
+          const subZod = recurse(up)
+          return `const Schema=${subZod};for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}`
+        })()
+  return `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;${[...evalStmts, finalStmt].join(';')}}`
 }

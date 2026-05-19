@@ -78,7 +78,7 @@ const CompositionSchema = z
       .exactOptional(),
     notString: z
       .any()
-      .refine((v) => typeof v !== 'string', { error: 'notString must not be a string' })
+      .refine((val) => typeof val !== 'string', { error: 'notString must not be a string' })
       .exactOptional(),
   })
   .openapi({ required: ['anyValue'] })
@@ -250,11 +250,11 @@ const PaymentSchema = z
     if (!Object.hasOwn(o, 'credit_card')) {
       return
     }
-    const Schema = z.unknown().superRefine((v, ctx) => {
-      if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-        if (Object.hasOwn(v, 'credit_card')) {
+    const Schema = z.unknown().superRefine((val, ctx) => {
+      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        if (Object.hasOwn(val, 'credit_card')) {
           const Schema = z.string().regex(/^[0-9]{16}$/)
-          if (!Schema.safeParse(Reflect.get(v, 'credit_card')).success) {
+          if (!Schema.safeParse(Reflect.get(val, 'credit_card')).success) {
             ctx.addIssue({ code: 'custom' })
           }
         }
@@ -263,7 +263,11 @@ const PaymentSchema = z
     const result = Schema.safeParse(o)
     if (!result.success) {
       for (const issue of result.error.issues) {
-        ctx.addIssue({ ...issue, path: issue.path })
+        ctx.addIssue({
+          ...issue,
+          path: issue.path,
+          message: 'credit_card must be 16 digits when provided',
+        })
       }
     }
   })
@@ -340,8 +344,8 @@ const MiscSchema = z
     kind: z.literal('admin', { error: 'kind must be exactly "admin"' }),
     tags: z.array(z.string()).superRefine((items, ctx) => {
       const seen = new Map()
-      for (const [i, v] of items.entries()) {
-        const key = JSON.stringify(v)
+      for (const [i, val] of items.entries()) {
+        const key = JSON.stringify(val)
         if (seen.has(key))
           ctx.addIssue({ code: 'custom', path: [i], message: 'tags must contain unique values' })
         else seen.set(key, i)
@@ -368,20 +372,20 @@ const MiscSchema = z
               : undefined,
         },
       )
-      .refine((o) => Object.keys(o).length >= 1, {
+      .refine((val) => Object.keys(val).length >= 1, {
         error: 'namespaced must have at least 1 property',
       })
-      .refine((o) => Object.keys(o).length <= 3, {
+      .refine((val) => Object.keys(val).length <= 3, {
         error: 'namespaced must have at most 3 properties',
       }),
     prefixed: z.looseObject({}).superRefine((o, ctx) => {
       const regex = new RegExp('^x_')
       const Schema = z.string()
-      for (const [k, v] of Object.entries(o)) {
+      for (const [k, val] of Object.entries(o)) {
         if (!regex.test(k)) {
           continue
         }
-        const result = Schema.safeParse(v)
+        const result = Schema.safeParse(val)
         if (!result.success) {
           for (const issue of result.error.issues) {
             ctx.addIssue({ ...issue, path: [k, ...issue.path], message: 'x_ keys must be strings' })
@@ -396,6 +400,45 @@ const MiscSchema = z
   })
   .openapi({ required: ['color', 'kind', 'tags', 'sized', 'namespaced', 'prefixed', 'payload'] })
   .openapi('Misc')
+
+const StrictAllOfSchema = (() => {
+  const Schema = z
+    .object({ id: z.string() })
+    .openapi({ required: ['id'] })
+    .and(z.object({ name: z.string() }).openapi({ required: ['name'] }))
+  return z
+    .unknown()
+    .check((ctx) => {
+      const result = Schema.safeParse(ctx.value)
+      if (!result.success) {
+        for (const issue of result.error.issues) {
+          ctx.issues.push({ ...issue, input: issue.input })
+        }
+      }
+      ;((ctx) => {
+        const o = ctx.value
+        if (typeof o !== 'object' || o === null || Array.isArray(o)) return
+        const e = new Set()
+        for (const k of ['id']) {
+          e.add(k)
+        }
+        for (const k of ['name']) {
+          e.add(k)
+        }
+        for (const k of Object.keys(o)) {
+          if (!e.has(k)) {
+            ctx.issues.push({
+              code: 'custom',
+              path: [k],
+              input: o,
+              message: 'Unknown field — only id and name are allowed.',
+            })
+          }
+        }
+      })(ctx)
+    })
+    .pipe(Schema)
+})().openapi('StrictAllOf')
 
 export const postFormRoute = createRoute({
   method: 'post',
@@ -492,5 +535,15 @@ export const postMiscRoute = createRoute({
   path: '/misc',
   operationId: 'postMisc',
   request: { body: { content: { 'application/json': { schema: MiscSchema } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+
+export const postStrictAllofRoute = createRoute({
+  method: 'post',
+  path: '/strict-allof',
+  operationId: 'postStrictAllOf',
+  request: {
+    body: { content: { 'application/json': { schema: StrictAllOfSchema } }, required: true },
+  },
   responses: { 200: { description: 'OK' } },
 })

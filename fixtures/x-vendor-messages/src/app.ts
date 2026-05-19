@@ -10,6 +10,7 @@ import {
   postMergedRoute,
   postMiscRoute,
   postPaymentRoute,
+  postStrictAllofRoute,
   postWriteOnlyRoute,
 } from './generated.ts'
 
@@ -45,5 +46,6 @@ app.openapi(postBasketRoute, (c) => c.json({}, 200))
 app.openapi(postContainsDefaultRoute, (c) => c.json({}, 200))
 app.openapi(postWriteOnlyRoute, (c) => c.json({}, 200))
 app.openapi(postMiscRoute, (c) => c.json({}, 200))
+app.openapi(postStrictAllofRoute, (c) => c.json({}, 200))
 
 export default app

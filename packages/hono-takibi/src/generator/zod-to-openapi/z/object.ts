@@ -180,16 +180,18 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
         })
         .join('')
     : ''
-  // their original path/code/expected — the x-dependentSchemas-message slot is
-  // INTENTIONALLY no longer applied to inner sub-issues (would force them all
-  // to `code: 'custom'` and lose code/expected). The slot is still consumed
-  // for backward-compat (it survives in the OpenAPI annotation roundtrip)
-  // but does not override propagated messages.
+  // their original path / code / expected. When `x-dependentSchemas-message`
+  // (or its `x-error-message` fallback) is set, the inner issue's `message`
+  // is replaced (override semantics, aligned with `x-allOf-message` and
+  // related applicator slots in `zod-to-openapi/index.ts`).
+  const depSchMsg = schema['x-dependentSchemas-message'] ?? schema['x-error-message']
+  const depSchMsgField =
+    depSchMsg !== undefined ? `,message:${JSON.stringify(depSchMsg)}` : ''
   const dependentSchemas = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
           const subZod = zodToOpenAPI(subSchema, undefined, options)
-          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)})){return}const Schema=${subZod};const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`
+          return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)})){return}const Schema=${subZod};const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${depSchMsgField}})}}})`
         })
         .join('')
     : ''

@@ -484,14 +484,10 @@ export type Schema = {
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
   /**
-   * @deprecated
-   * `dependentSchemas` is a JSON Schema 2020-12 §10.2.2.4 **applicator** —
-   * sub-schema issues propagate verbatim. The parent-level message slot is
-   * therefore ineffective by design (intentionally not applied in either the
-   * type'd object path nor the typeless path). To override the validation
-   * message, set the message slot on the sub-schema itself.
-   *
-   * Kept for OpenAPI annotation roundtrip; will be removed in v1.0.
+   * Overrides the validation message for `dependentSchemas` violations
+   * (JSON Schema 2020-12 §10.2.2.4). The inner sub-schema's `code` / `path`
+   * / `expected` are preserved; only `message` is replaced. Falls back to
+   * `x-error-message`.
    */
   readonly 'x-dependentSchemas-message'?: string
   readonly 'x-propertyNames-message'?: string

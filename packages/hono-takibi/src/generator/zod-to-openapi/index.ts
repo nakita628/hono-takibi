@@ -1,6 +1,10 @@
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
-import { emitTypelessRefine, hasTypelessConstraint } from '../../helper/zod.js'
+import {
+  emitTypelessRefine,
+  hasTypelessConstraint,
+  makeUnevaluatedPropertiesCheck,
+} from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { error, normalizeTypes } from '../../utils/index.js'
 import { _enum, integer, number, object, string } from './z/index.js'
@@ -89,36 +93,55 @@ export function zodToOpenAPI(
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     //   x-allOf-message > x-error-message > undefined (Zod default per-issue)
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
-    if (allOfMessage) {
-      // Per-issue.code dispatch is required: ctx.issues expects a discriminated
-      // union where `code` narrows the issue shape. A generic spread loses the
-      // discriminant and triggers TS errors at the call site.
-      const isArrow = /^\s*\(.*?\)\s*=>/.test(allOfMessage)
-      const msgExpr = isArrow ? `(${allOfMessage})(issue)` : JSON.stringify(allOfMessage)
-      // Issue code order follows Zod v4's official source declaration order
-      // (zod/v4/core/errors.d.ts). `satisfies` ensures these literals stay in
-      // sync with Zod's `$ZodIssueCode` union — a Zod major rename breaks the
-      // build here instead of silently miscompiling user output.
-      const codes = [
-        'invalid_type',
-        'too_big',
-        'too_small',
-        'invalid_format',
-        'not_multiple_of',
-        'unrecognized_keys',
-        'invalid_union',
-        'invalid_key',
-        'invalid_element',
-        'invalid_value',
-        'custom',
-      ] as const
-      const branches = codes
-        .map(
-          (c, i) =>
-            `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push({...issue,input:issue.input,message:${msgExpr}})}`,
-        )
-        .join('')
-      const wrapped = `(()=>{const Schema=${z};return z.unknown().check((ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${branches}}}}).pipe(Schema)})()`
+    // JSON Schema 2020-12 §11.2: `unevaluatedProperties` operates on the keys
+    // remaining after `allOf`/`anyOf`/`oneOf`/`if-then-else`/`dependentSchemas`
+    // evaluation. ZodIntersection (from `.and(...)`) strips excess keys before
+    // any inline refine sees them, so the check has to run on the raw input.
+    // `makeUnevaluatedPropertiesCheck` returns a `(ctx)=>{...}` body that reads
+    // from `ctx.value` directly; we splice it into the same `z.unknown().check`
+    // wrapper used for `x-allOf-message` so a single pipe handles both.
+    const unevalCheck = makeUnevaluatedPropertiesCheck(
+      { ...schema, allOf: effectiveAllOf },
+      (s) => zodToOpenAPI(s, undefined, childOptions),
+      schema['x-error-message'],
+    )
+    if (allOfMessage || unevalCheck) {
+      const safeParseBranches = (() => {
+        if (!allOfMessage) {
+          return 'const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,input:issue.input})}}'
+        }
+        // Per-issue.code dispatch is required: ctx.issues expects a discriminated
+        // union where `code` narrows the issue shape. A generic spread loses the
+        // discriminant and triggers TS errors at the call site.
+        const isArrow = /^\s*\(.*?\)\s*=>/.test(allOfMessage)
+        const msgExpr = isArrow ? `(${allOfMessage})(issue)` : JSON.stringify(allOfMessage)
+        // Issue code order follows Zod v4's official source declaration order
+        // (zod/v4/core/errors.d.ts). `satisfies` ensures these literals stay in
+        // sync with Zod's `$ZodIssueCode` union — a Zod major rename breaks the
+        // build here instead of silently miscompiling user output.
+        const codes = [
+          'invalid_type',
+          'too_big',
+          'too_small',
+          'invalid_format',
+          'not_multiple_of',
+          'unrecognized_keys',
+          'invalid_union',
+          'invalid_key',
+          'invalid_element',
+          'invalid_value',
+          'custom',
+        ] as const
+        const branches = codes
+          .map(
+            (c, i) =>
+              `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push({...issue,input:issue.input,message:${msgExpr}})}`,
+          )
+          .join('')
+        return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${branches}}}`
+      })()
+      const unevalCall = unevalCheck ? `;(${unevalCheck})(ctx)` : ''
+      const wrapped = `(()=>{const Schema=${z};return z.unknown().check((ctx)=>{${safeParseBranches}${unevalCall}}).pipe(Schema)})()`
       return wrap(wrapped, { ...schema, nullable }, meta, options)
     }
     return wrap(z, { ...schema, nullable }, meta, options)
