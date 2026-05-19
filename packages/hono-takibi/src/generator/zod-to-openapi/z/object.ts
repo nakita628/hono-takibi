@@ -60,25 +60,6 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   //   unrecognized_keys → x-additionalProperties-message (only on strictObject)
   //   other codes       → x-properties-message > x-error-message > undefined
   const propsMessage = schema['x-properties-message']
-  if (typeof schema.additionalProperties === 'object') {
-    const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
-    const recordPatternProps = schema.patternProperties
-      ? Object.entries(schema.patternProperties)
-          .map(([pattern, propSchema]) => {
-            const zodSchema = zodToOpenAPI(propSchema, undefined, options)
-            return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}}}})`
-          })
-          .join('')
-      : ''
-    const recordPropNames = schema.propertyNames?.pattern
-      ? (() => {
-          const pat = schema.propertyNames.pattern
-          const msgField = propNamesMessage ? `,message:${JSON.stringify(propNamesMessage)}` : ''
-          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pat)});for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k]${msgField}})}}})`
-        })()
-      : ''
-    return `${record}${recordPropNames}${recordPatternProps}${readonly ? '.readonly()' : ''}`
-  }
   // additionalProperties: false, default to looseObject so the refines see the
   // pattern-matched / propertyName-checked keys (z.object strips unknowns
   // before the refine runs, masking violations — silent bug).
@@ -139,7 +120,15 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
         : 'undefined'
     return `,{error:(issue)=>issue.code==='unrecognized_keys'?${unrecExpr}:${otherExpr}}`
   })()
-  const base = `z.${objectType}({${propertiesCode}}${objectParams})`
+  // For `additionalProperties: { ... }`, switch the base to `z.record(z.string(), …)`
+  // so the unified constraint chain below (minProperties / propertyNames /
+  // dependentRequired / dependentSchemas / if-then-else / unevaluatedProperties /
+  // patternProperties) applies to both shapes. Previously the record path
+  // early-returned and silently dropped every one of those constraints.
+  const base =
+    typeof schema.additionalProperties === 'object'
+      ? `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
+      : `z.${objectType}({${propertiesCode}}${objectParams})`
   const minProperties =
     typeof schema.minProperties === 'number'
       ? `.refine((val)=>Object.keys(val).length>=${schema.minProperties}${minErrorArg})`
@@ -199,7 +188,7 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   const dependentSchemas = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas)
         .map(([key, subSchema]) => {
-          const subZod = zodToOpenAPI(subSchema)
+          const subZod = zodToOpenAPI(subSchema, undefined, options)
           return `.superRefine((o,ctx)=>{if(!Object.hasOwn(o,${JSON.stringify(key)})){return}const Schema=${subZod};const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`
         })
         .join('')
@@ -209,9 +198,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   const ifThenElse = (() => {
     if (!schema.if) return ''
     if (!schema.then && !schema.else) return ''
-    const ifZod = zodToOpenAPI(schema.if)
-    const thenZod = schema.then ? zodToOpenAPI(schema.then) : 'undefined'
-    const elseZod = schema.else ? zodToOpenAPI(schema.else) : 'undefined'
+    const ifZod = zodToOpenAPI(schema.if, undefined, options)
+    const thenZod = schema.then ? zodToOpenAPI(schema.then, undefined, options) : 'undefined'
+    const elseZod = schema.else ? zodToOpenAPI(schema.else, undefined, options) : 'undefined'
     const useSplitBranch = thenMessage !== undefined || elseMessage !== undefined
     if (!useSplitBranch) {
       return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;const Branch=ifOk?${thenZod}:${elseZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${ifMessageOverride}})}}})`

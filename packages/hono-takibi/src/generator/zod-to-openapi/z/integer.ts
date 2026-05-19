@@ -15,24 +15,23 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
   const isBigint = schema.format === 'bigint'
   const isInt32 = schema.format === 'int32'
   const isInt64 = schema.format === 'int64'
-  const wireBigintBase = coerce === true && isBigint
-  const wireBigintPipe = coerce === true && isInt64
-  const wireNumberPipe = coerce === true && !isBigint && !isInt64
-  // For integer + x-coerce, emit z.coerce.number().int() since z.coerce.int()
-  // does not exist. bigint format keeps its dedicated coerce variant.
-  const base = xCoerce
-    ? isBigint
-      ? `z.coerce.bigint(${baseErrorArg})`
-      : `z.coerce.number(${baseErrorArg}).int()`
-    : wireBigintBase
-      ? `z.coerce.bigint(${baseErrorArg})`
-      : isInt32
-        ? `z.int32(${baseErrorArg})`
-        : isInt64
-          ? `z.int64(${baseErrorArg})`
-          : isBigint
-            ? `z.bigint(${baseErrorArg})`
-            : `z.int(${baseErrorArg})`
+  // `x-coerce` (author-explicit) and `coerce` (path/query wire) share the
+  // same pipe topology so format-specific bounds (int32 / int64) survive.
+  // Previously x-coerce collapsed to `z.coerce.number().int()` and silently
+  // dropped int32 range [-2^31, 2^31-1] and int64 BigInt semantics.
+  const wantsCoerce = coerce === true || xCoerce
+  const bigintBase = wantsCoerce && isBigint
+  const bigintPipe = wantsCoerce && isInt64
+  const numberPipe = wantsCoerce && !isBigint && !isInt64
+  const base = bigintBase
+    ? `z.coerce.bigint(${baseErrorArg})`
+    : isInt32
+      ? `z.int32(${baseErrorArg})`
+      : isInt64
+        ? `z.int64(${baseErrorArg})`
+        : isBigint
+          ? `z.bigint(${baseErrorArg})`
+          : `z.int(${baseErrorArg})`
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`
     if (schema.format === 'int64') return `${n}n`
@@ -105,7 +104,7 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrorArg})`
       : undefined
   const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
-  if (wireNumberPipe) return `z.coerce.number().pipe(${innerChain})`
-  if (wireBigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
+  if (numberPipe) return `z.coerce.number().pipe(${innerChain})`
+  if (bigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
   return innerChain
 }

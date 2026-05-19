@@ -627,7 +627,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.ids).toBe(
-        'z.array(z.coerce.number().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})',
+        'z.array(z.coerce.number()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})',
       )
     })
 
@@ -642,6 +642,29 @@ describe('openapi helper', () => {
       expect(result.query.verbose).toBe(
         'z.stringbool().default(true).exactOptional().openapi({param:{"name":"verbose","in":"query","schema":{"type":"boolean","default":"true"}}})',
       )
+    })
+
+    it.concurrent('regression: parent parameter meta does not leak into nested array items', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'number' } } },
+      ])
+      const occurrences = (result.query.ids.match(/\.openapi\(/g) ?? []).length
+      expect(occurrences).toBe(1)
+    })
+
+    it.concurrent('regression: parent parameter meta does not leak into nested object properties', () => {
+      const result = makeParameters([
+        {
+          name: 'filter',
+          in: 'query',
+          schema: {
+            type: 'object',
+            properties: { count: { type: 'integer' }, active: { type: 'boolean' } },
+          },
+        },
+      ])
+      const occurrences = (result.query.filter.match(/\.openapi\(/g) ?? []).length
+      expect(occurrences).toBe(1)
     })
   })
 
@@ -770,7 +793,7 @@ describe('openapi helper', () => {
         style: 'simple',
       })
       expect(result).toBe(
-        '{style:"simple",schema:z.array(z.string().exactOptional().openapi({style:"simple"})).exactOptional().openapi({style:"simple"})}',
+        '{style:"simple",schema:z.array(z.string()).exactOptional().openapi({style:"simple"})}',
       )
     })
     it.concurrent('generates header with explode', () => {
@@ -779,7 +802,7 @@ describe('openapi helper', () => {
         explode: true,
       })
       expect(result).toBe(
-        '{explode:true,schema:z.array(z.string().exactOptional().openapi({explode:true})).exactOptional().openapi({explode:true})}',
+        '{explode:true,schema:z.array(z.string()).exactOptional().openapi({explode:true})}',
       )
     })
     it.concurrent('generates header with content', () => {
@@ -1708,7 +1731,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+            ids: `z.array(z.string()).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
           },
         })
       })
@@ -1720,7 +1743,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+            ids: `z.array(z.string()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
           },
         })
       })

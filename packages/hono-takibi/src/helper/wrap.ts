@@ -301,9 +301,28 @@ export function wrap(
     'x-then-message',
     'x-else-message',
   ])
+  // Header meta emits its own description / example / style / etc. via
+  // `headerMetaProps`. If the inner schema also carries those keys, they
+  // would duplicate at the top level of `.openapi({...})` (e.g.
+  // `.openapi({description:"A",description:"B"})`). Drop the schema-level
+  // copy when the header meta actually has the same key set. Parameters
+  // serialize their keys under `param:{...}` (no top-level overlap) so this
+  // filter only applies to headers.
+  const headerDupKeys = new Set<string>(
+    meta?.headers
+      ? Object.entries(meta.headers)
+          .filter(([, v]) => v !== undefined)
+          .map(([k]) => k)
+      : [],
+  )
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
-      ([k, v]) => !(zodExpressedProps.has(k) || (k === 'required' && typeof v === 'boolean')),
+      ([k, v]) =>
+        !(
+          zodExpressedProps.has(k) ||
+          (k === 'required' && typeof v === 'boolean') ||
+          headerDupKeys.has(k)
+        ),
     ),
   )
   const args = filterUnsupportedProps(baseArgs)

@@ -853,6 +853,23 @@ describe('zodToOpenAPI', () => {
     // allOf
     // not support zod-to-openapi
     describe('allOf', () => {
+      it.concurrent('regression: bare allOf [{$ref}] with sibling description preserves description via wrap', () => {
+        expect(
+          zodToOpenAPI({
+            description: 'wrap me',
+            allOf: [{ $ref: '#/components/schemas/User' }],
+          } as Schema),
+        ).toBe('UserSchema.openapi({"description":"wrap me"})')
+      })
+      it.concurrent('regression: bare allOf [{$ref}] with sibling x-brand emits .brand and description', () => {
+        expect(
+          zodToOpenAPI({
+            description: 'branded',
+            'x-brand': 'UserId',
+            allOf: [{ $ref: '#/components/schemas/User' }],
+          } as Schema),
+        ).toBe('UserSchema.brand<"UserId">().openapi({"description":"branded"})')
+      })
       it.concurrent('allOf: GeoJsonObject + object with type enum (discriminator) + description/externalDocs', () => {
         const input: Schema = {
           description:

@@ -14,16 +14,19 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
   const xCoerce = schema['x-coerce'] === true
   const isFloat32 = schema.format === 'float' || schema.format === 'float32'
   const isFloat64 = schema.format === 'float64' || schema.format === 'double'
-  const wirePipe = coerce === true && (isFloat32 || isFloat64)
-  const wirePlain = coerce === true && !isFloat32 && !isFloat64
-  const base =
-    xCoerce || wirePlain
-      ? `z.coerce.number(${baseErrorArg})`
-      : isFloat32
-        ? `z.float32(${baseErrorArg})`
-        : isFloat64
-          ? `z.float64(${baseErrorArg})`
-          : `z.number(${baseErrorArg})`
+  // `x-coerce` and wire-coerce share the same pipe topology so float32/64
+  // IEEE754 precision survives. Previously x-coerce dropped to a plain
+  // `z.coerce.number()` and silently lost the format-specific range/precision.
+  const wantsCoerce = coerce === true || xCoerce
+  const wirePipe = wantsCoerce && (isFloat32 || isFloat64)
+  const wirePlain = wantsCoerce && !isFloat32 && !isFloat64
+  const base = wirePlain
+    ? `z.coerce.number(${baseErrorArg})`
+    : isFloat32
+      ? `z.float32(${baseErrorArg})`
+      : isFloat64
+        ? `z.float64(${baseErrorArg})`
+        : `z.number(${baseErrorArg})`
   // (`.min()` uses x-minimum-message, `.gt()` / `.positive()` uses
   // x-exclusiveMinimum-message; same for max).
   const minimumMessage = schema['x-minimum-message']

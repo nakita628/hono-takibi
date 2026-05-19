@@ -79,13 +79,13 @@ export function zodToOpenAPI(
     const nonNull = effectiveAllOf.filter((s) => !isNullType(s))
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta, options)
     const schemas = nonNull.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta, childOptions),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
     const isBareRef =
       schemas.length === 1 &&
       nonNull.every(isRefOnly) &&
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
-    if (isBareRef) return nullable ? `${schemas[0]}.nullable()` : schemas[0]
+    if (isBareRef) return wrap(schemas[0], { ...schema, nullable }, meta, options)
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
     //   x-allOf-message > x-error-message > undefined (Zod default per-issue)
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
@@ -126,7 +126,7 @@ export function zodToOpenAPI(
   if (schema.anyOf !== undefined) {
     if (schema.anyOf.length === 0) return wrap('z.any()', schema, meta, options)
     const anyOfSchemas = schema.anyOf.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta, childOptions),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
     const anyOfMessage = schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
@@ -138,7 +138,7 @@ export function zodToOpenAPI(
     // fall back to xor when oneOf contains a $ref or allOf member.
     const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) =>
-      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, meta, childOptions),
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
     const discriminator = schema.discriminator?.propertyName
     const oneOfMessage = schema['x-oneOf-message'] ?? schema['x-error-message']
@@ -214,7 +214,7 @@ export function zodToOpenAPI(
         return wrap(`z.never(${notErrorArg.slice(1)})`, schema, meta, options)
       }
       // Complex sub-schema: full safeParse-based check
-      const zod = zodToOpenAPI(not, meta, childOptions)
+      const zod = zodToOpenAPI(not, undefined, childOptions)
       return wrap(
         `z.any().refine((val) => !${zod}.safeParse(val).success${notErrorArg})`,
         schema,
@@ -239,7 +239,7 @@ export function zodToOpenAPI(
       typeof value === 'boolean'
     if (!isPrimitive) {
       return wrap(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, meta, childOptions)),
+        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
         schema,
         meta,
         options,
@@ -256,7 +256,7 @@ export function zodToOpenAPI(
     const hasNonPrimitive = schema.enum.some((e) => typeof e === 'object' && e !== null)
     if (hasNonPrimitive) {
       return wrap(
-        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, meta, childOptions)),
+        emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
         schema,
         meta,
         options,
@@ -274,7 +274,7 @@ export function zodToOpenAPI(
     hasTypelessConstraint(schema)
   ) {
     return wrap(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, meta, childOptions)),
+      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
       schema,
       meta,
       options,
@@ -341,7 +341,7 @@ export function zodToOpenAPI(
     const containsChain = (() => {
       const c = schema.contains
       if (!c) return ''
-      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, meta, childOptions)
+      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, undefined, childOptions)
       const minC = schema.minContains
       const maxC = schema.maxContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
@@ -406,12 +406,39 @@ export function zodToOpenAPI(
         const msgPart = slot ? `,message:${JSON.stringify(slot)}` : ''
         return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${msgPart}})}})`
       }
-      const subZod = zodToOpenAPI(ui, meta, childOptions)
+      const subZod = zodToOpenAPI(ui, undefined, childOptions)
       return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,v] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevalItemsMessageOverride}})}}}})`
+    })()
+    // Length / unique chains. Computed up front so both the prefixItems
+    // branch and the plain array branch can apply them — previously the
+    // prefixItems branch silently dropped minItems / maxItems / uniqueItems /
+    // contains (JSON Schema 2020-12 explicitly permits all of them with
+    // prefixItems; the spec's official test suite covers the combination).
+    const lengthMessage = schema['x-length-message']
+    const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
+    const minMessage = schema['x-minItems-message']
+    const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
+    const maxMessage = schema['x-maxItems-message']
+    const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
+    const uniqueMessage = schema['x-uniqueItems-message']
+    const uniqueMsgPart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
+    const uniqueChain =
+      schema.uniqueItems === true
+        ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]${uniqueMsgPart}});else seen.set(key,i)}})`
+        : ''
+    const lengthChain = (() => {
+      if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
+        return schema.minItems === schema.maxItems
+          ? `.length(${schema.minItems}${sizeErrorArg})`
+          : `.min(${schema.minItems}${minErrorArg}).max(${schema.maxItems}${maxErrorArg})`
+      }
+      if (typeof schema.minItems === 'number') return `.min(${schema.minItems}${minErrorArg})`
+      if (typeof schema.maxItems === 'number') return `.max(${schema.maxItems}${maxErrorArg})`
+      return ''
     })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
       const prefixCodes = schema.prefixItems.map((item) =>
-        item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, meta, childOptions),
+        item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, undefined, childOptions),
       )
       // prefixItems is encoded as
       // `z.array(z.unknown()).superRefine(...)` — NOT `z.tuple([...], rest)`.
@@ -452,7 +479,7 @@ export function zodToOpenAPI(
       const restCode = restSchema
         ? restSchema.$ref
           ? makeRef(restSchema.$ref)
-          : zodToOpenAPI(restSchema, meta, childOptions)
+          : zodToOpenAPI(restSchema, undefined, childOptions)
         : ''
       const lengthCapped = ui === false || (ui === undefined && itemsField === false)
       // the rest/cap message slot tracks the
@@ -482,7 +509,15 @@ export function zodToOpenAPI(
         ? `z.array(z.unknown()${arrayErrorArg})`
         : 'z.array(z.unknown())'
       const z = `${arrayCtor}.superRefine((arr,ctx)=>{${prefixCheck}${restCheck}${capCheck}})`
-      return wrap(`${z}${readonlyMod}`, schema, meta, options)
+      // Apply length / unique / contains AFTER the prefix superRefine so they
+      // observe the validated tuple. unevaluatedItems is already handled inline
+      // (restCheck/capCheck) so we do not append unevaluatedItemsChain here.
+      return wrap(
+        `${z}${lengthChain}${uniqueChain}${containsChain}${readonlyMod}`,
+        schema,
+        meta,
+        options,
+      )
     }
     // items: false (no prefixItems) → only empty array valid
     if (schema.items === false) {
@@ -499,25 +534,9 @@ export function zodToOpenAPI(
     const item = itemSchema
       ? itemSchema.$ref
         ? makeRef(itemSchema.$ref)
-        : zodToOpenAPI(itemSchema, meta, childOptions)
+        : zodToOpenAPI(itemSchema, undefined, childOptions)
       : 'z.any()'
     const z = `z.array(${item}${arrayErrorArg})`
-    const lengthMessage = schema['x-length-message']
-    const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
-    // from the previous shared x-minimum-message / x-maximum-message umbrellas).
-    const minMessage = schema['x-minItems-message']
-    const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
-    const maxMessage = schema['x-maxItems-message']
-    const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
-    const uniqueMessage = schema['x-uniqueItems-message']
-    // `path: [duplicateIdx]` so frontends can highlight the offending row.
-    // The first occurrence is recorded; subsequent duplicates can be located
-    // via `seen.get(key)` from consumer-side hooks if needed.
-    const uniqueMsgPart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
-    const uniqueChain =
-      schema.uniqueItems === true
-        ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]${uniqueMsgPart}});else seen.set(key,i)}})`
-        : ''
     if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
       return schema.minItems === schema.maxItems
         ? wrap(
@@ -571,7 +590,7 @@ export function zodToOpenAPI(
   // value's type matches. Preserves JSON Schema's keyword-independent semantics.
   if (t.length === 0 && hasTypelessConstraint(schema)) {
     return wrap(
-      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, meta, childOptions)),
+      emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),
       schema,
       meta,
       options,
