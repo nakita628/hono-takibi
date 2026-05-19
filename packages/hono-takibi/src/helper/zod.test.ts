@@ -49,7 +49,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"a")).success){ctx.addIssue({code:'custom'})}};for(const k of Object.keys(v)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};for(const k of Object.keys(val)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
@@ -63,7 +63,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"a")).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(const k of Object.keys(v)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(v,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(const k of Object.keys(val)){if(!["a"].includes(k)&&![].some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
       )
     })
 
@@ -76,7 +76,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){{const Schema=z.string();for(const k of Object.keys(v)){if(new RegExp("^x_").test(k)){if(!Schema.safeParse(Reflect.get(v,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){{const Schema=z.string();for(const k of Object.keys(val)){if(new RegExp("^x_").test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}}}})`,
       )
     })
 
@@ -89,7 +89,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){if(!(Object.hasOwn(v,"b")&&Object.hasOwn(v,"c"))){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){if(!(Object.hasOwn(val,"b")&&Object.hasOwn(val,"c"))){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
@@ -102,7 +102,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"b")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"b")).success){ctx.addIssue({code:'custom'})}}}});const r=Schema.safeParse(v);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path})}}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"b")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"b")).success){ctx.addIssue({code:'custom'})}}}});const r=Schema.safeParse(val);if(!r.success){for(const issue of r.error.issues){ctx.addIssue({...issue,path:issue.path})}}}}})`,
       )
     })
 
@@ -117,7 +117,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(Array.isArray(v)){{const m=v.filter((i)=>z.string().safeParse(i).success).length;if(m<1){ctx.addIssue({code:'custom'})};if(m>3){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<1){ctx.addIssue({code:'custom'})};if(m>3){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
@@ -133,7 +133,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(Array.isArray(v)){{const m=v.filter((i)=>z.string().safeParse(i).success).length;if(m<2){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<2){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
@@ -149,7 +149,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{{const Schema=z.object({a:z.string().exactOptional()});if(!Schema.safeParse(v).success){ctx.addIssue({code:'custom'})}};{const Schema=z.object({b:z.number().exactOptional()});if(!Schema.safeParse(v).success){ctx.addIssue({code:'custom'})}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const Schema=z.object({a:z.string().exactOptional()});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};{const Schema=z.object({b:z.number().exactOptional()});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}}})`,
       )
     })
 
@@ -162,7 +162,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(!(z.string().safeParse(v).success||z.number().safeParse(v).success)){ctx.addIssue({code:'custom'})}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(!(z.string().safeParse(val).success||z.number().safeParse(val).success)){ctx.addIssue({code:'custom'})}})`,
       )
     })
 
@@ -175,7 +175,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(((z.string().safeParse(v).success?1:0)+(z.number().safeParse(v).success?1:0))!==1){ctx.addIssue({code:'custom'})}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(((z.string().safeParse(val).success?1:0)+(z.number().safeParse(val).success?1:0))!==1){ctx.addIssue({code:'custom'})}})`,
       )
     })
 
@@ -188,7 +188,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(z.string().safeParse(v).success){ctx.addIssue({code:'custom'})}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(z.string().safeParse(val).success){ctx.addIssue({code:'custom'})}})`,
       )
     })
 
@@ -203,7 +203,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(Array.isArray(v)){if(v.length>0){const Schema=z.string();if(!Schema.safeParse(v[0]).success){ctx.addIssue({code:'custom'})}};if(v.length>1){ctx.addIssue({code:'custom',message:"cap"})}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length>0){const Schema=z.string();if(!Schema.safeParse(val[0]).success){ctx.addIssue({code:'custom'})}};if(val.length>1){ctx.addIssue({code:'custom',message:"cap"})}}})`,
       )
     })
 
@@ -220,7 +220,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"a")).success){ctx.addIssue({code:'custom',message:"fallback"})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom',message:"fallback"})}}}})`,
       )
     })
 
@@ -244,7 +244,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).safeParse(v).success;if(ifOk){const Schema=z.object({}).openapi({"required":["x"]});if(!Schema.safeParse(v).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.object({}).openapi({"required":["y"]});if(!Schema.safeParse(v).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).safeParse(val).success;if(ifOk){const Schema=z.object({}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.object({}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
       )
     })
 
@@ -261,7 +261,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((v,ctx)=>{if(typeof v==='object'&&v!==null&&!Array.isArray(v)){if(Object.hasOwn(v,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(v,"a")).success){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
   })
@@ -307,7 +307,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `.superRefine((o,ctx)=>{const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,v] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})`,
+        `.superRefine((o,ctx)=>{const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})`,
       )
     })
 

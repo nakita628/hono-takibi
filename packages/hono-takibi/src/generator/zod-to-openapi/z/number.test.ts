@@ -66,7 +66,7 @@ describe('x-error-message (number base)', () => {
     // x-error-message + constraints
     [
       { type: 'number', minimum: 0, 'x-error-message': '数値必須' },
-      'z.number({error:"数値必須"}).min(0)',
+      'z.number({error:"数値必須"}).min(0,{error:"数値必須"})',
     ],
     // No x-error-message → existing behavior
     [{ type: 'number' }, 'z.number()'],

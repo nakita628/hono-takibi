@@ -156,7 +156,7 @@ describe('integer', () => {
       // x-error-message + constraints
       [
         { type: 'integer', minimum: 0, 'x-error-message': '整数必須' },
-        'z.int({error:"整数必須"}).min(0)',
+        'z.int({error:"整数必須"}).min(0,{error:"整数必須"})',
       ],
       // No x-error-message → existing behavior
       [{ type: 'integer' }, 'z.int()'],

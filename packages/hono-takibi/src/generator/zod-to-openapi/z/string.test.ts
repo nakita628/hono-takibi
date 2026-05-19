@@ -581,7 +581,7 @@ describe('string', () => {
     })
   })
 
-  // v0.13.0: contentSchema (base64+JSON decode transform 失敗) の message
+  // contentSchema (base64+JSON decode transform 失敗) の message
   // 経路を Zod default 委譲化。`x-error-message` 指定時のみ message 上書き、
   // 未指定時は message field を完全省略し Zod default に委ねる。SyntaxError
   // 文言 (e.message) は両ケースとも `params.cause` に逃がしてデバッグ用に保全。
@@ -637,7 +637,7 @@ describe('string', () => {
               typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
             return JSON.parse(s)
           } catch (e) {
-            // v0.13.0: codegen は message="M" + params.cause を併用
+            // codegen は message="M" + params.cause を併用
             ctx.addIssue({
               code: 'custom',
               message: 'M',

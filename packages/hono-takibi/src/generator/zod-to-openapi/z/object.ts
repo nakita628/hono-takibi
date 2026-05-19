@@ -156,7 +156,7 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
           const zodSchema = zodToOpenAPI(propSchema, undefined, options)
-          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}}}})`
+          return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}}}})`
         })
         .join('')
     : ''

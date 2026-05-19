@@ -29,8 +29,11 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
         : `z.number(${baseErrorArg})`
   // (`.min()` uses x-minimum-message, `.gt()` / `.positive()` uses
   // x-exclusiveMinimum-message; same for max).
-  const minimumMessage = schema['x-minimum-message']
-  const exclusiveMinMessage = schema['x-exclusiveMinimum-message']
+  // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >
+  // `x-error-message` > Zod default. `baseErrorArg` covers invalid-type only,
+  // so each numeric bound needs an explicit fallback to honor the contract.
+  const minimumMessage = schema['x-minimum-message'] ?? errorMessage
+  const exclusiveMinMessage = schema['x-exclusiveMinimum-message'] ?? errorMessage
   const minErrorArg = minimumMessage ? error(minimumMessage) : ''
   const minErrorPart = minErrorArg ? `,${minErrorArg}` : ''
   const exMinErrorArg = exclusiveMinMessage ? error(exclusiveMinMessage) : ''
@@ -53,8 +56,8 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
     }
     return undefined
   })()
-  const maximumMessage = schema['x-maximum-message']
-  const exclusiveMaxMessage = schema['x-exclusiveMaximum-message']
+  const maximumMessage = schema['x-maximum-message'] ?? errorMessage
+  const exclusiveMaxMessage = schema['x-exclusiveMaximum-message'] ?? errorMessage
   const maxErrorArg = maximumMessage ? error(maximumMessage) : ''
   const maxErrorPart = maxErrorArg ? `,${maxErrorArg}` : ''
   const exMaxErrorArg = exclusiveMaxMessage ? error(exclusiveMaxMessage) : ''
@@ -77,12 +80,10 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
     }
     return undefined
   })()
-  const multipleOfMessage = schema['x-multipleOf-message']
-  const multipleOfErrorArg = multipleOfMessage
-    ? `,${error(multipleOfMessage)}`
-    : baseErrorArg
-      ? `,${baseErrorArg}`
-      : ''
+  // multipleOf falls back to errorMessage directly (not baseErrorArg) so the
+  // invalid-type message doesn't bleed into a multipleOf constraint failure.
+  const multipleOfMessage = schema['x-multipleOf-message'] ?? errorMessage
+  const multipleOfErrorArg = multipleOfMessage ? `,${error(multipleOfMessage)}` : ''
   const multipleOf =
     schema.multipleOf !== undefined
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`

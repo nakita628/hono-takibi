@@ -254,14 +254,9 @@ function makeAuthHeader(sec: {
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') return `'${sec.name}':faker.string.alphanumeric(32)`
-      // apiKey-in-cookie maps to a `Cookie: <name>=<value>` request header
-      // (RFC 6265). Without this branch the generated test would send no
-      // credential at all while the mock handler enforces the check, turning
-      // the unauthorized-flow test into a false pass for the success-flow.
+      // apiKey-in-cookie → `Cookie: <name>=<value>` header (RFC 6265).
+      // apiKey-in-query is appended to the URL upstream by the caller.
       if (sec.in === 'cookie') return `'Cookie':\`${sec.name}=\${faker.string.alphanumeric(32)}\``
-      // `in: 'query'` requires appending to the request URL, which is built
-      // outside this function. Tracked as a follow-up; today the test still
-      // omits the credential for query-style apiKey schemes.
       return ''
   }
 }
@@ -284,6 +279,18 @@ function makeTestCase(
     (param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`,
   )
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
+  // apiKey-in-query credentials live in the URL, not the headers map. Building
+  // them here lets the success-flow test send the credential while the
+  // unauthorized-flow test reuses the bare `queryString` to send none.
+  const authQueryParts = tc.security
+    .filter((sec) => sec.type === 'apiKey' && sec.in === 'query')
+    .map((sec) => `${sec.name}=\${faker.string.alphanumeric(32)}`)
+  const authQueryString =
+    authQueryParts.length > 0
+      ? queryString
+        ? `&${authQueryParts.join('&')}`
+        : `?${authQueryParts.join('&')}`
+      : ''
   const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
   const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const headerEntries = requiredHeaderParams.map((param) => `'${param.name}':String(${param.name})`)
@@ -304,7 +311,7 @@ function makeTestCase(
   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
     .filter(Boolean)
     .join('\n')
-  const mainTest = `describe('${tc.method} ${fullPath}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
+  const mainTest = `describe('${tc.method} ${fullPath}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}${authQueryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
   const unauthorizedTest =
     tc.security.length > 0
       ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`

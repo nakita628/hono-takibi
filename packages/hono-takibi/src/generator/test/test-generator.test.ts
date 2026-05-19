@@ -2531,8 +2531,8 @@ describe('makeTestFile - apiKey header auth', () => {
   })
 })
 
-describe('makeTestFile - apiKey in query omits auth header', () => {
-  it('does not emit auth headers for apiKey with in=query', () => {
+describe('makeTestFile - apiKey in query appends credential to URL', () => {
+  it('emits ?api_key=<value> for apiKey with in=query (success flow)', () => {
     const spec: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Query Key API', version: '1.0.0' },
@@ -2556,7 +2556,7 @@ describe('makeTestFile - apiKey in query omits auth header', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Query Key API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Query Key API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data?api_key=${faker.string.alphanumeric(32)}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
     )
   })
 })
