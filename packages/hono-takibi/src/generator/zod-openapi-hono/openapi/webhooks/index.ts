@@ -58,7 +58,6 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
     if (!(ref && isParameterRef(ref))) return undefined
     const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
     if (!resolved) return undefined
-    // Preserve original $ref in resolved parameter for schema reference generation
     return { ...resolved, $ref: ref }
   }
   return Object.entries(openapi.webhooks)
@@ -82,6 +81,5 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
             .filter((v) => v !== undefined)
         : [],
     )
-    .filter(Boolean)
     .join('\n\n')
 }

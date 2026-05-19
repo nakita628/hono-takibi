@@ -170,6 +170,39 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 
+  it('preserves z.coerce.boolean() for query boolean with x-coerce: true (no z.coerce.stringbool() crash)', () => {
+    const components: Components = {
+      parameters: {
+        flag: {
+          name: 'flag',
+          in: 'query',
+          schema: { type: 'boolean', 'x-coerce': true },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const FlagParamsSchema=z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true}}})`,
+    )
+  })
+
+  it('preserves z.coerce.boolean() for path boolean with x-coerce: true', () => {
+    const components: Components = {
+      parameters: {
+        active: {
+          name: 'active',
+          in: 'path',
+          required: true,
+          schema: { type: 'boolean', 'x-coerce': true },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const ActiveParamsSchema=z.coerce.boolean().openapi({param:{"name":"active","in":"path","required":true,"schema":{"type":"boolean","x-coerce":true}}})`,
+    )
+  })
+
   it('should handle array query parameter with item coercion', () => {
     const components: Components = {
       parameters: {
@@ -185,7 +218,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdsParamsSchema=z.array(z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})`,
+      `export const IdsParamsSchema=z.array(z.coerce.number().pipe(z.int())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})`,
     )
   })
 

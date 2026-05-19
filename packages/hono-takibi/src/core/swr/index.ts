@@ -21,19 +21,5 @@ export async function swr(
     infiniteQueryFn: 'useSWRInfinite',
     useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
   }
-  const result = await makeQueryHooks(openAPI, output, importPath, config, split, clientName)
-  if (result.ok) {
-    if (split) {
-      const outDir = output.endsWith('.ts') ? output.slice(0, -'/index.ts'.length) : output
-      return {
-        ok: true,
-        value: `Generated swr hooks written to ${outDir}/*.ts (index.ts included)`,
-      } as const
-    }
-    return {
-      ok: true,
-      value: `Generated swr hooks written to ${output}`,
-    } as const
-  }
-  return result
+  return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

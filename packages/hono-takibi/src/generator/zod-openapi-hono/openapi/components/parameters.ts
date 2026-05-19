@@ -1,4 +1,3 @@
-import { coerce } from '../../../../helper/index.js'
 import type { Components, Content, Schema } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
@@ -33,36 +32,39 @@ export function parametersCode(
   return Object.keys(parameters)
     .map((k) => {
       const parameter = parameters[k]
-      const meta = {
-        parameters: {
-          ...parameter,
-        },
-      }
       // Handle parameters with content instead of schema (OpenAPI 3.x)
       const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
-      const baseSchema = schema ? zodToOpenAPI(schema, meta) : 'z.any()'
-      // Path and query parameters arrive as strings on the wire — coerce them
-      // to the schema-declared type. Header/cookie are left untouched.
+      // Path/query primitive number/integer get the `coerce` hint so the
+      // emitter produces `z.coerce.X().pipe(z.Y()...)` directly. Boolean/date/
+      // object/array containers still string-replace post-hoc (out of scope).
       const isStringWire = parameter.in === 'query' || parameter.in === 'path'
-      const z =
+      const isPrimitiveNumeric =
         isStringWire && (schema?.type === 'number' || schema?.type === 'integer')
-          ? coerce(baseSchema, schema.type, schema.format)
-          : isStringWire && schema?.type === 'boolean'
-            ? baseSchema.replace('boolean', 'stringbool')
-            : isStringWire && schema?.type === 'date'
-              ? `z.coerce.${baseSchema.replace('z.', '')}`
-              : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
-                ? baseSchema
-                    .replace(
-                      /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
-                      (_: string, type: string, constraints: string) =>
-                        `z.coerce.number().pipe(z.${type}()${constraints})`,
-                    )
-                    .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                    .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                    .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                    .replace(/z\.date\(\)/g, 'z.coerce.date()')
-                : baseSchema
+      const baseSchema = schema
+        ? zodToOpenAPI(
+            schema,
+            { parameters: { ...parameter } },
+            isPrimitiveNumeric ? { coerce: true } : undefined,
+          )
+        : 'z.any()'
+      const z = isPrimitiveNumeric
+        ? baseSchema
+        : isStringWire && schema?.type === 'boolean'
+          ? baseSchema.replace(/\bz\.boolean\(/g, 'z.stringbool(')
+          : isStringWire && schema?.type === 'date'
+            ? `z.coerce.${baseSchema.replace('z.', '')}`
+            : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
+              ? baseSchema
+                  .replace(
+                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                    (_: string, type: string, constraints: string) =>
+                      `z.coerce.number().pipe(z.${type}()${constraints})`,
+                  )
+                  .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
+                  .replace(/z\.number\(\)/g, 'z.coerce.number()')
+                  .replace(/z\.boolean\(\)/g, 'z.stringbool()')
+                  .replace(/z\.date\(\)/g, 'z.coerce.date()')
+              : baseSchema
       return zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
         z,

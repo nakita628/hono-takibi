@@ -17,6 +17,12 @@ export function wrap(
   meta?: {
     parameters?: Parameter
     headers?: Header
+  },
+  options?: {
+    /**
+     * @internal Set by `object` emitter on non-required properties; triggers
+     * `.exactOptional()`. Do not pass from external callers.
+     */
     isOptional?: boolean
   },
 ) {
@@ -103,6 +109,13 @@ export function wrap(
   }
 
   const formatLiteral = (v: unknown): string => {
+    /* undefined would serialize to the JS source token `undefined` via
+     * JSON.stringify (which returns the string 'undefined' for input
+     * undefined), polluting generated `.prefault(...)` / `.catch(...)` calls.
+     * Emit the literal `undefined` token explicitly for unambiguous reading. */
+    if (v === undefined) {
+      return 'undefined'
+    }
     if (typeof v === 'boolean') {
       return `${v}`
     }
@@ -144,14 +157,19 @@ export function wrap(
    * fragment strings verbatim. */
   const refineChain = `${fr}${schema['x-refine'] ?? ''}`
   const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
-  /* x-preprocess / x-transform / x-pipe: each is a complete Zod expression
-   * string and replaces the base schema verbatim (same convention as x-codec).
-   * Mutual exclusion: only one replacing extension can take effect per schema.
-   * Precedence: x-preprocess > x-transform > x-pipe (preprocess wraps outer). */
+  /* Replacing extensions: each carries a complete Zod expression string and
+   * replaces the base schema verbatim. Only one can take effect per schema.
+   * Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
+   * For type:'string', the string emitter consumes x-codec early when paired
+   * with hash format or x-coerce; in those cases the chain here sees a plain
+   * base and the codec slot is already absent. For other types, the codec
+   * expression is applied verbatim — author is responsible for matching the
+   * codec's input shape to the surrounding wire format. */
   const preprocess = schema['x-preprocess']
   const transform = schema['x-transform']
   const pipe = schema['x-pipe']
-  const replaced = preprocess ?? transform ?? pipe ?? superRefineChain
+  const codec = schema['x-codec']
+  const replaced = preprocess ?? transform ?? pipe ?? codec ?? superRefineChain
   /* Apply .brand() for branded types */
   const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
   /* zod method chain already expressed properties (to prevent double management) */
@@ -241,6 +259,7 @@ export function wrap(
     'x-toUpperCase',
     'x-normalize',
     'x-coerce',
+    'x-stringbool',
     'x-lowercase',
     'x-uppercase',
     'x-emailPattern',
@@ -282,9 +301,28 @@ export function wrap(
     'x-then-message',
     'x-else-message',
   ])
+  // Header meta emits its own description / example / style / etc. via
+  // `headerMetaProps`. If the inner schema also carries those keys, they
+  // would duplicate at the top level of `.openapi({...})` (e.g.
+  // `.openapi({description:"A",description:"B"})`). Drop the schema-level
+  // copy when the header meta actually has the same key set. Parameters
+  // serialize their keys under `param:{...}` (no top-level overlap) so this
+  // filter only applies to headers.
+  const headerDupKeys = new Set<string>(
+    meta?.headers
+      ? Object.entries(meta.headers)
+          .filter(([, v]) => v !== undefined)
+          .map(([k]) => k)
+      : [],
+  )
   const baseArgs = Object.fromEntries(
     Object.entries(schema).filter(
-      ([k, v]) => !(zodExpressedProps.has(k) || (k === 'required' && typeof v === 'boolean')),
+      ([k, v]) =>
+        !(
+          zodExpressedProps.has(k) ||
+          (k === 'required' && typeof v === 'boolean') ||
+          headerDupKeys.has(k)
+        ),
     ),
   )
   const args = filterUnsupportedProps(baseArgs)
@@ -369,7 +407,7 @@ export function wrap(
       : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
   /* Handle optional object properties */
-  if (meta?.isOptional === true) {
+  if (options?.isOptional === true) {
     return result.length === 0
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${result.join(',')}})`

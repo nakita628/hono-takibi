@@ -149,6 +149,32 @@ paths:
         '200':
           description: OK
 
+  /strict-allof:
+    post:
+      operationId: postStrictAllOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StrictAllOf'
+      responses:
+        '200':
+          description: OK
+
+  /implication:
+    post:
+      operationId: postImplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Implication'
+      responses:
+        '200':
+          description: OK
+
 components:
   schemas:
     # Field-level coverage (v3.0: 1 keyword = 1 message):
@@ -196,7 +222,7 @@ components:
           type: string
           minLength: 6
           maxLength: 6
-          x-size-message: 'code must be exactly 6 characters'
+          x-length-message: 'code must be exactly 6 characters'
         # x-pattern-message (.regex())
         slug:
           type: string
@@ -242,7 +268,7 @@ components:
             type: integer
           minItems: 4
           maxItems: 4
-          x-size-message: 'pin must contain exactly 4 digits'
+          x-length-message: 'pin must contain exactly 4 digits'
         # x-error-message on a string enum (whole-enum violation message)
         role:
           type: string
@@ -517,3 +543,44 @@ components:
           type: string
           x-required-message: 'payload is required'
           x-error-message: 'payload must be a string'
+
+    # x-implication-message — semantic alias for the A → B implication
+    # pattern encoded as anyOf:[{not:A},{required:B}]. Takes precedence over
+    # x-anyOf-message on the anyOf path and reads more clearly when the
+    # author's intent is "if hasLicense=true then licenseNumber is required".
+    Implication:
+      type: object
+      properties:
+        hasLicense:
+          type: boolean
+        licenseNumber:
+          type: string
+      anyOf:
+        - not:
+            required: [hasLicense]
+            properties:
+              hasLicense:
+                const: true
+        - required: [licenseNumber]
+      x-implication-message: 'licenseNumber is required when hasLicense is true'
+
+    # allOf + unevaluatedProperties:false — JSON Schema 2020-12 §11.2.
+    # The composed ZodIntersection strips excess keys via z.object().strip
+    # before any inline refine observes them. The generator wraps the
+    # composed schema in z.unknown().check(ctx => ...).pipe(Schema) so the
+    # check evaluates the raw input against the union of evaluated keys.
+    StrictAllOf:
+      allOf:
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+      unevaluatedProperties: false
+      x-unevaluatedProperties-message: 'Unknown field — only id and name are allowed.'
+

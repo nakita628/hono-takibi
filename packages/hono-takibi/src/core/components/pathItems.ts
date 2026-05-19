@@ -78,7 +78,7 @@ export async function pathItems(
     block: pathItemsSrc.slice(h.start, hits[i + 1]?.start ?? pathItemsSrc.length).trim(),
   }))
   if (blocks.length === 0) {
-    const result = await writeFile(String(output), pathItemsSrc)
+    const result = await writeFile(output, pathItemsSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }

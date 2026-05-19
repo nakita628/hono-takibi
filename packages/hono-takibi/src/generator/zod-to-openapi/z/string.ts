@@ -51,9 +51,7 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
  * Returns the inner `error:"..."` (or `error:(issue)=>...`) string without
  * surrounding braces, so it can be merged into a format options object.
  */
-function errorInner(message: string): string {
-  return error(message).slice(1, -1)
-}
+const errorInner = (message: string): string => error(message).slice(1, -1)
 
 /**
  * Builds format-specific option entries (excluding `error`) for Zod v4 format
@@ -61,60 +59,47 @@ function errorInner(message: string): string {
  * Returns an empty array when no options apply.
  */
 function makeFormatOptions(schema: Schema): readonly string[] {
-  const opts: string[] = []
   switch (schema.format) {
     case 'email': {
       // x-emailRegex wins over x-emailPattern when both are set.
       const regex = schema['x-emailRegex']
       const preset = schema['x-emailPattern']
-      if (regex) {
-        opts.push(`pattern:/${regex}/`)
-      } else if (preset && EMAIL_PATTERN_PRESET[preset]) {
-        opts.push(`pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`)
-      }
-      break
+      return [
+        regex
+          ? `pattern:/${regex}/`
+          : preset && EMAIL_PATTERN_PRESET[preset]
+            ? `pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`
+            : undefined,
+      ].filter((v) => v !== undefined)
     }
-    case 'uuid': {
-      const v = schema['x-uuidVersion']
-      if (v) opts.push(`version:${JSON.stringify(v)}`)
-      break
-    }
+    case 'uuid':
+      return schema['x-uuidVersion'] ? [`version:${JSON.stringify(schema['x-uuidVersion'])}`] : []
     case 'url':
-    case 'uri': {
-      const proto = schema['x-urlProtocol']
-      const host = schema['x-urlHostname']
-      const norm = schema['x-urlNormalize']
-      if (proto) opts.push(`protocol:/${proto}/`)
-      if (host) opts.push(`hostname:/${host}/`)
-      if (norm === true) opts.push('normalize:true')
-      break
-    }
-    case 'date-time': {
-      const p = schema['x-isoPrecision']
-      const offset = schema['x-isoOffset']
-      const local = schema['x-isoLocal']
-      if (p !== undefined) opts.push(`precision:${p}`)
-      if (offset === true) opts.push('offset:true')
-      if (local === true) opts.push('local:true')
-      break
-    }
-    case 'time': {
-      const p = schema['x-isoPrecision']
-      if (p !== undefined) opts.push(`precision:${p}`)
-      break
-    }
-    case 'mac': {
-      const d = schema['x-macDelimiter']
-      if (d) opts.push(`delimiter:${JSON.stringify(d)}`)
-      break
-    }
-    case 'jwt': {
-      const alg = schema['x-jwtAlg']
-      if (alg) opts.push(`alg:${JSON.stringify(alg)}`)
-      break
-    }
+    case 'uri':
+      return [
+        schema['x-urlProtocol'] ? `protocol:/${schema['x-urlProtocol']}/` : undefined,
+        schema['x-urlHostname'] ? `hostname:/${schema['x-urlHostname']}/` : undefined,
+        schema['x-urlNormalize'] === true ? 'normalize:true' : undefined,
+      ].filter((v) => v !== undefined)
+    case 'date-time':
+      return [
+        schema['x-isoPrecision'] !== undefined
+          ? `precision:${schema['x-isoPrecision']}`
+          : undefined,
+        schema['x-isoOffset'] === true ? 'offset:true' : undefined,
+        schema['x-isoLocal'] === true ? 'local:true' : undefined,
+      ].filter((v) => v !== undefined)
+    case 'time':
+      return schema['x-isoPrecision'] !== undefined ? [`precision:${schema['x-isoPrecision']}`] : []
+    case 'mac':
+      return schema['x-macDelimiter']
+        ? [`delimiter:${JSON.stringify(schema['x-macDelimiter'])}`]
+        : []
+    case 'jwt':
+      return schema['x-jwtAlg'] ? [`alg:${JSON.stringify(schema['x-jwtAlg'])}`] : []
+    default:
+      return []
   }
-  return opts
 }
 
 /**
@@ -134,7 +119,14 @@ function makeFormatOptions(schema: Schema): readonly string[] {
  * before validation runs. This makes canonical email normalization
  * (`{ format: email, x-trim: true, x-toLowerCase: true }`) work as expected.
  */
-export function string(schema: Schema): string {
+export function string(
+  schema: Schema,
+  options?: {
+    coerce?: boolean
+    readonly?: boolean
+    isOptional?: boolean
+  },
+): string {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const baseErrorArg = baseError(errorMessage, requiredMessage)
@@ -148,9 +140,10 @@ export function string(schema: Schema): string {
     const algo = schema['x-hashAlg']
     if (!algo) return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     const enc = schema['x-hashEnc']
-    const opts: string[] = []
-    if (enc) opts.push(`enc:${JSON.stringify(enc)}`)
-    if (errorMessage) opts.push(errorInner(errorMessage))
+    const opts = [
+      enc ? `enc:${JSON.stringify(enc)}` : undefined,
+      errorMessage ? errorInner(errorMessage) : undefined,
+    ].filter((v) => v !== undefined)
     const optsStr = opts.length > 0 ? `,{${opts.join(',')}}` : ''
     return `z.hash(${JSON.stringify(algo)}${optsStr})`
   })()
@@ -189,7 +182,8 @@ export function string(schema: Schema): string {
       const mt = mediaType ? mediaType.toLowerCase() : ''
       const isBinary = /^(image|audio|video)\//.test(mt) || mt === 'application/octet-stream'
       const isJson = mt.length > 0 && /json/.test(mt)
-      // Bug #5 fix: binary MIME → Uint8Array (no UTF-8 decoding).
+      // Binary MIME types decode base64 directly to Uint8Array — UTF-8
+      // decoding would corrupt the bytes.
       if (isBinary) {
         return '.transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))'
       }
@@ -205,8 +199,11 @@ export function string(schema: Schema): string {
       return '.transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))'
     })()
     // contentSchema may be a $ref or inline schema; both branches recurse
-    // through zodToOpenAPI which already handles refs via makeRef.
-    const validateStep = contentSchema ? `.pipe(${zodToOpenAPI(contentSchema)})` : ''
+    // through zodToOpenAPI which already handles refs via makeRef. Propagate
+    // `options` so nested array/object receives `.readonly()` when requested.
+    const validateStep = contentSchema
+      ? `.pipe(${zodToOpenAPI(contentSchema, undefined, options)})`
+      : ''
     return `${baseStr}${decodeStep}${validateStep}`
   }
 
@@ -268,18 +265,21 @@ export function string(schema: Schema): string {
   const endUpper = usePipe ? '' : postUpper
   const endNormalize = usePipe ? '' : postNormalize
 
-  const patternMessage = schema['x-pattern-message']
+  // Per-keyword precedence: `x-<keyword>-message` > `x-error-message` > Zod default.
+  // The `x-error-message` already flows into the `z.string({error})` constructor via
+  // `baseErrorArg`, but Zod scopes that to invalid-type errors only — `.min/.max/...`
+  // need an explicit fallback to honor the contract in openapi/index.ts.
+  const patternMessage = schema['x-pattern-message'] ?? errorMessage
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const patternMsgPart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
     ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
     : undefined
-  const lengthMessage = schema['x-length-message']
+  const lengthMessage = schema['x-length-message'] ?? errorMessage
   const sizeMsgPart = lengthMessage ? `,${error(lengthMessage)}` : ''
-  // from the previous shared x-minimum-message / x-maximum-message umbrellas).
-  const minLengthMessage = schema['x-minLength-message']
+  const minLengthMessage = schema['x-minLength-message'] ?? errorMessage
   const minMsgPart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
-  const maxLengthMessage = schema['x-maxLength-message']
+  const maxLengthMessage = schema['x-maxLength-message'] ?? errorMessage
   const maxMsgPart = maxLengthMessage ? `,${error(maxLengthMessage)}` : ''
   const isFixedLength =
     schema.minLength !== undefined &&

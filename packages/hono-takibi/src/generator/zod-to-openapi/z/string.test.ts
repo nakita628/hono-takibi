@@ -135,6 +135,91 @@ describe('string', () => {
     })
   })
 
+  describe('x-error-message fallback to chain slots (precedence contract)', () => {
+    // openapi/index.ts contract: `x-<keyword>-message` > `x-error-message` > Zod default.
+    // Locks the 4-case precedence for string min / max / pattern / length slots.
+    it.concurrent.each<[Schema, string]>([
+      // 1) x-error-message only → flows into .min() / .max() / .regex() / .length()
+      [
+        { type: 'string', minLength: 3, 'x-error-message': 'common' },
+        'z.string({error:"common"}).min(3,{error:"common"})',
+      ],
+      [
+        { type: 'string', maxLength: 10, 'x-error-message': 'common' },
+        'z.string({error:"common"}).max(10,{error:"common"})',
+      ],
+      [
+        { type: 'string', pattern: '^[a-z]+$', 'x-error-message': 'common' },
+        'z.string({error:"common"}).regex(/^[a-z]+$/,{error:"common"})',
+      ],
+      [
+        { type: 'string', minLength: 5, maxLength: 5, 'x-error-message': 'common' },
+        'z.string({error:"common"}).length(5,{error:"common"})',
+      ],
+      // 2) Per-keyword message only → keyword slot, no fallback noise on z.string()
+      [
+        { type: 'string', minLength: 3, 'x-minLength-message': 'min only' },
+        'z.string().min(3,{error:"min only"})',
+      ],
+      // 3) Both → per-keyword wins, x-error-message stays on z.string() type slot
+      [
+        {
+          type: 'string',
+          minLength: 3,
+          'x-error-message': 'common',
+          'x-minLength-message': 'min wins',
+        },
+        'z.string({error:"common"}).min(3,{error:"min wins"})',
+      ],
+      [
+        {
+          type: 'string',
+          pattern: '^[a-z]+$',
+          'x-error-message': 'common',
+          'x-pattern-message': 'pattern wins',
+        },
+        'z.string({error:"common"}).regex(/^[a-z]+$/,{error:"pattern wins"})',
+      ],
+      // 4) Neither → no message attached anywhere
+      [{ type: 'string', minLength: 3 }, 'z.string().min(3)'],
+      [{ type: 'string', pattern: '^[a-z]+$' }, 'z.string().regex(/^[a-z]+$/)'],
+      // Symmetric coverage: every chain slot must show both `per-keyword wins`
+      // and `keyword-only` so a future copy-paste that omits the fallback in
+      // one slot fails loudly.
+      // maxLength
+      [
+        {
+          type: 'string',
+          maxLength: 10,
+          'x-error-message': 'common',
+          'x-maxLength-message': 'max wins',
+        },
+        'z.string({error:"common"}).max(10,{error:"max wins"})',
+      ],
+      [
+        { type: 'string', maxLength: 10, 'x-maxLength-message': 'max only' },
+        'z.string().max(10,{error:"max only"})',
+      ],
+      // length (fixed length: minLength === maxLength)
+      [
+        { type: 'string', minLength: 5, maxLength: 5, 'x-length-message': 'len only' },
+        'z.string().length(5,{error:"len only"})',
+      ],
+      [
+        {
+          type: 'string',
+          minLength: 5,
+          maxLength: 5,
+          'x-error-message': 'common',
+          'x-length-message': 'len wins',
+        },
+        'z.string({error:"common"}).length(5,{error:"len wins"})',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
   describe('combined x-* extensions', () => {
     it.concurrent.each<[Schema, string]>([
       [
@@ -496,7 +581,7 @@ describe('string', () => {
     })
   })
 
-  // v0.13.0: contentSchema (base64+JSON decode transform 失敗) の message
+  // contentSchema (base64+JSON decode transform 失敗) の message
   // 経路を Zod default 委譲化。`x-error-message` 指定時のみ message 上書き、
   // 未指定時は message field を完全省略し Zod default に委ねる。SyntaxError
   // 文言 (e.message) は両ケースとも `params.cause` に逃がしてデバッグ用に保全。
@@ -552,7 +637,7 @@ describe('string', () => {
               typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
             return JSON.parse(s)
           } catch (e) {
-            // v0.13.0: codegen は message="M" + params.cause を併用
+            // codegen は message="M" + params.cause を併用
             ctx.addIssue({
               code: 'custom',
               message: 'M',
