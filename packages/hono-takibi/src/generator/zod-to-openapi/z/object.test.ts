@@ -449,7 +449,7 @@ describe('object', () => {
         'z.object({name:z.string()})',
       ],
     ])('object(%o, %s) → %s', (input, readonly, expected) => {
-      expect(object(input, readonly)).toBe(expected)
+      expect(object(input, readonly === true ? { readonly: true } : undefined)).toBe(expected)
     })
   })
 

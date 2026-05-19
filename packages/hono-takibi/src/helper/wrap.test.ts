@@ -375,7 +375,7 @@ describe('wrap', () => {
 
   describe('isOptional', () => {
     it.concurrent('should add .exactOptional() when isOptional is true', () => {
-      const result = wrap('z.string()', { type: 'string' }, { isOptional: true })
+      const result = wrap('z.string()', { type: 'string' }, undefined, { isOptional: true })
       expect(result).toBe('z.string().exactOptional()')
     })
 
@@ -383,32 +383,33 @@ describe('wrap', () => {
       const result = wrap(
         'z.string()',
         { type: 'string', description: 'Optional field' },
+        undefined,
         { isOptional: true },
       )
       expect(result).toBe('z.string().exactOptional().openapi({"description":"Optional field"})')
     })
 
     it.concurrent('should not add .exactOptional() when isOptional is false', () => {
-      const result = wrap('z.string()', { type: 'string' }, { isOptional: false })
+      const result = wrap('z.string()', { type: 'string' }, undefined, { isOptional: false })
       expect(result).toBe('z.string()')
     })
 
     it.concurrent('should not add .exactOptional() when isOptional is undefined', () => {
-      const result = wrap('z.string()', { type: 'string' }, {})
+      const result = wrap('z.string()', { type: 'string' }, undefined, {})
       expect(result).toBe('z.string()')
     })
 
     it.concurrent('should handle isOptional with default value', () => {
-      const result = wrap(
-        'z.string()',
-        { type: 'string', default: 'default-value' },
-        { isOptional: true },
-      )
+      const result = wrap('z.string()', { type: 'string', default: 'default-value' }, undefined, {
+        isOptional: true,
+      })
       expect(result).toBe('z.string().default("default-value").exactOptional()')
     })
 
     it.concurrent('should handle isOptional with nullable', () => {
-      const result = wrap('z.string()', { type: 'string', nullable: true }, { isOptional: true })
+      const result = wrap('z.string()', { type: 'string', nullable: true }, undefined, {
+        isOptional: true,
+      })
       expect(result).toBe('z.string().nullable().exactOptional()')
     })
   })
@@ -774,7 +775,9 @@ describe('wrap', () => {
   describe('combined nullable + default + isOptional', () => {
     it.concurrent('should handle nullable + default + isOptional combined', () => {
       expect(
-        wrap('z.string()', { type: 'string', nullable: true, default: 'hi' }, { isOptional: true }),
+        wrap('z.string()', { type: 'string', nullable: true, default: 'hi' }, undefined, {
+          isOptional: true,
+        }),
       ).toBe('z.string().nullable().default("hi").exactOptional()')
     })
   })

@@ -7365,9 +7365,9 @@ describe('zodToOpenAPI', () => {
     })
   })
 
-  describe('meta parameter', () => {
+  describe('options.isOptional', () => {
     it.concurrent('passes isOptional to wrap', () => {
-      const result = zodToOpenAPI({ type: 'string' }, { isOptional: true })
+      const result = zodToOpenAPI({ type: 'string' }, undefined, { isOptional: true })
       expect(result).toBe('z.string().exactOptional()')
     })
 
@@ -7380,6 +7380,7 @@ describe('zodToOpenAPI', () => {
           },
           required: ['name'],
         },
+        undefined,
         { isOptional: true },
       )
       expect(result).toBe(
@@ -7388,7 +7389,9 @@ describe('zodToOpenAPI', () => {
     })
 
     it.concurrent('ref with isOptional', () => {
-      const result = zodToOpenAPI({ $ref: '#/components/schemas/User' }, { isOptional: true })
+      const result = zodToOpenAPI({ $ref: '#/components/schemas/User' }, undefined, {
+        isOptional: true,
+      })
       expect(result).toBe('UserSchema.exactOptional()')
     })
   })

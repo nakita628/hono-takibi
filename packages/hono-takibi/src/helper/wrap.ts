@@ -17,6 +17,12 @@ export function wrap(
   meta?: {
     parameters?: Parameter
     headers?: Header
+  },
+  options?: {
+    /**
+     * @internal Set by `object` emitter on non-required properties; triggers
+     * `.exactOptional()`. Do not pass from external callers.
+     */
     isOptional?: boolean
   },
 ) {
@@ -370,7 +376,7 @@ export function wrap(
       : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
   /* Handle optional object properties */
-  if (meta?.isOptional === true) {
+  if (options?.isOptional === true) {
     return result.length === 0
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${result.join(',')}})`

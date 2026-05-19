@@ -16,9 +16,10 @@ void _UNRECOGNIZED_KEYS_GUARD
  * default `z.object`. Combinators (oneOf/anyOf/allOf/not) delegate to the main
  * `zodToOpenAPI` entry.
  */
-export function object(schema: Schema, readonly?: boolean): string {
+export function object(schema: Schema, options?: { readonly?: boolean }): string {
+  const readonly = options?.readonly
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
-    return zodToOpenAPI(schema, undefined, readonly === true ? { readonly: true } : undefined)
+    return zodToOpenAPI(schema, undefined, options)
   }
   const errorMessage = schema['x-error-message']
   const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
@@ -60,15 +61,11 @@ export function object(schema: Schema, readonly?: boolean): string {
   //   other codes       → x-properties-message > x-error-message > undefined
   const propsMessage = schema['x-properties-message']
   if (typeof schema.additionalProperties === 'object') {
-    const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, readonly === true ? { readonly: true } : undefined)})`
+    const record = `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties, undefined, options)})`
     const recordPatternProps = schema.patternProperties
       ? Object.entries(schema.patternProperties)
           .map(([pattern, propSchema]) => {
-            const zodSchema = zodToOpenAPI(
-              propSchema,
-              undefined,
-              readonly === true ? { readonly: true } : undefined,
-            )
+            const zodSchema = zodToOpenAPI(propSchema, undefined, options)
             return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}}}})`
           })
           .join('')
@@ -107,8 +104,8 @@ export function object(schema: Schema, readonly?: boolean): string {
           const safeKey = makeSafeKey(key)
           const z = zodToOpenAPI(
             propSchema,
-            isRequired ? undefined : { isOptional: true },
-            readonly === true ? { readonly: true } : undefined,
+            undefined,
+            isRequired ? options : { ...options, isOptional: true },
           )
           return `${safeKey}:${z}`
         })
@@ -169,11 +166,7 @@ export function object(schema: Schema, readonly?: boolean): string {
   const patternProperties = schema.patternProperties
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
-          const zodSchema = zodToOpenAPI(
-            propSchema,
-            undefined,
-            readonly === true ? { readonly: true } : undefined,
-          )
+          const zodSchema = zodToOpenAPI(propSchema, undefined, options)
           return `.superRefine((o,ctx)=>{const regex=new RegExp(${JSON.stringify(pattern)});const Schema=${zodSchema};for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]${patternPropsMessageOverride}})}}}})`
         })
         .join('')
