@@ -414,13 +414,17 @@ export function zodToOpenAPI(
     // prefixItems branch silently dropped minItems / maxItems / uniqueItems /
     // contains (JSON Schema 2020-12 explicitly permits all of them with
     // prefixItems; the spec's official test suite covers the combination).
-    const lengthMessage = schema['x-length-message']
+    // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >
+    // `x-error-message` > Zod default. `arrayErrorArg` already covers the
+    // invalid-type slot via `z.array(..., {error})`; chain methods need an
+    // explicit fallback to honor the contract.
+    const lengthMessage = schema['x-length-message'] ?? arrayErrorMessage
     const sizeErrorArg = lengthMessage ? `,${error(lengthMessage)}` : ''
-    const minMessage = schema['x-minItems-message']
+    const minMessage = schema['x-minItems-message'] ?? arrayErrorMessage
     const minErrorArg = minMessage ? `,${error(minMessage)}` : ''
-    const maxMessage = schema['x-maxItems-message']
+    const maxMessage = schema['x-maxItems-message'] ?? arrayErrorMessage
     const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
-    const uniqueMessage = schema['x-uniqueItems-message']
+    const uniqueMessage = schema['x-uniqueItems-message'] ?? arrayErrorMessage
     const uniqueMsgPart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
     const uniqueChain =
       schema.uniqueItems === true

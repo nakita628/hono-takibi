@@ -254,6 +254,14 @@ function makeAuthHeader(sec: {
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') return `'${sec.name}':faker.string.alphanumeric(32)`
+      // apiKey-in-cookie maps to a `Cookie: <name>=<value>` request header
+      // (RFC 6265). Without this branch the generated test would send no
+      // credential at all while the mock handler enforces the check, turning
+      // the unauthorized-flow test into a false pass for the success-flow.
+      if (sec.in === 'cookie') return `'Cookie':\`${sec.name}=\${faker.string.alphanumeric(32)}\``
+      // `in: 'query'` requires appending to the request URL, which is built
+      // outside this function. Tracked as a follow-up; today the test still
+      // omits the credential for query-style apiKey schemes.
       return ''
   }
 }

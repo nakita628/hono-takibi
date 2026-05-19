@@ -77,9 +77,7 @@ export type OpenAPI = BaseOpenAPI & {
     readonly [k: string]: PathItem
   }
   readonly components?: Components
-  readonly security?: {
-    readonly name?: readonly string[]
-  }
+  readonly security?: readonly { readonly [name: string]: readonly string[] }[]
   readonly tags?: {
     readonly name: string
     readonly summary?: string
@@ -351,9 +349,7 @@ export type Operation = {
     }
   }
   readonly deprecated?: boolean
-  readonly security?: {
-    readonly name?: readonly string[]
-  }
+  readonly security?: readonly { readonly [scheme: string]: readonly string[] }[]
   readonly servers?: readonly {
     readonly url: string
     readonly description?: string
@@ -463,9 +459,6 @@ export type Schema = {
   readonly deprecated?: boolean
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
-  readonly security?: {
-    readonly name?: readonly string[]
-  }[]
   readonly oneOf?: readonly Schema[]
   readonly allOf?: readonly Schema[]
   readonly anyOf?: readonly Schema[]

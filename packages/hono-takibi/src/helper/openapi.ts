@@ -169,14 +169,18 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
     return makeRef(headers.$ref)
   }
   const result = [
-    headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
+    headers.description !== undefined
+      ? `description:${JSON.stringify(headers.description)}`
+      : undefined,
     'required' in headers && headers.required
       ? `required:${JSON.stringify(headers.required)}`
       : undefined,
     'deprecated' in headers && headers.deprecated
       ? `deprecated:${JSON.stringify(headers.deprecated)}`
       : undefined,
-    'example' in headers && headers.example
+    // `example` accepts any JSON value (incl. `0`, `false`, `""`) per OpenAPI
+    // 3.2 §4.8.10.1 — a truthy guard would silently drop those.
+    'example' in headers && headers.example !== undefined
       ? `example:${JSON.stringify(headers.example)}`
       : undefined,
     'examples' in headers && headers.examples
@@ -322,11 +326,19 @@ export function makeContent(
   return Object.freeze(
     Object.entries(content)
       .map(([contentType, mediaOrRef]) => {
+        // RFC 6838 restricted-name-chars (`[A-Za-z0-9!#$&^_+\-./*]`) plus the
+        // RFC 7231 §3.1.1.1 parameter chars (`;`, ` `, `=`) cover `type/subtype`
+        // and `type/subtype; charset=utf-8`. Anything outside this set
+        // (especially `'`, `"`, `\`) falls back to JSON.stringify so the
+        // emitted key still parses as a valid JS object literal.
+        const key = /^[A-Za-z0-9!#$&^_+\-./*;= ]+$/.test(contentType)
+          ? `'${contentType}'`
+          : JSON.stringify(contentType)
         if (isRefObject(mediaOrRef)) {
-          return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
+          return `${key}:${makeRef(mediaOrRef.$ref)}`
         }
         if (isMedia(mediaOrRef)) {
-          return `'${contentType}':${makeMedia(mediaOrRef, readonly)}`
+          return `${key}:${makeMedia(mediaOrRef, readonly)}`
         }
         return undefined
       })
@@ -339,7 +351,7 @@ export function makeRequestBody(body: RequestBody | Reference, readonly?: boolea
     return makeRef(body.$ref)
   }
   const result = [
-    body.description ? `description:${JSON.stringify(body.description)}` : undefined,
+    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined,
     'content' in body && body.content
       ? `content:{${makeContent(body.content, readonly).join(',')}}`
       : undefined,
@@ -540,10 +552,14 @@ function makeOperationParameters(
 export function makeOperation(operation: Operation, readonly?: boolean) {
   const result = [
     operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.summary !== undefined ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description !== undefined
+      ? `description:${JSON.stringify(operation.description)}`
+      : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-    operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
+    operation.operationId !== undefined
+      ? `operationId:${JSON.stringify(operation.operationId)}`
+      : undefined,
     operation.parameters
       ? `parameters:${makeOperationParameters(operation.parameters, readonly)}`
       : undefined,
@@ -574,8 +590,10 @@ export function makePathItem(pathItem: PathItem) {
     : undefined
   const results = [
     pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
-    pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
-    pathItem.description ? `description:${JSON.stringify(pathItem.description)}` : undefined,
+    pathItem.summary !== undefined ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
+    pathItem.description !== undefined
+      ? `description:${JSON.stringify(pathItem.description)}`
+      : undefined,
     pathItem.get ? `get:${makeOperation(pathItem.get)}` : undefined,
     pathItem.put ? `put:${makeOperation(pathItem.put)}` : undefined,
     pathItem.post ? `post:${makeOperation(pathItem.post)}` : undefined,

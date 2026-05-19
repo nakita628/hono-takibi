@@ -66,7 +66,7 @@ export async function webhooks(
     block: webhooksSrc.slice(h.start, hits[i + 1]?.start ?? webhooksSrc.length).trim(),
   }))
   if (blocks.length === 0) {
-    const result = await writeFile(String(output), webhooksSrc)
+    const result = await writeFile(output, webhooksSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated webhooks code written to ${output}` } as const
   }

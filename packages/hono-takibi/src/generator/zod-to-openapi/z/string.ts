@@ -278,18 +278,21 @@ export function string(
   const endUpper = usePipe ? '' : postUpper
   const endNormalize = usePipe ? '' : postNormalize
 
-  const patternMessage = schema['x-pattern-message']
+  // Per-keyword precedence: `x-<keyword>-message` > `x-error-message` > Zod default.
+  // The `x-error-message` already flows into the `z.string({error})` constructor via
+  // `baseErrorArg`, but Zod scopes that to invalid-type errors only — `.min/.max/...`
+  // need an explicit fallback to honor the contract in openapi/index.ts.
+  const patternMessage = schema['x-pattern-message'] ?? errorMessage
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const patternMsgPart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
     ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
     : undefined
-  const lengthMessage = schema['x-length-message']
+  const lengthMessage = schema['x-length-message'] ?? errorMessage
   const sizeMsgPart = lengthMessage ? `,${error(lengthMessage)}` : ''
-  // from the previous shared x-minimum-message / x-maximum-message umbrellas).
-  const minLengthMessage = schema['x-minLength-message']
+  const minLengthMessage = schema['x-minLength-message'] ?? errorMessage
   const minMsgPart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
-  const maxLengthMessage = schema['x-maxLength-message']
+  const maxLengthMessage = schema['x-maxLength-message'] ?? errorMessage
   const maxMsgPart = maxLengthMessage ? `,${error(maxLengthMessage)}` : ''
   const isFixedLength =
     schema.minLength !== undefined &&

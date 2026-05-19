@@ -326,6 +326,12 @@ describe('openapi helper', () => {
         `'application/xml':{schema:z.string()}`,
       ])
     })
+    it.concurrent('escapes a malformed content type containing a single quote', () => {
+      const result = makeContent({
+        "application/json'malicious": { schema: { type: 'string' } },
+      })
+      expect(result).toStrictEqual([`"application/json'malicious":{schema:z.string()}`])
+    })
   })
 
   describe('makeRequestBody', () => {
@@ -1140,6 +1146,30 @@ describe('openapi helper', () => {
       expect(result).toBe(
         '{summary:"Get users",description:"Returns a list of users",responses:{200:{description:"Success"}}}',
       )
+    })
+
+    // Empty strings are valid CommonMark per OpenAPI 3.2 §4.8.10.1 — they
+    // must round-trip rather than being silently dropped by a truthy check.
+    it.concurrent('preserves empty summary string', () => {
+      const result = makeOperation({
+        summary: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{summary:"",responses:{200:{description:"OK"}}}')
+    })
+    it.concurrent('preserves empty description string', () => {
+      const result = makeOperation({
+        description: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{description:"",responses:{200:{description:"OK"}}}')
+    })
+    it.concurrent('preserves empty operationId string', () => {
+      const result = makeOperation({
+        operationId: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{operationId:"",responses:{200:{description:"OK"}}}')
     })
 
     it.concurrent('generates operation with deprecated flag', () => {

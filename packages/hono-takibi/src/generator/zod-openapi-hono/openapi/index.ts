@@ -28,5 +28,10 @@ export function zodOpenAPIHono(
   const routes = routeCode(openapi, options.readonly)
   const webhooks = webhookCode(openapi, options.readonly)
   const output = [components, routes, webhooks].filter((v) => v.length > 0).join('\n\n')
-  return `import{createRoute,z}from'@hono/zod-openapi'\n\n${output}`
+  // `createRoute` is only referenced when routes/webhooks are emitted; a
+  // components-only generation pass would otherwise emit an unused import
+  // that trips lint rules in the user's project.
+  const needsCreateRoute = routes.length > 0 || webhooks.length > 0
+  const imports = needsCreateRoute ? 'createRoute,z' : 'z'
+  return `import{${imports}}from'@hono/zod-openapi'\n\n${output}`
 }

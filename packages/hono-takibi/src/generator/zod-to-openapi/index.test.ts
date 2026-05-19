@@ -6442,6 +6442,107 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
+        it.concurrent('array: x-error-message fallback to .min() (no x-minItems-message)', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 2,
+              'x-error-message': 'common',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).min(2,{error:"common"})')
+        })
+        it.concurrent('array: x-minItems-message wins over x-error-message', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 2,
+              'x-error-message': 'common',
+              'x-minItems-message': 'min wins',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).min(2,{error:"min wins"})')
+        })
+        it.concurrent('array: x-error-message fallback to .max()', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              maxItems: 5,
+              'x-error-message': 'common',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).max(5,{error:"common"})')
+        })
+        it.concurrent('array: x-error-message fallback to .length() (minItems === maxItems)', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 3,
+              maxItems: 3,
+              'x-error-message': 'common',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).length(3,{error:"common"})')
+        })
+        it.concurrent('array: x-error-message fallback to uniqueItems superRefine', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              uniqueItems: true,
+              'x-error-message': 'common',
+            } as Schema),
+          ).toBe(
+            'z.array(z.string(),{error:"common"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"common"});else seen.set(key,i)}})',
+          )
+        })
+        it.concurrent('array: no x-error-message and no slot → bare chain', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 2,
+            } as Schema),
+          ).toBe('z.array(z.string()).min(2)')
+        })
+        // Symmetric coverage for the remaining array slots so every chain
+        // method shows both `per-keyword wins` and `keyword-only` paths.
+        it.concurrent('array: x-maxItems-message wins over x-error-message', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              maxItems: 5,
+              'x-error-message': 'common',
+              'x-maxItems-message': 'max wins',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).max(5,{error:"max wins"})')
+        })
+        it.concurrent('array: x-length-message wins over x-error-message (fixed length)', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              minItems: 3,
+              maxItems: 3,
+              'x-error-message': 'common',
+              'x-length-message': 'len wins',
+            } as Schema),
+          ).toBe('z.array(z.string(),{error:"common"}).length(3,{error:"len wins"})')
+        })
+        it.concurrent('array: x-uniqueItems-message wins over x-error-message', () => {
+          expect(
+            zodToOpenAPI({
+              type: 'array',
+              items: { type: 'string' },
+              uniqueItems: true,
+              'x-error-message': 'common',
+              'x-uniqueItems-message': 'uniq wins',
+            } as Schema),
+          ).toBe(
+            'z.array(z.string(),{error:"common"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,v] of items.entries()){const key=JSON.stringify(v);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"uniq wins"});else seen.set(key,i)}})',
+          )
+        })
         it.concurrent('x-error-message on z.array()', () => {
           expect(
             zodToOpenAPI({
