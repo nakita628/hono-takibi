@@ -573,4 +573,188 @@ describe('type', () => {
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('handles default/XX status codes, $ref body and response, text and no-content', async () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'StatusAll', version: '1.0.0' },
+      paths: {
+        '/x': {
+          post: {
+            operationId: 'pX',
+            requestBody: { $ref: '#/components/requestBodies/UserBody' },
+            responses: {
+              default: {
+                description: 'Default',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { ok: { type: 'boolean' } } },
+                  },
+                },
+              },
+              '4XX': {
+                description: 'Client error',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { code: { type: 'integer' } } },
+                  },
+                },
+              },
+              '200': {
+                description: 'OK',
+                content: { 'text/plain': { schema: { type: 'string' } } },
+              },
+              '204': { description: 'No Content' },
+              '500': { $ref: '#/components/responses/ServerError' },
+            },
+            parameters: [{ $ref: '#/components/parameters/QId' }],
+          },
+        },
+      },
+      components: {
+        requestBodies: {
+          UserBody: {
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+        responses: {
+          ServerError: {
+            description: '500',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { err: { type: 'string' } } },
+              },
+            },
+          },
+        },
+        parameters: { QId: { name: 'id', in: 'query', schema: { type: 'integer' } } },
+      },
+    }
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-statusall-'))
+    try {
+      const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
+      const result = await type(spec, out)
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(out, 'utf-8')
+      expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/x': {
+      $post:
+        | {
+            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            output: string
+            outputFormat: 'text'
+            status: 200
+          }
+        | {
+            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            output: {}
+            outputFormat: string
+            status: 204
+          }
+        | {
+            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            output: { err?: string | undefined }
+            outputFormat: 'json'
+            status: 500
+          }
+        | {
+            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            output: { ok?: boolean | undefined }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { query: { id?: number | undefined } } & { json: { name?: string | undefined } }
+            output: { code?: number | undefined }
+            outputFormat: 'json'
+            status: 400
+          }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('renders oneOf/anyOf/const/nullable/multi-type/mixed-enum in one fixture', async () => {
+    const openapi: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'TypesAll', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        oneOfField: { oneOf: [{ type: 'string' }, { type: 'integer' }] },
+                        anyOfField: { anyOf: [{ type: 'boolean' }, { type: 'number' }] },
+                        constString: { const: 'fixed' },
+                        constNumber: { const: 42 },
+                        constBool: { const: true },
+                        constObject: { const: { a: 1 } },
+                        nullableStr: { type: 'string', nullable: true },
+                        multiType: { type: ['string', 'null'] as 'string' },
+                        enumMixed: { enum: ['a', 1, true] as unknown as readonly string[] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-mixed-'))
+    try {
+      const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(out, 'utf-8')
+      expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/x': {
+      $get: {
+        input: {}
+        output: {
+          oneOfField?: string | number | undefined
+          anyOfField?: boolean | number | undefined
+          constString?: 'fixed' | undefined
+          constNumber?: 42 | undefined
+          constBool?: true | undefined
+          constObject?: { a: 1 } | undefined
+          nullableStr?: (string | null) | undefined
+          multiType?: (string | null) | undefined
+          enumMixed?: 'a' | 1 | true | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })

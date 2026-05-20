@@ -158,6 +158,47 @@ export const getZodOpenapiHonoRoute = createRoute({
     }
   })
 
+  it('returns error when routes.output is missing', async () => {
+    const result = await route(openapi)
+    expect(result).toStrictEqual({ ok: false, error: 'routes.output is required' })
+  })
+
+  it('falls back to single-file write when split is true but paths is empty', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
+    try {
+      const emptyOpenapi: OpenAPI = {
+        openapi: '3.0.0',
+        info: { title: 'Empty', version: '0.0.0' },
+        paths: {},
+      }
+      const out = path.join(dir, 'empty.ts')
+      const result = await route(emptyOpenapi, { output: out, split: true })
+      // matchAll over empty `routeCode` returns 0 hits → fallback to single-file write
+      expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
+      expect(fs.existsSync(out)).toBe(true)
+      expect(fs.readFileSync(out, 'utf-8')).toBe('')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('propagates emit failure when output parent path is a regular file', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
+    try {
+      // Create a regular file where the generator will try to mkdir
+      const blockingFile = path.join(dir, 'block')
+      fs.writeFileSync(blockingFile, 'x')
+      const out = path.join(blockingFile, 'foo.ts')
+      const result = await route(openapi, { output: out })
+      expect(result).toStrictEqual({
+        ok: false,
+        error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
+      })
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('should generate route code (split)', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
     try {

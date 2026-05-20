@@ -1655,7 +1655,7 @@ export const getUsersRoute = createRoute({
     })
 
     const securityIndex = fs.readFileSync(path.join(testDir, 'src/security/index.ts'), 'utf-8')
-    expect(securityIndex).toBe(`export * from './bearerAuth.ts'\n`)
+    expect(securityIndex).toBe(`export * from './bearerAuth'\n`)
 
     const bearerAuthFile = fs.readFileSync(
       path.join(testDir, 'src/security/bearerAuth.ts'),
@@ -2202,7 +2202,7 @@ export const getMessagesRoute = createRoute({
     })
 
     const linksIndex = fs.readFileSync(path.join(testDir, 'src/links/index.ts'), 'utf-8')
-    expect(linksIndex).toBe(`export * from './getUserPosts.ts'\n`)
+    expect(linksIndex).toBe(`export * from './getUserPosts'\n`)
 
     const getUserPostsFile = fs.readFileSync(
       path.join(testDir, 'src/links/getUserPosts.ts'),
@@ -3076,13 +3076,18 @@ export const getDataRoute = createRoute({
     })
 
     const userCreated = fs.readFileSync(path.join(testDir, 'src/callbacks/userCreated.ts'), 'utf-8')
-    // Real cross-component import IS present, in alias form.
-    expect(userCreated.includes("import { UserSchema } from '~/schemas'")).toBe(true)
-    // Bogus self-import for the operationId string MUST NOT be emitted.
-    const importLines = userCreated.split('\n').filter((l) => l.startsWith('import'))
-    expect(importLines.some((l) => l.includes('userCreatedCallback'))).toBe(false)
-    // The operationId value remains in the body as a string literal.
-    expect(userCreated.includes("operationId: 'userCreatedCallback'")).toBe(true)
+    expect(userCreated).toBe(`import { UserSchema } from '~/schemas'
+
+export const UserCreatedCallback = {
+  '{$request.body#/url}': {
+    post: {
+      operationId: 'userCreatedCallback',
+      requestBody: { content: { 'application/json': { schema: UserSchema } } },
+      responses: { 200: { description: 'OK' } },
+    },
+  },
+}
+`)
   })
 
   // -------------------------------------------------------------------
@@ -3134,12 +3139,10 @@ export const getDataRoute = createRoute({
     })
 
     const jsonUser = fs.readFileSync(path.join(testDir, 'src/mediaTypes/jsonUser.ts'), 'utf-8')
-    // Cross-component import via path-alias.
-    expect(jsonUser.includes("import { UserSchema } from '~/schemas'")).toBe(true)
-    // Body refers to the imported identifier.
-    expect(jsonUser.includes('export const JsonUserMediaTypeSchema = UserSchema')).toBe(true)
-    // No spurious unused `z` import (the body has no `z.` call).
-    expect(jsonUser.includes("import { z } from '@hono/zod-openapi'")).toBe(false)
+    expect(jsonUser).toBe(`import { UserSchema } from '~/schemas'
+
+export const JsonUserMediaTypeSchema = UserSchema
+`)
   })
 
   describe('format option in config', () => {

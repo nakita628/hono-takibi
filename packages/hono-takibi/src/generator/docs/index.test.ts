@@ -2739,4 +2739,1958 @@ This operation does not require authentication
       expect(makeDocs(mediaExampleOpenAPI)).toBe(expected)
     })
   })
+
+  describe('comprehensive auth + info + servers', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Multi Auth API',
+        version: '1.0.0',
+        description: 'Comprehensive API description.',
+        contact: { name: 'Support', email: 'support@example.com' },
+        license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
+      },
+      servers: [
+        { url: 'https://api.example.com' },
+        { url: 'https://staging.example.com' },
+      ],
+      security: [{ oauth: ['read', 'write'] }],
+      components: {
+        securitySchemes: {
+          oauth: {
+            type: 'oauth2',
+            description: 'OAuth flow desc',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://example.com/oauth/authorize',
+                tokenUrl: 'https://example.com/oauth/token',
+                scopes: { read: 'Read access', write: 'Write access' },
+              },
+              implicit: {
+                authorizationUrl: 'https://example.com/oauth/implicit',
+                scopes: {},
+              },
+            },
+          },
+          oidc: {
+            type: 'openIdConnect',
+            description: 'OIDC',
+            openIdConnectUrl: 'https://example.com/.well-known/openid',
+          },
+          apikey: {
+            type: 'apiKey',
+            in: 'header',
+            name: 'X-Api-Key',
+            description: 'API key desc',
+          },
+          basicHttp: { type: 'http', scheme: 'basic', description: 'Basic auth desc' },
+        },
+      },
+      paths: {
+        '/ping': { get: { operationId: 'ping', responses: { '200': { description: 'OK' } } } },
+      },
+    }
+    const expected = `<h1 id="multi-auth-api">Multi Auth API v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+Comprehensive API description.
+
+Base URLs:
+
+* <a href="https://api.example.com">https://api.example.com</a>
+
+* <a href="https://staging.example.com">https://staging.example.com</a>
+
+Email: <a href="mailto:support@example.com">Support</a>${' '}
+License: <a href="https://opensource.org/licenses/MIT">MIT</a>
+
+# Authentication
+
+- oAuth2 authentication. OAuth flow desc
+
+    - Flow: authorizationCode
+    - Authorization URL = [https://example.com/oauth/authorize](https://example.com/oauth/authorize)
+    - Token URL = [https://example.com/oauth/token](https://example.com/oauth/token)
+
+|Scope|Scope Description|
+|---|---|
+|read|Read access|
+|write|Write access|
+
+    - Flow: implicit
+    - Authorization URL = [https://example.com/oauth/implicit](https://example.com/oauth/implicit)
+
+- OpenID Connect authentication. OIDC
+
+* API Key (apikey)
+    - Parameter Name: **X-Api-Key**, in: header. API key desc
+
+- HTTP Authentication, scheme: basic Basic auth desc
+
+<h1 id="multi-auth-api-default">Default</h1>
+
+## ping
+
+<a id="opIdping"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /ping \\
+  src/index.ts
+\`\`\`
+
+\`GET /ping\`
+
+<h3 id="ping-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+oauth ( Scopes: read write )
+</aside>
+`
+
+    it('renders oauth2 with multiple flows, openIdConnect, apiKey/basic auth, info contact/license, and multiple servers', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('curl mode with multiple auth + multi-content + multiple responses', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'CurlAuth', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          bearer: { type: 'http', scheme: 'bearer' },
+          basic: { type: 'http', scheme: 'basic' },
+          apikey: { type: 'apiKey', in: 'header', name: 'X-Api-Key' },
+          apikeyQ: { type: 'apiKey', in: 'query', name: 'q_key' },
+          oauth: { type: 'oauth2', flows: {} },
+        },
+      },
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'createItem',
+            security: [
+              { bearer: [] },
+              { basic: [] },
+              { apikey: [] },
+              { apikeyQ: [] },
+              { oauth: [] },
+            ],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: { name: { type: 'string' } },
+                  },
+                },
+                'application/x-www-form-urlencoded': { schema: { type: 'object' } },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { id: { type: 'integer' } },
+                    },
+                  },
+                },
+              },
+              '400': { description: 'Bad Request' },
+              '500': { description: 'Server Error' },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="curlauth">CurlAuth v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- HTTP Authentication, scheme: bearer
+
+- HTTP Authentication, scheme: basic
+
+* API Key (apikey)
+    - Parameter Name: **X-Api-Key**, in: header.
+
+* API Key (apikeyQ)
+    - Parameter Name: **q_key**, in: query.
+
+- oAuth2 authentication.
+
+<h1 id="curlauth-default">Default</h1>
+
+## createItem
+
+<a id="opIdcreateItem"></a>
+
+> Code samples
+
+\`\`\`bash
+curl https://api.example.com/items \\
+  -X POST \\
+  -H 'Content-Type: application/json' \\
+  -H 'Accept: application/json' \\
+  -H "Authorization: Bearer \${ACCESS_TOKEN}" \\
+  -d '{
+    "name": "string"
+  }'
+\`\`\`
+
+\`POST /items\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "name": "string"
+}
+\`\`\`
+
+<h3 id="createitem-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» name|body|string|false|none|
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "id": 0
+}
+\`\`\`
+
+<h3 id="createitem-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+|400|Bad Request|Bad Request|None|
+|500|Internal Server Error|Server Error|None|
+
+<h3 id="createitem-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|false|none|none|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+bearer, basic, apikey, apikeyQ, oauth
+</aside>
+`
+
+    it('renders curl with bearer+basic+apiKey(header/query)+oauth, multi-content body, and multiple responses', () => {
+      expect(makeDocs(spec, 'src/index.ts', '/', true, 'https://api.example.com')).toBe(expected)
+    })
+  })
+
+  describe('schemas section with various formats and enums', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Schemas', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', format: 'int64' },
+              email: { type: 'string', format: 'email' },
+              role: { type: 'string', enum: ['admin', 'user', 'guest'] },
+              age: { type: 'integer', minimum: 0, maximum: 150 },
+              uuid: { type: 'string', format: 'uuid' },
+              ip: { type: 'string', format: 'ipv4' },
+              ipv6: { type: 'string', format: 'ipv6' },
+              ts: { type: 'string', format: 'date-time' },
+              hostname: { type: 'string', format: 'hostname' },
+              password: { type: 'string', format: 'password' },
+              binary: { type: 'string', format: 'binary' },
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+            required: ['id', 'email'],
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="schemas">Schemas v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Schemas
+
+<h2 id="tocS_User">User</h2>
+<!-- backwards compatibility -->
+<a id="schemauser"></a>
+<a id="schema_User"></a>
+<a id="tocSuser"></a>
+<a id="tocsuser"></a>
+
+\`\`\`json
+{
+  "id": 0,
+  "email": "user@example.com",
+  "role": "admin",
+  "age": 0,
+  "uuid": "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+  "ip": "192.0.2.1",
+  "ipv6": "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+  "ts": "1970-01-01T00:00:00Z",
+  "hostname": "example.com",
+  "password": "password",
+  "binary": "string",
+  "tags": [
+    "string"
+  ]
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer(int64)|true|none|none|
+|email|string(email)|true|none|none|
+|role|string|false|none|none|
+|age|integer|false|none|none|
+|uuid|string(uuid)|false|none|none|
+|ip|string(ipv4)|false|none|none|
+|ipv6|string(ipv6)|false|none|none|
+|ts|string(date-time)|false|none|none|
+|hostname|string(hostname)|false|none|none|
+|password|string(password)|false|none|none|
+|binary|string(binary)|false|none|none|
+|tags|[string]|false|none|none|
+
+#### Enumerated Values
+
+|Property|Value|
+|---|---|
+|role|admin|
+|role|user|
+|role|guest|
+`
+
+    it('renders the schemas section with all format string examples and enum values table', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('oneOf inline response schema', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Comp', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      oneOf: [
+                        { type: 'object', properties: { kind: { type: 'string', enum: ['a'] } } },
+                        { type: 'object', properties: { kind: { type: 'string', enum: ['b'] } } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="comp">Comp v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="comp-default">Default</h1>
+
+## getX
+
+<a id="opIdgetX"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "kind": "a"
+}
+\`\`\`
+
+<h3 id="getx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('renders oneOf by taking the first variant as the example', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('path-level $ref parameters merged with operation-level $ref parameters', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'PathParams', version: '1.0.0' },
+      paths: {
+        '/users/{id}': {
+          parameters: [{ $ref: '#/components/parameters/UserId' }],
+          get: {
+            operationId: 'getUser',
+            parameters: [{ $ref: '#/components/parameters/Lang' }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        parameters: {
+          UserId: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
+          Lang: { name: 'lang', in: 'query', schema: { type: 'string', enum: ['en', 'ja'] } },
+        },
+      },
+    }
+    const expected = `<h1 id="pathparams">PathParams v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="pathparams-default">Default</h1>
+
+## getUser
+
+<a id="opIdgetUser"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /users/{id} \\
+  src/index.ts
+\`\`\`
+
+\`GET /users/{id}\`
+
+<h3 id="getuser-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|lang|query|string|false|none|
+|id|path|integer|true|none|
+
+<h3 id="getuser-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('resolves both path-level and operation-level $ref parameters from components.parameters', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('tag groups with description', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Tagged', version: '1.0.0' },
+      tags: [
+        {
+          name: 'Users',
+          description: 'User management endpoints',
+          externalDocs: { url: 'https://example.com/users', description: 'docs' },
+        },
+        { name: 'Posts', description: 'Post operations' },
+      ],
+      paths: {
+        '/u': {
+          get: { tags: ['Users'], operationId: 'lu', responses: { '200': { description: 'OK' } } },
+        },
+        '/p': {
+          get: { tags: ['Posts'], operationId: 'lp', responses: { '200': { description: 'OK' } } },
+        },
+      },
+    }
+    const expected = `<h1 id="tagged">Tagged v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="tagged-users">Users</h1>
+
+User management endpoints
+
+## lu
+
+<a id="opIdlu"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /u \\
+  src/index.ts
+\`\`\`
+
+\`GET /u\`
+
+<h3 id="lu-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+<h1 id="tagged-posts">Posts</h1>
+
+Post operations
+
+## lp
+
+<a id="opIdlp"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /p \\
+  src/index.ts
+\`\`\`
+
+\`GET /p\`
+
+<h3 id="lp-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('renders each tag group with its description', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('$ref schema with named array response', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'RefEx', version: '1.0.0' },
+      paths: {
+        '/list': {
+          get: {
+            operationId: 'list',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'array', items: { $ref: '#/components/schemas/Item' } },
+                    examples: { sample: { value: [{ name: 'foo' }] } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: { Item: { type: 'object', properties: { name: { type: 'string' } } } },
+      },
+    }
+    const expected = `<h1 id="refex">RefEx v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="refex-default">Default</h1>
+
+## list
+
+<a id="opIdlist"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /list \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /list\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+[
+  {
+    "name": "foo"
+  }
+]
+\`\`\`
+
+<h3 id="list-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="list-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|*anonymous*|[[Item](#schemaitem)]|false|none|none|
+|» name|string|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Item">Item</h2>
+<!-- backwards compatibility -->
+<a id="schemaitem"></a>
+<a id="schema_Item"></a>
+<a id="tocSitem"></a>
+<a id="tocsitem"></a>
+
+\`\`\`json
+{
+  "name": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|false|none|none|
+`
+
+    it('expands array-of-$ref response schema as anonymous + property rows', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('allOf composition with multiple object parts', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'AllOfNest', version: '1.0.0' },
+      paths: {
+        '/c': {
+          get: {
+            operationId: 'getC',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      allOf: [
+                        { type: 'object', properties: { a: { type: 'string' } } },
+                        { type: 'object', properties: { b: { type: 'integer' } } },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="allofnest">AllOfNest v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="allofnest-default">Default</h1>
+
+## getC
+
+<a id="opIdgetC"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /c \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /c\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "a": "string",
+  "b": 0
+}
+\`\`\`
+
+<h3 id="getc-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('merges allOf object parts in the response example', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('anyOf request body with required: true', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'AnyOfBody', version: '1.0.0' },
+      paths: {
+        '/d': {
+          post: {
+            operationId: 'postD',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    anyOf: [
+                      { type: 'object', properties: { x: { type: 'string' } } },
+                      { type: 'string' },
+                    ],
+                  },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="anyofbody">AnyOfBody v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="anyofbody-default">Default</h1>
+
+## postD
+
+<a id="opIdpostD"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X POST \\
+  -P /d \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "x": "string"
+  }' \\
+  src/index.ts
+\`\`\`
+
+\`POST /d\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "x": "string"
+}
+\`\`\`
+
+<h3 id="postd-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|true|none|
+
+<h3 id="postd-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('emits required body row when requestBody.required is true and renders anyOf example', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('info contact only (no license)', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: {
+        title: 'ContactOnly',
+        version: '1.0.0',
+        contact: { name: 'C', email: 'c@example.com' },
+      },
+      paths: {},
+    }
+    const expected = `<h1 id="contactonly">ContactOnly v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+Email: <a href="mailto:c@example.com">C</a>${' '}
+`
+
+    it('emits a contact row without a license row', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('license without url (no contact)', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'LicNoUrl', version: '1.0.0', license: { name: 'Apache-2.0' } },
+      paths: {},
+    }
+    const expected = `<h1 id="licnourl">LicNoUrl v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+License: Apache-2.0
+`
+
+    it('emits a license row without an anchor when url is missing', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('nested body params chained through $ref', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'NB', version: '1.0.0' },
+      paths: {
+        '/p': {
+          post: {
+            operationId: 'pp',
+            requestBody: {
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/Outer' } },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Outer: {
+            type: 'object',
+            properties: {
+              inner: { $ref: '#/components/schemas/Inner' },
+              note: { type: 'string', description: 'A note' },
+            },
+            required: ['inner'],
+          },
+          Inner: {
+            type: 'object',
+            properties: { id: { type: 'integer' }, name: { type: 'string' } },
+            required: ['id'],
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="nb">NB v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="nb-default">Default</h1>
+
+## pp
+
+<a id="opIdpp"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X POST \\
+  -P /p \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "inner": {
+      "id": 0,
+      "name": "string"
+    },
+    "note": "string"
+  }' \\
+  src/index.ts
+\`\`\`
+
+\`POST /p\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "inner": {
+    "id": 0,
+    "name": "string"
+  },
+  "note": "string"
+}
+\`\`\`
+
+<h3 id="pp-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|[Outer](#schemaouter)|false|none|
+|» inner|body|[Inner](#schemainner)|true|none|
+|» »  id|body|integer|true|none|
+|» »  name|body|string|false|none|
+|» note|body|string|false|A note|
+
+<h3 id="pp-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Outer">Outer</h2>
+<!-- backwards compatibility -->
+<a id="schemaouter"></a>
+<a id="schema_Outer"></a>
+<a id="tocSouter"></a>
+<a id="tocsouter"></a>
+
+\`\`\`json
+{
+  "inner": {
+    "id": 0,
+    "name": "string"
+  },
+  "note": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|inner|[Inner](#schemainner)|true|none|none|
+|note|string|false|none|A note|
+
+<h2 id="tocS_Inner">Inner</h2>
+<!-- backwards compatibility -->
+<a id="schemainner"></a>
+<a id="schema_Inner"></a>
+<a id="tocSinner"></a>
+<a id="tocsinner"></a>
+
+\`\`\`json
+{
+  "id": 0,
+  "name": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|true|none|none|
+|name|string|false|none|none|
+`
+
+    it('flattens nested body params through $ref and emits both schemas', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('response schema with array of $ref objects', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'AR', version: '1.0.0' },
+      paths: {
+        '/items': {
+          get: {
+            operationId: 'gi',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        items: { type: 'array', items: { $ref: '#/components/schemas/Item' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Item: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              tags: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="ar">AR v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="ar-default">Default</h1>
+
+## gi
+
+<a id="opIdgi"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /items \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /items\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "items": [
+    {
+      "id": 0,
+      "tags": [
+        "string"
+      ]
+    }
+  ]
+}
+\`\`\`
+
+<h3 id="gi-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="gi-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|items|[[Item](#schemaitem)]|false|none|none|
+|» id|integer|false|none|none|
+|» tags|[string]|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Item">Item</h2>
+<!-- backwards compatibility -->
+<a id="schemaitem"></a>
+<a id="schema_Item"></a>
+<a id="tocSitem"></a>
+<a id="tocsitem"></a>
+
+\`\`\`json
+{
+  "id": 0,
+  "tags": [
+    "string"
+  ]
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|false|none|none|
+|tags|[string]|false|none|none|
+`
+
+    it('expands array-of-$ref via resolveArrayItem into nested property rows', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('$ref response from components.responses', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'RR', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'gx',
+            responses: { '200': { $ref: '#/components/responses/Common200' } },
+          },
+        },
+      },
+      components: {
+        responses: {
+          Common200: {
+            description: 'Shared OK',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { ok: { type: 'boolean' } } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="rr">RR v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="rr-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "ok": true
+}
+\`\`\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|Shared OK|Inline|
+
+<h3 id="gx-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|ok|boolean|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('resolves $ref response and renders the shared description', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('form-urlencoded body with parameter description', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'FB', version: '1.0.0' },
+      paths: {
+        '/f': {
+          post: {
+            operationId: 'pf',
+            parameters: [
+              { name: 'q', in: 'query', schema: { type: 'string' }, description: 'Search query' },
+            ],
+            requestBody: {
+              content: {
+                'application/x-www-form-urlencoded': {
+                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="fb">FB v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="fb-default">Default</h1>
+
+## pf
+
+<a id="opIdpf"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X POST \\
+  -P /f \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  src/index.ts
+\`\`\`
+
+\`POST /f\`
+
+<h3 id="pf-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|q|query|string|false|Search query|
+
+<h3 id="pf-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('emits the form-urlencoded Content-Type header and includes parameter description', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('multiple named examples (uses the first by key)', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'NE', version: '1.0.0' },
+      paths: {
+        '/y': {
+          get: {
+            operationId: 'gy',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { id: { type: 'integer' } } },
+                    examples: {
+                      sample1: { value: { id: 1 } },
+                      sample2: { value: { id: 2 } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="ne">NE v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="ne-default">Default</h1>
+
+## gy
+
+<a id="opIdgy"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /y \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /y\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "id": 1
+}
+\`\`\`
+
+<h3 id="gy-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="gy-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('selects the first named example by iteration order', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('apiKey without "in" defaults to header', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: {
+        securitySchemes: { ak: { type: 'apiKey', name: 'X-Api-Key' } as { type: 'apiKey'; name: string } },
+      },
+      paths: {
+        '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+* API Key (ak)
+    - Parameter Name: **X-Api-Key**, in: header.
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('falls back to "header" when apiKey scheme omits the in field', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('oauth2 without flows', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: { securitySchemes: { o2: { type: 'oauth2' } as { type: 'oauth2' } } },
+      paths: {
+        '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- oAuth2 authentication.
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('emits only the oauth2 heading when flows is absent', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('oauth2 flow with empty scopes / no auth or token URL', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: {
+        securitySchemes: {
+          o3: {
+            type: 'oauth2',
+            flows: { clientCredentials: { scopes: {} } },
+          } as { type: 'oauth2'; flows: { clientCredentials: { scopes: { readonly [k: string]: string } } } },
+        },
+      },
+      paths: {
+        '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- oAuth2 authentication.
+
+    - Flow: clientCredentials
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+
+    it('omits Authorization URL / Token URL / scopes table when none are set', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
+
+  describe('curl with single basic auth', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: { securitySchemes: { basicAuth: { type: 'http', scheme: 'basic' } } },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'gx',
+            security: [{ basicAuth: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- HTTP Authentication, scheme: basic
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+curl https://api.example.com/x \\
+  -H "Authorization: Basic \${CREDENTIALS}"
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basicAuth
+</aside>
+`
+
+    it('emits the Basic Authorization curl header when basic auth is the sole security scheme', () => {
+      expect(makeDocs(spec, 'src/index.ts', '/', true, 'https://api.example.com')).toBe(expected)
+    })
+  })
+
+  describe('curl with single apiKey/header auth', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: {
+        securitySchemes: { ak: { type: 'apiKey', in: 'header', name: 'X-Api-Key' } },
+      },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'gx',
+            security: [{ ak: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+* API Key (ak)
+    - Parameter Name: **X-Api-Key**, in: header.
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+curl https://api.example.com/x \\
+  -H "X-Api-Key: \${API_KEY}"
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+ak
+</aside>
+`
+
+    it('emits the named apiKey curl header when apiKey is the sole security scheme', () => {
+      expect(makeDocs(spec, 'src/index.ts', '/', true, 'https://api.example.com')).toBe(expected)
+    })
+  })
+
+  describe('curl with single oauth2 auth', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: { securitySchemes: { o2: { type: 'oauth2', flows: {} } } },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'gx',
+            security: [{ o2: [] }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="t">T v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+# Authentication
+
+- oAuth2 authentication.
+
+<h1 id="t-default">Default</h1>
+
+## gx
+
+<a id="opIdgx"></a>
+
+> Code samples
+
+\`\`\`bash
+curl https://api.example.com/x \\
+  -H "Authorization: Bearer \${ACCESS_TOKEN}"
+\`\`\`
+
+\`GET /x\`
+
+<h3 id="gx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+o2
+</aside>
+`
+
+    it('emits the Bearer Authorization curl header when oauth2 is the sole security scheme', () => {
+      expect(makeDocs(spec, 'src/index.ts', '/', true, 'https://api.example.com')).toBe(expected)
+    })
+  })
+
+  describe('kitchen-sink fixture exercising many branches at once', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Kitchen', version: '1.0.0', description: 'A kitchen sink API.' },
+      paths: {
+        '/x/{id}': {
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
+          ],
+          patch: {
+            operationId: 'patchX',
+            description: 'Patch operation desc',
+            tags: ['Items'],
+            parameters: [
+              {
+                name: 'X-Tenant',
+                in: 'header',
+                schema: { type: 'string' },
+                description: 'Tenant header',
+              },
+              {
+                name: 'q',
+                in: 'query',
+                schema: { type: 'string', enum: ['a', 'b'] },
+                description: 'Query select',
+              },
+              { name: 'token', in: 'cookie', schema: { type: 'string' } },
+            ],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      arr: { type: 'array', items: { type: 'integer' } },
+                      flag: { type: 'boolean' },
+                      anyRef: { $ref: '#/components/schemas/Nested' },
+                      enumPropNumeric: { type: 'integer', enum: [1, 2, 3] },
+                    },
+                    required: ['flag'],
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        items: { type: 'array', items: { $ref: '#/components/schemas/Nested' } },
+                        count: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+              '5XX': { description: 'Server errors' },
+            },
+          },
+        },
+      },
+      tags: [{ name: 'Items' }],
+      components: {
+        schemas: {
+          Nested: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer' },
+              child: { $ref: '#/components/schemas/Nested' },
+            },
+          },
+        },
+      },
+    }
+    const expected = `<h1 id="kitchen">Kitchen v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+A kitchen sink API.
+
+<h1 id="kitchen-items">Items</h1>
+
+## patchX
+
+<a id="opIdpatchX"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X PATCH \\
+  -P /x/{id} \\
+  -H 'Content-Type: application/json' \\
+  -H 'Accept: application/json' \\
+  -d '{
+    "arr": [
+      0
+    ],
+    "flag": true,
+    "anyRef": {
+      "id": 0,
+      "child": {}
+    },
+    "enumPropNumeric": 1
+  }' \\
+  src/index.ts
+\`\`\`
+
+\`PATCH /x/{id}\`
+
+Patch operation desc
+
+> Body parameter
+
+\`\`\`json
+{
+  "arr": [
+    0
+  ],
+  "flag": true,
+  "anyRef": {
+    "id": 0,
+    "child": {}
+  },
+  "enumPropNumeric": 1
+}
+\`\`\`
+
+<h3 id="patchx-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|X-Tenant|header|string|false|Tenant header|
+|q|query|string|false|Query select|
+|token|cookie|string|false|none|
+|id|path|integer|true|none|
+|body|body|object|true|none|
+|» arr|body|[integer]|false|none|
+|» flag|body|boolean|true|none|
+|» anyRef|body|[Nested](#schemanested)|false|none|
+|» »  id|body|integer|false|none|
+|» »  child|body|[Nested](#schemanested)|false|none|
+|» enumPropNumeric|body|integer|false|none|
+
+#### Enumerated Values
+
+|Parameter|Value|
+|---|---|
+|q|a|
+|q|b|
+|» enumPropNumeric|1|
+|» enumPropNumeric|2|
+|» enumPropNumeric|3|
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "items": [
+    {
+      "id": 0,
+      "child": {}
+    }
+  ],
+  "count": 0
+}
+\`\`\`
+
+<h3 id="patchx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+|5XX|5XX|Server errors|None|
+
+<h3 id="patchx-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|items|[[Nested](#schemanested)]|false|none|none|
+|» id|integer|false|none|none|
+|» child|[Nested](#schemanested)|false|none|none|
+|count|integer|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Nested">Nested</h2>
+<!-- backwards compatibility -->
+<a id="schemanested"></a>
+<a id="schema_Nested"></a>
+<a id="tocSnested"></a>
+<a id="tocsnested"></a>
+
+\`\`\`json
+{
+  "id": 0,
+  "child": {
+    "id": 0,
+    "child": {}
+  }
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|id|integer|false|none|none|
+|child|[Nested](#schemanested)|false|none|none|
+`
+
+    it('renders PATCH + path/query/header/cookie params + circular schema + 5XX + enums + array of $ref', () => {
+      expect(makeDocs(spec)).toBe(expected)
+    })
+  })
 })

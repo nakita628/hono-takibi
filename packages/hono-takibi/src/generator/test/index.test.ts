@@ -22,27 +22,25 @@ describe('generator/test barrel exports', () => {
 
 describe('schemaToFaker', () => {
   it('should generate faker code for string type', () => {
-    const result = schemaToFaker({ type: 'string' })
-    expect(typeof result).toBe('string')
-    expect(result.length).toBeGreaterThan(0)
+    expect(schemaToFaker({ type: 'string' })).toBe('faker.string.alpha({ length: { min: 5, max: 20 } })')
   })
 
   it('should generate faker code for integer type', () => {
-    const result = schemaToFaker({ type: 'integer' })
-    expect(typeof result).toBe('string')
-    expect(result.length).toBeGreaterThan(0)
+    expect(schemaToFaker({ type: 'integer' })).toBe('faker.number.int({ min: 1, max: 1000 })')
   })
 
   it('should generate faker code for object type', () => {
-    const result = schemaToFaker({
-      type: 'object',
-      properties: {
-        id: { type: 'integer' },
-        name: { type: 'string' },
-      },
-    })
-    expect(typeof result).toBe('string')
-    expect(result.length).toBeGreaterThan(0)
+    expect(
+      schemaToFaker({
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+        },
+      }),
+    ).toBe(
+      '{ id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]), name: faker.helpers.arrayElement([faker.person.fullName(), undefined]) }',
+    )
   })
 })
 
@@ -62,9 +60,24 @@ describe('extractTestCases', () => {
         },
       },
     }
-    const result = extractTestCases(openAPI)
-    expect(Array.isArray(result)).toBe(true)
-    expect(result.length).toBeGreaterThan(0)
+    expect(extractTestCases(openAPI)).toStrictEqual([
+      {
+        operationId: 'getUsers',
+        method: 'GET',
+        path: '/users',
+        summary: '',
+        description: '',
+        tag: undefined,
+        pathParams: [],
+        queryParams: [],
+        headerParams: [],
+        requestBody: undefined,
+        successStatus: 200,
+        errorStatuses: [],
+        security: [],
+        usedSchemaRefs: [],
+      },
+    ])
   })
 })
 
@@ -84,8 +97,15 @@ describe('makeTestFile', () => {
         },
       },
     }
-    const result = makeTestFile(openAPI, '..')
-    expect(typeof result).toBe('string')
-    expect(result.length).toBeGreaterThan(0)
+    expect(makeTestFile(openAPI, '..'))
+      .toBe(`import{describe,it,expect}from'vitest'
+import app from'..'
+
+describe('Test',()=>{describe('default',()=>{describe('GET /users',()=>{it('should return 200',async()=>{
+const res=await app.request(\`/users\`,{method:'GET'})
+expect(res.status).toBe(200)})})
+})
+})
+`)
   })
 })

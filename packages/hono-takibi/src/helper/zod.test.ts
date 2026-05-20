@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
-import { makeUnevaluatedProperties, emitTypelessRefine, hasTypelessConstraint } from './zod.js'
+import {
+  emitTypelessRefine,
+  hasTypelessConstraint,
+  makeUnevaluatedProperties,
+  makeUnevaluatedPropertiesCheck,
+} from './zod.js'
 
 const recurse = zodToOpenAPI
 
@@ -264,6 +269,104 @@ describe('helper/zod', () => {
         `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"a")).success){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
+
+    it('emits typeless string constraints (minLength/maxLength/pattern)', () => {
+      expect(
+        emitTypelessRefine(
+          { minLength: 3, maxLength: 10, pattern: '^x' } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length<3){ctx.addIssue({code:'custom'})};if([...val].length>10){ctx.addIssue({code:'custom'})};if(!new RegExp("^x").test(val)){ctx.addIssue({code:'custom'})}}})`,
+      )
+    })
+
+    it('emits typeless number constraints (min/max/exclusive/multipleOf)', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            minimum: 0,
+            maximum: 100,
+            exclusiveMinimum: 0,
+            exclusiveMaximum: 100,
+            multipleOf: 5,
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='number'){if(val<0){ctx.addIssue({code:'custom'})};if(val<=0){ctx.addIssue({code:'custom'})};if(val>100){ctx.addIssue({code:'custom'})};if(val>=100){ctx.addIssue({code:'custom'})};{const mod=Math.abs(val/5-Math.round(val/5));if(mod>1e-10){ctx.addIssue({code:'custom'})}}}})`,
+      )
+    })
+
+    it('emits typeless array constraints (minItems/maxItems/uniqueItems)', () => {
+      expect(
+        emitTypelessRefine({ minItems: 1, maxItems: 5, uniqueItems: true } as Schema, recurse),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<1){ctx.addIssue({code:'custom'})};if(val.length>5){ctx.addIssue({code:'custom'})};{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){ctx.addIssue({code:'custom'});break}seen.add(key)}}}})`,
+      )
+    })
+
+    it('emits typeless object constraints with patternProperties + propertyNames', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            minProperties: 1,
+            maxProperties: 5,
+            propertyNames: { pattern: '^x' },
+            patternProperties: { '^x_': { type: 'string' } },
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.keys(val).length<1){ctx.addIssue({code:'custom'})};if(Object.keys(val).length>5){ctx.addIssue({code:'custom'})};{const Schema=z.string();for(const k of Object.keys(val)){if(new RegExp("^x_").test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue({code:'custom'})}}}};for(const k of Object.keys(val)){if(!new RegExp("^x").test(k)){ctx.addIssue({code:'custom'})}}}})`,
+      )
+    })
+
+    it('emits typeless dependentRequired check', () => {
+      expect(
+        emitTypelessRefine({ dependentRequired: { a: ['b', 'c'] } } as Schema, recurse),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){if(!(Object.hasOwn(val,"b")&&Object.hasOwn(val,"c"))){ctx.addIssue({code:'custom'})}}}})`,
+      )
+    })
+
+    it('emits typeless const check (any-type)', () => {
+      expect(emitTypelessRefine({ const: 'fixed' } as Schema, recurse)).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(JSON.stringify("fixed")!==JSON.stringify(val)){ctx.addIssue({code:'custom'})}})`,
+      )
+    })
+
+    it('emits typeless enum check (any-type)', () => {
+      expect(
+        emitTypelessRefine({ enum: ['a', 'b', 'c'] } as Schema, recurse),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{if(!["a","b","c"].some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue({code:'custom'})}})`,
+      )
+    })
+
+    it('emits typeless if/then/else with proper safeParse branching', () => {
+      expect(
+        emitTypelessRefine(
+          {
+            if: { type: 'object', properties: { kind: { const: 'a' } } },
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+            then: {
+              type: 'object',
+              properties: { x: { type: 'string' } },
+              required: ['x'],
+            },
+            else: {
+              type: 'object',
+              properties: { y: { type: 'integer' } },
+              required: ['y'],
+            },
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("a").exactOptional()}).safeParse(val).success;if(ifOk){const Schema=z.object({x:z.string()}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};if(!ifOk){const Schema=z.object({y:z.int()}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}}}})`,
+      )
+    })
   })
 
   describe('makeUnevaluatedProperties', () => {
@@ -417,6 +520,96 @@ describe('helper/zod', () => {
         ),
       ).toBe(
         `.superRefine((o,ctx)=>{const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k],message:"override"})}}})`,
+      )
+    })
+  })
+
+  describe('makeUnevaluatedPropertiesCheck (typeless wrapper)', () => {
+    it('returns empty string when unevaluatedProperties is undefined', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          { properties: { a: { type: 'string' } } } as Schema,
+          recurse,
+        ),
+      ).toBe('')
+    })
+
+    it('returns empty string when unevaluatedProperties is true', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            unevaluatedProperties: true,
+          } as Schema,
+          recurse,
+        ),
+      ).toBe('')
+    })
+
+    it('emits ctx.value-based check for unevaluatedProperties: false with own properties', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            unevaluatedProperties: false,
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}}`,
+      )
+    })
+
+    it('emits sub-schema check when unevaluatedProperties is a schema', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            unevaluatedProperties: { type: 'number' },
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};const Schema=z.number();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,path:[k,...issue.path],input:issue.input})}}}}`,
+      )
+    })
+
+    it('emits combined evaluators with x-unevaluatedProperties-message taking precedence', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            patternProperties: { '^x_': { type: 'string' } },
+            allOf: [{ properties: { b: { type: 'string' } } }],
+            anyOf: [{ type: 'object', properties: { c: { type: 'string' } } }],
+            oneOf: [{ type: 'object', properties: { d: { type: 'string' } } }],
+            if: { type: 'object', properties: { x: { type: 'string' } } },
+            // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+            then: { type: 'object', properties: { y: { type: 'string' } } },
+            else: { type: 'object', properties: { z: { type: 'string' } } },
+            dependentSchemas: { e: { type: 'object', properties: { f: { type: 'string' } } } },
+            unevaluatedProperties: false,
+            'x-unevaluatedProperties-message': 'unevaluated',
+          } as Schema,
+          recurse,
+        ),
+      ).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}`,
+      )
+    })
+
+    it('uses messageOverride when slot is absent', () => {
+      expect(
+        makeUnevaluatedPropertiesCheck(
+          {
+            properties: { a: { type: 'string' } },
+            unevaluatedProperties: false,
+          } as Schema,
+          recurse,
+          'override',
+        ),
+      ).toBe(
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"override"})}}}`,
       )
     })
   })

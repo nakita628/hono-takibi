@@ -417,6 +417,18 @@ describe('zodOpenAPIHonoHandler', () => {
     expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/handlers/__root.ts`)).toBe(true)
   })
+
+  it('exercises the existing-file merge branch on re-generation with test=true', async () => {
+    // First run creates fresh stub handler + test files (null-existing branch).
+    // Second run must hit the merge branches at helper/handler.ts:445 (handler)
+    // and :464 (test) where `existingResult.value !== null`.
+    const first = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, true)
+    expect(first).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.existsSync(`${testDir}/handlers/users.test.ts`)).toBe(true)
+
+    const second = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`, true)
+    expect(second).toStrictEqual({ ok: true, value: undefined })
+  })
 })
 
 /* ─────────────────────────────── mockZodOpenAPIHonoHandler ─────────────────────────── */
@@ -701,5 +713,44 @@ describe('mockZodOpenAPIHonoHandler', () => {
 
     // Content should be stable (no drift on re-generation)
     expect(secondContent).toBe(firstContent)
+  })
+
+  it('exercises the existing-file merge branch on re-generation with test=true', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              200: {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { id: { type: 'integer' } },
+                      required: ['id'],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+
+    // First generation: creates fresh handler + test files (null-existing branch)
+    const first = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, true)
+    expect(first).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.existsSync(`${testDir}/handlers/users.test.ts`)).toBe(true)
+
+    // Second generation: both handler.ts and handler.test.ts now exist on disk,
+    // forcing the merge branch (`existingResult.value !== null`) for handler
+    // (helper/handler.ts:545) and for test (helper/handler.ts:568).
+    const second = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, true)
+    expect(second).toStrictEqual({ ok: true, value: undefined })
   })
 })
