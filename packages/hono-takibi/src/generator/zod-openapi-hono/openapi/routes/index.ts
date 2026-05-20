@@ -2,32 +2,16 @@ import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
 
-/**
- * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
- *
- * @param openapi - OpenAPI specification object
- * @param readonly - Whether to add `as const` to route definitions
- * @returns Generated route code as string
- *
- * @example
- * ```ts
- * routeCode(openapi, false)
- * // → 'export const getUsersRoute = createRoute({...})'
- *
- * routeCode(openapi, true)
- * // → 'export const getUsersRoute = createRoute({...} as const)'
- * ```
- */
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
   const makeRoute = (path: string, method: string, operation: Operation, readonly?: boolean) => {
     const properties = [
-      `method:'${method}'`,
-      `path:'${path}'`,
+      `method:${JSON.stringify(method)}`,
+      `path:${JSON.stringify(path)}`,
       operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
       operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
       operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
       operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-      operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+      operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
       makeRequest(operation.parameters, operation.requestBody, readonly)
         ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
         : undefined,

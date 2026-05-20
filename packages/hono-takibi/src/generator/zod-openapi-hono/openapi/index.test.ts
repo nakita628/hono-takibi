@@ -509,8 +509,8 @@ describe('zodOpenAPIHono', () => {
 
     expect(result).toBe(`import{createRoute,z}from'@hono/zod-openapi'
 
-export const getOrdersRoute=createRoute({method:'get',path:'/orders',operationId:'getOrders',responses:{200:{description:"OK"}}})
+export const getOrdersRoute=createRoute({method:"get",path:"/orders",operationId:"getOrders",responses:{200:{description:"OK"}}})
 
-export const orderStatusChangedPostWebhook={method:'post',path:'/orderStatusChanged',operationId:'onOrderStatusChanged',responses:{200:{description:"Webhook received"}}}`)
+export const orderStatusChangedPostWebhook={method:"post",path:"/orderStatusChanged",operationId:"onOrderStatusChanged",responses:{200:{description:"Webhook received"}}}`)
   })
 })

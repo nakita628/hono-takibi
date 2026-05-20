@@ -6,37 +6,6 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates header component files.
- *
- * @param headers - OpenAPI headers object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param exportType - Whether to export TypeScript types
- * @param components - Schema import configuration for references
- * @param readonly - Whether to add `.readonly()` to Zod schemas
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate headers in single file
- * await headers(
- *   { 'X-Request-Id': { schema: { type: 'string' } } },
- *   'src/headers.ts',
- *   false,
- *   true
- * )
- *
- * // Generate headers in split mode
- * await headers(
- *   { 'X-Request-Id': {...}, 'X-Correlation-Id': {...} },
- *   'src/headers',
- *   true,
- *   true
- * )
- * // Creates: src/headers/xRequestId.ts, src/headers/xCorrelationId.ts, src/headers/index.ts
- * ```
- */
 export async function headers(
   headers: Components['headers'],
   output: string,

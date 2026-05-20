@@ -5,33 +5,6 @@ import { makeExportConst } from '../../helper/code.js'
 import { makeExports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 
-/**
- * Generates link component files.
- *
- * @param links - OpenAPI links object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate links in single file
- * await links(
- *   { GetUserById: { operationId: 'getUser', parameters: { userId: '$response.body#/id' } } },
- *   'src/links.ts',
- *   false
- * )
- *
- * // Generate links in split mode
- * await links(
- *   { GetUserById: {...}, GetPostById: {...} },
- *   'src/links',
- *   true
- * )
- * // Creates: src/links/getUserById.ts, src/links/getPostById.ts, src/links/index.ts
- * ```
- */
 export async function links(
   links: Components['links'],
   output: string,

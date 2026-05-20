@@ -6,34 +6,6 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates requestBody component files.
- *
- * @param requestBodies - OpenAPI requestBodies object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param components - Schema import configuration for references
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate requestBodies in single file
- * await requestBodies(
- *   { CreateUser: { content: { 'application/json': { schema: {...} } } } },
- *   'src/requestBodies.ts',
- *   false
- * )
- *
- * // Generate requestBodies in split mode
- * await requestBodies(
- *   { CreateUser: {...}, UpdateUser: {...} },
- *   'src/requestBodies',
- *   true
- * )
- * // Creates: src/requestBodies/createUser.ts, src/requestBodies/updateUser.ts, src/requestBodies/index.ts
- * ```
- */
 export async function requestBodies(
   requestBodies: Components['requestBodies'],
   output: string,

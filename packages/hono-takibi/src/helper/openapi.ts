@@ -143,7 +143,7 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
   }
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
-    // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
+    // OpenAPI 3.0 §Response Object: description is REQUIRED
     `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
     responses.content
@@ -178,8 +178,7 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
     'deprecated' in headers && headers.deprecated
       ? `deprecated:${JSON.stringify(headers.deprecated)}`
       : undefined,
-    // `example` accepts any JSON value (incl. `0`, `false`, `""`) per OpenAPI
-    // 3.2 §4.8.10.1 — a truthy guard would silently drop those.
+    // OpenAPI 3.2 §4.8.10.1: `example` may be any JSON value (incl. 0/false/"")
     'example' in headers && headers.example !== undefined
       ? `example:${JSON.stringify(headers.example)}`
       : undefined,
@@ -293,17 +292,14 @@ export function makeCallbacks(
       .join(',')
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
-      // Handle $ref to components/callbacks
       if (isRefObject(pathItem)) {
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
-      // Try direct pathItem (pathExpression → {method: operation})
       const pathItemCode = makeMethodsCode(pathItem)
       if (pathItemCode) {
         return `${JSON.stringify(callbackKey)}:{${pathItemCode}}`
       }
-      // Fallback: callbackName → pathExpression → {method: operation}
       const nestedCode = Object.entries(pathItem)
         .map(([pathExpr, inner]) => {
           if (!isRecord(inner)) return undefined
@@ -326,11 +322,7 @@ export function makeContent(
   return Object.freeze(
     Object.entries(content)
       .map(([contentType, mediaOrRef]) => {
-        // RFC 6838 restricted-name-chars (`[A-Za-z0-9!#$&^_+\-./*]`) plus the
-        // RFC 7231 §3.1.1.1 parameter chars (`;`, ` `, `=`) cover `type/subtype`
-        // and `type/subtype; charset=utf-8`. Anything outside this set
-        // (especially `'`, `"`, `\`) falls back to JSON.stringify so the
-        // emitted key still parses as a valid JS object literal.
+        // RFC 6838 + RFC 7231 §3.1.1.1; fall back to JSON.stringify otherwise.
         const key = /^[A-Za-z0-9!#$&^_+\-./*;= ]+$/.test(contentType)
           ? `'${contentType}'`
           : JSON.stringify(contentType)
@@ -458,9 +450,6 @@ export function makeParameters(
       acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
-    // Path/query primitive number/integer get the `coerce` hint so the emitter
-    // produces `z.coerce.X().pipe(z.Y()...)` directly. Boolean/date/object/
-    // array containers still string-replace post-hoc (out of scope here).
     const isStringWire = param.in === 'query' || param.in === 'path'
     const isPrimitiveNumeric =
       isStringWire && (schema.type === 'number' || schema.type === 'integer')

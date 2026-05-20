@@ -3,31 +3,12 @@ import type { $ZodIssueCode } from 'zod/v4/core'
 import { isSchemaObject } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 
-// Build-time check: emitted code uses the literal "custom" as Zod issue code.
-// If Zod ever renames this code, this assignment fails to compile and the
-// generator stops at build time instead of producing silently broken output.
+// Build-time check: emitted code uses Zod's "custom" issue code literally.
 const _CUSTOM_CODE_GUARD: $ZodIssueCode = 'custom'
 void _CUSTOM_CODE_GUARD
 
-/**
- * Hybrid emission for type-less JSON Schema schemas.
- *
- * JSON Schema 2020-12 allows schemas without a `type` field where keywords
- * apply only when the value's actual type matches. e.g.,
- *   { "required": ["x"] }  // applies only when value is a non-array object
- *   { "minimum": 0 }       // applies only when value is a number
- *
- * Zod's type-first design cannot express this directly. We emit
- * `z.unknown().superRefine((val, ctx) => { ... })` with value-type-aware checks
- * so each keyword applies only when relevant — preserving JSON Schema's
- * keyword-independent semantics while staying inside Zod.
- *
- * message strategy is now slot-driven. Hardcoded English defaults have
- * been removed. Each emitted `ctx.addIssue` consults the corresponding
- * `x-<keyword>-message` vendor extension (see openapi/index.ts) and omits the
- * `message` field entirely when the slot is empty, letting Zod's built-in
- * default ('Invalid input', i18n-aware via `z.config({locales})`) flow through.
- */
+// JSON Schema 2020-12 typeless keywords. Emit `z.unknown().superRefine(...)`
+// with value-type-aware checks. Messages are slot-driven (x-<keyword>-message).
 const TYPELESS_KEYWORDS: readonly (keyof Schema)[] = [
   'required',
   'properties',
@@ -71,25 +52,13 @@ export function hasTypelessConstraint(schema: Schema): boolean {
   return TYPELESS_KEYWORDS.some((k) => schema[k] !== undefined)
 }
 
-/**
- * Reads a vendor-extension message slot (e.g. `x-required-message`) from the
- * schema and returns it as a JSON-encoded string literal expression ready to
- * splice into generated code (`'"foo"'`). Returns `undefined` when the slot is
- * not a string — callers must omit the `message` field in that case so Zod's
- * default flows through.
- */
+// Returns the slot value JSON-encoded for splicing into generated code, or
+// undefined when the slot is absent / non-string (callers omit `message`).
 function pickMessage(schema: Schema, slot: keyof Schema): string | undefined {
   const value = schema[slot]
   return typeof value === 'string' ? JSON.stringify(value) : undefined
 }
 
-/**
- * Centralized table mapping short slot keys to the `x-<keyword>-message`
- * vendor extension names used in `Schema`. All emitters must read through
- * `messageFor(schema, '<key>')` instead of typing slot literal strings inline
- * — this gives type-safety (typos surface at compile time) and a single
- * audit point for the slot inventory.
- */
 const MESSAGE_SLOTS = {
   required: 'x-required-message',
   properties: 'x-properties-message',
@@ -133,24 +102,14 @@ const MESSAGE_SLOTS = {
   error: 'x-error-message',
 } as const satisfies Record<string, keyof Schema>
 
-/**
- * Resolves the message string for a slot. Precedence:
- *   1. `x-<keyword>-message` (the slot itself)
- *   2. `x-error-message` (shared fallback, except for `error` / `then` / `else`)
- *   3. Zod default ('Invalid input')
- */
+// Precedence: x-<keyword>-message > x-error-message (except error/then/else) > Zod default.
 function messageFor(schema: Schema, key: keyof typeof MESSAGE_SLOTS): string | undefined {
   const direct = pickMessage(schema, MESSAGE_SLOTS[key])
   if (direct !== undefined || key === 'error' || key === 'then' || key === 'else') return direct
   return pickMessage(schema, MESSAGE_SLOTS.error)
 }
 
-/**
- * Builds an `addIssue` payload literal `{code:'custom'[,path:...][,message:...]}`.
- * `messageExpr` and `pathExpr` are raw code fragments — pass already-encoded
- * expressions like `'"foo"'` (string literal) or `'["k"]'` (path array) or
- * `'"Unknown: "+k'` (runtime concatenation).
- */
+// `messageExpr` / `pathExpr` are raw code fragments (already-encoded literals).
 function issueObj(messageExpr: string | undefined, pathExpr?: string): string {
   const parts = ["code:'custom'"]
   if (pathExpr !== undefined) {
@@ -162,12 +121,6 @@ function issueObj(messageExpr: string | undefined, pathExpr?: string): string {
   return `{${parts.join(',')}}`
 }
 
-// After the `typeof val === 'object' && val !== null && !Array.isArray(val)` guard
-// in emitTypelessRefine, `val` narrows to `object`. `Object.hasOwn(val, k)`,
-// `Object.keys(val)`, `Object.entries(val)` all accept that type. Indexed access
-// (`val[k]`) doesn't — for that we use `Reflect.get(val, k)`, which is valid JS
-// and avoids a TS `as` cast. The `any` it returns is immediately consumed by
-// `Schema.safeParse(unknown)` so it never escapes into a typed variable.
 function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   const ownKeysJson = JSON.stringify(Object.keys(schema.properties ?? {}))
   const patternsJson = JSON.stringify(Object.keys(schema.patternProperties ?? {}))
@@ -176,8 +129,7 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const requiredChecks = Array.isArray(schema.required)
     ? schema.required.map(
         (key) =>
-          // Use Object.hasOwn to honor JSON Schema's "own property" semantics —
-          // `in` would also count inherited keys (__proto__/toString/constructor).
+          // JSON Schema 2020-12 §6.5.3: "own property" — `in` would include inherited.
           `if(!Object.hasOwn(val,${JSON.stringify(key)})){ctx.addIssue(${issueObj(requiredMsg)})}`,
       )
     : []
@@ -231,11 +183,8 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
         })
         .filter((s): s is string => s !== undefined)
     : []
-  /* JSON Schema 2020-12 §10.2.2.4: `dependentSchemas` is an applicator —
-   * sub-schema issues propagate. When `x-dependentSchemas-message` (or its
-   * `x-error-message` fallback) is set, the inner issue's `message` is
-   * replaced while `code` / `path` / `expected` are preserved (override
-   * semantics, aligned with `x-allOf-message` and related applicator slots). */
+  // JSON Schema 2020-12 §10.2.2.4: `dependentSchemas` applicator;
+  // sub-schema issues propagate, message overrides via x-dependentSchemas-message.
   const depSchemasMsg = messageFor(schema, 'dependentSchemas')
   const depSchMsgField =
     depSchemasMsg !== undefined ? `,message:${JSON.stringify(depSchemasMsg)}` : ''
@@ -266,9 +215,6 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
 }
 
 function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
-  // Local type guard — Array.isArray's predicate (arg is any[]) does not
-  // narrow `readonly Schema[]` from a union, so define one inline. Boolean
-  // schemas (JSON Schema 2020-12 §10.3.1.2) are handled at the call site.
   const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
     typeof items === 'object' && !Array.isArray(items)
 
@@ -295,9 +241,7 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
           `if(val.length>${idx}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${idx}]).success){ctx.addIssue(${issueObj(prefixMsg)})}}`,
       )
     : []
-  // items as boolean schemas
-  // items: false → trailing items not allowed (length must be <= prefixCount)
-  // items: true → trailing items unconstrained (no-op)
+  // items:false → trailing items forbidden; items:true → unconstrained.
   const itemsMsg = messageFor(schema, 'items')
   const itemsCheck = (() => {
     const items = schema.items
@@ -317,9 +261,6 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
         const subZod = recurse(schema.contains)
         const minC = schema.minContains ?? 1
         const maxC = schema.maxContains
-        // When `minContains` is explicit, prefer its dedicated slot; otherwise
-        // fall back to the `x-contains-message` slot (the default minContains=1
-        // case represents "contains itself").
         const lowerMsg = schema.minContains !== undefined ? minContainsMsg : containsMsg
         const minCheck = `if(m<${minC}){ctx.addIssue(${issueObj(lowerMsg)})}`
         const maxCheck =
@@ -363,8 +304,7 @@ function makeStringChecks(schema: Schema): readonly string[] {
 }
 
 function makeNumberChecks(schema: Schema): readonly string[] {
-  // Draft 4: exclusiveMinimum: true folds the boundary into the minimum check
-  // (use `<=` instead of `<`); exclusiveMinimum: number adds a separate check.
+  // Draft 4: exclusiveMinimum:true folds into minimum (<=); number adds a separate check.
   const minimumIsExclusive = schema.exclusiveMinimum === true && typeof schema.minimum === 'number'
   const minMsg = messageFor(schema, 'minimum')
   const exMinMsg = messageFor(schema, 'exclusiveMinimum')
@@ -402,7 +342,7 @@ function makeNumberChecks(schema: Schema): readonly string[] {
 }
 
 function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
-  // deepEqual via JSON.stringify (handles primitives + null + arrays + objects)
+  // deepEqual via JSON.stringify
   const enumMsg = messageFor(schema, 'enum')
   const enumCheck = Array.isArray(schema.enum)
     ? `if(!${JSON.stringify(schema.enum)}.some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue(${issueObj(enumMsg)})}`
@@ -412,11 +352,7 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     schema.const !== undefined
       ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){ctx.addIssue(${issueObj(constMsg)})}`
       : undefined
-  // JSON Schema 2020-12 §10.2.1.1: allOf is an applicator — sub-schema
-  // issues propagate. When x-allOf-message (or its x-error-message fallback)
-  // is set, the inner issue's `message` is replaced while `code` / `path`
-  // / `expected` are preserved (override semantics, aligned with
-  // x-dependentSchemas-message and related applicator slots).
+  // JSON Schema 2020-12 §10.2.1.1: allOf applicator; message overrides via x-allOf-message.
   const allOfMsg = messageFor(schema, 'allOf')
   const allOfMsgField = allOfMsg !== undefined ? `,message:${JSON.stringify(allOfMsg)}` : ''
   const allOfChecks = Array.isArray(schema.allOf)
@@ -425,11 +361,7 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
           `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMsgField}})}}}`,
       )
     : []
-  // x-implication-message takes precedence on the anyOf path (alias for the
-  // implication pattern); falls back to x-anyOf-message then x-error-message.
-  // Explicit three-tier resolution avoids messageFor's implicit x-error-message
-  // fallback inside slot resolution, which would otherwise let x-error-message
-  // jump ahead of x-anyOf-message when x-implication-message is absent.
+  // Precedence: x-implication-message > x-anyOf-message > x-error-message.
   const anyOfMsg =
     pickMessage(schema, 'x-implication-message') ??
     pickMessage(schema, 'x-anyOf-message') ??
@@ -496,24 +428,8 @@ export function emitTypelessRefine(schema: Schema, recurse: (s: Schema) => strin
   return `z.unknown().superRefine((val,ctx)=>{${blocks.join(';')}})`
 }
 
-/**
- * Generates the `.refine()` chain for `unevaluatedProperties` per JSON Schema
- * 2020-12 §11.2. Used by both the dedicated `object()` generator and the
- * top-level allOf/anyOf/oneOf dispatch in `zodToOpenAPI` (so a schema like
- * `{ allOf: [...], unevaluatedProperties: false }` correctly enforces it).
- *
- * The generated refine:
- *   1. Pre-populates evaluated keys from own `properties` + `patternProperties`
- *      + `allOf` branches (which always validate)
- *   2. Conditionally adds keys from `anyOf`/`oneOf` branches whose `safeParse`
- *      succeeds at runtime
- *   3. Conditionally adds keys from `then`/`else` based on `if`'s runtime success
- *   4. Adds `dependentSchemas` keys when the dependency key is present in data
- *
- * Message precedence : `x-unevaluatedProperties-message` > caller-provided
- * `messageOverride` (typically `x-error-message`) > Zod default. When neither
- * slot is set the emitted `ctx.addIssue` omits the `message` field entirely.
- */
+// `.refine()` for `unevaluatedProperties` per JSON Schema 2020-12 §11.2.
+// Precedence: x-unevaluatedProperties-message > messageOverride > Zod default.
 function ownPropsStmt(sub: Schema): string | undefined {
   const keys = sub.properties ? Object.keys(sub.properties) : []
   return keys.length > 0 ? `for(const k of ${JSON.stringify(keys)}){e.add(k)}` : undefined
@@ -631,20 +547,9 @@ export function makeUnevaluatedProperties(
   return `.superRefine((o,ctx)=>{${[...evalStmts, finalStmt].join(';')}})`
 }
 
-/**
- * Same as `makeUnevaluatedProperties` but returns the body of a
- * `z.unknown().check((ctx)=>{...})` callback instead of `.superRefine(...)`.
- *
- * Needed when the composed schema is a `ZodIntersection` (allOf with multiple
- * `z.object(...)` members) — Zod's object strip mode removes excess keys before
- * `superRefine` sees them, so the unevaluated check from inside the composed
- * schema never observes the raw input. By calling this from a `z.unknown()`
- * wrapper we operate on `ctx.value` (the request payload), preserving the
- * keys needed for §11.2 semantics.
- *
- * Returns `''` when `unevaluatedProperties` is absent or `true` — the caller
- * can detect "no check needed" by checking the return for emptiness.
- */
+// Variant for `z.unknown().check((ctx)=>{...})` (operates on `ctx.value`).
+// Needed for `ZodIntersection` where strip mode removes excess keys before
+// `superRefine` sees them.
 export function makeUnevaluatedPropertiesCheck(
   schema: Schema,
   recurse: (s: Schema) => string,

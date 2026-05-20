@@ -16,28 +16,16 @@ export function zodToOpenAPI(
     headers?: Header
   },
   options?: {
-    /**
-     * Path/query/header parameters arrive as strings on the wire. When true,
-     * primitive number/integer emitters emit `z.coerce.X().pipe(z.Y()...)`
-     * (or `z.coerce.bigint()` for `format: bigint`) directly. Boolean uses
-     * `x-stringbool` for explicit opt-in; wire-implicit boolean coercion is
-     * still handled by string-replace at the caller (out of scope). Not
-     * propagated into object/array subschemas.
-     */
+    /** Emit `z.coerce.X().pipe(z.Y()...)` for path/query/header primitives. */
     coerce?: boolean
     /** Append `.readonly()` to array/object schemas. */
     readonly?: boolean
-    /**
-     * @internal Set by `object` emitter on non-required properties; consumed
-     * by `wrap` for `.exactOptional()` and stripped before recursing into
-     * subschemas. Do not pass from external callers.
-     */
+    /** @internal Consumed by `wrap` for `.exactOptional()`; stripped before recursing. */
     isOptional?: boolean
   },
 ): string {
   const readonly = options?.readonly
-  // `isOptional` is consumed by `wrap` at this level only; strip before
-  // recursing so siblings/children don't inherit the parent's optional-ness.
+  // `isOptional` is consumed at this level only.
   const childOptions =
     options?.isOptional === undefined
       ? options
@@ -45,15 +33,10 @@ export function zodToOpenAPI(
           const { isOptional: _, ...rest } = options
           return rest
         })()
-  // Local type guard — Array.isArray's predicate (arg is any[]) does not
-  // narrow `readonly Schema[]` from a union, so define one inline. Boolean
-  // schemas (JSON Schema 2020-12 §10.3.1.2) are screened out separately.
   const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
     typeof items === 'object' && !Array.isArray(items)
 
-  // Boolean schemas (JSON Schema 2020-12 §4.3.2):
-  //   true  ↔ matches any value (z.any())
-  //   false ↔ matches no value  (z.never())
+  // JSON Schema 2020-12 §4.3.2: boolean schemas (true→z.any(), false→z.never()).
   if (schema === undefined) throw new Error('Schema is undefined')
   if (schema === true) return wrap('z.any()', {}, meta, options)
   if (schema === false) return wrap('z.never()', {}, meta, options)
@@ -91,15 +74,11 @@ export function zodToOpenAPI(
       Object.keys(schema).every((k) => k === 'allOf' || k === 'nullable' || k === 'type')
     if (isBareRef) return wrap(schemas[0], { ...schema, nullable }, meta, options)
     const z = schemas.reduce((acc, s, i) => (i === 0 ? s : `${acc}.and(${s})`))
-    //   x-allOf-message > x-error-message > undefined (Zod default per-issue)
+    // Precedence: x-allOf-message > x-error-message > Zod default.
     const allOfMessage = schema['x-allOf-message'] ?? schema['x-error-message']
-    // JSON Schema 2020-12 §11.2: `unevaluatedProperties` operates on the keys
-    // remaining after `allOf`/`anyOf`/`oneOf`/`if-then-else`/`dependentSchemas`
-    // evaluation. ZodIntersection (from `.and(...)`) strips excess keys before
-    // any inline refine sees them, so the check has to run on the raw input.
-    // `makeUnevaluatedPropertiesCheck` returns a `(ctx)=>{...}` body that reads
-    // from `ctx.value` directly; we splice it into the same `z.unknown().check`
-    // wrapper used for `x-allOf-message` so a single pipe handles both.
+    // JSON Schema 2020-12 §11.2: unevaluatedProperties runs on the raw input;
+    // ZodIntersection strips excess keys before inline refines see them, so we
+    // splice the check into a `z.unknown().check` wrapper that reads ctx.value.
     const unevalCheck = makeUnevaluatedPropertiesCheck(
       { ...schema, allOf: effectiveAllOf },
       (s) => zodToOpenAPI(s, undefined, childOptions),
@@ -110,14 +89,11 @@ export function zodToOpenAPI(
         if (!allOfMessage) {
           return 'const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,input:issue.input})}}'
         }
-        // Per-issue.code dispatch is required: ctx.issues expects a discriminated
-        // union where `code` narrows the issue shape. A generic spread loses the
-        // discriminant and triggers TS errors at the call site.
+        // Per-issue.code dispatch required: ctx.issues is a discriminated union.
         const isArrow = /^\s*\(.*?\)\s*=>/.test(allOfMessage)
         const msgExpr = isArrow ? `(${allOfMessage})(issue)` : JSON.stringify(allOfMessage)
-        // Issue code order follows Zod v4's official source declaration order
-        // (zod/v4/core/errors.d.ts). `satisfies` ensures these literals stay in
-        // sync with Zod's `$ZodIssueCode` union — a Zod major rename breaks the
+        // Issue code order from Zod v4 source (zod/v4/core/errors.d.ts).
+        // `satisfies` couples to `$ZodIssueCode` so renames break compile here.
         // build here instead of silently miscompiling user output.
         const codes = [
           'invalid_type',
@@ -151,18 +127,13 @@ export function zodToOpenAPI(
     const anyOfSchemas = schema.anyOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
-    // x-implication-message is a semantic alias for the anyOf+not+required
-    // implication pattern (A → B). It takes precedence over x-anyOf-message
-    // on the anyOf code path, with x-error-message as the final fallback.
+    // Precedence: x-implication-message > x-anyOf-message > x-error-message.
     const anyOfMessage =
       schema['x-implication-message'] ?? schema['x-anyOf-message'] ?? schema['x-error-message']
     const anyOfErrorArg = anyOfMessage ? `,${error(anyOfMessage)}` : ''
     const unionZ = `z.union([${anyOfSchemas.join(',')}]${anyOfErrorArg})`
-    // JSON Schema 2020-12 §10: keywords combine via AND. When `properties` or
-    // `required` accompanies `anyOf`, the union (OR) must be intersected with
-    // the type-shape constraint, otherwise the latter is silently dropped
-    // before generation. Aligned with the `effectiveAllOf` strategy in the
-    // allOf branch above.
+    // JSON Schema 2020-12 §10: keywords combine via AND. Intersect with type-shape
+    // when `properties`/`required` accompany `anyOf` so they aren't dropped.
     const hasShape =
       (schema.properties !== undefined && Object.keys(schema.properties).length > 0) ||
       (Array.isArray(schema.required) && schema.required.length > 0)
@@ -179,8 +150,7 @@ export function zodToOpenAPI(
   }
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta, options)
-    // ZodIntersection (from allOf) is not compatible with discriminatedUnion, so
-    // fall back to xor when oneOf contains a $ref or allOf member.
+    // ZodIntersection (allOf) incompatible with discriminatedUnion → fall back to xor.
     const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
@@ -220,8 +190,7 @@ export function zodToOpenAPI(
       const predicate = `(val) => val !== ${value}`
       return wrap(`z.any().refine(${predicate}${notErrorArg})`, schema, meta, options)
     }
-    // Use predicate-only when sub-schema is JUST a type check
-    // (no other constraints). Otherwise build full Zod schema and use safeParse.
+    // Pure type-check → predicate; otherwise full Zod safeParse.
     const not = schema.not
     if (typeof not === 'object' && not !== null) {
       const onlyKeys = Object.keys(not)
@@ -274,9 +243,7 @@ export function zodToOpenAPI(
     const constMessage = schema['x-const-message'] ?? schema['x-error-message']
     const errorMessage = constMessage
     const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
-    // For non-primitive const (objects/arrays), route through
-    // typeless-refine for deep-equal validation. z.custom<>() doesn't validate
-    // the actual value, just the type.
+    // Non-primitive const → typeless-refine (deep-equal); z.custom<>() only checks type.
     const isPrimitive =
       value === null ||
       typeof value === 'string' ||
@@ -293,10 +260,7 @@ export function zodToOpenAPI(
     const z = `z.literal(${JSON.stringify(value)}${errorArg})`
     return wrap(z, schema, meta, options)
   }
-  // enum is keyword-independent. For type-less enum schemas
-  // containing non-primitive (array/object) values, route through typeless-refine
-  // for deep-equal comparison. Primitive-only enums keep using _enum to preserve
-  // type inference AND x-error-message support.
+  // Typeless enum with non-primitive values → typeless-refine (deep-equal).
   if (schema.enum !== undefined && schema.type === undefined) {
     const hasNonPrimitive = schema.enum.some((e) => typeof e === 'object' && e !== null)
     if (hasNonPrimitive) {
@@ -309,10 +273,7 @@ export function zodToOpenAPI(
     }
   }
   if (schema.enum !== undefined) return wrap(_enum(schema), schema, meta, options)
-  // properties without explicit `type: object` is spec-wise
-  // applied only when value IS an object. Route through typeless-refine so
-  // non-object values pass silently (per JSON Schema 2020-12 §6.5).
-  // Existing unit tests are updated to match new spec-compliant output.
+  // JSON Schema 2020-12 §6.5: `properties` w/o `type:object` only applies when value IS object.
   if (
     schema.properties !== undefined &&
     schema.type === undefined &&
@@ -357,10 +318,7 @@ export function zodToOpenAPI(
             ...(opts.case !== undefined ? { case: opts.case } : {}),
           }
         : null
-      /* Only serialize when there is at least one key to emit. An empty
-       * `optsObj` would otherwise produce `'{}'`, and the subsequent merge
-       * (`optsStr.slice(0,-1)` + `,` + `arg.slice(1)`) would inject a leading
-       * comma — `z.stringbool({,error:"…"})` — breaking the generated TS. */
+      // Skip serialization of empty `{}` — would corrupt the subsequent comma-merge.
       const optsStr = optsObj && Object.keys(optsObj).length > 0 ? JSON.stringify(optsObj) : ''
       const combinedArg =
         optsStr && arg ? `${optsStr.slice(0, -1)},${arg.slice(1)}` : optsStr || arg
@@ -375,14 +333,8 @@ export function zodToOpenAPI(
     const readonlyMod = readonly ? '.readonly()' : ''
     const arrayErrorMessage = schema['x-error-message']
     const arrayErrorArg = arrayErrorMessage ? `,${error(arrayErrorMessage)}` : ''
-    // so messages can differ per failure mode (silent-bug fix):
-    //   - contains (no min/max): "at least 1 matching element" → x-contains-message
-    //   - minContains explicit: "count below lower bound" → x-minContains-message
-    //   - maxContains explicit: "count above upper bound" → x-maxContains-message
-    // Falls back to x-contains-message → x-error-message for each.
-    // minContains: 0 makes the lower-bound refine vacuous and is skipped.
-    // path stays `[]` since the constraint is array-cardinality, not
-    // per-element; consumers wanting per-element issues should use items.
+    // Per-mode messages: x-contains/min/maxContains-message; fall back to x-error-message.
+    // minContains:0 makes lower-bound vacuous; path stays [] (cardinality, not element).
     const containsChain = (() => {
       const c = schema.contains
       if (!c) return ''
@@ -390,12 +342,11 @@ export function zodToOpenAPI(
       const minC = schema.minContains
       const maxC = schema.maxContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
-      // contains alone (no min/max): "at least 1 matches"
       if (minC === undefined && maxC === undefined) {
         const msgPart = fallback ? `,message:${JSON.stringify(fallback)}` : ''
         return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${msgPart}})}})`
       }
-      // minContains refine (default 1 per spec); skipped when explicit 0.
+      // minContains defaults to 1; explicit 0 skips the lower-bound check.
       const effectiveMin = minC ?? 1
       const minMsg = schema['x-minContains-message'] ?? fallback
       const minStmt =
@@ -417,14 +368,8 @@ export function zodToOpenAPI(
       if (stmts.length === 0) return ''
       return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;${stmts.join(';')}})`
     })()
-    // per-slot message overrides for tuple-shaped
-    // arrays. Each slot, when set, only replaces the inner issue's `message`
-    // field — `path`, `code`, `expected` etc. are preserved verbatim (mirrors
-    // `x-patternProperties-message` contract). length-cap forms (items: false /
-    // unevaluatedItems: false) use a custom `code: 'custom'` issue, so the
-    // slot wins over `x-error-message` and over the hardcoded default.
-    // Priority for length caps: x-<slot>-message > x-error-message > default.
-    //
+    // Per-slot message overrides preserve inner issue path/code/expected.
+    // Length-cap forms (items:false / unevaluatedItems:false) use custom code.
     const prefixItemsMessage = schema['x-prefixItems-message'] ?? arrayErrorMessage
     const prefixItemsMessageOverride = prefixItemsMessage
       ? `,message:${JSON.stringify(prefixItemsMessage)}`
@@ -435,18 +380,11 @@ export function zodToOpenAPI(
     const unevalItemsMessageOverride = unevalItemsMessage
       ? `,message:${JSON.stringify(unevalItemsMessage)}`
       : ''
-    // schema (false → no extras allowed). Calculates the prefixItems length so
-    // the refine knows where the "evaluated by prefix" boundary is.
-    // sub-issues (path/code/message) survive instead of collapsing into a
-    // single `custom` issue at the parent path. The length-cap form (false)
-    // stays as a refine — no inner issues to propagate.
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
       const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
       if (ui === false) {
-        // in the JSON pointer (RFC 9457). Priority for the cap message:
-        // x-unevaluatedItems-message > x-error-message > Zod default.
         const slot = unevalItemsMessage ?? arrayErrorMessage
         const msgPart = slot ? `,message:${JSON.stringify(slot)}` : ''
         return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${msgPart}})}})`
@@ -489,29 +427,10 @@ export function zodToOpenAPI(
       const prefixCodes = schema.prefixItems.map((item) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, undefined, childOptions),
       )
-      // prefixItems is encoded as
-      // `z.array(z.unknown()).superRefine(...)` — NOT `z.tuple([...], rest)`.
-      //
-      // Why not z.tuple:
-      //   1. JSON Schema 2020-12 §10.3.1.1 says prefixItems "does not constrain
-      //      the length of the array". The official test suite asserts that
-      //      `[]` and `["a"]` are VALID against a 2-element prefixItems schema
-      //      (incomplete-prefix arrays must pass).
-      //   2. Zod's `z.tuple([A, B], Rest)` REQUIRES at least 2 elements (fixed
-      //      prefix length is enforced as a minimum). `[]` and `["a"]` would
-      //      both fail with "expected ... received undefined".
-      //
-      // Precedence (JSON Schema 2020-12 §11.2): `unevaluatedItems` is stricter
-      // than `items` because it applies only to items not already "evaluated"
-      // by prefixItems/items annotations. When both are present we honour
-      // `unevaluatedItems` and ignore `items`.
-      //
-      //   unevaluatedItems: <Schema> → validate trailing items against schema
-      //   unevaluatedItems: false    → trailing items not allowed (length cap)
-      //   unevaluatedItems: undefined / true:
-      //     items: <Schema>          → validate trailing items against schema
-      //     items: false             → trailing items not allowed (length cap)
-      //     items: absent / true     → trailing items allowed, untyped
+      // JSON Schema 2020-12 §10.3.1.1 + §11.2: prefixItems does NOT constrain
+      // length (incomplete prefixes pass); z.tuple requires fixed length so
+      // we use z.array(z.unknown()).superRefine(...) instead. `unevaluatedItems`
+      // wins over `items` per §11.2 when both are present.
       const ui = schema.unevaluatedItems
       const uiIsBool = typeof ui === 'boolean'
       const uiSchema: Schema | undefined =
@@ -531,12 +450,7 @@ export function zodToOpenAPI(
           : zodToOpenAPI(restSchema, undefined, childOptions)
         : ''
       const lengthCapped = ui === false || (ui === undefined && itemsField === false)
-      // the rest/cap message slot tracks the
-      // *source* keyword. When `unevaluatedItems` decides the trailing-item
-      // behavior (precedence per JSON Schema 2020-12 §11.2), use
-      // `x-unevaluatedItems-message`; when `items` decides it, use
-      // `x-items-message`. This mirrors the keyword that the user actually
-      // wrote in the OpenAPI document.
+      // Message slot tracks which keyword actually decided the cap/rest.
       const restFromUneval = uiSchema !== undefined
       const restMessageOverride = restFromUneval ? unevalItemsMessageOverride : itemsMessageOverride
       const capFromUneval = ui === false
@@ -545,10 +459,6 @@ export function zodToOpenAPI(
       const restCheck = restCode
         ? `;const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
         : ''
-      // appears in the JSON pointer (RFC 9457). Priority for the cap message:
-      // x-<source>-message > x-error-message > Zod default
-      // (source = unevaluatedItems if cap came from unevaluatedItems: false,
-      //  else items).
       const capSlot = capSlotMessage ?? arrayErrorMessage
       const capMsgPart = capSlot ? `,message:${JSON.stringify(capSlot)}` : ''
       const capCheck = lengthCapped
@@ -558,9 +468,7 @@ export function zodToOpenAPI(
         ? `z.array(z.unknown()${arrayErrorArg})`
         : 'z.array(z.unknown())'
       const z = `${arrayCtor}.superRefine((arr,ctx)=>{${prefixCheck}${restCheck}${capCheck}})`
-      // Apply length / unique / contains AFTER the prefix superRefine so they
-      // observe the validated tuple. unevaluatedItems is already handled inline
-      // (restCheck/capCheck) so we do not append unevaluatedItemsChain here.
+      // length/unique/contains AFTER prefix superRefine; unevaluatedItems already inline.
       return wrap(
         `${z}${lengthChain}${uniqueChain}${containsChain}${readonlyMod}`,
         schema,
@@ -568,12 +476,9 @@ export function zodToOpenAPI(
         options,
       )
     }
-    // items: false (no prefixItems) → only empty array valid
     if (schema.items === false) {
       return wrap(`z.array(z.any()${arrayErrorArg}).length(0)${readonlyMod}`, schema, meta, options)
     }
-    // items can be Schema or readonly Schema[] (Draft-04 tuple validation).
-    // items: true → any items allowed (same as no items spec).
     const itemSchema: Schema | undefined =
       schema.items === true
         ? undefined

@@ -11,34 +11,6 @@ import {
   uncapitalize,
 } from '../../utils/index.js'
 
-/**
- * Generates callback component files with $ref resolution.
- *
- * @param callbacks - OpenAPI callbacks object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param components - Schema import configuration for references
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate callbacks in single file
- * await callbacks(
- *   { onPaymentComplete: { '{$request.body#/callbackUrl}': {...} } },
- *   'src/callbacks.ts',
- *   false
- * )
- *
- * // Generate callbacks in split mode
- * await callbacks(
- *   { onPaymentComplete: {...}, onOrderUpdate: {...} },
- *   'src/callbacks',
- *   true
- * )
- * // Creates: src/callbacks/onPaymentComplete.ts, src/callbacks/onOrderUpdate.ts, src/callbacks/index.ts
- * ```
- */
 export async function callbacks(
   callbacks: Components['callbacks'],
   output: string,

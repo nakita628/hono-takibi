@@ -6,39 +6,6 @@ import { analyzeCircularSchemas, ast, makeSplitSchemaFile } from '../../helper/i
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, renderNamedImport, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates schema component files.
- *
- * @param schemas - OpenAPI schemas object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param exportType - Whether to export TypeScript types
- * @param readonly - Whether to add `.readonly()` modifier to schemas
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate schemas in single file
- * await schemas(
- *   { User: { type: 'object', ... } },
- *   'src/schemas.ts',
- *   false,
- *   true,
- *   false
- * )
- *
- * // Generate schemas in split mode with readonly
- * await schemas(
- *   { User: {...}, Post: {...} },
- *   'src/schemas',
- *   true,
- *   true,
- *   true
- * )
- * // Creates: src/schemas/user.ts, src/schemas/post.ts, src/schemas/index.ts
- * // Each schema has .readonly() modifier
- * ```
- */
 export async function schemas(
   schemas: Components['schemas'],
   output: string,

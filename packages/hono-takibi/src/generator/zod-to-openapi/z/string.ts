@@ -102,23 +102,6 @@ function makeFormatOptions(schema: Schema): readonly string[] {
   }
 }
 
-/**
- * Builds a Zod string schema from an OpenAPI string schema, applying format,
- * pattern, length constraints, vendor extensions for messages
- * (`x-error-message` / `x-pattern-message` / `x-length-message` /
- * `x-minLength-message` / `x-maxLength-message`), P1 transform extensions
- * (`x-coerce`, `x-trim`, `x-toLowerCase`, `x-toUpperCase`, `x-normalize`),
- * and P1 format-option extensions (`x-emailPattern`, `x-uuidVersion`,
- * `x-urlHostname` / `x-urlProtocol` / `x-urlNormalize`, `x-isoPrecision` /
- * `x-isoOffset` / `x-isoLocal`, `x-macDelimiter`, `x-jwtAlg`,
- * `x-hashAlg` / `x-hashEnc`).
- *
- * Pre-validation transforms (`x-trim` / `x-toLowerCase` / `x-toUpperCase` /
- * `x-normalize`) wrap a validation format using
- * `z.string().<transforms>.pipe(z.<format>(...))` so user input is normalized
- * before validation runs. This makes canonical email normalization
- * (`{ format: email, x-trim: true, x-toLowerCase: true }`) work as expected.
- */
 export function string(
   schema: Schema,
   options?: {

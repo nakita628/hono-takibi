@@ -37,7 +37,7 @@ describe('routeCode', () => {
         },
       },
     })
-    const expected = `export const getHonoRoute=createRoute({method:'get',path:'/hono',tags:["Hono"],summary:"Hono",description:"Hono",responses:{200:{description:"OK",content:{'application/json':{schema:z.object({message:z.string().openapi({"example":"Hono"})}).openapi({"required":["message"]})}}}}})`
+    const expected = `export const getHonoRoute=createRoute({method:"get",path:"/hono",tags:["Hono"],summary:"Hono",description:"Hono",responses:{200:{description:"OK",content:{'application/json':{schema:z.object({message:z.string().openapi({"example":"Hono"})}).openapi({"required":["message"]})}}}}})`
     expect(result).toBe(expected)
   })
 
@@ -69,9 +69,9 @@ describe('routeCode', () => {
         },
       },
     })
-    const expected = `export const getUsersIdRoute=createRoute({method:'get',path:'/users/{id}',operationId:'getUser',responses:{200:{description:"OK"}}})
+    const expected = `export const getUsersIdRoute=createRoute({method:"get",path:"/users/{id}",operationId:"getUser",responses:{200:{description:"OK"}}})
 
-export const putUsersIdRoute=createRoute({method:'put',path:'/users/{id}',operationId:'updateUser',responses:{200:{description:"OK"}}})`
+export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operationId:"updateUser",responses:{200:{description:"OK"}}})`
     expect(result).toBe(expected)
   })
 
@@ -99,7 +99,28 @@ export const putUsersIdRoute=createRoute({method:'put',path:'/users/{id}',operat
         },
       },
     })
-    const expected = `export const getUsersIdRoute=createRoute({method:'get',path:'/users/{id}',operationId:'getUser',responses:{200:{description:"OK"}}})`
+    const expected = `export const getUsersIdRoute=createRoute({method:"get",path:"/users/{id}",operationId:"getUser",responses:{200:{description:"OK"}}})`
     expect(result).toBe(expected)
+  })
+
+  it.concurrent('drops x-* vendor extensions from the emitted route object', () => {
+    const result = routeCode({
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'gx',
+            'x-codeSamples': [{ lang: 'curl', source: 'curl example.com' }],
+            'x-internal': true,
+            'x-rate-limit': '100/min',
+            responses: { '200': { description: 'OK' } },
+          } as OpenAPI['paths'][string]['get'],
+        },
+      },
+    } as OpenAPI)
+    expect(result).toBe(
+      `export const getXRoute=createRoute({method:"get",path:"/x",operationId:"gx",responses:{200:{description:"OK"}}})`,
+    )
   })
 })

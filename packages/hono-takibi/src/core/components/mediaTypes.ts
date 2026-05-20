@@ -12,33 +12,6 @@ import {
   zodToOpenAPISchema,
 } from '../../utils/index.js'
 
-/**
- * Generates media type component files.
- *
- * @param mediaTypes - OpenAPI mediaTypes object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param readonly - Whether to add `.readonly()` modifier to schemas
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate mediaTypes in single file
- * await mediaTypes(
- *   { JsonMedia: { schema: { type: 'object', ... } } },
- *   'src/mediaTypes.ts',
- *   false
- * )
- *
- * // Generate mediaTypes in split mode
- * await mediaTypes(
- *   { JsonMedia: {...}, XmlMedia: {...} },
- *   'src/mediaTypes',
- *   true
- * )
- * // Creates: src/mediaTypes/jsonMedia.ts, src/mediaTypes/xmlMedia.ts, src/mediaTypes/index.ts
- * ```
- */
 export async function mediaTypes(
   mediaTypes: Components['mediaTypes'],
   output: string,

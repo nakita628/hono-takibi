@@ -5,33 +5,6 @@ import { makeExportConst } from '../../helper/code.js'
 import { makeExports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 
-/**
- * Generates securityScheme component files.
- *
- * @param securitySchemes - OpenAPI securitySchemes object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate securitySchemes in single file
- * await securitySchemes(
- *   { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
- *   'src/securitySchemes.ts',
- *   false
- * )
- *
- * // Generate securitySchemes in split mode
- * await securitySchemes(
- *   { bearerAuth: {...}, apiKey: {...} },
- *   'src/securitySchemes',
- *   true
- * )
- * // Creates: src/securitySchemes/bearerAuth.ts, src/securitySchemes/apiKey.ts, src/securitySchemes/index.ts
- * ```
- */
 export async function securitySchemes(
   securitySchemes: Components['securitySchemes'],
   output: string,

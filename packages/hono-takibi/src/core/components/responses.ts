@@ -6,34 +6,6 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates response component files.
- *
- * @param responses - OpenAPI responses object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param components - Schema import configuration for references
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate responses in single file
- * await responses(
- *   { NotFound: { description: 'Not found', content: {...} } },
- *   'src/responses.ts',
- *   false
- * )
- *
- * // Generate responses in split mode
- * await responses(
- *   { NotFound: {...}, Unauthorized: {...} },
- *   'src/responses',
- *   true
- * )
- * // Creates: src/responses/notFound.ts, src/responses/unauthorized.ts, src/responses/index.ts
- * ```
- */
 export async function responses(
   responses: Components['responses'],
   output: string,

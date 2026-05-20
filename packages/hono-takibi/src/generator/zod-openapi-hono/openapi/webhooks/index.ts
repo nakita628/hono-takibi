@@ -2,22 +2,6 @@ import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../
 import type { OpenAPI, Operation, Parameter } from '../../../../openapi/index.js'
 import { toIdentifierPascalCase } from '../../../../utils/index.js'
 
-/**
- * Generates TypeScript code for all webhooks from OpenAPI specification.
- *
- * @param openapi - OpenAPI specification object
- * @param readonly - Whether to add `as const` to webhook definitions
- * @returns Generated webhook code as string
- *
- * @example
- * ```ts
- * webhookCode(openapi, false)
- * // → 'export const orderStatusPostWebhook={...}'
- *
- * webhookCode(openapi, true)
- * // → 'export const orderStatusPostWebhook={...} as const'
- * ```
- */
 export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
   const makeWebHook = (name: string, method: string, operation: Operation, readonly?: boolean) => {
     const webhookName = (name: string, method: string) => {
@@ -26,20 +10,22 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
       return `${camelName}${method.charAt(0).toUpperCase()}${method.slice(1)}Webhook`
     }
     const properties = [
-      `method:'${method}'`,
-      `path:'/${name}'`,
+      `method:${JSON.stringify(method)}`,
+      `path:${JSON.stringify(`/${name}`)}`,
       operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
       operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
       operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
       operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-      operation.operationId ? `operationId:'${operation.operationId}'` : undefined,
+      operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
       makeRequest(operation.parameters, operation.requestBody, readonly)
         ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
         : undefined,
       operation.responses
         ? `responses:${makeOperationResponses(operation.responses, readonly)}`
         : undefined,
-      operation.callbacks ? makeCallbacks(operation.callbacks, readonly) : undefined,
+      operation.callbacks
+        ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
+        : undefined,
       operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
       operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
       operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
@@ -68,15 +54,16 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
             .map((method) => {
               const operation = pathItem[method]
               if (!operation) return undefined
-              const params = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
-                .map(resolve)
-                .filter((p) => p !== undefined)
-              return makeWebHook(
-                name,
-                method,
-                params.length > 0 ? { ...operation, parameters: params } : operation,
-                readonly,
-              )
+              const sourceParams = [
+                ...(pathItem.parameters ?? []),
+                ...(operation.parameters ?? []),
+              ]
+              const params = sourceParams.map(resolve).filter((p) => p !== undefined)
+              // Always pass the resolved set; falling back to unresolved originals
+              // emits broken `request:{undefined:z.object({undefined:...})}`.
+              const effectiveOperation =
+                sourceParams.length > 0 ? { ...operation, parameters: params } : operation
+              return makeWebHook(name, method, effectiveOperation, readonly)
             })
             .filter((v) => v !== undefined)
         : [],

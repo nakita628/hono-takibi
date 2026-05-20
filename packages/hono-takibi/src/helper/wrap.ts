@@ -2,15 +2,6 @@ import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
-/**
- * Wraps a Zod schema string with `.default()`, `.nullable()`, and `.openapi({...})` as needed.
- *
- * @example
- * ```ts
- * wrap('z.string()', { default: 'hello', nullable: true })
- * // → 'z.string().default("hello").nullable()'
- * ```
- */
 export function wrap(
   zod: string,
   schema: Schema,
@@ -19,19 +10,11 @@ export function wrap(
     headers?: Header
   },
   options?: {
-    /**
-     * @internal Set by `object` emitter on non-required properties; triggers
-     * `.exactOptional()`. Do not pass from external callers.
-     */
+    /** @internal Triggers `.exactOptional()`; do not pass from external callers. */
     isOptional?: boolean
   },
 ) {
-  /* Properties truly not supported. JSON Schema 2020-12 Core meta
-   * keywords ($schema/$id/$anchor/$dynamicAnchor/$dynamicRef/$vocabulary) now
-   * pass through to .openapi({...}) for full spec coverage. Only legacy
-   * pre-2019-09 keywords ($recursiveRef/$recursiveAnchor — replaced by
-   * $dynamicRef/$dynamicAnchor in 2020-12) and non-standard underscore
-   * variants remain dropped. */
+  // JSON Schema 2020-12: pre-2019-09 legacy keys + non-standard underscore variants.
   const unsupportedProps = new Set([
     '$recursiveRef',
     '$recursiveAnchor',
@@ -39,10 +22,8 @@ export function wrap(
     'min_items',
     'max_items',
   ])
-  /* Type guard for objects with 'not' property */
   const hasNotProperty = (v: unknown): v is { not: unknown } =>
     typeof v === 'object' && v !== null && 'not' in v
-  /* Type guard for makeExamples parameter (record of non-array objects) */
   const isExamplesInput = (
     v: unknown,
   ): v is {
@@ -90,15 +71,14 @@ export function wrap(
       if (unsupportedProps.has(key)) {
         continue
       }
-      /* Filter out items if boolean or array (OpenAPI expects SchemaObject | ReferenceObject) */
+      // OpenAPI expects SchemaObject | ReferenceObject for items
       if (key === 'items' && (typeof value === 'boolean' || Array.isArray(value))) {
         continue
       }
-      /* Filter out not.not (nested not with boolean) */
       if (key === 'not' && hasNotProperty(value) && typeof value.not === 'boolean') {
         continue
       }
-      /* Convert non-string values in required array to strings (YAML may parse null/true/false as literals) */
+      // YAML may parse null/true/false as literals in `required`; coerce to string
       if (key === 'required' && Array.isArray(value)) {
         filtered[key] = value.map((v) => (typeof v === 'string' ? v : String(v)))
         continue
@@ -109,10 +89,8 @@ export function wrap(
   }
 
   const formatLiteral = (v: unknown): string => {
-    /* undefined would serialize to the JS source token `undefined` via
-     * JSON.stringify (which returns the string 'undefined' for input
-     * undefined), polluting generated `.prefault(...)` / `.catch(...)` calls.
-     * Emit the literal `undefined` token explicitly for unambiguous reading. */
+    // JSON.stringify(undefined) returns the string "undefined" — emit the
+    // JS token explicitly so `.prefault(undefined)` reads unambiguously.
     if (v === undefined) {
       return 'undefined'
     }
@@ -139,40 +117,25 @@ export function wrap(
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
-  /* Apply .nullable() before .default() so that .default(null) is valid on nullable types */
+  // `.nullable()` must precede `.default()` so `.default(null)` validates.
   const n = isNullable ? `${zod}.nullable()` : zod
-  /* why schema.default !== undefined: because schema.default === 0 is falsy */
+  // `!== undefined` (not truthy): `default: 0` is valid.
   const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
-  /* P2: .prefault(value) applies a default value to the parse INPUT before
-   * validation runs (different from .default which fills missing output). */
   const pf =
     schema['x-prefault'] !== undefined ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})` : d
-  /* P2: .catch(fallback) returns the fallback when validation fails. */
   const c =
     schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
-  /* P2: .readonly() applies Object.freeze() to the parsed output (distinct
-   * from JSON Schema's readOnly which is a serialization hint). */
   const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
-  /* Custom validation: append `.refine(...)` / `.superRefine(...)` chain
-   * fragment strings verbatim. */
   const refineChain = `${fr}${schema['x-refine'] ?? ''}`
   const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
-  /* Replacing extensions: each carries a complete Zod expression string and
-   * replaces the base schema verbatim. Only one can take effect per schema.
-   * Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
-   * For type:'string', the string emitter consumes x-codec early when paired
-   * with hash format or x-coerce; in those cases the chain here sees a plain
-   * base and the codec slot is already absent. For other types, the codec
-   * expression is applied verbatim — author is responsible for matching the
-   * codec's input shape to the surrounding wire format. */
+  // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
   const preprocess = schema['x-preprocess']
   const transform = schema['x-transform']
   const pipe = schema['x-pipe']
   const codec = schema['x-codec']
   const replaced = preprocess ?? transform ?? pipe ?? codec ?? superRefineChain
-  /* Apply .brand() for branded types */
   const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
-  /* zod method chain already expressed properties (to prevent double management) */
+  // Drop-list: keys already expressed in the zod method chain.
   const zodExpressedProps = new Set([
     'type',
     'format',
@@ -249,9 +212,6 @@ export function wrap(
     'else',
     'unevaluatedProperties',
     'unevaluatedItems',
-    // x-enum-error-messages: kept in this drop-list (NOT in the Schema
-    // type) so legacy YAML carrying the now-removed extension doesn't
-    // leak into z.object().meta(...) emission as a stray option.
     'x-enum-error-messages',
     'x-brand',
     'x-trim',
@@ -275,7 +235,6 @@ export function wrap(
     'x-jwtAlg',
     'x-hashAlg',
     'x-hashEnc',
-    // x-finite / x-safe omitted (deprecated Zod APIs)
     'x-catch',
     'x-prefault',
     'x-freeze',
@@ -288,10 +247,6 @@ export function wrap(
     'x-preprocess',
     'x-transform',
     'x-pipe',
-    // previously-missing slots that leaked into the public OpenAPI doc
-    // via @hono/zod-openapi's `.openapi({...})` emission. These are all
-    // consumed by the generator (validator messages) and have no business
-    // surfacing in the externally-visible schema.
     'x-properties-message',
     'x-prefixItems-message',
     'x-items-message',
@@ -301,13 +256,9 @@ export function wrap(
     'x-then-message',
     'x-else-message',
   ])
-  // Header meta emits its own description / example / style / etc. via
-  // `headerMetaProps`. If the inner schema also carries those keys, they
-  // would duplicate at the top level of `.openapi({...})` (e.g.
-  // `.openapi({description:"A",description:"B"})`). Drop the schema-level
-  // copy when the header meta actually has the same key set. Parameters
-  // serialize their keys under `param:{...}` (no top-level overlap) so this
-  // filter only applies to headers.
+  // Drop schema-level keys that header meta already emits (avoids duplicates
+  // at the top of `.openapi({...})`). Parameters serialize under `param:{...}`
+  // and don't need this.
   const headerDupKeys = new Set<string>(
     meta?.headers
       ? Object.entries(meta.headers)
@@ -331,7 +282,6 @@ export function wrap(
         meta.headers.description
           ? `description:${JSON.stringify(meta.headers.description)}`
           : undefined,
-        // meta.headers.required ? `required:${JSON.stringify(meta.headers.required)}` : undefined,
         meta.headers.deprecated
           ? `deprecated:${JSON.stringify(meta.headers.deprecated)}`
           : undefined,
@@ -342,24 +292,15 @@ export function wrap(
         meta.headers.allowReserved
           ? `allowReserved:${JSON.stringify(meta.headers.allowReserved)}`
           : undefined,
-        // meta.headers.schema
-        //   ? `schema:${JSON.stringify(meta.headers.schema)}`
-        //   : undefined,
         meta.headers.content ? `content:${JSON.stringify(meta.headers.content)}` : undefined,
       ].filter((v) => v !== undefined)
     : []
   const openapiSchema = args ? JSON.stringify(args) : undefined
-  // Strip outer braces from JSON object to embed directly in openapi({...}) call
-  // e.g. '{"description":"foo"}' → '"description":"foo"'
-  // This allows seamless integration with other openapi props like param:...
-  // If empty object '{}' becomes '', which is filtered out below
+  // Strip outer braces so the body embeds directly in `.openapi({...})`.
   const openapiSchemaBody =
     openapiSchema?.startsWith('{') && openapiSchema?.endsWith('}')
       ? openapiSchema.slice(1, -1)
       : openapiSchema
-  /**
-   * Serializes a media object with examples handled as code references.
-   */
   const serializeMedia = (mediaObj: unknown): string => {
     if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
     const { examples: mediaExamples, ...mediaRest } = mediaObj
@@ -372,14 +313,12 @@ export function wrap(
     const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
   }
-  /* Serializes content object with examples handled as code references. */
   const serializeContent = (content: { readonly [k: string]: unknown }): string => {
     const entries = Object.entries(content).map(
       ([mediaType, mediaObj]) => `${JSON.stringify(mediaType)}:${serializeMedia(mediaObj)}`,
     )
     return `{${entries.join(',')}}`
   }
-  /* Serializes parameter object with examples as code references (not JSON strings). */
   const serializeParam = (param: Parameter): string => {
     const entries = Object.entries(param).map(([key, value]) => {
       if (key === 'examples' && isExamplesInput(value)) {
@@ -397,7 +336,7 @@ export function wrap(
     ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
-  /* https://github.com/OAI/OpenAPI-Specification/issues/2385 */
+  // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
       return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
@@ -406,7 +345,6 @@ export function wrap(
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${result.join(',')}})`
   }
-  /* Handle optional object properties */
   if (options?.isOptional === true) {
     return result.length === 0
       ? `${z}.exactOptional()`

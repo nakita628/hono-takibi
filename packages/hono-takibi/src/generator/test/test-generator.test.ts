@@ -2980,3 +2980,68 @@ describe('extractTestCases - non-JSON request body ignored', () => {
     expect(result[0].usedSchemaRefs).toStrictEqual([])
   })
 })
+
+describe('makeTestFile injection regression', () => {
+  it('escapes path / title / summary / tag containing backtick + dollar-brace + single quote', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: "API'`X${evil}", version: '1.0.0' },
+      tags: [{ name: 'evil`tag', description: "desc'$\\{evil}`" }],
+      paths: {
+        '/users/`${evil}/`': {
+          get: {
+            tags: ['evil`tag'],
+            operationId: 'getX',
+            summary: "sum'`${injected}",
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    expect(makeTestFile(spec, '..')).toBe(
+      `import{describe,it,expect}from'vitest'
+import app from'..'
+
+describe('API\\'\`X\${evil}',()=>{describe('desc\\'$\\\\{evil}\`',()=>{describe('GET /users/\`\${evil}/\`',()=>{it('should return 200 - sum\\'\`\${injected}',async()=>{
+const res=await app.request(\`/users/\\\`\\\${evil}/\\\`\`,{method:'GET'})
+expect(res.status).toBe(200)})})
+})
+})
+`,
+    )
+  })
+
+  it('escapes apiKey header name containing single quote + backtick + dollar-brace', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      components: {
+        securitySchemes: { ak: { type: 'apiKey', in: 'header', name: "X'`${evil}" } },
+      },
+      paths: {
+        '/me': {
+          get: {
+            operationId: 'gm',
+            security: [{ ak: [] }],
+            responses: { '200': { description: 'OK' }, '401': { description: 'Unauthorized' } },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    expect(makeTestFile(spec, '..')).toBe(
+      `import{describe,it,expect}from'vitest'
+import{faker}from'@faker-js/faker'
+import app from'..'
+
+describe('T',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200',async()=>{
+const res=await app.request(\`/me\`,{method:'GET',headers:{'X\\'\`\${evil}':faker.string.alphanumeric(32)}})
+expect(res.status).toBe(200)})
+it('should return 401 without auth',async()=>{
+const res=await app.request(\`/me\`,{method:'GET'})
+expect(res.status).toBe(401)})})
+})
+})
+`,
+    )
+  })
+})

@@ -10,12 +10,6 @@ import { zodToOpenAPI } from '../index.js'
 const _UNRECOGNIZED_KEYS_GUARD: $ZodIssueCode = 'unrecognized_keys'
 void _UNRECOGNIZED_KEYS_GUARD
 
-/**
- * Generates a Zod object schema. Dispatches `additionalProperties` to
- * `z.looseObject` (true), `z.strictObject` (false), `z.record` (Schema), or
- * default `z.object`. Combinators (oneOf/anyOf/allOf/not) delegate to the main
- * `zodToOpenAPI` entry.
- */
 export function object(schema: Schema, options?: { readonly?: boolean }): string {
   const readonly = options?.readonly
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
