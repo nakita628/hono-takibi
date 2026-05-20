@@ -326,6 +326,12 @@ describe('openapi helper', () => {
         `'application/xml':{schema:z.string()}`,
       ])
     })
+    it.concurrent('escapes a malformed content type containing a single quote', () => {
+      const result = makeContent({
+        "application/json'malicious": { schema: { type: 'string' } },
+      })
+      expect(result).toStrictEqual([`"application/json'malicious":{schema:z.string()}`])
+    })
   })
 
   describe('makeRequestBody', () => {
@@ -505,6 +511,14 @@ describe('openapi helper', () => {
         'z.stringbool().exactOptional().openapi({param:{"name":"active","in":"query","schema":{"type":"boolean"}}})',
       )
     })
+    it.concurrent('preserves z.coerce.boolean() for query boolean with x-coerce (no z.coerce.stringbool crash)', () => {
+      const result = makeParameters([
+        { name: 'flag', in: 'query', schema: { type: 'boolean', 'x-coerce': true } },
+      ])
+      expect(result.query.flag).toBe(
+        'z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true}}})',
+      )
+    })
     it.concurrent('handles parameters with content instead of schema', () => {
       const result = makeParameters([
         {
@@ -619,7 +633,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.ids).toBe(
-        'z.array(z.coerce.number().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})',
+        'z.array(z.coerce.number()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}}}})',
       )
     })
 
@@ -634,6 +648,29 @@ describe('openapi helper', () => {
       expect(result.query.verbose).toBe(
         'z.stringbool().default(true).exactOptional().openapi({param:{"name":"verbose","in":"query","schema":{"type":"boolean","default":"true"}}})',
       )
+    })
+
+    it.concurrent('regression: parent parameter meta does not leak into nested array items', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'number' } } },
+      ])
+      const occurrences = (result.query.ids.match(/\.openapi\(/g) ?? []).length
+      expect(occurrences).toBe(1)
+    })
+
+    it.concurrent('regression: parent parameter meta does not leak into nested object properties', () => {
+      const result = makeParameters([
+        {
+          name: 'filter',
+          in: 'query',
+          schema: {
+            type: 'object',
+            properties: { count: { type: 'integer' }, active: { type: 'boolean' } },
+          },
+        },
+      ])
+      const occurrences = (result.query.filter.match(/\.openapi\(/g) ?? []).length
+      expect(occurrences).toBe(1)
     })
   })
 
@@ -762,7 +799,7 @@ describe('openapi helper', () => {
         style: 'simple',
       })
       expect(result).toBe(
-        '{style:"simple",schema:z.array(z.string().exactOptional().openapi({style:"simple"})).exactOptional().openapi({style:"simple"})}',
+        '{style:"simple",schema:z.array(z.string()).exactOptional().openapi({style:"simple"})}',
       )
     })
     it.concurrent('generates header with explode', () => {
@@ -771,7 +808,7 @@ describe('openapi helper', () => {
         explode: true,
       })
       expect(result).toBe(
-        '{explode:true,schema:z.array(z.string().exactOptional().openapi({explode:true})).exactOptional().openapi({explode:true})}',
+        '{explode:true,schema:z.array(z.string()).exactOptional().openapi({explode:true})}',
       )
     })
     it.concurrent('generates header with content', () => {
@@ -1109,6 +1146,30 @@ describe('openapi helper', () => {
       expect(result).toBe(
         '{summary:"Get users",description:"Returns a list of users",responses:{200:{description:"Success"}}}',
       )
+    })
+
+    // Empty strings are valid CommonMark per OpenAPI 3.2 §4.8.10.1 — they
+    // must round-trip rather than being silently dropped by a truthy check.
+    it.concurrent('preserves empty summary string', () => {
+      const result = makeOperation({
+        summary: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{summary:"",responses:{200:{description:"OK"}}}')
+    })
+    it.concurrent('preserves empty description string', () => {
+      const result = makeOperation({
+        description: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{description:"",responses:{200:{description:"OK"}}}')
+    })
+    it.concurrent('preserves empty operationId string', () => {
+      const result = makeOperation({
+        operationId: '',
+        responses: { 200: { description: 'OK' } },
+      })
+      expect(result).toBe('{operationId:"",responses:{200:{description:"OK"}}}')
     })
 
     it.concurrent('generates operation with deprecated flag', () => {
@@ -1700,7 +1761,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+            ids: `z.array(z.string()).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
           },
         })
       })
@@ -1712,7 +1773,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
+            ids: `z.array(z.string()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}}}})`,
           },
         })
       })

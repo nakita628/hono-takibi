@@ -6,37 +6,6 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates parameter component files.
- *
- * @param parameters - OpenAPI parameters object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param exportType - Whether to export TypeScript types
- * @param components - Schema import configuration for references
- * @param readonly - Whether to add `.readonly()` to Zod schemas
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate parameters in single file
- * await parameters(
- *   { userId: { name: 'userId', in: 'path', ... } },
- *   'src/parameters.ts',
- *   false,
- *   true
- * )
- *
- * // Generate parameters in split mode
- * await parameters(
- *   { userId: {...}, page: {...} },
- *   'src/parameters',
- *   true,
- *   true
- * )
- * // Creates: src/parameters/userId.ts, src/parameters/page.ts, src/parameters/index.ts
- * ```
- */
 export async function parameters(
   parameters: Components['parameters'],
   output: string,

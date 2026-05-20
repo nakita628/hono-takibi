@@ -266,7 +266,10 @@ function makeAuthCheck(
     if (sec.type === 'apiKey') {
       if (sec.in === 'header') return [`c.req.header('${sec.name}')`]
       if (sec.in === 'query') return [`c.req.query('${sec.name}')`]
-      if (sec.in === 'cookie') return [`c.req.cookie('${sec.name}')`]
+      // Hono's request object does not expose a `.cookie()` accessor; cookies
+      // must come from the `hono/cookie` helper. Caller is responsible for
+      // emitting the matching `import { getCookie } from 'hono/cookie'`.
+      if (sec.in === 'cookie') return [`getCookie(c, '${sec.name}')`]
     }
     return []
   })
@@ -346,7 +349,7 @@ export function makeMock(
       return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
     }),
   )
-  const routeEntries = processed.map(({ entry }) => entry)
+  const routeMetas = processed.map(({ entry }) => entry)
   const handlers = processed.map(({ handler }) => handler)
   const allDeps = new Set<string>()
   for (const ref of allRefs) {
@@ -380,17 +383,19 @@ export function makeMock(
       })
     : ''
   const routes = routeCode(filteredOpenapi, options.readonly)
-  const appSetup = routeEntries
+  const appSetup = routeMetas
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
     .join('')
+  const handlersJoined = handlers.join('\n\n')
+  const needsCookieImport = handlersJoined.includes('getCookie(c,')
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
-import { faker } from '@faker-js/faker'`
+import { faker } from '@faker-js/faker'${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` : ''}`
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
 
 export const api = app${appSetup}
 
 export default app`
-  return [imports, components, routes, mockFunctions.join('\n\n'), handlers.join('\n\n'), appCode]
+  return [imports, components, routes, mockFunctions.join('\n\n'), handlersJoined, appCode]
     .filter((s) => s.length > 0)
     .join('\n\n')
 }

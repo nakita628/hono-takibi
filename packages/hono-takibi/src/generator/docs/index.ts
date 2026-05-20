@@ -697,7 +697,11 @@ function makeResponsesTable(
 
   for (const [statusCode, response] of Object.entries(operation.responses)) {
     const resolvedResponse = resolveResponse(response, components)
-    const meaningStr = STATUS_CODES[statusCode] ?? statusCode
+    // `STATUS_CODES` (node:http) is typed `Record<number, string>`. Coerce
+    // explicitly so the lookup matches the declared type — JS would coerce
+    // numeric strings anyway, but the explicit form survives stricter index
+    // typings without relying on that quirk.
+    const meaningStr = STATUS_CODES[Number(statusCode)] ?? statusCode
     const description = resolvedResponse.description ?? ''
     const jsonMedia = resolvedResponse.content?.['application/json']
     const schemaStr =

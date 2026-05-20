@@ -788,15 +788,12 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       ])
     })
 
-    // v3.1: dependentSchemas now PROPAGATES the inner sub-schema's issue
-    // verbatim (path/code/message) instead of overwriting with
-    // x-dependentSchemas-message. Overriding with a single 'custom' issue
-    // erased the discriminant and forced everything to message='custom' —
-    // unrecoverable for downstream RFC 9457 mappers. The slot remains in the
-    // OpenAPI annotation roundtrip; this assertion validates the PROPAGATED
-    // inner detail (the sub-schema's emitTypelessRefine — message field
-    // omitted, Zod default 'Invalid input' flows through).
-    it('rejects malformed credit_card with propagated sub-issue (v3.1 superRefine)', async () => {
+    // x-dependentSchemas-message is now applied via override semantics:
+    // inner sub-schema issues retain `code` / `path` / `expected`, only
+    // `message` is replaced (aligned with `x-allOf-message` and related
+    // applicator slots). The slot value flows through from the OpenAPI
+    // spec to the generated validator.
+    it('rejects malformed credit_card with override message from x-dependentSchemas-message', async () => {
       const res = await app.request('/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -808,7 +805,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       })
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
       expect(body.errors).toStrictEqual([
-        { pointer: '/', detail: 'Invalid input' },
+        { pointer: '/', detail: 'credit_card must be 16 digits when provided' },
       ])
     })
 
@@ -1606,5 +1603,88 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       { pointer: '/priority', detail: 'priority must be 1, 2, or 3' },
       { pointer: '/quota', detail: 'quota is required' },
     ])
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // allOf + unevaluatedProperties:false — JSON Schema 2020-12 §11.2.
+  // Previously a silent dead path: the allOf branch in zod-to-openapi/
+  // index.ts emitted z.and(...) without wiring `unevaluatedProperties` at
+  // all, so extra keys passed through unchallenged. Fixed by wrapping the
+  // composed schema in z.unknown().check(ctx => ...).pipe(Schema), where
+  // the check evaluates raw input keys against the union of evaluated
+  // properties from every allOf branch.
+  // ─────────────────────────────────────────────────────────
+  describe('allOf + unevaluatedProperties:false', () => {
+    it('rejects an unknown property with the configured override message', async () => {
+      const res = await app.request('/strict-allof', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'a', name: 'b', stray: 'x' }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
+        { pointer: '/stray', detail: 'Unknown field — only id and name are allowed.' },
+      ])
+    })
+
+    it('accepts a payload covered entirely by allOf branches', async () => {
+      const res = await app.request('/strict-allof', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'a', name: 'b' }),
+      })
+      expect(res.status).toBe(200)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────
+  // x-implication-message — semantic alias for the implication pattern
+  // (A → B) encoded as anyOf:[{not:A},{required:B}]. Takes precedence over
+  // x-anyOf-message on the anyOf code path and surfaces the author's
+  // intent verbatim when the implication is violated.
+  // ─────────────────────────────────────────────────────────
+  describe('x-implication-message (anyOf + not + required)', () => {
+    it('rejects hasLicense=true without licenseNumber with the implication message', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: true }),
+      })
+      const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
+      expect(body.errors).toStrictEqual([
+        { pointer: '/', detail: 'licenseNumber is required when hasLicense is true' },
+      ])
+    })
+
+    it('accepts hasLicense=true with licenseNumber', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: true, licenseNumber: 'L-001' }),
+      })
+      expect(res.status).toBe(200)
+    })
+
+    it('accepts hasLicense=false (antecedent is false, implication trivially holds)', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: false }),
+      })
+      expect(res.status).toBe(200)
+    })
+
+    // D1 fix: properties accompanying anyOf used to be silently dropped at the
+    // anyOf code path (the generator returned z.union(...) without intersecting
+    // the type-shape). Now AND-composed via .and(z.object({...})), so type
+    // violations on declared properties surface as validation errors.
+    it('rejects type violation on hasLicense (boolean, not string)', async () => {
+      const res = await app.request('/implication', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hasLicense: 'not-a-bool', licenseNumber: 'L-001' }),
+      })
+      expect(res.status).toBe(422)
+    })
   })
 })

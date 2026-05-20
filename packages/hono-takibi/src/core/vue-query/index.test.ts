@@ -1749,3 +1749,152 @@ export function usePatchUsersId<TError = unknown>(options?: {
     }
   })
 })
+
+describe('vueQuery (header parameters excluded from query key)', () => {
+  it('omits header field from queryKey arg and infinite queryKey arg', async () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            'x-pagination': true,
+            parameters: [
+              { name: 'limit', in: 'query', schema: { type: 'integer' } },
+              { name: 'x-tenant', in: 'header', schema: { type: 'string' }, required: true },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vq-header-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const result = await vueQuery(spec, out, '../client', false)
+      if (!result.ok) throw new Error(result.error)
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+import type {
+  UseQueryOptions,
+  QueryFunctionContext,
+  UseInfiniteQueryOptions,
+} from '@tanstack/vue-query'
+import { toValue } from 'vue'
+import type { MaybeRefOrGetter } from 'vue'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../client'
+
+export function getUsersKey() {
+  return ['users'] as const
+}
+
+export function getUsersQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  const { header: _, ...keyArgs } = toValue(args)
+  return ['users', '/users', keyArgs] as const
+}
+
+export function getUsersQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
+export function useUsers<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = unknown,
+>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError,
+      TData
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options ?? {}
+  return useQuery({
+    ...queryOptions,
+    queryKey: getUsersQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  })
+}
+
+export function getUsersInfiniteQueryKey(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+) {
+  const { header: _, ...keyArgs } = toValue(args)
+  return ['users', '/users', keyArgs, 'infinite'] as const
+}
+
+export function getUsersInfiniteQueryOptions(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }: QueryFunctionContext) {
+      return parseResponse(
+        client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+      )
+    },
+  }
+}
+
+export function useInfiniteUsers<
+  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+  TError = unknown,
+  TPageParam = unknown,
+>(
+  args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      TError,
+      TData,
+      ReturnType<typeof getUsersInfiniteQueryKey>,
+      TPageParam
+    >
+    options?: ClientRequestOptions
+  },
+) {
+  const { query: queryOptions, options: clientOptions } = options
+  return useInfiniteQuery({
+    ...queryOptions,
+    queryKey: getUsersInfiniteQueryKey(args),
+    queryFn({ signal }) {
+      return parseResponse(
+        client.users.$get(toValue(args), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      )
+    },
+  })
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

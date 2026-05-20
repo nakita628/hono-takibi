@@ -253,7 +253,10 @@ function makeAuthHeader(sec: {
     case 'basic':
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
-      if (sec.in === 'header') return `'${sec.name}':faker.string.alphanumeric(32)`
+      if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
+      // RFC 6265: `Cookie: <name>=<value>`. apiKey-in-query is appended upstream.
+      if (sec.in === 'cookie')
+        return `'Cookie':\`${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}\``
       return ''
   }
 }
@@ -266,19 +269,35 @@ function makeTestCase(
   const basePathPrefix = basePath !== '/' ? basePath : ''
   const fullPath =
     tc.path === '/' && basePathPrefix ? basePathPrefix : `${basePathPrefix}${tc.path}`
+  // Escape template-literal metacharacters BEFORE injecting `${name}` markers
+  // to prevent codegen injection from malicious path keys.
+  const escapedFullPath = escapeTemplateLiteral(fullPath)
   const testPath = tc.pathParams.reduce(
     (path, param) => path.replace(`{${param.name}}`, `\${${param.name}}`),
-    fullPath,
+    escapedFullPath,
   )
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const queryParts = tc.queryParams.map(
-    (param) => `${param.name}=\${encodeURIComponent(String(${param.name}))}`,
+    (param) => `${escapeTemplateLiteral(param.name)}=\${encodeURIComponent(String(${param.name}))}`,
   )
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
+  // apiKey-in-query credentials go on the URL; bare `queryString` is reused
+  // for the unauthorized-flow test which omits the credential.
+  const authQueryParts = tc.security
+    .filter((sec) => sec.type === 'apiKey' && sec.in === 'query')
+    .map((sec) => `${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}`)
+  const authQueryString =
+    authQueryParts.length > 0
+      ? queryString
+        ? `&${authQueryParts.join('&')}`
+        : `?${authQueryParts.join('&')}`
+      : ''
   const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
   const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const headerEntries = requiredHeaderParams.map((param) => `'${param.name}':String(${param.name})`)
+  const headerEntries = requiredHeaderParams.map(
+    (param) => `${quoteSingle(param.name)}:String(${param.name})`,
+  )
   const authHeaders = tc.security.map(makeAuthHeader).filter(Boolean)
   const { bodySetup, bodyOption, contentTypeHeader } = tc.requestBody
     ? {
@@ -291,15 +310,19 @@ function makeTestCase(
   const allHeaders = [...headers, ...authHeaders]
   const headersOption = allHeaders.length > 0 ? `,headers:{${allHeaders.join(',')}}` : ''
   const headersWithoutAuth = headers.length > 0 ? `,headers:{${headers.join(',')}}` : ''
-  const summaryPart = tc.summary ? ` - ${escapeString(tc.summary)}` : ''
+  // `tc.summary` is escaped by `quoteSingle(itTitle)` below.
+  const summaryPart = tc.summary ? ` - ${tc.summary}` : ''
   const itDescription = `should return ${tc.successStatus}${summaryPart}`
   const setupCode = [...pathSetup, ...querySetup, ...headerSetup, bodySetup]
     .filter(Boolean)
     .join('\n')
-  const mainTest = `describe('${tc.method} ${fullPath}',()=>{it('${itDescription}',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
+  const describeTitle = quoteSingle(`${tc.method} ${fullPath}`)
+  const itTitle = quoteSingle(itDescription)
+  const methodLiteral = quoteSingle(tc.method)
+  const mainTest = `describe(${describeTitle},()=>{it(${itTitle},async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}${authQueryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(${tc.successStatus})})`
   const unauthorizedTest =
     tc.security.length > 0
-      ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:'${tc.method}'${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
+      ? `\nit('should return 401 without auth',async()=>{${setupCode}\nconst res=await app.request(\`${testPath}${queryString}\`,{method:${methodLiteral}${headersWithoutAuth}${bodyOption}})\nexpect(res.status).toBe(401)})`
       : ''
   const notFoundTest =
     tc.pathParams.length > 0 && tc.errorStatuses.includes(404)
@@ -307,7 +330,7 @@ function makeTestCase(
           const notFoundPath = tc.pathParams.reduce(
             (path, param) =>
               path.replace(`{${param.name}}`, getNonExistentValue(param.schema, schemas)),
-            fullPath,
+            escapedFullPath,
           )
           const notFoundQuerySetup = tc.queryParams.map(
             (param) => `const ${param.name}=${param.fakerCode}`,
@@ -315,14 +338,26 @@ function makeTestCase(
           const notFoundSetupCode = [...notFoundQuerySetup, ...headerSetup, bodySetup]
             .filter(Boolean)
             .join('\n')
-          return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:'${tc.method}'${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
+          return `\nit('should return 404 for non-existent resource',async()=>{${notFoundSetupCode}\nconst res=await app.request(\`${notFoundPath}${queryString}\`,{method:${methodLiteral}${headersOption}${bodyOption}})\nexpect(res.status).toBe(404)})`
         })()
       : ''
   return `${mainTest}${unauthorizedTest}${notFoundTest}})\n`
 }
 
-function escapeString(s: string) {
-  return s.replace(/'/g, "\\'").replace(/\n/g, ' ')
+// Safe single-quoted JS string literal (delimiter included).
+function quoteSingle(s: string) {
+  return `'${s
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')}'`
+}
+
+// Escape \, `, ${ for static text inside a template literal. Caller-added
+// ${...} substitution markers (added AFTER this escape) remain active.
+function escapeTemplateLiteral(s: string) {
+  return s.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
 }
 
 const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
@@ -352,15 +387,15 @@ export function makeTestFile(
       const testCasesCode = cases
         .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
         .join('')
-      return `describe('${escapeString(tagDescription)}',()=>{${testCasesCode}})\n`
+      return `describe(${quoteSingle(tagDescription)},()=>{${testCasesCode}})\n`
     })
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
-  const body = `${mockSection}describe('${escapeString(apiTitle)}',()=>{${tagDescribes}})\n`
+  const body = `${mockSection}describe(${quoteSingle(apiTitle)},()=>{${tagDescribes}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
   const testImportSource = TEST_IMPORT_SOURCE[testFramework]
-  const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${appImportPath}'\n`
+  const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(appImportPath)}\n`
   return `${imports}\n${body}`
 }
 
@@ -396,10 +431,10 @@ export function makeHandlerTestCode(
     .join('')
   const mockSection = mockFunctions ? `${mockFunctions}\n\n` : ''
   const resourceName = handlerFileName.charAt(0).toUpperCase() + handlerFileName.slice(1)
-  const body = `${mockSection}describe('${resourceName}',()=>{${testCasesCode}})\n`
+  const body = `${mockSection}describe(${quoteSingle(resourceName)},()=>{${testCasesCode}})\n`
   const needsFaker = body.includes('faker.')
   const fakerImport = needsFaker ? `\nimport{faker}from'@faker-js/faker'` : ''
   const testImportSource = TEST_IMPORT_SOURCE[testFramework]
-  const imports = `import{describe,it,expect}from'${testImportSource}'${fakerImport}\nimport app from'${importFrom}'\n`
+  const imports = `import{describe,it,expect}from${quoteSingle(testImportSource)}${fakerImport}\nimport app from${quoteSingle(importFrom)}\n`
   return `${imports}\n${body}`
 }

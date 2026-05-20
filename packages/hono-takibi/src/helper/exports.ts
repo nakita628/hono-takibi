@@ -25,7 +25,7 @@ export async function makeExports(
   /* sort abc */
   const indexCode = `${keys
     .sort()
-    .map((v) => `export * from './${uncapitalize(v)}.ts'`)
+    .map((v) => `export * from './${uncapitalize(v)}'`)
     .join('\n')}\n`
   const asConst = readonly ? ' as const' : ''
   const results = await Promise.all([

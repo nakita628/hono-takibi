@@ -77,9 +77,7 @@ export type OpenAPI = BaseOpenAPI & {
     readonly [k: string]: PathItem
   }
   readonly components?: Components
-  readonly security?: {
-    readonly name?: readonly string[]
-  }
+  readonly security?: readonly { readonly [name: string]: readonly string[] }[]
   readonly tags?: {
     readonly name: string
     readonly summary?: string
@@ -351,9 +349,7 @@ export type Operation = {
     }
   }
   readonly deprecated?: boolean
-  readonly security?: {
-    readonly name?: readonly string[]
-  }
+  readonly security?: readonly { readonly [scheme: string]: readonly string[] }[]
   readonly servers?: readonly {
     readonly url: string
     readonly description?: string
@@ -463,9 +459,6 @@ export type Schema = {
   readonly deprecated?: boolean
   readonly additionalProperties?: Schema | boolean
   readonly $ref?: Ref
-  readonly security?: {
-    readonly name?: readonly string[]
-  }[]
   readonly oneOf?: readonly Schema[]
   readonly allOf?: readonly Schema[]
   readonly anyOf?: readonly Schema[]
@@ -478,19 +471,10 @@ export type Schema = {
   readonly dependentRequired?: {
     readonly [k: string]: readonly string[]
   }
-  // Vendor extensions for custom validation messages (OpenAPI Generator compatible)
-  /**
-   *
-   *
-   *
-   *
-   */
+  // Vendor extensions for custom validation messages (OpenAPI Generator compatible).
+  // Per-slot precedence: x-<keyword>-message > x-error-message > Zod default.
+  // See `helper/zod.ts#messageFor` for the resolution chain.
   readonly 'x-error-message'?: string
-  /**
-   *
-   *
-   *
-   */
   readonly 'x-length-message'?: string
   readonly 'x-pattern-message'?: string // string `pattern` only
   readonly 'x-minimum-message'?: string // numeric `minimum` (inclusive) only
@@ -499,12 +483,26 @@ export type Schema = {
   readonly 'x-exclusiveMaximum-message'?: string // numeric `exclusiveMaximum` (<)
   readonly 'x-multipleOf-message'?: string
   readonly 'x-dependentRequired-message'?: string
+  /**
+   * Overrides the validation message for `dependentSchemas` violations
+   * (JSON Schema 2020-12 §10.2.2.4). The inner sub-schema's `code` / `path`
+   * / `expected` are preserved; only `message` is replaced. Falls back to
+   * `x-error-message`.
+   */
   readonly 'x-dependentSchemas-message'?: string
   readonly 'x-propertyNames-message'?: string
   readonly 'x-allOf-message'?: string
   readonly 'x-anyOf-message'?: string
   readonly 'x-oneOf-message'?: string
   readonly 'x-not-message'?: string
+  /**
+   * Semantic alias for the implication pattern (`A → B`) encoded as
+   * `anyOf:[{not:A},{required:B}]`. Takes precedence over `x-anyOf-message`
+   * in the anyOf code path, then falls back to `x-error-message`. Acts as a
+   * documentation aid — explicitly marking the schema author's intent — and
+   * is silently ignored on schemas without `anyOf`.
+   */
+  readonly 'x-implication-message'?: string
   readonly 'x-required-message'?: string
   readonly 'x-additionalProperties-message'?: string
   readonly 'x-uniqueItems-message'?: string
@@ -577,6 +575,19 @@ export type Schema = {
   readonly 'x-uppercase'?: boolean
   readonly 'x-normalize'?: 'NFC' | 'NFD' | 'NFKC' | 'NFKD'
   readonly 'x-coerce'?: boolean
+  /**
+   * Opt into `z.stringbool()` for boolean schemas. Use `true` for the default
+   * truthy/falsy lists, or pass an object to customize. Mutually exclusive
+   * with `x-coerce: true` on the same schema (build error).
+   * @see https://zod.dev/api?id=stringbool
+   */
+  readonly 'x-stringbool'?:
+    | true
+    | {
+        readonly truthy?: readonly string[]
+        readonly falsy?: readonly string[]
+        readonly case?: 'sensitive' | 'insensitive'
+      }
   // P1 format-option extensions
   readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
   readonly 'x-emailRegex'?: string
@@ -606,9 +617,20 @@ export type Schema = {
   // directly.
   readonly 'x-refine'?: string
   readonly 'x-superRefine'?: string
-  // Bidirectional codec. The value is a complete `z.codec(...)` expression
-  // string and replaces the base schema verbatim. Authors can paste the Zod
-  // docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+  /**
+   * Bidirectional codec. The value is a complete `z.codec(...)` expression
+   * string and replaces the base schema verbatim. Authors can paste the Zod
+   * docs example directly: `z.codec(z.iso.datetime(), z.date(), {...})`.
+   *
+   * Applied to any schema type. The author is responsible for ensuring the
+   * codec's input side matches the surrounding wire shape; the generator does
+   * not introspect the expression. Precedence among replacing extensions
+   * (outermost wins): `x-preprocess` > `x-transform` > `x-pipe` > `x-codec`.
+   * On `type: 'string'` with `format: ^sha\\d+$` or `x-coerce: true`, the
+   * string emitter consumes the codec first — those exclusions are intentional.
+   *
+   * @see https://zod.dev/codecs
+   */
   readonly 'x-codec'?: string
   // Pre-validation normalization. The value is a complete `z.preprocess(...)`
   // expression string and replaces the base schema verbatim (same convention

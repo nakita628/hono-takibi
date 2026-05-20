@@ -514,12 +514,12 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 #### Common (any schema type)
 
-| Extension            | Applies to                       |
-| -------------------- | -------------------------------- |
-| `x-error-message`    | All schemas (top-level fallback) |
-| `x-required-message` | Required properties              |
-| `x-const-message`    | `const`                          |
-| `x-enum-message`     | `enum`                           |
+| Extension            | Applies to                                                     |
+| -------------------- | -------------------------------------------------------------- |
+| `x-error-message`    | All schemas (fallback when keyword-specific message is absent) |
+| `x-required-message` | Required properties                                            |
+| `x-const-message`    | `const`                                                        |
+| `x-enum-message`     | `enum`                                                         |
 
 #### Numeric (number / integer)
 
@@ -565,12 +565,13 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 
 #### Combinators
 
-| Extension         | Applies to |
-| ----------------- | ---------- |
-| `x-allOf-message` | `allOf`    |
-| `x-anyOf-message` | `anyOf`    |
-| `x-oneOf-message` | `oneOf`    |
-| `x-not-message`   | `not`      |
+| Extension               | Applies to                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `x-allOf-message`       | `allOf`                                                                                                          |
+| `x-anyOf-message`       | `anyOf`                                                                                                          |
+| `x-oneOf-message`       | `oneOf`                                                                                                          |
+| `x-not-message`         | `not`                                                                                                            |
+| `x-implication-message` | Implication pattern (`A → B`) encoded as `anyOf:[{not:A},{required:B}]`; takes precedence over `x-anyOf-message` |
 
 #### Conditional
 
@@ -612,6 +613,23 @@ homepage:
 z.string().trim().pipe(z.url())
 ```
 
+### String Validation Checks
+
+| Extension     | Generated                | Value  |
+| ------------- | ------------------------ | ------ |
+| `x-lowercase` | `z.string().lowercase()` | `true` |
+| `x-uppercase` | `z.string().uppercase()` | `true` |
+
+```yaml
+slug:
+  type: string
+  x-lowercase: true
+```
+
+```ts
+z.string().lowercase()
+```
+
 ### Preprocess (Input Normalization)
 
 #### `x-preprocess`
@@ -643,6 +661,31 @@ asDate:
 ```ts
 z.coerce.number()
 z.coerce.date()
+```
+
+#### `x-stringbool`
+
+```yaml
+notify:
+  type: boolean
+  x-stringbool: true
+```
+
+```ts
+z.stringbool()
+```
+
+```yaml
+notify:
+  type: boolean
+  x-stringbool:
+    truthy: ['yes', 'on']
+    falsy: ['no', 'off']
+    case: 'sensitive'
+```
+
+```ts
+z.stringbool({ truthy: ['yes', 'on'], falsy: ['no', 'off'], case: 'sensitive' })
 ```
 
 ### Codec (Bidirectional Transform)

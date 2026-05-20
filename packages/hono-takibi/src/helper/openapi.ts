@@ -21,7 +21,6 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import { coerce } from './../helper/index.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
@@ -144,7 +143,7 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
   }
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
-    // Always include description: ResponseConfig requires it (OpenAPI 3.0 §Response Object REQUIRED field)
+    // OpenAPI 3.0 §Response Object: description is REQUIRED
     `description:${JSON.stringify(responses.description || '')}`,
     responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
     responses.content
@@ -170,14 +169,17 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
     return makeRef(headers.$ref)
   }
   const result = [
-    headers.description ? `description:${JSON.stringify(headers.description)}` : undefined,
+    headers.description !== undefined
+      ? `description:${JSON.stringify(headers.description)}`
+      : undefined,
     'required' in headers && headers.required
       ? `required:${JSON.stringify(headers.required)}`
       : undefined,
     'deprecated' in headers && headers.deprecated
       ? `deprecated:${JSON.stringify(headers.deprecated)}`
       : undefined,
-    'example' in headers && headers.example
+    // OpenAPI 3.2 §4.8.10.1: `example` may be any JSON value (incl. 0/false/"")
+    'example' in headers && headers.example !== undefined
       ? `example:${JSON.stringify(headers.example)}`
       : undefined,
     'examples' in headers && headers.examples
@@ -188,7 +190,7 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
     'schema' in headers && headers.schema
-      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly)}`
+      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     'content' in headers && headers.content
       ? `content:${makeContent(headers.content, readonly).join(',')}`
@@ -290,17 +292,14 @@ export function makeCallbacks(
       .join(',')
   return Object.entries(callbacks)
     .map(([callbackKey, pathItem]) => {
-      // Handle $ref to components/callbacks
       if (isRefObject(pathItem)) {
         return `${JSON.stringify(callbackKey)}:${makeRef(pathItem.$ref)}`
       }
       if (!isRecord(pathItem)) return undefined
-      // Try direct pathItem (pathExpression → {method: operation})
       const pathItemCode = makeMethodsCode(pathItem)
       if (pathItemCode) {
         return `${JSON.stringify(callbackKey)}:{${pathItemCode}}`
       }
-      // Fallback: callbackName → pathExpression → {method: operation}
       const nestedCode = Object.entries(pathItem)
         .map(([pathExpr, inner]) => {
           if (!isRecord(inner)) return undefined
@@ -323,11 +322,15 @@ export function makeContent(
   return Object.freeze(
     Object.entries(content)
       .map(([contentType, mediaOrRef]) => {
+        // RFC 6838 + RFC 7231 §3.1.1.1; fall back to JSON.stringify otherwise.
+        const key = /^[A-Za-z0-9!#$&^_+\-./*;= ]+$/.test(contentType)
+          ? `'${contentType}'`
+          : JSON.stringify(contentType)
         if (isRefObject(mediaOrRef)) {
-          return `'${contentType}':${makeRef(mediaOrRef.$ref)}`
+          return `${key}:${makeRef(mediaOrRef.$ref)}`
         }
         if (isMedia(mediaOrRef)) {
-          return `'${contentType}':${makeMedia(mediaOrRef, readonly)}`
+          return `${key}:${makeMedia(mediaOrRef, readonly)}`
         }
         return undefined
       })
@@ -340,7 +343,7 @@ export function makeRequestBody(body: RequestBody | Reference, readonly?: boolea
     return makeRef(body.$ref)
   }
   const result = [
-    body.description ? `description:${JSON.stringify(body.description)}` : undefined,
+    body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined,
     'content' in body && body.content
       ? `content:{${makeContent(body.content, readonly).join(',')}}`
       : undefined,
@@ -358,9 +361,11 @@ export function makeMedia(media: Media, readonly?: boolean) {
         .join(',')
     : undefined
   const result = [
-    media.schema ? `schema:${zodToOpenAPI(media.schema, undefined, readonly)}` : undefined,
+    media.schema
+      ? `schema:${zodToOpenAPI(media.schema, undefined, readonly === true ? { readonly: true } : undefined)}`
+      : undefined,
     media.itemSchema
-      ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly)}`
+      ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     media.example !== undefined ? `example:${JSON.stringify(media.example)}` : undefined,
     media.examples ? `examples:${makeExamples(media.examples)}` : undefined,
@@ -445,32 +450,38 @@ export function makeParameters(
       acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
-    const baseSchema = zodToOpenAPI(schema, { parameters: param }, readonly)
-    // Path and query parameters arrive as strings on the wire — coerce them
-    // to the schema-declared type. Header/cookie are left untouched.
     const isStringWire = param.in === 'query' || param.in === 'path'
-    const z =
+    const isPrimitiveNumeric =
       isStringWire && (schema.type === 'number' || schema.type === 'integer')
-        ? coerce(baseSchema, schema.type, schema.format)
-        : isStringWire && schema.type === 'boolean'
-          ? baseSchema
-              .replace('boolean', 'stringbool')
-              .replace(/\.default\("true"\)/g, '.default(true)')
-              .replace(/\.default\("false"\)/g, '.default(false)')
-          : isStringWire && schema.type === 'date'
-            ? `z.coerce.${baseSchema.replace('z.', '')}`
-            : isStringWire && (schema.type === 'object' || schema.type === 'array')
-              ? baseSchema
-                  .replace(
-                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
-                    (_: string, type: string, constraints: string) =>
-                      `z.coerce.number().pipe(z.${type}()${constraints})`,
-                  )
-                  .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                  .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                  .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                  .replace(/z\.date\(\)/g, 'z.coerce.date()')
-              : baseSchema
+    const baseSchema = zodToOpenAPI(
+      schema,
+      { parameters: param },
+      {
+        ...(isPrimitiveNumeric ? { coerce: true } : {}),
+        ...(readonly === true ? { readonly: true } : {}),
+      },
+    )
+    const z = isPrimitiveNumeric
+      ? baseSchema
+      : isStringWire && schema.type === 'boolean'
+        ? baseSchema
+            .replace(/\bz\.boolean\(/g, 'z.stringbool(')
+            .replace(/\.default\("true"\)/g, '.default(true)')
+            .replace(/\.default\("false"\)/g, '.default(false)')
+        : isStringWire && schema.type === 'date'
+          ? `z.coerce.${baseSchema.replace('z.', '')}`
+          : isStringWire && (schema.type === 'object' || schema.type === 'array')
+            ? baseSchema
+                .replace(
+                  /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                  (_: string, type: string, constraints: string) =>
+                    `z.coerce.number().pipe(z.${type}()${constraints})`,
+                )
+                .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
+                .replace(/z\.number\(\)/g, 'z.coerce.number()')
+                .replace(/z\.boolean\(\)/g, 'z.stringbool()')
+                .replace(/z\.date\(\)/g, 'z.coerce.date()')
+            : baseSchema
     acc[param.in][makeSafeKey(param.name)] = z
     return acc
   }, {})
@@ -516,7 +527,11 @@ function makeOperationParameters(
       return makeRef(param.$ref)
     }
     if (isParameter(param) && param.schema) {
-      return zodToOpenAPI(param.schema, { parameters: param }, readonly)
+      return zodToOpenAPI(
+        param.schema,
+        { parameters: param },
+        readonly === true ? { readonly: true } : undefined,
+      )
     }
     return JSON.stringify(param)
   })
@@ -526,10 +541,14 @@ function makeOperationParameters(
 export function makeOperation(operation: Operation, readonly?: boolean) {
   const result = [
     operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
-    operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
-    operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+    operation.summary !== undefined ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+    operation.description !== undefined
+      ? `description:${JSON.stringify(operation.description)}`
+      : undefined,
     operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
-    operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
+    operation.operationId !== undefined
+      ? `operationId:${JSON.stringify(operation.operationId)}`
+      : undefined,
     operation.parameters
       ? `parameters:${makeOperationParameters(operation.parameters, readonly)}`
       : undefined,
@@ -560,8 +579,10 @@ export function makePathItem(pathItem: PathItem) {
     : undefined
   const results = [
     pathItem.$ref ? `$ref:${makeRef(pathItem.$ref)}` : undefined,
-    pathItem.summary ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
-    pathItem.description ? `description:${JSON.stringify(pathItem.description)}` : undefined,
+    pathItem.summary !== undefined ? `summary:${JSON.stringify(pathItem.summary)}` : undefined,
+    pathItem.description !== undefined
+      ? `description:${JSON.stringify(pathItem.description)}`
+      : undefined,
     pathItem.get ? `get:${makeOperation(pathItem.get)}` : undefined,
     pathItem.put ? `put:${makeOperation(pathItem.put)}` : undefined,
     pathItem.post ? `post:${makeOperation(pathItem.post)}` : undefined,

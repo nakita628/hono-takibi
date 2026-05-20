@@ -275,4 +275,48 @@ describe('pathItems', () => {
       expect(result).toStrictEqual({ ok: true, value: 'No pathItems found' })
     })
   })
+
+  describe('emit error propagation', () => {
+    it('propagates emit failure in non-split mode when output path is unwritable', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
+      const blockingFile = path.join(tmpDir, 'block')
+      fs.writeFileSync(blockingFile, 'x')
+      const output = path.join(blockingFile, 'pathItems.ts')
+      const result = await pathItems(
+        {
+          pathItems: {
+            UserOperations: {
+              get: { responses: { '200': { description: 'OK' } } },
+            },
+          },
+        },
+        { output },
+      )
+      expect(result).toStrictEqual({
+        ok: false,
+        error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
+      })
+    })
+
+    it('propagates emit failure in split mode when output parent is a regular file', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
+      const blockingFile = path.join(tmpDir, 'block')
+      fs.writeFileSync(blockingFile, 'x')
+      const output = path.join(blockingFile, 'pathItems.ts')
+      const result = await pathItems(
+        {
+          pathItems: {
+            UserOperations: {
+              get: { responses: { '200': { description: 'OK' } } },
+            },
+            AdminOperations: {
+              get: { responses: { '200': { description: 'OK' } } },
+            },
+          },
+        },
+        { output, split: true },
+      )
+      expect(result.ok).toBe(false)
+    })
+  })
 })

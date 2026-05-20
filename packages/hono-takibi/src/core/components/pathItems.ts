@@ -6,35 +6,6 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates pathItems component files.
- *
- * @param components - OpenAPI components object containing pathItems
- * @param pathItemsConfig - PathItems output configuration
- * @param componentsConfig - Component import configuration
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate pathItems in single file
- * await pathItems(
- *   components,
- *   { output: 'src/pathItems.ts' },
- *   undefined,
- *   false
- * )
- *
- * // Generate pathItems in split mode
- * await pathItems(
- *   components,
- *   { output: 'src/pathItems', split: true },
- *   undefined,
- *   false
- * )
- * // Creates: src/pathItems/UserOperations.ts, src/pathItems/index.ts
- * ```
- */
 export async function pathItems(
   components: Components,
   pathItemsConfig?: {
@@ -78,7 +49,7 @@ export async function pathItems(
     block: pathItemsSrc.slice(h.start, hits[i + 1]?.start ?? pathItemsSrc.length).trim(),
   }))
   if (blocks.length === 0) {
-    const result = await writeFile(String(output), pathItemsSrc)
+    const result = await writeFile(output, pathItemsSrc)
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }

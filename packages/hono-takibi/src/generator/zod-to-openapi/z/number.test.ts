@@ -66,7 +66,7 @@ describe('x-error-message (number base)', () => {
     // x-error-message + constraints
     [
       { type: 'number', minimum: 0, 'x-error-message': '数値必須' },
-      'z.number({error:"数値必須"}).min(0)',
+      'z.number({error:"数値必須"}).min(0,{error:"数値必須"})',
     ],
     // No x-error-message → existing behavior
     [{ type: 'number' }, 'z.number()'],
@@ -205,8 +205,12 @@ describe('x-coerce (P1)', () => {
       { type: 'number', 'x-coerce': true, minimum: 0, maximum: 100 },
       'z.coerce.number().min(0).max(100)',
     ],
-    // coerce overrides float/float64 — coerce.number is the canonical form
-    [{ type: 'number', format: 'float', 'x-coerce': true }, 'z.coerce.number()'],
+    // x-coerce with float format pipes through z.float32 so IEEE754 precision survives
+    [{ type: 'number', format: 'float', 'x-coerce': true }, 'z.coerce.number().pipe(z.float32())'],
+    [
+      { type: 'number', format: 'float64', 'x-coerce': true },
+      'z.coerce.number().pipe(z.float64())',
+    ],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })

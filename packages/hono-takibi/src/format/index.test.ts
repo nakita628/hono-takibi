@@ -98,11 +98,10 @@ describe('setFormatOptions', () => {
     setFormatOptions({ printWidth: 40, singleQuote: true, semi: false })
     const input = 'const result = { alpha: 1, beta: 2, gamma: 3 }'
     const result = await fmt(input)
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      const lines = result.value.trim().split('\n')
-      expect(lines.length).toBeGreaterThan(1)
-    }
+    expect(result).toStrictEqual({
+      ok: true,
+      value: 'const result = {\n  alpha: 1,\n  beta: 2,\n  gamma: 3,\n}\n',
+    })
   })
 
   it('falls back to defaults when called with empty object', async () => {

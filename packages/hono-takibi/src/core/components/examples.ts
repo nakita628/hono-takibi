@@ -6,33 +6,6 @@ import { makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../../utils/index.js'
 
-/**
- * Generates example component files.
- *
- * @param examples - OpenAPI examples object
- * @param output - Output file path or directory
- * @param split - Whether to split into multiple files
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate examples in single file
- * await examples(
- *   { UserExample: { value: { id: 1, name: 'John' } } },
- *   'src/examples.ts',
- *   false
- * )
- *
- * // Generate examples in split mode
- * await examples(
- *   { UserExample: {...}, PostExample: {...} },
- *   'src/examples',
- *   true
- * )
- * // Creates: src/examples/userExample.ts, src/examples/postExample.ts, src/examples/index.ts
- * ```
- */
 export async function examples(
   examples: Components['examples'],
   output: string,

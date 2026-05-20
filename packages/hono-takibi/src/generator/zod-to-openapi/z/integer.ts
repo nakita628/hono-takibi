@@ -6,22 +6,30 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max constraints and `x-minimum-message` / `x-maximum-message` vendor
  * extensions translated to Zod v4 `{error: "msg"}` parameters.
  */
-export function integer(schema: Schema): string {
+export function integer(schema: Schema, options?: { coerce?: boolean }): string {
+  const coerce = options?.coerce
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const baseErrorArg = baseError(errorMessage, requiredMessage)
-  const coerce = schema['x-coerce'] === true
-  // For integer + coerce, emit z.coerce.number().int() since z.coerce.int()
-  // does not exist. bigint format keeps its dedicated coerce variant.
-  const base = coerce
-    ? schema.format === 'bigint'
-      ? `z.coerce.bigint(${baseErrorArg})`
-      : `z.coerce.number(${baseErrorArg}).int()`
-    : schema.format === 'int32'
+  const xCoerce = schema['x-coerce'] === true
+  const isBigint = schema.format === 'bigint'
+  const isInt32 = schema.format === 'int32'
+  const isInt64 = schema.format === 'int64'
+  // `x-coerce` (author-explicit) and `coerce` (path/query wire) share the
+  // same pipe topology so format-specific bounds (int32 / int64) survive.
+  // Previously x-coerce collapsed to `z.coerce.number().int()` and silently
+  // dropped int32 range [-2^31, 2^31-1] and int64 BigInt semantics.
+  const wantsCoerce = coerce === true || xCoerce
+  const bigintBase = wantsCoerce && isBigint
+  const bigintPipe = wantsCoerce && isInt64
+  const numberPipe = wantsCoerce && !isBigint && !isInt64
+  const base = bigintBase
+    ? `z.coerce.bigint(${baseErrorArg})`
+    : isInt32
       ? `z.int32(${baseErrorArg})`
-      : schema.format === 'int64'
+      : isInt64
         ? `z.int64(${baseErrorArg})`
-        : schema.format === 'bigint'
+        : isBigint
           ? `z.bigint(${baseErrorArg})`
           : `z.int(${baseErrorArg})`
   const lit = (n: number): string => {
@@ -29,8 +37,11 @@ export function integer(schema: Schema): string {
     if (schema.format === 'int64') return `${n}n`
     return `${n}`
   }
-  const minimumMessage = schema['x-minimum-message']
-  const exclusiveMinMessage = schema['x-exclusiveMinimum-message']
+  // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >
+  // `x-error-message` > Zod default. `baseErrorArg` covers invalid-type only,
+  // so each numeric bound needs an explicit fallback to honor the contract.
+  const minimumMessage = schema['x-minimum-message'] ?? errorMessage
+  const exclusiveMinMessage = schema['x-exclusiveMinimum-message'] ?? errorMessage
   const minErrorArg = minimumMessage ? error(minimumMessage) : ''
   const minErrorPart = minErrorArg ? `,${minErrorArg}` : ''
   const exMinErrorArg = exclusiveMinMessage ? error(exclusiveMinMessage) : ''
@@ -57,8 +68,8 @@ export function integer(schema: Schema): string {
     }
     return undefined
   })()
-  const maximumMessage = schema['x-maximum-message']
-  const exclusiveMaxMessage = schema['x-exclusiveMaximum-message']
+  const maximumMessage = schema['x-maximum-message'] ?? errorMessage
+  const exclusiveMaxMessage = schema['x-exclusiveMaximum-message'] ?? errorMessage
   const maxErrorArg = maximumMessage ? error(maximumMessage) : ''
   const maxErrorPart = maxErrorArg ? `,${maxErrorArg}` : ''
   const exMaxErrorArg = exclusiveMaxMessage ? error(exclusiveMaxMessage) : ''
@@ -85,15 +96,14 @@ export function integer(schema: Schema): string {
     }
     return undefined
   })()
-  const multipleOfMessage = schema['x-multipleOf-message']
-  const multipleOfErrorArg = multipleOfMessage
-    ? `,${error(multipleOfMessage)}`
-    : baseErrorArg
-      ? `,${baseErrorArg}`
-      : ''
+  const multipleOfMessage = schema['x-multipleOf-message'] ?? errorMessage
+  const multipleOfErrorArg = multipleOfMessage ? `,${error(multipleOfMessage)}` : ''
   const multipleOf =
     schema.multipleOf !== undefined && typeof schema.multipleOf === 'number'
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrorArg})`
       : undefined
-  return [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  if (numberPipe) return `z.coerce.number().pipe(${innerChain})`
+  if (bigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
+  return innerChain
 }

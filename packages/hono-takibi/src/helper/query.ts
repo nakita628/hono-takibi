@@ -13,36 +13,18 @@ import {
   resolveSplitOutDir,
 } from './index.js'
 
-/**
- * Convert method + path to hook name.
- *
- * @param method - HTTP method
- * @param pathStr - API path
- * @param prefix - Hook prefix ('use' or 'create')
- * @returns Hook name (e.g., "useGetUsers" or "createGetUsers")
- */
 function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)
   return `${prefix}${capitalize(funcName)}`
 }
 
-/**
- * Builds the runtime client access expression. e.g.
- *   ('client', 'get', '/users')        → 'client.users.$get'
- *   ('client', 'get', '/users/{id}')   → "client.users[':id'].$get"
- */
+// e.g. ('client','get','/users/{id}') → "client.users[':id'].$get"
 function makeRuntimeAccess(clientName: string, method: string, pathStr: string) {
   const pathResult = formatPath(pathStr)
   return `${clientName}${pathResult.runtimePath}.$${method}`
 }
 
-/**
- * Brute-force response type derivation: chain `Awaited`/`ReturnType`/`typeof parseResponse`
- * over the client method's return so the parsed JSON shape falls out without any helper.
- *
- * e.g., ('client', 'get', '/users')
- *   → 'Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>'
- */
+// Chains Awaited/ReturnType/typeof parseResponse to derive parsed JSON shape.
 function makeResponseTypeFromClient(clientName: string, method: string, pathStr: string) {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
@@ -52,11 +34,6 @@ function makeResponseTypeFromClient(clientName: string, method: string, pathStr:
   return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${typeAccess}>>>>>`
 }
 
-/**
- * Creates an InferRequestType string from the client path.
- * e.g., ('client', 'get', '/users') → 'InferRequestType<typeof client.users.$get>'
- * e.g., ('client', 'get', '/users/{id}') → 'InferRequestType<(typeof client.users)[':id']['$get']>'
- */
 function makeArgsType(clientName: string, method: string, pathStr: string) {
   const pathResult = formatPath(pathStr)
   const runtimeAccess = `${clientName}${pathResult.runtimePath}.$${method}`
@@ -66,14 +43,6 @@ function makeArgsType(clientName: string, method: string, pathStr: string) {
   return `InferRequestType<${typeAccess}>`
 }
 
-/**
- * Generates the query key getter function name.
- *
- * @param method - HTTP method
- * @param pathStr - API path
- * @param isSWR - Whether to use SWR naming (keeps method prefix, no "Query" suffix)
- * @returns Query key getter function name (e.g., "getUsersQueryKey" or "getGetUsersKey")
- */
 function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
     return `get${capitalize(methodPath(method, pathStr))}Key`
@@ -81,14 +50,6 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
   return `get${capitalize(methodPath('', pathStr))}QueryKey`
 }
 
-/**
- * Generates the infinite query key getter function name.
- *
- * @param method - HTTP method
- * @param pathStr - API path
- * @param isSWR - Whether to use SWR naming (keeps method prefix, no "QueryKey" suffix)
- * @returns Infinite query key getter function name (e.g., "getUsersInfiniteQueryKey" or "getGetUsersInfiniteKey")
- */
 function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
     return `get${capitalize(methodPath(method, pathStr))}InfiniteKey`
@@ -96,49 +57,22 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
 }
 
-/**
- * Generates the query options getter function name.
- *   '/users' → 'getUsersQueryOptions'
- */
 function makeQueryOptionsGetterName(pathStr: string) {
   return `get${capitalize(methodPath('', pathStr))}QueryOptions`
 }
 
-/**
- * Generates the infinite query options getter function name.
- */
 function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
 }
 
-/**
- * Generates the mutation options getter function name.
- */
 function makeMutationOptionsGetterName(method: string, pathStr: string) {
   return `get${capitalize(methodPath(method, pathStr))}MutationOptions`
 }
 
-/**
- * Generates query key getter function code using structured keys.
- *
- * Pattern: ['prefix', '/full/path', args?]
- * - prefix: First path segment for prefix filtering (e.g., 'pet')
- * - path: Full path for uniqueness (e.g., '/pet/findByStatus')
- * - args: Request arguments when present
- *
- * This enables consistent filtering:
- * - All pet: invalidateQueries({ queryKey: ['pet'] })
- * - Specific endpoint: invalidateQueries({ queryKey: ['pet', '/pet/findByStatus'] })
- *
- * @param keyGetterName - Function name for key getter
- * @param hasArgs - Whether the operation has arguments
- * @param argsType - TypeScript type for request args
- * @param honoPath - Hono-style path (with :param)
- * @param config - Framework configuration
- * @returns Query key getter function code
- * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
- * @see https://swr.vercel.app/docs/arguments
- */
+// Structured key pattern: ['prefix','/full/path',args?] enables both per-prefix
+// and per-endpoint invalidation.
+// @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
+// @see https://swr.vercel.app/docs/arguments
 function makeQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
@@ -151,19 +85,16 @@ function makeQueryKeyGetterCode(
   },
   hasHeader = false,
 ) {
-  // Extract prefix (first path segment without leading slash)
-  // e.g., '/pet/findByStatus' → 'pet', '/store/inventory' → 'store'
+  // First path segment, e.g. '/pet/findByStatus' → 'pet'
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
-  // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
       return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
   }
-  // TanStack Query / Svelte Query / SWR: ['prefix', '/path', args?]
   if (hasArgs) {
-    // Exclude 'header' from key per REST principle: headers are metadata, not resource identifiers
+    // REST: headers are metadata, not resource identifiers — excluded from key.
     const body = hasHeader
       ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs]as const`
       : `return['${prefix}','${honoPath}',args]as const`
@@ -172,11 +103,7 @@ function makeQueryKeyGetterCode(
   return `export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
 }
 
-/**
- * Generates infinite query key getter function code.
- *
- * Same as makeQueryKeyGetterCode but appends 'infinite' to distinguish from standard query keys.
- */
+// Same as makeQueryKeyGetterCode but appends 'infinite' to the key tuple.
 function makeInfiniteQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
@@ -187,14 +114,12 @@ function makeInfiniteQueryKeyGetterCode(
 ) {
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
 
-  // Vue Query: uses MaybeRefOrGetter and toValue
   if (config.isVueQuery) {
     if (hasArgs) {
       return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
   }
-  // TanStack Query / Svelte Query / SWR
   if (hasArgs) {
     const infBody = hasHeader
       ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs,'infinite']as const`
@@ -225,11 +150,8 @@ function makeQueryOptionsGetterCode(
   },
 ) {
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-  // When `queryOptions(...)` wraps the body, the helper provides contextual typing for
-  // `queryFn` (signal: AbortSignal). The plain-object branch has no surrounding context,
-  // so keep `:QueryFunctionContext` there.
+  // With `queryOptions(...)` helper, `signal` is contextually typed; without, annotate explicitly.
   const queryFnSig = config.hasQueryOptionsHelper ? '{signal}' : '{signal}:QueryFunctionContext'
-  // Vue Query: use MaybeRefOrGetter for args and toValue in queryFn
   if (config.isVueQuery && hasArgs) {
     const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
     const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
@@ -251,14 +173,8 @@ function makeQueryOptionsGetterCode(
   return `export function ${optionsGetterName}(options?:ClientRequestOptions){return ${returnExpr}}`
 }
 
-/**
- * Generates the infinite query options factory.
- *
- * When `hasInfiniteQueryOptionsHelper` is true (TanStack v5 family) the factory wraps with
- * `infiniteQueryOptions({...})` and accepts `pagination` as a required arg providing
- * `initialPageParam` / `getNextPageParam`. Otherwise the factory returns a plain
- * `{queryKey, queryFn}` and users must supply pagination at the hook site.
- */
+// With helper: wraps `infiniteQueryOptions({...})` + required `pagination` arg.
+// Without: plain `{queryKey, queryFn}`; caller supplies pagination at hook site.
 function makeInfiniteQueryOptionsGetterCode(
   optionsGetterName: string,
   infiniteKeyGetterName: string,
@@ -304,13 +220,6 @@ function makeInfiniteQueryOptionsGetterCode(
   return `export function ${optionsGetterName}(options?:ClientRequestOptions){return {${bodyContent}}}`
 }
 
-/**
- * Generates the mutation options factory.
- *
- * Returns either a `mutationOptions<TData,TError,TVars>({...})`-typed object (when
- * the framework provides the helper) or a plain `{mutationKey, mutationFn}` literal.
- * `mutationFn` inlines `parseResponse(client.x.$y(args, options))`.
- */
 function makeMutationOptionsGetterCode(
   optionsGetterName: string,
   hasArgs: boolean,
@@ -329,9 +238,7 @@ function makeMutationOptionsGetterCode(
   const prefix = honoPath.replace(/^\//, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
   const errorType = config.errorType ?? 'unknown'
-  // TError is only emitted when wrapped in `mutationOptions<TData, TError, TVariables>(...)`;
-  // without the helper the factory returns a plain `{mutationKey, mutationFn}` literal where
-  // the type parameter would be unreferenced.
+  // TError is only useful when wrapped by `mutationOptions<...>`.
   const tErrorGeneric = config.hasMutationOptionsHelper ? `<TError=${errorType}>` : ''
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
   const variablesType = hasArgs ? argsType : 'void'
@@ -1406,8 +1313,8 @@ export async function makeQueryHooks(
     }),
     emit(index, path.dirname(indexPath), indexPath),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+  const e = results.find((result) => !result.ok)
+  if (e && !e.ok) return { ok: false, error: e.error } as const
   return {
     ok: true,
     value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,

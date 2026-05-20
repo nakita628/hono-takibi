@@ -98,7 +98,7 @@ describe('object', () => {
 
   describe('x-error-message (dependentRequired)', () => {
     it.concurrent.each<[Schema, string]>([
-      // v3.1: dependentRequired emits superRefine — one issue per missing dep
+      // dependentRequired emits superRefine — one issue per missing dep
       // at `path:[d]`, x-error-message used as fallback when no
       // x-dependentRequired-message is set.
       [
@@ -116,7 +116,7 @@ describe('object', () => {
 
   describe('x-dependentRequired-message', () => {
     it.concurrent.each<[Schema, string]>([
-      // v3.1: dependentRequired uses superRefine, emits per-dep issues with
+      // dependentRequired uses superRefine, emits per-dep issues with
       // path:[d]. x-dependentRequired-message overrides x-error-message.
       [
         {
@@ -154,7 +154,7 @@ describe('object', () => {
         `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"requires \\"bar\\" when \\"foo\\" present",path:["bar"]})}})`,
       ],
       // multiple deps per key (foo requires both bar and baz)
-      // v3.1: each missing dep emits its own issue at path:[d]
+      // each missing dep emits its own issue at path:[d]
       [
         {
           type: 'object',
@@ -198,7 +198,7 @@ describe('object', () => {
         'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b","c"];for(const k of Object.keys(o)){if(!allowed.includes(k)){ctx.addIssue({code:"custom",path:[k],message:"Keys must be a, b, or c"})}}})',
       ],
       // patternProperties + x-patternProperties-message
-      // v3.1: superRefine with closure-captured RegExp/Schema; the message
+      // superRefine with closure-captured RegExp/Schema; the message
       // slot OVERRIDES inner sub-issue messages (path/code preserved).
       [
         {
@@ -206,7 +206,7 @@ describe('object', () => {
           patternProperties: { '^S_': { type: 'string' } },
           'x-patternProperties-message': 'S_ prefixed keys must be strings',
         },
-        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"})}}}})',
       ],
       // record path (additionalProperties: Schema) + x-propertyNames-message
       [
@@ -219,7 +219,7 @@ describe('object', () => {
         'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"lowercase keys only"})}}})',
       ],
       // record path (additionalProperties: Schema) + patternProperties + x-patternProperties-message
-      // v3.1: same superRefine pattern as object path
+      // same superRefine pattern as object path
       [
         {
           type: 'object',
@@ -227,7 +227,7 @@ describe('object', () => {
           patternProperties: { '^x-': { type: 'string' } },
           'x-patternProperties-message': 'x- keys must be strings',
         },
-        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"})}}}})',
+        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x- keys must be strings"})}}}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -270,7 +270,7 @@ describe('object', () => {
           type: 'object',
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        // v0.13.0: slot 未指定時は message field を完全省略し Zod default に委譲
+        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // propertyNames + patternProperties with separate messages
@@ -282,7 +282,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x-の値は文字列のみ',
           'x-propertyNames-message': 'キー名は小文字のみ',
         },
-        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字のみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x-の値は文字列のみ"})}}}})',
+        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は小文字のみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x-");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x-の値は文字列のみ"})}}}})',
       ],
       // object path with properties + propertyNames pattern
       [
@@ -301,7 +301,7 @@ describe('object', () => {
           type: 'object',
           propertyNames: { enum: ['a', 'b'] },
         },
-        // v0.13.0: slot 未指定時は message field を完全省略し Zod default に委譲
+        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b"];for(const k of Object.keys(o)){if(!allowed.includes(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // record path: no message
@@ -311,7 +311,7 @@ describe('object', () => {
           additionalProperties: { type: 'string' },
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        // v0.13.0: slot 未指定時は message field を完全省略し Zod default に委譲
+        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // record path: propertyNames + patternProperties with separate messages
@@ -324,7 +324,7 @@ describe('object', () => {
           'x-patternProperties-message': 'x_の値は整数のみ',
           'x-propertyNames-message': 'キー名は英小文字とアンダースコアのみ',
         },
-        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z_]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は英小文字とアンダースコアのみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.int();for(const [k,v] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(v);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"})}}}})',
+        'z.record(z.string(),z.number()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z_]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"キー名は英小文字とアンダースコアのみ"})}}}).superRefine((o,ctx)=>{const regex=new RegExp("^x_");const Schema=z.int();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"x_の値は整数のみ"})}}}})',
       ],
     ])('object(%o) → %s', (input, expected) => {
       expect(object(input)).toBe(expected)
@@ -449,7 +449,7 @@ describe('object', () => {
         'z.object({name:z.string()})',
       ],
     ])('object(%o, %s) → %s', (input, readonly, expected) => {
-      expect(object(input, readonly)).toBe(expected)
+      expect(object(input, readonly === true ? { readonly: true } : undefined)).toBe(expected)
     })
   })
 
@@ -524,7 +524,7 @@ describe('object', () => {
   describe('combined x-* messages', () => {
     it.concurrent.each<[Schema, string]>([
       // all constraints with separate messages
-      // v3.1: dependentRequired uses superRefine, emits per-dep issue at path:[d]
+      // dependentRequired uses superRefine, emits per-dep issue at path:[d]
       [
         {
           type: 'object',

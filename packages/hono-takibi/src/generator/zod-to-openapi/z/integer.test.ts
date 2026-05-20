@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { integer } from './integer.js'
@@ -155,7 +156,7 @@ describe('integer', () => {
       // x-error-message + constraints
       [
         { type: 'integer', minimum: 0, 'x-error-message': '整数必須' },
-        'z.int({error:"整数必須"}).min(0)',
+        'z.int({error:"整数必須"}).min(0,{error:"整数必須"})',
       ],
       // No x-error-message → existing behavior
       [{ type: 'integer' }, 'z.int()'],
@@ -367,17 +368,35 @@ describe('integer', () => {
 
   describe('x-coerce (P1)', () => {
     it.concurrent.each<[Schema, string]>([
-      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().int()'],
+      // x-coerce wraps in z.coerce.number().pipe(...) so format bounds survive
+      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().pipe(z.int())'],
       [
         { type: 'integer', 'x-coerce': true, 'x-error-message': '整数必須' },
-        'z.coerce.number({error:"整数必須"}).int()',
+        'z.coerce.number().pipe(z.int({error:"整数必須"}))',
       ],
-      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().int().min(0)'],
-      [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().int()'],
-      // bigint keeps its dedicated coerce variant
+      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().pipe(z.int().min(0))'],
+      [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().pipe(z.int32())'],
+      // int64 is BigInt-backed → bigint pipe preserves the int64 range
+      [{ type: 'integer', format: 'int64', 'x-coerce': true }, 'z.coerce.bigint().pipe(z.int64())'],
+      // bigint format coerces directly to BigInt (no pipe needed)
       [{ type: 'integer', format: 'bigint', 'x-coerce': true }, 'z.coerce.bigint()'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
+    })
+  })
+
+  describe('regression: x-coerce + format runtime bounds', () => {
+    it.concurrent('int32 + x-coerce accepts INT32_MAX as a string', () => {
+      const Schema = z.coerce.number().pipe(z.int32())
+      expect(Schema.safeParse('2147483647').success).toBe(true)
+    })
+    it.concurrent('int32 + x-coerce rejects INT32_MAX + 1 as a string', () => {
+      const Schema = z.coerce.number().pipe(z.int32())
+      expect(Schema.safeParse('2147483648').success).toBe(false)
+    })
+    it.concurrent('int64 + x-coerce rejects non-integer numeric strings', () => {
+      const Schema = z.coerce.bigint().pipe(z.int64())
+      expect(Schema.safeParse('1.5').success).toBe(false)
     })
   })
 })
