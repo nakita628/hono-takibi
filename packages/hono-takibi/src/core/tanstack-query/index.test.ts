@@ -2817,8 +2817,7 @@ describe('tanstackQuery (header parameters excluded from query key)', () => {
       const result = await tanstackQuery(spec, out, '../client', false)
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code)
-        .toBe(`import {
+      expect(code).toBe(`import {
   useQuery,
   useSuspenseQuery,
   useInfiniteQuery,

@@ -2750,10 +2750,7 @@ This operation does not require authentication
         contact: { name: 'Support', email: 'support@example.com' },
         license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
       },
-      servers: [
-        { url: 'https://api.example.com' },
-        { url: 'https://staging.example.com' },
-      ],
+      servers: [{ url: 'https://api.example.com' }, { url: 'https://staging.example.com' }],
       security: [{ oauth: ['read', 'write'] }],
       components: {
         securitySchemes: {
@@ -4141,7 +4138,9 @@ This operation does not require authentication
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: {
-        securitySchemes: { ak: { type: 'apiKey', name: 'X-Api-Key' } as { type: 'apiKey'; name: string } },
+        securitySchemes: {
+          ak: { type: 'apiKey', name: 'X-Api-Key' } as { type: 'apiKey'; name: string },
+        },
       },
       paths: {
         '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
@@ -4248,7 +4247,10 @@ This operation does not require authentication
           o3: {
             type: 'oauth2',
             flows: { clientCredentials: { scopes: {} } },
-          } as { type: 'oauth2'; flows: { clientCredentials: { scopes: { readonly [k: string]: string } } } },
+          } as {
+            type: 'oauth2'
+            flows: { clientCredentials: { scopes: { readonly [k: string]: string } } }
+          },
         },
       },
       paths: {
@@ -4472,9 +4474,7 @@ o2
       info: { title: 'Kitchen', version: '1.0.0', description: 'A kitchen sink API.' },
       paths: {
         '/x/{id}': {
-          parameters: [
-            { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
-          ],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
           patch: {
             operationId: 'patchX',
             description: 'Patch operation desc',

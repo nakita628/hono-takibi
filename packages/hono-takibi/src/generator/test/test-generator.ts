@@ -253,8 +253,7 @@ function makeAuthHeader(sec: {
     case 'basic':
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
-      if (sec.in === 'header')
-        return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
+      if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
       // RFC 6265: `Cookie: <name>=<value>`. apiKey-in-query is appended upstream.
       if (sec.in === 'cookie')
         return `'Cookie':\`${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}\``
@@ -280,8 +279,7 @@ function makeTestCase(
   const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
   const queryParts = tc.queryParams.map(
-    (param) =>
-      `${escapeTemplateLiteral(param.name)}=\${encodeURIComponent(String(${param.name}))}`,
+    (param) => `${escapeTemplateLiteral(param.name)}=\${encodeURIComponent(String(${param.name}))}`,
   )
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
   // apiKey-in-query credentials go on the URL; bare `queryString` is reused

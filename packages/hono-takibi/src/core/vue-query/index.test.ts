@@ -1774,8 +1774,7 @@ describe('vueQuery (header parameters excluded from query key)', () => {
       const result = await vueQuery(spec, out, '../client', false)
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
-      expect(code)
-        .toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+      expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,

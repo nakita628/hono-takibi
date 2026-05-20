@@ -54,10 +54,7 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
             .map((method) => {
               const operation = pathItem[method]
               if (!operation) return undefined
-              const sourceParams = [
-                ...(pathItem.parameters ?? []),
-                ...(operation.parameters ?? []),
-              ]
+              const sourceParams = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
               const params = sourceParams.map(resolve).filter((p) => p !== undefined)
               // Always pass the resolved set; falling back to unresolved originals
               // emits broken `request:{undefined:z.object({undefined:...})}`.

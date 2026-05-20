@@ -575,7 +575,7 @@ describe('type', () => {
   })
 
   it('handles default/XX status codes, $ref body and response, text and no-content', async () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'StatusAll', version: '1.0.0' },
       paths: {
@@ -633,7 +633,7 @@ describe('type', () => {
         },
         parameters: { QId: { name: 'id', in: 'query', schema: { type: 'integer' } } },
       },
-    }
+    } as unknown as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-statusall-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
@@ -687,7 +687,7 @@ export default routes
   })
 
   it('renders oneOf/anyOf/const/nullable/multi-type/mixed-enum in one fixture', async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'TypesAll', version: '1.0.0' },
       paths: {
@@ -709,8 +709,8 @@ export default routes
                         constBool: { const: true },
                         constObject: { const: { a: 1 } },
                         nullableStr: { type: 'string', nullable: true },
-                        multiType: { type: ['string', 'null'] as 'string' },
-                        enumMixed: { enum: ['a', 1, true] as unknown as readonly string[] },
+                        multiType: { type: ['string', 'null'] },
+                        enumMixed: { enum: ['a', 1, true] },
                       },
                     },
                   },
@@ -720,7 +720,7 @@ export default routes
           },
         },
       },
-    }
+    } as unknown as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-mixed-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`

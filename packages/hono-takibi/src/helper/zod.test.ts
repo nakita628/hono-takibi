@@ -272,10 +272,7 @@ describe('helper/zod', () => {
 
     it('emits typeless string constraints (minLength/maxLength/pattern)', () => {
       expect(
-        emitTypelessRefine(
-          { minLength: 3, maxLength: 10, pattern: '^x' } as Schema,
-          recurse,
-        ),
+        emitTypelessRefine({ minLength: 3, maxLength: 10, pattern: '^x' } as Schema, recurse),
       ).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length<3){ctx.addIssue({code:'custom'})};if([...val].length>10){ctx.addIssue({code:'custom'})};if(!new RegExp("^x").test(val)){ctx.addIssue({code:'custom'})}}})`,
       )
@@ -323,9 +320,7 @@ describe('helper/zod', () => {
     })
 
     it('emits typeless dependentRequired check', () => {
-      expect(
-        emitTypelessRefine({ dependentRequired: { a: ['b', 'c'] } } as Schema, recurse),
-      ).toBe(
+      expect(emitTypelessRefine({ dependentRequired: { a: ['b', 'c'] } } as Schema, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){if(!(Object.hasOwn(val,"b")&&Object.hasOwn(val,"c"))){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
@@ -337,9 +332,7 @@ describe('helper/zod', () => {
     })
 
     it('emits typeless enum check (any-type)', () => {
-      expect(
-        emitTypelessRefine({ enum: ['a', 'b', 'c'] } as Schema, recurse),
-      ).toBe(
+      expect(emitTypelessRefine({ enum: ['a', 'b', 'c'] } as Schema, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(!["a","b","c"].some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue({code:'custom'})}})`,
       )
     })

@@ -142,34 +142,31 @@ export const eventsPostWebhook={method:"post",path:"/events",responses:{200:{des
     )
   })
 
-  it.concurrent(
-    'resolves parameter $ref; unresolved and wrong-path refs are filtered out',
-    () => {
-      const openapi = {
-        paths: {},
-        webhooks: {
-          ev: {
-            post: {
-              // Valid → resolved; Missing → `if (!resolved) return undefined`; WrongPath
-              // (#/components/schemas/X) → `if (!(ref && isParameterRef(ref))) return undefined`
-              parameters: [
-                { $ref: '#/components/parameters/Valid' },
-                { $ref: '#/components/parameters/Missing' },
-                { $ref: '#/components/schemas/WrongPath' },
-              ],
-              responses: { '200': { description: 'OK' } },
-            },
+  it.concurrent('resolves parameter $ref; unresolved and wrong-path refs are filtered out', () => {
+    const openapi = {
+      paths: {},
+      webhooks: {
+        ev: {
+          post: {
+            // Valid → resolved; Missing → `if (!resolved) return undefined`; WrongPath
+            // (#/components/schemas/X) → `if (!(ref && isParameterRef(ref))) return undefined`
+            parameters: [
+              { $ref: '#/components/parameters/Valid' },
+              { $ref: '#/components/parameters/Missing' },
+              { $ref: '#/components/schemas/WrongPath' },
+            ],
+            responses: { '200': { description: 'OK' } },
           },
         },
-        components: {
-          parameters: { Valid: { name: 'v', in: 'query', schema: { type: 'string' } } },
-        },
-      } as unknown as OpenAPI
-      expect(webhookCode(openapi)).toBe(
-        `export const evPostWebhook={method:"post",path:"/ev",request:{query:z.object({v:ValidParamsSchema})},responses:{200:{description:"OK"}}}`,
-      )
-    },
-  )
+      },
+      components: {
+        parameters: { Valid: { name: 'v', in: 'query', schema: { type: 'string' } } },
+      },
+    } as unknown as OpenAPI
+    expect(webhookCode(openapi)).toBe(
+      `export const evPostWebhook={method:"post",path:"/ev",request:{query:z.object({v:ValidParamsSchema})},responses:{200:{description:"OK"}}}`,
+    )
+  })
 
   it.concurrent('merges pathItem-level parameters with operation-level parameters', () => {
     const openapi = {

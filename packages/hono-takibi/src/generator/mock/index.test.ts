@@ -969,12 +969,12 @@ export default app
 
   describe('apiKey scheme without a name (fallback to X-API-Key)', () => {
     it('falls back to X-API-Key when scheme.name is missing', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: {
           securitySchemes: {
-            ak: { type: 'apiKey', in: 'header' } as { type: 'apiKey'; in: 'header' },
+            ak: { type: 'apiKey', in: 'header' },
           },
         },
         paths: {
@@ -996,7 +996,7 @@ export default app
             },
           },
         },
-      }
+      } as unknown as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'

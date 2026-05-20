@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
+import type { OpenAPI } from '../../../../openapi/index.js'
 import { routeCode } from './index.js'
 
 describe('routeCode', () => {

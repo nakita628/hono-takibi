@@ -22,7 +22,9 @@ describe('generator/test barrel exports', () => {
 
 describe('schemaToFaker', () => {
   it('should generate faker code for string type', () => {
-    expect(schemaToFaker({ type: 'string' })).toBe('faker.string.alpha({ length: { min: 5, max: 20 } })')
+    expect(schemaToFaker({ type: 'string' })).toBe(
+      'faker.string.alpha({ length: { min: 5, max: 20 } })',
+    )
   })
 
   it('should generate faker code for integer type', () => {
@@ -97,8 +99,7 @@ describe('makeTestFile', () => {
         },
       },
     }
-    expect(makeTestFile(openAPI, '..'))
-      .toBe(`import{describe,it,expect}from'vitest'
+    expect(makeTestFile(openAPI, '..')).toBe(`import{describe,it,expect}from'vitest'
 import app from'..'
 
 describe('Test',()=>{describe('default',()=>{describe('GET /users',()=>{it('should return 200',async()=>{
