@@ -12,12 +12,7 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
       const camelName = pascalName.charAt(0).toLowerCase() + pascalName.slice(1)
       return `${camelName}${method.charAt(0).toUpperCase()}${method.slice(1)}`
     }
-    const makeEntry = (
-      name: string,
-      method: string,
-      operation: Operation,
-      readonly?: boolean,
-    ): { readonly name: string; readonly code: string } => {
+    const makeEntry = (name: string, method: string, operation: Operation, readonly?: boolean) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(`/${name}`)}`,

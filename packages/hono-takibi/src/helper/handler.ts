@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
@@ -104,7 +106,7 @@ export function makeHandlerFileName(path: string): `${string}.ts` {
 }
 
 function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
-  return `${fileName.replace(/\.ts$/, '')}.test.ts`
+  return `${path.basename(fileName, '.ts')}.test.ts`
 }
 
 function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
@@ -118,7 +120,9 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
-    : (output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts').replace(/\.ts$/, '')
+    : output.endsWith('.ts')
+      ? path.basename(output, '.ts')
+      : 'index'
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const importFrom =
     routeImport ?? (aliasPrefix ? `${aliasPrefix}/${routeModuleName}` : `../${routeModuleName}`)
@@ -213,7 +217,7 @@ function makeInlineStubFileContent(
   },
   importFrom: string,
 ) {
-  const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
+  const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
@@ -232,7 +236,7 @@ function makeInlineMockFileContent(
   importFrom: string,
   schemas: { readonly [k: string]: Schema },
 ) {
-  const exportName = `${handler.fileName.replace(/\.ts$/, '')}Handler`
+  const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
   const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
@@ -358,7 +362,7 @@ function makeMockFileContent(
 }
 
 function makeBarrelContent(fileNames: readonly string[]): string {
-  return fileNames.map((h) => `export * from './${h.replace(/\.ts$/, '')}'`).join('\n')
+  return fileNames.map((h) => `export * from './${path.basename(h, '.ts')}'`).join('\n')
 }
 
 /**
@@ -386,7 +390,7 @@ async function removeStaleFiles(handlerPath: string, generatedFileNames: Readonl
   const results = await Promise.all(
     staleFiles.flatMap((file) => [
       unlink(`${handlerPath}/${file}`),
-      unlink(`${handlerPath}/${file.replace(/\.ts$/, '.test.ts')}`),
+      unlink(`${handlerPath}/${path.basename(file, '.ts')}.test.ts`),
     ]),
   )
   const firstError = results.find((r) => !r.ok)

@@ -23,7 +23,7 @@ export async function requestBodies(
   const bodyNames = Object.keys(requestBodies)
   if (bodyNames.length === 0) return { ok: true, value: 'No requestBodies found' } as const
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([
       ...bodyNames.map((bodyName) => {
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }

@@ -17,7 +17,7 @@ export async function schemas(
   const schemaNames = Object.keys(schemas)
   if (schemaNames.length === 0) return { ok: true, value: 'No schemas found' } as const
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const analysis = analyzeCircularSchemas(schemas, schemaNames, readonly)
     const results = await Promise.all([
       ...schemaNames.map((schemaName) => {

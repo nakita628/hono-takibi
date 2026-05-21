@@ -27,12 +27,7 @@ export async function route(
     openapi: OpenAPI,
     readonly?: boolean,
   ): readonly { readonly name: string; readonly code: string }[] => {
-    const makeEntry = (
-      path: string,
-      method: string,
-      operation: Operation,
-      readonly?: boolean,
-    ): { readonly name: string; readonly code: string } => {
+    const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(path)}`,
@@ -120,7 +115,7 @@ export async function route(
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
-  const outDir = output.replace(/\.ts$/, '')
+  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const results = await Promise.all([
     ...entries.map(async ({ name, code }) => {
       const filePath = `${outDir}/${name}.ts`

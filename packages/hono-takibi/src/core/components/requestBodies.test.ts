@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
 import { requestBodies } from './requestBodies.js'
 
 let tmpDir: string
@@ -102,6 +103,38 @@ describe('requestBodies', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'createUser.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'updateUser.ts'))).toBe(true)
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same requestBody const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-contract-'))
+      const output = path.join(tmpDir, 'requestBodies.ts')
+      const sampleBodies = {
+        CreateUser: {
+          required: true,
+          content: { 'application/json': { schema: { type: 'object' as const } } },
+        },
+        UpdateUser: {
+          required: false,
+          content: { 'application/json': { schema: { type: 'object' as const } } },
+        },
+      }
+      const result = await requestBodies(sampleBodies, output, false)
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)
+      const emittedNames = new Set(
+        [
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/g),
+        ].map((m) => m[1]),
+      )
+      const generatedNames = new Set(
+        [
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/g),
+        ].map((m) => m[1]),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
 })

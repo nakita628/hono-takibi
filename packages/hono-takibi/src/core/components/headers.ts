@@ -24,7 +24,7 @@ export async function headers(
   const headerNames = Object.keys(headers)
   if (headerNames.length === 0) return { ok: true, value: 'No headers found' } as const
   if (split) {
-    const outDir = String(output).replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([
       ...headerNames.map((headerName) => {
         const singleComponent = { headers: { [headerName]: headers[headerName] } }

@@ -3,26 +3,6 @@ import { makePathItem } from '../../../../helper/openapi.js'
 import type { Components, PathItem } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 
-/**
- * Generates TypeScript code for OpenAPI component pathItems.
- *
- * Converts pathItem definitions to JavaScript object constants with
- * resolved schema references.
- *
- * @param components - The OpenAPI components object.
- * @param exportPathItems - Whether to export the pathItem constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with pathItem definitions.
- *
- * @example
- * ```ts
- * pathItemsCode(components, true)
- * // → 'export const UserOperationsPathItem = { get: { responses: { "200": { content: { "application/json": { schema: ResourceSchema } } } } } }'
- *
- * pathItemsCode(components, true, true)
- * // → 'export const UserOperationsPathItem = { ... } as const'
- * ```
- */
 export function pathItemsCode(
   components: Components,
   exportPathItems: boolean,

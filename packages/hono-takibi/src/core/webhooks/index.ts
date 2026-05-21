@@ -6,25 +6,6 @@ import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper
 import type { OpenAPI, Operation, Parameter } from '../../openapi/index.js'
 import { makeBarrel, toIdentifierPascalCase } from '../../utils/index.js'
 
-/**
- * Generates webhook files from OpenAPI specification.
- *
- * @param openAPI - OpenAPI specification object
- * @param webhooksConfig - Webhook output configuration
- * @param components - Component import configuration
- * @param readonly - Whether to add `as const` assertion to the output
- * @returns Promise resolving to success message or error
- *
- * @example
- * ```ts
- * // Generate webhooks in single file
- * await webhooks(openAPI, { output: 'src/webhooks.ts' })
- *
- * // Generate webhooks in split mode
- * await webhooks(openAPI, { output: 'src/webhooks', split: true })
- * // Creates: src/webhooks/newOrder.ts, src/webhooks/index.ts
- * ```
- */
 export async function webhooks(
   openAPI: OpenAPI,
   webhooks?: {
@@ -52,12 +33,7 @@ export async function webhooks(
       const camelName = pascalName.charAt(0).toLowerCase() + pascalName.slice(1)
       return `${camelName}${method.charAt(0).toUpperCase()}${method.slice(1)}`
     }
-    const makeEntry = (
-      name: string,
-      method: string,
-      operation: Operation,
-      readonly?: boolean,
-    ): { readonly name: string; readonly code: string } => {
+    const makeEntry = (name: string, method: string, operation: Operation, readonly?: boolean) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(`/${name}`)}`,
@@ -125,7 +101,7 @@ export async function webhooks(
     if (!result.ok) return result
     return { ok: true, value: `Generated webhooks code written to ${output}` } as const
   }
-  const outDir = output.replace(/\.ts$/, '')
+  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const results = await Promise.all([
     ...entries.map(async ({ name, code }) => {
       const filePath = `${outDir}/${name}.ts`

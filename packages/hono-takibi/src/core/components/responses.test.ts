@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
 import { responses } from './responses.js'
 
 let tmpDir: string
@@ -103,6 +104,32 @@ describe('responses', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'notFound.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'unauthorized.ts'))).toBe(true)
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same response const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-contract-'))
+      const output = path.join(tmpDir, 'responses.ts')
+      const sampleResponses = {
+        NotFound: { description: 'Not found' },
+        Unauthorized: { description: 'Unauthorized' },
+      }
+      const result = await responses(sampleResponses, output, false)
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = responsesCode({ responses: sampleResponses }, true)
+      const emittedNames = new Set(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/g)].map(
+          (m) => m[1],
+        ),
+      )
+      const generatedNames = new Set(
+        [
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/g),
+        ].map((m) => m[1]),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
 })

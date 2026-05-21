@@ -253,7 +253,7 @@ describe('mediaTypes', () => {
     it('writes split files with .ts suffix in output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mediaTypes-'))
       const output = path.join(tmpDir, 'mediaTypes.ts')
-      const outDir = output.replace(/\.ts$/, '')
+      const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       const result = await mediaTypes(
         {
           JsonMedia: {
@@ -375,5 +375,73 @@ describe('mediaTypes', () => {
       expect(lines[0]).toBe("export * from './alphaMedia.ts'")
       expect(lines[1]).toBe("export * from './zooMedia.ts'")
     })
+  })
+})
+
+describe('outDir derivation (path.join + path.basename pattern)', () => {
+  it('strips .ts suffix from a nested path', () => {
+    const output = 'src/foo.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo')
+  })
+
+  it('returns the path unchanged when no .ts suffix is present', () => {
+    const output = 'src/foo'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo')
+  })
+
+  it('removes leading ./ via path.join normalization', () => {
+    const output = './foo.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('foo')
+  })
+
+  it('collapses consecutive slashes', () => {
+    const output = 'src//foo.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo')
+  })
+
+  it('preserves absolute paths', () => {
+    const output = '/abs/foo.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('/abs/foo')
+  })
+
+  it('handles a bare filename with .ts', () => {
+    const output = 'foo.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('foo')
+  })
+
+  it('only strips .ts when it appears at the end', () => {
+    const output = 'src/foo.ts.bak'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo.ts.bak')
+  })
+
+  it('does not strip a non-matching extension like .tsx', () => {
+    const output = 'src/foo.tsx'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo.tsx')
+  })
+
+  it('ignores a trailing slash and strips .ts from the basename', () => {
+    const output = 'src/foo.ts/'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('src/foo')
+  })
+
+  it('returns "." for an empty input string', () => {
+    const output = ''
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('.')
+  })
+
+  it('returns "." when the entire input equals ".ts" (basename returns empty)', () => {
+    const output = '.ts'
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+    expect(outDir).toBe('.')
   })
 })

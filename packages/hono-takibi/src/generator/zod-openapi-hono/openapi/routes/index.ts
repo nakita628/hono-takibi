@@ -7,12 +7,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     openapi: OpenAPI,
     readonly?: boolean,
   ): readonly { readonly name: string; readonly code: string }[] => {
-    const makeEntry = (
-      path: string,
-      method: string,
-      operation: Operation,
-      readonly?: boolean,
-    ): { readonly name: string; readonly code: string } => {
+    const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(path)}`,

@@ -134,7 +134,7 @@ describe('examples', () => {
     it('writes individual files with .ts suffix in output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const outDir = output.replace(/\.ts$/, '')
+      const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       const result = await examples(
         {
           UserExample: { value: { id: 1, name: 'John' } },

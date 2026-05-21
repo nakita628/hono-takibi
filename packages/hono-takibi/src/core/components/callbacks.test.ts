@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { callbacksCode } from '../../generator/zod-openapi-hono/openapi/components/callbacks.js'
 import { callbacks } from './callbacks.js'
 
 let tmpDir: string
@@ -202,6 +203,35 @@ describe('callbacks', () => {
       expect(fs.readFileSync(output, 'utf-8')).toBe(
         `export const OnPaymentCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n\nexport const OnShipmentCallback = {\n  '{$request.body#/shipmentUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n`,
       )
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same callback const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-contract-'))
+      const output = path.join(tmpDir, 'callbacks.ts')
+      const sampleCallbacks = {
+        OnPayment: {
+          '{$request.body#/callbackUrl}': {
+            post: { responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }
+      const result = await callbacks(sampleCallbacks, output, false)
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = callbacksCode({ callbacks: sampleCallbacks }, true)
+      const emittedNames = new Set(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Callback\s*=/g)].map(
+          (m) => m[1],
+        ),
+      )
+      const generatedNames = new Set(
+        [
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Callback\s*=/g),
+        ].map((m) => m[1]),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
 })

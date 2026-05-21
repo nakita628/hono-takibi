@@ -17,7 +17,7 @@ export async function examples(
   if (keys.length === 0) return { ok: true, value: 'No examples found' } as const
   const asConst = readonly ? ' as const' : ''
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const indexCode = `${keys
       .sort()
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)

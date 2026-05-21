@@ -61,7 +61,7 @@ export async function pathItems(
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }
-  const outDir = output.replace(/\.ts$/, '')
+  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const results = await Promise.all([
     ...entries.map(async ({ name, code }) => {
       const filePath = `${outDir}/${uncapitalize(name)}.ts`

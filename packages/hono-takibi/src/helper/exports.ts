@@ -21,8 +21,7 @@ export async function makeExports(
   readonly?: boolean,
 ) {
   const keys = Object.keys(value)
-  const outDir = output.replace(/\.ts$/, '')
-  /* sort abc */
+  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const indexCode = `${keys
     .sort()
     .map((v) => `export * from './${uncapitalize(v)}'`)

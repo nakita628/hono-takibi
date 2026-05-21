@@ -124,4 +124,67 @@ export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operat
       `export const getXRoute=createRoute({method:"get",path:"/x",operationId:"gx",responses:{200:{description:"OK"}}})`,
     )
   })
+
+  it.concurrent('returns empty string for empty paths object', () => {
+    expect(
+      routeCode({
+        openapi: '3.0.0',
+        info: { title: 'T', version: '0.0.0' },
+        paths: {},
+      }),
+    ).toBe('')
+  })
+
+  it.concurrent('skips nullish path items', () => {
+    const result = routeCode({
+      openapi: '3.0.0',
+      info: { title: 'T', version: '0.0.0' },
+      paths: {
+        '/skipped': null,
+        '/kept': {
+          get: { operationId: 'k', responses: { '200': { description: 'OK' } } },
+        },
+      },
+    } as unknown as OpenAPI)
+    expect(result).toBe(
+      `export const getKeptRoute=createRoute({method:"get",path:"/kept",operationId:"k",responses:{200:{description:"OK"}}})`,
+    )
+  })
+
+  it.concurrent('skips operations without responses', () => {
+    const result = routeCode({
+      openapi: '3.0.0',
+      info: { title: 'T', version: '0.0.0' },
+      paths: {
+        '/p': {
+          get: { operationId: 'g', responses: { '200': { description: 'OK' } } },
+          post: { operationId: 'p' },
+        },
+      },
+    } as unknown as OpenAPI)
+    expect(result).toBe(
+      `export const getPRoute=createRoute({method:"get",path:"/p",operationId:"g",responses:{200:{description:"OK"}}})`,
+    )
+  })
+
+  it.concurrent('emits routes for multiple HTTP methods on the same path in declared method order', () => {
+    const result = routeCode({
+      openapi: '3.0.0',
+      info: { title: 'T', version: '0.0.0' },
+      paths: {
+        '/r': {
+          post: { operationId: 'cp', responses: { '201': { description: 'Created' } } },
+          get: { operationId: 'cg', responses: { '200': { description: 'OK' } } },
+          delete: { operationId: 'cd', responses: { '204': { description: 'No Content' } } },
+        },
+      },
+    })
+    expect(result).toBe(
+      [
+        `export const getRRoute=createRoute({method:"get",path:"/r",operationId:"cg",responses:{200:{description:"OK"}}})`,
+        `export const postRRoute=createRoute({method:"post",path:"/r",operationId:"cp",responses:{201:{description:"Created"}}})`,
+        `export const deleteRRoute=createRoute({method:"delete",path:"/r",operationId:"cd",responses:{204:{description:"No Content"}}})`,
+      ].join('\n\n'),
+    )
+  })
 })

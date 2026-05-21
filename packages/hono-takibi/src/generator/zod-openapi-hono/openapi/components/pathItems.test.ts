@@ -148,4 +148,32 @@ describe('pathItemsCode', () => {
       `export const UserCrudPathItem={get:{operationId:"getUser",responses:{200:{description:"OK",content:{'application/json':{schema:UserSchema}}}}},put:{operationId:"updateUser",requestBody:{content:{'application/json':{schema:UserUpdateSchema}}},responses:{200:{description:"OK",content:{'application/json':{schema:UserSchema}}}}}}`,
     )
   })
+
+  it('returns empty string for empty pathItems object', () => {
+    expect(pathItemsCode({ pathItems: {} }, true)).toBe('')
+  })
+
+  it('filters out $ref-only entries, emitting only inline pathItems', () => {
+    const components: Components = {
+      pathItems: {
+        Inline: { get: { responses: { '200': { description: 'OK' } } } },
+        RefOnly: { $ref: '#/components/pathItems/Shared' },
+      },
+    }
+    expect(pathItemsCode(components, true)).toBe(
+      'export const InlinePathItem={get:{responses:{200:{description:"OK"}}}}',
+    )
+  })
+
+  it('joins multiple pathItems with \\n\\n separator and respects readonly', () => {
+    const components: Components = {
+      pathItems: {
+        A: { get: { responses: { '200': { description: 'OK' } } } },
+        B: { post: { responses: { '201': { description: 'Created' } } } },
+      },
+    }
+    expect(pathItemsCode(components, true, true)).toBe(
+      'export const APathItem={get:{responses:{200:{description:"OK"}}}} as const\n\nexport const BPathItem={post:{responses:{201:{description:"Created"}}}} as const',
+    )
+  })
 })

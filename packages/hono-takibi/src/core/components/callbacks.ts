@@ -31,7 +31,7 @@ export async function callbacks(
   const isCallbacks = (v: unknown): v is Callbacks =>
     typeof v === 'object' && v !== null && !('$ref' in v)
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([
       ...keys.map((k) => {
         const callbackOrRef = callbacks[k]
