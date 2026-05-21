@@ -289,10 +289,10 @@ components:
         retries:
           type: integer
           x-catch: 0
-        # x-freeze — readonly wrapping
+        # x-readonly — readonly wrapping
         config:
           type: object
-          x-freeze: true
+          x-readonly: true
           properties:
             name:
               type: string

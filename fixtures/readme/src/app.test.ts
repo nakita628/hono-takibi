@@ -223,7 +223,7 @@ describe('README — Default & Fallback & Freeze', () => {
     expect(res.status).toBe(200)
   })
 
-  it('x-freeze: object is accepted and typed as readonly', async () => {
+  it('x-readonly: object is accepted and typed as readonly', async () => {
     const res = await app.request('/defaults', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },

@@ -592,7 +592,7 @@ export type Schema = {
   readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
   readonly 'x-catch'?: unknown
   readonly 'x-prefault'?: unknown
-  readonly 'x-freeze'?: boolean
+  readonly 'x-readonly'?: boolean
   readonly 'x-includes'?: string
   readonly 'x-startsWith'?: string
   readonly 'x-endsWith'?: string

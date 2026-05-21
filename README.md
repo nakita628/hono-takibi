@@ -793,7 +793,7 @@ z.int().catch(0)
 
 ### Immutability
 
-#### `x-freeze`
+#### `x-readonly`
 
 ```yaml
 config:
@@ -801,7 +801,7 @@ config:
   properties:
     name:
       type: string
-  x-freeze: true
+  x-readonly: true
 ```
 
 ```ts

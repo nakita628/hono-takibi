@@ -13,18 +13,39 @@ export const getTagsRoute = createRoute({
             .object({
               tags: z
                 .array(z.string())
-                .refine((items) => new Set(items).size === items.length)
+                .superRefine((items, ctx) => {
+                  const seen = new Map()
+                  for (const [i, val] of items.entries()) {
+                    const key = JSON.stringify(val)
+                    if (seen.has(key)) ctx.addIssue({ code: 'custom', path: [i] })
+                    else seen.set(key, i)
+                  }
+                })
                 .readonly(),
               ids: z
                 .array(z.int())
                 .min(1)
                 .max(100)
-                .refine((items) => new Set(items).size === items.length)
+                .superRefine((items, ctx) => {
+                  const seen = new Map()
+                  for (const [i, val] of items.entries()) {
+                    const key = JSON.stringify(val)
+                    if (seen.has(key)) ctx.addIssue({ code: 'custom', path: [i] })
+                    else seen.set(key, i)
+                  }
+                })
                 .readonly(),
               labels: z
                 .array(z.string())
                 .length(3)
-                .refine((items) => new Set(items).size === items.length)
+                .superRefine((items, ctx) => {
+                  const seen = new Map()
+                  for (const [i, val] of items.entries()) {
+                    const key = JSON.stringify(val)
+                    if (seen.has(key)) ctx.addIssue({ code: 'custom', path: [i] })
+                    else seen.set(key, i)
+                  }
+                })
                 .readonly(),
             })
             .readonly()
@@ -47,17 +68,17 @@ export const postTagsRoute = createRoute({
             .object({
               metadata: z
                 .object({ key: z.string().exactOptional(), value: z.string().exactOptional() })
-                .refine((o) => Object.keys(o).length >= 1)
-                .refine((o) => Object.keys(o).length <= 10)
+                .refine((val) => Object.keys(val).length >= 1)
+                .refine((val) => Object.keys(val).length <= 10)
                 .readonly(),
               config: z
                 .object({ name: z.string().exactOptional() })
-                .refine((o) => Object.keys(o).length >= 1)
+                .refine((val) => Object.keys(val).length >= 1)
                 .readonly()
                 .exactOptional(),
               limited: z
                 .object({ a: z.string().exactOptional(), b: z.string().exactOptional() })
-                .refine((o) => Object.keys(o).length <= 5)
+                .refine((val) => Object.keys(val).length <= 5)
                 .readonly()
                 .exactOptional(),
             })
@@ -91,7 +112,14 @@ export const getSettingsRoute = createRoute({
         'application/json': {
           schema: z
             .record(z.string(), z.string())
-            .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)))
+            .superRefine((o, ctx) => {
+              const regex = new RegExp('^[a-z_]+$')
+              for (const k of Object.keys(o)) {
+                if (!regex.test(k)) {
+                  ctx.addIssue({ code: 'custom', path: [k] })
+                }
+              }
+            })
             .readonly(),
         },
       },
@@ -108,7 +136,15 @@ export const putSettingsRoute = createRoute({
       content: {
         'application/json': {
           schema: z
-            .object({ avatar: z.string() })
+            .object({
+              avatar: z
+                .base64()
+                .transform((val) =>
+                  typeof atob === 'function'
+                    ? Uint8Array.from(atob(val), (c) => c.charCodeAt(0))
+                    : new Uint8Array(Buffer.from(val, 'base64')),
+                ),
+            })
             .readonly()
             .openapi({ required: ['avatar'] }),
         },
@@ -130,25 +166,51 @@ export const postConfigRoute = createRoute({
             .object({
               data: z
                 .record(z.string(), z.string())
-                .refine((o) =>
-                  Object.entries(o).every(
-                    ([k, v]) => !new RegExp('^x-').test(k) || z.string().safeParse(v).success,
-                  ),
-                )
+                .superRefine((o, ctx) => {
+                  const regex = new RegExp('^x-')
+                  const Schema = z.string()
+                  for (const [k, val] of Object.entries(o)) {
+                    if (!regex.test(k)) {
+                      continue
+                    }
+                    const result = Schema.safeParse(val)
+                    if (!result.success) {
+                      for (const issue of result.error.issues) {
+                        ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+                      }
+                    }
+                  }
+                })
                 .readonly(),
               headers: z
                 .looseObject({})
-                .refine((o) =>
-                  Object.entries(o).every(
-                    ([k, v]) =>
-                      !new RegExp('^X-Custom-').test(k) || z.string().safeParse(v).success,
-                  ),
-                )
+                .superRefine((o, ctx) => {
+                  const regex = new RegExp('^X-Custom-')
+                  const Schema = z.string()
+                  for (const [k, val] of Object.entries(o)) {
+                    if (!regex.test(k)) {
+                      continue
+                    }
+                    const result = Schema.safeParse(val)
+                    if (!result.success) {
+                      for (const issue of result.error.issues) {
+                        ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+                      }
+                    }
+                  }
+                })
                 .readonly()
                 .exactOptional(),
               keys: z
                 .record(z.string(), z.string())
-                .refine((o) => Object.keys(o).every((k) => new RegExp('^[a-z_]+$').test(k)))
+                .superRefine((o, ctx) => {
+                  const regex = new RegExp('^[a-z_]+$')
+                  for (const k of Object.keys(o)) {
+                    if (!regex.test(k)) {
+                      ctx.addIssue({ code: 'custom', path: [k] })
+                    }
+                  }
+                })
                 .readonly()
                 .exactOptional(),
             })
@@ -175,7 +237,18 @@ export const postPaymentRoute = createRoute({
               billingAddress: z.string().exactOptional(),
               email: z.string().exactOptional(),
             })
-            .refine((o) => !('creditCard' in o) || 'billingAddress' in o)
+            .superRefine((o, ctx) => {
+              if (!Object.hasOwn(o, 'creditCard')) {
+                return
+              }
+              if (!Object.hasOwn(o, 'billingAddress')) {
+                ctx.addIssue({
+                  code: 'custom',
+                  message: 'requires "billingAddress" when "creditCard" present',
+                  path: ['billingAddress'],
+                })
+              }
+            })
             .readonly(),
         },
       },
