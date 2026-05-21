@@ -1,10 +1,10 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
-import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import { makeImports } from '../../helper/index.js'
-import type { OpenAPI } from '../../openapi/index.js'
-import { makeBarrel, uncapitalize } from '../../utils/index.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
+import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
+import { makeBarrel, methodPath } from '../../utils/index.js'
 
 export async function route(
   openAPI: OpenAPI,
@@ -23,44 +23,119 @@ export async function route(
 ) {
   if (!routes?.output) return { ok: false, error: 'routes.output is required' } as const
   const { output, split = false } = routes
-  const routesSrc = routeCode(openAPI, readonly)
-  const importWriteFile = async (filePath: string, src: string) => {
-    const code = makeImports(src, filePath, components)
-    const result = await emit(code, path.dirname(filePath), filePath)
-    return result.ok ? ({ ok: true, value: filePath } as const) : result
+  const routeEntries = (
+    openapi: OpenAPI,
+    readonly?: boolean,
+  ): readonly { readonly name: string; readonly code: string }[] => {
+    const makeEntry = (
+      path: string,
+      method: string,
+      operation: Operation,
+      readonly?: boolean,
+    ): { readonly name: string; readonly code: string } => {
+      const properties = [
+        `method:${JSON.stringify(method)}`,
+        `path:${JSON.stringify(path)}`,
+        operation.tags ? `tags:${JSON.stringify(operation.tags)}` : undefined,
+        operation.summary ? `summary:${JSON.stringify(operation.summary)}` : undefined,
+        operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
+        operation.externalDocs
+          ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
+          : undefined,
+        operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
+        makeRequest(operation.parameters, operation.requestBody, readonly)
+          ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
+          : undefined,
+        operation.responses
+          ? `responses:${makeOperationResponses(operation.responses, readonly)}`
+          : undefined,
+        operation.callbacks
+          ? `callbacks:{${makeCallbacks(operation.callbacks, readonly)}}`
+          : undefined,
+        operation.deprecated ? `deprecated:${JSON.stringify(operation.deprecated)}` : undefined,
+        operation.security ? `security:${JSON.stringify(operation.security)}` : undefined,
+        operation.servers ? `servers:${JSON.stringify(operation.servers)}` : undefined,
+      ]
+        .filter((v) => v !== undefined)
+        .join(',')
+      const asConst = readonly ? ' as const' : ''
+      const entryName = methodPath(method, path)
+      return {
+        name: entryName,
+        code: `export const ${entryName}Route=createRoute({${properties}}${asConst})`,
+      }
+    }
+    const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
+      ref.startsWith('#/components/parameters/')
+    const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
+      ref.startsWith('#/components/pathItems/')
+    const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
+      if ('name' in parameter && 'in' in parameter) return parameter
+      const ref = '$ref' in parameter ? parameter.$ref : undefined
+      if (!ref || !isParameterRef(ref)) return undefined
+      const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+      if (!resolved) return undefined
+      return { ...resolved, $ref: ref } as const
+    }
+    const resolvePathItem = (pathItem: PathItem): PathItem => {
+      if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
+        const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
+        const resolved = openapi.components?.pathItems?.[name]
+        if (resolved) {
+          const { $ref: _, ...siblings } = pathItem
+          return { ...resolved, ...siblings } as const
+        }
+      }
+      return pathItem
+    }
+    return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
+      if (!pathItem) return [] as const
+      const resolved = resolvePathItem(pathItem)
+      return (
+        ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
+      ).flatMap((method) => {
+        const operation = resolved[method]
+        if (!operation?.responses) return []
+        const parameters = [
+          ...(resolved.parameters ?? ([] as const)),
+          ...(operation.parameters ?? ([] as const)),
+        ]
+          .map(resolveParameter)
+          .filter((p) => p !== undefined)
+        return [
+          makeEntry(
+            path,
+            method,
+            parameters.length > 0 ? { ...operation, parameters } : operation,
+            readonly,
+          ),
+        ]
+      })
+    })
   }
-  if (!split) {
-    const result = await importWriteFile(output, routesSrc)
+  const entries = routeEntries(openAPI, readonly)
+  if (!split || entries.length === 0) {
+    const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)
+    const result = await emit(code, path.dirname(output), output)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
   const outDir = output.replace(/\.ts$/, '')
-  const hits = Array.from(
-    routesSrc.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g),
-  )
-    .map((m) => ({ name: (m[1] ?? '').trim(), start: m.index ?? 0 }))
-    .filter((h) => h.name.length > 0)
-  const blocks = hits.map((h, i) => ({
-    name: h.name,
-    block: routesSrc.slice(h.start, hits[i + 1]?.start ?? routesSrc.length).trim(),
-  }))
-  if (blocks.length === 0) {
-    const result = await importWriteFile(output, routesSrc)
-    if (!result.ok) return result
-    return { ok: true, value: `Generated route code written to ${output}` } as const
-  }
   const results = await Promise.all([
-    ...blocks.map(({ name, block }) =>
-      importWriteFile(`${outDir}/${uncapitalize(name)}.ts`, block),
-    ),
+    ...entries.map(async ({ name, code }) => {
+      const filePath = `${outDir}/${name}.ts`
+      const withImports = makeImports(code, filePath, components)
+      const result = await emit(withImports, path.dirname(filePath), filePath)
+      return result.ok ? { ok: true as const, value: filePath } : result
+    }),
     emit(
-      makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
+      makeBarrel(Object.fromEntries(entries.map((e) => [e.name, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),
   ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
+  const failed = results.find((result) => !result.ok)
+  if (failed) return failed
   return {
     ok: true,
     value: `Generated route code written to ${outDir}/*.ts (index.ts included)`,
