@@ -336,18 +336,18 @@ export function zodToOpenAPI(
     // Per-mode messages: x-contains/min/maxContains-message; fall back to x-error-message.
     // minContains:0 makes lower-bound vacuous; path stays [] (cardinality, not element).
     const containsChain = (() => {
-      const c = schema.contains
-      if (!c) return ''
-      const containsZod = c.$ref ? makeRef(c.$ref) : zodToOpenAPI(c, undefined, childOptions)
-      const minC = schema.minContains
-      const maxC = schema.maxContains
+      if (!schema.contains) return ''
+      const containsZod = schema.contains.$ref
+        ? makeRef(schema.contains.$ref)
+        : zodToOpenAPI(schema.contains, undefined, childOptions)
+      // const minC = schema.minContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
-      if (minC === undefined && maxC === undefined) {
+      if (schema.minContains === undefined && schema.maxContains === undefined) {
         const msgPart = fallback ? `,message:${JSON.stringify(fallback)}` : ''
         return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${msgPart}})}})`
       }
       // minContains defaults to 1; explicit 0 skips the lower-bound check.
-      const effectiveMin = minC ?? 1
+      const effectiveMin = schema.minContains ?? 1
       const minMsg = schema['x-minContains-message'] ?? fallback
       const minStmt =
         effectiveMin > 0
@@ -358,10 +358,10 @@ export function zodToOpenAPI(
           : undefined
       const maxMsg = schema['x-maxContains-message'] ?? fallback
       const maxStmt =
-        maxC !== undefined
+        schema.maxContains !== undefined
           ? (() => {
               const msgPart = maxMsg ? `,message:${JSON.stringify(maxMsg)}` : ''
-              return `if(matched>${maxC}){ctx.addIssue({code:"custom"${msgPart}})}`
+              return `if(matched>${schema.maxContains}){ctx.addIssue({code:"custom"${msgPart}})}`
             })()
           : undefined
       const stmts = [minStmt, maxStmt].filter((v): v is string => v !== undefined)
