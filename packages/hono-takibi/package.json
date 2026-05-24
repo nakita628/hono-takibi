@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.9.9994",
+  "version": "0.9.9995",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
