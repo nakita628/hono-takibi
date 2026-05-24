@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import {
   isContentBody,
   isHttpMethod,
@@ -418,7 +420,7 @@ export function makeHandlerTestCode(
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
-  const handlerFileName = handlerPath.split('/').pop()?.replace(/\.ts$/, '') ?? ''
+  const handlerFileName = path.basename(handlerPath, '.ts')
   const testCases = extractTestCases(spec)
   const relevantCases = testCases.filter(
     (testCase) => getPathFirstSegment(testCase.path) === handlerFileName,

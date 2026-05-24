@@ -182,10 +182,6 @@ export type Type =
 export type Format = FormatString | FormatNumber
 
 export type FormatString =
-  // validations
-  // | 'max'
-  // | 'min'
-  // | 'length'
   | 'email'
   | 'uuid'
   | 'uuidv4'
@@ -560,14 +556,7 @@ export type Schema = {
   readonly $dynamicRef?: string
   readonly $vocabulary?: { readonly [k: string]: boolean }
   readonly $defs?: { readonly [k: string]: Schema }
-  // x-enum-error-messages was removed: by design `enum` lists *allowed*
-  // values, so a per-value "cannot be ..." message is dead code — when the
-  // input matches an enum entry, validation passes (no error to display);
-  // when it doesn't match, it's some other value and per-value lookup
-  // can't fire. Use `x-error-message` for the whole-enum message instead.
-  // Vendor extension for branded types
   readonly 'x-brand'?: string
-  // P1 transform/coerce extensions
   readonly 'x-trim'?: boolean
   readonly 'x-toLowerCase'?: boolean
   readonly 'x-toUpperCase'?: boolean
@@ -588,7 +577,6 @@ export type Schema = {
         readonly falsy?: readonly string[]
         readonly case?: 'sensitive' | 'insensitive'
       }
-  // P1 format-option extensions
   readonly 'x-emailPattern'?: 'html5' | 'rfc5322' | 'unicode'
   readonly 'x-emailRegex'?: string
   readonly 'x-uuidVersion'?: 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6' | 'v7' | 'v8'
@@ -602,12 +590,9 @@ export type Schema = {
   readonly 'x-jwtAlg'?: string
   readonly 'x-hashAlg'?: 'sha1' | 'sha256' | 'sha384' | 'sha512' | 'md5'
   readonly 'x-hashEnc'?: 'hex' | 'base64' | 'base64url'
-  // P2 extensions
-  // Note: x-finite / x-safe were considered but skipped — the corresponding
-  // Zod APIs (.finite() / .safe()) are deprecated.
   readonly 'x-catch'?: unknown
   readonly 'x-prefault'?: unknown
-  readonly 'x-freeze'?: boolean
+  readonly 'x-readonly'?: boolean
   readonly 'x-includes'?: string
   readonly 'x-startsWith'?: string
   readonly 'x-endsWith'?: string

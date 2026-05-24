@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vite-plus/test'
 
+import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { route } from './index.js'
 
@@ -173,7 +174,6 @@ export const getZodOpenapiHonoRoute = createRoute({
       }
       const out = path.join(dir, 'empty.ts')
       const result = await route(emptyOpenapi, { output: out, split: true })
-      // matchAll over empty `routeCode` returns 0 hits → fallback to single-file write
       expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
       expect(fs.existsSync(out)).toBe(true)
       expect(fs.readFileSync(out, 'utf-8')).toBe('')
@@ -185,7 +185,6 @@ export const getZodOpenapiHonoRoute = createRoute({
   it('propagates emit failure when output parent path is a regular file', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
     try {
-      // Create a regular file where the generator will try to mkdir
       const blockingFile = path.join(dir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const out = path.join(blockingFile, 'foo.ts')
@@ -288,5 +287,109 @@ export const getZodOpenapiHonoRoute = createRoute({
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same const names as generator output', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
+      try {
+        const out = path.join(dir, 'routes.ts')
+        const result = await route(openapi, { output: out })
+        expect(result.ok).toBe(true)
+        const emitted = fs.readFileSync(out, 'utf-8')
+        const generated = routeCode(openapi)
+        const emittedNames = new Set(
+          [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
+            (m) => m[1],
+          ),
+        )
+        const generatedNames = new Set(
+          [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
+            (m) => m[1],
+          ),
+        )
+        expect(emittedNames).toStrictEqual(generatedNames)
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it('split: union of per-file const names equals generator output const names', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
+      try {
+        const outDir = path.join(dir, 'routes')
+        const result = await route(openapi, { output: outDir, split: true })
+        expect(result.ok).toBe(true)
+        const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
+        const emittedNames = new Set<string>()
+        for (const f of files) {
+          const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
+          for (const m of src.matchAll(
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g,
+          )) {
+            if (m[1] !== undefined) emittedNames.add(m[1])
+          }
+        }
+        const generated = routeCode(openapi)
+        const generatedNames = new Set(
+          [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
+            (m) => m[1],
+          ),
+        )
+        expect(emittedNames).toStrictEqual(generatedNames)
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it('split: barrel index lists every per-file module sorted alphabetically', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
+      try {
+        const outDir = path.join(dir, 'routes')
+        await route(openapi, { output: outDir, split: true })
+        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+        expect(indexContent).toBe(
+          [
+            "export * from './getHono'",
+            "export * from './getHonox'",
+            "export * from './getZodOpenapiHono'",
+            '',
+          ].join('\n'),
+        )
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+  })
+
+  describe('multi-method per path', () => {
+    const multiMethodOpenAPI: OpenAPI = {
+      openapi: '3.0.0',
+      info: { title: 'T', version: '0.0.0' },
+      paths: {
+        '/r': {
+          post: { operationId: 'cp', responses: { '201': { description: 'Created' } } },
+          get: { operationId: 'cg', responses: { '200': { description: 'OK' } } },
+        },
+      },
+    }
+
+    it('split: each method on the same path becomes its own file', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-multimethod-'))
+      try {
+        const outDir = path.join(dir, 'routes')
+        const result = await route(multiMethodOpenAPI, { output: outDir, split: true })
+        expect(result.ok).toBe(true)
+        const files = fs
+          .readdirSync(outDir)
+          .filter((f) => f !== 'index.ts')
+          .sort()
+        expect(files).toStrictEqual(['getR.ts', 'postR.ts'])
+        const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
+        expect(indexContent).toBe("export * from './getR'\nexport * from './postR'\n")
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
   })
 })

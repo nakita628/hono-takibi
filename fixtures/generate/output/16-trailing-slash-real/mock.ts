@@ -35,6 +35,7 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
         }),
       lat: z.coerce
         .number()
+        .pipe(z.float64())
         .exactOptional()
         .openapi({
           param: {
@@ -47,6 +48,7 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
         }),
       lon: z.coerce
         .number()
+        .pipe(z.float64())
         .exactOptional()
         .openapi({
           param: {

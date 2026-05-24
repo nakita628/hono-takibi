@@ -4,6 +4,8 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
+import type { Components } from '../../openapi/index.js'
 import { pathItems } from './pathItems.js'
 
 let tmpDir: string
@@ -162,7 +164,7 @@ describe('pathItems', () => {
     it('writes single file in split mode with .ts suffix in output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const outDir = output.replace(/\.ts$/, '')
+      const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
       const result = await pathItems(
         {
           pathItems: {
@@ -317,6 +319,86 @@ describe('pathItems', () => {
         { output, split: true },
       )
       expect(result.ok).toBe(false)
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    const components: Components = {
+      pathItems: {
+        UserOps: { get: { responses: { '200': { description: 'OK' } } } },
+        AdminOps: { post: { responses: { '201': { description: 'Created' } } } },
+      },
+    }
+
+    it('non-split: caller emit contains same const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
+      const output = path.join(tmpDir, 'pathItems.ts')
+      const result = await pathItems(components, { output })
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = pathItemsCode(components, true)
+      const emittedNames = new Set(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+          (m) => m[1],
+        ),
+      )
+      const generatedNames = new Set(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+          (m) => m[1],
+        ),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
+    })
+
+    it('split: union of per-file const names equals generator output const names', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
+      const output = path.join(tmpDir, 'pathItems')
+      const result = await pathItems(components, { output, split: true })
+      expect(result.ok).toBe(true)
+      const files = fs.readdirSync(output).filter((f) => f !== 'index.ts')
+      const emittedNames = new Set<string>()
+      for (const f of files) {
+        const src = fs.readFileSync(path.join(output, f), 'utf-8')
+        for (const m of src.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)) {
+          if (m[1] !== undefined) emittedNames.add(m[1])
+        }
+      }
+      const generated = pathItemsCode(components, true)
+      const generatedNames = new Set(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+          (m) => m[1],
+        ),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
+    })
+
+    it('split: barrel index lists every per-file module', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
+      const output = path.join(tmpDir, 'pathItems')
+      await pathItems(components, { output, split: true })
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe(
+        "export * from './adminOpsPathItem'\nexport * from './userOpsPathItem'\n",
+      )
+    })
+
+    it('split: emits only inline entries when $ref-only entries are mixed in', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
+      const output = path.join(tmpDir, 'pathItems')
+      const mixed: Components = {
+        pathItems: {
+          Inline: { get: { responses: { '200': { description: 'OK' } } } },
+          RefOnly: { $ref: '#/components/pathItems/Shared' },
+        },
+      }
+      await pathItems(mixed, { output, split: true })
+      const files = fs
+        .readdirSync(output)
+        .filter((f) => f !== 'index.ts')
+        .sort()
+      expect(files).toStrictEqual(['inlinePathItem.ts'])
+      const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
+      expect(indexContent).toBe("export * from './inlinePathItem'\n")
     })
   })
 })

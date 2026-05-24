@@ -125,7 +125,7 @@ export function wrap(
     schema['x-prefault'] !== undefined ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})` : d
   const c =
     schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
-  const fr = schema['x-freeze'] === true ? `${c}.readonly()` : c
+  const fr = schema['x-readonly'] === true ? `${c}.readonly()` : c
   const refineChain = `${fr}${schema['x-refine'] ?? ''}`
   const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
   // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
@@ -237,7 +237,7 @@ export function wrap(
     'x-hashEnc',
     'x-catch',
     'x-prefault',
-    'x-freeze',
+    'x-readonly',
     'x-includes',
     'x-startsWith',
     'x-endsWith',

@@ -17,8 +17,8 @@
     "coverage": "vp test --coverage"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.6",
-    "vite-plus": "^0.1.21"
+    "@vitest/coverage-v8": "^4.1.7",
+    "vite-plus": "^0.1.22"
   },
   "packageManager": "pnpm@10.32.1"
 }

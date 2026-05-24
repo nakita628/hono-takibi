@@ -1,10 +1,16 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
-import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
+import { makeConst } from '../../helper/code.js'
 import { makeImports } from '../../helper/index.js'
-import type { Components } from '../../openapi/index.js'
-import { makeBarrel, uncapitalize } from '../../utils/index.js'
+import { makePathItem } from '../../helper/openapi.js'
+import type { Components, PathItem } from '../../openapi/index.js'
+import {
+  ensureSuffix,
+  makeBarrel,
+  toIdentifierPascalCase,
+  uncapitalize,
+} from '../../utils/index.js'
 
 export async function pathItems(
   components: Components,
@@ -26,45 +32,51 @@ export async function pathItems(
   const keys = Object.keys(components.pathItems)
   if (keys.length === 0) return { ok: true, value: 'No pathItems found' } as const
   const { output, split = false } = pathItemsConfig
-  const pathItemsSrc = pathItemsCode(components, true, readonly)
-  if (!pathItemsSrc) return { ok: true, value: 'No pathItems found' } as const
-  const writeFile = async (filePath: string, src: string) => {
-    const code = makeImports(src, filePath, componentsConfig)
-    const result = await emit(code, path.dirname(filePath), filePath)
-    return result.ok ? { ok: true as const, value: filePath } : result
+  const pathItemsEntries = (
+    components: Components,
+    exportPathItems: boolean,
+    readonly?: boolean,
+  ): readonly { readonly name: string; readonly code: string }[] => {
+    const { pathItems } = components
+    if (!pathItems) return []
+    const asConst = readonly ? ' as const' : ''
+    const isPathItem = (v: unknown): v is PathItem =>
+      typeof v === 'object' && v !== null && !('$ref' in v)
+    return Object.entries(pathItems).flatMap(([k, pathItemOrRef]) =>
+      isPathItem(pathItemOrRef)
+        ? [
+            {
+              name: toIdentifierPascalCase(ensureSuffix(k, 'PathItem')),
+              code: `${makeConst(exportPathItems, k, 'PathItem')}${makePathItem(pathItemOrRef)}${asConst}`,
+            },
+          ]
+        : [],
+    )
   }
+  const entries = pathItemsEntries(components, true, readonly)
+  if (entries.length === 0) return { ok: true, value: 'No pathItems found' } as const
   if (!split) {
-    const result = await writeFile(output, pathItemsSrc)
+    const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, componentsConfig)
+    const result = await emit(code, path.dirname(output), output)
     if (!result.ok) return result
     return { ok: true, value: `Generated pathItems code written to ${output}` } as const
   }
-  const outDir = output.replace(/\.ts$/, '')
-  const hits = Array.from(
-    pathItemsSrc.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem\s*=/g),
-  )
-    .map((m) => ({ name: (m[1] ?? '').trim(), start: m.index ?? 0 }))
-    .filter((h) => h.name.length > 0)
-  const blocks = hits.map((h, i) => ({
-    name: h.name,
-    block: pathItemsSrc.slice(h.start, hits[i + 1]?.start ?? pathItemsSrc.length).trim(),
-  }))
-  if (blocks.length === 0) {
-    const result = await writeFile(output, pathItemsSrc)
-    if (!result.ok) return result
-    return { ok: true, value: `Generated pathItems code written to ${output}` } as const
-  }
+  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const results = await Promise.all([
-    ...blocks.map(({ name, block }) =>
-      writeFile(`${outDir}/${uncapitalize(name)}PathItem.ts`, block),
-    ),
+    ...entries.map(async ({ name, code }) => {
+      const filePath = `${outDir}/${uncapitalize(name)}.ts`
+      const withImports = makeImports(code, filePath, componentsConfig)
+      const result = await emit(withImports, path.dirname(filePath), filePath)
+      return result.ok ? { ok: true as const, value: filePath } : result
+    }),
     emit(
-      makeBarrel(Object.fromEntries(blocks.map((b) => [`${b.name}PathItem`, null]))),
+      makeBarrel(Object.fromEntries(entries.map((e) => [e.name, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),
   ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
+  const failed = results.find((result) => !result.ok)
+  if (failed) return failed
   return {
     ok: true,
     value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,

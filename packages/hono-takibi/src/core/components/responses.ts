@@ -23,7 +23,7 @@ export async function responses(
   const responseNames = Object.keys(responses)
   if (responseNames.length === 0) return { ok: true, value: 'No responses found' } as const
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([
       ...responseNames.map((responseName) => {
         const singleComponent = { responses: { [responseName]: responses[responseName] } }

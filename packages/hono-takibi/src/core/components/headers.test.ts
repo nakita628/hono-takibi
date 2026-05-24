@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
 import { headers } from './headers.js'
 
 let tmpDir: string
@@ -77,6 +78,34 @@ describe('headers', () => {
       })
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'x-Rate-Limit.ts'))).toBe(true)
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same header const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-contract-'))
+      const output = path.join(tmpDir, 'headers.ts')
+      const sampleHeaders = {
+        XRateLimit: { schema: { type: 'integer' as const }, description: 'Rate limit' },
+        XRequestId: { schema: { type: 'string' as const }, description: 'Request ID' },
+      }
+      const result = await headers(sampleHeaders, output, false, true)
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = headersCode({ headers: sampleHeaders }, true, true)
+      const emittedNames = new Set(
+        [
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/g),
+        ].map((m) => m[1]),
+      )
+      const generatedNames = new Set(
+        [
+          ...generated.matchAll(
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/g,
+          ),
+        ].map((m) => m[1]),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
 })

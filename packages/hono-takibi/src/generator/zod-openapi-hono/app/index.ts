@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { isHttpMethod } from '../../../guard/index.js'
 import { makeHandlerFileName } from '../../../helper/handler.js'
 import type { OpenAPI } from '../../../openapi/index.js'
@@ -45,8 +47,8 @@ export function app(
   const routeMappings = getRouteMaps(openapi)
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
-    ? output.replace(/\/index\.ts$/, '').replace(/^.*\//, '')
-    : output.replace(/^.*\//, '').replace(/\.ts$/, '')
+    ? path.basename(output.replace(/\/index\.ts$/, ''))
+    : path.basename(output, '.ts')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
     basePath !== '/'
@@ -56,7 +58,7 @@ export function app(
     const handlerFileNames = [
       ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),
     ]
-    const handlerExportNames = handlerFileNames.map((fn) => `${fn.replace(/\.ts$/, '')}Handler`)
+    const handlerExportNames = handlerFileNames.map((fn) => `${path.basename(fn, '.ts')}Handler`)
     const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
     const handlerImport =
       handlerExportNames.length > 0

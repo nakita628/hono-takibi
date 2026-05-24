@@ -126,9 +126,9 @@ describe('helper/zod', () => {
       )
     })
 
-    it('emits contains with explicit minContains only (lowerMsg ← x-minContains-message)', () => {
-      // schema.minContains が指定されているので lowerMsg は x-minContains-message を使う。
-      // 未指定だと containsMsg (x-contains-message) を使う。
+    it('emits contains with explicit minContains only (lowerBoundMessage ← x-minContains-message)', () => {
+      // schema.minContains が指定されているので lowerBoundMessage は x-minContains-message を使う。
+      // 未指定だと containsMessage (x-contains-message) を使う。
       expect(
         emitTypelessRefine(
           {
@@ -231,8 +231,8 @@ describe('helper/zod', () => {
 
     it('then/else fallback chain: x-error-message reaches then/else via x-if-message', () => {
       // messageFor の `key === 'then' || key === 'else'` ガードは
-      // **直接** の x-error-message fallback を抑制する。が、`thenMsg / elseMsg` は
-      // `messageFor(s, 'then') ?? ifMsg` のチェーンで、ifMsg 自体は messageFor(s, 'if')
+      // **直接** の x-error-message fallback を抑制する。が、`thenMessage / elseMessage` は
+      // `messageFor(s, 'then') ?? ifMessage` のチェーンで、ifMessage 自体は messageFor(s, 'if')
       // 経由で x-error-message に fallback する。
       // → 結果として x-then-message / x-else-message / x-if-message いずれも
       //   未指定で x-error-message のみ指定された場合、then/else 両分岐で

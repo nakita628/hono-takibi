@@ -24,7 +24,7 @@ export async function parameters(
   const parameterNames = Object.keys(parameters)
   if (parameterNames.length === 0) return { ok: true, value: 'No parameters found' } as const
   if (split) {
-    const outDir = String(output).replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([
       ...parameterNames.map((parameterName) => {
         const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }

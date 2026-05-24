@@ -30,7 +30,7 @@ export async function mediaTypes(
   if (keys.length === 0) return { ok: true, value: 'No mediaTypes found' } as const
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   if (split) {
-    const outDir = output.replace(/\.ts$/, '')
+    const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const indexCode = `${keys
       .sort()
       .map((v) => `export * from './${uncapitalize(v)}.ts'`)
@@ -41,9 +41,6 @@ export async function mediaTypes(
         const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
         const filePath = path.join(outDir, `${uncapitalize(k)}.ts`)
         if (typeof v === 'object' && v !== null && '$ref' in v && v.$ref) {
-          // Reference to another mediaType — emit alias only and let
-          // makeImports figure out the import (using the configured `import`
-          // alias when provided, or a relative path otherwise).
           const refKey = v.$ref.split('/').at(-1) ?? ''
           const refName = toIdentifierPascalCase(ensureSuffix(refKey, 'MediaTypeSchema'))
           const body = `export const ${name} = ${refName}\n`

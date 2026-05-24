@@ -4690,7 +4690,7 @@ describe('zodToOpenAPI', () => {
           expect(generated).toBe('z.coerce.boolean({error:"ブール必須"})')
           // runtime skipped: just verify codegen
         })
-        // ----- P2: x-catch / x-prefault / x-freeze -----
+        // ----- P2: x-catch / x-prefault / x-readonly -----
         it.concurrent('boolean: x-catch=false → z.boolean().catch(false)', () => {
           expect(zodToOpenAPI({ type: 'boolean', 'x-catch': false } as Schema)).toBe(
             'z.boolean().catch(false)',
@@ -4743,15 +4743,15 @@ describe('zodToOpenAPI', () => {
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse('a').success).toBe(true)
         })
-        it.concurrent('object: x-freeze=true → z.object({}).readonly()', () => {
-          expect(zodToOpenAPI({ type: 'object', 'x-freeze': true } as Schema)).toBe(
+        it.concurrent('object: x-readonly=true → z.object({}).readonly()', () => {
+          expect(zodToOpenAPI({ type: 'object', 'x-readonly': true } as Schema)).toBe(
             'z.object({}).readonly()',
           )
           const runtime = z.object({}).readonly()
           expect(runtime.safeParse({}).success).toBe(true)
         })
-        it.concurrent('string: x-freeze=true → z.string().readonly()', () => {
-          expect(zodToOpenAPI({ type: 'string', 'x-freeze': true } as Schema)).toBe(
+        it.concurrent('string: x-readonly=true → z.string().readonly()', () => {
+          expect(zodToOpenAPI({ type: 'string', 'x-readonly': true } as Schema)).toBe(
             'z.string().readonly()',
           )
           const runtime = z.string().readonly()
@@ -9380,7 +9380,7 @@ describe('zodToOpenAPI', () => {
   // x-error-message / x-required-message slot codegen + runtime
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 x-required-message: differentiates undefined vs type mismatch', () => {
-    const RequiredMsgSchema = z.object({
+    const RequiredMessageSchema = z.object({
       email: z.string({
         error: (issue) =>
           issue.input === undefined ? 'Email is required' : 'Email format invalid',
@@ -9405,14 +9405,14 @@ describe('zodToOpenAPI', () => {
       )
     })
     it.concurrent('runtime: missing email → required message', () => {
-      const valid = RequiredMsgSchema.safeParse({})
+      const valid = RequiredMessageSchema.safeParse({})
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues[0].message).toBe('Email is required')
       }
     })
     it.concurrent('runtime: wrong type email → error message', () => {
-      const valid = RequiredMsgSchema.safeParse({ email: 123 })
+      const valid = RequiredMessageSchema.safeParse({ email: 123 })
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues[0].message).toBe('Email format invalid')
@@ -11553,12 +11553,12 @@ describe('zodToOpenAPI', () => {
           } as Schema),
         ).toBe('z.stringbool().prefault(true)')
       })
-      it.concurrent('codegen: x-stringbool=true + x-freeze=true → .readonly()', () => {
+      it.concurrent('codegen: x-stringbool=true + x-readonly=true → .readonly()', () => {
         expect(
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': true,
-            'x-freeze': true,
+            'x-readonly': true,
           } as Schema),
         ).toBe('z.stringbool().readonly()')
       })
@@ -11898,7 +11898,7 @@ describe('zodToOpenAPI', () => {
   })
 
   // ───────────────────────────────────────────────────────────────────
-  // extension x-* (prefault / freeze / codec)
+  // extension x-* (prefault / readonly / codec)
   // ───────────────────────────────────────────────────────────────────
 
   describe('v3.2 x-prefault: input default', () => {
@@ -11929,7 +11929,7 @@ describe('zodToOpenAPI', () => {
     })
   })
 
-  describe('v3.2 x-freeze: .readonly() (Object.freeze on output)', () => {
+  describe('v3.2 x-readonly: .readonly() (Object.freeze on output)', () => {
     const Fr = z.object({ a: z.string() }).readonly()
     it.concurrent('codegen: z.object({a:z.string()}).readonly().openapi(...)', () => {
       expect(
@@ -11937,7 +11937,7 @@ describe('zodToOpenAPI', () => {
           type: 'object',
           properties: { a: { type: 'string' } },
           required: ['a'],
-          'x-freeze': true,
+          'x-readonly': true,
         } as Schema),
       ).toBe('z.object({a:z.string()}).readonly().openapi({"required":["a"]})')
     })

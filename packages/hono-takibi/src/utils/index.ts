@@ -122,21 +122,18 @@ export function makeSafeKey(key: string) {
  * ```
  */
 export function toIdentifierPascalCase(text: string) {
-  // Check if text contains non-ASCII characters (char code > 127)
   const hasNonAscii = Array.from(text).some((c) => c.charCodeAt(0) > 127)
   const result = text
-    .replace(/[^A-Za-z0-9_$]/g, '_') // invalid character to _
-    .replace(/_+/g, '_') // collapse consecutive underscores to one
-    .replace(/^_+|_+$/g, '') // trim leading/trailing underscores
-    .replace(/^([0-9])/, '_$1') // if starts with number, add _
-    .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase()) // _letter to uppercase (e.g. _letter -> Letter)
-    .replace(/^([a-z])/, (_, c) => c.toUpperCase()) // first letter to uppercase (e.g. letter -> Letter)
-  // Fallback if result is empty or only underscores (e.g. all non-ASCII input like Japanese)
+    .replace(/[^A-Za-z0-9_$]/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/^([0-9])/, '_$1')
+    .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase())
+    .replace(/^([a-z])/, (_, c) => c.toUpperCase())
   if (!result || /^_+$/.test(result)) {
     const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `Unnamed${String(hash)}`
   }
-  // If text contained non-ASCII, append hash for uniqueness
   if (hasNonAscii) {
     const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `${result}${String(hash)}`
@@ -244,7 +241,6 @@ export function zodToOpenAPISchema(
   const schemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
     : (`const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
-  // schema code — strip trailing 'Schema' suffix to get the OpenAPI type name
   const typeName = schemaName.replace(/Schema$/, '')
   const componentSchemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)

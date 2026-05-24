@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { parametersCode } from '../../generator/zod-openapi-hono/openapi/components/parameters.js'
 import { parameters } from './parameters.js'
 
 let tmpDir: string
@@ -83,6 +84,39 @@ describe('parameters', () => {
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'userId.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'page.ts'))).toBe(true)
+    })
+  })
+
+  describe('caller ≡ generator contract', () => {
+    it('non-split: caller emit contains same param const names as generator output', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-parameters-contract-'))
+      const output = path.join(tmpDir, 'parameters.ts')
+      const sampleParams = {
+        UserId: {
+          name: 'userId',
+          in: 'path' as const,
+          required: true,
+          schema: { type: 'string' as const },
+        },
+        Page: { name: 'page', in: 'query' as const, schema: { type: 'integer' as const } },
+      }
+      const result = await parameters(sampleParams, output, false, true)
+      expect(result.ok).toBe(true)
+      const emitted = fs.readFileSync(output, 'utf-8')
+      const generated = parametersCode({ parameters: sampleParams }, true, true)
+      const emittedNames = new Set(
+        [
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/g),
+        ].map((m) => m[1]),
+      )
+      const generatedNames = new Set(
+        [
+          ...generated.matchAll(
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/g,
+          ),
+        ].map((m) => m[1]),
+      )
+      expect(emittedNames).toStrictEqual(generatedNames)
     })
   })
 })

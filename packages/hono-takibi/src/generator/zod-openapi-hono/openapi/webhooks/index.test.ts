@@ -260,4 +260,37 @@ export const eventsPostWebhook={method:"post",path:"/events",responses:{200:{des
       `export const evPostWebhook={method:"post",path:"/ev",operationId:"evPost",responses:{200:{description:"OK"}}}`,
     )
   })
+
+  it.concurrent('returns empty string when webhooks is an empty object', () => {
+    const openapi = { paths: {}, webhooks: {} } as unknown as OpenAPI
+    expect(webhookCode(openapi)).toBe('')
+  })
+
+  it.concurrent('returns empty string when every method lacks responses', () => {
+    const openapi = {
+      paths: {},
+      webhooks: {
+        ev: {
+          post: { operationId: 'evPost' },
+          get: { operationId: 'evGet' },
+        },
+      },
+    } as unknown as OpenAPI
+    expect(webhookCode(openapi)).toBe('')
+  })
+
+  it.concurrent('skips operations without responses while keeping siblings', () => {
+    const openapi = {
+      paths: {},
+      webhooks: {
+        ev: {
+          post: { operationId: 'evPost', responses: { '200': { description: 'OK' } } },
+          get: { operationId: 'evGet' },
+        },
+      },
+    } as unknown as OpenAPI
+    expect(webhookCode(openapi)).toBe(
+      `export const evPostWebhook={method:"post",path:"/ev",operationId:"evPost",responses:{200:{description:"OK"}}}`,
+    )
+  })
 })

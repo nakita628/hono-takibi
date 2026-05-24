@@ -83,7 +83,7 @@ const ExtendedWithSiblingSchema = BaseEntitySchema.and(
 
 const NotStringValueSchema = z
   .any()
-  .refine((v) => typeof v !== 'string')
+  .refine((val) => typeof val !== 'string')
   .openapi('NotStringValue')
 
 const AdminRoleSchema = z
@@ -93,22 +93,22 @@ const AdminRoleSchema = z
 
 const NotAdminSchema = z
   .any()
-  .refine((v) => !AdminRoleSchema.safeParse(v).success)
+  .refine((val) => !AdminRoleSchema.safeParse(val).success)
   .openapi('NotAdmin')
 
 const NotDraftOrArchivedSchema = z
   .any()
-  .refine((v) => !['draft', 'archived'].includes(v))
+  .refine((val) => !['draft', 'archived'].includes(val))
   .openapi('NotDraftOrArchived')
 
 const NotSpecificValueSchema = z
   .any()
-  .refine((v) => v !== 'forbidden')
+  .refine((val) => val !== 'forbidden')
   .openapi('NotSpecificValue')
 
 const NotStringOrNumberSchema = z
   .any()
-  .refine((v) => !z.union([z.string(), z.number()]).safeParse(v).success)
+  .refine((val) => !z.union([z.string(), z.number()]).safeParse(val).success)
   .openapi({ description: 'Rejects if value matches string or number union' })
   .openapi('NotStringOrNumber')
 
