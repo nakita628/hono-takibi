@@ -125,92 +125,90 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
   const ownKeysJson = JSON.stringify(Object.keys(schema.properties ?? {}))
   const patternsJson = JSON.stringify(Object.keys(schema.patternProperties ?? {}))
 
-  const requiredMsg = messageFor(schema, 'required')
+  const requiredMessage = messageFor(schema, 'required')
   const requiredChecks = Array.isArray(schema.required)
     ? schema.required.map(
         (key) =>
           // JSON Schema 2020-12 §6.5.3: "own property" — `in` would include inherited.
-          `if(!Object.hasOwn(val,${JSON.stringify(key)})){ctx.addIssue(${issueObj(requiredMsg)})}`,
+          `if(!Object.hasOwn(val,${JSON.stringify(key)})){ctx.addIssue(${issueObj(requiredMessage)})}`,
       )
     : []
-  const minPropsMsg = messageFor(schema, 'minProperties')
-  const minPropsCheck =
+  const minPropertiesCheck =
     typeof schema.minProperties === 'number'
-      ? `if(Object.keys(val).length<${schema.minProperties}){ctx.addIssue(${issueObj(minPropsMsg)})}`
+      ? `if(Object.keys(val).length<${schema.minProperties}){ctx.addIssue(${issueObj(messageFor(schema, 'minProperties'))})}`
       : undefined
-  const maxPropsMsg = messageFor(schema, 'maxProperties')
-  const maxPropsCheck =
+  const maxPropertiesCheck =
     typeof schema.maxProperties === 'number'
-      ? `if(Object.keys(val).length>${schema.maxProperties}){ctx.addIssue(${issueObj(maxPropsMsg)})}`
+      ? `if(Object.keys(val).length>${schema.maxProperties}){ctx.addIssue(${issueObj(messageFor(schema, 'maxProperties'))})}`
       : undefined
-  const propertyMsg = messageFor(schema, 'properties')
+  const propertiesMessage = messageFor(schema, 'properties')
   const propertyChecks = schema.properties
     ? Object.entries(schema.properties).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){ctx.addIssue(${issueObj(propertyMsg)})}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};if(!Schema.safeParse(Reflect.get(val,${JSON.stringify(key)})).success){ctx.addIssue(${issueObj(propertiesMessage)})}}`,
       )
     : []
-  const additionalPropsMsg = messageFor(schema, 'additionalProperties')
-  const additionalPropsCheck = (() => {
+  const additionalPropertiesMessage = messageFor(schema, 'additionalProperties')
+  const additionalPropertiesCheck = (() => {
     if (schema.additionalProperties === false) {
-      return `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(additionalPropsMsg)})}}`
+      return `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}}`
     }
     if (isSchemaObject(schema.additionalProperties)) {
       const subZod = recurse(schema.additionalProperties)
-      return `{const Schema=${subZod};for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(additionalPropsMsg)})}}}}`
+      return `{const Schema=${subZod};for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(additionalPropertiesMessage)})}}}}`
     }
     return undefined
   })()
-  const patternPropsMsg = messageFor(schema, 'patternProperties')
-  const patternPropChecks = schema.patternProperties
+  const patternPropertiesMessage = messageFor(schema, 'patternProperties')
+  const patternPropertiesChecks = schema.patternProperties
     ? Object.entries(schema.patternProperties).map(
         ([pattern, sub]) =>
-          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(patternPropsMsg)})}}}}`,
+          `{const Schema=${recurse(sub)};for(const k of Object.keys(val)){if(new RegExp(${JSON.stringify(pattern)}).test(k)){if(!Schema.safeParse(Reflect.get(val,k)).success){ctx.addIssue(${issueObj(patternPropertiesMessage)})}}}}`,
       )
     : []
-  const propNamesMsg = messageFor(schema, 'propertyNames')
-  const propNamesCheck = schema.propertyNames?.pattern
-    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){ctx.addIssue(${issueObj(propNamesMsg)})}}`
+  const propertyNamesCheck = schema.propertyNames?.pattern
+    ? `for(const k of Object.keys(val)){if(!new RegExp(${JSON.stringify(schema.propertyNames.pattern)}).test(k)){ctx.addIssue(${issueObj(messageFor(schema, 'propertyNames'))})}}`
     : undefined
-  const depRequiredMsg = messageFor(schema, 'dependentRequired')
-  const depRequiredChecks = schema.dependentRequired
+  const dependentRequiredMessage = messageFor(schema, 'dependentRequired')
+  const dependentRequiredChecks = schema.dependentRequired
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
           const depsCheck = deps.map((d) => `Object.hasOwn(val,${JSON.stringify(d)})`).join('&&')
           return depsCheck
-            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){ctx.addIssue(${issueObj(depRequiredMsg)})}}`
+            ? `if(Object.hasOwn(val,${JSON.stringify(key)})){if(!(${depsCheck})){ctx.addIssue(${issueObj(dependentRequiredMessage)})}}`
             : undefined
         })
         .filter((s): s is string => s !== undefined)
     : []
   // JSON Schema 2020-12 §10.2.2.4: `dependentSchemas` applicator;
   // sub-schema issues propagate, message overrides via x-dependentSchemas-message.
-  const depSchemasMsg = messageFor(schema, 'dependentSchemas')
-  const depSchMsgField =
-    depSchemasMsg !== undefined ? `,message:${JSON.stringify(depSchemasMsg)}` : ''
-  const depSchemasChecks = schema.dependentSchemas
+  const dependentSchemasMessage = messageFor(schema, 'dependentSchemas')
+  const dependentSchemasMessageField =
+    dependentSchemasMessage !== undefined
+      ? `,message:${JSON.stringify(dependentSchemasMessage)}`
+      : ''
+  const dependentSchemasChecks = schema.dependentSchemas
     ? Object.entries(schema.dependentSchemas).map(
         ([key, sub]) =>
-          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${depSchMsgField}})}}}`,
+          `if(Object.hasOwn(val,${JSON.stringify(key)})){const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${dependentSchemasMessageField}})}}}`,
       )
     : []
-  const unevaluatedPropsMsg = messageFor(schema, 'unevaluatedProperties')
-  const unevaluatedPropsCheck =
+  const unevaluatedPropertiesCheck =
     schema.unevaluatedProperties === false
-      ? `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(unevaluatedPropsMsg)})}}`
+      ? `for(const k of Object.keys(val)){if(!${ownKeysJson}.includes(k)&&!${patternsJson}.some((p)=>new RegExp(p).test(k))){ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedProperties'))})}}`
       : undefined
 
   return [
     ...requiredChecks,
-    minPropsCheck,
-    maxPropsCheck,
+    minPropertiesCheck,
+    maxPropertiesCheck,
     ...propertyChecks,
-    additionalPropsCheck,
-    ...patternPropChecks,
-    propNamesCheck,
-    ...depRequiredChecks,
-    ...depSchemasChecks,
-    unevaluatedPropsCheck,
+    additionalPropertiesCheck,
+    ...patternPropertiesChecks,
+    propertyNamesCheck,
+    ...dependentRequiredChecks,
+    ...dependentSchemasChecks,
+    unevaluatedPropertiesCheck,
   ].filter((s): s is string => s !== undefined)
 }
 
@@ -218,60 +216,57 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
   const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
     typeof items === 'object' && !Array.isArray(items)
 
-  const minItemsMsg = messageFor(schema, 'minItems')
   const minItemsCheck =
     typeof schema.minItems === 'number'
-      ? `if(val.length<${schema.minItems}){ctx.addIssue(${issueObj(minItemsMsg)})}`
+      ? `if(val.length<${schema.minItems}){ctx.addIssue(${issueObj(messageFor(schema, 'minItems'))})}`
       : undefined
-  const maxItemsMsg = messageFor(schema, 'maxItems')
   const maxItemsCheck =
     typeof schema.maxItems === 'number'
-      ? `if(val.length>${schema.maxItems}){ctx.addIssue(${issueObj(maxItemsMsg)})}`
+      ? `if(val.length>${schema.maxItems}){ctx.addIssue(${issueObj(messageFor(schema, 'maxItems'))})}`
       : undefined
-  const uniqueMsg = messageFor(schema, 'uniqueItems')
   const uniqueCheck =
     schema.uniqueItems === true
-      ? `{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){ctx.addIssue(${issueObj(uniqueMsg)});break}seen.add(key)}}`
+      ? `{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){ctx.addIssue(${issueObj(messageFor(schema, 'uniqueItems'))});break}seen.add(key)}}`
       : undefined
   const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
-  const prefixMsg = messageFor(schema, 'prefixItems')
+  const prefixItemsMessage = messageFor(schema, 'prefixItems')
   const prefixChecks = schema.prefixItems
     ? schema.prefixItems.map(
         (sub, idx) =>
-          `if(val.length>${idx}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${idx}]).success){ctx.addIssue(${issueObj(prefixMsg)})}}`,
+          `if(val.length>${idx}){const Schema=${recurse(sub)};if(!Schema.safeParse(val[${idx}]).success){ctx.addIssue(${issueObj(prefixItemsMessage)})}}`,
       )
     : []
   // items:false → trailing items forbidden; items:true → unconstrained.
-  const itemsMsg = messageFor(schema, 'items')
+  const itemsMessage = messageFor(schema, 'items')
   const itemsCheck = (() => {
     const items = schema.items
     if (items === false) {
-      return `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(itemsMsg)})}`
+      return `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(itemsMessage)})}`
     }
     if (items === undefined || items === true || !isSingleSchema(items)) {
       return undefined
     }
-    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue(${issueObj(itemsMsg)})}}}`
+    return `{const Schema=${recurse(items)};for(let i=${prefixCount};i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue(${issueObj(itemsMessage)})}}}`
   })()
-  const containsMsg = messageFor(schema, 'contains')
-  const minContainsMsg = messageFor(schema, 'minContains')
-  const maxContainsMsg = messageFor(schema, 'maxContains')
+  const containsMessage = messageFor(schema, 'contains')
+  const minContainsMessage = messageFor(schema, 'minContains')
+  const maxContainsMessage = messageFor(schema, 'maxContains')
   const containsCheck = schema.contains
     ? (() => {
         const subZod = recurse(schema.contains)
         const minC = schema.minContains ?? 1
         const maxC = schema.maxContains
-        const lowerMsg = schema.minContains !== undefined ? minContainsMsg : containsMsg
-        const minCheck = `if(m<${minC}){ctx.addIssue(${issueObj(lowerMsg)})}`
+        const lowerBoundMessage =
+          schema.minContains !== undefined ? minContainsMessage : containsMessage
+        const minCheck = `if(m<${minC}){ctx.addIssue(${issueObj(lowerBoundMessage)})}`
         const maxCheck =
-          maxC !== undefined ? `;if(m>${maxC}){ctx.addIssue(${issueObj(maxContainsMsg)})}` : ''
+          maxC !== undefined ? `;if(m>${maxC}){ctx.addIssue(${issueObj(maxContainsMessage)})}` : ''
         return `{const m=val.filter((i)=>${subZod}.safeParse(i).success).length;${minCheck}${maxCheck}}`
       })()
     : undefined
-  const unevaluatedItemsMsg = messageFor(schema, 'unevaluatedItems')
   const unevaluatedItemsCheck =
     schema.unevaluatedItems === false
-      ? `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(unevaluatedItemsMsg)})}`
+      ? `if(val.length>${prefixCount}){ctx.addIssue(${issueObj(messageFor(schema, 'unevaluatedItems'))})}`
       : undefined
 
   return [
@@ -286,19 +281,16 @@ function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readon
 }
 
 function makeStringChecks(schema: Schema): readonly string[] {
-  const minMsg = messageFor(schema, 'minLength')
   const minCheck =
     typeof schema.minLength === 'number'
-      ? `if([...val].length<${schema.minLength}){ctx.addIssue(${issueObj(minMsg)})}`
+      ? `if([...val].length<${schema.minLength}){ctx.addIssue(${issueObj(messageFor(schema, 'minLength'))})}`
       : undefined
-  const maxMsg = messageFor(schema, 'maxLength')
   const maxCheck =
     typeof schema.maxLength === 'number'
-      ? `if([...val].length>${schema.maxLength}){ctx.addIssue(${issueObj(maxMsg)})}`
+      ? `if([...val].length>${schema.maxLength}){ctx.addIssue(${issueObj(messageFor(schema, 'maxLength'))})}`
       : undefined
-  const patternMsg = messageFor(schema, 'pattern')
   const patternCheck = schema.pattern
-    ? `if(!new RegExp(${JSON.stringify(schema.pattern)}).test(val)){ctx.addIssue(${issueObj(patternMsg)})}`
+    ? `if(!new RegExp(${JSON.stringify(schema.pattern)}).test(val)){ctx.addIssue(${issueObj(messageFor(schema, 'pattern'))})}`
     : undefined
   return [minCheck, maxCheck, patternCheck].filter((s): s is string => s !== undefined)
 }
@@ -306,93 +298,90 @@ function makeStringChecks(schema: Schema): readonly string[] {
 function makeNumberChecks(schema: Schema): readonly string[] {
   // Draft 4: exclusiveMinimum:true folds into minimum (<=); number adds a separate check.
   const minimumIsExclusive = schema.exclusiveMinimum === true && typeof schema.minimum === 'number'
-  const minMsg = messageFor(schema, 'minimum')
-  const exMinMsg = messageFor(schema, 'exclusiveMinimum')
+  const minimumMessage = messageFor(schema, 'minimum')
+  const exclusiveMinimumMessage = messageFor(schema, 'exclusiveMinimum')
   const minCheck =
     typeof schema.minimum === 'number'
       ? minimumIsExclusive
-        ? `if(val<=${schema.minimum}){ctx.addIssue(${issueObj(exMinMsg)})}`
-        : `if(val<${schema.minimum}){ctx.addIssue(${issueObj(minMsg)})}`
+        ? `if(val<=${schema.minimum}){ctx.addIssue(${issueObj(exclusiveMinimumMessage)})}`
+        : `if(val<${schema.minimum}){ctx.addIssue(${issueObj(minimumMessage)})}`
       : undefined
-  const exMinCheck =
+  const exclusiveMinimumCheck =
     typeof schema.exclusiveMinimum === 'number'
-      ? `if(val<=${schema.exclusiveMinimum}){ctx.addIssue(${issueObj(exMinMsg)})}`
+      ? `if(val<=${schema.exclusiveMinimum}){ctx.addIssue(${issueObj(exclusiveMinimumMessage)})}`
       : undefined
   const maximumIsExclusive = schema.exclusiveMaximum === true && typeof schema.maximum === 'number'
-  const maxMsg = messageFor(schema, 'maximum')
-  const exMaxMsg = messageFor(schema, 'exclusiveMaximum')
+  const maximumMessage = messageFor(schema, 'maximum')
+  const exclusiveMaximumMessage = messageFor(schema, 'exclusiveMaximum')
   const maxCheck =
     typeof schema.maximum === 'number'
       ? maximumIsExclusive
-        ? `if(val>=${schema.maximum}){ctx.addIssue(${issueObj(exMaxMsg)})}`
-        : `if(val>${schema.maximum}){ctx.addIssue(${issueObj(maxMsg)})}`
+        ? `if(val>=${schema.maximum}){ctx.addIssue(${issueObj(exclusiveMaximumMessage)})}`
+        : `if(val>${schema.maximum}){ctx.addIssue(${issueObj(maximumMessage)})}`
       : undefined
-  const exMaxCheck =
+  const exclusiveMaximumCheck =
     typeof schema.exclusiveMaximum === 'number'
-      ? `if(val>=${schema.exclusiveMaximum}){ctx.addIssue(${issueObj(exMaxMsg)})}`
+      ? `if(val>=${schema.exclusiveMaximum}){ctx.addIssue(${issueObj(exclusiveMaximumMessage)})}`
       : undefined
-  const multipleOfMsg = messageFor(schema, 'multipleOf')
   const multipleOfCheck =
     typeof schema.multipleOf === 'number'
-      ? `{const mod=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(mod>1e-10){ctx.addIssue(${issueObj(multipleOfMsg)})}}`
+      ? `{const mod=Math.abs(val/${schema.multipleOf}-Math.round(val/${schema.multipleOf}));if(mod>1e-10){ctx.addIssue(${issueObj(messageFor(schema, 'multipleOf'))})}}`
       : undefined
-  return [minCheck, exMinCheck, maxCheck, exMaxCheck, multipleOfCheck].filter(
+  return [minCheck, exclusiveMinimumCheck, maxCheck, exclusiveMaximumCheck, multipleOfCheck].filter(
     (s): s is string => s !== undefined,
   )
 }
 
 function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
   // deepEqual via JSON.stringify
-  const enumMsg = messageFor(schema, 'enum')
   const enumCheck = Array.isArray(schema.enum)
-    ? `if(!${JSON.stringify(schema.enum)}.some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue(${issueObj(enumMsg)})}`
+    ? `if(!${JSON.stringify(schema.enum)}.some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue(${issueObj(messageFor(schema, 'enum'))})}`
     : undefined
-  const constMsg = messageFor(schema, 'const')
   const constCheck =
     schema.const !== undefined
-      ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){ctx.addIssue(${issueObj(constMsg)})}`
+      ? `if(JSON.stringify(${JSON.stringify(schema.const)})!==JSON.stringify(val)){ctx.addIssue(${issueObj(messageFor(schema, 'const'))})}`
       : undefined
   // JSON Schema 2020-12 §10.2.1.1: allOf applicator; message overrides via x-allOf-message.
-  const allOfMsg = messageFor(schema, 'allOf')
-  const allOfMsgField = allOfMsg !== undefined ? `,message:${JSON.stringify(allOfMsg)}` : ''
+  const allOfMessage = messageFor(schema, 'allOf')
+  const allOfMessageField =
+    allOfMessage !== undefined ? `,message:${JSON.stringify(allOfMessage)}` : ''
   const allOfChecks = Array.isArray(schema.allOf)
     ? schema.allOf.map(
         (sub) =>
-          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMsgField}})}}}`,
+          `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMessageField}})}}}`,
       )
     : []
   // Precedence: x-implication-message > x-anyOf-message > x-error-message.
-  const anyOfMsg =
+  const anyOfMessage =
     pickMessage(schema, 'x-implication-message') ??
     pickMessage(schema, 'x-anyOf-message') ??
     pickMessage(schema, 'x-error-message')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
-      ? `if(!(${schema.anyOf.map((sub) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMsg)})}`
+      ? `if(!(${schema.anyOf.map((sub) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMessage)})}`
       : undefined
-  const oneOfMsg = messageFor(schema, 'oneOf')
+  const oneOfMessage = messageFor(schema, 'oneOf')
   const oneOfCheck =
     Array.isArray(schema.oneOf) && schema.oneOf.length > 0
-      ? `if((${schema.oneOf.map((sub) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.addIssue(${issueObj(oneOfMsg)})}`
+      ? `if((${schema.oneOf.map((sub) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.addIssue(${issueObj(oneOfMessage)})}`
       : undefined
-  const notMsg = messageFor(schema, 'not')
   const notCheck = schema.not
-    ? `if(${recurse(schema.not)}.safeParse(val).success){ctx.addIssue(${issueObj(notMsg)})}`
+    ? `if(${recurse(schema.not)}.safeParse(val).success){ctx.addIssue(${issueObj(messageFor(schema, 'not'))})}`
     : undefined
   const ifSchema = schema.if
-  const ifMsg = messageFor(schema, 'if')
-  const thenMsg = messageFor(schema, 'then') ?? ifMsg
-  const elseMsg = messageFor(schema, 'else') ?? ifMsg
+  const ifMessage = messageFor(schema, 'if')
+  const thenMessage = messageFor(schema, 'then') ?? ifMessage
+  const elseMessage = messageFor(schema, 'else') ?? ifMessage
   const ifCheck = ifSchema
     ? (() => {
         const ifZod = recurse(ifSchema)
         const thenSchema = schema.then
         const elseSchema = schema.else
         const thenPart = thenSchema
-          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(thenMsg)})}}`
+          ? `if(ifOk){const Schema=${recurse(thenSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(thenMessage)})}}`
           : ''
         const elsePart = elseSchema
-          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(elseMsg)})}}`
+          ? `if(!ifOk){const Schema=${recurse(elseSchema)};if(!Schema.safeParse(val).success){ctx.addIssue(${issueObj(elseMessage)})}}`
           : ''
         return thenPart || elsePart
           ? `{const ifOk=${ifZod}.safeParse(val).success;${thenPart};${elsePart}}`
@@ -532,10 +521,11 @@ export function makeUnevaluatedProperties(
   // Zod uses its default). The literal uses double-quoted `"custom"` to match
   // makeUnevaluatedProperties' existing quoting convention; emitTypelessRefine
   // uses single quotes (see `issueObj`).
-  const slotMsg = messageFor(schema, 'unevaluatedProperties')
-  const overrideMsg = messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
-  const finalMsg = slotMsg ?? overrideMsg
-  const messageField = finalMsg !== undefined ? `,message:${finalMsg}` : ''
+  const slotMessage = messageFor(schema, 'unevaluatedProperties')
+  const overrideMessage =
+    messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
+  const finalMessage = slotMessage ?? overrideMessage
+  const messageField = finalMessage !== undefined ? `,message:${finalMessage}` : ''
   const finalStmt =
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]${messageField}})}}`
@@ -613,10 +603,11 @@ export function makeUnevaluatedPropertiesCheck(
     ...ifStmts,
     ...depSchemaStmts,
   ].filter((s): s is string => s !== undefined)
-  const slotMsg = messageFor(schema, 'unevaluatedProperties')
-  const overrideMsg = messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
-  const finalMsg = slotMsg ?? overrideMsg
-  const messageField = finalMsg !== undefined ? `,message:${finalMsg}` : ''
+  const slotMessage = messageFor(schema, 'unevaluatedProperties')
+  const overrideMessage =
+    messageOverride !== undefined ? JSON.stringify(messageOverride) : undefined
+  const finalMessage = slotMessage ?? overrideMessage
+  const messageField = finalMessage !== undefined ? `,message:${finalMessage}` : ''
   const finalStmt =
     up === false
       ? `for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o${messageField}})}}`

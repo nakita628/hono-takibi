@@ -254,16 +254,16 @@ export function string(
   // need an explicit fallback to honor the contract in openapi/index.ts.
   const patternMessage = schema['x-pattern-message'] ?? errorMessage
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
-  const patternMsgPart = patternMessage ? `,${error(patternMessage)}` : ''
+  const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
-    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMsgPart})`
+    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
     : undefined
   const lengthMessage = schema['x-length-message'] ?? errorMessage
-  const sizeMsgPart = lengthMessage ? `,${error(lengthMessage)}` : ''
+  const lengthMessagePart = lengthMessage ? `,${error(lengthMessage)}` : ''
   const minLengthMessage = schema['x-minLength-message'] ?? errorMessage
-  const minMsgPart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
+  const minLengthMessagePart = minLengthMessage ? `,${error(minLengthMessage)}` : ''
   const maxLengthMessage = schema['x-maxLength-message'] ?? errorMessage
-  const maxMsgPart = maxLengthMessage ? `,${error(maxLengthMessage)}` : ''
+  const maxLengthMessagePart = maxLengthMessage ? `,${error(maxLengthMessage)}` : ''
   const isFixedLength =
     schema.minLength !== undefined &&
     schema.maxLength !== undefined &&
@@ -299,12 +299,12 @@ export function string(
     endUpper || undefined,
     endNormalize || undefined,
     pattern,
-    isFixedLength ? `.length(${schema.minLength}${sizeMsgPart})` : undefined,
+    isFixedLength ? `.length(${schema.minLength}${lengthMessagePart})` : undefined,
     !isFixedLength && schema.minLength !== undefined
-      ? `.min(${schema.minLength}${minMsgPart})`
+      ? `.min(${schema.minLength}${minLengthMessagePart})`
       : undefined,
     !isFixedLength && schema.maxLength !== undefined
-      ? `.max(${schema.maxLength}${maxMsgPart})`
+      ? `.max(${schema.maxLength}${maxLengthMessagePart})`
       : undefined,
     includes,
     startsWith,

@@ -9380,7 +9380,7 @@ describe('zodToOpenAPI', () => {
   // x-error-message / x-required-message slot codegen + runtime
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 x-required-message: differentiates undefined vs type mismatch', () => {
-    const RequiredMsgSchema = z.object({
+    const RequiredMessageSchema = z.object({
       email: z.string({
         error: (issue) =>
           issue.input === undefined ? 'Email is required' : 'Email format invalid',
@@ -9405,14 +9405,14 @@ describe('zodToOpenAPI', () => {
       )
     })
     it.concurrent('runtime: missing email → required message', () => {
-      const valid = RequiredMsgSchema.safeParse({})
+      const valid = RequiredMessageSchema.safeParse({})
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues[0].message).toBe('Email is required')
       }
     })
     it.concurrent('runtime: wrong type email → error message', () => {
-      const valid = RequiredMsgSchema.safeParse({ email: 123 })
+      const valid = RequiredMessageSchema.safeParse({ email: 123 })
       expect(valid.success).toBe(false)
       if (!valid.success) {
         expect(valid.error.issues[0].message).toBe('Email format invalid')

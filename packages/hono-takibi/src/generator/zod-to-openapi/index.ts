@@ -343,25 +343,29 @@ export function zodToOpenAPI(
       // const minC = schema.minContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
       if (schema.minContains === undefined && schema.maxContains === undefined) {
-        const msgPart = fallback ? `,message:${JSON.stringify(fallback)}` : ''
-        return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${msgPart}})}})`
+        const messagePart = fallback ? `,message:${JSON.stringify(fallback)}` : ''
+        return `.superRefine((arr,ctx)=>{const Schema=${containsZod};const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"${messagePart}})}})`
       }
       // minContains defaults to 1; explicit 0 skips the lower-bound check.
       const effectiveMin = schema.minContains ?? 1
-      const minMsg = schema['x-minContains-message'] ?? fallback
+      const minContainsMessage = schema['x-minContains-message'] ?? fallback
       const minStmt =
         effectiveMin > 0
           ? (() => {
-              const msgPart = minMsg ? `,message:${JSON.stringify(minMsg)}` : ''
-              return `if(matched<${effectiveMin}){ctx.addIssue({code:"custom"${msgPart}})}`
+              const messagePart = minContainsMessage
+                ? `,message:${JSON.stringify(minContainsMessage)}`
+                : ''
+              return `if(matched<${effectiveMin}){ctx.addIssue({code:"custom"${messagePart}})}`
             })()
           : undefined
-      const maxMsg = schema['x-maxContains-message'] ?? fallback
+      const maxContainsMessage = schema['x-maxContains-message'] ?? fallback
       const maxStmt =
         schema.maxContains !== undefined
           ? (() => {
-              const msgPart = maxMsg ? `,message:${JSON.stringify(maxMsg)}` : ''
-              return `if(matched>${schema.maxContains}){ctx.addIssue({code:"custom"${msgPart}})}`
+              const messagePart = maxContainsMessage
+                ? `,message:${JSON.stringify(maxContainsMessage)}`
+                : ''
+              return `if(matched>${schema.maxContains}){ctx.addIssue({code:"custom"${messagePart}})}`
             })()
           : undefined
       const stmts = [minStmt, maxStmt].filter((v): v is string => v !== undefined)
@@ -376,21 +380,21 @@ export function zodToOpenAPI(
       : ''
     const itemsMessage = schema['x-items-message'] ?? arrayErrorMessage
     const itemsMessageOverride = itemsMessage ? `,message:${JSON.stringify(itemsMessage)}` : ''
-    const unevalItemsMessage = schema['x-unevaluatedItems-message'] ?? arrayErrorMessage
-    const unevalItemsMessageOverride = unevalItemsMessage
-      ? `,message:${JSON.stringify(unevalItemsMessage)}`
+    const unevaluatedItemsMessage = schema['x-unevaluatedItems-message'] ?? arrayErrorMessage
+    const unevaluatedItemsMessageOverride = unevaluatedItemsMessage
+      ? `,message:${JSON.stringify(unevaluatedItemsMessage)}`
       : ''
     const unevaluatedItemsChain = (() => {
       const ui = schema.unevaluatedItems
       if (ui === undefined || ui === true) return ''
       const prefixCount = Array.isArray(schema.prefixItems) ? schema.prefixItems.length : 0
       if (ui === false) {
-        const slot = unevalItemsMessage ?? arrayErrorMessage
-        const msgPart = slot ? `,message:${JSON.stringify(slot)}` : ''
-        return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${msgPart}})}})`
+        const slot = unevaluatedItemsMessage ?? arrayErrorMessage
+        const messagePart = slot ? `,message:${JSON.stringify(slot)}` : ''
+        return `.superRefine((arr,ctx)=>{for(let i=${prefixCount};i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${messagePart}})}})`
       }
       const subZod = zodToOpenAPI(ui, undefined, childOptions)
-      return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevalItemsMessageOverride}})}}}})`
+      return `.superRefine((arr,ctx)=>{const Schema=${subZod};for(const [idx,val] of arr.slice(${prefixCount}).entries()){const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[${prefixCount}+idx,...issue.path]${unevaluatedItemsMessageOverride}})}}}})`
     })()
     // Length / unique chains. Computed up front so both the prefixItems
     // branch and the plain array branch can apply them — previously the
@@ -408,10 +412,10 @@ export function zodToOpenAPI(
     const maxMessage = schema['x-maxItems-message'] ?? arrayErrorMessage
     const maxErrorArg = maxMessage ? `,${error(maxMessage)}` : ''
     const uniqueMessage = schema['x-uniqueItems-message'] ?? arrayErrorMessage
-    const uniqueMsgPart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
+    const uniqueMessagePart = uniqueMessage ? `,message:${JSON.stringify(uniqueMessage)}` : ''
     const uniqueChain =
       schema.uniqueItems === true
-        ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]${uniqueMsgPart}});else seen.set(key,i)}})`
+        ? `.superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]${uniqueMessagePart}});else seen.set(key,i)}})`
         : ''
     const lengthChain = (() => {
       if (typeof schema.minItems === 'number' && typeof schema.maxItems === 'number') {
@@ -452,17 +456,19 @@ export function zodToOpenAPI(
       const lengthCapped = ui === false || (ui === undefined && itemsField === false)
       // Message slot tracks which keyword actually decided the cap/rest.
       const restFromUneval = uiSchema !== undefined
-      const restMessageOverride = restFromUneval ? unevalItemsMessageOverride : itemsMessageOverride
+      const restMessageOverride = restFromUneval
+        ? unevaluatedItemsMessageOverride
+        : itemsMessageOverride
       const capFromUneval = ui === false
-      const capSlotMessage = capFromUneval ? unevalItemsMessage : itemsMessage
+      const capSlotMessage = capFromUneval ? unevaluatedItemsMessage : itemsMessage
       const prefixCheck = `const Prefix=[${prefixCodes.join(',')}];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]${prefixItemsMessageOverride}})}}}`
       const restCheck = restCode
         ? `;const Rest=${restCode};for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]${restMessageOverride}})}}}`
         : ''
       const capSlot = capSlotMessage ?? arrayErrorMessage
-      const capMsgPart = capSlot ? `,message:${JSON.stringify(capSlot)}` : ''
+      const capMessagePart = capSlot ? `,message:${JSON.stringify(capSlot)}` : ''
       const capCheck = lengthCapped
-        ? `;for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${capMsgPart}})}`
+        ? `;for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]${capMessagePart}})}`
         : ''
       const arrayCtor = arrayErrorArg
         ? `z.array(z.unknown()${arrayErrorArg})`
