@@ -475,7 +475,9 @@ export function makeParameters(
                 .replace(
                   /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
                   (_: string, type: string, constraints: string) =>
-                    `z.coerce.number().pipe(z.${type}()${constraints})`,
+                    type === 'int'
+                      ? `z.coerce.number().int()${constraints}`
+                      : `z.coerce.number().pipe(z.${type}()${constraints})`,
                 )
                 .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
                 .replace(/z\.number\(\)/g, 'z.coerce.number()')

@@ -22,7 +22,8 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
   const wantsCoerce = coerce === true || xCoerce
   const bigintBase = wantsCoerce && isBigint
   const bigintPipe = wantsCoerce && isInt64
-  const numberPipe = wantsCoerce && !isBigint && !isInt64
+  const numberPipe = wantsCoerce && isInt32
+  const numberChain = wantsCoerce && !isBigint && !isInt64 && !isInt32
   const base = bigintBase
     ? `z.coerce.bigint(${baseErrorArg})`
     : isInt32
@@ -103,6 +104,10 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
       ? `.multipleOf(${lit(schema.multipleOf)}${multipleOfErrorArg})`
       : undefined
   const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+  if (numberChain) {
+    const constraints = [minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
+    return `z.coerce.number(${baseErrorArg}).int()${constraints}`
+  }
   if (numberPipe) return `z.coerce.number().pipe(${innerChain})`
   if (bigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
   return innerChain

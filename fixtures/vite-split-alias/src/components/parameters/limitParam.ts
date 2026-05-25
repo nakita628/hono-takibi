@@ -2,7 +2,7 @@ import { z } from '@hono/zod-openapi'
 
 export const LimitParamParamsSchema = z.coerce
   .number()
-  .pipe(z.int().min(1).max(100))
+  .int().min(1).max(100)
   .default(20)
   .exactOptional()
   .openapi({

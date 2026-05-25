@@ -277,13 +277,13 @@ export const getUsersRoute = createRoute({
     query: z.object({
       page: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(20)
         .exactOptional()
         .openapi({
@@ -324,13 +324,13 @@ export const getProductsRoute = createRoute({
         .openapi({ param: { name: 'maxPrice', in: 'query', schema: { type: 'number' } } }),
       page: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(20)
         .exactOptional()
         .openapi({
@@ -477,13 +477,13 @@ export const getOrdersRoute = createRoute({
         }),
       page: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(20)
         .exactOptional()
         .openapi({

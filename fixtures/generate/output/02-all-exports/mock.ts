@@ -15,14 +15,14 @@ const UserListResponseResponse = {
 
 const PageParamParamsSchema = z.coerce
   .number()
-  .pipe(z.int())
+  .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
 
 const UserIdParamParamsSchema = z.coerce
   .number()
-  .pipe(z.int())
+  .int()
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
 
 const UserExampleExample = {

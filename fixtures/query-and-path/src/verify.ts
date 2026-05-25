@@ -133,8 +133,8 @@ async function checkStatus(
 }
 
 const constraintRows: ConstraintRow[] = [
-  await checkStatus('/items/integer/42', '42', 'z.coerce.number().pipe(z.int())'),
-  await checkStatus('/items/integer/3.14', '3.14', 'z.coerce.number().pipe(z.int())'),
+  await checkStatus('/items/integer/42', '42', 'z.coerce.number().int()'),
+  await checkStatus('/items/integer/3.14', '3.14', 'z.coerce.number().int()'),
   await checkStatus('/items/int32/2147483647', '2147483647', 'z.coerce.number().pipe(z.int32())'),
   await checkStatus(
     '/items/int32/9999999999',

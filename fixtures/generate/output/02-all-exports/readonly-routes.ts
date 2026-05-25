@@ -19,7 +19,7 @@ export const UserListResponseResponse = {
 
 export const PageParamParamsSchema = z.coerce
   .number()
-  .pipe(z.int())
+  .int()
   .default(1)
   .exactOptional()
   .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } })
@@ -29,7 +29,7 @@ export type PageParamParams = z.infer<typeof PageParamParamsSchema>
 
 export const UserIdParamParamsSchema = z.coerce
   .number()
-  .pipe(z.int())
+  .int()
   .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } } })
   .readonly()
 

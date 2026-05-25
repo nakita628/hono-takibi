@@ -44,7 +44,7 @@ export const getPostsIndexRoute = createRoute({
     query: z.object({
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .exactOptional()
         .openapi({
           param: { name: 'limit', in: 'query', required: false, schema: { type: 'integer' } },

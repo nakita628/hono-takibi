@@ -20,7 +20,7 @@ export const getItemsRoute = createRoute({
     query: z.object({
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .exactOptional()
         .openapi({ param: { name: 'limit', in: 'query', schema: { type: 'integer' } } }),
       cursor: z

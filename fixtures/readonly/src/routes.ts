@@ -38,7 +38,7 @@ export const getUsersRoute = createRoute({
     query: z.object({
       page: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
@@ -89,7 +89,7 @@ export const getUsersIdRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),

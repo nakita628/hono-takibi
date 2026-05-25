@@ -946,7 +946,7 @@ export const getXRoute = createRoute({
     query: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .exactOptional()
         .openapi({ param: { name: 'id', in: 'query', schema: { type: 'integer' } } }),
     }),

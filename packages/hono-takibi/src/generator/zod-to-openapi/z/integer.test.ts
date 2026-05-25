@@ -368,13 +368,13 @@ describe('integer', () => {
 
   describe('x-coerce (P1)', () => {
     it.concurrent.each<[Schema, string]>([
-      // x-coerce wraps in z.coerce.number().pipe(...) so format bounds survive
-      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().pipe(z.int())'],
+      [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().int()'],
       [
         { type: 'integer', 'x-coerce': true, 'x-error-message': '整数必須' },
-        'z.coerce.number().pipe(z.int({error:"整数必須"}))',
+        'z.coerce.number({error:"整数必須"}).int()',
       ],
-      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().pipe(z.int().min(0))'],
+      [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().int().min(0)'],
+      // int32 keeps pipe to preserve range constraint [-2^31, 2^31-1]
       [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().pipe(z.int32())'],
       // int64 is BigInt-backed → bigint pipe preserves the int64 range
       [{ type: 'integer', format: 'int64', 'x-coerce': true }, 'z.coerce.bigint().pipe(z.int64())'],

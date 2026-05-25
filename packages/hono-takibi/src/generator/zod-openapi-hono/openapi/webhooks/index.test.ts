@@ -182,7 +182,7 @@ export const eventsPostWebhook={method:"post",path:"/events",responses:{200:{des
       },
     } as unknown as OpenAPI
     expect(webhookCode(openapi)).toBe(
-      `export const evPostWebhook={method:"post",path:"/ev",request:{query:z.object({p:z.string().exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":"string"}}}),q:z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"q","in":"query","schema":{"type":"integer"}}})})},responses:{200:{description:"OK"}}}`,
+      `export const evPostWebhook={method:"post",path:"/ev",request:{query:z.object({p:z.string().exactOptional().openapi({param:{"name":"p","in":"query","schema":{"type":"string"}}}),q:z.coerce.number().int().exactOptional().openapi({param:{"name":"q","in":"query","schema":{"type":"integer"}}})})},responses:{200:{description:"OK"}}}`,
     )
   })
 
