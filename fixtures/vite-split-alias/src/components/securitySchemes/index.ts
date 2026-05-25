@@ -1,2 +1,2 @@
-export * from './apiKeyAuth.ts'
-export * from './bearerAuth.ts'
+export * from './apiKeyAuth'
+export * from './bearerAuth'
