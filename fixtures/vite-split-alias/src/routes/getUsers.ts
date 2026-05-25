@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import { LimitParamParamsSchema, PageParamParamsSchema } from '@/components/parameters'
 import { UserListResponseResponse } from '@/components/responses'
+import { LimitParamParamsSchema, PageParamParamsSchema } from '@/components/parameters'
 
 export const getUsersRoute = createRoute({
   method: 'get',
