@@ -1,2 +1,2 @@
-export * from './jsonError.ts'
-export * from './jsonUser.ts'
+export * from './jsonError'
+export * from './jsonUser'

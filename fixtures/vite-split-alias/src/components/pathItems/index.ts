@@ -1,1 +1,1 @@
-export * from './productsItemPathItem'
+export * from './productsItem'

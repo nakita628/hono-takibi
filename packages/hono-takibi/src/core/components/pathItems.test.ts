@@ -151,13 +151,13 @@ describe('pathItems', () => {
         value: `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
       })
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(output, 'userOperationsPathItem.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(output, 'postOperationsPathItem.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(output, 'postOperations.ts'))).toBe(true)
 
       const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
       expect(indexContent.length > 0).toBe(true)
 
-      const userContent = fs.readFileSync(path.join(output, 'userOperationsPathItem.ts'), 'utf-8')
+      const userContent = fs.readFileSync(path.join(output, 'userOperations.ts'), 'utf-8')
       expect(userContent.length > 0).toBe(true)
     })
 
@@ -191,7 +191,7 @@ describe('pathItems', () => {
         value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
       })
       expect(fs.existsSync(path.join(outDir, 'index.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(outDir, 'userOperationsPathItem.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(outDir, 'userOperations.ts'))).toBe(true)
     })
 
     it('writes split files with readonly flag', async () => {
@@ -224,7 +224,7 @@ describe('pathItems', () => {
         ok: true,
         value: `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
       })
-      expect(fs.existsSync(path.join(output, 'userOperationsPathItem.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
 
@@ -377,9 +377,7 @@ describe('pathItems', () => {
       const output = path.join(tmpDir, 'pathItems')
       await pathItems(components, { output, split: true })
       const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
-      expect(indexContent).toBe(
-        "export * from './adminOpsPathItem'\nexport * from './userOpsPathItem'\n",
-      )
+      expect(indexContent).toBe("export * from './adminOps'\nexport * from './userOps'\n")
     })
 
     it('split: emits only inline entries when $ref-only entries are mixed in', async () => {
@@ -396,9 +394,9 @@ describe('pathItems', () => {
         .readdirSync(output)
         .filter((f) => f !== 'index.ts')
         .sort()
-      expect(files).toStrictEqual(['inlinePathItem.ts'])
+      expect(files).toStrictEqual(['inline.ts'])
       const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
-      expect(indexContent).toBe("export * from './inlinePathItem'\n")
+      expect(indexContent).toBe("export * from './inline'\n")
     })
   })
 })

@@ -4,7 +4,12 @@ import { emit } from '../../emit/index.js'
 import { makeExportConst } from '../../helper/code.js'
 import { makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
-import { ensureSuffix, toIdentifierPascalCase, uncapitalize } from '../../utils/index.js'
+import {
+  ensureSuffix,
+  makeBarrel,
+  toIdentifierPascalCase,
+  uncapitalize,
+} from '../../utils/index.js'
 
 export async function examples(
   examples: Components['examples'],
@@ -18,10 +23,6 @@ export async function examples(
   const asConst = readonly ? ' as const' : ''
   if (split) {
     const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-    const indexCode = `${keys
-      .sort()
-      .map((v) => `export * from './${uncapitalize(v)}.ts'`)
-      .join('\n')}\n`
     const results = await Promise.all([
       ...keys.map((k) => {
         const v = examples[k]
@@ -30,14 +31,18 @@ export async function examples(
         if (typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string') {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
-          const importPath = `./${uncapitalize(refKey)}.ts`
+          const importPath = `./${uncapitalize(refKey)}`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
           return emit(body, path.dirname(filePath), filePath)
         }
         const body = `export const ${name} = ${JSON.stringify(v)}${asConst}\n`
         return emit(body, path.dirname(filePath), filePath)
       }),
-      emit(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+      emit(
+        makeBarrel(examples),
+        path.dirname(path.join(outDir, 'index.ts')),
+        path.join(outDir, 'index.ts'),
+      ),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e
