@@ -371,17 +371,137 @@ describe('integer', () => {
       [{ type: 'integer', 'x-coerce': true }, 'z.coerce.number().int()'],
       [
         { type: 'integer', 'x-coerce': true, 'x-error-message': '整数必須' },
-        'z.coerce.number({error:"整数必須"}).int()',
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"})',
       ],
       [{ type: 'integer', 'x-coerce': true, minimum: 0 }, 'z.coerce.number().int().min(0)'],
+      [
+        { type: 'integer', 'x-coerce': true, minimum: 0, 'x-error-message': '整数必須' },
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"}).min(0,{error:"整数必須"})',
+      ],
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+          'x-error-message': '整数必須',
+        },
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"})',
+      ],
       // int32 keeps pipe to preserve range constraint [-2^31, 2^31-1]
       [{ type: 'integer', format: 'int32', 'x-coerce': true }, 'z.coerce.number().pipe(z.int32())'],
+      [
+        { type: 'integer', format: 'int32', 'x-coerce': true, 'x-error-message': 'int32必須' },
+        'z.coerce.number({error:"int32必須"}).pipe(z.int32({error:"int32必須"}))',
+      ],
+      [
+        {
+          type: 'integer',
+          format: 'int32',
+          'x-coerce': true,
+          minimum: 0,
+          'x-error-message': 'int32必須',
+        },
+        'z.coerce.number({error:"int32必須"}).pipe(z.int32({error:"int32必須"}).min(0,{error:"int32必須"}))',
+      ],
       // int64 is BigInt-backed → bigint pipe preserves the int64 range
       [{ type: 'integer', format: 'int64', 'x-coerce': true }, 'z.coerce.bigint().pipe(z.int64())'],
+      [
+        { type: 'integer', format: 'int64', 'x-coerce': true, 'x-error-message': 'int64必須' },
+        'z.coerce.bigint({error:"int64必須"}).pipe(z.int64({error:"int64必須"}))',
+      ],
+      [
+        {
+          type: 'integer',
+          format: 'int64',
+          'x-coerce': true,
+          maximum: 100,
+          'x-error-message': 'int64必須',
+        },
+        'z.coerce.bigint({error:"int64必須"}).pipe(z.int64({error:"int64必須"}).max(100n,{error:"int64必須"}))',
+      ],
       // bigint format coerces directly to BigInt (no pipe needed)
       [{ type: 'integer', format: 'bigint', 'x-coerce': true }, 'z.coerce.bigint()'],
+      [
+        { type: 'integer', format: 'bigint', 'x-coerce': true, 'x-error-message': 'bigint必須' },
+        'z.coerce.bigint({error:"bigint必須"})',
+      ],
+      [
+        {
+          type: 'integer',
+          format: 'bigint',
+          'x-coerce': true,
+          minimum: 0,
+          'x-error-message': 'bigint必須',
+        },
+        'z.coerce.bigint({error:"bigint必須"}).min(BigInt(0),{error:"bigint必須"})',
+      ],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
+    })
+  })
+
+  describe('x-coerce + keyword-specific messages', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          minimum: 1,
+          'x-error-message': '整数必須',
+          'x-minimum-message': '1以上',
+        },
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"}).min(1,{error:"1以上"})',
+      ],
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          maximum: 100,
+          'x-error-message': '整数必須',
+          'x-maximum-message': '100以下',
+        },
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"}).max(100,{error:"100以下"})',
+      ],
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          minimum: 1,
+          'x-minimum-message': '1以上',
+        },
+        'z.coerce.number().int().min(1,{error:"1以上"})',
+      ],
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          minimum: 0,
+          exclusiveMinimum: true,
+          'x-exclusiveMinimum-message': '正の数',
+        },
+        'z.coerce.number().int().positive({error:"正の数"})',
+      ],
+      [
+        {
+          type: 'integer',
+          'x-coerce': true,
+          multipleOf: 2,
+          'x-error-message': '整数必須',
+          'x-multipleOf-message': '偶数のみ',
+        },
+        'z.coerce.number({error:"整数必須"}).int({error:"整数必須"}).multipleOf(2,{error:"偶数のみ"})',
+      ],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+  })
+
+  describe('coerce option vs x-coerce equivalence', () => {
+    it.concurrent('coerce option produces same output as x-coerce', () => {
+      const schema: Schema = { type: 'integer', 'x-error-message': '整数必須' }
+      const withOption = integer(schema, { coerce: true })
+      const withExtension = integer({ ...schema, 'x-coerce': true })
+      expect(withOption).toBe(withExtension)
     })
   })
 
@@ -397,6 +517,60 @@ describe('integer', () => {
     it.concurrent('int64 + x-coerce rejects non-integer numeric strings', () => {
       const Schema = z.coerce.bigint().pipe(z.int64())
       expect(Schema.safeParse('1.5').success).toBe(false)
+    })
+  })
+
+  describe('regression: x-coerce + x-error-message runtime', () => {
+    it.concurrent('numberChain: non-integer string shows custom error', () => {
+      const Schema = z.coerce.number({ error: '整数必須' }).int({ error: '整数必須' })
+      const result = Schema.safeParse('1.5')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('整数必須')
+      }
+    })
+    it.concurrent('numberPipe: non-number string shows custom error', () => {
+      const Schema = z.coerce
+        .number({ error: 'int32必須' })
+        .pipe(z.int32({ error: 'int32必須' }))
+      const result = Schema.safeParse('abc')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('int32必須')
+      }
+    })
+    it.concurrent('bigintPipe: non-bigint string shows custom error', () => {
+      const Schema = z.coerce
+        .bigint({ error: 'int64必須' })
+        .pipe(z.int64({ error: 'int64必須' }))
+      const result = Schema.safeParse('abc')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('int64必須')
+      }
+    })
+  })
+
+  describe('regression: x-required-message unreachable under coerce', () => {
+    it.concurrent('coerce converts undefined to NaN — issue.input is never undefined', () => {
+      const Schema = z.coerce
+        .number({ error: (issue) => (issue.input === undefined ? '必須です' : '整数必須') })
+        .int({ error: '整数必須' })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('整数必須')
+      }
+    })
+    it.concurrent('non-coerce preserves issue.input === undefined', () => {
+      const Schema = z.int({
+        error: (issue) => (issue.input === undefined ? '必須です' : '整数必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('必須です')
+      }
     })
   })
 })

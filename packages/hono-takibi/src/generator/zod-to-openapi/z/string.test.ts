@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { string } from './string.js'
@@ -388,10 +389,53 @@ describe('string', () => {
         { type: 'string', 'x-coerce': true, 'x-trim': true, 'x-toLowerCase': true },
         'z.coerce.string().trim().toLowerCase()',
       ],
+      // coerce + x-required-message: requiredMessage dropped (unreachable under coerce)
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+          'x-error-message': '文字列必須',
+        },
+        'z.coerce.string({error:"文字列必須"})',
+      ],
+      [
+        {
+          type: 'string',
+          format: 'date-time',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+          'x-error-message': '日付不正',
+        },
+        'z.coerce.date({error:"日付不正"})',
+      ],
       // coerce ignored for non-date format (out of P1 scope, base unchanged)
       [{ type: 'string', format: 'email', 'x-coerce': true }, 'z.email()'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('regression: x-required-message unreachable under coerce', () => {
+    it.concurrent('z.coerce.string(undefined) succeeds with "undefined" — error handler never runs', () => {
+      const Schema = z.coerce.string({
+        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toBe('undefined')
+      }
+    })
+    it.concurrent('non-coerce preserves issue.input === undefined', () => {
+      const Schema = z.string({
+        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('必須です')
+      }
     })
   })
 

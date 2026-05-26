@@ -6,7 +6,7 @@ import {
   makeUnevaluatedPropertiesCheck,
 } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
-import { error, normalizeTypes } from '../../utils/index.js'
+import { baseError, error, normalizeTypes } from '../../utils/index.js'
 import { _enum, integer, number, object, string } from './z/index.js'
 
 export function zodToOpenAPI(
@@ -302,13 +302,9 @@ export function zodToOpenAPI(
         'x-coerce and x-stringbool are mutually exclusive on a boolean schema. Remove one.',
       )
     }
-    const arg = (() => {
-      if (requiredMessage === undefined && errorMessage === undefined) return ''
-      if (requiredMessage === undefined && errorMessage !== undefined) return error(errorMessage)
-      if (requiredMessage !== undefined && errorMessage === undefined)
-        return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:undefined}`
-      return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(errorMessage)}}`
-    })()
+    // coerce converts undefined → false (Boolean(undefined)), so
+    // issue.input === undefined is unreachable — drop x-required-message.
+    const arg = baseError(errorMessage, xCoerce ? undefined : requiredMessage)
     if (xStringbool !== undefined) {
       const opts = xStringbool === true ? null : xStringbool
       const optsObj = opts

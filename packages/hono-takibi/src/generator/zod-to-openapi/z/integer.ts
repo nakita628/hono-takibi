@@ -10,16 +10,14 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
   const coerce = options?.coerce
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
-  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const xCoerce = schema['x-coerce'] === true
+  const wantsCoerce = coerce === true || xCoerce
+  // coerce converts undefined → NaN before the error handler runs,
+  // so issue.input === undefined is unreachable — drop x-required-message.
+  const baseErrorArg = baseError(errorMessage, wantsCoerce ? undefined : requiredMessage)
   const isBigint = schema.format === 'bigint'
   const isInt32 = schema.format === 'int32'
   const isInt64 = schema.format === 'int64'
-  // `x-coerce` (author-explicit) and `coerce` (path/query wire) share the
-  // same pipe topology so format-specific bounds (int32 / int64) survive.
-  // Previously x-coerce collapsed to `z.coerce.number().int()` and silently
-  // dropped int32 range [-2^31, 2^31-1] and int64 BigInt semantics.
-  const wantsCoerce = coerce === true || xCoerce
   const bigintBase = wantsCoerce && isBigint
   const bigintPipe = wantsCoerce && isInt64
   const numberPipe = wantsCoerce && isInt32
@@ -106,9 +104,10 @@ export function integer(schema: Schema, options?: { coerce?: boolean }): string 
   const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
   if (numberChain) {
     const constraints = [minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
-    return `z.coerce.number(${baseErrorArg}).int()${constraints}`
+    const intErrorArg = errorMessage ? error(errorMessage) : ''
+    return `z.coerce.number(${baseErrorArg}).int(${intErrorArg})${constraints}`
   }
-  if (numberPipe) return `z.coerce.number().pipe(${innerChain})`
-  if (bigintPipe) return `z.coerce.bigint().pipe(${innerChain})`
+  if (numberPipe) return `z.coerce.number(${baseErrorArg}).pipe(${innerChain})`
+  if (bigintPipe) return `z.coerce.bigint(${baseErrorArg}).pipe(${innerChain})`
   return innerChain
 }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { number } from './number.js'
@@ -211,6 +212,57 @@ describe('x-coerce (P1)', () => {
       { type: 'number', format: 'float64', 'x-coerce': true },
       'z.coerce.number().pipe(z.float64())',
     ],
+    // wirePipe + x-error-message (float32)
+    [
+      { type: 'number', format: 'float', 'x-coerce': true, 'x-error-message': 'float必須' },
+      'z.coerce.number({error:"float必須"}).pipe(z.float32({error:"float必須"}))',
+    ],
+    // wirePipe + x-error-message (float64 / double)
+    [
+      { type: 'number', format: 'float64', 'x-coerce': true, 'x-error-message': 'float64必須' },
+      'z.coerce.number({error:"float64必須"}).pipe(z.float64({error:"float64必須"}))',
+    ],
+    [
+      { type: 'number', format: 'double', 'x-coerce': true, 'x-error-message': 'double必須' },
+      'z.coerce.number({error:"double必須"}).pipe(z.float64({error:"double必須"}))',
+    ],
+    // wirePipe + x-error-message + constraints
+    [
+      {
+        type: 'number',
+        format: 'float',
+        'x-coerce': true,
+        minimum: 0,
+        'x-error-message': 'float必須',
+      },
+      'z.coerce.number({error:"float必須"}).pipe(z.float32({error:"float必須"}).min(0,{error:"float必須"}))',
+    ],
+    // wirePipe + x-required-message + x-error-message
+    [
+      {
+        type: 'number',
+        format: 'float',
+        'x-coerce': true,
+        'x-required-message': '必須です',
+        'x-error-message': 'float必須',
+      },
+      'z.coerce.number({error:"float必須"}).pipe(z.float32({error:"float必須"}))',
+    ],
+    // wirePlain + x-error-message + constraints
+    [
+      { type: 'number', 'x-coerce': true, minimum: 0, 'x-error-message': '数値必須' },
+      'z.coerce.number({error:"数値必須"}).min(0,{error:"数値必須"})',
+    ],
+    // wirePlain + x-required-message + x-error-message
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        'x-required-message': '必須です',
+        'x-error-message': '数値必須',
+      },
+      'z.coerce.number({error:"数値必須"})',
+    ],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -251,5 +303,32 @@ describe('x-multipleOf-message', () => {
     ],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
+  })
+})
+
+describe('regression: x-coerce + x-error-message runtime', () => {
+  it.concurrent('wirePipe (float32): non-number string shows custom error', () => {
+    const Schema = z.coerce.number({ error: 'float必須' }).pipe(z.float32({ error: 'float必須' }))
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('float必須')
+    }
+  })
+  it.concurrent('wirePipe (float64): non-number string shows custom error', () => {
+    const Schema = z.coerce.number({ error: 'float64必須' }).pipe(z.float64({ error: 'float64必須' }))
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('float64必須')
+    }
+  })
+  it.concurrent('wirePlain: non-number string shows custom error', () => {
+    const Schema = z.coerce.number({ error: '数値必須' })
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('数値必須')
+    }
   })
 })
