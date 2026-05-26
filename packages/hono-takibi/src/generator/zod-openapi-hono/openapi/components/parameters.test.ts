@@ -405,6 +405,26 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 
+  it('should drop x-required-message for query integer (coerce makes it unreachable)', () => {
+    const components: Components = {
+      parameters: {
+        page: {
+          name: 'page',
+          in: 'query',
+          schema: {
+            type: 'integer',
+            'x-required-message': '必須です',
+            'x-error-message': 'ページ番号は整数です',
+          },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-required-message":"必須です","x-error-message":"ページ番号は整数です"}}})`,
+    )
+  })
+
   it('should add readonly modifier when readonly option is true', () => {
     const components: Components = {
       parameters: {

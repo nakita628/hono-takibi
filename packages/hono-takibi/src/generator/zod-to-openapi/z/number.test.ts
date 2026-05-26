@@ -306,6 +306,88 @@ describe('x-multipleOf-message', () => {
   })
 })
 
+describe('x-coerce + keyword-specific messages', () => {
+  it.concurrent.each<[Schema, string]>([
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        minimum: 1,
+        'x-error-message': '数値必須',
+        'x-minimum-message': '1以上',
+      },
+      'z.coerce.number({error:"数値必須"}).min(1,{error:"1以上"})',
+    ],
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        maximum: 100,
+        'x-error-message': '数値必須',
+        'x-maximum-message': '100以下',
+      },
+      'z.coerce.number({error:"数値必須"}).max(100,{error:"100以下"})',
+    ],
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        minimum: 1,
+        'x-minimum-message': '1以上',
+      },
+      'z.coerce.number().min(1,{error:"1以上"})',
+    ],
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        minimum: 0,
+        exclusiveMinimum: true,
+        'x-exclusiveMinimum-message': '正の数',
+      },
+      'z.coerce.number().positive({error:"正の数"})',
+    ],
+    [
+      {
+        type: 'number',
+        'x-coerce': true,
+        multipleOf: 2,
+        'x-error-message': '数値必須',
+        'x-multipleOf-message': '偶数のみ',
+      },
+      'z.coerce.number({error:"数値必須"}).multipleOf(2,{error:"偶数のみ"})',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
+describe('x-coerce + x-required-message only (no x-error-message)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'number', 'x-coerce': true, 'x-required-message': '必須です' }, 'z.coerce.number()'],
+    [
+      {
+        type: 'number',
+        format: 'float',
+        'x-coerce': true,
+        'x-required-message': '必須です',
+      },
+      'z.coerce.number().pipe(z.float32())',
+    ],
+  ])('number(%o) → %s', (input, expected) => {
+    expect(number(input)).toBe(expected)
+  })
+})
+
+describe('coerce option vs x-coerce equivalence', () => {
+  it.concurrent('coerce option produces same output as x-coerce', () => {
+    const schema: Schema = { type: 'number', 'x-error-message': '数値必須' }
+    const withOption = number(schema, { coerce: true })
+    const withExtension = number({ ...schema, 'x-coerce': true })
+    expect(withOption).toBe(withExtension)
+  })
+})
+
 describe('regression: x-coerce + x-error-message runtime', () => {
   it.concurrent('wirePipe (float32): non-number string shows custom error', () => {
     const Schema = z.coerce.number({ error: 'float必須' }).pipe(z.float32({ error: 'float必須' }))
@@ -316,7 +398,9 @@ describe('regression: x-coerce + x-error-message runtime', () => {
     }
   })
   it.concurrent('wirePipe (float64): non-number string shows custom error', () => {
-    const Schema = z.coerce.number({ error: 'float64必須' }).pipe(z.float64({ error: 'float64必須' }))
+    const Schema = z.coerce
+      .number({ error: 'float64必須' })
+      .pipe(z.float64({ error: 'float64必須' }))
     const result = Schema.safeParse('abc')
     expect(result.success).toBe(false)
     if (!result.success) {
@@ -329,6 +413,29 @@ describe('regression: x-coerce + x-error-message runtime', () => {
     expect(result.success).toBe(false)
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('数値必須')
+    }
+  })
+})
+
+describe('regression: x-required-message unreachable under coerce', () => {
+  it.concurrent('coerce converts undefined to NaN — issue.input is never undefined', () => {
+    const Schema = z.coerce.number({
+      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
+    })
+    const result = Schema.safeParse(undefined)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('数値必須')
+    }
+  })
+  it.concurrent('non-coerce preserves issue.input === undefined', () => {
+    const Schema = z.number({
+      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
+    })
+    const result = Schema.safeParse(undefined)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('必須です')
     }
   })
 })
