@@ -38,7 +38,7 @@ export async function responses(
       emit(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
-    if (e && !e.ok) return { ok: false, error: e.error } as const
+    if (e) return e
     return {
       ok: true,
       value: `Generated responses code written to ${outDir}/*.ts (index.ts included)`,

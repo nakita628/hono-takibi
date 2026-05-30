@@ -39,7 +39,7 @@ export async function parameters(
       emit(makeBarrel(parameters), outDir, path.join(outDir, 'index.ts')),
     ])
     const e = results.find((result) => !result.ok)
-    if (e && !e.ok) return { ok: false, error: e.error } as const
+    if (e) return e
     return {
       ok: true,
       value: `Generated parameters code written to ${outDir}/*.ts (index.ts included)`,
