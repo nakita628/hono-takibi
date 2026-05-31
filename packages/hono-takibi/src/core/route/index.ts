@@ -129,8 +129,8 @@ export async function route(
       `${outDir}/index.ts`,
     ),
   ])
-  const failed = results.find((result) => !result.ok)
-  if (failed) return failed
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated route code written to ${outDir}/*.ts (index.ts included)`,

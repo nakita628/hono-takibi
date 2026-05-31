@@ -64,7 +64,7 @@ export const getItemsIntegerIdRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -167,7 +167,7 @@ export const getItemsMixedIdSubFlagRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -191,7 +191,7 @@ export const getQIntegerRoute = createRoute({
     query: z.object({
       v: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'v', in: 'query', required: true, schema: { type: 'integer' } },
         }),
@@ -292,7 +292,7 @@ export const getQMixedRoute = createRoute({
     query: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'query', required: true, schema: { type: 'integer' } },
         }),
@@ -319,7 +319,7 @@ export const getSearchRoute = createRoute({
         .openapi({ param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } } }),
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'limit', in: 'query', required: true, schema: { type: 'integer' } },
         }),
@@ -348,7 +348,7 @@ export const getSearchOptionalRoute = createRoute({
     query: z.object({
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(10)
         .exactOptional()
         .openapi({
@@ -388,7 +388,7 @@ export const getSearchArrayRoute = createRoute({
         .array(
           z.coerce
             .number()
-            .pipe(z.int())
+            .int()
             .openapi({
               param: {
                 name: 'ids',

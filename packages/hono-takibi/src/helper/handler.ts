@@ -393,8 +393,8 @@ async function removeStaleFiles(handlerPath: string, generatedFileNames: Readonl
       unlink(`${handlerPath}/${path.basename(file, '.ts')}.test.ts`),
     ]),
   )
-  const firstError = results.find((r) => !r.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error } as const
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return { ok: true, value: undefined } as const
 }
 
@@ -491,8 +491,8 @@ export async function zodOpenAPIHonoHandler(
       return { ok: true, value: undefined } as const
     })(),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
   if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const
@@ -596,8 +596,8 @@ export async function mockZodOpenAPIHonoHandler(
       return { ok: true, value: undefined } as const
     })(),
   ])
-  const firstError = results.find((result) => !result.ok)
-  if (firstError) return firstError
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
   if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const

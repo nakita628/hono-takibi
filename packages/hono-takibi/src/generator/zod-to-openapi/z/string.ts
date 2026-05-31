@@ -112,8 +112,10 @@ export function string(
 ): string {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
-  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const coerce = schema['x-coerce'] === true
+  // coerce converts undefined → "undefined" (string) or Invalid Date — success
+  // or non-undefined failure, so issue.input === undefined is unreachable.
+  const baseErrorArg = baseError(errorMessage, coerce ? undefined : requiredMessage)
 
   // Hash: z.hash(algo, { enc }) — special case, algo is a required positional arg.
   // `x-error-message` directly via `errorInner` below; the format-specific slot

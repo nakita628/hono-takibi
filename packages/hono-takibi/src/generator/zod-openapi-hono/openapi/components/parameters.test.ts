@@ -38,7 +38,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, false, false)
     expect(result).toBe(
-      `const PageParamsSchema=z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})`,
+      `const PageParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})`,
     )
   })
 
@@ -54,7 +54,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, true)
     expect(result).toBe(
-      `export const LimitParamsSchema=z.coerce.number().pipe(z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})
+      `export const LimitParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})
 
 export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
@@ -95,7 +95,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PaginationParamsSchema=z.object({page:z.coerce.number().pipe(z.int().min(1)).default(1).exactOptional(),limit:z.coerce.number().pipe(z.int().min(1).max(100)).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}}}})`,
+      `export const PaginationParamsSchema=z.object({page:z.coerce.number().int().min(1).default(1).exactOptional(),limit:z.coerce.number().int().min(1).max(100).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}}}})`,
     )
   })
 
@@ -218,7 +218,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdsParamsSchema=z.array(z.coerce.number().pipe(z.int())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})`,
+      `export const IdsParamsSchema=z.array(z.coerce.number().int()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})`,
     )
   })
 
@@ -268,7 +268,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdParamsSchema=z.coerce.number().pipe(z.int()).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
+      `export const IdParamsSchema=z.coerce.number().int().openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer"}}})`,
     )
   })
 
@@ -320,6 +320,108 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     const result = parametersCode(components, true, false)
     expect(result).toBe(
       `export const FlagParamsSchema=z.stringbool().openapi({param:{"name":"flag","in":"path","required":true,"schema":{"type":"boolean"}}})`,
+    )
+  })
+
+  it('should apply coercion with x-error-message to query integer parameter', () => {
+    const components: Components = {
+      parameters: {
+        page: {
+          name: 'page',
+          in: 'query',
+          schema: { type: 'integer', 'x-error-message': 'ページ番号は整数です' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-error-message":"ページ番号は整数です"}}})`,
+    )
+  })
+
+  it('should apply coercion with x-error-message to path integer parameter', () => {
+    const components: Components = {
+      parameters: {
+        id: {
+          name: 'id',
+          in: 'path',
+          required: true,
+          schema: { type: 'integer', 'x-error-message': 'IDは整数です' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const IdParamsSchema=z.coerce.number({error:"IDは整数です"}).int({error:"IDは整数です"}).openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"integer","x-error-message":"IDは整数です"}}})`,
+    )
+  })
+
+  it('should apply coercion with x-error-message to path number parameter', () => {
+    const components: Components = {
+      parameters: {
+        value: {
+          name: 'value',
+          in: 'path',
+          required: true,
+          schema: { type: 'number', 'x-error-message': '数値必須' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const ValueParamsSchema=z.coerce.number({error:"数値必須"}).openapi({param:{"name":"value","in":"path","required":true,"schema":{"type":"number","x-error-message":"数値必須"}}})`,
+    )
+  })
+
+  it('should apply coercion with x-error-message to query int32 parameter', () => {
+    const components: Components = {
+      parameters: {
+        offset: {
+          name: 'offset',
+          in: 'query',
+          schema: { type: 'integer', format: 'int32', 'x-error-message': 'int32必須' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const OffsetParamsSchema=z.coerce.number({error:"int32必須"}).pipe(z.int32({error:"int32必須"})).exactOptional().openapi({param:{"name":"offset","in":"query","schema":{"type":"integer","format":"int32","x-error-message":"int32必須"}}})`,
+    )
+  })
+
+  it('should apply coercion with x-error-message and constraints to query integer parameter', () => {
+    const components: Components = {
+      parameters: {
+        page: {
+          name: 'page',
+          in: 'query',
+          schema: { type: 'integer', minimum: 1, 'x-error-message': 'ページ番号が不正です' },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号が不正です"}).int({error:"ページ番号が不正です"}).min(1,{error:"ページ番号が不正です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"x-error-message":"ページ番号が不正です"}}})`,
+    )
+  })
+
+  it('should drop x-required-message for query integer (coerce makes it unreachable)', () => {
+    const components: Components = {
+      parameters: {
+        page: {
+          name: 'page',
+          in: 'query',
+          schema: {
+            type: 'integer',
+            'x-required-message': '必須です',
+            'x-error-message': 'ページ番号は整数です',
+          },
+        },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-required-message":"必須です","x-error-message":"ページ番号は整数です"}}})`,
     )
   })
 

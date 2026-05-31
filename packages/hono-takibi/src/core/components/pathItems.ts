@@ -36,7 +36,7 @@ export async function pathItems(
     components: Components,
     exportPathItems: boolean,
     readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
+  ): readonly { readonly key: string; readonly name: string; readonly code: string }[] => {
     const { pathItems } = components
     if (!pathItems) return []
     const asConst = readonly ? ' as const' : ''
@@ -46,6 +46,7 @@ export async function pathItems(
       isPathItem(pathItemOrRef)
         ? [
             {
+              key: k,
               name: toIdentifierPascalCase(ensureSuffix(k, 'PathItem')),
               code: `${makeConst(exportPathItems, k, 'PathItem')}${makePathItem(pathItemOrRef)}${asConst}`,
             },
@@ -63,20 +64,20 @@ export async function pathItems(
   }
   const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const results = await Promise.all([
-    ...entries.map(async ({ name, code }) => {
-      const filePath = `${outDir}/${uncapitalize(name)}.ts`
+    ...entries.map(async ({ key, code }) => {
+      const filePath = `${outDir}/${uncapitalize(key)}.ts`
       const withImports = makeImports(code, filePath, componentsConfig)
       const result = await emit(withImports, path.dirname(filePath), filePath)
       return result.ok ? { ok: true as const, value: filePath } : result
     }),
     emit(
-      makeBarrel(Object.fromEntries(entries.map((e) => [e.name, null]))),
+      makeBarrel(Object.fromEntries(entries.map((e) => [e.key, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),
   ])
-  const failed = results.find((result) => !result.ok)
-  if (failed) return failed
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   return {
     ok: true,
     value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,

@@ -4688,7 +4688,31 @@ describe('zodToOpenAPI', () => {
             'x-error-message': 'ブール必須',
           } as Schema)
           expect(generated).toBe('z.coerce.boolean({error:"ブール必須"})')
-          // runtime skipped: just verify codegen
+        })
+        it.concurrent('boolean: x-coerce=true + x-required-message → requiredMessage dropped (unreachable)', () => {
+          const generated = zodToOpenAPI({
+            type: 'boolean',
+            'x-coerce': true,
+            'x-required-message': '必須です',
+            'x-error-message': 'ブール必須',
+          } as Schema)
+          expect(generated).toBe('z.coerce.boolean({error:"ブール必須"})')
+        })
+        it.concurrent('boolean: x-coerce=true + x-required-message only → requiredMessage dropped', () => {
+          const generated = zodToOpenAPI({
+            type: 'boolean',
+            'x-coerce': true,
+            'x-required-message': '必須です',
+          } as Schema)
+          expect(generated).toBe('z.coerce.boolean()')
+        })
+        it.concurrent('regression: z.coerce.boolean(undefined) succeeds with false — all error handlers unreachable', () => {
+          const Schema = z.coerce.boolean({ error: 'ブール必須' })
+          const result = Schema.safeParse(undefined)
+          expect(result.success).toBe(true)
+          if (result.success) {
+            expect(result.data).toBe(false)
+          }
         })
         // ----- P2: x-catch / x-prefault / x-readonly -----
         it.concurrent('boolean: x-catch=false → z.boolean().catch(false)', () => {

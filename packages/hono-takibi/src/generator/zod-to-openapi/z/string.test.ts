@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { string } from './string.js'
@@ -388,10 +389,128 @@ describe('string', () => {
         { type: 'string', 'x-coerce': true, 'x-trim': true, 'x-toLowerCase': true },
         'z.coerce.string().trim().toLowerCase()',
       ],
+      // coerce + x-required-message: requiredMessage dropped (unreachable under coerce)
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+          'x-error-message': '文字列必須',
+        },
+        'z.coerce.string({error:"文字列必須"})',
+      ],
+      [
+        {
+          type: 'string',
+          format: 'date-time',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+          'x-error-message': '日付不正',
+        },
+        'z.coerce.date({error:"日付不正"})',
+      ],
+      // coerce + x-required-message only (no x-error-message) → completely dropped
+      [{ type: 'string', 'x-coerce': true, 'x-required-message': '必須です' }, 'z.coerce.string()'],
+      [
+        {
+          type: 'string',
+          format: 'date',
+          'x-coerce': true,
+          'x-required-message': '必須です',
+        },
+        'z.coerce.date()',
+      ],
       // coerce ignored for non-date format (out of P1 scope, base unchanged)
       [{ type: 'string', format: 'email', 'x-coerce': true }, 'z.email()'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('x-coerce + x-error-message + constraints', () => {
+    it.concurrent.each<[Schema, string]>([
+      [
+        { type: 'string', 'x-coerce': true, minLength: 3, 'x-error-message': '文字列必須' },
+        'z.coerce.string({error:"文字列必須"}).min(3,{error:"文字列必須"})',
+      ],
+      [
+        { type: 'string', 'x-coerce': true, maxLength: 100, 'x-error-message': '文字列必須' },
+        'z.coerce.string({error:"文字列必須"}).max(100,{error:"文字列必須"})',
+      ],
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          pattern: '^[a-z]+$',
+          'x-error-message': '文字列必須',
+        },
+        'z.coerce.string({error:"文字列必須"}).regex(/^[a-z]+$/,{error:"文字列必須"})',
+      ],
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          minLength: 3,
+          maxLength: 20,
+          'x-error-message': '文字列必須',
+        },
+        'z.coerce.string({error:"文字列必須"}).min(3,{error:"文字列必須"}).max(20,{error:"文字列必須"})',
+      ],
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          minLength: 3,
+          'x-error-message': '文字列必須',
+          'x-minLength-message': '3文字以上',
+        },
+        'z.coerce.string({error:"文字列必須"}).min(3,{error:"3文字以上"})',
+      ],
+      [
+        {
+          type: 'string',
+          'x-coerce': true,
+          minLength: 5,
+          maxLength: 5,
+          'x-error-message': '文字列必須',
+        },
+        'z.coerce.string({error:"文字列必須"}).length(5,{error:"文字列必須"})',
+      ],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('regression: x-required-message unreachable under coerce', () => {
+    it.concurrent('z.coerce.string(undefined) succeeds with "undefined" — error handler never runs', () => {
+      const Schema = z.coerce.string({
+        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toBe('undefined')
+      }
+    })
+    it.concurrent('z.coerce.date(undefined) fails — but issue.input is Invalid Date, not undefined', () => {
+      const Schema = z.coerce.date({
+        error: (issue) => (issue.input === undefined ? '必須です' : '日付不正'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('日付不正')
+      }
+    })
+    it.concurrent('non-coerce preserves issue.input === undefined', () => {
+      const Schema = z.string({
+        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('必須です')
+      }
     })
   })
 

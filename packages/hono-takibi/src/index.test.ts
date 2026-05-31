@@ -1798,7 +1798,7 @@ export const postUsersRoute = createRoute({
     })
 
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './userExample.ts'\n`)
+    expect(examplesIndex).toBe(`export * from './userExample'\n`)
 
     const userExampleFile = fs.readFileSync(
       path.join(testDir, 'src/examples/userExample.ts'),
@@ -1890,9 +1890,9 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './aliasUser.ts'
-export * from './baseUser.ts'
-export * from './chainedUser.ts'
+    expect(examplesIndex).toBe(`export * from './aliasUser'
+export * from './baseUser'
+export * from './chainedUser'
 `)
 
     // Check BaseUser is exported as object (no import)
@@ -1902,7 +1902,7 @@ export * from './chainedUser.ts'
 `)
     // Check AliasUser imports and references BaseUser
     const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf-8')
-    expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+    expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
 export const AliasUserExample = BaseUserExample
 `)
@@ -1913,7 +1913,7 @@ export const AliasUserExample = BaseUserExample
       path.join(testDir, 'src/examples/chainedUser.ts'),
       'utf-8',
     )
-    expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+    expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
 export const ChainedUserExample = BaseUserExample
 `)
@@ -2001,8 +2001,8 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './baseUser.ts'
-export * from './extendedUser.ts'
+    expect(examplesIndex).toBe(`export * from './baseUser'
+export * from './extendedUser'
 `)
 
     // Check BaseUser is exported with its own properties
@@ -2018,7 +2018,7 @@ export * from './extendedUser.ts'
       path.join(testDir, 'src/examples/extendedUser.ts'),
       'utf-8',
     )
-    expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+    expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser'
 
 export const ExtendedUserExample = BaseUserExample
 `)
@@ -2107,8 +2107,8 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './aliasJapanese.ts'
-export * from './japaneseMessage.ts'
+    expect(examplesIndex).toBe(`export * from './aliasJapanese'
+export * from './japaneseMessage'
 `)
 
     // Check JapaneseMessage is exported with Unicode content
@@ -2124,7 +2124,7 @@ export * from './japaneseMessage.ts'
 
     // Check AliasJapanese imports and references JapaneseMessage
     const aliasFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasJapanese.ts'), 'utf-8')
-    expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage.ts'
+    expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage'
 
 export const AliasJapaneseExample = JapaneseMessageExample
 `)
@@ -2866,8 +2866,8 @@ export const paymentReceivedPostWebhook = {
 
     // Verify mediaTypes split output
     const mediaTypesIndex = fs.readFileSync(path.join(testDir, 'src/mediaTypes/index.ts'), 'utf-8')
-    expect(mediaTypesIndex).toBe(`export * from './jsonContent.ts'
-export * from './xmlContent.ts'
+    expect(mediaTypesIndex).toBe(`export * from './jsonContent'
+export * from './xmlContent'
 `)
 
     const jsonContent = fs.readFileSync(

@@ -10,14 +10,13 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
   const coerce = options?.coerce
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
-  const baseErrorArg = baseError(errorMessage, requiredMessage)
   const xCoerce = schema['x-coerce'] === true
+  const wantsCoerce = coerce === true || xCoerce
+  // coerce converts undefined → NaN before the error handler runs,
+  // so issue.input === undefined is unreachable — drop x-required-message.
+  const baseErrorArg = baseError(errorMessage, wantsCoerce ? undefined : requiredMessage)
   const isFloat32 = schema.format === 'float' || schema.format === 'float32'
   const isFloat64 = schema.format === 'float64' || schema.format === 'double'
-  // `x-coerce` and wire-coerce share the same pipe topology so float32/64
-  // IEEE754 precision survives. Previously x-coerce dropped to a plain
-  // `z.coerce.number()` and silently lost the format-specific range/precision.
-  const wantsCoerce = coerce === true || xCoerce
   const wirePipe = wantsCoerce && (isFloat32 || isFloat64)
   const wirePlain = wantsCoerce && !isFloat32 && !isFloat64
   const base = wirePlain
@@ -89,5 +88,5 @@ export function number(schema: Schema, options?: { coerce?: boolean }): string {
       ? `.multipleOf(${schema.multipleOf}${multipleOfErrorArg})`
       : undefined
   const innerChain = [base, minimum, maximum, multipleOf].filter((v) => v !== undefined).join('')
-  return wirePipe ? `z.coerce.number().pipe(${innerChain})` : innerChain
+  return wirePipe ? `z.coerce.number(${baseErrorArg}).pipe(${innerChain})` : innerChain
 }

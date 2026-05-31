@@ -6,6 +6,7 @@ import { makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
+  makeBarrel,
   renderNamedImport,
   toIdentifierPascalCase,
   uncapitalize,
@@ -31,10 +32,6 @@ export async function mediaTypes(
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
   if (split) {
     const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-    const indexCode = `${keys
-      .sort()
-      .map((v) => `export * from './${uncapitalize(v)}.ts'`)
-      .join('\n')}\n`
     const results = await Promise.all([
       ...keys.map((k) => {
         const v = mediaTypes[k]
@@ -66,7 +63,11 @@ export async function mediaTypes(
           filePath,
         )
       }),
-      emit(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+      emit(
+        makeBarrel(mediaTypes),
+        path.dirname(path.join(outDir, 'index.ts')),
+        path.join(outDir, 'index.ts'),
+      ),
     ])
     const e = results.find((result) => !result.ok)
     if (e) return e

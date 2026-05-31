@@ -1,1 +1,1 @@
-export * from './getUserLink.ts'
+export * from './getUserLink'

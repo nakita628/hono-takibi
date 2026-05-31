@@ -65,13 +65,13 @@ export const getPostsRoute = createRoute({
     query: z.object({
       page: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(1)
         .exactOptional()
         .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
       limit: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .default(10)
         .exactOptional()
         .openapi({
@@ -113,7 +113,7 @@ export const getPostsIdRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -132,7 +132,7 @@ export const putPostsIdRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -152,7 +152,7 @@ export const deletePostsIdRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -169,7 +169,7 @@ export const getPostsIdCommentsRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
@@ -188,7 +188,7 @@ export const postPostsIdCommentsRoute = createRoute({
     params: z.object({
       id: z.coerce
         .number()
-        .pipe(z.int())
+        .int()
         .openapi({
           param: { name: 'id', in: 'path', required: true, schema: { type: 'integer' } },
         }),
