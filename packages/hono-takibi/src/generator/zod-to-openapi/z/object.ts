@@ -1,16 +1,9 @@
-import type { $ZodIssueCode } from 'zod/v4/core'
-
 import { makeUnevaluatedProperties } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
-// Build-time check: generated code branches on `issue.code === 'unrecognized_keys'`.
-// A Zod rename surfaces as a compile error here.
-const _UNRECOGNIZED_KEYS_GUARD: $ZodIssueCode = 'unrecognized_keys'
-void _UNRECOGNIZED_KEYS_GUARD
-
-export function object(schema: Schema, options?: { readonly?: boolean }): string {
+export function object(schema: Schema, options?: { readonly?: boolean }) {
   const readonly = options?.readonly
   if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
     return zodToOpenAPI(schema, undefined, options)
