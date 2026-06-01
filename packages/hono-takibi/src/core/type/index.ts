@@ -473,7 +473,7 @@ function makeArrayTypeString(
   return makeWrappedArrayType(makeSchemaTypeString(items, components, visited))
 }
 
-function makeWrappedArrayType(typeStr: string): string {
+function makeWrappedArrayType(typeStr: string) {
   return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
 }
 

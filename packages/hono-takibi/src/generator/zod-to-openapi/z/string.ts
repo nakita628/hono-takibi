@@ -113,7 +113,7 @@ export function string(
     readonly?: boolean
     isOptional?: boolean
   },
-): string {
+) {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const coerce = schema['x-coerce'] === true

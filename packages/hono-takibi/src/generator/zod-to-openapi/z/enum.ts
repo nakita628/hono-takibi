@@ -18,7 +18,7 @@ import { error } from '../../../utils/index.js'
  * come from `x-error-message`; finer-grained business rules belong in
  * handler code, not the schema.
  */
-export function _enum(schema: Schema): string {
+export function _enum(schema: Schema) {
   const ht = (t: string): boolean =>
     schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
   const isPrimitive = (v: unknown): boolean =>

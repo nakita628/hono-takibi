@@ -757,4 +757,128 @@ export default routes
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('renders array items as tuple, single-element array, and boolean items', async () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: { title: 'TupleTypes', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        tuple: { type: 'array', items: [{ type: 'string' }, { type: 'number' }] },
+                        single: { type: 'array', items: [{ type: 'boolean' }] },
+                        emptyItems: { type: 'array', items: [] },
+                        anyItems: { type: 'array', items: true },
+                        noItems: { type: 'array', items: false },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-tuple-'))
+    try {
+      const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(out, 'utf-8')
+      expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/x': {
+      $get: {
+        input: {}
+        output: {
+          tuple?: [string, number] | undefined
+          single?: boolean[] | undefined
+          emptyItems?: unknown[] | undefined
+          anyItems?: unknown[] | undefined
+          noItems?: unknown[] | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('renders additionalProperties for property-less objects', async () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: { title: 'AdditionalProps', version: '1.0.0' },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        closed: { type: 'object', additionalProperties: false },
+                        record: { type: 'object', additionalProperties: { type: 'string' } },
+                        open: { type: 'object' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as OpenAPI
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-addprops-'))
+    try {
+      const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
+      const result = await type(openapi, out)
+      expect(result.ok).toBe(true)
+      const content = fs.readFileSync(out, 'utf-8')
+      expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/x': {
+      $get: {
+        input: {}
+        output: {
+          closed?: {} | undefined
+          record?: { [x: string]: string } | undefined
+          open?: { [x: string]: unknown } | undefined
+        }
+        outputFormat: 'json'
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })

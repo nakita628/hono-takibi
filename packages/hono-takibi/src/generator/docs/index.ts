@@ -32,7 +32,7 @@ type Endpoint = {
 
 const MAX_SCHEMA_DEPTH = 50
 
-function toSlug(text: string): string {
+function toSlug(text: string) {
   const str = typeof text === 'string' ? text : String(text ?? '')
   return str
     .replace(/[A-Z]/g, (c) => c.toLowerCase())
@@ -40,7 +40,7 @@ function toSlug(text: string): string {
     .replace(/\s+/g, '-')
 }
 
-function toTitleSlug(title: string): string {
+function toTitleSlug(title: string) {
   const str = typeof title === 'string' ? title : String(title ?? '')
   return str
     .toLowerCase()
@@ -91,7 +91,7 @@ function resolveRef(ref: string, components: Components | undefined): unknown {
   return sectionObj[name]
 }
 
-function refName(ref: string): string {
+function refName(ref: string) {
   return ref.split('/').at(-1) ?? ''
 }
 
@@ -131,7 +131,7 @@ function formatSchemaType(schema: Schema, _components: Components | undefined): 
  * @see https://www.rfc-editor.org/rfc/rfc5737 - Documentation IPv4 (192.0.2.0/24)
  * @see https://www.rfc-editor.org/rfc/rfc3849 - Documentation IPv6 (2001:DB8::/32)
  */
-function makeDefaultString(format: string | undefined): string {
+function makeDefaultString(format: string | undefined) {
   switch (format) {
     case 'email':
       return 'user@example.com'
@@ -428,7 +428,7 @@ function makeCodeSampleBody(
   return JSON.stringify(example, null, 2)
 }
 
-function indentJsonBody(body: string): string {
+function indentJsonBody(body: string) {
   const lines = body.split('\n')
   if (lines.length <= 1) return body
   return [lines[0], ...lines.slice(1).map((l) => `  ${l}`)].join('\n')

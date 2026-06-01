@@ -254,7 +254,7 @@ export function makeOperationCallbacks(
   return `{${result}}`
 }
 
-export function makeCallback(callback: Callbacks): string {
+export function makeCallback(callback: Callbacks) {
   return Object.entries(callback)
     .map(([callbackKey, pathItem]) => {
       if (isRefObject(pathItem)) {
@@ -278,7 +278,7 @@ export function makeCallbacks(
         }
       },
   readonly?: boolean,
-): string {
+) {
   const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
   const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
     methods

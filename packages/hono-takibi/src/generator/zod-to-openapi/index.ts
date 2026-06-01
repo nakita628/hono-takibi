@@ -336,7 +336,6 @@ export function zodToOpenAPI(
       const containsZod = schema.contains.$ref
         ? makeRef(schema.contains.$ref)
         : zodToOpenAPI(schema.contains, undefined, childOptions)
-      // const minC = schema.minContains
       const fallback = schema['x-contains-message'] ?? arrayErrorMessage
       if (schema.minContains === undefined && schema.maxContains === undefined) {
         const messagePart = fallback ? `,message:${JSON.stringify(fallback)}` : ''

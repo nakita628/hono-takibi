@@ -89,7 +89,7 @@ function makeMockHandlerCode(
   } as const
 }
 
-function makeStubHandlerCode(routeId: string): string {
+function makeStubHandlerCode(routeId: string) {
   return `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`
 }
 
@@ -130,7 +130,7 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   return { handlerPath, importFrom, testImportFrom } as const
 }
 
-function makeInlineStubContent(routeId: string): string {
+function makeInlineStubContent(routeId: string) {
   return `.openapi(${routeId}Route,(c)=>{})`
 }
 

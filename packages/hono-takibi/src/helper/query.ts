@@ -61,7 +61,7 @@ function makeQueryOptionsGetterName(pathStr: string) {
   return `get${capitalize(methodPath('', pathStr))}QueryOptions`
 }
 
-function makeInfiniteQueryOptionsGetterName(pathStr: string): string {
+function makeInfiniteQueryOptionsGetterName(pathStr: string) {
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
 }
 
