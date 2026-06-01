@@ -1,6 +1,8 @@
 import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 
-import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vite-plus/test'
 
 import { honoTakibi } from './index.js'
 
@@ -368,5 +370,233 @@ export const getItemsRoute = createRoute({
   },
 })
 `)
+  })
+})
+
+// The config-driven branch (honoTakibi reads `hono-takibi.config.ts` from cwd
+// and fans out to the per-feature generators). Each case isolates cwd + argv to
+// a fresh tmp dir so the orchestration runs against real files, never the repo.
+describe('honoTakibi config-driven', () => {
+  const originalCwd = process.cwd.bind(process)
+  const originalArgv = process.argv
+  let tmpDir = ''
+
+  afterEach(() => {
+    process.cwd = originalCwd
+    process.argv = originalArgv
+    if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true })
+    tmpDir = ''
+  })
+
+  it('reads config from cwd and generates the single-file routes output', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-min-'))
+    const input = path.join(tmpDir, 'openapi.json')
+    const output = path.join(tmpDir, 'routes.ts')
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Cfg', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }),
+    )
+    fs.writeFileSync(
+      path.join(tmpDir, 'hono-takibi.config.ts'),
+      `export default { input: ${JSON.stringify(input)}, 'zod-openapi': { output: ${JSON.stringify(output)} } }`,
+    )
+    process.cwd = () => tmpDir
+    process.argv = ['node', 'cli']
+
+    const result = await honoTakibi()
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(output)).toBe(true)
+    expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
+  })
+
+  it('fans out to every generator named in the config and aggregates the results', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-rich-'))
+    const input = path.join(tmpDir, 'openapi.json')
+    const routes = path.join(tmpDir, 'routes.ts')
+    const types = path.join(tmpDir, 'types.ts')
+    const mockOut = path.join(tmpDir, 'mock.ts')
+    const docsOut = path.join(tmpDir, 'docs.md')
+    const testOut = path.join(tmpDir, 'routes.test.ts')
+    const queryOut = path.join(tmpDir, 'query.ts')
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Cfg', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { type: 'string' } },
+                        required: ['id'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    )
+    fs.writeFileSync(
+      path.join(tmpDir, 'hono-takibi.config.ts'),
+      `export default {
+        input: ${JSON.stringify(input)},
+        basePath: '/',
+        'zod-openapi': { output: ${JSON.stringify(routes)}, template: { test: false, routeHandler: false } },
+        type: { output: ${JSON.stringify(types)} },
+        mock: { output: ${JSON.stringify(mockOut)} },
+        docs: { output: ${JSON.stringify(docsOut)} },
+        test: { output: ${JSON.stringify(testOut)}, import: './routes' },
+        'tanstack-query': { output: ${JSON.stringify(queryOut)}, import: './client' },
+      }`,
+    )
+    process.cwd = () => tmpDir
+    process.argv = ['node', 'cli']
+
+    const result = await honoTakibi()
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(routes)).toBe(true)
+    expect(fs.existsSync(types)).toBe(true)
+    expect(fs.existsSync(mockOut)).toBe(true)
+    expect(fs.existsSync(docsOut)).toBe(true)
+    expect(fs.existsSync(testOut)).toBe(true)
+    expect(fs.existsSync(queryOut)).toBe(true)
+    // The `template` block in zod-openapi triggers the app/handler scaffold.
+    expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
+  })
+
+  it('generates split routes, webhooks and components from the advanced config', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-split-'))
+    const input = path.join(tmpDir, 'openapi.json')
+    const routesDir = path.join(tmpDir, 'routes')
+    const webhooksDir = path.join(tmpDir, 'webhooks')
+    const schemasDir = path.join(tmpDir, 'schemas')
+    const parametersDir = path.join(tmpDir, 'parameters')
+    const responsesDir = path.join(tmpDir, 'responses')
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Adv', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              parameters: [{ $ref: '#/components/parameters/Limit' }],
+              responses: { '200': { $ref: '#/components/responses/ItemList' } },
+            },
+          },
+        },
+        webhooks: {
+          itemCreated: {
+            post: {
+              operationId: 'itemCreated',
+              requestBody: {
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Item: {
+              type: 'object',
+              properties: { id: { type: 'string' }, name: { type: 'string' } },
+              required: ['id'],
+            },
+          },
+          parameters: { Limit: { name: 'limit', in: 'query', schema: { type: 'integer' } } },
+          responses: {
+            ItemList: {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: { type: 'array', items: { $ref: '#/components/schemas/Item' } },
+                },
+              },
+            },
+          },
+        },
+      }),
+    )
+    fs.writeFileSync(
+      path.join(tmpDir, 'hono-takibi.config.ts'),
+      `export default {
+        input: ${JSON.stringify(input)},
+        basePath: '/',
+        'zod-openapi': {
+          routes: { output: ${JSON.stringify(routesDir)}, split: true, import: '../routes' },
+          webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true, import: '../webhooks' },
+          components: {
+            schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true, import: '../schemas' },
+            parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true, import: '../parameters' },
+            responses: { output: ${JSON.stringify(responsesDir)}, split: true, import: '../responses' },
+          },
+        },
+      }`,
+    )
+    process.cwd = () => tmpDir
+    process.argv = ['node', 'cli']
+
+    const result = await honoTakibi()
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(routesDir) && fs.readdirSync(routesDir).length > 0).toBe(true)
+    expect(fs.existsSync(webhooksDir) && fs.readdirSync(webhooksDir).length > 0).toBe(true)
+    expect(fs.existsSync(schemasDir) && fs.readdirSync(schemasDir).length > 0).toBe(true)
+  })
+
+  it('returns the first generator failure when an output path is not writable', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-fail-'))
+    const input = path.join(tmpDir, 'openapi.json')
+    const output = path.join(tmpDir, 'routes.ts')
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'Cfg', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } },
+          },
+        },
+      }),
+    )
+    // A directory occupying the output path forces writeFile to fail (EISDIR),
+    // so the generator returns { ok: false } and the CLI must surface it.
+    fs.mkdirSync(output)
+    fs.writeFileSync(
+      path.join(tmpDir, 'hono-takibi.config.ts'),
+      `export default { input: ${JSON.stringify(input)}, 'zod-openapi': { output: ${JSON.stringify(output)} } }`,
+    )
+    process.cwd = () => tmpDir
+    process.argv = ['node', 'cli']
+
+    const result = await honoTakibi()
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(typeof result.error).toBe('string')
+    }
   })
 })
