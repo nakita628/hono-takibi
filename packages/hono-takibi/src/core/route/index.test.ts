@@ -393,6 +393,67 @@ export const getZodOpenapiHonoRoute = createRoute({
     })
   })
 
+  describe('optional operation fields', () => {
+    it('emits summary, description, externalDocs, deprecated, security, servers, callbacks', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-rich-'))
+      try {
+        const richOpenapi: OpenAPI = {
+          openapi: '3.0.0',
+          info: { title: 'T', version: '0.0.0' },
+          paths: {
+            '/rich': {
+              post: {
+                tags: ['rich'],
+                summary: 'Rich operation',
+                description: 'An operation with every optional field set',
+                externalDocs: { url: 'https://example.com/docs' },
+                operationId: 'richOp',
+                deprecated: true,
+                security: [{ apiKey: [] }],
+                servers: [{ url: 'https://api.example.com' }],
+                callbacks: {
+                  onData: {
+                    '{$request.body#/url}': {
+                      post: { responses: { '200': { description: 'OK' } } },
+                    },
+                  },
+                },
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        }
+        const out = path.join(dir, 'routes.ts')
+        const result = await route(richOpenapi, { output: out })
+        expect(result).toStrictEqual({
+          ok: true,
+          value: `Generated route code written to ${out}`,
+        })
+        expect(fs.readFileSync(out, 'utf-8')).toBe(`import { createRoute } from '@hono/zod-openapi'
+
+export const postRichRoute = createRoute({
+  method: 'post',
+  path: '/rich',
+  tags: ['rich'],
+  summary: 'Rich operation',
+  description: 'An operation with every optional field set',
+  externalDocs: { url: 'https://example.com/docs' },
+  operationId: 'richOp',
+  responses: { 200: { description: 'OK' } },
+  callbacks: {
+    onData: { '{$request.body#/url}': { post: { responses: { 200: { description: 'OK' } } } } },
+  },
+  deprecated: true,
+  security: [{ apiKey: [] }],
+  servers: [{ url: 'https://api.example.com' }],
+})
+`)
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+  })
+
   describe('$ref resolution', () => {
     it('resolves an operation-level parameter $ref (same output as path-level placement)', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))

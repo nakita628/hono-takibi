@@ -121,8 +121,8 @@ export function string(
   // or non-undefined failure, so issue.input === undefined is unreachable.
   const baseErrorArg = baseError(errorMessage, coerce ? undefined : requiredMessage)
 
-  // Hash: z.hash(algo, { enc }) — special case, algo is a required positional arg.
-  // `x-error-message` directly via `errorInner` below; the format-specific slot
+  // Hash: z.hash(algo, { enc }) — algo is a required positional arg. The hash
+  // branch passes x-error-message via errorInner below; the format-specific slot
   // is reserved for the standard validation-format constructors (email/uuid/url/...).
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
@@ -147,7 +147,6 @@ export function string(
 
   // Decodes the encoded payload, optionally JSON-parses it, then validates
   // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
-  // schema is keyed by `contentEncoding` / `contentMediaType`).
   const enc = schema.contentEncoding
   const mediaType = schema.contentMediaType
   const contentSchema = schema.contentSchema
@@ -177,7 +176,7 @@ export function string(
         return '.transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))'
       }
       // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
-      // issue rather than an uncaught throw at safeParse time. JSON Schema
+      // issue rather than an uncaught throw at safeParse time.
       if (isJson) {
         const issueExpr = errorMessage
           ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:e instanceof Error?e.message:String(e)}}`

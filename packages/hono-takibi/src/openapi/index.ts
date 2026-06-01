@@ -514,10 +514,8 @@ export type Schema = {
   readonly 'x-contains-message'?: string // array contains (type-match presence)
   readonly 'x-minContains-message'?: string // array minContains (count lower bound)
   readonly 'x-maxContains-message'?: string // array maxContains (count upper bound)
-  // schemas so generated validators stop emitting hardcoded English defaults.
   // Slot absent → `ctx.addIssue` omits `message` → Zod's built-in default
   // ('Invalid input') is used, picking up future locale config automatically.
-  //
   readonly 'x-properties-message'?: string // failed per-property validation in a typeless object
   readonly 'x-prefixItems-message'?: string // failed tuple position validation
   readonly 'x-items-message'?: string // failed trailing items validation (incl. `items: false`)

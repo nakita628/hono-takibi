@@ -970,6 +970,78 @@ describe('parseConfig()', () => {
         )
       }
     })
+
+    it.concurrent('accepts preact-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'preact-query': { output: 'preact', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['preact-query']?.output).toBe('preact/index.ts')
+      }
+    })
+
+    it.concurrent('fails when preact-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'preact-query': { output: 'preact/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: preact-query.output: split mode requires directory, not .ts file',
+        )
+      }
+    })
+
+    it.concurrent('accepts solid-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'solid-query': { output: 'solid', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['solid-query']?.output).toBe('solid/index.ts')
+      }
+    })
+
+    it.concurrent('fails when solid-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'solid-query': { output: 'solid/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: solid-query.output: split mode requires directory, not .ts file',
+        )
+      }
+    })
+
+    it.concurrent('accepts angular-query config', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'angular-query': { output: 'angular', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['angular-query']?.output).toBe('angular/index.ts')
+      }
+    })
+
+    it.concurrent('fails when angular-query split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'angular-query': { output: 'angular/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: angular-query.output: split mode requires directory, not .ts file',
+        )
+      }
+    })
   })
 
   describe('rpc.parseResponse option', () => {

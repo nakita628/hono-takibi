@@ -17,8 +17,8 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   }
   const errorMessage = schema['x-error-message']
   const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
-  // (split from x-minimum-message / x-maximum-message), and patternProperties
-  // uses its own x-patternProperties-message (split from x-pattern-message).
+  // minProperties / maxProperties / patternProperties each have a dedicated
+  // message slot, falling back to x-error-message when unset.
   const minPropertiesMessage = schema['x-minProperties-message'] ?? errorMessage
   const minErrorArg = minPropertiesMessage ? `,${error(minPropertiesMessage)}` : ''
   const maxPropertiesMessage = schema['x-maxProperties-message'] ?? errorMessage
@@ -26,9 +26,6 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   const patternPropertiesMessage = schema['x-patternProperties-message'] ?? errorMessage
   const propertyNamesMessage = schema['x-propertyNames-message'] ?? errorMessage
   const dependentRequiredMessage = schema['x-dependentRequired-message']
-  // is no longer applied to inner sub-issues (would force code='custom' and
-  // erase code/expected). Survives in the OpenAPI roundtrip via wrap().
-  // collapsing everything into a single `custom` issue at the parent path.
   // The pattern message slot, if set, OVERRIDES the inner issue's message
   // (otherwise we keep Zod's native message verbatim — code/expected stay).
   const patternPropertiesMessageOverride = patternPropertiesMessage
@@ -54,11 +51,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
   //   unrecognized_keys → x-additionalProperties-message (only on strictObject)
   //   other codes       → x-properties-message > x-error-message > undefined
   const propertiesMessage = schema['x-properties-message']
-  // additionalProperties: false, default to looseObject so the refines see the
-  // pattern-matched / propertyName-checked keys (z.object strips unknowns
-  // before the refine runs, masking violations — silent bug).
-  // unknown keys *before* the superRefine runs, so the per-key issue emission
-  // never sees the offending properties (silent pass-through bug).
+  // When additionalProperties is undefined but patternProperties / propertyNames /
+  // unevaluatedProperties are present, use looseObject so the refines see unknown
+  // keys — z.object strips them before the refine runs, masking violations (silent bug).
   const needsLoose =
     schema.additionalProperties === undefined &&
     (schema.patternProperties !== undefined ||
@@ -148,9 +143,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
           return `.superRefine((o,ctx)=>{const allowed=${allowed};for(const k of Object.keys(o)){if(!allowed.includes(k)){ctx.addIssue({code:"custom",path:[k]${propertyNamesMessageField}})}}})`
         })()
       : ''
-  // (RegExp built once per parse, not per-key) so sub-issue path/code/message
-  // survive. The pattern message slot OVERRIDES the inner issue message when
-  // set; otherwise Zod's native message stays.
+  // patternProperties builds the RegExp once per parse and propagates each
+  // sub-issue's path/code/message; the pattern message slot overrides the inner
+  // message when set, otherwise Zod's native message stays.
   const patternProperties = schema.patternProperties
     ? Object.entries(schema.patternProperties)
         .map(([pattern, propSchema]) => {
@@ -159,9 +154,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
         })
         .join('')
     : ''
-  // dep, with `path: [d]` so JSON pointer locates the missing key. The
-  // x-dependentRequired-message (or x-error-message fallback) overrides the
-  // default message; default = "requires \"<dep>\" when \"<key>\" present".
+  // Emits an issue per missing dependent key with path:[d] so the JSON pointer
+  // locates it; x-dependentRequired-message (or x-error-message) overrides the
+  // default `requires "<dep>" when "<key>" present` message.
   const dependentRequired = schema.dependentRequired
     ? Object.entries(schema.dependentRequired)
         .map(([key, deps]) => {
@@ -179,10 +174,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
         })
         .join('')
     : ''
-  // their original path / code / expected. When `x-dependentSchemas-message`
-  // (or its `x-error-message` fallback) is set, the inner issue's `message`
-  // is replaced (override semantics, aligned with `x-allOf-message` and
-  // related applicator slots in `zod-to-openapi/index.ts`).
+  // dependentSchemas propagates inner issues with their original path/code/expected;
+  // x-dependentSchemas-message (or x-error-message) replaces the inner message
+  // (override semantics, aligned with x-allOf-message in zod-to-openapi/index.ts).
   const dependentSchemasMessage = schema['x-dependentSchemas-message'] ?? schema['x-error-message']
   const dependentSchemasMessageField =
     dependentSchemasMessage !== undefined
@@ -196,8 +190,8 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
         })
         .join('')
     : ''
-  // inner issues propagate with original path/code. When neither then nor
-  // else is set, no refine is emitted (no-op).
+  // if-then-else emits a superRefine whose inner issues propagate with original
+  // path/code. When neither then nor else is set, no refine is emitted (no-op).
   const ifThenElse = (() => {
     if (!schema.if) return ''
     if (!schema.then && !schema.else) return ''
@@ -210,18 +204,9 @@ export function object(schema: Schema, options?: { readonly?: boolean }): string
     }
     return `.superRefine((o,ctx)=>{const If=${ifZod};const ifOk=If.safeParse(o).success;if(ifOk){const Branch=${thenZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${thenOverride}})}}}else{const Branch=${elseZod};if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${elseOverride}})}}}})`
   })()
-  // both this object generator and the top-level allOf/anyOf/oneOf dispatch.
-  //   // — see ./unevaluated.ts for the helper.
-  // The original logic body follows for backward compat with existing tests.
-  //
-  // JSON Schema 2020-12 §11.2 specifies that anyOf/oneOf/if-then-else only
-  // contribute evaluated keys for branches that ACTUALLY succeeded at runtime.
-  //   //   1. Pre-populates evaluated keys from own properties + patternProperties
-  //      + allOf branches (which always validate)
-  //   2. Conditionally adds keys from anyOf/oneOf branches whose safeParse
-  //      succeeds at runtime
-  //   3. Conditionally adds keys from then/else based on if's success
-  //   4. Adds dependentSchemas keys when the dependency key is present
+  // Delegated to makeUnevaluatedProperties (see helper/zod.ts).
+  // JSON Schema 2020-12 §11.2: anyOf/oneOf/if-then-else contribute evaluated
+  // keys only for branches that ACTUALLY succeeded at runtime.
   const unevaluatedProperties = makeUnevaluatedProperties(
     schema,
     errorArg,

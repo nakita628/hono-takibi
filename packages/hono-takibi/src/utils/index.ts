@@ -195,11 +195,7 @@ export function toIdentifierPascalCase(text: string) {
 
 /**
  * Builds a named import line for a module specifier.
- *
- * @param names - Import names to include.
- * @param spec - Module specifier.
- * @param options - Optional sorting behavior.
- * @returns Import line or empty string when no names exist.
+ * Returns an empty string when there are no names to import.
  */
 export function renderNamedImport(names: readonly string[], spec: string) {
   const unique = Array.from(new Set(names))
@@ -208,9 +204,6 @@ export function renderNamedImport(names: readonly string[], spec: string) {
 
 /**
  * Converts the first character of a string to lowercase.
- *
- * @param text - The string to convert.
- * @returns The string with its first character lowercased.
  *
  * @example
  * ```ts
@@ -225,9 +218,6 @@ export function uncapitalize(text: string) {
 
 /**
  * Converts the first character of a string to uppercase.
- *
- * @param text - The string to convert.
- * @returns The string with its first character uppercased.
  *
  * @example
  * ```ts

@@ -393,6 +393,62 @@ export const pingPostWebhook = {
     })
   })
 
+  describe('optional operation fields', () => {
+    it('emits tags, summary, description, externalDocs, deprecated, security, servers, callbacks', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-rich-'))
+      const out = path.join(tmpDir, 'webhooks.ts')
+      const richOpenapi: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {},
+        webhooks: {
+          rich: {
+            post: {
+              tags: ['events'],
+              summary: 'Rich webhook',
+              description: 'A webhook with every optional field set',
+              externalDocs: { url: 'https://example.com/docs' },
+              operationId: 'richHook',
+              deprecated: true,
+              security: [{ apiKey: [] }],
+              servers: [{ url: 'https://hooks.example.com' }],
+              callbacks: {
+                onData: {
+                  '{$request.body#/url}': {
+                    post: { responses: { '200': { description: 'OK' } } },
+                  },
+                },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const result = await webhooks(richOpenapi, { output: out })
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated webhooks code written to ${out}`,
+      })
+      expect(fs.readFileSync(out, 'utf-8')).toBe(`export const richPostWebhook = {
+  method: 'post',
+  path: '/rich',
+  tags: ['events'],
+  summary: 'Rich webhook',
+  description: 'A webhook with every optional field set',
+  externalDocs: { url: 'https://example.com/docs' },
+  operationId: 'richHook',
+  responses: { 200: { description: 'OK' } },
+  callbacks: {
+    onData: { '{$request.body#/url}': { post: { responses: { 200: { description: 'OK' } } } } },
+  },
+  deprecated: true,
+  security: [{ apiKey: [] }],
+  servers: [{ url: 'https://hooks.example.com' }],
+}
+`)
+    })
+  })
+
   describe('empty webhooks edge cases', () => {
     it('returns success "No webhooks found" for empty webhooks object', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
