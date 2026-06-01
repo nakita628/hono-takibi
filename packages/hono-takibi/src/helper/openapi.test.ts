@@ -525,14 +525,14 @@ describe('openapi helper', () => {
           name: 'filter',
           in: 'query',
           content: { 'application/json': { schema: { type: 'object' } } },
-        } as any,
+        },
       ])
       expect(result.query.filter).toBe(
         'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}}}})',
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
-      const result = makeParameters([{ name: 'unknown', in: 'query' }] as any)
+      const result = makeParameters([{ name: 'unknown', in: 'query' }])
       expect(result.query.unknown).toBe('z.any()')
     })
     it.concurrent('applies coercion for query date parameters', () => {

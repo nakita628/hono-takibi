@@ -320,7 +320,7 @@ export type PathItem = {
     readonly [k: string]: Operation
   }
   readonly servers?: readonly Server[]
-  readonly parameters?: readonly Parameter[] | readonly Reference[]
+  readonly parameters?: readonly (Parameter | Reference)[]
 }
 
 export type Operation = {
@@ -332,7 +332,7 @@ export type Operation = {
     readonly url: string
   }
   readonly operationId?: string
-  readonly parameters?: readonly Parameter[]
+  readonly parameters?: readonly (Parameter | Reference)[]
   readonly requestBody?: RequestBody | Reference
   readonly responses: {
     readonly [k: string]: Responses
@@ -642,7 +642,7 @@ export type Parameter = {
   readonly style?: string
   readonly explode?: boolean
   readonly allowReserved?: boolean
-  readonly schema: Schema
+  readonly schema?: Schema
   readonly content?: Content
   readonly example?: unknown
   readonly examples?: {

@@ -509,7 +509,7 @@ function resolveOperationParameters(operation: Operation, components: Components
       if (isParameter(resolved)) return [resolved]
       return [] as const
     }
-    return [parameter] as const
+    return isParameter(parameter) ? [parameter] : ([] as const)
   })
 }
 
@@ -916,6 +916,7 @@ function collectEnumeratedValues(
   if (operation.parameters) {
     for (const p of operation.parameters) {
       if ('$ref' in p && p.$ref) continue
+      if (!isParameter(p)) continue
       if (p.schema?.enum) {
         for (const v of p.schema.enum) {
           rows.push({ param: p.name, value: v })

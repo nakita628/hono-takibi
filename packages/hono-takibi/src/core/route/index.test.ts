@@ -394,6 +394,50 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 
   describe('$ref resolution', () => {
+    it('resolves an operation-level parameter $ref (same output as path-level placement)', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))
+      try {
+        const refOpenapi: OpenAPI = {
+          openapi: '3.0.0',
+          info: { title: 'T', version: '0.0.0' },
+          paths: {
+            '/users/{id}': {
+              get: {
+                operationId: 'getUser',
+                parameters: [{ $ref: '#/components/parameters/IdParam' }],
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+          components: {
+            parameters: {
+              IdParam: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+            },
+          },
+        }
+        const out = path.join(dir, 'routes.ts')
+        const result = await route(refOpenapi, { output: out })
+        expect(result).toStrictEqual({
+          ok: true,
+          value: `Generated route code written to ${out}`,
+        })
+        expect(fs.readFileSync(out, 'utf-8'))
+          .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { IdParamParamsSchema } from './parameters'
+
+export const getUsersIdRoute = createRoute({
+  method: 'get',
+  path: '/users/{id}',
+  operationId: 'getUser',
+  request: { params: z.object({ id: IdParamParamsSchema }) },
+  responses: { 200: { description: 'OK' } },
+})
+`)
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
     it('resolves a path-level parameter $ref to an existing component parameter', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))
       try {
