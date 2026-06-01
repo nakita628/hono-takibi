@@ -5,6 +5,8 @@ import {
   capitalize,
   ensureSuffix,
   error,
+  escapeHtml,
+  escapeRegexLiteral,
   makeBarrel,
   makeInferRequestType,
   makeSafeKey,
@@ -490,6 +492,48 @@ export * from './user'
       )
       const expected = `export const UserProfileSchema=z.object({name:z.string()}).openapi('UserProfile')\n\nexport type UserProfile=z.infer<typeof UserProfileSchema>`
       expect(result).toBe(expected)
+    })
+  })
+
+  describe('escapeRegexLiteral', () => {
+    it('leaves a value without forward slashes unchanged', () => {
+      expect(escapeRegexLiteral('^https?$')).toBe('^https?$')
+    })
+
+    it('escapes an unescaped forward slash', () => {
+      expect(escapeRegexLiteral('a/b')).toBe('a\\/b')
+    })
+
+    it('leaves an already-escaped forward slash untouched', () => {
+      expect(escapeRegexLiteral('a\\/b')).toBe('a\\/b')
+    })
+
+    it('neutralizes a literal-breakout injection by escaping every unescaped slash', () => {
+      expect(escapeRegexLiteral('x/}); evil(); z.string({a:/y')).toBe(
+        'x\\/}); evil(); z.string({a:\\/y',
+      )
+    })
+  })
+
+  describe('escapeHtml', () => {
+    it('leaves a value without HTML special characters unchanged', () => {
+      expect(escapeHtml('My API')).toBe('My API')
+    })
+
+    it('escapes an ampersand (e.g. a URL query separator)', () => {
+      expect(escapeHtml('a?x=1&y=2')).toBe('a?x=1&amp;y=2')
+    })
+
+    it('escapes angle brackets, ampersand, and double quote (attribute breakout)', () => {
+      expect(escapeHtml('"><script>')).toBe('&quot;&gt;&lt;script&gt;')
+    })
+
+    it('does not escape a single quote', () => {
+      expect(escapeHtml("Bob's API")).toBe("Bob's API")
+    })
+
+    it('escapes ampersand before producing entities (no double escaping)', () => {
+      expect(escapeHtml('<')).toBe('&lt;')
     })
   })
 })

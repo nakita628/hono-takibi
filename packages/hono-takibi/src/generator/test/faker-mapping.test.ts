@@ -250,6 +250,12 @@ describe('schemaToFaker', () => {
         'faker.helpers.fromRegExp(/^[A-Z]{3}$/)',
       )
     })
+
+    it.concurrent('escapes an unescaped forward slash in the pattern', () => {
+      expect(schemaToFaker({ type: 'string', pattern: 'a/b' })).toBe(
+        'faker.helpers.fromRegExp(/a\\/b/)',
+      )
+    })
   })
 
   describe('example values (additional)', () => {

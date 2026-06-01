@@ -18,6 +18,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
+import { escapeHtml } from '../../utils/index.js'
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 
@@ -1129,7 +1130,7 @@ export function makeDocs(
   const titleSlug = toTitleSlug(title)
   const securitySchemes = openAPI.components?.securitySchemes
   const lines: string[] = []
-  lines.push(`<h1 id="${titleSlug}">${fullTitle}</h1>`, '')
+  lines.push(`<h1 id="${titleSlug}">${escapeHtml(fullTitle)}</h1>`, '')
   lines.push(
     '> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.',
     '',
@@ -1140,18 +1141,20 @@ export function makeDocs(
   if (openAPI.servers && openAPI.servers.length > 0) {
     lines.push('Base URLs:', '')
     for (const server of openAPI.servers) {
-      lines.push(`* <a href="${server.url}">${server.url}</a>`, '')
+      lines.push(`* <a href="${escapeHtml(server.url)}">${escapeHtml(server.url)}</a>`, '')
     }
   }
   if (openAPI.info?.contact?.email && openAPI.info?.contact?.name) {
     lines.push(
-      `Email: <a href="mailto:${openAPI.info.contact.email}">${openAPI.info.contact.name}</a> `,
+      `Email: <a href="mailto:${escapeHtml(openAPI.info.contact.email)}">${escapeHtml(openAPI.info.contact.name)}</a> `,
     )
   }
   if (openAPI.info?.license?.name) {
     const licenseUrl = openAPI.info.license.url
     if (licenseUrl) {
-      lines.push(`License: <a href="${licenseUrl}">${openAPI.info.license.name}</a>`)
+      lines.push(
+        `License: <a href="${escapeHtml(licenseUrl)}">${escapeHtml(openAPI.info.license.name)}</a>`,
+      )
     } else {
       lines.push(`License: ${openAPI.info.license.name}`)
     }
@@ -1167,7 +1170,7 @@ export function makeDocs(
   const tagGroups = groupByTag(endpoints, openAPI)
   for (const group of tagGroups) {
     const tagSlug = toSlug(group.name)
-    lines.push(`<h1 id="${titleSlug}-${tagSlug}">${group.name}</h1>`, '')
+    lines.push(`<h1 id="${titleSlug}-${tagSlug}">${escapeHtml(group.name)}</h1>`, '')
     if (group.description) {
       lines.push(group.description, '')
     }

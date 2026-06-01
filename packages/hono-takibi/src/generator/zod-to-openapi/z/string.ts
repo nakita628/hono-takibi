@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { baseError, error } from '../../../utils/index.js'
+import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
@@ -66,7 +66,7 @@ function makeFormatOptions(schema: Schema): readonly string[] {
       const preset = schema['x-emailPattern']
       return [
         regex
-          ? `pattern:/${regex}/`
+          ? `pattern:/${escapeRegexLiteral(regex)}/`
           : preset && EMAIL_PATTERN_PRESET[preset]
             ? `pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`
             : undefined,
@@ -77,8 +77,12 @@ function makeFormatOptions(schema: Schema): readonly string[] {
     case 'url':
     case 'uri':
       return [
-        schema['x-urlProtocol'] ? `protocol:/${schema['x-urlProtocol']}/` : undefined,
-        schema['x-urlHostname'] ? `hostname:/${schema['x-urlHostname']}/` : undefined,
+        schema['x-urlProtocol']
+          ? `protocol:/${escapeRegexLiteral(schema['x-urlProtocol'])}/`
+          : undefined,
+        schema['x-urlHostname']
+          ? `hostname:/${escapeRegexLiteral(schema['x-urlHostname'])}/`
+          : undefined,
         schema['x-urlNormalize'] === true ? 'normalize:true' : undefined,
       ].filter((v) => v !== undefined)
     case 'date-time':
@@ -258,7 +262,7 @@ export function string(
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
-    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
+    ? `.regex(/${escapeRegexLiteral(schema.pattern)}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
     : undefined
   const lengthMessage = schema['x-length-message'] ?? errorMessage
   const lengthMessagePart = lengthMessage ? `,${error(lengthMessage)}` : ''

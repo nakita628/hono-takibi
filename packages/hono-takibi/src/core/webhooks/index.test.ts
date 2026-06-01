@@ -301,6 +301,53 @@ export * from './userCreatedPost'
     })
   })
 
+  describe('$ref resolution', () => {
+    it('resolves a webhook path-level parameter $ref to an existing component parameter', async () => {
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-ref-'))
+      const out = path.join(tmpDir, 'webhooks.ts')
+      const refOpenapi: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {},
+        webhooks: {
+          ping: {
+            parameters: [{ $ref: '#/components/parameters/TraceId' }],
+            post: {
+              operationId: 'pingHook',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+        components: {
+          parameters: {
+            TraceId: {
+              name: 'x-trace-id',
+              in: 'header',
+              required: true,
+              schema: { type: 'string' },
+            },
+          },
+        },
+      }
+      const result = await webhooks(refOpenapi, { output: out })
+      expect(result).toStrictEqual({
+        ok: true,
+        value: `Generated webhooks code written to ${out}`,
+      })
+      expect(fs.readFileSync(out, 'utf-8')).toBe(`import { z } from '@hono/zod-openapi'
+import { TraceIdParamsSchema } from './parameters'
+
+export const pingPostWebhook = {
+  method: 'post',
+  path: '/ping',
+  operationId: 'pingHook',
+  request: { headers: z.object({ 'x-trace-id': TraceIdParamsSchema }) },
+  responses: { 200: { description: 'OK' } },
+}
+`)
+    })
+  })
+
   describe('empty webhooks edge cases', () => {
     it('returns success "No webhooks found" for empty webhooks object', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
