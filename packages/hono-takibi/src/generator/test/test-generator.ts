@@ -210,7 +210,9 @@ function topologicalOrder(
     const depOrder = schema
       ? collectSchemaRefs(schema, schemas, new Set([name])).flatMap((dep) => {
           const subOrder = visit(dep, visited, nextVisiting)
-          for (const n of subOrder) visited.add(n)
+          for (const n of subOrder) {
+            visited.add(n)
+          }
           return subOrder
         })
       : ([] as const)

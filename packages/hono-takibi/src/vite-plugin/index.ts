@@ -626,7 +626,9 @@ export function honoTakibiVite(): any {
     if (!pluginState.current) return
     console.log('🔥 hono-takibi')
     const { logs } = await runAllGenerationTasks(pluginState.current)
-    for (const logMessage of logs) console.log(logMessage)
+    for (const logMessage of logs) {
+      console.log(logMessage)
+    }
   }
   const runGenerationAndReload = async (server?: ViteDevServer) => {
     await runGeneration()
@@ -664,7 +666,9 @@ export function honoTakibiVite(): any {
         return cleanupResults.filter((result) => result !== null)
       }
       const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
-      for (const cleanedPath of cleanedPaths) console.log(`✅ cleanup: ${cleanedPath}`)
+      for (const cleanedPath of cleanedPaths) {
+        console.log(`✅ cleanup: ${cleanedPath}`)
+      }
     }
     pluginState.previous = pluginState.current
     pluginState.current = nextConfiguration.value
