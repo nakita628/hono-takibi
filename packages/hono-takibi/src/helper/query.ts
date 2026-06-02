@@ -314,11 +314,22 @@ function makeSWRInfiniteHookCode(
 
 /**
  * Generates a query hook with inline queryKey + queryFn. The hook builds its own
- * options object — does NOT spread the matching `getXQueryOptions` factory.
- * Why: `queryOptions()` brands the result with `DataTag`, which is incompatible
- * with `useSuspenseQuery`'s narrower options type. Keeping hook bodies inline
- * lets every hook (regular + suspense + infinite) accept the same factory shape
- * while sharing the same parseResponse call.
+ * options object rather than spreading the matching `getXQueryOptions` factory.
+ * Why: `queryOptions()` brands its result with `DataTag`, fixing `queryKey` to a
+ * narrow literal tuple and `TError` to `DefaultError`. Both land in contravariant
+ * positions of the hook's wide generic options type (`queryKey: readonly unknown[]`,
+ * caller-supplied `TError`), so spreading the factory is not assignable — this holds
+ * for the regular hook too, independent of its generics, not just the suspense one.
+ * Inlining keeps every hook (regular + suspense + infinite) on one
+ * factory-compatible shape sharing a single parseResponse call.
+ *
+ * The queryFn calls the Hono client (`client.x.$y`) directly rather than importing a
+ * generated `rpc` fetcher. This is not about layering aesthetics (regenerated codegen
+ * tolerates such duplication): it keeps each framework's output self-contained — depending
+ * only on `hono/client` + the client, generatable in isolation — and keeps the response
+ * type, request call, and `signal` injection all derived from that one client, so hook
+ * inference never becomes coupled to a separate fetcher's signature.
+ * @see https://tanstack.com/query/latest/docs/framework/react/typescript#typing-query-options
  */
 function makeQueryHookCode(
   hookName: string,
@@ -409,9 +420,11 @@ function makeSuspenseQueryHookCode(
 
 /**
  * Builds the inline body for an infinite query hook (queryKey + queryFn + optional pagination).
- * Hook builds its own options object — does NOT spread the matching `infiniteQueryOptions(...)`
- * factory because the helper-branded result conflicts with `useSuspenseInfiniteQuery`'s narrower
- * options type under `exactOptionalPropertyTypes: true`.
+ * Hook builds its own options object rather than spreading the matching
+ * `infiniteQueryOptions(...)` factory: like `queryOptions()`, the helper brands its result with
+ * `DataTag` (narrow literal-tuple `queryKey`, `TError` fixed to `DefaultError`), which is not
+ * assignable to the hook's wide generic options type — same cause as the non-infinite hooks,
+ * not specific to the suspense variant.
  *
  * `isVueQuery` drops `:QueryFunctionContext` from `queryFn` — `useInfiniteQuery({...})` provides
  * contextual typing for `signal: AbortSignal`, so the annotation is redundant and breaks
