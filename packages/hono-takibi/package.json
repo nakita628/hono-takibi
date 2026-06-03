@@ -65,7 +65,7 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.12.0",
     "@typespec/openapi3": "^1.12.0",
-    "oxfmt": "^0.51.0",
+    "oxfmt": "^0.53.0",
     "ts-morph": "^28.0.0",
     "typescript": "^6.0.3",
     "zod": "^4.4.3"
@@ -75,6 +75,6 @@
     "@typespec/http": "^1.12.0",
     "@typespec/rest": "^0.82.0",
     "@typespec/versioning": "^0.82.0",
-    "tsdown": "0.22.0"
+    "tsdown": "0.22.1"
   }
 }
