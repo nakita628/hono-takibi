@@ -139,7 +139,10 @@ describe('400 bad request (mutation) — parseResponse vs raw .json()', () => {
     const opts = getPostUsersMutationOptions()
     let captured: unknown = null
     try {
-      await opts.mutationFn?.({ json: { name: '' } })
+      await opts.mutationFn?.(
+        { json: { name: '' } },
+        {} as Parameters<NonNullable<typeof opts.mutationFn>>[1],
+      )
     } catch (e) {
       captured = e
     }
@@ -162,7 +165,10 @@ describe('400 bad request (mutation) — parseResponse vs raw .json()', () => {
     const opts = getPostUsersMutationOptions()
     let parseResponseThrew = false
     try {
-      await opts.mutationFn?.({ json: { name: '' } })
+      await opts.mutationFn?.(
+        { json: { name: '' } },
+        {} as Parameters<NonNullable<typeof opts.mutationFn>>[1],
+      )
     } catch {
       parseResponseThrew = true
     }
