@@ -1204,6 +1204,103 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('components full value normalization', () => {
+    it.concurrent('split=false: normalizes every component output and applies defaults', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'routes.ts',
+          components: {
+            schemas: { output: 'schemas' },
+            responses: { output: 'responses' },
+            parameters: { output: 'parameters' },
+            examples: { output: 'examples' },
+            requestBodies: { output: 'requestBodies' },
+            headers: { output: 'headers' },
+            securitySchemes: { output: 'securitySchemes' },
+            links: { output: 'links' },
+            callbacks: { output: 'callbacks' },
+            pathItems: { output: 'pathItems' },
+            mediaTypes: { output: 'mediaTypes' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components).toStrictEqual({
+          schemas: { split: false, output: 'schemas/index.ts', exportTypes: false },
+          responses: { split: false, output: 'responses/index.ts' },
+          parameters: { split: false, output: 'parameters/index.ts', exportTypes: false },
+          examples: { split: false, output: 'examples/index.ts' },
+          requestBodies: { split: false, output: 'requestBodies/index.ts' },
+          headers: { split: false, output: 'headers/index.ts', exportTypes: false },
+          securitySchemes: { split: false, output: 'securitySchemes/index.ts' },
+          links: { split: false, output: 'links/index.ts' },
+          callbacks: { split: false, output: 'callbacks/index.ts' },
+          pathItems: { split: false, output: 'pathItems/index.ts' },
+          mediaTypes: { split: false, output: 'mediaTypes/index.ts', exportTypes: false },
+        })
+      }
+    })
+
+    it.concurrent('split=true: keeps every component output as directory and applies defaults', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas', split: true },
+            responses: { output: 'responses', split: true },
+            parameters: { output: 'parameters', split: true },
+            examples: { output: 'examples', split: true },
+            requestBodies: { output: 'requestBodies', split: true },
+            headers: { output: 'headers', split: true },
+            securitySchemes: { output: 'securitySchemes', split: true },
+            links: { output: 'links', split: true },
+            callbacks: { output: 'callbacks', split: true },
+            pathItems: { output: 'pathItems', split: true },
+            mediaTypes: { output: 'mediaTypes', split: true },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components).toStrictEqual({
+          schemas: { split: true, output: 'schemas', exportTypes: false },
+          responses: { split: true, output: 'responses' },
+          parameters: { split: true, output: 'parameters', exportTypes: false },
+          examples: { split: true, output: 'examples' },
+          requestBodies: { split: true, output: 'requestBodies' },
+          headers: { split: true, output: 'headers', exportTypes: false },
+          securitySchemes: { split: true, output: 'securitySchemes' },
+          links: { split: true, output: 'links' },
+          callbacks: { split: true, output: 'callbacks' },
+          pathItems: { split: true, output: 'pathItems' },
+          mediaTypes: { split: true, output: 'mediaTypes', exportTypes: false },
+        })
+      }
+    })
+
+    it.concurrent('preserves exportTypes: true and import on a split component', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas', split: true, exportTypes: true, import: '@/schemas' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.schemas).toStrictEqual({
+          split: true,
+          output: 'schemas',
+          import: '@/schemas',
+          exportTypes: true,
+        })
+      }
+    })
+  })
+
   describe('test option normalization', () => {
     it.concurrent('normalizes test output', () => {
       const result = parseConfig({

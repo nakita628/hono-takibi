@@ -434,14 +434,7 @@ async function runAllGenerationTasks(config: Config) {
 
   const makeQueryJob = (
     name: string,
-    cfg:
-      | typeof config.swr
-      | (typeof config)['tanstack-query']
-      | (typeof config)['svelte-query']
-      | (typeof config)['vue-query']
-      | (typeof config)['preact-query']
-      | (typeof config)['solid-query']
-      | (typeof config)['angular-query'],
+    cfg: typeof config.swr,
     fn:
       | typeof swr
       | typeof tanstackQuery
