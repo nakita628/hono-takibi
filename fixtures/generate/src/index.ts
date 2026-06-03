@@ -111,10 +111,15 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
 // above does not cover barrel resolution).
 const SPLIT_COVERAGE_SPEC = '10-comprehensive'
 
+// Barrel re-export resolution is framework-independent (`export * from './op'`),
+// so a couple representative frameworks suffice; keep the set small so the
+// shared `tsc` pass stays within memory.
+const SPLIT_LIBRARIES = ['tanstack-query', 'swr'] as const
+
 const toCamel = (s: string) => s.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
 
 function makeSplitTasks(openAPI: Parameters<typeof type>[0], outDir: string) {
-  return QUERY_LIBRARIES.map((library) => ({
+  return SPLIT_LIBRARIES.map((library) => ({
     mode: `split:${library}`,
     fn: () =>
       hooks(openAPI, `${outDir}/split/${library}/hooks.ts`, '../../client', library, {
@@ -127,10 +132,10 @@ function makeSplitTasks(openAPI: Parameters<typeof type>[0], outDir: string) {
 // A consumer that namespace-imports every split barrel, forcing tsc to resolve
 // each `index.ts` re-export (catches dangling imports / unresolved members).
 function makeSplitConsumer(outDir: string) {
-  const imports = QUERY_LIBRARIES.map(
+  const imports = SPLIT_LIBRARIES.map(
     (library) => `import * as ${toCamel(library)} from './split/${library}'`,
   ).join('\n')
-  const refs = QUERY_LIBRARIES.map(toCamel).join(', ')
+  const refs = SPLIT_LIBRARIES.map(toCamel).join(', ')
   fs.writeFileSync(`${outDir}/split-consumer.ts`, `${imports}\n\nexport const _splitBarrels = [${refs}] as const\n`)
 }
 
