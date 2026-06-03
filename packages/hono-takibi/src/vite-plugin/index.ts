@@ -8,7 +8,6 @@ import {
   examples,
   headers,
   hooks,
-  type QueryLibrary,
   links,
   mediaTypes,
   mock,
@@ -427,7 +426,7 @@ async function runAllGenerationTasks(config: Config) {
     )
   }
 
-  const makeQueryJob = (library: QueryLibrary, cfg: typeof config.swr) => {
+  const makeQueryJob = (library: "swr" | "tanstack-query" | "preact-query" | "solid-query" | "vue-query" | "svelte-query" | "angular-query", cfg: typeof config.swr) => {
     if (!cfg) return undefined
     return runSplitAwareJob(library, cfg.output, cfg.split === true, (out) =>
       hooks(openAPI, out, cfg.import, library, {

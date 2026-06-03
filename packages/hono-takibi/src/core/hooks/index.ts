@@ -122,13 +122,11 @@ const HOOK_CONFIGS = {
   },
 } as const
 
-export type QueryLibrary = keyof typeof HOOK_CONFIGS
-
 export async function hooks(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
-  library: QueryLibrary,
+  library: keyof typeof HOOK_CONFIGS,
   options?: { readonly split?: boolean; readonly clientName?: string },
 ) {
   return makeQueryHooks(
