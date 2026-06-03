@@ -1290,24 +1290,11 @@ export async function makeQueryHooks(
     } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const prefixKeyFileName = '_keys'
   const exportLines = Array.from(
-    new Set([
-      ...(prefixKeyCodes.length > 0 ? [`export * from './${prefixKeyFileName}'`] : []),
-      ...hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`),
-    ]),
+    new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
   )
   const index = `${exportLines.join('\n')}\n`
   const results = await Promise.all([
-    ...(prefixKeyCodes.length > 0
-      ? [
-          emit(
-            `${prefixKeyCodes.join('\n\n')}\n`,
-            path.dirname(path.join(outDir, `${prefixKeyFileName}.ts`)),
-            path.join(outDir, `${prefixKeyFileName}.ts`),
-          ),
-        ]
-      : []),
     ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
       const hasQueryWithArgs = isQuery && hasArgs
       const header = makeHeader(
