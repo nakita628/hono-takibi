@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { vueQuery } from './index.js'
+import { hooks } from './index.js'
 
 /** Simple OpenAPI spec for basic tests */
 const openapiSimple: OpenAPI = {
@@ -46,7 +46,7 @@ describe('vueQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await vueQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'vue-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -292,7 +292,7 @@ describe('vueQuery (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await vueQuery(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'vue-query', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -589,7 +589,7 @@ describe('vueQuery (custom client name)', () => {
         },
       }
 
-      const result = await vueQuery(simpleOpenAPI, out, '../api', false, 'authClient')
+      const result = await hooks(simpleOpenAPI, out, '../api', 'vue-query', { split: false, clientName: 'authClient' })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -730,7 +730,7 @@ describe('vueQuery (no args operations)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-noargs-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await vueQuery(openapiNoArgs, out, '../client', false)
+      const result = await hooks(openapiNoArgs, out, '../client', 'vue-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -878,7 +878,7 @@ describe('vueQuery (path with special characters)', () => {
         },
       }
 
-      const result = await vueQuery(hyphenOpenAPI, out, '../client', false)
+      const result = await hooks(hyphenOpenAPI, out, '../client', 'vue-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1024,7 +1024,7 @@ describe('vueQuery (path parameters)', () => {
         },
       }
 
-      const result = await vueQuery(paramOpenAPI, out, '../client', false)
+      const result = await hooks(paramOpenAPI, out, '../client', 'vue-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1241,7 +1241,7 @@ describe('vueQuery (split mode with full CRUD)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-crud-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await vueQuery(openapiCrud, out, '../client', true)
+      const result = await hooks(openapiCrud, out, '../client', 'vue-query', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1636,7 +1636,7 @@ describe('vueQuery (invalid paths)', () => {
         // paths is undefined
       } as unknown as OpenAPI
 
-      const result = await vueQuery(invalidOpenAPI, out, '../client', false)
+      const result = await hooks(invalidOpenAPI, out, '../client', 'vue-query', { split: false })
 
       expect(result).toStrictEqual({
         ok: false,
@@ -1680,7 +1680,7 @@ describe('vueQuery (PUT/PATCH methods)', () => {
         },
       }
 
-      const result = await vueQuery(putPatchOpenAPI, out, '../client', false)
+      const result = await hooks(putPatchOpenAPI, out, '../client', 'vue-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1771,7 +1771,7 @@ describe('vueQuery (header parameters excluded from query key)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vq-header-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await vueQuery(spec, out, '../client', false)
+      const result = await hooks(spec, out, '../client', 'vue-query', { split: false })
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'

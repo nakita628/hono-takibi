@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { angularQuery } from './index.js'
+import { hooks } from './index.js'
 
 const openapiSimple: OpenAPI = {
   openapi: '3.1.0',
@@ -36,7 +36,7 @@ describe('angularQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await angularQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'angular-query', { split: false })
 
       if (!result.ok) throw new Error(result.error)
 
@@ -280,7 +280,7 @@ export function injectPostUsers<TError = unknown>(
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-suspense-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await angularQuery(
+      const result = await hooks(
         {
           openapi: '3.1.0',
           info: { title: 'Test', version: '1.0.0' },
@@ -288,7 +288,8 @@ export function injectPostUsers<TError = unknown>(
         },
         out,
         '../client',
-        false,
+        'angular-query',
+        { split: false },
       )
       if (!result.ok) throw new Error(result.error)
 
@@ -360,7 +361,7 @@ describe('angularQuery (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await angularQuery(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'angular-query', { split: true })
 
       if (!result.ok) throw new Error(result.error)
 

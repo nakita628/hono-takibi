@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { swr } from './index.js'
+import { hooks } from './index.js'
 
 /** Simple OpenAPI spec for basic tests */
 const openapiSimple: OpenAPI = {
@@ -46,7 +46,7 @@ describe('swr', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await swr(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -241,7 +241,7 @@ describe('swr (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-split-'))
     try {
       const out = path.join(dir, 'swr', 'index.ts')
-      const result = await swr(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'swr', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -481,7 +481,7 @@ describe('swr (custom client name)', () => {
         },
       }
 
-      const result = await swr(simpleOpenAPI, out, '../api', false, 'authClient')
+      const result = await hooks(simpleOpenAPI, out, '../api', 'swr', { split: false, clientName: 'authClient' })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -592,7 +592,7 @@ describe('swr (no args operations)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-noargs-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await swr(openapiNoArgs, out, '../client', false)
+      const result = await hooks(openapiNoArgs, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -722,7 +722,7 @@ describe('swr (path with special characters)', () => {
         },
       }
 
-      const result = await swr(hyphenOpenAPI, out, '../client', false)
+      const result = await hooks(hyphenOpenAPI, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -836,7 +836,7 @@ describe('swr (path parameters)', () => {
         },
       }
 
-      const result = await swr(paramOpenAPI, out, '../client', false)
+      const result = await hooks(paramOpenAPI, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1017,7 +1017,7 @@ describe('swr (split mode with full CRUD resource)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-crud-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await swr(openapiCrud, out, '../client', true)
+      const result = await hooks(openapiCrud, out, '../client', 'swr', { split: true })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -1341,7 +1341,7 @@ describe('swr (invalid paths)', () => {
         // paths is undefined
       } as unknown as OpenAPI
 
-      const result = await swr(invalidOpenAPI, out, '../client', false)
+      const result = await hooks(invalidOpenAPI, out, '../client', 'swr', { split: false })
 
       expect(result).toStrictEqual({
         ok: false,
@@ -1373,7 +1373,7 @@ describe('swr (immutable mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await swr(openapiImmutable, out, '../client', false)
+      const result = await hooks(openapiImmutable, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1480,7 +1480,7 @@ describe('swr (enabled priority)', () => {
         },
       }
 
-      const result = await swr(simpleOpenAPI, out, '../client', false)
+      const result = await hooks(simpleOpenAPI, out, '../client', 'swr', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1585,7 +1585,7 @@ describe('swr (no pagination)', () => {
           },
         },
       }
-      const result = await swr(openAPI, out, '../client', false)
+      const result = await hooks(openAPI, out, '../client', 'swr', { split: false })
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
       // Assertion: must not contain Infinite-related symbols

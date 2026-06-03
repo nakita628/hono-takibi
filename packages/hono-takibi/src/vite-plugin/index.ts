@@ -7,6 +7,8 @@ import {
   docs,
   examples,
   headers,
+  hooks,
+  type QueryLibrary,
   links,
   mediaTypes,
   mock,
@@ -18,17 +20,10 @@ import {
   rpc,
   schemas,
   securitySchemes,
-  angularQuery,
-  preactQuery,
-  solidQuery,
-  svelteQuery,
-  swr,
   takibi,
-  tanstackQuery,
   template,
   test,
   type,
-  vueQuery,
   webhooks,
 } from '../core/index.js'
 import { setFormatOptions } from '../format/index.js'
@@ -432,21 +427,13 @@ async function runAllGenerationTasks(config: Config) {
     )
   }
 
-  const makeQueryJob = (
-    name: string,
-    cfg: typeof config.swr,
-    fn:
-      | typeof swr
-      | typeof tanstackQuery
-      | typeof svelteQuery
-      | typeof vueQuery
-      | typeof preactQuery
-      | typeof solidQuery
-      | typeof angularQuery,
-  ) => {
+  const makeQueryJob = (library: QueryLibrary, cfg: typeof config.swr) => {
     if (!cfg) return undefined
-    return runSplitAwareJob(name, cfg.output, cfg.split === true, (out) =>
-      fn(openAPI, out, cfg.import, cfg.split === true, cfg.client ?? 'client'),
+    return runSplitAwareJob(library, cfg.output, cfg.split === true, (out) =>
+      hooks(openAPI, out, cfg.import, library, {
+        split: cfg.split === true,
+        clientName: cfg.client ?? 'client',
+      }),
     )
   }
 
@@ -534,13 +521,13 @@ async function runAllGenerationTasks(config: Config) {
     makeRoutesJob(),
     makeTypeJob(),
     makeRpcJob(),
-    makeQueryJob('swr', config.swr, swr),
-    makeQueryJob('tanstack-query', config['tanstack-query'], tanstackQuery),
-    makeQueryJob('svelte-query', config['svelte-query'], svelteQuery),
-    makeQueryJob('vue-query', config['vue-query'], vueQuery),
-    makeQueryJob('preact-query', config['preact-query'], preactQuery),
-    makeQueryJob('solid-query', config['solid-query'], solidQuery),
-    makeQueryJob('angular-query', config['angular-query'], angularQuery),
+    makeQueryJob('swr', config.swr),
+    makeQueryJob('tanstack-query', config['tanstack-query']),
+    makeQueryJob('svelte-query', config['svelte-query']),
+    makeQueryJob('vue-query', config['vue-query']),
+    makeQueryJob('preact-query', config['preact-query']),
+    makeQueryJob('solid-query', config['solid-query']),
+    makeQueryJob('angular-query', config['angular-query']),
     makeTestJob(),
     makeMockJob(),
     makeDocsJob(),

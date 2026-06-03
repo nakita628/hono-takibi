@@ -3,32 +3,26 @@ import { resolve } from 'node:path'
 
 import { readConfig } from '../config/index.js'
 import {
-  angularQuery,
   callbacks,
   docs,
   examples,
   headers,
+  hooks,
   links,
   mediaTypes,
   mock,
   parameters,
   pathItems,
-  preactQuery,
   requestBodies,
   responses,
   route,
   rpc,
   schemas,
   securitySchemes,
-  solidQuery,
-  svelteQuery,
-  swr,
   takibi,
-  tanstackQuery,
   template,
   test,
   type,
-  vueQuery,
   webhooks,
 } from '../core/index.js'
 import { setFormatOptions } from '../format/index.js'
@@ -256,60 +250,60 @@ export async function honoTakibi() {
         )
       : Promise.resolve(undefined),
     config.swr
-      ? swr(openAPI, config.swr.output, config.swr.import, config.swr.split, config.swr.client)
+      ? hooks(openAPI, config.swr.output, config.swr.import, 'swr', {
+          split: config.swr.split,
+          clientName: config.swr.client,
+        })
       : Promise.resolve(undefined),
     config['tanstack-query']
-      ? tanstackQuery(
+      ? hooks(
           openAPI,
           config['tanstack-query'].output,
           config['tanstack-query'].import,
-          config['tanstack-query'].split,
-          config['tanstack-query'].client,
+          'tanstack-query',
+          { split: config['tanstack-query'].split, clientName: config['tanstack-query'].client },
         )
       : Promise.resolve(undefined),
     config['preact-query']
-      ? preactQuery(
+      ? hooks(
           openAPI,
           config['preact-query'].output,
           config['preact-query'].import,
-          config['preact-query'].split,
-          config['preact-query'].client,
+          'preact-query',
+          { split: config['preact-query'].split, clientName: config['preact-query'].client },
         )
       : Promise.resolve(undefined),
     config['solid-query']
-      ? solidQuery(
+      ? hooks(
           openAPI,
           config['solid-query'].output,
           config['solid-query'].import,
-          config['solid-query'].split,
-          config['solid-query'].client,
+          'solid-query',
+          { split: config['solid-query'].split, clientName: config['solid-query'].client },
         )
       : Promise.resolve(undefined),
     config['vue-query']
-      ? vueQuery(
-          openAPI,
-          config['vue-query'].output,
-          config['vue-query'].import,
-          config['vue-query'].split,
-          config['vue-query'].client,
-        )
+      ? hooks(openAPI, config['vue-query'].output, config['vue-query'].import, 'vue-query', {
+          split: config['vue-query'].split,
+          clientName: config['vue-query'].client,
+        })
       : Promise.resolve(undefined),
     config['svelte-query']
-      ? svelteQuery(
+      ? hooks(
           openAPI,
           config['svelte-query'].output,
           config['svelte-query'].import,
-          config['svelte-query'].split,
-          config['svelte-query'].client,
+          'svelte-query',
+          { split: config['svelte-query'].split, clientName: config['svelte-query'].client },
         )
       : Promise.resolve(undefined),
     config['angular-query']
-      ? angularQuery(
+      ? hooks(
           openAPI,
           config['angular-query'].output,
           config['angular-query'].import,
-          config['angular-query'].split,
-          config['angular-query'].client,
+          'angular-query',
+          { split: config['angular-query'].split, clientName: config['angular-query'].client },
         )
       : Promise.resolve(undefined),
     config.test

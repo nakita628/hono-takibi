@@ -87,12 +87,8 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'schemas' }
   }),
-  angularQuery: vi.fn(async () => ({ ok: true, value: 'angularQuery' })),
-  preactQuery: vi.fn(async () => ({ ok: true, value: 'preactQuery' })),
+  hooks: vi.fn(async () => ({ ok: true, value: 'hooks' })),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
-  solidQuery: vi.fn(async () => ({ ok: true, value: 'solidQuery' })),
-  svelteQuery: vi.fn(async () => ({ ok: true, value: 'svelteQuery' })),
-  swr: vi.fn(async () => ({ ok: true, value: 'swr' })),
   route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
     if (config.split) {
       await fsp.mkdir(config.output, { recursive: true })
@@ -112,11 +108,9 @@ vi.mock('../core/index.js', () => ({
     return { ok: true, value: 'rpc' }
   }),
   takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
-  tanstackQuery: vi.fn(async () => ({ ok: true, value: 'tanstackQuery' })),
   template: vi.fn(async () => ({ ok: true, value: 'template' })),
   test: vi.fn(async () => ({ ok: true, value: 'test' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
-  vueQuery: vi.fn(async () => ({ ok: true, value: 'vueQuery' })),
   webhooks: vi.fn(async () => ({ ok: true, value: 'webhooks' })),
 }))
 
@@ -654,10 +648,11 @@ describe('honoTakibiVite', () => {
     expect(core.docs).toHaveBeenCalled()
     expect(core.test).toHaveBeenCalled()
     expect(core.rpc).toHaveBeenCalled()
-    expect(core.swr).toHaveBeenCalled()
-    expect(core.tanstackQuery).toHaveBeenCalled()
-    expect(core.svelteQuery).toHaveBeenCalled()
-    expect(core.vueQuery).toHaveBeenCalled()
+    const hookLibraries = vi.mocked(core.hooks).mock.calls.map((call) => call[3])
+    expect(hookLibraries).toContain('swr')
+    expect(hookLibraries).toContain('tanstack-query')
+    expect(hookLibraries).toContain('svelte-query')
+    expect(hookLibraries).toContain('vue-query')
   })
 
   it('runs every component generator branch', async () => {

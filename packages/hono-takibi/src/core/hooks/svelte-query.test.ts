@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { svelteQuery } from './index.js'
+import { hooks } from './index.js'
 
 /** Simple OpenAPI spec for basic tests */
 const openapiSimple: OpenAPI = {
@@ -58,7 +58,7 @@ describe('svelteQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await svelteQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'svelte-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -468,7 +468,7 @@ describe('svelteQuery (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await svelteQuery(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'svelte-query', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -967,7 +967,7 @@ describe('svelteQuery (custom client name)', () => {
     try {
       const out = path.join(dir, 'index.ts')
 
-      const result = await svelteQuery(openapiCustomClient, out, '../api', false, 'authClient')
+      const result = await hooks(openapiCustomClient, out, '../api', 'svelte-query', { split: false, clientName: 'authClient' })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1152,7 +1152,7 @@ describe('svelteQuery (no args operations)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-noargs-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await svelteQuery(openapiNoArgs, out, '../client', false)
+      const result = await hooks(openapiNoArgs, out, '../client', 'svelte-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1357,7 +1357,7 @@ describe('svelteQuery (path with special characters)', () => {
         },
       }
 
-      const result = await svelteQuery(hyphenOpenAPI, out, '../client', false)
+      const result = await hooks(hyphenOpenAPI, out, '../client', 'svelte-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1549,7 +1549,7 @@ describe('svelteQuery (path parameters)', () => {
         },
       }
 
-      const result = await svelteQuery(paramOpenAPI, out, '../client', false)
+      const result = await hooks(paramOpenAPI, out, '../client', 'svelte-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1807,7 +1807,7 @@ describe('svelteQuery (split mode with full CRUD)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-crud-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await svelteQuery(openapiCrud, out, '../client', true)
+      const result = await hooks(openapiCrud, out, '../client', 'svelte-query', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -2278,7 +2278,7 @@ describe('svelteQuery (invalid paths)', () => {
         // paths is undefined
       } as unknown as OpenAPI
 
-      const result = await svelteQuery(invalidOpenAPI, out, '../client', false)
+      const result = await hooks(invalidOpenAPI, out, '../client', 'svelte-query', { split: false })
 
       expect(result).toStrictEqual({
         ok: false,
@@ -2311,7 +2311,7 @@ describe('svelteQuery (header parameters excluded from query key)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-sv-header-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await svelteQuery(spec, out, '../client', false)
+      const result = await hooks(spec, out, '../client', 'svelte-query', { split: false })
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import {

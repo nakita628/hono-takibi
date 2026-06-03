@@ -40,33 +40,9 @@
       "types": "./dist/core/rpc/index.d.ts",
       "import": "./dist/core/rpc/index.js"
     },
-    "./swr": {
-      "types": "./dist/core/swr/index.d.ts",
-      "import": "./dist/core/swr/index.js"
-    },
-    "./tanstack-query": {
-      "types": "./dist/core/tanstack-query/index.d.ts",
-      "import": "./dist/core/tanstack-query/index.js"
-    },
-    "./svelte-query": {
-      "types": "./dist/core/svelte-query/index.d.ts",
-      "import": "./dist/core/svelte-query/index.js"
-    },
-    "./vue-query": {
-      "types": "./dist/core/vue-query/index.d.ts",
-      "import": "./dist/core/vue-query/index.js"
-    },
-    "./preact-query": {
-      "types": "./dist/core/preact-query/index.d.ts",
-      "import": "./dist/core/preact-query/index.js"
-    },
-    "./solid-query": {
-      "types": "./dist/core/solid-query/index.d.ts",
-      "import": "./dist/core/solid-query/index.js"
-    },
-    "./angular-query": {
-      "types": "./dist/core/angular-query/index.d.ts",
-      "import": "./dist/core/angular-query/index.js"
+    "./hooks": {
+      "types": "./dist/core/hooks/index.d.ts",
+      "import": "./dist/core/hooks/index.js"
     },
     "./type": {
       "types": "./dist/core/type/index.d.ts",

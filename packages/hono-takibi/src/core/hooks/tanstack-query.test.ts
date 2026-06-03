@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { tanstackQuery } from './index.js'
+import { hooks } from './index.js'
 
 /** Simple OpenAPI spec for basic tests */
 const openapiSimple: OpenAPI = {
@@ -46,7 +46,7 @@ describe('tanstackQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await tanstackQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'tanstack-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -498,7 +498,7 @@ describe('tanstackQuery (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await tanstackQuery(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'tanstack-query', { split: true })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1009,7 +1009,7 @@ describe('tanstackQuery (custom client name)', () => {
         },
       }
 
-      const result = await tanstackQuery(simpleOpenAPI, out, '../api', false, 'authClient')
+      const result = await hooks(simpleOpenAPI, out, '../api', 'tanstack-query', { split: false, clientName: 'authClient' })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1267,7 +1267,7 @@ describe('tanstackQuery (no args operations)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-noargs-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await tanstackQuery(openapiNoArgs, out, '../client', false)
+      const result = await hooks(openapiNoArgs, out, '../client', 'tanstack-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1532,7 +1532,7 @@ describe('tanstackQuery (path with special characters)', () => {
         },
       }
 
-      const result = await tanstackQuery(hyphenOpenAPI, out, '../client', false)
+      const result = await hooks(hyphenOpenAPI, out, '../client', 'tanstack-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1803,7 +1803,7 @@ describe('tanstackQuery (path parameters)', () => {
         },
       }
 
-      const result = await tanstackQuery(paramOpenAPI, out, '../client', false)
+      const result = await hooks(paramOpenAPI, out, '../client', 'tanstack-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -2154,7 +2154,7 @@ describe('tanstackQuery (split mode - CRUD)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-crud-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await tanstackQuery(openapiCrud, out, '../client', true)
+      const result = await hooks(openapiCrud, out, '../client', 'tanstack-query', { split: true })
 
       expect(result).toStrictEqual({
         ok: true,
@@ -2781,7 +2781,7 @@ describe('tanstackQuery (invalid paths)', () => {
         // paths is undefined
       } as unknown as OpenAPI
 
-      const result = await tanstackQuery(invalidOpenAPI, out, '../client', false)
+      const result = await hooks(invalidOpenAPI, out, '../client', 'tanstack-query', { split: false })
 
       expect(result).toStrictEqual({
         ok: false,
@@ -2814,7 +2814,7 @@ describe('tanstackQuery (header parameters excluded from query key)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tq-header-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await tanstackQuery(spec, out, '../client', false)
+      const result = await hooks(spec, out, '../client', 'tanstack-query', { split: false })
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import {

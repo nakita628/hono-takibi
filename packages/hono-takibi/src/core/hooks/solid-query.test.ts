@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { solidQuery } from './index.js'
+import { hooks } from './index.js'
 
 const openapiSimple: OpenAPI = {
   openapi: '3.1.0',
@@ -36,7 +36,7 @@ describe('solidQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-solid-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await solidQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'solid-query', { split: false })
 
       if (!result.ok) throw new Error(result.error)
 
@@ -279,7 +279,7 @@ describe('solidQuery (split mode)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-solid-query-split-'))
     try {
       const out = path.join(dir, 'hooks', 'index.ts')
-      const result = await solidQuery(openapiSimple, out, '../client', true)
+      const result = await hooks(openapiSimple, out, '../client', 'solid-query', { split: true })
 
       if (!result.ok) throw new Error(result.error)
 

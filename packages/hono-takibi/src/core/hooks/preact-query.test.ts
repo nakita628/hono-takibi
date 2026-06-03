@@ -5,7 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { preactQuery } from './index.js'
+import { hooks } from './index.js'
 
 /** Simple OpenAPI spec for basic tests */
 const openapiSimple: OpenAPI = {
@@ -46,7 +46,7 @@ describe('preactQuery', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-preact-query-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await preactQuery(openapiSimple, out, '../client', false)
+      const result = await hooks(openapiSimple, out, '../client', 'preact-query', { split: false })
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -514,7 +514,7 @@ describe('preactQuery (header parameters excluded from query key)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-pq-header-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await preactQuery(spec, out, '../client', false)
+      const result = await hooks(spec, out, '../client', 'preact-query', { split: false })
       if (!result.ok) throw new Error(result.error)
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import {
