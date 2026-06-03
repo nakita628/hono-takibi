@@ -274,13 +274,10 @@ export async function honoTakibi() {
         )
       : Promise.resolve(undefined),
     config['solid-query']
-      ? hooks(
-          openAPI,
-          config['solid-query'].output,
-          config['solid-query'].import,
-          'solid-query',
-          { split: config['solid-query'].split, clientName: config['solid-query'].client },
-        )
+      ? hooks(openAPI, config['solid-query'].output, config['solid-query'].import, 'solid-query', {
+          split: config['solid-query'].split,
+          clientName: config['solid-query'].client,
+        })
       : Promise.resolve(undefined),
     config['vue-query']
       ? hooks(openAPI, config['vue-query'].output, config['vue-query'].import, 'vue-query', {
