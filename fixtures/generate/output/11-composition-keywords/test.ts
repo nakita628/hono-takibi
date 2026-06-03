@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -24,20 +24,13 @@ function mockPaymentMethod() {
 
 function mockSearchFilter() {
   return faker.helpers.arrayElement([
-    {
-      keyword: faker.string.alpha({ length: { min: 5, max: 20 } }),
-    },
-    {
-      category: faker.number.int({ min: 1, max: 1000 }),
-    },
+    { keyword: faker.string.alpha({ length: { min: 5, max: 20 } }) },
+    { category: faker.number.int({ min: 1, max: 1000 }) },
   ])
 }
 
 function mockPerson() {
-  return {
-    name: faker.person.fullName(),
-    email: faker.internet.email(),
-  }
+  return { name: faker.person.fullName(), email: faker.internet.email() }
 }
 
 function mockEmployeeInfo() {
@@ -54,10 +47,12 @@ function mockEmployee() {
   return {
     ...mockPerson(),
     ...mockEmployeeInfo(),
-    startDate: faker.helpers.arrayElement([
-      faker.date.past().toISOString().slice(0, 10),
-      undefined,
-    ]),
+    ...{
+      startDate: faker.helpers.arrayElement([
+        faker.date.past().toISOString().slice(0, 10),
+        undefined,
+      ]),
+    },
   }
 }
 
@@ -68,7 +63,7 @@ function mockNotStringValue() {
 describe('Composition Keywords API', () => {
   describe('default', () => {
     describe('POST /one-of', () => {
-      it('POST /one-of', async () => {
+      it('should return 200', async () => {
         const body = mockPaymentMethod()
         const res = await app.request(`/one-of`, {
           method: 'POST',
@@ -79,7 +74,7 @@ describe('Composition Keywords API', () => {
       })
     })
     describe('POST /any-of', () => {
-      it('POST /any-of', async () => {
+      it('should return 200', async () => {
         const body = mockSearchFilter()
         const res = await app.request(`/any-of`, {
           method: 'POST',
@@ -90,7 +85,7 @@ describe('Composition Keywords API', () => {
       })
     })
     describe('POST /all-of', () => {
-      it('POST /all-of', async () => {
+      it('should return 200', async () => {
         const body = mockEmployee()
         const res = await app.request(`/all-of`, {
           method: 'POST',
@@ -101,7 +96,7 @@ describe('Composition Keywords API', () => {
       })
     })
     describe('POST /not', () => {
-      it('POST /not', async () => {
+      it('should return 200', async () => {
         const body = mockNotStringValue()
         const res = await app.request(`/not`, {
           method: 'POST',
@@ -112,49 +107,49 @@ describe('Composition Keywords API', () => {
       })
     })
     describe('GET /not-ref', () => {
-      it('GET /not-ref', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/not-ref`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /not-enum', () => {
-      it('GET /not-enum', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/not-enum`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /not-const', () => {
-      it('GET /not-const', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/not-const`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /not-composition', () => {
-      it('GET /not-composition', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/not-composition`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /all-of-sibling', () => {
-      it('GET /all-of-sibling', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/all-of-sibling`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /nullable-one-of', () => {
-      it('GET /nullable-one-of', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/nullable-one-of`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /any-of-three', () => {
-      it('GET /any-of-three', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/any-of-three`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /any-of-ref', () => {
-      it('GET /any-of-ref', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/any-of-ref`, { method: 'GET' })
         expect(res.status).toBe(200)
       })

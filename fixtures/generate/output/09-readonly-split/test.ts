@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -32,15 +32,13 @@ function mockUpdatePost() {
 }
 
 function mockCreateComment() {
-  return {
-    body: faker.string.alpha({ length: { min: 5, max: 20 } }),
-  }
+  return { body: faker.string.alpha({ length: { min: 5, max: 20 } }) }
 }
 
 describe('Readonly Split API', () => {
   describe('default', () => {
     describe('GET /posts', () => {
-      it('GET /posts', async () => {
+      it('should return 200', async () => {
         const page = faker.number.int({ min: 1, max: 1000 })
         const limit = faker.number.int({ min: 1, max: 1000 })
         const res = await app.request(
@@ -51,7 +49,7 @@ describe('Readonly Split API', () => {
       })
     })
     describe('POST /posts', () => {
-      it('POST /posts', async () => {
+      it('should return 201', async () => {
         const body = mockCreatePost()
         const res = await app.request(`/posts`, {
           method: 'POST',
@@ -62,14 +60,14 @@ describe('Readonly Split API', () => {
       })
     })
     describe('GET /posts/{id}', () => {
-      it('GET /posts/{id}', async () => {
+      it('should return 200', async () => {
         const id = faker.number.int({ min: 1, max: 99999 })
         const res = await app.request(`/posts/${id}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('PUT /posts/{id}', () => {
-      it('PUT /posts/{id}', async () => {
+      it('should return 200', async () => {
         const id = faker.number.int({ min: 1, max: 99999 })
         const body = mockUpdatePost()
         const res = await app.request(`/posts/${id}`, {
@@ -81,21 +79,21 @@ describe('Readonly Split API', () => {
       })
     })
     describe('DELETE /posts/{id}', () => {
-      it('DELETE /posts/{id}', async () => {
+      it('should return 204', async () => {
         const id = faker.number.int({ min: 1, max: 99999 })
         const res = await app.request(`/posts/${id}`, { method: 'DELETE' })
         expect(res.status).toBe(204)
       })
     })
     describe('GET /posts/{id}/comments', () => {
-      it('GET /posts/{id}/comments', async () => {
+      it('should return 200', async () => {
         const id = faker.number.int({ min: 1, max: 99999 })
         const res = await app.request(`/posts/${id}/comments`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /posts/{id}/comments', () => {
-      it('POST /posts/{id}/comments', async () => {
+      it('should return 201', async () => {
         const id = faker.number.int({ min: 1, max: 99999 })
         const body = mockCreateComment()
         const res = await app.request(`/posts/${id}/comments`, {
@@ -107,7 +105,7 @@ describe('Readonly Split API', () => {
       })
     })
     describe('GET /tags', () => {
-      it('GET /tags', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/tags`, { method: 'GET' })
         expect(res.status).toBe(200)
       })

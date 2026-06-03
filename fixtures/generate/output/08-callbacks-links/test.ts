@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -14,7 +14,7 @@ function mockSubscriptionRequest() {
 describe('Callbacks and Links API', () => {
   describe('default', () => {
     describe('POST /subscriptions', () => {
-      it('POST /subscriptions', async () => {
+      it('should return 201', async () => {
         const body = mockSubscriptionRequest()
         const res = await app.request(`/subscriptions`, {
           method: 'POST',
@@ -25,24 +25,22 @@ describe('Callbacks and Links API', () => {
       })
     })
     describe('GET /subscriptions/{id}', () => {
-      it('GET /subscriptions/{id}', async () => {
+      it('should return 200', async () => {
         const id = faker.string.alpha({ length: { min: 5, max: 20 } })
         const res = await app.request(`/subscriptions/${id}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('DELETE /subscriptions/{id}', () => {
-      it('DELETE /subscriptions/{id}', async () => {
+      it('should return 204', async () => {
         const id = faker.string.alpha({ length: { min: 5, max: 20 } })
         const res = await app.request(`/subscriptions/${id}`, { method: 'DELETE' })
         expect(res.status).toBe(204)
       })
     })
     describe('POST /webhooks/test', () => {
-      it('POST /webhooks/test', async () => {
-        const body = {
-          url: faker.internet.url(),
-        }
+      it('should return 200', async () => {
+        const body = { url: faker.internet.url() }
         const res = await app.request(`/webhooks/test`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

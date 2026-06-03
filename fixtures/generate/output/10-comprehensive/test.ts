@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -90,13 +90,18 @@ function mockCreateOrder() {
 describe('Comprehensive EC API', () => {
   describe('default', () => {
     describe('GET /users', () => {
-      it('GET /users', async () => {
-        const res = await app.request(`/users`, { method: 'GET' })
+      it('should return 200', async () => {
+        const page = faker.number.int({ min: 1, max: 1000 })
+        const limit = faker.number.int({ min: 1, max: 1000 })
+        const res = await app.request(
+          `/users?page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(String(limit))}`,
+          { method: 'GET' },
+        )
         expect(res.status).toBe(200)
       })
     })
     describe('POST /users', () => {
-      it('POST /users', async () => {
+      it('should return 201', async () => {
         const body = mockCreateUser()
         const res = await app.request(`/users`, {
           method: 'POST',
@@ -119,13 +124,13 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /users/{userId}', () => {
-      it('GET /users/{userId}', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/users/{userId}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('PUT /users/{userId}', () => {
-      it('PUT /users/{userId}', async () => {
+      it('should return 200', async () => {
         const body = mockUpdateUser()
         const res = await app.request(`/users/{userId}`, {
           method: 'PUT',
@@ -148,7 +153,7 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('DELETE /users/{userId}', () => {
-      it('DELETE /users/{userId}', async () => {
+      it('should return 204', async () => {
         const res = await app.request(`/users/{userId}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
@@ -161,19 +166,21 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /products', () => {
-      it('GET /products', async () => {
+      it('should return 200', async () => {
+        const page = faker.number.int({ min: 1, max: 1000 })
+        const limit = faker.number.int({ min: 1, max: 1000 })
         const category = faker.string.alpha({ length: { min: 5, max: 20 } })
         const minPrice = faker.number.float({ min: 1, max: 1000, fractionDigits: 2 })
         const maxPrice = faker.number.float({ min: 1, max: 1000, fractionDigits: 2 })
         const res = await app.request(
-          `/products?category=${encodeURIComponent(String(category))}&minPrice=${encodeURIComponent(String(minPrice))}&maxPrice=${encodeURIComponent(String(maxPrice))}`,
+          `/products?page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(String(limit))}&category=${encodeURIComponent(String(category))}&minPrice=${encodeURIComponent(String(minPrice))}&maxPrice=${encodeURIComponent(String(maxPrice))}`,
           { method: 'GET' },
         )
         expect(res.status).toBe(200)
       })
     })
     describe('POST /products', () => {
-      it('POST /products', async () => {
+      it('should return 201', async () => {
         const body = mockCreateProduct()
         const res = await app.request(`/products`, {
           method: 'POST',
@@ -196,13 +203,13 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /products/{productId}', () => {
-      it('GET /products/{productId}', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/products/{productId}`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('PUT /products/{productId}', () => {
-      it('PUT /products/{productId}', async () => {
+      it('should return 200', async () => {
         const body = mockUpdateProduct()
         const res = await app.request(`/products/{productId}`, {
           method: 'PUT',
@@ -225,13 +232,13 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /products/{productId}/reviews', () => {
-      it('GET /products/{productId}/reviews', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/products/{productId}/reviews`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /products/{productId}/reviews', () => {
-      it('POST /products/{productId}/reviews', async () => {
+      it('should return 201', async () => {
         const body = mockCreateReview()
         const res = await app.request(`/products/{productId}/reviews`, {
           method: 'POST',
@@ -254,7 +261,9 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /orders', () => {
-      it('GET /orders', async () => {
+      it('should return 200', async () => {
+        const page = faker.number.int({ min: 1, max: 1000 })
+        const limit = faker.number.int({ min: 1, max: 1000 })
         const status = faker.helpers.arrayElement([
           'pending',
           'confirmed',
@@ -262,13 +271,15 @@ describe('Comprehensive EC API', () => {
           'delivered',
           'cancelled',
         ] as const)
-        const res = await app.request(`/orders?status=${encodeURIComponent(String(status))}`, {
-          method: 'GET',
-          headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
-        })
+        const res = await app.request(
+          `/orders?page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(String(limit))}&status=${encodeURIComponent(String(status))}`,
+          { method: 'GET', headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` } },
+        )
         expect(res.status).toBe(200)
       })
       it('should return 401 without auth', async () => {
+        const page = faker.number.int({ min: 1, max: 1000 })
+        const limit = faker.number.int({ min: 1, max: 1000 })
         const status = faker.helpers.arrayElement([
           'pending',
           'confirmed',
@@ -276,14 +287,15 @@ describe('Comprehensive EC API', () => {
           'delivered',
           'cancelled',
         ] as const)
-        const res = await app.request(`/orders?status=${encodeURIComponent(String(status))}`, {
-          method: 'GET',
-        })
+        const res = await app.request(
+          `/orders?page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(String(limit))}&status=${encodeURIComponent(String(status))}`,
+          { method: 'GET' },
+        )
         expect(res.status).toBe(401)
       })
     })
     describe('POST /orders', () => {
-      it('POST /orders', async () => {
+      it('should return 201', async () => {
         const body = mockCreateOrder()
         const res = await app.request(`/orders`, {
           method: 'POST',
@@ -306,7 +318,7 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /orders/{orderId}', () => {
-      it('GET /orders/{orderId}', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/orders/{orderId}`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
@@ -319,13 +331,13 @@ describe('Comprehensive EC API', () => {
       })
     })
     describe('GET /categories', () => {
-      it('GET /categories', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/categories`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /upload/image', () => {
-      it('POST /upload/image', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/upload/image`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },

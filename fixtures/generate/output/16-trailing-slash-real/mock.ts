@@ -77,7 +77,8 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
         }),
       radius: z.coerce
         .number()
-        .int().max(200))
+        .int()
+        .max(200)
         .exactOptional()
         .openapi({
           param: {
@@ -116,7 +117,8 @@ export const getApiReverseGeocodeIndexRoute = createRoute({
         }),
       limit: z.coerce
         .number()
-        .int().max(50))
+        .int()
+        .max(50)
         .default(10)
         .exactOptional()
         .openapi({

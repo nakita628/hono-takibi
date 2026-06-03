@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
 describe('Content Types API', () => {
   describe('default', () => {
     describe('POST /json', () => {
-      it('POST /json', async () => {
+      it('should return 200', async () => {
         const body = {
           name: faker.person.fullName(),
           value: faker.number.int({ min: 1, max: 1000 }),
@@ -19,28 +19,26 @@ describe('Content Types API', () => {
       })
     })
     describe('POST /form', () => {
-      it('POST /form', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/form`, { method: 'POST' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /upload', () => {
-      it('POST /upload', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/upload`, { method: 'POST' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /text', () => {
-      it('POST /text', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/text`, { method: 'POST' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /multi-content', () => {
-      it('POST /multi-content', async () => {
-        const body = {
-          data: faker.string.alpha({ length: { min: 5, max: 20 } }),
-        }
+      it('should return 200', async () => {
+        const body = { data: faker.string.alpha({ length: { min: 5, max: 20 } }) }
         const res = await app.request(`/multi-content`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
