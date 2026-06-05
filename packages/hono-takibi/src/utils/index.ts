@@ -105,6 +105,58 @@ export function makeSafeKey(key: string) {
 }
 
 /**
+ * Escapes unescaped forward slashes in a string that will be embedded inside a
+ * regular-expression literal (`/.../`).
+ *
+ * A value taken from an OpenAPI document (`pattern`, `x-emailRegex`,
+ * `x-urlProtocol`, `x-urlHostname`, …) must not be able to terminate the
+ * generated literal — an unescaped `/` would close it and let arbitrary code
+ * follow. Slashes already escaped (`\/`) are left untouched.
+ *
+ * @param source - The raw regex body from the schema.
+ * @returns The body with every unescaped `/` rewritten as `\/`.
+ *
+ * @example
+ * ```ts
+ * escapeRegexLiteral('^https?$')   // → '^https?$'
+ * escapeRegexLiteral('a/b')        // → 'a\\/b'
+ * escapeRegexLiteral('a\\/b')      // → 'a\\/b'
+ * ```
+ */
+export function escapeRegexLiteral(source: string) {
+  return source.replace(/(?<!\\)\//g, '\\/')
+}
+
+/**
+ * Escapes the HTML special characters in a string that will be embedded as
+ * element text or inside a double-quoted attribute value (`<a href="...">`).
+ *
+ * Free-form OpenAPI fields (`info.title`, `servers[].url`, `info.contact`,
+ * `info.license`, tag names, …) flow into the generated documentation's HTML.
+ * Without escaping, a `&`, `<`, `>`, or `"` in those values breaks the markup
+ * (or injects elements when the docs are rendered). `'` is intentionally left
+ * untouched — it needs no escaping in text or double-quoted attributes, and
+ * escaping it would needlessly churn output for values like `Bob's API`.
+ *
+ * @param source - The raw, untrusted spec string.
+ * @returns The string with `& < > "` replaced by their HTML entities.
+ *
+ * @example
+ * ```ts
+ * escapeHtml('My API')             // → 'My API'
+ * escapeHtml('a?x=1&y=2')          // → 'a?x=1&amp;y=2'
+ * escapeHtml('"><script>')         // → '&quot;&gt;&lt;script&gt;'
+ * ```
+ */
+export function escapeHtml(source: string) {
+  return source
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+/**
  * Converts a string to a valid PascalCase TypeScript identifier.
  *
  * Handles special characters, numbers at the start, and non-ASCII characters
@@ -143,11 +195,7 @@ export function toIdentifierPascalCase(text: string) {
 
 /**
  * Builds a named import line for a module specifier.
- *
- * @param names - Import names to include.
- * @param spec - Module specifier.
- * @param options - Optional sorting behavior.
- * @returns Import line or empty string when no names exist.
+ * Returns an empty string when there are no names to import.
  */
 export function renderNamedImport(names: readonly string[], spec: string) {
   const unique = Array.from(new Set(names))
@@ -156,9 +204,6 @@ export function renderNamedImport(names: readonly string[], spec: string) {
 
 /**
  * Converts the first character of a string to lowercase.
- *
- * @param text - The string to convert.
- * @returns The string with its first character lowercased.
  *
  * @example
  * ```ts
@@ -173,9 +218,6 @@ export function uncapitalize(text: string) {
 
 /**
  * Converts the first character of a string to uppercase.
- *
- * @param text - The string to convert.
- * @returns The string with its first character uppercased.
  *
  * @example
  * ```ts

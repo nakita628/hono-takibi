@@ -254,7 +254,7 @@ export function makeOperationCallbacks(
   return `{${result}}`
 }
 
-export function makeCallback(callback: Callbacks): string {
+export function makeCallback(callback: Callbacks) {
   return Object.entries(callback)
     .map(([callbackKey, pathItem]) => {
       if (isRefObject(pathItem)) {
@@ -278,7 +278,7 @@ export function makeCallbacks(
         }
       },
   readonly?: boolean,
-): string {
+) {
   const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
   const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
     methods
@@ -410,7 +410,7 @@ export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
 }
 
 export function makeRequest(
-  parameters: readonly Parameter[] | undefined,
+  parameters: readonly (Parameter | Reference)[] | undefined,
   requestBody: RequestBody | Reference | undefined,
   readonly?: boolean,
 ) {
@@ -434,12 +434,13 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
 }
 
 export function makeParameters(
-  parameters: readonly Parameter[],
+  parameters: readonly (Parameter | Reference)[],
   readonly?: boolean,
 ): {
   readonly [section: string]: { readonly [k: string]: string }
 } {
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
+    if (!('in' in param)) return acc
     if (!acc[param.in]) acc[param.in] = {}
     if (param.$ref) {
       acc[param.in][makeSafeKey(param.name)] = makeRef(param.$ref)
@@ -489,7 +490,10 @@ export function makeParameters(
   }, {})
 }
 
-export function makeRequestParams(parameters: readonly Parameter[], readonly?: boolean) {
+export function makeRequestParams(
+  parameters: readonly (Parameter | Reference)[],
+  readonly?: boolean,
+) {
   const paramsObject = makeParameters(parameters, readonly)
   const paramsArray = requestParamsArray(paramsObject)
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined

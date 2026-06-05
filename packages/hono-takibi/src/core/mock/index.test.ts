@@ -54,4 +54,43 @@ describe('mock', () => {
     }
     expect(fs.existsSync(output)).toBe(true)
   })
+
+  it('forwards the readonly option to the generator', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mock-readonly-'))
+    const output = path.join(tmpDir, 'mock.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: { id: { type: 'integer' }, name: { type: 'string' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    // readonly !== undefined takes the `{ readonly }` branch of the wrapper.
+    const result = await mock(openAPI, output, '/', true)
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.value).toBe(`Generated mock server written to ${output}`)
+    }
+    expect(fs.existsSync(output)).toBe(true)
+  })
 })

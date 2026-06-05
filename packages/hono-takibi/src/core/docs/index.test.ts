@@ -40,4 +40,21 @@ describe('docs', () => {
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.length).toBeGreaterThan(0)
   })
+
+  it('returns ok:false when the output directory cannot be created', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-docs-'))
+    const blockingFile = path.join(tmpDir, 'block')
+    fs.writeFileSync(blockingFile, 'x')
+    const output = path.join(blockingFile, 'docs.md')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {},
+    }
+    const result = await docs(openAPI, output)
+    expect(result).toStrictEqual({
+      ok: false,
+      error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
+    })
+  })
 })

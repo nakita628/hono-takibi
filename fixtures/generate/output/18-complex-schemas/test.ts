@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -120,9 +120,7 @@ function mockDocument() {
 }
 
 function mockBaseConfig() {
-  return {
-    version: faker.number.int({ min: 1, max: 1000 }),
-  }
+  return { version: faker.number.int({ min: 1, max: 1000 }) }
 }
 
 function mockNetworkConfig() {

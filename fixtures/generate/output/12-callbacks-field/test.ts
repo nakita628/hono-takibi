@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -22,7 +22,7 @@ function mockPaymentRequest() {
 describe('Callbacks Field Name Test', () => {
   describe('default', () => {
     describe('POST /orders', () => {
-      it('Create an order with callback', async () => {
+      it('should return 201 - Create an order with callback', async () => {
         const body = mockOrderRequest()
         const res = await app.request(`/orders`, {
           method: 'POST',
@@ -33,7 +33,7 @@ describe('Callbacks Field Name Test', () => {
       })
     })
     describe('POST /payments', () => {
-      it('Create a payment with multiple callbacks', async () => {
+      it('should return 201 - Create a payment with multiple callbacks', async () => {
         const body = mockPaymentRequest()
         const res = await app.request(`/payments`, {
           method: 'POST',
@@ -44,7 +44,7 @@ describe('Callbacks Field Name Test', () => {
       })
     })
     describe('GET /items', () => {
-      it('List items (no callbacks)', async () => {
+      it('should return 200 - List items (no callbacks)', async () => {
         const res = await app.request(`/items`, { method: 'GET' })
         expect(res.status).toBe(200)
       })

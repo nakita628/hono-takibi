@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { baseError, error } from '../../../utils/index.js'
+import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
@@ -66,7 +66,7 @@ function makeFormatOptions(schema: Schema): readonly string[] {
       const preset = schema['x-emailPattern']
       return [
         regex
-          ? `pattern:/${regex}/`
+          ? `pattern:/${escapeRegexLiteral(regex)}/`
           : preset && EMAIL_PATTERN_PRESET[preset]
             ? `pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`
             : undefined,
@@ -77,8 +77,12 @@ function makeFormatOptions(schema: Schema): readonly string[] {
     case 'url':
     case 'uri':
       return [
-        schema['x-urlProtocol'] ? `protocol:/${schema['x-urlProtocol']}/` : undefined,
-        schema['x-urlHostname'] ? `hostname:/${schema['x-urlHostname']}/` : undefined,
+        schema['x-urlProtocol']
+          ? `protocol:/${escapeRegexLiteral(schema['x-urlProtocol'])}/`
+          : undefined,
+        schema['x-urlHostname']
+          ? `hostname:/${escapeRegexLiteral(schema['x-urlHostname'])}/`
+          : undefined,
         schema['x-urlNormalize'] === true ? 'normalize:true' : undefined,
       ].filter((v) => v !== undefined)
     case 'date-time':
@@ -109,7 +113,7 @@ export function string(
     readonly?: boolean
     isOptional?: boolean
   },
-): string {
+) {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
   const coerce = schema['x-coerce'] === true
@@ -117,8 +121,8 @@ export function string(
   // or non-undefined failure, so issue.input === undefined is unreachable.
   const baseErrorArg = baseError(errorMessage, coerce ? undefined : requiredMessage)
 
-  // Hash: z.hash(algo, { enc }) — special case, algo is a required positional arg.
-  // `x-error-message` directly via `errorInner` below; the format-specific slot
+  // Hash: z.hash(algo, { enc }) — algo is a required positional arg. The hash
+  // branch passes x-error-message via errorInner below; the format-specific slot
   // is reserved for the standard validation-format constructors (email/uuid/url/...).
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
@@ -143,7 +147,6 @@ export function string(
 
   // Decodes the encoded payload, optionally JSON-parses it, then validates
   // against contentSchema. Generates: z.<base>().transform((s) => decoded).pipe(z.<contentSchema>())
-  // schema is keyed by `contentEncoding` / `contentMediaType`).
   const enc = schema.contentEncoding
   const mediaType = schema.contentMediaType
   const contentSchema = schema.contentSchema
@@ -173,7 +176,7 @@ export function string(
         return '.transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))'
       }
       // JSON MIME: try/catch + ctx.addIssue so SyntaxError becomes a Zod
-      // issue rather than an uncaught throw at safeParse time. JSON Schema
+      // issue rather than an uncaught throw at safeParse time.
       if (isJson) {
         const issueExpr = errorMessage
           ? `{code:"custom",message:${JSON.stringify(errorMessage)},params:{cause:e instanceof Error?e.message:String(e)}}`
@@ -258,7 +261,7 @@ export function string(
   const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
   const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
-    ? `.regex(/${schema.pattern.replace(/(?<!\\)\//g, '\\/')}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
+    ? `.regex(/${escapeRegexLiteral(schema.pattern)}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`
     : undefined
   const lengthMessage = schema['x-length-message'] ?? errorMessage
   const lengthMessagePart = lengthMessage ? `,${error(lengthMessage)}` : ''

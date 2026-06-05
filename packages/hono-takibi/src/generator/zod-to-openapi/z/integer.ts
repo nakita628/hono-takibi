@@ -6,7 +6,7 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max constraints and `x-minimum-message` / `x-maximum-message` vendor
  * extensions translated to Zod v4 `{error: "msg"}` parameters.
  */
-export function integer(schema: Schema, options?: { coerce?: boolean }): string {
+export function integer(schema: Schema, options?: { coerce?: boolean }) {
   const coerce = options?.coerce
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']

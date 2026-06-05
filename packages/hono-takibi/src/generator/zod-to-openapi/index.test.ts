@@ -7661,6 +7661,13 @@ describe('zodToOpenAPI', () => {
       )
     })
 
+    it.concurrent('typeless enum with object value falls back to typeless-refine', () => {
+      const result = zodToOpenAPI({ enum: [{ key: 'value' }] } as unknown as Schema)
+      expect(result).toBe(
+        'z.unknown().superRefine((val,ctx)=>{if(![{"key":"value"}].some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue({code:\'custom\'})}})',
+      )
+    })
+
     it.concurrent('const with string value', () => {
       expect(zodToOpenAPI({ const: 'hello' })).toBe('z.literal("hello")')
     })

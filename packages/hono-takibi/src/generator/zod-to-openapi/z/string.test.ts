@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
+import { fmt } from '../../../format/index.js'
 import type { Schema } from '../../../openapi/index.js'
 import { string } from './string.js'
 
@@ -809,6 +810,32 @@ describe('string', () => {
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
+    })
+  })
+
+  describe('regex-literal injection hardening (x-* values escaped)', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'string', format: 'email', 'x-emailRegex': 'a/b' }, 'z.email({pattern:/a\\/b/})'],
+      [{ type: 'string', format: 'uri', 'x-urlProtocol': 'a/b' }, 'z.url({protocol:/a\\/b/})'],
+      [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }, 'z.url({hostname:/a\\/b/})'],
+    ])('string(%o) → %s', (input, expected) => {
+      expect(string(input)).toBe(expected)
+    })
+  })
+
+  // Correctness contract: a forward slash is legal in a JSON Schema `pattern`
+  // (ECMA-262 source) and in the url/email x-* regex values. The generated
+  // code must stay valid TypeScript — the slash must not terminate the emitted
+  // `/.../ ` literal. Verifies the real contract (valid output), not a byte match.
+  describe('forward slash in regex value yields valid TypeScript (fmt accepts)', () => {
+    it.concurrent.each<[Schema]>([
+      [{ type: 'string', pattern: '\\d{4}/\\d{2}/\\d{2}' }],
+      [{ type: 'string', format: 'email', 'x-emailRegex': '^[a-z]+@a/b$' }],
+      [{ type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' }],
+      [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }],
+    ])('fmt(string(%o)) is ok', async (input) => {
+      const result = await fmt(`export const X = ${string(input)}`)
+      expect(result.ok).toBe(true)
     })
   })
 })

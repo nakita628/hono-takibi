@@ -105,7 +105,10 @@ describe('useUsersId (single) — error path', () => {
 describe('usePostUsers (mutation) — generated mutationOptions', () => {
   it('mutationFn returns created user on success', async () => {
     const opts = getPostUsersMutationOptions()
-    const result = await opts.mutationFn?.({ json: { name: 'Charlie' } })
+    const result = await opts.mutationFn?.(
+      { json: { name: 'Charlie' } },
+      {} as Parameters<NonNullable<typeof opts.mutationFn>>[1],
+    )
     expect(result).toStrictEqual({ id: '99', name: 'Charlie' })
   })
 
@@ -113,7 +116,10 @@ describe('usePostUsers (mutation) — generated mutationOptions', () => {
     const opts = getPostUsersMutationOptions()
     let captured: unknown = null
     try {
-      await opts.mutationFn?.({ json: { name: '' } })
+      await opts.mutationFn?.(
+        { json: { name: '' } },
+        {} as Parameters<NonNullable<typeof opts.mutationFn>>[1],
+      )
     } catch (e) {
       captured = e
     }

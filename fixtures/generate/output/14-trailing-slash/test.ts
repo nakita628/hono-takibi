@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -27,9 +27,7 @@ describe('Trailing Slash API', () => {
     })
     describe('POST /posts/', () => {
       it('should return 201 - Create post (trailing slash only)', async () => {
-        const body = {
-          title: faker.lorem.sentence(),
-        }
+        const body = { title: faker.lorem.sentence() }
         const res = await app.request(`/posts/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

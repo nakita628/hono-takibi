@@ -4694,3 +4694,39 @@ This operation does not require authentication
     })
   })
 })
+
+describe('HTML escaping of free-form spec values', () => {
+  const spec: OpenAPI = {
+    openapi: '3.1.0',
+    info: {
+      title: 'Acme <Search> & Co',
+      version: '1.0.0',
+      contact: { name: 'A & B', email: 'a&b@x.com' },
+      license: { name: 'MIT & friends', url: 'https://l.example/?a=1&b=2' },
+    },
+    servers: [{ url: 'https://api.example.com/?x=1&y=2' }],
+    tags: [{ name: 'Orders & Refunds' }],
+    paths: {
+      '/o': {
+        get: {
+          tags: ['Orders & Refunds'],
+          operationId: 'getO',
+          responses: { '200': { description: 'OK' } },
+        },
+      },
+    },
+  }
+
+  it('escapes & < > in title, server url, contact, license, and tag headings', () => {
+    const lines = makeDocs(spec).split('\n')
+    expect(lines).toContain('<h1 id="acme-search-co">Acme &lt;Search&gt; &amp; Co v1.0.0</h1>')
+    expect(lines).toContain(
+      '* <a href="https://api.example.com/?x=1&amp;y=2">https://api.example.com/?x=1&amp;y=2</a>',
+    )
+    expect(lines).toContain('Email: <a href="mailto:a&amp;b@x.com">A &amp; B</a> ')
+    expect(lines).toContain(
+      'License: <a href="https://l.example/?a=1&amp;b=2">MIT &amp; friends</a>',
+    )
+    expect(lines).toContain('<h1 id="acme-search-co-orders-refunds">Orders &amp; Refunds</h1>')
+  })
+})

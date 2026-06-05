@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -16,13 +16,13 @@ function mockTreeNode(): any {
 describe('Circular References API', () => {
   describe('default', () => {
     describe('GET /tree', () => {
-      it('GET /tree', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/tree`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('POST /tree', () => {
-      it('POST /tree', async () => {
+      it('should return 201', async () => {
         const body = mockTreeNode()
         const res = await app.request(`/tree`, {
           method: 'POST',
@@ -33,7 +33,7 @@ describe('Circular References API', () => {
       })
     })
     describe('GET /graph', () => {
-      it('GET /graph', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/graph`, { method: 'GET' })
         expect(res.status).toBe(200)
       })

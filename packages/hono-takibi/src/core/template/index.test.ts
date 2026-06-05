@@ -39,4 +39,37 @@ describe('template', () => {
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(true)
   })
+
+  it('merges into an existing app file, preserving custom imports', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-merge-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    // Pre-existing app file with a hand-added import. Regeneration must take the
+    // merge branch (existing !== null); mergeImports keeps the custom import.
+    fs.writeFileSync(
+      path.join(tmpDir, 'index.ts'),
+      `import { OpenAPIHono } from '@hono/zod-openapi'
+import { customThing } from './custom-marker'
+
+export const api = new OpenAPIHono()
+`,
+    )
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    expect(result.ok).toBe(true)
+    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
+    expect(content.includes('custom-marker')).toBe(true)
+  })
 })

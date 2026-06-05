@@ -78,7 +78,7 @@ function makeMethodType(
   operation: Operation,
   openApiPath: string,
   components: Components | undefined,
-  pathLevelParams: readonly Parameter[] | readonly Reference[],
+  pathLevelParams: readonly (Parameter | Reference)[],
 ) {
   const inputType = makeInputType(operation, openApiPath, components, pathLevelParams)
   const outputTypes = makeOutputTypes(operation.responses, components, inputType)
@@ -93,7 +93,7 @@ function makeInputType(
   operation: Operation,
   openApiPath: string,
   components: Components | undefined,
-  pathLevelParams: readonly Parameter[] | readonly Reference[],
+  pathLevelParams: readonly (Parameter | Reference)[],
 ) {
   const pathLevelResolved = pathLevelParams
     .map((p) => makeResolvedParameter(p, components))
@@ -473,7 +473,7 @@ function makeArrayTypeString(
   return makeWrappedArrayType(makeSchemaTypeString(items, components, visited))
 }
 
-function makeWrappedArrayType(typeStr: string): string {
+function makeWrappedArrayType(typeStr: string) {
   return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
 }
 

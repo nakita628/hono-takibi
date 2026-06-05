@@ -75,7 +75,7 @@ export function isParameter(v: unknown): v is Parameter {
   )
 }
 
-export function isParameterArray(v: unknown): v is readonly Parameter[] | readonly Reference[] {
+export function isParameterArray(v: unknown): v is readonly (Parameter | Reference)[] {
   return Array.isArray(v)
 }
 

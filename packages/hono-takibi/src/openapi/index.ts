@@ -320,7 +320,7 @@ export type PathItem = {
     readonly [k: string]: Operation
   }
   readonly servers?: readonly Server[]
-  readonly parameters?: readonly Parameter[] | readonly Reference[]
+  readonly parameters?: readonly (Parameter | Reference)[]
 }
 
 export type Operation = {
@@ -332,7 +332,7 @@ export type Operation = {
     readonly url: string
   }
   readonly operationId?: string
-  readonly parameters?: readonly Parameter[]
+  readonly parameters?: readonly (Parameter | Reference)[]
   readonly requestBody?: RequestBody | Reference
   readonly responses: {
     readonly [k: string]: Responses
@@ -514,10 +514,8 @@ export type Schema = {
   readonly 'x-contains-message'?: string // array contains (type-match presence)
   readonly 'x-minContains-message'?: string // array minContains (count lower bound)
   readonly 'x-maxContains-message'?: string // array maxContains (count upper bound)
-  // schemas so generated validators stop emitting hardcoded English defaults.
   // Slot absent → `ctx.addIssue` omits `message` → Zod's built-in default
   // ('Invalid input') is used, picking up future locale config automatically.
-  //
   readonly 'x-properties-message'?: string // failed per-property validation in a typeless object
   readonly 'x-prefixItems-message'?: string // failed tuple position validation
   readonly 'x-items-message'?: string // failed trailing items validation (incl. `items: false`)
@@ -642,7 +640,7 @@ export type Parameter = {
   readonly style?: string
   readonly explode?: boolean
   readonly allowReserved?: boolean
-  readonly schema: Schema
+  readonly schema?: Schema
   readonly content?: Content
   readonly example?: unknown
   readonly examples?: {

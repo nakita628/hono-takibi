@@ -1,4 +1,5 @@
 import type { Schema } from '../../openapi/index.js'
+import { escapeRegexLiteral } from '../../utils/index.js'
 
 const FORMAT_TO_FAKER: { [k: string]: string } = {
   date: 'faker.date.past().toISOString().slice(0, 10)',
@@ -157,7 +158,7 @@ export function schemaToFaker(
   if (schema.type && typeof schema.type === 'string' && TYPE_TO_FAKER[schema.type]) {
     if (schema.type === 'string') {
       if (schema.pattern) {
-        return `faker.helpers.fromRegExp(/${schema.pattern}/)`
+        return `faker.helpers.fromRegExp(/${escapeRegexLiteral(schema.pattern)}/)`
       }
       const min = schema.minLength ?? 5
       const max = schema.maxLength ?? 20

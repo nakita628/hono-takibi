@@ -1,17 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
 describe('Security Schemes API', () => {
   describe('default', () => {
     describe('GET /public', () => {
-      it('GET /public', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/public`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /bearer-protected', () => {
-      it('GET /bearer-protected', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/bearer-protected`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
@@ -24,7 +24,7 @@ describe('Security Schemes API', () => {
       })
     })
     describe('GET /api-key-protected', () => {
-      it('GET /api-key-protected', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/api-key-protected`, {
           method: 'GET',
           headers: { 'X-API-Key': faker.string.alphanumeric(32) },
@@ -37,7 +37,7 @@ describe('Security Schemes API', () => {
       })
     })
     describe('GET /basic-protected', () => {
-      it('GET /basic-protected', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/basic-protected`, {
           method: 'GET',
           headers: {
@@ -52,7 +52,7 @@ describe('Security Schemes API', () => {
       })
     })
     describe('GET /oauth-protected', () => {
-      it('GET /oauth-protected', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/oauth-protected`, {
           method: 'GET',
           headers: { Authorization: `Bearer ${faker.string.alphanumeric(32)}` },
@@ -65,7 +65,7 @@ describe('Security Schemes API', () => {
       })
     })
     describe('GET /multi-auth', () => {
-      it('GET /multi-auth', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/multi-auth`, {
           method: 'GET',
           headers: {

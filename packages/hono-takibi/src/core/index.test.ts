@@ -5,32 +5,26 @@ import * as core from './index.js'
 describe('core barrel exports', () => {
   it.concurrent('exposes the exact expected export names', () => {
     expect(Object.keys(core).sort()).toStrictEqual([
-      'angularQuery',
       'callbacks',
       'docs',
       'examples',
       'headers',
+      'hooks',
       'links',
       'mediaTypes',
       'mock',
       'parameters',
       'pathItems',
-      'preactQuery',
       'requestBodies',
       'responses',
       'route',
       'rpc',
       'schemas',
       'securitySchemes',
-      'solidQuery',
-      'svelteQuery',
-      'swr',
       'takibi',
-      'tanstackQuery',
       'template',
       'test',
       'type',
-      'vueQuery',
       'webhooks',
     ])
   })

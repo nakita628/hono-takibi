@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "version": "0.9.9996",
+  "version": "0.9.9997",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
@@ -40,33 +40,9 @@
       "types": "./dist/core/rpc/index.d.ts",
       "import": "./dist/core/rpc/index.js"
     },
-    "./swr": {
-      "types": "./dist/core/swr/index.d.ts",
-      "import": "./dist/core/swr/index.js"
-    },
-    "./tanstack-query": {
-      "types": "./dist/core/tanstack-query/index.d.ts",
-      "import": "./dist/core/tanstack-query/index.js"
-    },
-    "./svelte-query": {
-      "types": "./dist/core/svelte-query/index.d.ts",
-      "import": "./dist/core/svelte-query/index.js"
-    },
-    "./vue-query": {
-      "types": "./dist/core/vue-query/index.d.ts",
-      "import": "./dist/core/vue-query/index.js"
-    },
-    "./preact-query": {
-      "types": "./dist/core/preact-query/index.d.ts",
-      "import": "./dist/core/preact-query/index.js"
-    },
-    "./solid-query": {
-      "types": "./dist/core/solid-query/index.d.ts",
-      "import": "./dist/core/solid-query/index.js"
-    },
-    "./angular-query": {
-      "types": "./dist/core/angular-query/index.d.ts",
-      "import": "./dist/core/angular-query/index.js"
+    "./hooks": {
+      "types": "./dist/core/hooks/index.d.ts",
+      "import": "./dist/core/hooks/index.js"
     },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
@@ -89,7 +65,7 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.12.0",
     "@typespec/openapi3": "^1.12.0",
-    "oxfmt": "^0.51.0",
+    "oxfmt": "^0.53.0",
     "ts-morph": "^28.0.0",
     "typescript": "^6.0.3",
     "zod": "^4.4.3"
@@ -99,6 +75,6 @@
     "@typespec/http": "^1.12.0",
     "@typespec/rest": "^0.82.0",
     "@typespec/versioning": "^0.82.0",
-    "tsdown": "0.22.0"
+    "tsdown": "0.22.1"
   }
 }

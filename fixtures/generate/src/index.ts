@@ -2,16 +2,20 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import SwaggerParser from '@apidevtools/swagger-parser'
-import { angularQuery } from 'hono-takibi/angular-query'
-import { preactQuery } from 'hono-takibi/preact-query'
+import { hooks } from 'hono-takibi/hooks'
 import { rpc } from 'hono-takibi/rpc'
-import { solidQuery } from 'hono-takibi/solid-query'
-import { svelteQuery } from 'hono-takibi/svelte-query'
-import { swr } from 'hono-takibi/swr'
-import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type } from 'hono-takibi/type'
-import { vueQuery } from 'hono-takibi/vue-query'
 import { docs, mock, takibi, test } from '../../../packages/hono-takibi/src/core/index.js'
+
+const QUERY_LIBRARIES = [
+  'swr',
+  'tanstack-query',
+  'svelte-query',
+  'vue-query',
+  'solid-query',
+  'preact-query',
+  'angular-query',
+] as const
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OPENAPI_DIR = path.resolve(__dirname, '..', 'openapi')
@@ -91,18 +95,48 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
     { mode: 'readonly-routes', fn: () => takibi(openAPI, `${outDir}/readonly-routes.ts`, { ...flags, readonly: true }) },
     { mode: 'type', fn: () => type(openAPI, `${outDir}/type.ts`) },
     { mode: 'rpc', fn: () => rpc(openAPI, `${outDir}/rpc.ts`, './client', false, 'client', false) },
-    { mode: 'swr', fn: () => swr(openAPI, `${outDir}/swr.ts`, './client', false, 'client') },
-    { mode: 'tanstack-query', fn: () => tanstackQuery(openAPI, `${outDir}/tanstack-query.ts`, './client', false, 'client') },
-    { mode: 'svelte-query', fn: () => svelteQuery(openAPI, `${outDir}/svelte-query.ts`, './client', false, 'client') },
-    { mode: 'vue-query', fn: () => vueQuery(openAPI, `${outDir}/vue-query.ts`, './client', false, 'client') },
-    { mode: 'solid-query', fn: () => solidQuery(openAPI, `${outDir}/solid-query.ts`, './client', false, 'client') },
-    { mode: 'preact-query', fn: () => preactQuery(openAPI, `${outDir}/preact-query.ts`, './client', false, 'client') },
-    { mode: 'angular-query', fn: () => angularQuery(openAPI, `${outDir}/angular-query.ts`, './client', false, 'client') },
+    ...QUERY_LIBRARIES.map((library) => ({
+      mode: library,
+      fn: () => hooks(openAPI, `${outDir}/${library}.ts`, './client', library, { clientName: 'client' }),
+    })),
     { mode: 'mock', fn: () => mock(openAPI, `${outDir}/mock.ts`, '/') },
     { mode: 'test', fn: () => test(openAPI, `${outDir}/test.ts`, './mock') },
     { mode: 'parse-response', fn: () => rpc(openAPI, `${outDir}/parse-response.ts`, './client', false, 'client', true) },
     { mode: 'docs', fn: () => docs(openAPI, `${outDir}/docs.md`, 'src/index.ts') },
   ]
+}
+
+// One representative spec also exercises split mode so the per-endpoint file
+// layout + barrel re-export resolution is type-checked (the single-file path
+// above does not cover barrel resolution).
+const SPLIT_COVERAGE_SPEC = '10-comprehensive'
+
+// Barrel re-export resolution is framework-independent (`export * from './op'`),
+// so a couple representative frameworks suffice; keep the set small so the
+// shared `tsc` pass stays within memory.
+const SPLIT_LIBRARIES = ['tanstack-query', 'swr'] as const
+
+const toCamel = (s: string) => s.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+
+function makeSplitTasks(openAPI: Parameters<typeof type>[0], outDir: string) {
+  return SPLIT_LIBRARIES.map((library) => ({
+    mode: `split:${library}`,
+    fn: () =>
+      hooks(openAPI, `${outDir}/split/${library}/hooks.ts`, '../../client', library, {
+        split: true,
+        clientName: 'client',
+      }),
+  }))
+}
+
+// A consumer that namespace-imports every split barrel, forcing tsc to resolve
+// each `index.ts` re-export (catches dangling imports / unresolved members).
+function makeSplitConsumer(outDir: string) {
+  const imports = SPLIT_LIBRARIES.map(
+    (library) => `import * as ${toCamel(library)} from './split/${library}'`,
+  ).join('\n')
+  const refs = SPLIT_LIBRARIES.map(toCamel).join(', ')
+  fs.writeFileSync(`${outDir}/split-consumer.ts`, `${imports}\n\nexport const _splitBarrels = [${refs}] as const\n`)
 }
 
 async function makeResults(spec: (typeof SPECS)[number]) {
@@ -111,8 +145,13 @@ async function makeResults(spec: (typeof SPECS)[number]) {
   fs.mkdirSync(outDir, { recursive: true })
   makeClientStub(outDir)
 
-  return Promise.all(
-    makeTasks(openAPI, outDir, spec.flags).map(async ({ mode, fn }) => {
+  const tasks =
+    spec.name === SPLIT_COVERAGE_SPEC
+      ? [...makeTasks(openAPI, outDir, spec.flags), ...makeSplitTasks(openAPI, outDir)]
+      : makeTasks(openAPI, outDir, spec.flags)
+
+  const results = await Promise.all(
+    tasks.map(async ({ mode, fn }) => {
       try {
         const r = await fn()
         return r.ok ? { spec: spec.name, mode, ok: true as const } : { spec: spec.name, mode, ok: false as const, error: r.error }
@@ -121,6 +160,10 @@ async function makeResults(spec: (typeof SPECS)[number]) {
       }
     }),
   )
+
+  if (spec.name === SPLIT_COVERAGE_SPEC) makeSplitConsumer(outDir)
+
+  return results
 }
 
 async function main() {

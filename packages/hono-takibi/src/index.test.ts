@@ -829,7 +829,7 @@ export const postItemsIdRoute = createRoute({
         `node ${path.resolve('packages/hono-takibi/dist/index.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
         { encoding: 'utf-8' },
       )
-    }).toThrow()
+    }).toThrow(/ENOENT: no such file or directory/)
   })
 
   it('error on missing output option', { timeout: 10000 }, () => {
@@ -846,7 +846,7 @@ export const postItemsIdRoute = createRoute({
           encoding: 'utf-8',
         },
       )
-    }).toThrow()
+    }).toThrow(/Usage: hono-takibi/)
   })
 })
 

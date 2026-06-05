@@ -4,6 +4,7 @@ import {
   isContentBody,
   isHttpMethod,
   isOperation,
+  isParameter,
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
@@ -90,7 +91,7 @@ export function extractTestCases(spec: OpenAPI) {
           ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
             rawParam)
           : rawParam
-        if (!param) return [] as const
+        if (!isParameter(param)) return [] as const
         const schema = param.schema || { type: 'string' as const }
         return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }] as const
       })
@@ -209,7 +210,9 @@ function topologicalOrder(
     const depOrder = schema
       ? collectSchemaRefs(schema, schemas, new Set([name])).flatMap((dep) => {
           const subOrder = visit(dep, visited, nextVisiting)
-          for (const n of subOrder) visited.add(n)
+          for (const n of subOrder) {
+            visited.add(n)
+          }
           return subOrder
         })
       : ([] as const)

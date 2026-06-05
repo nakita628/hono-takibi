@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -33,7 +33,7 @@ function mockShape() {
 describe('Schema Edge Cases API', () => {
   describe('default', () => {
     describe('POST /nullable', () => {
-      it('POST /nullable', async () => {
+      it('should return 200', async () => {
         const body = mockNullableFields()
         const res = await app.request(`/nullable`, {
           method: 'POST',
@@ -44,7 +44,7 @@ describe('Schema Edge Cases API', () => {
       })
     })
     describe('POST /discriminated', () => {
-      it('POST /discriminated', async () => {
+      it('should return 200', async () => {
         const body = mockShape()
         const res = await app.request(`/discriminated`, {
           method: 'POST',
@@ -55,19 +55,19 @@ describe('Schema Edge Cases API', () => {
       })
     })
     describe('GET /composed', () => {
-      it('GET /composed', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/composed`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /deep-nested', () => {
-      it('GET /deep-nested', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/deep-nested`, { method: 'GET' })
         expect(res.status).toBe(200)
       })
     })
     describe('GET /additional-props', () => {
-      it('GET /additional-props', async () => {
+      it('should return 200', async () => {
         const res = await app.request(`/additional-props`, { method: 'GET' })
         expect(res.status).toBe(200)
       })

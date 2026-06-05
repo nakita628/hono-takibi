@@ -18,6 +18,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
+import { escapeHtml } from '../../utils/index.js'
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
 
@@ -31,7 +32,7 @@ type Endpoint = {
 
 const MAX_SCHEMA_DEPTH = 50
 
-function toSlug(text: string): string {
+function toSlug(text: string) {
   const str = typeof text === 'string' ? text : String(text ?? '')
   return str
     .replace(/[A-Z]/g, (c) => c.toLowerCase())
@@ -39,7 +40,7 @@ function toSlug(text: string): string {
     .replace(/\s+/g, '-')
 }
 
-function toTitleSlug(title: string): string {
+function toTitleSlug(title: string) {
   const str = typeof title === 'string' ? title : String(title ?? '')
   return str
     .toLowerCase()
@@ -90,7 +91,7 @@ function resolveRef(ref: string, components: Components | undefined): unknown {
   return sectionObj[name]
 }
 
-function refName(ref: string): string {
+function refName(ref: string) {
   return ref.split('/').at(-1) ?? ''
 }
 
@@ -104,7 +105,7 @@ function resolveResponse(response: Responses, components: Components | undefined
  * Formats a schema type string as widdershins does.
  * Examples: "string(email)", "integer(int64)", "[User](#schemauser)", "[[User](#schemauser)]"
  */
-function formatSchemaType(schema: Schema, _components: Components | undefined): string {
+function formatSchemaType(schema: Schema | undefined, _components: Components | undefined): string {
   if (!schema) return 'object'
   if (schema.$ref) {
     const name = refName(schema.$ref)
@@ -130,7 +131,7 @@ function formatSchemaType(schema: Schema, _components: Components | undefined): 
  * @see https://www.rfc-editor.org/rfc/rfc5737 - Documentation IPv4 (192.0.2.0/24)
  * @see https://www.rfc-editor.org/rfc/rfc3849 - Documentation IPv6 (2001:DB8::/32)
  */
-function makeDefaultString(format: string | undefined): string {
+function makeDefaultString(format: string | undefined) {
   switch (format) {
     case 'email':
       return 'user@example.com'
@@ -427,7 +428,7 @@ function makeCodeSampleBody(
   return JSON.stringify(example, null, 2)
 }
 
-function indentJsonBody(body: string): string {
+function indentJsonBody(body: string) {
   const lines = body.split('\n')
   if (lines.length <= 1) return body
   return [lines[0], ...lines.slice(1).map((l) => `  ${l}`)].join('\n')
@@ -508,7 +509,7 @@ function resolveOperationParameters(operation: Operation, components: Components
       if (isParameter(resolved)) return [resolved]
       return [] as const
     }
-    return [parameter] as const
+    return isParameter(parameter) ? [parameter] : ([] as const)
   })
 }
 
@@ -915,6 +916,7 @@ function collectEnumeratedValues(
   if (operation.parameters) {
     for (const p of operation.parameters) {
       if ('$ref' in p && p.$ref) continue
+      if (!isParameter(p)) continue
       if (p.schema?.enum) {
         for (const v of p.schema.enum) {
           rows.push({ param: p.name, value: v })
@@ -1129,7 +1131,7 @@ export function makeDocs(
   const titleSlug = toTitleSlug(title)
   const securitySchemes = openAPI.components?.securitySchemes
   const lines: string[] = []
-  lines.push(`<h1 id="${titleSlug}">${fullTitle}</h1>`, '')
+  lines.push(`<h1 id="${titleSlug}">${escapeHtml(fullTitle)}</h1>`, '')
   lines.push(
     '> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.',
     '',
@@ -1140,18 +1142,20 @@ export function makeDocs(
   if (openAPI.servers && openAPI.servers.length > 0) {
     lines.push('Base URLs:', '')
     for (const server of openAPI.servers) {
-      lines.push(`* <a href="${server.url}">${server.url}</a>`, '')
+      lines.push(`* <a href="${escapeHtml(server.url)}">${escapeHtml(server.url)}</a>`, '')
     }
   }
   if (openAPI.info?.contact?.email && openAPI.info?.contact?.name) {
     lines.push(
-      `Email: <a href="mailto:${openAPI.info.contact.email}">${openAPI.info.contact.name}</a> `,
+      `Email: <a href="mailto:${escapeHtml(openAPI.info.contact.email)}">${escapeHtml(openAPI.info.contact.name)}</a> `,
     )
   }
   if (openAPI.info?.license?.name) {
     const licenseUrl = openAPI.info.license.url
     if (licenseUrl) {
-      lines.push(`License: <a href="${licenseUrl}">${openAPI.info.license.name}</a>`)
+      lines.push(
+        `License: <a href="${escapeHtml(licenseUrl)}">${escapeHtml(openAPI.info.license.name)}</a>`,
+      )
     } else {
       lines.push(`License: ${openAPI.info.license.name}`)
     }
@@ -1167,7 +1171,7 @@ export function makeDocs(
   const tagGroups = groupByTag(endpoints, openAPI)
   for (const group of tagGroups) {
     const tagSlug = toSlug(group.name)
-    lines.push(`<h1 id="${titleSlug}-${tagSlug}">${group.name}</h1>`, '')
+    lines.push(`<h1 id="${titleSlug}-${tagSlug}">${escapeHtml(group.name)}</h1>`, '')
     if (group.description) {
       lines.push(group.description, '')
     }
