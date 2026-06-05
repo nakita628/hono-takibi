@@ -582,7 +582,7 @@ describe('parseConfig()', () => {
       }
     })
 
-    it.concurrent('basePath is optional (undefined by default)', () => {
+    it.concurrent('defaults basePath to "/" when omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         'zod-openapi': {
@@ -591,7 +591,7 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        expect(result.value.basePath).toBeUndefined()
+        expect(result.value.basePath).toBe('/')
       }
     })
 

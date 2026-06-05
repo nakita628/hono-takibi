@@ -314,7 +314,7 @@ export function makeJob(
               openAPI,
               output,
               config.test?.import ?? '',
-              config.basePath ?? '/',
+              config.basePath,
               config.test?.testFramework,
             ),
         }
@@ -325,7 +325,7 @@ export function makeJob(
           output: config.mock.output,
           split: false,
           run: (output: string) =>
-            mock(openAPI, output, config.basePath ?? '/', config['zod-openapi']?.readonly),
+            mock(openAPI, output, config.basePath, config['zod-openapi']?.readonly),
         }
       : undefined,
     config.docs
@@ -338,7 +338,7 @@ export function makeJob(
               openAPI,
               output,
               config.docs?.entry,
-              config.basePath ?? '/',
+              config.basePath,
               config.docs?.curl,
               config.docs?.baseUrl,
             ),
@@ -358,7 +358,7 @@ export function makeJob(
               openAPI,
               output,
               config['zod-openapi']?.template?.test ?? false,
-              config.basePath ?? '/',
+              config.basePath,
               config['zod-openapi']?.template?.pathAlias,
               config['zod-openapi']?.routes?.import,
               config['zod-openapi']?.template?.routeHandler ?? false,

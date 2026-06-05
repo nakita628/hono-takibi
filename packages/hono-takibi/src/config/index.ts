@@ -102,7 +102,7 @@ const ConfigSchema = z
     input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
       error: 'must be .yaml | .json | .tsp',
     }),
-    basePath: z.string().exactOptional(),
+    basePath: z.string().default('/'),
     format: z.custom<FormatConfig>(() => true).exactOptional(),
     'zod-openapi': z
       .object({
