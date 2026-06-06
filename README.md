@@ -210,7 +210,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   'tanstack-query': {
     output: './src/tanstack-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
@@ -237,7 +237,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   test: {
     output: './src/test.ts',
-    import: '../index',
+    import: '.',
     testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
   },
 })
@@ -416,7 +416,7 @@ export default defineConfig({
   // RPC client generation
   rpc: {
     output: './src/rpc',
-    import: '../client', // Import path for the Hono RPC client
+    import: '../lib', // Import path for the Hono RPC client
     split: true,
     client: 'client', // Export name of the client instance
     parseResponse: true, // Use parseResponse for type-safe responses
@@ -425,43 +425,43 @@ export default defineConfig({
   // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
   swr: {
     output: './src/swr',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'tanstack-query': {
     output: './src/tanstack-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'preact-query': {
     output: './src/preact-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'solid-query': {
     output: './src/solid-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'vue-query': {
     output: './src/vue-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'svelte-query': {
     output: './src/svelte-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'angular-query': {
     output: './src/angular-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
@@ -469,7 +469,7 @@ export default defineConfig({
   // Test generation
   test: {
     output: './src/test.ts',
-    import: '../index', // Import path for the app instance
+    import: '.', // Import path for the app instance
     testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
   },
 
