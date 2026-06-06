@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 

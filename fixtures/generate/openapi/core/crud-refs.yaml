@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Readonly Split API
+  title: CRUD Refs API
   version: 1.0.0
 paths:
   /posts:
