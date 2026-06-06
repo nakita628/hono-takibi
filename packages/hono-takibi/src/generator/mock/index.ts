@@ -293,14 +293,13 @@ function makeAuthCheck(
     return []
   })
   if (authChecks.length === 0) return ''
-  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, ${401})}`
+  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, 401)}`
 }
 
 function makeHandlerBody(
   statusCode: number,
   jsonSchema: Schema | undefined,
   textSchema: Schema | undefined,
-  hasNoContent: boolean,
   schemas: { readonly [k: string]: Schema },
   allRefs: Set<string>,
 ) {
@@ -313,7 +312,7 @@ function makeHandlerBody(
     const mockData = schemaToFaker(textSchema, undefined, { schemas })
     return `return c.text(${mockData}, ${statusCode})`
   }
-  if (hasNoContent) return `return new Response(null, { status: ${204} })`
+  if (statusCode === 204) return `return new Response(null, { status: 204 })`
   return `return c.body(null, ${statusCode})`
 }
 
@@ -347,14 +346,7 @@ export function makeMock(
       const textMedia = successResponse?.content?.['text/plain']
       const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
       const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-      const handlerBody = makeHandlerBody(
-        statusCode,
-        jsonSchema,
-        textSchema,
-        statusCode === 204,
-        schemas,
-        allRefs,
-      )
+      const handlerBody = makeHandlerBody(statusCode, jsonSchema, textSchema, schemas, allRefs)
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)

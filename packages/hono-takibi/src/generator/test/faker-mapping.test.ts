@@ -202,6 +202,47 @@ describe('schemaToFaker', () => {
     it.concurrent('uses format for uuid', () => {
       expect(schemaToFaker({ type: 'string', format: 'uuid' })).toBe('faker.string.uuid()')
     })
+
+    it.concurrent('generates a number for int32 (z.int32() is a number)', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int32' })).toBe(
+        'faker.number.int({ min: -2147483648, max: 2147483647 })',
+      )
+    })
+
+    it.concurrent('generates a bigint for int64 (z.int64() is a bigint)', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int64' })).toBe(
+        'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
+      )
+    })
+
+    it.concurrent('generates a bigint for the bigint format', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'bigint' })).toBe(
+        'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
+      )
+    })
+
+    it.concurrent('keeps float as a number', () => {
+      expect(schemaToFaker({ type: 'number', format: 'float' })).toBe(
+        'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('keeps double as a number', () => {
+      expect(schemaToFaker({ type: 'number', format: 'double' })).toBe(
+        'faker.number.float({ min: 0, max: 1000000, fractionDigits: 4 })',
+      )
+    })
+
+    it.concurrent('generates a bigint for an optional int64 object property', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          properties: { id: { type: 'integer', format: 'int64' } },
+        }),
+      ).toBe(
+        '{ id: faker.helpers.arrayElement([faker.number.bigInt({ min: 0n, max: 9007199254740991n }), undefined]) }',
+      )
+    })
   })
 
   describe('property name heuristics', () => {
