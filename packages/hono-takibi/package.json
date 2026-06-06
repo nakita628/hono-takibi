@@ -71,10 +71,10 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^25.9.2",
     "@typespec/http": "^1.12.0",
     "@typespec/rest": "^0.82.0",
     "@typespec/versioning": "^0.82.0",
-    "tsdown": "0.22.1"
+    "tsdown": "0.22.2"
   }
 }
