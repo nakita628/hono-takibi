@@ -91,9 +91,9 @@ describe('parseResponse', () => {
       const result = await parseResponse(
         client.update[':id'].$put({
           param: { id: '42' },
-          // biome-ignore lint/suspicious/noExplicitAny: testing runtime behavior
-          json: { name: 'Updated Item' } as any,
-        }),
+          json: { name: 'Updated Item' },
+          // biome-ignore lint/suspicious/noExplicitAny: untyped route — server parses json manually (no validator)
+        } as any),
       )
 
       expect(result).toStrictEqual({

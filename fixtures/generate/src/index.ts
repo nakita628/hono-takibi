@@ -74,6 +74,7 @@ const SPECS = [
   { name: '14-trailing-slash', yaml: 'trailing/trailing-slash.yaml', flags: NO_EXPORTS },
   { name: '15-readonly-ref', yaml: 'readonly/readonly-ref.yaml', flags: { ...NO_EXPORTS, exportResponses: true, exportRequestBodies: true, exportExamples: true } },
   { name: '16-trailing-slash-real', yaml: 'trailing/trailing-slash-real.yaml', flags: NO_EXPORTS },
+  { name: '17-default-response', yaml: 'core/default-response.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
   { name: '18-complex-schemas', yaml: 'schema/complex.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
   { name: '19-brand', yaml: 'vendor/brand.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
   { name: '20-pagination', yaml: 'vendor/pagination.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
