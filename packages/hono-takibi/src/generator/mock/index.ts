@@ -254,14 +254,15 @@ function resolveSuccessResponse(
   const others = keys
     .filter(
       (key) =>
-        !priority.includes(key) &&
-        statusCodeToNumber(key) >= 200 &&
-        statusCodeToNumber(key) < 300,
+        !priority.includes(key) && statusCodeToNumber(key) >= 200 && statusCodeToNumber(key) < 300,
     )
     .sort((a, b) => statusCodeToNumber(a) - statusCodeToNumber(b))
   const key = [...priority, ...others][0]
   if (!key) return undefined
-  return { statusCode: statusCodeToNumber(key), response: resolveResponse(responses[key], componentResponses) }
+  return {
+    statusCode: statusCodeToNumber(key),
+    response: resolveResponse(responses[key], componentResponses),
+  }
 }
 
 /**
