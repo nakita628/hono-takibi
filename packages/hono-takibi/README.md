@@ -201,6 +201,61 @@ export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 export default app
 ```
 
+#### `define: true`
+
+Each route co-locates its `createRoute(...)` definition with a handler inside
+[`defineOpenAPIRoute`](https://www.npmjs.com/package/@hono/zod-openapi), grouped by resource under
+`handlers/`. Routes register in one shot via `app.openapiRoutes([...])`, and component schemas are
+emitted to `components/index.ts` (override with `components.output`). `define` and `routeHandler`
+are mutually exclusive. Requires `@hono/zod-openapi@^1`.
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/index.ts', // app entry point
+    template: { define: true },
+    // template: { define: true, output: './src/routes' }, // route/handler dir (default: ./src/handlers)
+    // components: { output: './src/components/index.ts' }, // optional override
+  },
+})
+```
+
+```ts
+// src/handlers/users.ts
+import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    request: { params: z.object({ id: z.string() }) },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+```
+
+Handlers are generated empty for you to implement (the empty body does not type-check until it returns a response — the same convention as the other modes). Re-running preserves each route's handler; because the route definition and handler share one `defineOpenAPIRoute({ route, handler })` export, a route you have already edited is kept as-is and its `route` is not re-synced from the spec — delete the export to regenerate it from the latest spec.
+
+```ts
+// src/index.ts
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getUsersIdRoute] as const)
+
+export default app
+```
+
+The route/handler files default to `<output dir>/handlers`; set `template.output` (e.g. `./src/routes` or `./src/controllers`) to change it. Changing it does not move or delete files from the old directory.
+
 ## Client Library Integrations
 
 Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query, RPC Client.
@@ -308,6 +363,8 @@ export default defineConfig({
     template: {
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
+      define: false, // true: defineOpenAPIRoute output (mutually exclusive with routeHandler)
+      // output: './src/routes', // define mode: route/handler dir (default ./src/handlers)
       pathAlias: '@/', // TypeScript path alias for imports
       testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
     },
@@ -343,8 +400,13 @@ export default defineConfig({
       import: '@packages/webhooks',
     },
 
-    // Split components into separate files
+    // Components output.
+    // Use `output` for single-file mode (all components in one file),
+    // OR the per-type fields below for split mode (mutually exclusive).
     components: {
+      // Single-file mode: every component (schemas, responses, parameters, ...) in one file
+      output: './src/components/index.ts',
+
       schemas: {
         output: './src/schemas',
         exportTypes: true,

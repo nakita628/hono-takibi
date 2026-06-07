@@ -567,6 +567,144 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('template define / routeHandler mutual exclusivity', () => {
+    it.concurrent('fails when both define and routeHandler are true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { define: true, routeHandler: true },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.template: define and routeHandler are mutually exclusive. Use define for defineOpenAPIRoute output, or routeHandler for RouteHandler exports.',
+        )
+      }
+    })
+
+    it.concurrent('passes with define only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { define: true },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes with routeHandler only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { routeHandler: true },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('fails when define is true but output is missing', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          template: { define: true },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi: template.define requires zod-openapi.output (the app entry file, e.g. ./src/index.ts).',
+        )
+      }
+    })
+
+    it.concurrent('passes with template.output and define', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { define: true, output: 'src/routes' },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('fails when template.output is set without define', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { output: 'src/routes' },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.template: template.output is only supported with template.define: true.',
+        )
+      }
+    })
+
+    it.concurrent('fails when template.output is a .ts file', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          output: 'src/index.ts',
+          template: { define: true, output: 'src/routes.ts' },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.template.output: template.output must be a directory, not a .ts file',
+        )
+      }
+    })
+  })
+
+  describe('components.output / per-type mutual exclusivity', () => {
+    it.concurrent('fails when both output and a per-type component are specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            output: 'src/components/index.ts',
+            schemas: { output: 'src/schemas' },
+          },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: zod-openapi.components: components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
+        )
+      }
+    })
+
+    it.concurrent('passes with components.output only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: { output: 'src/components/index.ts' },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes with per-type components only', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: { schemas: { output: 'src/schemas' } },
+        },
+      })
+      expect(result.ok).toBe(true)
+    })
+  })
+
   describe('basePath option', () => {
     it.concurrent('accepts top-level basePath', () => {
       const result = parseConfig({

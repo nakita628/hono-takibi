@@ -1,6 +1,10 @@
+import path from 'node:path'
+
 import type { parseConfig } from '../config/index.js'
 import {
   callbacks,
+  components,
+  defineTemplate,
   docs,
   examples,
   headers,
@@ -28,8 +32,41 @@ export function makeJob(
   openAPI: OpenAPI,
   config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
 ) {
+  const defineOn = config['zod-openapi']?.template?.define === true
+  const appOutput = config['zod-openapi']?.output ?? config['zod-openapi']?.routes?.output
+  const componentsOutput =
+    config['zod-openapi']?.components?.output ??
+    (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
+  // OpenAPI 3.x Components Object kinds, in declaration / config-field order.
+  const componentKinds = [
+    'schemas',
+    'responses',
+    'parameters',
+    'examples',
+    'requestBodies',
+    'headers',
+    'securitySchemes',
+    'links',
+    'callbacks',
+    'pathItems',
+    'mediaTypes',
+  ] as const
+  // Import-path resolution map keyed by component kind. When `components.output` is set,
+  // every kind resolves to that single file; otherwise each kind keeps its per-type config.
+  const rawComponents = config['zod-openapi']?.components
+  const componentsResolve: { readonly [k: string]: { readonly output: string } } | undefined =
+    componentsOutput
+      ? Object.fromEntries(componentKinds.map((kind) => [kind, { output: componentsOutput }]))
+      : rawComponents
+        ? Object.fromEntries(
+            componentKinds.flatMap((kind) => {
+              const value = rawComponents[kind]
+              return value ? ([[kind, value]] as const) : []
+            }),
+          )
+        : undefined
   return [
-    config['zod-openapi']?.output
+    config['zod-openapi']?.output && !defineOn
       ? {
           name: 'zod-openapi',
           output: config['zod-openapi'].output,
@@ -68,9 +105,17 @@ export function makeJob(
             webhooks(
               openAPI,
               { output, split: config['zod-openapi']?.webhooks?.split === true },
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
+        }
+      : undefined,
+    componentsOutput
+      ? {
+          name: 'components',
+          output: componentsOutput,
+          split: false,
+          run: (output: string) => components(openAPI, output, config['zod-openapi']?.readonly),
         }
       : undefined,
     config['zod-openapi']?.components?.schemas
@@ -99,7 +144,7 @@ export function makeJob(
               output,
               config['zod-openapi']?.components?.parameters?.split === true,
               config['zod-openapi']?.components?.parameters?.exportTypes === true,
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -115,7 +160,7 @@ export function makeJob(
               output,
               config['zod-openapi']?.components?.headers?.split === true,
               config['zod-openapi']?.components?.headers?.exportTypes === true,
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -158,7 +203,7 @@ export function makeJob(
               openAPI.components?.callbacks,
               output,
               config['zod-openapi']?.components?.callbacks?.split === true,
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -172,7 +217,7 @@ export function makeJob(
             pathItems(
               openAPI.components ?? {},
               { output, split: config['zod-openapi']?.components?.pathItems?.split === true },
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -188,7 +233,7 @@ export function makeJob(
               output,
               config['zod-openapi']?.components?.mediaTypes?.split === true,
               config['zod-openapi']?.readonly,
-              config['zod-openapi']?.components,
+              componentsResolve,
             ),
         }
       : undefined,
@@ -216,7 +261,7 @@ export function makeJob(
               openAPI.components?.requestBodies,
               output,
               config['zod-openapi']?.components?.requestBodies?.split === true,
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -231,7 +276,7 @@ export function makeJob(
               openAPI.components?.responses,
               output,
               config['zod-openapi']?.components?.responses?.split === true,
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -245,7 +290,7 @@ export function makeJob(
             route(
               openAPI,
               { output, split: config['zod-openapi']?.routes?.split === true },
-              config['zod-openapi']?.components,
+              componentsResolve,
               config['zod-openapi']?.readonly,
             ),
         }
@@ -344,27 +389,42 @@ export function makeJob(
             ),
         }
       : undefined,
-    config['zod-openapi']?.template &&
-    (config['zod-openapi'].output ?? config['zod-openapi'].routes?.output)
+    config['zod-openapi']?.template && defineOn && appOutput && componentsOutput
       ? {
           name: 'template',
-          output:
-            config['zod-openapi'].output ??
-            config['zod-openapi'].routes?.output ??
-            'src/routes/index.ts',
+          output: appOutput,
           split: false,
           run: (output: string) =>
-            template(
+            defineTemplate(
               openAPI,
               output,
+              componentsOutput,
               config['zod-openapi']?.template?.test ?? false,
               config.basePath,
               config['zod-openapi']?.template?.pathAlias,
               config['zod-openapi']?.routes?.import,
-              config['zod-openapi']?.template?.routeHandler ?? false,
               config['zod-openapi']?.template?.testFramework,
+              config['zod-openapi']?.readonly,
+              config['zod-openapi']?.template?.output,
             ),
         }
-      : undefined,
+      : config['zod-openapi']?.template && !defineOn && appOutput
+        ? {
+            name: 'template',
+            output: appOutput,
+            split: false,
+            run: (output: string) =>
+              template(
+                openAPI,
+                output,
+                config['zod-openapi']?.template?.test ?? false,
+                config.basePath,
+                config['zod-openapi']?.template?.pathAlias,
+                config['zod-openapi']?.routes?.import,
+                config['zod-openapi']?.template?.routeHandler ?? false,
+                config['zod-openapi']?.template?.testFramework,
+              ),
+          }
+        : undefined,
   ].filter((job) => job !== undefined)
 }

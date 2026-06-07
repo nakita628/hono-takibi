@@ -777,8 +777,8 @@ export const GetRelatedLink = {
 
 export const ItemResponseResponse = {
   description: 'Item response',
-  headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }),
   content: { 'application/json': { schema: ItemSchema } },
+  headers: z.object({ 'X-Rate-Limit': RateLimitHeaderSchema }),
   links: { GetRelated: GetRelatedLink },
 }
 

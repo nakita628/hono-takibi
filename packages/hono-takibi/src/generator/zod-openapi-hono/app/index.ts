@@ -30,6 +30,8 @@ export function app(
   pathAlias: string | undefined,
   routeImport?: string,
   routeHandler = false,
+  define = false,
+  defineHandlerImport?: string,
 ) {
   const getRouteMaps = (openapi: OpenAPI) => {
     const paths = openapi.paths
@@ -54,6 +56,21 @@ export function app(
     basePath !== '/'
       ? `const app=new OpenAPIHono().basePath('${basePath}')`
       : 'const app=new OpenAPIHono()'
+  if (define) {
+    const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
+    const handlerModule =
+      defineHandlerImport ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
+    const routesImport =
+      routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${handlerModule}'` : ''
+    const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport]
+      .filter(Boolean)
+      .join('\n')
+    const apiInit =
+      routeNames.length > 0
+        ? `export const api=app.openapiRoutes([${routeNames.join(',')}] as const)`
+        : ''
+    return [importSection, appInit, apiInit, 'export default app'].filter(Boolean).join('\n\n')
+  }
   if (!routeHandler) {
     const handlerFileNames = [
       ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),

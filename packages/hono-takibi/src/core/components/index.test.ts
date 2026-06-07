@@ -6,6 +6,7 @@ describe('components barrel export', () => {
   it.concurrent('exposes the exact expected export names', () => {
     expect(Object.keys(components).sort()).toStrictEqual([
       'callbacks',
+      'components',
       'examples',
       'headers',
       'links',

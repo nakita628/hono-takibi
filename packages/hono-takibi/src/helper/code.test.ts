@@ -155,6 +155,16 @@ describe('makeImports', () => {
     )
   })
 
+  it.concurrent('inserts honoExtras between createRoute and z', () => {
+    const code = 'const route = createRoute({ request: { body: z.object({}) } })'
+    const result = makeImports(code, '/src/routes/user.ts', undefined, false, [
+      'defineOpenAPIRoute',
+    ])
+    expect(result).toBe(
+      "import{createRoute,defineOpenAPIRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.object({}) } })",
+    )
+  })
+
   it.concurrent('adds both createRoute and z imports', () => {
     const code = 'const route = createRoute({ request: { body: z.object({}) } })'
     const result = makeImports(code, '/src/routes/user.ts', undefined)
