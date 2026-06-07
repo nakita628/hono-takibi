@@ -203,14 +203,12 @@ export default app
 
 #### `define: true`
 
-Co-locates each route's `createRoute(...)` with its handler in [`defineOpenAPIRoute`](https://www.npmjs.com/package/@hono/zod-openapi) (grouped by resource), registered via `app.openapiRoutes([...])`. Mutually exclusive with `routeHandler`; requires `@hono/zod-openapi@^1`.
-
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
-    output: './src/index.ts', // app entry point
-    template: { define: true }, // add `output: './src/routes'` to change the dir (default: ./src/handlers)
+    output: './src/index.ts',
+    template: { define: true },
   },
 })
 ```
@@ -226,12 +224,12 @@ export const getUsersIdRoute = defineOpenAPIRoute({
       200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
     },
   }),
-  handler: async (c) => {}, // generated empty — implement it (won't type-check until it returns a response)
+  handler: async (c) => {},
   addRoute: true,
 })
 ```
 
-Component schemas go to `components/index.ts` (override with `components.output`). Re-running preserves your handler implementations, hand-edited routes, and any imports/helpers you add; to re-sync a route from the spec, delete its export and regenerate. The route directory is codegen-owned — keep shared code elsewhere, since a `.ts` file with no matching route is removed on regeneration.
+Component schemas go to `components/index.ts` (override with `components.output`). Set `template.output` to change the route directory (default `./src/handlers`).
 
 ## Client Library Integrations
 
@@ -288,7 +286,7 @@ export default defineConfig({
 
 ### API Reference Docs
 
-Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands that can be run directly without starting a server:
+Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands:
 
 ```ts
 export default defineConfig({
@@ -300,7 +298,7 @@ export default defineConfig({
 })
 ```
 
-To generate `curl` commands instead of `hono request`:
+Set `curl: true` with `baseUrl` to generate `curl` commands for a running server:
 
 ```ts
 export default defineConfig({
@@ -315,41 +313,29 @@ export default defineConfig({
 
 ## Full Config Reference
 
-> This lists **every** option for reference; some are mutually exclusive (`zod-openapi.output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`), so a real config uses only one side of each.
+Some options are mutually exclusive: `zod-openapi.output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
 ```ts
-// hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  // OpenAPI spec file (.yaml, .json, or .tsp)
   input: 'openapi.yaml',
-
-  // Base path prefix for all routes
   basePath: '/api',
+  // format: {}, // oxfmt FormatConfig
 
-  // oxfmt FormatConfig for generated code output
-  // @see https://www.npmjs.com/package/oxfmt
-  // format: {},
-
-  // Main code generation (Zod + OpenAPI + Hono)
   'zod-openapi': {
-    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive).
-    // With template.define, 'output' is the app entry file (e.g. ./src/index.ts) and is required.
-    output: './src/routes.ts',
-    readonly: true, // Add 'as const' to generated schemas
+    output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
+    readonly: true,
 
-    // Template generation (app entry point + handler stubs + tests)
     template: {
-      test: true, // Generate test files
-      routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
-      define: false, // true: defineOpenAPIRoute output (requires 'output'; exclusive with routeHandler)
-      // output: './src/routes', // define mode only: route/handler dir (default ./src/handlers)
-      pathAlias: '@/', // TypeScript path alias for imports
-      testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
+      test: true,
+      routeHandler: false, // true: RouteHandler exports
+      define: false, // true: defineOpenAPIRoute output
+      // output: './src/routes', // define mode dir (default ./src/handlers)
+      pathAlias: '@/',
+      testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
     },
 
-    // Export options (OpenAPI Components Object)
     exportSchemas: true,
     exportSchemasTypes: true,
     exportResponses: true,
@@ -366,26 +352,21 @@ export default defineConfig({
     exportMediaTypes: true,
     exportMediaTypesTypes: true,
 
-    // Split routes into separate files
     routes: {
       output: './src/routes',
       split: true,
       import: '@packages/routes',
     },
 
-    // Split webhooks into separate files
     webhooks: {
       output: './src/webhooks',
       split: true,
       import: '@packages/webhooks',
     },
 
-    // Components output.
-    // Use `output` for single-file mode (all components in one file),
-    // OR the per-type fields below for split mode (mutually exclusive).
-    // `exportTypes` is available only on schemas / parameters / headers / mediaTypes.
+    // `output` (single file) and the per-type fields below (split) are mutually exclusive.
+    // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
     components: {
-      // Single-file mode: every component (schemas, responses, parameters, ...) in one file
       output: './src/components/index.ts',
 
       schemas: {
@@ -450,23 +431,20 @@ export default defineConfig({
     },
   },
 
-  // TypeScript type generation
   type: {
     output: './src/types.ts',
     readonly: true,
   },
 
-  // RPC client generation
   rpc: {
     output: './src/rpc',
-    import: '../lib', // Import path for the Hono RPC client
+    import: '../lib',
     split: true,
-    client: 'client', // Export name of the client instance
-    parseResponse: true, // Use parseResponse for type-safe responses
-    docs: false, // Prepend each operation's summary/description as JSDoc
+    client: 'client',
+    parseResponse: true,
+    docs: false, // operation summary/description as JSDoc
   },
 
-  // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
   swr: {
     output: './src/swr',
     import: '../lib',
@@ -510,24 +488,21 @@ export default defineConfig({
     client: 'client',
   },
 
-  // Test generation
   test: {
     output: './src/test.ts',
-    import: '.', // Import path for the app instance
-    testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
+    import: '.',
+    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
-  // Mock server generation
   mock: {
     output: './src/mock.ts',
   },
 
-  // API reference docs generation
   docs: {
     output: './docs/api.md',
-    entry: 'src/index.ts', // App entry point for hono request commands
-    curl: false, // true: generate curl commands (requires baseUrl), false: hono request (default)
-    baseUrl: 'http://localhost:3000', // Base URL for curl commands (required when curl: true)
+    entry: 'src/index.ts',
+    curl: false, // true: curl commands (requires baseUrl); false: hono request
+    baseUrl: 'http://localhost:3000',
   },
 })
 ```
