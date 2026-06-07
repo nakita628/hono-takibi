@@ -938,6 +938,43 @@ export default app
 `
       expect(result).toBe(expected)
     })
+
+    it('define mode: preserves basePath/middleware and syncs openapiRoutes (as const)', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getOldRoute } from './handlers'
+import { logger } from 'hono/logger'
+
+const app = new OpenAPIHono()
+
+app.use('*', logger())
+
+export const api = app.basePath('/api').openapiRoutes([getOldRoute] as const)
+
+export default app
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getOldRoute, getNewRoute } from './handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getOldRoute, getNewRoute] as const)
+
+export default app
+`
+      const result = mergeAppFile(existing, generated)
+      expect(result).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getNewRoute, getOldRoute } from './handlers'
+import { logger } from 'hono/logger'
+
+const app = new OpenAPIHono()
+
+app.use('*', logger())
+
+export const api = app.basePath('/api').openapiRoutes([getOldRoute, getNewRoute] as const)
+
+export default app
+`)
+    })
   })
 
   describe('mergeTestFile', () => {
@@ -4922,6 +4959,37 @@ export const getUsersIdRoute = defineOpenAPIRoute({
   route: createRoute({ method: 'get', path: '/users/{id}', responses: {} }),
   handler: async (c) => {
     return c.json(toDto({ id: '1' }), 200)
+  },
+})
+`)
+    })
+
+    it('preserves a user import whose name ends in Route/Handler (not codegen-managed)', () => {
+      const existing = `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+import { authRoute } from '../middleware/auth'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({ method: 'get', path: '/users/{id}', responses: {} }),
+  handler: async (c) => {
+    return authRoute(c)
+  },
+})
+`
+      const generated = `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({ method: 'get', path: '/users/{id}', responses: {} }),
+  handler: async (c) => {},
+})
+`
+      const result = mergeDefineFile(existing, generated)
+      expect(result).toBe(`import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+import { authRoute } from '../middleware/auth'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({ method: 'get', path: '/users/{id}', responses: {} }),
+  handler: async (c) => {
+    return authRoute(c)
   },
 })
 `)

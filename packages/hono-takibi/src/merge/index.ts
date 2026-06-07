@@ -160,7 +160,9 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
   const newRouteStatements = [...generatedRoutes.entries()]
     .filter(([name]) => !existingRoutes.has(name))
     .map(([, stmt]) => stmt.getText())
-  const mergedImports = mergeImports(existingFile, generatedFile)
+  // Define files import no codegen route symbols (routes are local exports), so user
+  // imports named `*Route`/`*Handler` must never be dropped.
+  const mergedImports = mergeImports(existingFile, generatedFile, false)
   return joinSections([mergedImports.join('\n'), body.trim(), newRouteStatements.join('\n\n')])
 }
 
@@ -265,11 +267,19 @@ const isAutoName = (name: string): boolean => name.endsWith('Route') || name.end
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
  */
-function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): string[] {
+function mergeImports(
+  existingFile: SourceFile,
+  generatedFile: SourceFile,
+  dropStaleAutoNames = true,
+): string[] {
   const existingImports = parseImportDeclarations(existingFile)
   const generatedImports = parseImportDeclarations(generatedFile)
   const generatedIndex = makeGeneratedImportIndex(generatedImports)
-  const filteredExisting = filterExistingImports(existingImports, generatedIndex)
+  const filteredExisting = filterExistingImports(
+    existingImports,
+    generatedIndex,
+    dropStaleAutoNames,
+  )
   const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
   return [...importMap.entries()]
     .map(([spec, info]) => formatImportLine(spec, info))
@@ -334,6 +344,10 @@ function filterExistingImports(
     readonly autoNameModules: ReadonlyMap<string, string>
     readonly defaultImportModules: ReadonlyMap<string, string>
   },
+  // When false, auto-named imports (`*Route`/`*Handler`) are never dropped. Used by
+  // define mode, whose files import no codegen route symbols (routes are local exports),
+  // so every `*Route`-named import there is the user's own and must be preserved.
+  dropStaleAutoNames = true,
 ) {
   return existingImports.map((entry) => {
     const defaultIsStale =
@@ -344,7 +358,7 @@ function filterExistingImports(
       ...entry,
       defaultImport: defaultIsStale ? undefined : entry.defaultImport,
       namedImports: entry.namedImports.filter((named) => {
-        if (!isAutoName(named.name)) return true
+        if (!isAutoName(named.name) || !dropStaleAutoNames) return true
         const canonical = index.autoNameModules.get(named.name)
         return canonical !== undefined && canonical === entry.moduleSpecifier
       }),

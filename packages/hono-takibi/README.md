@@ -203,29 +203,20 @@ export default app
 
 #### `define: true`
 
-Each route co-locates its `createRoute(...)` definition with a handler inside
-[`defineOpenAPIRoute`](https://www.npmjs.com/package/@hono/zod-openapi), grouped by resource under
-`handlers/`. Routes register in one shot via `app.openapiRoutes([...])`, and component schemas are
-emitted to `components/index.ts` (override with `components.output`). `define` and `routeHandler`
-are mutually exclusive. Requires `@hono/zod-openapi@^1`.
+Co-locates each route's `createRoute(...)` with its handler in [`defineOpenAPIRoute`](https://www.npmjs.com/package/@hono/zod-openapi) (grouped by resource), registered via `app.openapiRoutes([...])`. Mutually exclusive with `routeHandler`; requires `@hono/zod-openapi@^1`.
 
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts', // app entry point
-    template: { define: true },
-    // template: { define: true, output: './src/routes' }, // route/handler dir (default: ./src/handlers)
-    // components: { output: './src/components/index.ts' }, // optional override
+    template: { define: true }, // add `output: './src/routes'` to change the dir (default: ./src/handlers)
   },
 })
 ```
 
 ```ts
 // src/handlers/users.ts
-import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
-import { UserSchema } from '../components'
-
 export const getUsersIdRoute = defineOpenAPIRoute({
   route: createRoute({
     method: 'get',
@@ -235,26 +226,12 @@ export const getUsersIdRoute = defineOpenAPIRoute({
       200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
     },
   }),
-  handler: async (c) => {},
+  handler: async (c) => {}, // generated empty — implement it (won't type-check until it returns a response)
   addRoute: true,
 })
 ```
 
-Handlers are generated empty for you to implement (the empty body does not type-check until it returns a response — the same convention as the other modes). Re-running preserves each route's handler; because the route definition and handler share one `defineOpenAPIRoute({ route, handler })` export, a route you have already edited is kept as-is and its `route` is not re-synced from the spec — delete the export to regenerate it from the latest spec.
-
-```ts
-// src/index.ts
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { getUsersIdRoute } from './handlers'
-
-const app = new OpenAPIHono()
-
-export const api = app.openapiRoutes([getUsersIdRoute] as const)
-
-export default app
-```
-
-The route/handler files default to `<output dir>/handlers`; set `template.output` (e.g. `./src/routes` or `./src/controllers`) to change it. Changing it does not move or delete files from the old directory.
+Component schemas go to `components/index.ts` (override with `components.output`). Re-running preserves your handler implementations, hand-edited routes, and any imports/helpers you add; to re-sync a route from the spec, delete its export and regenerate. The route directory is codegen-owned — keep shared code elsewhere, since a `.ts` file with no matching route is removed on regeneration.
 
 ## Client Library Integrations
 
@@ -338,6 +315,8 @@ export default defineConfig({
 
 ## Full Config Reference
 
+> This lists **every** option for reference; some are mutually exclusive (`zod-openapi.output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`), so a real config uses only one side of each.
+
 ```ts
 // hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi/config'
@@ -355,7 +334,8 @@ export default defineConfig({
 
   // Main code generation (Zod + OpenAPI + Hono)
   'zod-openapi': {
-    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
+    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive).
+    // With template.define, 'output' is the app entry file (e.g. ./src/index.ts) and is required.
     output: './src/routes.ts',
     readonly: true, // Add 'as const' to generated schemas
 
@@ -363,8 +343,8 @@ export default defineConfig({
     template: {
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
-      define: false, // true: defineOpenAPIRoute output (mutually exclusive with routeHandler)
-      // output: './src/routes', // define mode: route/handler dir (default ./src/handlers)
+      define: false, // true: defineOpenAPIRoute output (requires 'output'; exclusive with routeHandler)
+      // output: './src/routes', // define mode only: route/handler dir (default ./src/handlers)
       pathAlias: '@/', // TypeScript path alias for imports
       testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
     },
@@ -403,6 +383,7 @@ export default defineConfig({
     // Components output.
     // Use `output` for single-file mode (all components in one file),
     // OR the per-type fields below for split mode (mutually exclusive).
+    // `exportTypes` is available only on schemas / parameters / headers / mediaTypes.
     components: {
       // Single-file mode: every component (schemas, responses, parameters, ...) in one file
       output: './src/components/index.ts',
@@ -482,6 +463,7 @@ export default defineConfig({
     split: true,
     client: 'client', // Export name of the client instance
     parseResponse: true, // Use parseResponse for type-safe responses
+    docs: false, // Prepend each operation's summary/description as JSDoc
   },
 
   // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)

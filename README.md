@@ -201,6 +201,38 @@ export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 export default app
 ```
 
+#### `define: true`
+
+Co-locates each route's `createRoute(...)` with its handler in [`defineOpenAPIRoute`](https://www.npmjs.com/package/@hono/zod-openapi) (grouped by resource), registered via `app.openapiRoutes([...])`. Mutually exclusive with `routeHandler`; requires `@hono/zod-openapi@^1`.
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/index.ts', // app entry point
+    template: { define: true }, // add `output: './src/routes'` to change the dir (default: ./src/handlers)
+  },
+})
+```
+
+```ts
+// src/handlers/users.ts
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    request: { params: z.object({ id: z.string() }) },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {}, // generated empty — implement it (won't type-check until it returns a response)
+  addRoute: true,
+})
+```
+
+Component schemas go to `components/index.ts` (override with `components.output`). Re-running preserves your handler implementations, hand-edited routes, and any imports/helpers you add; to re-sync a route from the spec, delete its export and regenerate. The route directory is codegen-owned — keep shared code elsewhere, since a `.ts` file with no matching route is removed on regeneration.
+
 ## Client Library Integrations
 
 Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query, RPC Client.
@@ -283,6 +315,8 @@ export default defineConfig({
 
 ## Full Config Reference
 
+> This lists **every** option for reference; some are mutually exclusive (`zod-openapi.output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`), so a real config uses only one side of each.
+
 ```ts
 // hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi/config'
@@ -300,7 +334,8 @@ export default defineConfig({
 
   // Main code generation (Zod + OpenAPI + Hono)
   'zod-openapi': {
-    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
+    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive).
+    // With template.define, 'output' is the app entry file (e.g. ./src/index.ts) and is required.
     output: './src/routes.ts',
     readonly: true, // Add 'as const' to generated schemas
 
@@ -308,6 +343,8 @@ export default defineConfig({
     template: {
       test: true, // Generate test files
       routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
+      define: false, // true: defineOpenAPIRoute output (requires 'output'; exclusive with routeHandler)
+      // output: './src/routes', // define mode only: route/handler dir (default ./src/handlers)
       pathAlias: '@/', // TypeScript path alias for imports
       testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
     },
@@ -343,8 +380,14 @@ export default defineConfig({
       import: '@packages/webhooks',
     },
 
-    // Split components into separate files
+    // Components output.
+    // Use `output` for single-file mode (all components in one file),
+    // OR the per-type fields below for split mode (mutually exclusive).
+    // `exportTypes` is available only on schemas / parameters / headers / mediaTypes.
     components: {
+      // Single-file mode: every component (schemas, responses, parameters, ...) in one file
+      output: './src/components/index.ts',
+
       schemas: {
         output: './src/schemas',
         exportTypes: true,
@@ -420,6 +463,7 @@ export default defineConfig({
     split: true,
     client: 'client', // Export name of the client instance
     parseResponse: true, // Use parseResponse for type-safe responses
+    docs: false, // Prepend each operation's summary/description as JSDoc
   },
 
   // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
