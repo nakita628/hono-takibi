@@ -1290,10 +1290,12 @@ export async function makeQueryHooks(
     } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
+  const keysCode = prefixKeyCodes.length ? `${prefixKeyCodes.join('\n\n')}\n` : ''
   const exportLines = Array.from(
     new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
   )
-  const index = `${exportLines.join('\n')}\n`
+  const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
+  const index = `${indexLines.join('\n')}\n`
   const results = await Promise.all([
     ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
       const hasQueryWithArgs = isQuery && hasArgs
@@ -1311,6 +1313,7 @@ export async function makeQueryHooks(
       const filePath = path.join(outDir, `${operationFileName}.ts`)
       return emit(fileSrc, path.dirname(filePath), filePath)
     }),
+    ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
     emit(index, path.dirname(indexPath), indexPath),
   ])
   const e = results.find((result) => !result.ok)

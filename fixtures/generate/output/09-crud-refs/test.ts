@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { faker } from '@faker-js/faker'
 import app from './mock'
 
@@ -35,7 +35,7 @@ function mockCreateComment() {
   return { body: faker.string.alpha({ length: { min: 5, max: 20 } }) }
 }
 
-describe('Readonly Split API', () => {
+describe('CRUD Refs API', () => {
   describe('default', () => {
     describe('GET /posts', () => {
       it('should return 200', async () => {
