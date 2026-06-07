@@ -567,10 +567,14 @@ export async function defineOpenAPIRouteHandler(
   const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
-  const componentsModuleName = componentsOutput.endsWith('/index.ts')
-    ? path.basename(path.dirname(componentsOutput))
-    : path.basename(componentsOutput, '.ts')
-  const componentsImport = aliasPrefix ? `${aliasPrefix}/${componentsModuleName}` : undefined
+  // The alias maps to the app entry's directory; resolve the components module relative to it
+  // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
+  const componentsModulePath = componentsOutput.endsWith('/index.ts')
+    ? path.dirname(componentsOutput)
+    : componentsOutput.replace(/\.ts$/, '')
+  const componentsImport = aliasPrefix
+    ? `${aliasPrefix}/${path.relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
+    : undefined
   const componentsMap = Object.fromEntries(
     COMPONENT_KINDS.map((kind) => [
       kind,

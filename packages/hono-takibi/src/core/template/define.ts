@@ -26,8 +26,10 @@ export async function defineTemplate(
   const baseDir = path.dirname(output)
   const handlerDir = templateOutput ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+  // The alias maps to the app entry's directory, so resolve the handler dir relative to it
+  // (keeps nested dirs like `src/api/controllers` → `@/api/controllers`, not just the basename).
   const handlerImport = aliasPrefix
-    ? `${aliasPrefix}/${path.basename(handlerDir)}`
+    ? `${aliasPrefix}/${path.relative(baseDir, handlerDir).replaceAll('\\', '/')}`
     : makeModuleSpec(output, { output: handlerDir })
   const [appFmtResult, handlersResult] = await Promise.all([
     fmt(app(openAPI, output, basePath, pathAlias, routeImport, false, true, handlerImport)),

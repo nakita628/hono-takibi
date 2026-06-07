@@ -34,6 +34,24 @@ describe('makeModuleSpec', () => {
     })
     expect(result).toBe('../../../shared/schemas')
   })
+
+  it.concurrent('resolves the define app→route specifier independent of dir name', () => {
+    expect(makeModuleSpec('src/index.ts', { output: 'src/handlers' })).toBe('./handlers')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/routes' })).toBe('./routes')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/controllers' })).toBe('./controllers')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/api/controllers' })).toBe(
+      './api/controllers',
+    )
+  })
+
+  it.concurrent('resolves the handler→components relative import across dir depth', () => {
+    expect(makeModuleSpec('src/controllers/users.ts', { output: 'src/components' })).toBe(
+      '../components',
+    )
+    expect(makeModuleSpec('src/api/controllers/users.ts', { output: 'src/components' })).toBe(
+      '../../components',
+    )
+  })
 })
 
 /* ═══════════════════════════════════ makeConst ═══════════════════════════════════ */
