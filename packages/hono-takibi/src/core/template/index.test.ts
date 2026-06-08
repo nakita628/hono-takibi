@@ -77,6 +77,41 @@ describe('template', () => {
     )
   })
 
+  it('resolves a custom output directory through a pathAlias', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-alias-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(
+      openAPI,
+      output,
+      false,
+      '/',
+      '@/',
+      undefined,
+      false,
+      'vitest',
+      path.join(tmpDir, 'controllers'),
+    )
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { healthHandler } from '@/controllers'",
+    )
+  })
+
   it('merges into an existing app file, preserving custom imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-merge-'))
     const output = path.join(tmpDir, 'routes.ts')
