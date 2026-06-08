@@ -517,20 +517,6 @@ export async function zodOpenAPIHonoHandler(
   return { ok: true, value: undefined } as const
 }
 
-const COMPONENT_KINDS = [
-  'schemas',
-  'responses',
-  'parameters',
-  'examples',
-  'requestBodies',
-  'headers',
-  'securitySchemes',
-  'links',
-  'callbacks',
-  'pathItems',
-  'mediaTypes',
-] as const
-
 /**
  * Generates `defineOpenAPIRoute` files grouped by resource for a Hono app.
  *
@@ -587,7 +573,21 @@ export async function defineOpenAPIRouteHandler(
     ? `${aliasPrefix}/${path.relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
     : undefined
   const componentsMap = Object.fromEntries(
-    COMPONENT_KINDS.map((kind) => [
+    (
+      [
+        'schemas',
+        'responses',
+        'parameters',
+        'examples',
+        'requestBodies',
+        'headers',
+        'securitySchemes',
+        'links',
+        'callbacks',
+        'pathItems',
+        'mediaTypes',
+      ] as const
+    ).map((kind) => [
       kind,
       { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
     ]),
