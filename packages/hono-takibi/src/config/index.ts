@@ -108,28 +108,42 @@ const ConfigSchema = z
     basePath: z.string().default('/'),
     readonly: z.boolean().exactOptional(),
     format: z.custom<FormatConfig>(() => true).exactOptional(),
+    // `define` discriminates the two template modes; `routeHandler` is non-define-only, so it
+    // is mutually exclusive with define by structure rather than a refine. `output` (the
+    // route/handler directory) exists in both modes: define defaults it to `src/routes`,
+    // non-define leaves it optional and falls back to `handlers` next to the app entry.
     template: z
-      .object({
-        test: z.boolean().default(false),
-        routeHandler: z.boolean().default(false),
-        define: z.boolean().default(false),
-        output: z
-          .string()
-          .regex(/^(?!.*\.ts$).+/, {
-            error: 'template.output must be a directory, not a .ts file',
+      .discriminatedUnion('define', [
+        z
+          .object({
+            define: z.literal(true),
+            output: z
+              .string()
+              .regex(/^(?!.*\.ts$).+/, {
+                error: 'template.output must be a directory, not a .ts file',
+              })
+              .default('src/routes'),
+            test: z.boolean().default(false),
+            pathAlias: z.string().exactOptional(),
+            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
           })
-          .exactOptional(),
-        pathAlias: z.string().exactOptional(),
-        testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
-      })
-      .readonly()
-      .refine((v) => !(v.define && v.routeHandler), {
-        message:
-          'define and routeHandler are mutually exclusive. Use define for defineOpenAPIRoute output, or routeHandler for RouteHandler exports.',
-      })
-      .refine((v) => !(v.output && !v.define), {
-        message: 'template.output is only supported with template.define: true.',
-      })
+          .readonly(),
+        z
+          .object({
+            define: z.literal(false).optional().default(false),
+            routeHandler: z.boolean().default(false),
+            output: z
+              .string()
+              .regex(/^(?!.*\.ts$).+/, {
+                error: 'template.output must be a directory, not a .ts file',
+              })
+              .exactOptional(),
+            test: z.boolean().default(false),
+            pathAlias: z.string().exactOptional(),
+            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+          })
+          .readonly(),
+      ])
       .exactOptional(),
     exportSchemas: z.boolean().default(false),
     exportSchemasTypes: z.boolean().default(false),

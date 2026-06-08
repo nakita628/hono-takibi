@@ -296,7 +296,7 @@ export default app`
     expect(result).toBe(expected)
   })
 
-  it.concurrent('app with define=true uses defineHandlerImport for the routes module', () => {
+  it.concurrent('app with define=true uses handlerModuleOverride for the routes module', () => {
     const result = app(openapi, 'src/index.ts', '/', undefined, undefined, false, true, './routes')
     const expected = `import{OpenAPIHono}from'@hono/zod-openapi'
 import{getHonoRoute,getHonoXRoute,getZodOpenapiHonoRoute}from'./routes'

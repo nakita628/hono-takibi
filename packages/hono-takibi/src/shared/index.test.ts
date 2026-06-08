@@ -54,7 +54,7 @@ describe('makeJob define mode', () => {
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
@@ -130,7 +130,7 @@ export const UserSchema = z
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true, pathAlias: '@/' },
+      template: { define: true, pathAlias: '@/', output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
@@ -322,7 +322,7 @@ describe('define mode regeneration round-trip (human edits coexist with codegen)
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -355,7 +355,7 @@ describe('define mode regeneration round-trip (human edits coexist with codegen)
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -384,7 +384,7 @@ describe('define mode regeneration round-trip (human edits coexist with codegen)
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -416,7 +416,7 @@ describe('define mode regeneration round-trip (human edits coexist with codegen)
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -477,7 +477,7 @@ export * from './tags'
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -515,7 +515,7 @@ export default app
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
+      template: { define: true, output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
@@ -602,7 +602,7 @@ export default app
     const cfg = parseConfig({
       input: 'openapi.yaml',
       output: `${tmpDir}/src/index.ts`,
-      template: { define: true, pathAlias: '@/' },
+      template: { define: true, pathAlias: '@/', output: `${tmpDir}/src/routes` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const run = (spec: OpenAPI) => Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))

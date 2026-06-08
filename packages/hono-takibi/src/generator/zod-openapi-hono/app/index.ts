@@ -31,7 +31,7 @@ export function app(
   routeImport?: string,
   routeHandler = false,
   define = false,
-  defineHandlerImport?: string,
+  handlerModuleOverride?: string,
 ) {
   const getRouteMaps = (openapi: OpenAPI) => {
     const paths = openapi.paths
@@ -59,7 +59,7 @@ export function app(
   if (define) {
     const routeNames = [...new Set(routeMappings.map((m) => m.routeName))]
     const handlerModule =
-      defineHandlerImport ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
+      handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const routesImport =
       routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${handlerModule}'` : ''
     const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport]
@@ -76,7 +76,8 @@ export function app(
       ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),
     ]
     const handlerExportNames = handlerFileNames.map((fn) => `${path.basename(fn, '.ts')}Handler`)
-    const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
+    const handlerModule =
+      handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const handlerImport =
       handlerExportNames.length > 0
         ? `import{${handlerExportNames.join(',')}}from'${handlerModule}'`
@@ -96,7 +97,8 @@ export function app(
   const routesImport =
     routeNames.length > 0 ? `import{${routeNames.join(',')}}from'${routeModule}'` : ''
   const handlerNames = [...new Set(routeMappings.map((m) => m.handlerName))]
-  const handlerModule = aliasPrefix ? `${aliasPrefix}/handlers` : './handlers'
+  const handlerModule =
+    handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
   const handlerImport =
     handlerNames.length > 0 ? `import{${handlerNames.join(',')}}from'${handlerModule}'` : ''
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]

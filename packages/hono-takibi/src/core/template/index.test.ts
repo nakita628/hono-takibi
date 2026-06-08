@@ -40,6 +40,43 @@ describe('template', () => {
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(true)
   })
 
+  it('writes handlers to a custom output directory and imports from there', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-output-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(
+      openAPI,
+      output,
+      false,
+      '/',
+      undefined,
+      undefined,
+      false,
+      'vitest',
+      path.join(tmpDir, 'controllers'),
+    )
+    expect(result.ok).toBe(true)
+    // handlers go to the custom dir, not the default `handlers`
+    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { healthHandler } from './controllers'",
+    )
+  })
+
   it('merges into an existing app file, preserving custom imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-merge-'))
     const output = path.join(tmpDir, 'routes.ts')

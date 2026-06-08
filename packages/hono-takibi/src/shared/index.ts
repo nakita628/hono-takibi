@@ -34,6 +34,9 @@ export function makeJob(
 ) {
   const defineOn = config.template?.define === true
   const appOutput = config.output ?? config.routes?.output
+  // `template.output` is the route/handler directory; both template modes accept it (define
+  // defaults to `src/routes`, non-define falls back to `handlers` next to the app entry).
+  const defineHandlerDir = defineOn ? config.template?.output : undefined
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -386,7 +389,7 @@ export function makeJob(
             ),
         }
       : undefined,
-    config.template && defineOn && appOutput && componentsOutput
+    config.template && defineOn && appOutput && componentsOutput && defineHandlerDir
       ? {
           name: 'template',
           output: appOutput,
@@ -400,9 +403,9 @@ export function makeJob(
               config.basePath,
               config.template?.pathAlias,
               config.routes?.import,
+              defineHandlerDir,
               config.template?.testFramework,
               config.readonly,
-              config.template?.output,
             ),
         }
       : config.template && !defineOn && appOutput
@@ -418,8 +421,9 @@ export function makeJob(
                 config.basePath,
                 config.template?.pathAlias,
                 config.routes?.import,
-                config.template?.routeHandler ?? false,
+                config.template?.define === false ? config.template.routeHandler : false,
                 config.template?.testFramework,
+                config.template?.output,
               ),
           }
         : undefined,

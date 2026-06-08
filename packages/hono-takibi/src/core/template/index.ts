@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fmt } from '../../format/index.js'
 import { readFile, writeFile } from '../../fsp/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
+import { makeModuleSpec } from '../../helper/code.js'
 import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -16,12 +17,21 @@ export async function template(
   routeImport: string | undefined,
   routeHandler: boolean,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  handlerDir?: string,
 ) {
   const isIndexFile = output.endsWith('/index.ts')
   const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
   const target = path.join(dir, 'index.ts')
+  // When a custom handler directory is configured, derive the app's import specifier from it
+  // (relative to the app entry); otherwise app() falls back to `./handlers`.
+  const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+  const handlerImport = handlerDir
+    ? aliasPrefix
+      ? `${aliasPrefix}/${path.relative(dir, handlerDir).replaceAll('\\', '/')}`
+      : makeModuleSpec(path.join(dir, 'index.ts'), { output: handlerDir })
+    : undefined
   const [appFmtResult, stubHandlersResult] = await Promise.all([
-    fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler)),
+    fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler, false, handlerImport)),
     zodOpenAPIHonoHandler(
       openAPI,
       output,
@@ -31,6 +41,7 @@ export async function template(
       routeHandler,
       basePath,
       testFramework,
+      handlerDir,
     ),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error } as const

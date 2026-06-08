@@ -16,15 +16,14 @@ export async function defineTemplate(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
+  handlerDir: string,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
-  templateOutput?: string,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
-  // Single source for the generated route/handler directory; everything else
+  // The generated route/handler directory (resolved in config). Everything else
   // (app import specifier, handler write path, test import) derives from it.
   const baseDir = path.dirname(output)
-  const handlerDir = templateOutput ?? (baseDir === '.' ? 'routes' : `${baseDir}/routes`)
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   // The alias maps to the app entry's directory, so resolve the handler dir relative to it
   // (keeps nested dirs like `src/api/controllers` → `@/api/controllers`, not just the basename).

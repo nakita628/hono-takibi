@@ -116,7 +116,12 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
   return `${path.basename(fileName, '.ts')}.test.ts`
 }
 
-function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
+function makePaths(
+  output: string,
+  pathAlias: string | undefined,
+  routeImport?: string,
+  handlerDir?: string,
+) {
   const isDot = output === '.' || output === './'
   const isIndexFile = !isDot && output.endsWith('/index.ts')
   const baseDir = isDot
@@ -124,7 +129,7 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
     : isIndexFile
       ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
       : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
-  const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
+  const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : output.endsWith('.ts')
@@ -422,6 +427,7 @@ export async function zodOpenAPIHonoHandler(
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  handlerDir?: string,
 ) {
   const paths = openapi.paths
   const handlers = makeMergedHandlers(
@@ -435,7 +441,12 @@ export async function zodOpenAPIHonoHandler(
         ),
     ),
   )
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(
+    output,
+    pathAlias,
+    routeImport,
+    handlerDir,
+  )
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([

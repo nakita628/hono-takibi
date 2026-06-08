@@ -521,17 +521,19 @@ describe('parseConfig()', () => {
   })
 
   describe('template define / routeHandler mutual exclusivity', () => {
-    it.concurrent('fails when both define and routeHandler are true', () => {
+    it.concurrent('selects the define variant and drops routeHandler when define is true', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         output: 'src/index.ts',
         template: { define: true, routeHandler: true },
       })
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: template: define and routeHandler are mutually exclusive. Use define for defineOpenAPIRoute output, or routeHandler for RouteHandler exports.',
-        )
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        const tpl = result.value.template
+        expect(tpl?.define).toBe(true)
+        if (tpl?.define === true) {
+          expect(tpl.output).toBe('src/routes')
+        }
       }
     })
 
@@ -575,17 +577,16 @@ describe('parseConfig()', () => {
       expect(result.ok).toBe(true)
     })
 
-    it.concurrent('fails when template.output is set without define', () => {
+    it.concurrent('keeps template.output in the non-define variant', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
         output: 'src/index.ts',
-        template: { output: 'src/routes' },
+        template: { output: 'src/controllers' },
       })
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: template: template.output is only supported with template.define: true.',
-        )
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.template?.define).toBe(false)
+        expect(result.value.template?.output).toBe('src/controllers')
       }
     })
 
@@ -600,6 +601,52 @@ describe('parseConfig()', () => {
         expect(result.error).toBe(
           'Invalid config: template.output: template.output must be a directory, not a .ts file',
         )
+      }
+    })
+  })
+
+  describe('template.output default (define mode)', () => {
+    it.concurrent('defaults template.output to src/routes when omitted in define mode', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/index.ts',
+        template: { define: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        const tpl = result.value.template
+        expect(tpl?.define).toBe(true)
+        if (tpl?.define === true) {
+          expect(tpl.output).toBe('src/routes')
+        }
+      }
+    })
+
+    it.concurrent('keeps an explicit template.output unchanged', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/index.ts',
+        template: { define: true, output: 'controllers' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        const tpl = result.value.template
+        expect(tpl?.define).toBe(true)
+        if (tpl?.define === true) {
+          expect(tpl.output).toBe('controllers')
+        }
+      }
+    })
+
+    it.concurrent('leaves template.output undefined when define is false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/index.ts',
+        template: { routeHandler: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.template?.define).toBe(false)
       }
     })
   })
