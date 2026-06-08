@@ -36,9 +36,7 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-  },
+  output: './src/routes.ts',
 })
 ```
 
@@ -127,13 +125,11 @@ Generate a complete app structure with handler stubs and test files:
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    template: {
-      test: true,
-      pathAlias: '@/',
-      testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
-    },
+  output: './src/routes.ts',
+  template: {
+    test: true,
+    pathAlias: '@/',
+    testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
   },
 })
 ```
@@ -206,15 +202,13 @@ export default app
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/index.ts',
-    template: { define: true },
-  },
+  output: './src/index.ts',
+  template: { define: true },
 })
 ```
 
 ```ts
-// src/handlers/users.ts
+// src/routes/users.ts
 export const getUsersIdRoute = defineOpenAPIRoute({
   route: createRoute({
     method: 'get',
@@ -229,7 +223,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 })
 ```
 
-Component schemas go to `components/index.ts` (override with `components.output`). Set `template.output` to change the route directory (default `./src/handlers`).
+Component schemas go to `components/index.ts` (override with `components.output`). Set `template.output` to change the route directory (default `./src/routes`).
 
 ## Client Library Integrations
 
@@ -313,7 +307,7 @@ export default defineConfig({
 
 ## Full Config Reference
 
-Some options are mutually exclusive: `zod-openapi.output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
+Some options are mutually exclusive: `output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
@@ -323,111 +317,109 @@ export default defineConfig({
   basePath: '/api',
   // format: {}, // oxfmt FormatConfig
 
-  'zod-openapi': {
-    output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
-    readonly: true,
+  output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
+  readonly: true,
 
-    template: {
-      test: true,
-      routeHandler: false, // true: RouteHandler exports
-      define: false, // true: defineOpenAPIRoute output
-      // output: './src/routes', // define mode dir (default ./src/handlers)
-      pathAlias: '@/',
-      testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
-    },
+  template: {
+    test: true,
+    routeHandler: false, // true: RouteHandler exports
+    define: false, // true: defineOpenAPIRoute output
+    // output: './src/routes', // define mode dir (default ./src/routes)
+    pathAlias: '@/',
+    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
+  },
 
-    exportSchemas: true,
-    exportSchemasTypes: true,
-    exportResponses: true,
-    exportParameters: true,
-    exportParametersTypes: true,
-    exportExamples: true,
-    exportRequestBodies: true,
-    exportHeaders: true,
-    exportHeadersTypes: true,
-    exportSecuritySchemes: true,
-    exportLinks: true,
-    exportCallbacks: true,
-    exportPathItems: true,
-    exportMediaTypes: true,
-    exportMediaTypesTypes: true,
+  exportSchemas: true,
+  exportSchemasTypes: true,
+  exportResponses: true,
+  exportParameters: true,
+  exportParametersTypes: true,
+  exportExamples: true,
+  exportRequestBodies: true,
+  exportHeaders: true,
+  exportHeadersTypes: true,
+  exportSecuritySchemes: true,
+  exportLinks: true,
+  exportCallbacks: true,
+  exportPathItems: true,
+  exportMediaTypes: true,
+  exportMediaTypesTypes: true,
 
-    routes: {
-      output: './src/routes',
+  routes: {
+    output: './src/routes',
+    split: true,
+    import: '@packages/routes',
+  },
+
+  webhooks: {
+    output: './src/webhooks',
+    split: true,
+    import: '@packages/webhooks',
+  },
+
+  // `output` (single file) and the per-type fields below (split) are mutually exclusive.
+  // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
+  components: {
+    output: './src/components/index.ts',
+
+    schemas: {
+      output: './src/schemas',
+      exportTypes: true,
       split: true,
-      import: '@packages/routes',
+      import: '../schemas',
     },
-
-    webhooks: {
-      output: './src/webhooks',
+    responses: {
+      output: './src/responses',
       split: true,
-      import: '@packages/webhooks',
+      import: '../responses',
     },
-
-    // `output` (single file) and the per-type fields below (split) are mutually exclusive.
-    // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
-    components: {
-      output: './src/components/index.ts',
-
-      schemas: {
-        output: './src/schemas',
-        exportTypes: true,
-        split: true,
-        import: '../schemas',
-      },
-      responses: {
-        output: './src/responses',
-        split: true,
-        import: '../responses',
-      },
-      parameters: {
-        output: './src/parameters',
-        exportTypes: true,
-        split: true,
-        import: '../parameters',
-      },
-      examples: {
-        output: './src/examples',
-        split: true,
-        import: '../examples',
-      },
-      requestBodies: {
-        output: './src/requestBodies',
-        split: true,
-        import: '../requestBodies',
-      },
-      headers: {
-        output: './src/headers',
-        exportTypes: true,
-        split: true,
-        import: '../headers',
-      },
-      securitySchemes: {
-        output: './src/securitySchemes',
-        split: true,
-        import: '../securitySchemes',
-      },
-      links: {
-        output: './src/links',
-        split: true,
-        import: '../links',
-      },
-      callbacks: {
-        output: './src/callbacks',
-        split: true,
-        import: '../callbacks',
-      },
-      pathItems: {
-        output: './src/pathItems',
-        split: true,
-        import: '../pathItems',
-      },
-      mediaTypes: {
-        output: './src/mediaTypes',
-        exportTypes: true,
-        split: true,
-        import: '../mediaTypes',
-      },
+    parameters: {
+      output: './src/parameters',
+      exportTypes: true,
+      split: true,
+      import: '../parameters',
+    },
+    examples: {
+      output: './src/examples',
+      split: true,
+      import: '../examples',
+    },
+    requestBodies: {
+      output: './src/requestBodies',
+      split: true,
+      import: '../requestBodies',
+    },
+    headers: {
+      output: './src/headers',
+      exportTypes: true,
+      split: true,
+      import: '../headers',
+    },
+    securitySchemes: {
+      output: './src/securitySchemes',
+      split: true,
+      import: '../securitySchemes',
+    },
+    links: {
+      output: './src/links',
+      split: true,
+      import: '../links',
+    },
+    callbacks: {
+      output: './src/callbacks',
+      split: true,
+      import: '../callbacks',
+    },
+    pathItems: {
+      output: './src/pathItems',
+      split: true,
+      import: '../pathItems',
+    },
+    mediaTypes: {
+      output: './src/mediaTypes',
+      exportTypes: true,
+      split: true,
+      import: '../mediaTypes',
     },
   },
 

@@ -406,7 +406,7 @@ describe('honoTakibi config-driven', () => {
     )
     fs.writeFileSync(
       path.join(tmpDir, 'hono-takibi.config.ts'),
-      `export default { input: ${JSON.stringify(input)}, 'zod-openapi': { output: ${JSON.stringify(output)} } }`,
+      `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
     )
     process.cwd = () => tmpDir
     process.argv = ['node', 'cli']
@@ -460,7 +460,7 @@ describe('honoTakibi config-driven', () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        'zod-openapi': { output: ${JSON.stringify(routes)}, template: { test: false, routeHandler: false } },
+        output: ${JSON.stringify(routes)}, template: { test: false, routeHandler: false },
         type: { output: ${JSON.stringify(types)} },
         mock: { output: ${JSON.stringify(mockOut)} },
         docs: { output: ${JSON.stringify(docsOut)} },
@@ -544,14 +544,12 @@ describe('honoTakibi config-driven', () => {
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
-        'zod-openapi': {
-          routes: { output: ${JSON.stringify(routesDir)}, split: true, import: '../routes' },
-          webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true, import: '../webhooks' },
-          components: {
-            schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true, import: '../schemas' },
-            parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true, import: '../parameters' },
-            responses: { output: ${JSON.stringify(responsesDir)}, split: true, import: '../responses' },
-          },
+        routes: { output: ${JSON.stringify(routesDir)}, split: true, import: '../routes' },
+        webhooks: { output: ${JSON.stringify(webhooksDir)}, split: true, import: '../webhooks' },
+        components: {
+          schemas: { output: ${JSON.stringify(schemasDir)}, split: true, exportTypes: true, import: '../schemas' },
+          parameters: { output: ${JSON.stringify(parametersDir)}, split: true, exportTypes: true, import: '../parameters' },
+          responses: { output: ${JSON.stringify(responsesDir)}, split: true, import: '../responses' },
         },
       }`,
     )
@@ -587,7 +585,7 @@ describe('honoTakibi config-driven', () => {
     fs.mkdirSync(output)
     fs.writeFileSync(
       path.join(tmpDir, 'hono-takibi.config.ts'),
-      `export default { input: ${JSON.stringify(input)}, 'zod-openapi': { output: ${JSON.stringify(output)} } }`,
+      `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
     )
     process.cwd = () => tmpDir
     process.argv = ['node', 'cli']

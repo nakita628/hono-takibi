@@ -24,7 +24,7 @@ export async function defineTemplate(
   // Single source for the generated route/handler directory; everything else
   // (app import specifier, handler write path, test import) derives from it.
   const baseDir = path.dirname(output)
-  const handlerDir = templateOutput ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
+  const handlerDir = templateOutput ?? (baseDir === '.' ? 'routes' : `${baseDir}/routes`)
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   // The alias maps to the app entry's directory, so resolve the handler dir relative to it
   // (keeps nested dirs like `src/api/controllers` → `@/api/controllers`, not just the basename).

@@ -174,12 +174,10 @@ describe('honoTakibiVite', () => {
   it('prunes stray .ts files in split outputs and preserves non-.ts files', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        components: {
-          schemas: { output: 'out/schema', split: true, exportTypes: true },
-        },
-        routes: { output: 'out/route', split: true },
+      components: {
+        schemas: { output: 'out/schema', split: true, exportTypes: true },
       },
+      routes: { output: 'out/route', split: true },
       rpc: { output: 'out/rpc', split: true, import: '@rpc' },
     }
 
@@ -205,9 +203,7 @@ describe('honoTakibiVite', () => {
   it('runs routes even without schema outputs', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -242,9 +238,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate returns empty array for config file changes', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -269,9 +263,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate returns undefined for non-config files', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -298,12 +290,10 @@ describe('honoTakibiVite', () => {
 
     const initialConfiguration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        components: {
-          schemas: { output: 'out/stale-schema', split: true, exportTypes: true },
-        },
-        routes: { output: 'out/route', split: true },
+      components: {
+        schemas: { output: 'out/stale-schema', split: true, exportTypes: true },
       },
+      routes: { output: 'out/route', split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(initialConfiguration)
@@ -316,9 +306,7 @@ describe('honoTakibiVite', () => {
 
     const newConfiguration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const { server: newServer, reloaded: newReloaded } = createMockViteDevServer(newConfiguration)
@@ -359,9 +347,7 @@ describe('honoTakibiVite', () => {
   it('watcher.add is called during configureServer', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const addSpy = vi.fn()
@@ -378,9 +364,7 @@ describe('honoTakibiVite', () => {
   it('watcher.on is called to register file change handler', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const onSpy = vi.fn()
@@ -399,9 +383,7 @@ describe('honoTakibiVite', () => {
   it('sends full-reload via ws after generation', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        routes: { output: 'out/route', split: true },
-      },
+      routes: { output: 'out/route', split: true },
     }
 
     const sendSpy = vi.fn()
@@ -467,7 +449,7 @@ describe('honoTakibiVite', () => {
   it('invalidates all modules when resolveId returns null', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const invalidateAllSpy = vi.fn()
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -486,7 +468,7 @@ describe('honoTakibiVite', () => {
   it('regenerates when input .yaml file changes inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -511,7 +493,7 @@ describe('honoTakibiVite', () => {
   it('ignores file changes outside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -534,7 +516,7 @@ describe('honoTakibiVite', () => {
   it('ignores non-yaml/json/tsp files inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -558,7 +540,7 @@ describe('honoTakibiVite', () => {
   it('handles config file change via watcher callback', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -589,7 +571,7 @@ describe('honoTakibiVite', () => {
 
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -602,11 +584,11 @@ describe('honoTakibiVite', () => {
     logSpy.mockRestore()
   })
 
-  it('logs config error when zod-openapi output path is not .ts', async () => {
+  it('logs config error when output path is not .ts', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { output: 'out/routes.json' as const },
+      output: 'out/routes.json' as const,
     }
     const { server } = createMockViteDevServer(configuration)
 
@@ -623,9 +605,7 @@ describe('honoTakibiVite', () => {
   it('runs full pipeline: type/mock/docs/test/template + all clients', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        output: 'out/single.ts',
-      },
+      output: 'out/single.ts',
       type: { output: 'out/types.ts' },
       mock: { output: 'out/mock.ts' },
       docs: { output: 'out/api.md' },
@@ -658,21 +638,19 @@ describe('honoTakibiVite', () => {
   it('runs every component generator branch', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': {
-        webhooks: { output: 'out/webhooks.ts' },
-        components: {
-          schemas: { output: 'out/schemas.ts' },
-          parameters: { output: 'out/parameters.ts' },
-          headers: { output: 'out/headers.ts' },
-          securitySchemes: { output: 'out/security.ts' },
-          requestBodies: { output: 'out/bodies.ts' },
-          responses: { output: 'out/responses.ts' },
-          examples: { output: 'out/examples.ts' },
-          links: { output: 'out/links.ts' },
-          callbacks: { output: 'out/callbacks.ts' },
-          pathItems: { output: 'out/pathItems.ts' },
-          mediaTypes: { output: 'out/mediaTypes.ts' },
-        },
+      webhooks: { output: 'out/webhooks.ts' },
+      components: {
+        schemas: { output: 'out/schemas.ts' },
+        parameters: { output: 'out/parameters.ts' },
+        headers: { output: 'out/headers.ts' },
+        securitySchemes: { output: 'out/security.ts' },
+        requestBodies: { output: 'out/bodies.ts' },
+        responses: { output: 'out/responses.ts' },
+        examples: { output: 'out/examples.ts' },
+        links: { output: 'out/links.ts' },
+        callbacks: { output: 'out/callbacks.ts' },
+        pathItems: { output: 'out/pathItems.ts' },
+        mediaTypes: { output: 'out/mediaTypes.ts' },
       },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -702,7 +680,7 @@ describe('honoTakibiVite', () => {
     }))
     const configuration = {
       input: 'openapi.yaml',
-      'zod-openapi': { output: 'out/single.ts' as const },
+      output: 'out/single.ts' as const,
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -720,7 +698,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate logs config error when invalid config is loaded later', async () => {
     const initialConfiguration = {
       input: 'openapi.yaml',
-      'zod-openapi': { routes: { output: 'out/route', split: true } },
+      routes: { output: 'out/route', split: true },
     }
     const { server, reloaded } = createMockViteDevServer(initialConfiguration)
     const plugin = honoTakibiVite()

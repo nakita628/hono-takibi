@@ -69,7 +69,7 @@ Options:
     fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+      `export default { input: 'schema.json', output: 'output.ts', exportSchemas: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -123,7 +123,7 @@ export const getItemsRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/schema.json', JSON.stringify(schemaOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemasTypes: true } }`,
+      `export default { input: 'schema.json', output: 'output.ts', exportSchemasTypes: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -173,7 +173,7 @@ export const getItemsRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'param.json', 'zod-openapi': { output: 'output.ts', exportParameters: true } }`,
+      `export default { input: 'param.json', output: 'output.ts', exportParameters: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -222,7 +222,7 @@ export const getItemsIdRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/param.json', JSON.stringify(paramOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'param.json', 'zod-openapi': { output: 'output.ts', exportParametersTypes: true } }`,
+      `export default { input: 'param.json', output: 'output.ts', exportParametersTypes: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -271,7 +271,7 @@ export const getItemsIdRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/security.json', JSON.stringify(securityOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'security.json', 'zod-openapi': { output: 'output.ts', exportSecuritySchemes: true } }`,
+      `export default { input: 'security.json', output: 'output.ts', exportSecuritySchemes: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -320,7 +320,7 @@ export const getSecureRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/requestbody.json', JSON.stringify(requestBodyOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'requestbody.json', 'zod-openapi': { output: 'output.ts', exportRequestBodies: true } }`,
+      `export default { input: 'requestbody.json', output: 'output.ts', exportRequestBodies: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -371,7 +371,7 @@ export const postUsersRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/response.json', JSON.stringify(responseOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'response.json', 'zod-openapi': { output: 'output.ts', exportResponses: true } }`,
+      `export default { input: 'response.json', output: 'output.ts', exportResponses: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -422,7 +422,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'header.json', 'zod-openapi': { output: 'output.ts', exportHeaders: true } }`,
+      `export default { input: 'header.json', output: 'output.ts', exportHeaders: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -472,7 +472,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/header.json', JSON.stringify(headerOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'header.json', 'zod-openapi': { output: 'output.ts', exportHeadersTypes: true } }`,
+      `export default { input: 'header.json', output: 'output.ts', exportHeadersTypes: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -529,7 +529,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/example.json', JSON.stringify(exampleOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'example.json', 'zod-openapi': { output: 'output.ts', exportExamples: true } }`,
+      `export default { input: 'example.json', output: 'output.ts', exportExamples: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -585,7 +585,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/link.json', JSON.stringify(linkOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'link.json', 'zod-openapi': { output: 'output.ts', exportLinks: true } }`,
+      `export default { input: 'link.json', output: 'output.ts', exportLinks: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -652,7 +652,7 @@ export const getUsersIdRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/callback.json', JSON.stringify(callbackOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'callback.json', 'zod-openapi': { output: 'output.ts', exportCallbacks: true } }`,
+      `export default { input: 'callback.json', output: 'output.ts', exportCallbacks: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -754,7 +754,7 @@ export const postSubscribeRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/all-options.json', JSON.stringify(allOptionsOpenAPI))
     fs.writeFileSync(
       'tmp-cli-test/hono-takibi.config.ts',
-      `export default { input: 'all-options.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true, exportSchemasTypes: true, exportParameters: true, exportParametersTypes: true, exportSecuritySchemes: true, exportRequestBodies: true, exportResponses: true, exportHeaders: true, exportHeadersTypes: true, exportExamples: true, exportLinks: true, exportCallbacks: true } }`,
+      `export default { input: 'all-options.json', output: 'output.ts', exportSchemas: true, exportSchemasTypes: true, exportParameters: true, exportParametersTypes: true, exportSecuritySchemes: true, exportRequestBodies: true, exportResponses: true, exportHeaders: true, exportHeadersTypes: true, exportExamples: true, exportLinks: true, exportCallbacks: true }`,
     )
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
@@ -895,7 +895,7 @@ describe('config template mode tests', () => {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: {} } }`,
+      `export default { input: 'openapi.json', output: 'src/routes.ts', template: {} }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
@@ -966,7 +966,7 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: { test: true } } }`,
+      `export default { input: 'openapi.json', output: 'src/routes.ts', template: { test: true } }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
@@ -1016,7 +1016,7 @@ describe('Items', () => {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(
       path.join(testDir, 'hono-takibi.config.ts'),
-      `export default { input: 'openapi.json', 'zod-openapi': { output: 'src/routes.ts', template: {} } }`,
+      `export default { input: 'openapi.json', output: 'src/routes.ts', template: {} }`,
     )
 
     execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
@@ -1080,11 +1080,9 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30000 }, () 
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
   },
 }`
 
@@ -1159,12 +1157,10 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    components: {
-      schemas: { output: 'src/schemas', split: true, exportTypes: true },
-    },
-    routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, exportTypes: true },
   },
+  routes: { output: 'src/routes', split: true },
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -1203,9 +1199,7 @@ export type Item = z.infer<typeof ItemSchema>
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    output: 'src/routes.ts',
-  },
+  output: 'src/routes.ts',
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -1259,11 +1253,9 @@ export const getTestRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '../schemas' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '../schemas' },
   },
 }`
 
@@ -1321,11 +1313,9 @@ export const getPostsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
   },
 }`
 
@@ -1386,11 +1376,9 @@ export const getCommentsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '@myorg/schemas' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '@myorg/schemas' },
   },
 }`
 
@@ -1446,11 +1434,9 @@ export const getProductsRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
   },
 }`
 
@@ -1509,11 +1495,9 @@ export const getItemsItemIdRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/api/routes', split: true },
-    components: {
-      responses: { output: 'src/api/responses', split: true, import: '../responses' },
-    },
+  routes: { output: 'src/api/routes', split: true },
+  components: {
+    responses: { output: 'src/api/responses', split: true, import: '../responses' },
   },
 }`
 
@@ -1575,11 +1559,9 @@ export const getOrdersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      headers: { output: 'src/headers', split: true, import: '@/headers' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    headers: { output: 'src/headers', split: true, import: '@/headers' },
   },
 }`
 
@@ -1639,11 +1621,9 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      securitySchemes: { output: 'src/security', split: true, import: '../security' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    securitySchemes: { output: 'src/security', split: true, import: '../security' },
   },
 }`
 
@@ -1707,11 +1687,9 @@ export const getSecureRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      requestBodies: { output: 'src/bodies', split: true, import: '@myorg/request-bodies' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    requestBodies: { output: 'src/bodies', split: true, import: '@myorg/request-bodies' },
   },
 }`
 
@@ -1782,11 +1760,9 @@ export const postUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      examples: { output: 'src/examples', split: true, import: '~/examples' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    examples: { output: 'src/examples', split: true, import: '~/examples' },
   },
 }`
 
@@ -1873,11 +1849,9 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      examples: { output: 'src/examples', split: true, import: '@/examples' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    examples: { output: 'src/examples', split: true, import: '@/examples' },
   },
 }`
 
@@ -1984,11 +1958,9 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      examples: { output: 'src/examples', split: true, import: '@/examples' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    examples: { output: 'src/examples', split: true, import: '@/examples' },
   },
 }`
 
@@ -2090,11 +2062,9 @@ export const getUsersRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      examples: { output: 'src/examples', split: true, import: '@/examples' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    examples: { output: 'src/examples', split: true, import: '@/examples' },
   },
 }`
 
@@ -2186,11 +2156,9 @@ export const getMessagesRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      links: { output: 'src/links', split: true, import: '@/links' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    links: { output: 'src/links', split: true, import: '@/links' },
   },
 }`
 
@@ -2272,11 +2240,9 @@ export const getUsersIdRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
   },
 }`
 
@@ -2409,12 +2375,10 @@ export const postSubscribeRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '../schemas' },
-      callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '../schemas' },
+    callbacks: { output: 'src/callbacks', split: true, import: '../callbacks' },
   },
 }`
 
@@ -2488,9 +2452,7 @@ export const postSubscribeRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-  },
+  routes: { output: 'src/routes', split: true },
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -2557,12 +2519,10 @@ export const getSimpleRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
-      parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '@/schemas' },
+    parameters: { output: 'src/parameters', split: true, import: '@/parameters' },
   },
 }`
 
@@ -2655,9 +2615,7 @@ post:
 
     const config = `export default {
   input: 'openapi.yaml',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-  },
+  routes: { output: 'src/routes', split: true },
 }
 `
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
@@ -2849,11 +2807,9 @@ export const paymentReceivedPostWebhook = {
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
   },
 }`
 
@@ -2916,10 +2872,8 @@ export const XmlContentMediaTypeSchema = z.object({ root: z.string().exactOption
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    output: 'src/routes.ts',
-    exportMediaTypes: true,
-  },
+  output: 'src/routes.ts',
+  exportMediaTypes: true,
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -2976,11 +2930,9 @@ export const getDataRoute = createRoute({
 
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    output: 'src/routes.ts',
-    exportMediaTypes: true,
-    exportMediaTypesTypes: true,
-  },
+  output: 'src/routes.ts',
+  exportMediaTypes: true,
+  exportMediaTypesTypes: true,
 }`
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -3060,12 +3012,10 @@ export const getDataRoute = createRoute({
     }
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
-      callbacks: { output: 'src/callbacks', split: true, import: '~/callbacks' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
+    callbacks: { output: 'src/callbacks', split: true, import: '~/callbacks' },
   },
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -3123,12 +3073,10 @@ export const UserCreatedCallback = {
     }
     const config = `export default {
   input: 'openapi.json',
-  'zod-openapi': {
-    routes: { output: 'src/routes', split: true },
-    components: {
-      schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
-      mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
-    },
+  routes: { output: 'src/routes', split: true },
+  components: {
+    schemas: { output: 'src/schemas', split: true, import: '~/schemas' },
+    mediaTypes: { output: 'src/mediaTypes', split: true, import: '@/mediaTypes' },
   },
 }`
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
@@ -3180,7 +3128,7 @@ export const JsonUserMediaTypeSchema = UserSchema
       fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'schema.json', 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+        `export default { input: 'schema.json', output: 'output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
@@ -3205,7 +3153,7 @@ export const getItemsRoute = createRoute({
       fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'schema.json', format: { semi: true, singleQuote: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: false }, output: 'output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
@@ -3230,7 +3178,7 @@ export const getItemsRoute = createRoute({
       fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'schema.json', format: { semi: true, singleQuote: true }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+        `export default { input: 'schema.json', format: { semi: true, singleQuote: true }, output: 'output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
@@ -3255,7 +3203,7 @@ export const getItemsRoute = createRoute({
       fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'schema.json', format: { tabWidth: 4, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+        `export default { input: 'schema.json', format: { tabWidth: 4, singleQuote: true, semi: false }, output: 'output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
@@ -3280,7 +3228,7 @@ export const getItemsRoute = createRoute({
       fs.writeFileSync(`${testDir}/schema.json`, JSON.stringify(formatTestSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'schema.json', format: { useTabs: true, singleQuote: true, semi: false }, 'zod-openapi': { output: 'output.ts', exportSchemas: true } }`,
+        `export default { input: 'schema.json', format: { useTabs: true, singleQuote: true, semi: false }, output: 'output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
@@ -3461,7 +3409,7 @@ export const postUsersRoute = createRoute({
       fs.writeFileSync(`${testDir}/brand-config.json`, JSON.stringify(brandConfigSchema))
       fs.writeFileSync(
         `${testDir}/hono-takibi.config.ts`,
-        `export default { input: 'brand-config.json', 'zod-openapi': { output: 'brand-config-output.ts', exportSchemas: true } }`,
+        `export default { input: 'brand-config.json', output: 'brand-config-output.ts', exportSchemas: true }`,
       )
       execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
         cwd: path.resolve(testDir),
