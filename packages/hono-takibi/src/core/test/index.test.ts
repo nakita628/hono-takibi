@@ -77,4 +77,56 @@ describe('custom-marker', () => {
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
+
+  it('propagates the error when the output path cannot be read', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-gen-unreadable-'))
+    // A directory at the output path makes readFile fail with a non-ENOENT error.
+    const output = path.join(tmpDir, 'index.test.ts')
+    fs.mkdirSync(output)
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await testGen(openAPI, output, '..')
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.length > 0).toBe(true)
+    }
+  })
+
+  it('propagates the error when the output directory cannot be created', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-gen-blocked-'))
+    // A file occupying the parent path makes mkdir fail.
+    fs.writeFileSync(path.join(tmpDir, 'blocker'), '')
+    const output = path.join(tmpDir, 'blocker', 'index.test.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await testGen(openAPI, output, '..')
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.length > 0).toBe(true)
+    }
+  })
 })

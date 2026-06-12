@@ -144,4 +144,30 @@ export const api = new OpenAPIHono()
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
+
+  it('propagates the error when the app target cannot be read', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-unreadable-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    // A directory at the target path makes readFile fail with a non-ENOENT error.
+    fs.mkdirSync(path.join(tmpDir, 'index.ts'))
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.length > 0).toBe(true)
+    }
+  })
 })
