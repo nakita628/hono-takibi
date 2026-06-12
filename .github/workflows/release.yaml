@@ -6,31 +6,30 @@ on:
     types: [completed]
     branches: [main]
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 2
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Check version change
         id: ver
         run: |
-          FILE=packages/hono-takibi/package.json
-          git diff --name-only HEAD~1 | grep -q "$FILE" || { echo "skip=true" >> $GITHUB_OUTPUT; exit 0; }
-          CUR=$(jq -r .version "$FILE")
-          PRE=$(git show HEAD~1:"$FILE" 2>/dev/null | jq -r .version || echo "")
-          [[ "$CUR" != "$PRE" ]] && echo "version=$CUR" >> $GITHUB_OUTPUT || echo "skip=true" >> $GITHUB_OUTPUT
+          CUR=$(jq -r .version packages/hono-takibi/package.json)
+          git fetch --tags --depth=1 --quiet origin "refs/tags/v$CUR" 2>/dev/null || true
+          git rev-parse -q --verify "refs/tags/v$CUR" >/dev/null || echo "version=$CUR" >> $GITHUB_OUTPUT
 
       - name: Create release
         if: steps.ver.outputs.version
-        uses: ncipollo/release-action@v1
-        with:
-          tag: v${{ steps.ver.outputs.version }}
-          name: v${{ steps.ver.outputs.version }}
-          generateReleaseNotes: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.ver.outputs.version }}
+          TARGET: ${{ github.event.workflow_run.head_sha }}
+        run: gh release create "v$VERSION" --generate-notes --target "$TARGET"
