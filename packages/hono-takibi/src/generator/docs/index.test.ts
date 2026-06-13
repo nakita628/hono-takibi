@@ -4134,18 +4134,18 @@ This operation does not require authentication
   })
 
   describe('apiKey without "in" defaults to header', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: {
         securitySchemes: {
-          ak: { type: 'apiKey', name: 'X-Api-Key' } as { type: 'apiKey'; name: string },
+          ak: { type: 'apiKey', name: 'X-Api-Key' },
         },
       },
       paths: {
         '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
       },
-    }
+    } as unknown as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4189,14 +4189,14 @@ This operation does not require authentication
   })
 
   describe('oauth2 without flows', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
-      components: { securitySchemes: { o2: { type: 'oauth2' } as { type: 'oauth2' } } },
+      components: { securitySchemes: { o2: { type: 'oauth2' } } },
       paths: {
         '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
       },
-    }
+    } as unknown as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4239,7 +4239,7 @@ This operation does not require authentication
   })
 
   describe('oauth2 flow with empty scopes / no auth or token URL', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: {
@@ -4247,16 +4247,13 @@ This operation does not require authentication
           o3: {
             type: 'oauth2',
             flows: { clientCredentials: { scopes: {} } },
-          } as {
-            type: 'oauth2'
-            flows: { clientCredentials: { scopes: { readonly [k: string]: string } } }
           },
         },
       },
       paths: {
         '/x': { get: { operationId: 'gx', responses: { '200': { description: 'OK' } } } },
       },
-    }
+    } as unknown as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.

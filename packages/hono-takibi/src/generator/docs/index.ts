@@ -105,7 +105,7 @@ function resolveResponse(response: Responses, components: Components | undefined
  * Formats a schema type string as widdershins does.
  * Examples: "string(email)", "integer(int64)", "[User](#schemauser)", "[[User](#schemauser)]"
  */
-function formatSchemaType(schema: Schema | undefined, _components: Components | undefined): string {
+function formatSchemaType(schema: Schema | undefined): string {
   if (!schema) return 'object'
   if (schema.$ref) {
     const name = refName(schema.$ref)
@@ -114,7 +114,7 @@ function formatSchemaType(schema: Schema | undefined, _components: Components | 
   if (schema.type === 'array' && schema.items) {
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
     if (itemSchema) {
-      const inner = formatSchemaType(itemSchema, _components)
+      const inner = formatSchemaType(itemSchema)
       return `[${inner}]`
     }
     return 'array'
@@ -405,7 +405,7 @@ function extractMediaExample(jsonMedia: {
   readonly examples?: {
     readonly [k: string]: { readonly value?: unknown } | { readonly $ref?: string }
   }
-}): unknown | undefined {
+}): unknown {
   if (jsonMedia.example !== undefined) return jsonMedia.example
   if (jsonMedia.examples) {
     const first = Object.values(jsonMedia.examples)[0]
@@ -571,7 +571,7 @@ function flattenBodyParams(
       const row = {
         name: fullName,
         in_: 'body',
-        type: formatSchemaType(propSchema, components),
+        type: formatSchemaType(propSchema),
         required: requiredSet.has(key),
         description: propSchema.description ?? 'none',
       }
@@ -632,7 +632,7 @@ function makeParametersTable(
     rows.push({
       name: p.name,
       in_: p.in,
-      type: formatSchemaType(p.schema, components),
+      type: formatSchemaType(p.schema),
       required: p.required ? 'true' : 'false',
       description: p.description ?? 'none',
     })
@@ -643,14 +643,14 @@ function makeParametersTable(
     rows.push({
       name: p.name,
       in_: p.in,
-      type: formatSchemaType(p.schema, components),
+      type: formatSchemaType(p.schema),
       required: p.required ? 'true' : 'false',
       description: p.description ?? 'none',
     })
   }
   const bodySchema = getBodySchema(operation.requestBody, components)
   if (bodySchema) {
-    const bodyTypeStr = bodySchema.$ref ? formatSchemaType(bodySchema, components) : 'object'
+    const bodyTypeStr = bodySchema.$ref ? formatSchemaType(bodySchema) : 'object'
     const isRequired =
       operation.requestBody &&
       isRequestBody(operation.requestBody) &&
@@ -754,7 +754,7 @@ function flattenResponseSchemaFields(
       const fullName = prefix ? `${prefix} ${key}` : key
       const row = {
         name: fullName,
-        type: formatSchemaType(propSchema, components),
+        type: formatSchemaType(propSchema),
         required: requiredSet.has(key),
         restrictions: 'none',
         description: propSchema.description ?? 'none',
@@ -815,7 +815,7 @@ function flattenResponseSchemaFields(
   if (schema.type === 'array' && schema.items) {
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
     if (itemSchema) {
-      const itemType = formatSchemaType(itemSchema, components)
+      const itemType = formatSchemaType(itemSchema)
       const anonRow = {
         name: '*anonymous*',
         type: `[${itemType}]`,
@@ -944,7 +944,7 @@ function collectEnumeratedValues(
     '',
     '|Parameter|Value|',
     '|---|---|',
-    ...rows.map((r) => `|${r.param}|${r.value}|`),
+    ...rows.map((r) => `|${r.param}|${String(r.value)}|`),
     '',
   ]
 }
@@ -973,7 +973,7 @@ function flattenSchemaProperties(
       return [
         {
           name: fullName,
-          type: formatSchemaType(propSchema, components),
+          type: formatSchemaType(propSchema),
           required: requiredSet.has(key),
           restrictions: 'none',
           description: propSchema.description ?? 'none',
@@ -1042,7 +1042,7 @@ function makeSchemasSection(
         '',
         '|Property|Value|',
         '|---|---|',
-        ...enumRows.map((r) => `|${r.property}|${r.value}|`),
+        ...enumRows.map((r) => `|${r.property}|${String(r.value)}|`),
         '',
       )
     }
