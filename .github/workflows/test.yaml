@@ -19,7 +19,7 @@ jobs:
 
       - run: vp install
 
-      - run: vp run build
+      - run: vp run hono-takibi#build
 
       - run: vp check
 
