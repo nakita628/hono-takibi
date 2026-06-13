@@ -14,13 +14,7 @@ export default defineConfig({
     },
   },
   lint: {
-    ignorePatterns: [
-      '**/apps/**',
-      '**/dist/**',
-      '**/docs/**',
-      '**/fixtures/**',
-      '**/routeTree.gen.ts',
-    ],
+    ignorePatterns: ['**/apps/**', '**/dist/**', '**/fixtures/**'],
     options: {
       typeAware: true,
       typeCheck: true,
