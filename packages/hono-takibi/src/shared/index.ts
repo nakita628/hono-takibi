@@ -1,6 +1,10 @@
+import path from 'node:path'
+
 import type { parseConfig } from '../config/index.js'
 import {
   callbacks,
+  components,
+  defineTemplate,
   docs,
   examples,
   headers,
@@ -28,225 +32,267 @@ export function makeJob(
   openAPI: OpenAPI,
   config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
 ) {
+  const defineOn = config.template?.define === true
+  const appOutput = config.output ?? config.routes?.output
+  // `template.output` is the route/handler directory; both template modes accept it (define
+  // defaults to `src/routes`, non-define falls back to `handlers` next to the app entry).
+  const defineHandlerDir = defineOn ? config.template?.output : undefined
+  const componentsOutput =
+    config.components?.output ??
+    (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
+  // OpenAPI 3.x Components Object kinds, in declaration / config-field order.
+  const componentKinds = [
+    'schemas',
+    'responses',
+    'parameters',
+    'examples',
+    'requestBodies',
+    'headers',
+    'securitySchemes',
+    'links',
+    'callbacks',
+    'pathItems',
+    'mediaTypes',
+  ] as const
+  // Import-path resolution map keyed by component kind. When `components.output` is set,
+  // every kind resolves to that single file; otherwise each kind keeps its per-type config.
+  const rawComponents = config.components
+  const componentsResolve: { readonly [k: string]: { readonly output: string } } | undefined =
+    componentsOutput
+      ? Object.fromEntries(componentKinds.map((kind) => [kind, { output: componentsOutput }]))
+      : rawComponents
+        ? Object.fromEntries(
+            componentKinds.flatMap((kind) => {
+              const value = rawComponents[kind]
+              return value ? ([[kind, value]] as const) : []
+            }),
+          )
+        : undefined
   return [
-    config['zod-openapi']?.output
+    config.output && !defineOn
       ? {
           name: 'zod-openapi',
-          output: config['zod-openapi'].output,
+          output: config.output,
           split: false,
           run: (output: string) =>
             ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
               ? takibi(openAPI, output, {
-                  ...(config['zod-openapi']?.readonly !== undefined
-                    ? { readonly: config['zod-openapi'].readonly }
-                    : {}),
-                  exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
-                  exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
-                  exportResponses: config['zod-openapi']?.exportResponses ?? false,
-                  exportParameters: config['zod-openapi']?.exportParameters ?? false,
-                  exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
-                  exportExamples: config['zod-openapi']?.exportExamples ?? false,
-                  exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
-                  exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
-                  exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
-                  exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
-                  exportLinks: config['zod-openapi']?.exportLinks ?? false,
-                  exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
-                  exportPathItems: config['zod-openapi']?.exportPathItems ?? false,
-                  exportMediaTypes: config['zod-openapi']?.exportMediaTypes ?? false,
-                  exportMediaTypesTypes: config['zod-openapi']?.exportMediaTypesTypes ?? false,
+                  ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
+                  exportSchemas: config.exportSchemas,
+                  exportSchemasTypes: config.exportSchemasTypes,
+                  exportResponses: config.exportResponses,
+                  exportParameters: config.exportParameters,
+                  exportParametersTypes: config.exportParametersTypes,
+                  exportExamples: config.exportExamples,
+                  exportRequestBodies: config.exportRequestBodies,
+                  exportHeaders: config.exportHeaders,
+                  exportHeadersTypes: config.exportHeadersTypes,
+                  exportSecuritySchemes: config.exportSecuritySchemes,
+                  exportLinks: config.exportLinks,
+                  exportCallbacks: config.exportCallbacks,
+                  exportPathItems: config.exportPathItems,
+                  exportMediaTypes: config.exportMediaTypes,
+                  exportMediaTypesTypes: config.exportMediaTypesTypes,
                 })
               : Promise.resolve({ ok: false, error: `Invalid output format: ${output}` } as const),
         }
       : undefined,
-    config['zod-openapi']?.webhooks
+    config.webhooks
       ? {
           name: 'webhooks',
-          output: config['zod-openapi'].webhooks.output,
-          split: config['zod-openapi'].webhooks.split === true,
+          output: config.webhooks.output,
+          split: config.webhooks.split === true,
           run: (output: string) =>
             webhooks(
               openAPI,
-              { output, split: config['zod-openapi']?.webhooks?.split === true },
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              { output, split: config.webhooks?.split === true },
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.schemas
+    componentsOutput
+      ? {
+          name: 'components',
+          output: componentsOutput,
+          split: false,
+          run: (output: string) => components(openAPI, output, config.readonly),
+        }
+      : undefined,
+    config.components?.schemas
       ? {
           name: 'schemas',
-          output: config['zod-openapi'].components.schemas.output,
-          split: config['zod-openapi'].components.schemas.split === true,
+          output: config.components.schemas.output,
+          split: config.components.schemas.split === true,
           run: (output: string) =>
             schemas(
               openAPI.components?.schemas,
               output,
-              config['zod-openapi']?.components?.schemas?.split === true,
-              config['zod-openapi']?.components?.schemas?.exportTypes === true,
-              config['zod-openapi']?.readonly,
+              config.components?.schemas?.split === true,
+              config.components?.schemas?.exportTypes === true,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.parameters
+    config.components?.parameters
       ? {
           name: 'parameters',
-          output: config['zod-openapi'].components.parameters.output,
-          split: config['zod-openapi'].components.parameters.split === true,
+          output: config.components.parameters.output,
+          split: config.components.parameters.split === true,
           run: (output: string) =>
             parameters(
               openAPI.components?.parameters,
               output,
-              config['zod-openapi']?.components?.parameters?.split === true,
-              config['zod-openapi']?.components?.parameters?.exportTypes === true,
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              config.components?.parameters?.split === true,
+              config.components?.parameters?.exportTypes === true,
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.headers
+    config.components?.headers
       ? {
           name: 'headers',
-          output: config['zod-openapi'].components.headers.output,
-          split: config['zod-openapi'].components.headers.split === true,
+          output: config.components.headers.output,
+          split: config.components.headers.split === true,
           run: (output: string) =>
             headers(
               openAPI.components?.headers,
               output,
-              config['zod-openapi']?.components?.headers?.split === true,
-              config['zod-openapi']?.components?.headers?.exportTypes === true,
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              config.components?.headers?.split === true,
+              config.components?.headers?.exportTypes === true,
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.examples
+    config.components?.examples
       ? {
           name: 'examples',
-          output: config['zod-openapi'].components.examples.output,
-          split: config['zod-openapi'].components.examples.split === true,
+          output: config.components.examples.output,
+          split: config.components.examples.split === true,
           run: (output: string) =>
             examples(
               openAPI.components?.examples,
               output,
-              config['zod-openapi']?.components?.examples?.split === true,
-              config['zod-openapi']?.readonly,
+              config.components?.examples?.split === true,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.links
+    config.components?.links
       ? {
           name: 'links',
-          output: config['zod-openapi'].components.links.output,
-          split: config['zod-openapi'].components.links.split === true,
+          output: config.components.links.output,
+          split: config.components.links.split === true,
           run: (output: string) =>
             links(
               openAPI.components?.links,
               output,
-              config['zod-openapi']?.components?.links?.split === true,
-              config['zod-openapi']?.readonly,
+              config.components?.links?.split === true,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.callbacks
+    config.components?.callbacks
       ? {
           name: 'callbacks',
-          output: config['zod-openapi'].components.callbacks.output,
-          split: config['zod-openapi'].components.callbacks.split === true,
+          output: config.components.callbacks.output,
+          split: config.components.callbacks.split === true,
           run: (output: string) =>
             callbacks(
               openAPI.components?.callbacks,
               output,
-              config['zod-openapi']?.components?.callbacks?.split === true,
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              config.components?.callbacks?.split === true,
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.pathItems
+    config.components?.pathItems
       ? {
           name: 'pathItems',
-          output: config['zod-openapi'].components.pathItems.output,
-          split: config['zod-openapi'].components.pathItems.split === true,
+          output: config.components.pathItems.output,
+          split: config.components.pathItems.split === true,
           run: (output: string) =>
             pathItems(
               openAPI.components ?? {},
-              { output, split: config['zod-openapi']?.components?.pathItems?.split === true },
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              { output, split: config.components?.pathItems?.split === true },
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.mediaTypes
+    config.components?.mediaTypes
       ? {
           name: 'mediaTypes',
-          output: config['zod-openapi'].components.mediaTypes.output,
-          split: config['zod-openapi'].components.mediaTypes.split === true,
+          output: config.components.mediaTypes.output,
+          split: config.components.mediaTypes.split === true,
           run: (output: string) =>
             mediaTypes(
               openAPI.components?.mediaTypes,
               output,
-              config['zod-openapi']?.components?.mediaTypes?.split === true,
-              config['zod-openapi']?.readonly,
-              config['zod-openapi']?.components,
+              config.components?.mediaTypes?.split === true,
+              config.readonly,
+              componentsResolve,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.securitySchemes
+    config.components?.securitySchemes
       ? {
           name: 'securitySchemes',
-          output: config['zod-openapi'].components.securitySchemes.output,
-          split: config['zod-openapi'].components.securitySchemes.split === true,
+          output: config.components.securitySchemes.output,
+          split: config.components.securitySchemes.split === true,
           run: (output: string) =>
             securitySchemes(
               openAPI.components?.securitySchemes,
               output,
-              config['zod-openapi']?.components?.securitySchemes?.split === true,
-              config['zod-openapi']?.readonly,
+              config.components?.securitySchemes?.split === true,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.requestBodies
+    config.components?.requestBodies
       ? {
           name: 'requestBodies',
-          output: config['zod-openapi'].components.requestBodies.output,
-          split: config['zod-openapi'].components.requestBodies.split === true,
+          output: config.components.requestBodies.output,
+          split: config.components.requestBodies.split === true,
           run: (output: string) =>
             requestBodies(
               openAPI.components?.requestBodies,
               output,
-              config['zod-openapi']?.components?.requestBodies?.split === true,
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              config.components?.requestBodies?.split === true,
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.components?.responses
+    config.components?.responses
       ? {
           name: 'responses',
-          output: config['zod-openapi'].components.responses.output,
-          split: config['zod-openapi'].components.responses.split === true,
+          output: config.components.responses.output,
+          split: config.components.responses.split === true,
           run: (output: string) =>
             responses(
               openAPI.components?.responses,
               output,
-              config['zod-openapi']?.components?.responses?.split === true,
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              config.components?.responses?.split === true,
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
-    config['zod-openapi']?.routes
+    config.routes
       ? {
           name: 'routes',
-          output: config['zod-openapi'].routes.output,
-          split: config['zod-openapi'].routes.split === true,
+          output: config.routes.output,
+          split: config.routes.split === true,
           run: (output: string) =>
             route(
               openAPI,
-              { output, split: config['zod-openapi']?.routes?.split === true },
-              config['zod-openapi']?.components,
-              config['zod-openapi']?.readonly,
+              { output, split: config.routes?.split === true },
+              componentsResolve,
+              config.readonly,
             ),
         }
       : undefined,
@@ -324,8 +370,7 @@ export function makeJob(
           name: 'mock',
           output: config.mock.output,
           split: false,
-          run: (output: string) =>
-            mock(openAPI, output, config.basePath, config['zod-openapi']?.readonly),
+          run: (output: string) => mock(openAPI, output, config.basePath, config.readonly),
         }
       : undefined,
     config.docs
@@ -344,27 +389,43 @@ export function makeJob(
             ),
         }
       : undefined,
-    config['zod-openapi']?.template &&
-    (config['zod-openapi'].output ?? config['zod-openapi'].routes?.output)
+    config.template && defineOn && appOutput && componentsOutput && defineHandlerDir
       ? {
           name: 'template',
-          output:
-            config['zod-openapi'].output ??
-            config['zod-openapi'].routes?.output ??
-            'src/routes/index.ts',
+          output: appOutput,
           split: false,
           run: (output: string) =>
-            template(
+            defineTemplate(
               openAPI,
               output,
-              config['zod-openapi']?.template?.test ?? false,
+              componentsOutput,
+              config.template?.test ?? false,
               config.basePath,
-              config['zod-openapi']?.template?.pathAlias,
-              config['zod-openapi']?.routes?.import,
-              config['zod-openapi']?.template?.routeHandler ?? false,
-              config['zod-openapi']?.template?.testFramework,
+              config.template?.pathAlias,
+              config.routes?.import,
+              defineHandlerDir,
+              config.template?.testFramework,
+              config.readonly,
             ),
         }
-      : undefined,
+      : config.template && !defineOn && appOutput
+        ? {
+            name: 'template',
+            output: appOutput,
+            split: false,
+            run: (output: string) =>
+              template(
+                openAPI,
+                output,
+                config.template?.test ?? false,
+                config.basePath,
+                config.template?.pathAlias,
+                config.routes?.import,
+                config.template?.define === false ? config.template.routeHandler : false,
+                config.template?.testFramework,
+                config.template?.output,
+              ),
+          }
+        : undefined,
   ].filter((job) => job !== undefined)
 }

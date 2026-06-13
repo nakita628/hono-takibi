@@ -2,3 +2,8 @@ packages:
   - apps/*
   - packages/*
   - fixtures/*
+allowBuilds:
+  esbuild: true
+  sharp: true
+  vue-demi: true
+  workerd: true

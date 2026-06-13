@@ -7,7 +7,7 @@ import {
   isSecurityScheme,
 } from '../../guard/index.js'
 import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
-import { methodPath } from '../../utils/index.js'
+import { methodPath, statusCodeToNumber } from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
@@ -237,13 +237,32 @@ function resolveResponse(
 }
 
 /**
- * Determines the HTTP status code for a successful response.
- * Prefers 200 OK, then 201 Created, fallback to 204 No Content.
+ * Resolves the representative success response for a mock handler.
+ *
+ * Mirrors the route generator's status mapping (`statusCodeToNumber`): explicit
+ * `200`/`201`/`204` win, then `default`, then the lowest remaining 2xx (including
+ * the `2XX` wildcard). Status and response are returned together so the emitted
+ * body and its status code are always derived from the same response key.
  */
-function determineSuccessStatus(responses: { readonly [k: string]: Responses }): number {
-  if (responses[String(200)]) return 200
-  if (responses[String(201)]) return 201
-  return 204
+function resolveSuccessResponse(
+  responses: { readonly [k: string]: Responses } | undefined,
+  componentResponses: { readonly [k: string]: Responses } | undefined,
+) {
+  if (!responses) return undefined
+  const keys = Object.keys(responses)
+  const priority = ['200', '201', '204', 'default'].filter((key) => keys.includes(key))
+  const others = keys
+    .filter(
+      (key) =>
+        !priority.includes(key) && statusCodeToNumber(key) >= 200 && statusCodeToNumber(key) < 300,
+    )
+    .sort((a, b) => statusCodeToNumber(a) - statusCodeToNumber(b))
+  const key = [...priority, ...others][0]
+  if (!key) return undefined
+  return {
+    statusCode: statusCodeToNumber(key),
+    response: resolveResponse(responses[key], componentResponses),
+  }
 }
 
 /**
@@ -274,14 +293,13 @@ function makeAuthCheck(
     return []
   })
   if (authChecks.length === 0) return ''
-  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, ${401})}`
+  return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, 401)}`
 }
 
 function makeHandlerBody(
   statusCode: number,
   jsonSchema: Schema | undefined,
   textSchema: Schema | undefined,
-  hasNoContent: boolean,
   schemas: { readonly [k: string]: Schema },
   allRefs: Set<string>,
 ) {
@@ -294,8 +312,8 @@ function makeHandlerBody(
     const mockData = schemaToFaker(textSchema, undefined, { schemas })
     return `return c.text(${mockData}, ${statusCode})`
   }
-  if (hasNoContent) return `return new Response(null, { status: ${204} })`
-  return `return c.body(null, ${200})`
+  if (statusCode === 204) return `return new Response(null, { status: 204 })`
+  return `return c.body(null, ${statusCode})`
 }
 
 export function makeMock(
@@ -321,25 +339,14 @@ export function makeMock(
         securitySchemes,
       )
       const requiresAuth = security.length > 0
-      const successResponse = resolveResponse(
-        operation.responses?.[String(200)] ??
-          operation.responses?.[String(201)] ??
-          operation.responses?.[String(204)],
-        componentResponses,
-      )
+      const success = resolveSuccessResponse(operation.responses, componentResponses)
+      const statusCode = success?.statusCode ?? 200
+      const successResponse = success?.response
       const jsonMedia = successResponse?.content?.['application/json']
       const textMedia = successResponse?.content?.['text/plain']
       const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
       const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-      const statusCode = determineSuccessStatus(operation.responses)
-      const handlerBody = makeHandlerBody(
-        statusCode,
-        jsonSchema,
-        textSchema,
-        operation.responses?.[String(204)] !== undefined,
-        schemas,
-        allRefs,
-      )
+      const handlerBody = makeHandlerBody(statusCode, jsonSchema, textSchema, schemas, allRefs)
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)

@@ -6,6 +6,8 @@ describe('core barrel exports', () => {
   it.concurrent('exposes the exact expected export names', () => {
     expect(Object.keys(core).sort()).toStrictEqual([
       'callbacks',
+      'components',
+      'defineTemplate',
       'docs',
       'examples',
       'headers',

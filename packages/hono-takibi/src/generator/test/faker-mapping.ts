@@ -28,7 +28,8 @@ const FORMAT_TO_FAKER: { [k: string]: string } = {
   binary: 'new Blob([faker.string.alphanumeric(100)])',
   byte: 'btoa(faker.string.alphanumeric(10))',
   int32: 'faker.number.int({ min: -2147483648, max: 2147483647 })',
-  int64: 'faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER })',
+  int64: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
+  bigint: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
   float: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
   double: 'faker.number.float({ min: 0, max: 1000000, fractionDigits: 4 })',
 }

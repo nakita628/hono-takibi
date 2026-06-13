@@ -34,6 +34,24 @@ describe('makeModuleSpec', () => {
     })
     expect(result).toBe('../../../shared/schemas')
   })
+
+  it.concurrent('resolves the define app→route specifier independent of dir name', () => {
+    expect(makeModuleSpec('src/index.ts', { output: 'src/handlers' })).toBe('./handlers')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/routes' })).toBe('./routes')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/controllers' })).toBe('./controllers')
+    expect(makeModuleSpec('src/index.ts', { output: 'src/api/controllers' })).toBe(
+      './api/controllers',
+    )
+  })
+
+  it.concurrent('resolves the handler→components relative import across dir depth', () => {
+    expect(makeModuleSpec('src/controllers/users.ts', { output: 'src/components' })).toBe(
+      '../components',
+    )
+    expect(makeModuleSpec('src/api/controllers/users.ts', { output: 'src/components' })).toBe(
+      '../../components',
+    )
+  })
 })
 
 /* ═══════════════════════════════════ makeConst ═══════════════════════════════════ */
@@ -152,6 +170,16 @@ describe('makeImports', () => {
     const result = makeImports(code, '/src/routes/user.ts', undefined)
     expect(result).toBe(
       'import{createRoute}from\'@hono/zod-openapi\'\n\n\nconst route = createRoute({ method: "get" })',
+    )
+  })
+
+  it.concurrent('inserts honoExtras between createRoute and z', () => {
+    const code = 'const route = createRoute({ request: { body: z.object({}) } })'
+    const result = makeImports(code, '/src/routes/user.ts', undefined, false, [
+      'defineOpenAPIRoute',
+    ])
+    expect(result).toBe(
+      "import{createRoute,defineOpenAPIRoute,z}from'@hono/zod-openapi'\n\n\nconst route = createRoute({ request: { body: z.object({}) } })",
     )
   })
 

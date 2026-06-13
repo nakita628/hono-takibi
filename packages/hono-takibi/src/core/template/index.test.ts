@@ -40,6 +40,78 @@ describe('template', () => {
     expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(true)
   })
 
+  it('writes handlers to a custom output directory and imports from there', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-output-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(
+      openAPI,
+      output,
+      false,
+      '/',
+      undefined,
+      undefined,
+      false,
+      'vitest',
+      path.join(tmpDir, 'controllers'),
+    )
+    expect(result.ok).toBe(true)
+    // handlers go to the custom dir, not the default `handlers`
+    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { healthHandler } from './controllers'",
+    )
+  })
+
+  it('resolves a custom output directory through a pathAlias', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-alias-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(
+      openAPI,
+      output,
+      false,
+      '/',
+      '@/',
+      undefined,
+      false,
+      'vitest',
+      path.join(tmpDir, 'controllers'),
+    )
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { healthHandler } from '@/controllers'",
+    )
+  })
+
   it('merges into an existing app file, preserving custom imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-merge-'))
     const output = path.join(tmpDir, 'routes.ts')
@@ -71,5 +143,31 @@ export const api = new OpenAPIHono()
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
+  })
+
+  it('propagates the error when the app target cannot be read', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-unreadable-'))
+    const output = path.join(tmpDir, 'routes.ts')
+    // A directory at the target path makes readFile fail with a non-ENOENT error.
+    fs.mkdirSync(path.join(tmpDir, 'index.ts'))
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/health': {
+          get: {
+            operationId: 'healthCheck',
+            responses: {
+              '200': { description: 'OK' },
+            },
+          },
+        },
+      },
+    }
+    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    expect(result.ok).toBe(false)
+    if (!result.ok) {
+      expect(result.error.length > 0).toBe(true)
+    }
   })
 })

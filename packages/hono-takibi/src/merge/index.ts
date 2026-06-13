@@ -51,17 +51,21 @@ function makeSourcePair(existingCode: string, generatedCode: string) {
  * Returns a Map from handler name to its VariableStatement AST node.
  * A "handler" is any exported variable whose name ends with `Handler`.
  */
-function collectHandlerMap(file: SourceFile) {
+function collectExportedConsts(file: SourceFile, suffix: string) {
   const map = new Map<string, VariableStatement>()
   for (const stmt of file.getVariableStatements()) {
     if (!stmt.isExported()) continue
     for (const decl of stmt.getDeclarations()) {
-      if (decl.getName().endsWith('Handler')) {
+      if (decl.getName().endsWith(suffix)) {
         map.set(decl.getName(), stmt)
       }
     }
   }
   return map
+}
+
+function collectHandlerMap(file: SourceFile) {
+  return collectExportedConsts(file, 'Handler')
 }
 
 /**
@@ -126,6 +130,43 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
 }
 
 /**
+ * Merges generated `defineOpenAPIRoute` files with existing user-modified versions.
+ *
+ * Merge rules:
+ * - Route exports (`export const xxxRoute = defineOpenAPIRoute(...)`) in both: keep existing
+ *   (user handler implementation wins, comments preserved)
+ * - Route exports only in generated: add (new endpoints, stub handlers)
+ * - Route exports only in existing: delete (route removed from OpenAPI)
+ * - Non-route code (helpers, constants, comments): keep existing
+ * - Imports: sync with generated (remove deleted route imports, add new ones, keep user imports)
+ *
+ * Uses AST for analysis only; existing text (including comments) is preserved by slicing.
+ *
+ * @param existingCode - The current file content (user-modified).
+ * @param generatedCode - The newly generated file content.
+ * @returns The merged source code.
+ */
+export function mergeDefineFile(existingCode: string, generatedCode: string) {
+  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
+  const existingRoutes = collectExportedConsts(existingFile, 'Route')
+  const generatedRoutes = collectExportedConsts(generatedFile, 'Route')
+  const bodyStart = getBodyStart(existingFile)
+  const deleteOps = [...existingRoutes.entries()]
+    .filter(([name]) => !generatedRoutes.has(name))
+    .map(([, stmt]): readonly [number, number, string] => [stmt.getFullStart(), stmt.getEnd(), ''])
+    .filter(([start]) => start >= bodyStart)
+    .toSorted(([a], [b]) => a - b)
+  const body = applyRangeOps(existingCode, bodyStart, deleteOps).replace(/\n{3,}/g, '\n\n')
+  const newRouteStatements = [...generatedRoutes.entries()]
+    .filter(([name]) => !existingRoutes.has(name))
+    .map(([, stmt]) => stmt.getText())
+  // Define files import no codegen route symbols (routes are local exports), so user
+  // imports named `*Route`/`*Handler` must never be dropped.
+  const mergedImports = mergeImports(existingFile, generatedFile, false)
+  return joinSections([mergedImports.join('\n'), body.trim(), newRouteStatements.join('\n\n')])
+}
+
+/**
  * Merges generated app file (index.ts) with existing user-modified version.
  *
  * Merge rules:
@@ -172,7 +213,7 @@ function findApiStatement(file: SourceFile) {
 function injectChainPrefix(generatedApiText: string, chainPrefix: string) {
   if (!chainPrefix) return generatedApiText
   return generatedApiText.replace(
-    /\bapp(\s*)\.(?=\s*(?:openapi|route)\s*\()/,
+    /\bapp(\s*)\.(?=\s*(?:openapiRoutes|openapi|route)\s*\()/,
     (_, ws) => `app${chainPrefix}${ws}.`,
   )
 }
@@ -226,11 +267,19 @@ const isAutoName = (name: string): boolean => name.endsWith('Route') || name.end
  * Type-only imports are preserved as type-only when they appear as type-only in both sources,
  * or when they only appear in one source as type-only.
  */
-function mergeImports(existingFile: SourceFile, generatedFile: SourceFile): string[] {
+function mergeImports(
+  existingFile: SourceFile,
+  generatedFile: SourceFile,
+  dropStaleAutoNames = true,
+): string[] {
   const existingImports = parseImportDeclarations(existingFile)
   const generatedImports = parseImportDeclarations(generatedFile)
   const generatedIndex = makeGeneratedImportIndex(generatedImports)
-  const filteredExisting = filterExistingImports(existingImports, generatedIndex)
+  const filteredExisting = filterExistingImports(
+    existingImports,
+    generatedIndex,
+    dropStaleAutoNames,
+  )
   const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
   return [...importMap.entries()]
     .map(([spec, info]) => formatImportLine(spec, info))
@@ -295,6 +344,10 @@ function filterExistingImports(
     readonly autoNameModules: ReadonlyMap<string, string>
     readonly defaultImportModules: ReadonlyMap<string, string>
   },
+  // When false, auto-named imports (`*Route`/`*Handler`) are never dropped. Used by
+  // define mode, whose files import no codegen route symbols (routes are local exports),
+  // so every `*Route`-named import there is the user's own and must be preserved.
+  dropStaleAutoNames = true,
 ) {
   return existingImports.map((entry) => {
     const defaultIsStale =
@@ -305,7 +358,7 @@ function filterExistingImports(
       ...entry,
       defaultImport: defaultIsStale ? undefined : entry.defaultImport,
       namedImports: entry.namedImports.filter((named) => {
-        if (!isAutoName(named.name)) return true
+        if (!isAutoName(named.name) || !dropStaleAutoNames) return true
         const canonical = index.autoNameModules.get(named.name)
         return canonical !== undefined && canonical === entry.moduleSpecifier
       }),
@@ -400,7 +453,7 @@ function extractChainPrefix(apiStmtText: string) {
   const initMatch = apiStmtText.match(/=\s*app\b/)
   if (!initMatch || initMatch.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
-  const routeMatch = afterApp.match(/\.(?:openapi|route)\s*\(/)
+  const routeMatch = afterApp.match(/\.(?:openapiRoutes|openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
   const candidate = afterApp.slice(0, routeMatch.index).trim()
   // Only treat as chain prefix when it actually starts with a method call (e.g. `.basePath('/api')`).

@@ -1244,4 +1244,241 @@ export default app
 `)
     })
   })
+
+  describe('success response resolution', () => {
+    it('emits c.json for a default-only response with json content', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/items': {
+            post: {
+              operationId: 'createItem',
+              responses: {
+                default: {
+                  description: 'ok',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { id: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const postItemsRoute = createRoute({
+  method: 'post',
+  path: '/items',
+  operationId: 'createItem',
+  responses: {
+    default: {
+      description: 'ok',
+      content: { 'application/json': { schema: z.object({ id: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const postItemsRouteHandler: RouteHandler<typeof postItemsRoute> = async (c) => {
+  return c.json(
+    {
+      id: faker.helpers.arrayElement([
+        faker.string.alpha({ length: { min: 5, max: 20 } }),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(postItemsRoute, postItemsRouteHandler)
+
+export default app
+`)
+    })
+
+    it('emits c.text for a 2XX-only response with text content', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/ping': {
+            get: {
+              operationId: 'ping',
+              responses: {
+                '2XX': {
+                  description: 'ok',
+                  content: { 'text/plain': { schema: { type: 'string' } } },
+                },
+              },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getPingRoute = createRoute({
+  method: 'get',
+  path: '/ping',
+  operationId: 'ping',
+  responses: { '2XX': { description: 'ok', content: { 'text/plain': { schema: z.string() } } } },
+})
+
+const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  return c.text(faker.string.alpha({ length: { min: 5, max: 20 } }), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getPingRoute, getPingRouteHandler)
+
+export default app
+`)
+    })
+
+    it('emits c.body(null, 200) for a default response without content', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/noop': {
+            post: { operationId: 'noop', responses: { default: { description: 'ok' } } },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const postNoopRoute = createRoute({
+  method: 'post',
+  path: '/noop',
+  operationId: 'noop',
+  responses: { default: { description: 'ok' } },
+})
+
+const postNoopRouteHandler: RouteHandler<typeof postNoopRoute> = async (c) => {
+  return c.body(null, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(postNoopRoute, postNoopRouteHandler)
+
+export default app
+`)
+    })
+
+    it('emits c.body(null, 201) for a 201 response without content', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/create': {
+            post: { operationId: 'create', responses: { '201': { description: 'created' } } },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const postCreateRoute = createRoute({
+  method: 'post',
+  path: '/create',
+  operationId: 'create',
+  responses: { 201: { description: 'created' } },
+})
+
+const postCreateRouteHandler: RouteHandler<typeof postCreateRoute> = async (c) => {
+  return c.body(null, 201)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(postCreateRoute, postCreateRouteHandler)
+
+export default app
+`)
+    })
+
+    it('prefers an explicit 200 over default when both exist', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/both': {
+            get: {
+              operationId: 'both',
+              responses: {
+                '200': {
+                  description: 'ok',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { a: { type: 'string' } } },
+                    },
+                  },
+                },
+                default: {
+                  description: 'err',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { b: { type: 'string' } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getBothRoute = createRoute({
+  method: 'get',
+  path: '/both',
+  operationId: 'both',
+  responses: {
+    200: {
+      description: 'ok',
+      content: { 'application/json': { schema: z.object({ a: z.string().exactOptional() }) } },
+    },
+    default: {
+      description: 'err',
+      content: { 'application/json': { schema: z.object({ b: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getBothRouteHandler: RouteHandler<typeof getBothRoute> = async (c) => {
+  return c.json(
+    {
+      a: faker.helpers.arrayElement([
+        faker.string.alpha({ length: { min: 5, max: 20 } }),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getBothRoute, getBothRouteHandler)
+
+export default app
+`)
+    })
+  })
 })

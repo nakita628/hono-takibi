@@ -4,10 +4,17 @@ import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
 import { makeHandlerTestCode } from '../generator/test/index.js'
+import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
-import { mergeBarrelFile, mergeHandlerFile, mergeTestFile } from '../merge/index.js'
+import {
+  mergeBarrelFile,
+  mergeDefineFile,
+  mergeHandlerFile,
+  mergeTestFile,
+} from '../merge/index.js'
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
+import { makeImports, makeModuleSpec } from './code.js'
 
 function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
   if (schema.$ref) {
@@ -109,7 +116,12 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
   return `${path.basename(fileName, '.ts')}.test.ts`
 }
 
-function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
+function makePaths(
+  output: string,
+  pathAlias: string | undefined,
+  routeImport?: string,
+  handlerDir?: string,
+) {
   const isDot = output === '.' || output === './'
   const isIndexFile = !isDot && output.endsWith('/index.ts')
   const baseDir = isDot
@@ -117,7 +129,7 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
     : isIndexFile
       ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
       : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
-  const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
+  const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : output.endsWith('.ts')
@@ -415,6 +427,7 @@ export async function zodOpenAPIHonoHandler(
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  handlerDir?: string,
 ) {
   const paths = openapi.paths
   const handlers = makeMergedHandlers(
@@ -428,7 +441,12 @@ export async function zodOpenAPIHonoHandler(
         ),
     ),
   )
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+  const { handlerPath, importFrom, testImportFrom } = makePaths(
+    output,
+    pathAlias,
+    routeImport,
+    handlerDir,
+  )
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
@@ -494,6 +512,151 @@ export async function zodOpenAPIHonoHandler(
   const e = results.find((result) => !result.ok)
   if (e) return e
   const generatedFileNames = new Set(handlers.map((h) => h.fileName))
+  const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
+  if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const
+  return { ok: true, value: undefined } as const
+}
+
+/**
+ * Generates `defineOpenAPIRoute` files grouped by resource for a Hono app.
+ *
+ * Each file co-locates `createRoute(...)` with a stub handler inside
+ * `defineOpenAPIRoute({ route, handler })`, so routes register via
+ * `app.openapiRoutes([...])`. Component schemas are imported from `componentsOutput`.
+ *
+ * @param openapi - The OpenAPI specification object.
+ * @param output - The app entry file path (e.g. `./src/index.ts`).
+ * @param componentsOutput - The components module path schemas are imported from.
+ * @returns A `Result` indicating success or error with message.
+ */
+export async function defineOpenAPIRouteHandler(
+  openapi: OpenAPI,
+  output: string,
+  componentsOutput: string,
+  test = false,
+  pathAlias?: string,
+  basePath = '/',
+  testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  readonly?: boolean,
+  handlerDir?: string,
+) {
+  const handlers = defineEntries(openapi, readonly).reduce<
+    ReadonlyMap<
+      string,
+      {
+        readonly fileName: `${string}.ts`
+        readonly testFileName: `${string}.ts`
+        readonly contents: readonly string[]
+        readonly routeNames: readonly string[]
+      }
+    >
+  >((acc, entry) => {
+    const fileName = makeHandlerFileName(entry.path)
+    const prev = acc.get(fileName)
+    return new Map(acc).set(fileName, {
+      fileName,
+      testFileName: makeTestFileName(fileName),
+      contents: [...(prev?.contents ?? []), entry.code],
+      routeNames: [...(prev?.routeNames ?? []), `${entry.name}Route`],
+    })
+  }, new Map())
+  const baseDir = path.dirname(output)
+  const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
+  const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+  const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
+  // The alias maps to the app entry's directory; resolve the components module relative to it
+  // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
+  const componentsModulePath = componentsOutput.endsWith('/index.ts')
+    ? path.dirname(componentsOutput)
+    : componentsOutput.replace(/\.ts$/, '')
+  const componentsImport = aliasPrefix
+    ? `${aliasPrefix}/${path.relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
+    : undefined
+  const componentsMap = Object.fromEntries(
+    (
+      [
+        'schemas',
+        'responses',
+        'parameters',
+        'examples',
+        'requestBodies',
+        'headers',
+        'securitySchemes',
+        'links',
+        'callbacks',
+        'pathItems',
+        'mediaTypes',
+      ] as const
+    ).map((kind) => [
+      kind,
+      { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
+    ]),
+  )
+  const mkdirResult = await mkdir(handlerPath)
+  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
+  const handlerList = [...handlers.values()]
+  const results = await Promise.all([
+    ...handlerList.map(async (handler) => {
+      const filePath = `${handlerPath}/${handler.fileName}`
+      const chain = handler.contents.join('\n\n')
+      const fileContent = makeImports(chain, filePath, componentsMap, false, ['defineOpenAPIRoute'])
+      const fmtResult = await fmt(fileContent)
+      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+      const existingResult = await readFile(filePath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+      const merged =
+        existingResult.value !== null
+          ? mergeDefineFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+      const finalFmtResult = await fmt(merged)
+      const content = finalFmtResult.ok ? finalFmtResult.value : merged
+      const writeResult = await writeFile(filePath, content)
+      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
+      if (test) {
+        const testContent = makeHandlerTestCode(
+          openapi,
+          `${handlerPath}/${handler.fileName}`,
+          [...handler.routeNames],
+          testImportFrom,
+          basePath,
+          testFramework,
+        )
+        if (testContent) {
+          const testFmtResult = await fmt(testContent)
+          const testCode = testFmtResult.ok ? testFmtResult.value : testContent
+          const testFilePath = `${handlerPath}/${handler.testFileName}`
+          const existingTestResult = await readFile(testFilePath)
+          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
+          const mergedTestCode =
+            existingTestResult.value !== null
+              ? mergeTestFile(existingTestResult.value, testCode)
+              : testCode
+          const finalTestFmt = await fmt(mergedTestCode)
+          const finalTestCode = finalTestFmt.ok ? finalTestFmt.value : mergedTestCode
+          const testWriteResult = await writeFile(testFilePath, finalTestCode)
+          if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
+        }
+      }
+      return { ok: true, value: undefined } as const
+    }),
+    (async () => {
+      const fmtResult = await fmt(makeBarrelContent(handlerList.map((h) => h.fileName)))
+      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+      const barrelPath = `${handlerPath}/index.ts`
+      const existingResult = await readFile(barrelPath)
+      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
+      const content =
+        existingResult.value !== null
+          ? mergeBarrelFile(existingResult.value, fmtResult.value)
+          : fmtResult.value
+      const writeResult = await writeFile(barrelPath, content)
+      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
+      return { ok: true, value: undefined } as const
+    })(),
+  ])
+  const e = results.find((result) => !result.ok)
+  if (e) return e
+  const generatedFileNames = new Set(handlerList.map((h) => h.fileName))
   const cleanupResult = await removeStaleFiles(handlerPath, generatedFileNames)
   if (!cleanupResult.ok) return { ok: false, error: cleanupResult.error } as const
   return { ok: true, value: undefined } as const

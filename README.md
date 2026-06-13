@@ -36,9 +36,7 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-  },
+  output: './src/routes.ts',
 })
 ```
 
@@ -127,13 +125,11 @@ Generate a complete app structure with handler stubs and test files:
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/routes.ts',
-    template: {
-      test: true,
-      pathAlias: '@/',
-      testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
-    },
+  output: './src/routes.ts',
+  template: {
+    test: true,
+    pathAlias: '@/',
+    testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
   },
 })
 ```
@@ -201,6 +197,34 @@ export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 export default app
 ```
 
+#### `define: true`
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: './src/index.ts',
+  template: { define: true },
+})
+```
+
+```ts
+// src/routes/users.ts
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    request: { params: z.object({ id: z.string() }) },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+```
+
+Component schemas go to `components/index.ts` (override with `components.output`). Set `template.output` to change the route directory (default `./src/routes`).
+
 ## Client Library Integrations
 
 Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query, RPC Client.
@@ -210,7 +234,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   'tanstack-query': {
     output: './src/tanstack-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
@@ -237,7 +261,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   test: {
     output: './src/test.ts',
-    import: '../index',
+    import: '.',
     testFramework: 'bun', // "vitest" (default) | "vite-plus" | "bun"
   },
 })
@@ -256,7 +280,7 @@ export default defineConfig({
 
 ### API Reference Docs
 
-Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands that can be run directly without starting a server:
+Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands:
 
 ```ts
 export default defineConfig({
@@ -268,7 +292,7 @@ export default defineConfig({
 })
 ```
 
-To generate `curl` commands instead of `hono request`:
+Set `curl: true` with `baseUrl` to generate `curl` commands for a running server:
 
 ```ts
 export default defineConfig({
@@ -283,207 +307,194 @@ export default defineConfig({
 
 ## Full Config Reference
 
+Some options are mutually exclusive: `output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
+
 ```ts
-// hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
-  // OpenAPI spec file (.yaml, .json, or .tsp)
   input: 'openapi.yaml',
-
-  // Base path prefix for all routes
   basePath: '/api',
+  // format: {}, // oxfmt FormatConfig
 
-  // oxfmt FormatConfig for generated code output
-  // @see https://www.npmjs.com/package/oxfmt
-  // format: {},
+  output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
+  readonly: true,
 
-  // Main code generation (Zod + OpenAPI + Hono)
-  'zod-openapi': {
-    // Output: use 'output' for single file, or 'routes' for split mode (mutually exclusive)
-    output: './src/routes.ts',
-    readonly: true, // Add 'as const' to generated schemas
+  template: {
+    test: true,
+    routeHandler: false, // true: RouteHandler exports
+    define: false, // true: defineOpenAPIRoute output
+    // output: './src/routes', // define mode dir (default ./src/routes)
+    pathAlias: '@/',
+    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
+  },
 
-    // Template generation (app entry point + handler stubs + tests)
-    template: {
-      test: true, // Generate test files
-      routeHandler: false, // false: inline .openapi() (default), true: RouteHandler exports
-      pathAlias: '@/', // TypeScript path alias for imports
-      testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
-    },
+  exportSchemas: true,
+  exportSchemasTypes: true,
+  exportResponses: true,
+  exportParameters: true,
+  exportParametersTypes: true,
+  exportExamples: true,
+  exportRequestBodies: true,
+  exportHeaders: true,
+  exportHeadersTypes: true,
+  exportSecuritySchemes: true,
+  exportLinks: true,
+  exportCallbacks: true,
+  exportPathItems: true,
+  exportMediaTypes: true,
+  exportMediaTypesTypes: true,
 
-    // Export options (OpenAPI Components Object)
-    exportSchemas: true,
-    exportSchemasTypes: true,
-    exportResponses: true,
-    exportParameters: true,
-    exportParametersTypes: true,
-    exportExamples: true,
-    exportRequestBodies: true,
-    exportHeaders: true,
-    exportHeadersTypes: true,
-    exportSecuritySchemes: true,
-    exportLinks: true,
-    exportCallbacks: true,
-    exportPathItems: true,
-    exportMediaTypes: true,
-    exportMediaTypesTypes: true,
+  routes: {
+    output: './src/routes',
+    split: true,
+    import: '@packages/routes',
+  },
 
-    // Split routes into separate files
-    routes: {
-      output: './src/routes',
+  webhooks: {
+    output: './src/webhooks',
+    split: true,
+    import: '@packages/webhooks',
+  },
+
+  // `output` (single file) and the per-type fields below (split) are mutually exclusive.
+  // `exportTypes` applies only to schemas / parameters / headers / mediaTypes.
+  components: {
+    output: './src/components/index.ts',
+
+    schemas: {
+      output: './src/schemas',
+      exportTypes: true,
       split: true,
-      import: '@packages/routes',
+      import: '../schemas',
     },
-
-    // Split webhooks into separate files
-    webhooks: {
-      output: './src/webhooks',
+    responses: {
+      output: './src/responses',
       split: true,
-      import: '@packages/webhooks',
+      import: '../responses',
     },
-
-    // Split components into separate files
-    components: {
-      schemas: {
-        output: './src/schemas',
-        exportTypes: true,
-        split: true,
-        import: '../schemas',
-      },
-      responses: {
-        output: './src/responses',
-        split: true,
-        import: '../responses',
-      },
-      parameters: {
-        output: './src/parameters',
-        exportTypes: true,
-        split: true,
-        import: '../parameters',
-      },
-      examples: {
-        output: './src/examples',
-        split: true,
-        import: '../examples',
-      },
-      requestBodies: {
-        output: './src/requestBodies',
-        split: true,
-        import: '../requestBodies',
-      },
-      headers: {
-        output: './src/headers',
-        exportTypes: true,
-        split: true,
-        import: '../headers',
-      },
-      securitySchemes: {
-        output: './src/securitySchemes',
-        split: true,
-        import: '../securitySchemes',
-      },
-      links: {
-        output: './src/links',
-        split: true,
-        import: '../links',
-      },
-      callbacks: {
-        output: './src/callbacks',
-        split: true,
-        import: '../callbacks',
-      },
-      pathItems: {
-        output: './src/pathItems',
-        split: true,
-        import: '../pathItems',
-      },
-      mediaTypes: {
-        output: './src/mediaTypes',
-        exportTypes: true,
-        split: true,
-        import: '../mediaTypes',
-      },
+    parameters: {
+      output: './src/parameters',
+      exportTypes: true,
+      split: true,
+      import: '../parameters',
+    },
+    examples: {
+      output: './src/examples',
+      split: true,
+      import: '../examples',
+    },
+    requestBodies: {
+      output: './src/requestBodies',
+      split: true,
+      import: '../requestBodies',
+    },
+    headers: {
+      output: './src/headers',
+      exportTypes: true,
+      split: true,
+      import: '../headers',
+    },
+    securitySchemes: {
+      output: './src/securitySchemes',
+      split: true,
+      import: '../securitySchemes',
+    },
+    links: {
+      output: './src/links',
+      split: true,
+      import: '../links',
+    },
+    callbacks: {
+      output: './src/callbacks',
+      split: true,
+      import: '../callbacks',
+    },
+    pathItems: {
+      output: './src/pathItems',
+      split: true,
+      import: '../pathItems',
+    },
+    mediaTypes: {
+      output: './src/mediaTypes',
+      exportTypes: true,
+      split: true,
+      import: '../mediaTypes',
     },
   },
 
-  // TypeScript type generation
   type: {
     output: './src/types.ts',
     readonly: true,
   },
 
-  // RPC client generation
   rpc: {
     output: './src/rpc',
-    import: '../client', // Import path for the Hono RPC client
+    import: '../lib',
     split: true,
-    client: 'client', // Export name of the client instance
-    parseResponse: true, // Use parseResponse for type-safe responses
+    client: 'client',
+    parseResponse: true,
+    docs: false, // operation summary/description as JSDoc
   },
 
-  // Client library integrations (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
   swr: {
     output: './src/swr',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'tanstack-query': {
     output: './src/tanstack-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'preact-query': {
     output: './src/preact-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'solid-query': {
     output: './src/solid-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'vue-query': {
     output: './src/vue-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'svelte-query': {
     output: './src/svelte-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
   'angular-query': {
     output: './src/angular-query',
-    import: '../client',
+    import: '../lib',
     split: true,
     client: 'client',
   },
 
-  // Test generation
   test: {
     output: './src/test.ts',
-    import: '../index', // Import path for the app instance
-    testFramework: 'vitest', // "vitest" (default) | "vite-plus" | "bun" — test import source
+    import: '.',
+    testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
-  // Mock server generation
   mock: {
     output: './src/mock.ts',
   },
 
-  // API reference docs generation
   docs: {
     output: './docs/api.md',
-    entry: 'src/index.ts', // App entry point for hono request commands
-    curl: false, // true: generate curl commands (requires baseUrl), false: hono request (default)
-    baseUrl: 'http://localhost:3000', // Base URL for curl commands (required when curl: true)
+    entry: 'src/index.ts',
+    curl: false, // true: curl commands (requires baseUrl); false: hono request
+    baseUrl: 'http://localhost:3000',
   },
 })
 ```

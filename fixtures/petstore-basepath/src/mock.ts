@@ -308,7 +308,7 @@ export const getUserUsernameRoute = createRoute({
 function mockCategory() {
   return {
     id: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),
@@ -318,7 +318,7 @@ function mockCategory() {
 function mockTag() {
   return {
     id: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     name: faker.helpers.arrayElement([faker.person.fullName(), undefined]),
@@ -328,7 +328,7 @@ function mockTag() {
 function mockPet() {
   return {
     id: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     name: faker.person.fullName(),
@@ -350,11 +350,11 @@ function mockPet() {
 function mockOrder() {
   return {
     id: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     petId: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     quantity: faker.helpers.arrayElement([
@@ -373,7 +373,7 @@ function mockOrder() {
 function mockUser() {
   return {
     id: faker.helpers.arrayElement([
-      faker.number.int({ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }),
+      faker.number.bigInt({ min: 0n, max: 9007199254740991n }),
       undefined,
     ]),
     username: faker.helpers.arrayElement([faker.internet.username(), undefined]),
@@ -421,7 +421,7 @@ const postStoreOrderRouteHandler: RouteHandler<typeof postStoreOrderRoute> = asy
 }
 
 const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {
-  return c.body(null, 200)
+  return c.json(mockUser(), 200)
 }
 
 const getUserLoginRouteHandler: RouteHandler<typeof getUserLoginRoute> = async (c) => {

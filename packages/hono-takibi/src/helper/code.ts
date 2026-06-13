@@ -83,6 +83,7 @@ export function makeImports(
       }
     | undefined,
   split = false,
+  honoExtras: readonly string[] = [],
 ) {
   const fallbackPrefix = split ? '..' : '.'
   const resolvePath = (k: string): string => {
@@ -101,7 +102,9 @@ export function makeImports(
     }, new Map())
   const needsCreateRoute = code.includes('createRoute(')
   const needsZ = code.includes('z.')
-  const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
+  const honoImports = [needsCreateRoute && 'createRoute', ...honoExtras, needsZ && 'z'].filter(
+    Boolean,
+  )
   const honoLine =
     honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
   // Emit import lines in `COMPONENT_SUFFIXES` declaration order — same as

@@ -209,6 +209,8 @@ export type FormatString =
   | 'date-time' /* ISO 8601; by default only `Z` timezone allowed */
   | 'duration' /* ISO 8601 duration */
   | 'binary'
+  | 'byte' /* base64-encoded octets (OpenAPI 3.0 Data Types) */
+  | 'password' /* UI hint to obscure input (OpenAPI 3.0 Data Types) */
   | 'mac' /* MAC address */
   | 'hash' /* hash digest — requires x-hashAlg */
   | 'e164' /* E.164 phone */
@@ -218,7 +220,15 @@ export type FormatString =
   | 'toUpperCase' /* toUpperCase */
   | 'trim' /* trim whitespace */
 
-export type FormatNumber = 'int32' | 'int64' | 'bigint' | 'float' | 'float32' | 'float64' | 'double'
+export type FormatNumber =
+  | 'int32'
+  | 'int64'
+  | 'bigint'
+  | 'float'
+  | 'float32'
+  | 'float64'
+  | 'double'
+  | 'password'
 
 export type Ref =
   | `#/components/schemas/${string}`
@@ -236,7 +246,7 @@ export type Ref =
 type Server = {
   readonly url: string
   readonly description?: string
-  readonly name: string
+  readonly name?: string
   readonly variables?: {
     readonly [k: string]: {
       readonly enum?: readonly string[]

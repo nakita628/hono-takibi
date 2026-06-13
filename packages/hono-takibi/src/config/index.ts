@@ -102,61 +102,109 @@ const ConfigSchema = z
     input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
       error: 'must be .yaml | .json | .tsp',
     }),
+    output: z
+      .templateLiteral([z.string().min(1), z.enum(['.ts'])], { error: 'must be .ts file' })
+      .exactOptional(),
     basePath: z.string().default('/'),
+    readonly: z.boolean().exactOptional(),
     format: z.custom<FormatConfig>(() => true).exactOptional(),
-    'zod-openapi': z
+    // `define` discriminates the two template modes; `routeHandler` is non-define-only, so it
+    // is mutually exclusive with define by structure rather than a refine. `output` (the
+    // route/handler directory) exists in both modes: define defaults it to `src/routes`,
+    // non-define leaves it optional and falls back to `handlers` next to the app entry.
+    template: z
+      .discriminatedUnion('define', [
+        z
+          .object({
+            define: z.literal(true),
+            output: z
+              .string()
+              .regex(/^(?!.*\.ts$).+/, {
+                error: 'template.output must be a directory, not a .ts file',
+              })
+              .default('src/routes'),
+            test: z.boolean().default(false),
+            pathAlias: z.string().exactOptional(),
+            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+          })
+          .readonly(),
+        z
+          .object({
+            define: z.literal(false).optional().default(false),
+            routeHandler: z.boolean().default(false),
+            output: z
+              .string()
+              .regex(/^(?!.*\.ts$).+/, {
+                error: 'template.output must be a directory, not a .ts file',
+              })
+              .exactOptional(),
+            test: z.boolean().default(false),
+            pathAlias: z.string().exactOptional(),
+            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+          })
+          .readonly(),
+      ])
+      .exactOptional(),
+    exportSchemas: z.boolean().default(false),
+    exportSchemasTypes: z.boolean().default(false),
+    exportResponses: z.boolean().default(false),
+    exportParameters: z.boolean().default(false),
+    exportParametersTypes: z.boolean().default(false),
+    exportExamples: z.boolean().default(false),
+    exportRequestBodies: z.boolean().default(false),
+    exportHeaders: z.boolean().default(false),
+    exportHeadersTypes: z.boolean().default(false),
+    exportSecuritySchemes: z.boolean().default(false),
+    exportLinks: z.boolean().default(false),
+    exportCallbacks: z.boolean().default(false),
+    exportPathItems: z.boolean().default(false),
+    exportMediaTypes: z.boolean().default(false),
+    exportMediaTypesTypes: z.boolean().default(false),
+    routes: OutputSchema,
+    webhooks: OutputSchema,
+    components: z
       .object({
         output: z
           .templateLiteral([z.string().min(1), z.enum(['.ts'])], { error: 'must be .ts file' })
           .exactOptional(),
-        readonly: z.boolean().exactOptional(),
-        template: z
-          .object({
-            test: z.boolean().default(false),
-            routeHandler: z.boolean().default(false),
-            pathAlias: z.string().exactOptional(),
-            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
-          })
-          .readonly()
-          .exactOptional(),
-        exportSchemas: z.boolean().default(false),
-        exportSchemasTypes: z.boolean().default(false),
-        exportResponses: z.boolean().default(false),
-        exportParameters: z.boolean().default(false),
-        exportParametersTypes: z.boolean().default(false),
-        exportExamples: z.boolean().default(false),
-        exportRequestBodies: z.boolean().default(false),
-        exportHeaders: z.boolean().default(false),
-        exportHeadersTypes: z.boolean().default(false),
-        exportSecuritySchemes: z.boolean().default(false),
-        exportLinks: z.boolean().default(false),
-        exportCallbacks: z.boolean().default(false),
-        exportPathItems: z.boolean().default(false),
-        exportMediaTypes: z.boolean().default(false),
-        exportMediaTypesTypes: z.boolean().default(false),
-        routes: OutputSchema,
-        webhooks: OutputSchema,
-        components: z
-          .object({
-            schemas: ExportTypesOutputSchema,
-            responses: OutputSchema,
-            parameters: ExportTypesOutputSchema,
-            examples: OutputSchema,
-            requestBodies: OutputSchema,
-            headers: ExportTypesOutputSchema,
-            securitySchemes: OutputSchema,
-            links: OutputSchema,
-            callbacks: OutputSchema,
-            pathItems: OutputSchema,
-            mediaTypes: ExportTypesOutputSchema,
-          })
-          .exactOptional(),
+        schemas: ExportTypesOutputSchema,
+        responses: OutputSchema,
+        parameters: ExportTypesOutputSchema,
+        examples: OutputSchema,
+        requestBodies: OutputSchema,
+        headers: ExportTypesOutputSchema,
+        securitySchemes: OutputSchema,
+        links: OutputSchema,
+        callbacks: OutputSchema,
+        pathItems: OutputSchema,
+        mediaTypes: ExportTypesOutputSchema,
       })
       .readonly()
-      .refine((v) => !(v.output && v.routes), {
-        message:
-          'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
-      })
+      .refine(
+        (v) =>
+          !(
+            v.output &&
+            (
+              [
+                'schemas',
+                'responses',
+                'parameters',
+                'examples',
+                'requestBodies',
+                'headers',
+                'securitySchemes',
+                'links',
+                'callbacks',
+                'pathItems',
+                'mediaTypes',
+              ] as const
+            ).some((k) => v[k] !== undefined)
+          ),
+        {
+          message:
+            'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
+        },
+      )
       .exactOptional(),
     type: z
       .object({
@@ -215,6 +263,13 @@ const ConfigSchema = z
       .exactOptional(),
   })
   .readonly()
+  .refine((v) => !(v.output && v.routes), {
+    message:
+      'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
+  })
+  .refine((v) => !(v.template?.define && !v.output), {
+    message: 'template.define requires output (the app entry file, e.g. ./src/index.ts).',
+  })
 
 export function parseConfig(config: unknown) {
   const result = ConfigSchema.safeParse(config)

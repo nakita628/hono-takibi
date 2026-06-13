@@ -198,7 +198,7 @@ describe('openapi helper', () => {
       })
       expect(result).toBe('{description:"Success",links:{"GetUser":UserLinkLink}}')
     })
-    it.concurrent('generates response with all fields', () => {
+    it.concurrent('emits keys in Responses type order (summary, description, content, headers, links)', () => {
       const result = makeResponses({
         summary: 'Sum',
         description: 'Desc',
@@ -207,7 +207,7 @@ describe('openapi helper', () => {
         links: { Next: { operationId: 'getNext' } },
       })
       expect(result).toBe(
-        `{summary:"Sum",description:"Desc",headers:z.object({"X-Custom":{schema:z.string().exactOptional()}}),content:{'application/json':{schema:z.object({})}},links:{"Next":{operationId:"getNext"}}}`,
+        `{summary:"Sum",description:"Desc",content:{'application/json':{schema:z.object({})}},headers:z.object({"X-Custom":{schema:z.string().exactOptional()}}),links:{"Next":{operationId:"getNext"}}}`,
       )
     })
     it.concurrent('generates empty response object with description fallback', () => {

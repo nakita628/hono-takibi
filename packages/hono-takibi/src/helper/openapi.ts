@@ -145,10 +145,11 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     // OpenAPI 3.0 §Response Object: description is REQUIRED
     `description:${JSON.stringify(responses.description || '')}`,
-    responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
+    // Keys follow `openapi/index.ts` `Responses` declaration order: content before headers.
     responses.content
       ? `content:{${makeContent(responses.content, readonly).join(',')}}`
       : undefined,
+    responses.headers ? `headers:${makeHeaderResponses(responses.headers, readonly)}` : undefined,
     responses.links
       ? `links:{${Object.entries(responses.links)
           .map(([key, link]) =>

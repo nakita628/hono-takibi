@@ -255,7 +255,7 @@ const getTagsRouteHandler: RouteHandler<typeof getTagsRoute> = async (c) => {
 }
 
 const postTagsRouteHandler: RouteHandler<typeof postTagsRoute> = async (c) => {
-  return c.body(null, 200)
+  return c.body(null, 201)
 }
 
 const getSettingsRouteHandler: RouteHandler<typeof getSettingsRoute> = async (c) => {
@@ -267,11 +267,11 @@ const putSettingsRouteHandler: RouteHandler<typeof putSettingsRoute> = async (c)
 }
 
 const postConfigRouteHandler: RouteHandler<typeof postConfigRoute> = async (c) => {
-  return c.body(null, 200)
+  return c.body(null, 201)
 }
 
 const postPaymentRouteHandler: RouteHandler<typeof postPaymentRoute> = async (c) => {
-  return c.body(null, 200)
+  return c.body(null, 201)
 }
 
 const app = new OpenAPIHono()

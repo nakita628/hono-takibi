@@ -14,6 +14,7 @@ import {
   normalizeTypes,
   renderNamedImport,
   requestParamsArray,
+  statusCodeToNumber,
   toIdentifierPascalCase,
   uncapitalize,
   zodToOpenAPISchema,
@@ -534,6 +535,36 @@ export * from './user'
 
     it('escapes ampersand before producing entities (no double escaping)', () => {
       expect(escapeHtml('<')).toBe('&lt;')
+    })
+  })
+
+  describe('statusCodeToNumber', () => {
+    it('parses an explicit numeric status code', () => {
+      expect(statusCodeToNumber('200')).toBe(200)
+    })
+
+    it('parses 201 and 204', () => {
+      expect(statusCodeToNumber('201')).toBe(201)
+      expect(statusCodeToNumber('204')).toBe(204)
+    })
+
+    it('parses a 4xx/5xx numeric status code', () => {
+      expect(statusCodeToNumber('404')).toBe(404)
+      expect(statusCodeToNumber('500')).toBe(500)
+    })
+
+    it('maps default to 200', () => {
+      expect(statusCodeToNumber('default')).toBe(200)
+    })
+
+    it('maps a wildcard range to its hundreds boundary', () => {
+      expect(statusCodeToNumber('2XX')).toBe(200)
+      expect(statusCodeToNumber('4XX')).toBe(400)
+      expect(statusCodeToNumber('5XX')).toBe(500)
+    })
+
+    it('treats a lowercase wildcard the same as uppercase', () => {
+      expect(statusCodeToNumber('2xx')).toBe(200)
     })
   })
 })

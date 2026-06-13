@@ -250,9 +250,21 @@ export function usePostUsers<TError = unknown>(options?: {
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'swr', 'index.ts'), 'utf-8')
-        expect(index).toBe(`export * from './getHono'
+        expect(index).toBe(`export * from './keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
+`)
+
+        // Check keys.ts file (prefix-only cache keys aggregated in split mode)
+        const keys = fs.readFileSync(path.join(dir, 'swr', 'keys.ts'), 'utf-8')
+        expect(keys).toBe(`export function getHonoKey() {
+  return ['hono'] as const
+}
+
+export function getUsersKey() {
+  return ['users'] as const
+}
 `)
 
         // Check GET hook file without args
@@ -445,6 +457,36 @@ export function usePostUsers<TError = unknown>(options?: {
           ok: true,
           value: `Generated swr hooks written to ${path.join(dir, 'swr')}/*.ts (index.ts included)`,
         })
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it('should emit no keys.ts (and no barrel entry) when there are no prefixes', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-no-prefix-'))
+      try {
+        const out = path.join(dir, 'swr', 'index.ts')
+        const result = await hooks(
+          {
+            openapi: '3.1.0',
+            info: { title: 'Test', version: '1.0.0' },
+            paths: {
+              '/': {
+                get: { operationId: 'getRoot', responses: { '200': { description: 'OK' } } },
+              },
+            },
+          } as OpenAPI,
+          out,
+          '../client',
+          'swr',
+          { split: true },
+        )
+        expect(result.ok).toBe(true)
+        const files = fs.readdirSync(path.join(dir, 'swr')).sort()
+        expect(files).toStrictEqual(['get.ts', 'index.ts'])
+        expect(fs.readFileSync(path.join(dir, 'swr', 'index.ts'), 'utf-8')).toBe(
+          `export * from './get'\n`,
+        )
       } finally {
         fs.rmSync(dir, { recursive: true, force: true })
       }
@@ -1027,6 +1069,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
           'getUsers.ts',
           'getUsersId.ts',
           'index.ts',
+          'keys.ts',
           'postUsers.ts',
           'putUsersId.ts',
         ])
@@ -1305,7 +1348,8 @@ export function useDeleteUsersId<TError = unknown>(options?: {
 
         // index.ts
         expect(fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8'))
-          .toBe(`export * from './getUsers'
+          .toBe(`export * from './keys'
+export * from './getUsers'
 export * from './postUsers'
 export * from './getUsersId'
 export * from './putUsersId'
@@ -2092,7 +2136,8 @@ export function usePostUsers<TError = unknown>(options?: {
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        const indexExpected = `export * from './getHono'
+        const indexExpected = `export * from './keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `
@@ -3754,12 +3799,14 @@ export function useDeleteUsersId<TError = unknown>(options?: {
           'getUsers.ts',
           'getUsersId.ts',
           'index.ts',
+          'keys.ts',
           'postUsers.ts',
           'putUsersId.ts',
         ])
 
         const indexContent = fs.readFileSync(path.join(hooksDir, 'index.ts'), 'utf-8')
-        expect(indexContent).toBe(`export * from './getUsers'
+        expect(indexContent).toBe(`export * from './keys'
+export * from './getUsers'
 export * from './postUsers'
 export * from './getUsersId'
 export * from './putUsersId'
@@ -5641,7 +5688,8 @@ export function createPostUsers<TError = unknown>(
         if (!result.ok) throw new Error(result.error)
 
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        expect(index).toBe(`export * from './getHono'
+        expect(index).toBe(`export * from './keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `)
@@ -6183,7 +6231,8 @@ export function usePostUsers<TError = unknown>(options?: {
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        const indexExpected = `export * from './getHono'
+        const indexExpected = `export * from './keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `
@@ -7131,13 +7180,15 @@ export function useDeleteUsersId<TError = unknown>(options?: {
           'getUsers.ts',
           'getUsersId.ts',
           'index.ts',
+          'keys.ts',
           'postUsers.ts',
           'putUsersId.ts',
         ])
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        const indexExpected = `export * from './getUsers'
+        const indexExpected = `export * from './keys'
+export * from './getUsers'
 export * from './postUsers'
 export * from './getUsersId'
 export * from './putUsersId'
@@ -8243,7 +8294,8 @@ export function createDeletePetsPetId<TError = unknown>(
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        const indexExpected = `export * from './getPets'
+        const indexExpected = `export * from './keys'
+export * from './getPets'
 export * from './postPets'
 export * from './getPetsPetId'
 export * from './putPetsPetId'
@@ -9589,13 +9641,15 @@ export function createDeleteUsersId<TError = unknown>(
           'getUsers.ts',
           'getUsersId.ts',
           'index.ts',
+          'keys.ts',
           'postUsers.ts',
           'putUsersId.ts',
         ])
 
         // Check index.ts barrel file
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        const indexExpected = `export * from './getUsers'
+        const indexExpected = `export * from './keys'
+export * from './getUsers'
 export * from './postUsers'
 export * from './getUsersId'
 export * from './putUsersId'
@@ -10593,7 +10647,8 @@ export function injectHono<
         if (!result.ok) throw new Error(result.error)
 
         const index = fs.readFileSync(path.join(dir, 'hooks', 'index.ts'), 'utf-8')
-        expect(index).toBe(`export * from './getHono'
+        expect(index).toBe(`export * from './keys'
+export * from './getHono'
 export * from './getUsers'
 export * from './postUsers'
 `)

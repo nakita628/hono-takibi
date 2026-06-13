@@ -20,7 +20,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { makeSafeKey } from '../../utils/index.js'
+import { makeSafeKey, statusCodeToNumber } from '../../utils/index.js'
 
 /**
  * DeepReadonly utility type that recursively makes all properties readonly.
@@ -219,7 +219,7 @@ function makeOutputTypes(
 ): readonly string[] {
   return Object.entries(responses).flatMap(([statusCode, response]) => {
     const resolvedResponse = makeResolvedResponse(response, components)
-    const status = makeStatusCode(statusCode)
+    const status = statusCodeToNumber(statusCode)
     if (!resolvedResponse.content) {
       return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
     }
@@ -231,14 +231,6 @@ function makeOutputTypes(
         return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
       })
   })
-}
-
-function makeStatusCode(statusCode: string) {
-  return statusCode === 'default'
-    ? 200
-    : statusCode.toUpperCase().endsWith('XX')
-      ? Number.parseInt(statusCode[0], 10) * 100
-      : Number.parseInt(statusCode, 10)
 }
 
 function isJsonMediaType(mediaType: string): boolean {

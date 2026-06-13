@@ -4,7 +4,6 @@ import { analyzeCircularSchemas, ast } from './ast.js'
 
 describe('ast', () => {
   it.concurrent('should sort User API schemas by dependency order', () => {
-    // Based on fixtures/generate/openapi/29-practical-user-api.yaml
     // UserListResponse depends on User and Pagination
     const input = `const UserListResponseSchema = z.object({
   data: z.array(UserSchema),
@@ -43,7 +42,6 @@ const UserListResponseSchema = z.object({
   })
 
   it.concurrent('should sort AuthResponse with nested User dependency', () => {
-    // Based on fixtures/generate/openapi/29-practical-user-api.yaml
     const input = `const AuthResponseSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
@@ -76,7 +74,6 @@ import { createRoute } from "@hono/zod-openapi"`
   })
 
   it.concurrent('should handle Error schema with nested details array', () => {
-    // Based on fixtures/generate/openapi/29-practical-user-api.yaml Error schema
     const input = `const ErrorSchema = z.object({
   code: z.string(),
   message: z.string(),
@@ -99,7 +96,6 @@ const ErrorSchema = z.object({
   })
 
   it.concurrent('should handle z.lazy for TreeNode self-reference', () => {
-    // Based on fixtures/generate/openapi/14-circular-refs.yaml TreeNode
     const input = `const TreeNodeSchema = z.lazy(() => z.object({
   id: z.uuid(),
   value: z.string(),
@@ -274,7 +270,6 @@ const UserSchema = z.object({ id: z.string() })`
 
 describe('analyzeCircularSchemas', () => {
   it.concurrent('should detect SocialUser <-> UserProfile mutual reference', () => {
-    // Based on fixtures/generate/openapi/14-circular-refs.yaml
     const schemas = {
       SocialUser: {
         type: 'object',
@@ -305,7 +300,6 @@ describe('analyzeCircularSchemas', () => {
   })
 
   it.concurrent('should not mark User API schemas as cyclic', () => {
-    // Based on fixtures/generate/openapi/29-practical-user-api.yaml
     const schemas = {
       User: {
         type: 'object',
@@ -360,7 +354,6 @@ describe('analyzeCircularSchemas', () => {
   })
 
   it.concurrent('should track AuthResponse -> User dependency', () => {
-    // Based on fixtures/generate/openapi/29-practical-user-api.yaml
     const schemas = {
       AuthResponse: {
         type: 'object',
@@ -387,7 +380,6 @@ describe('analyzeCircularSchemas', () => {
   })
 
   it.concurrent('should detect Graph cycle: GraphNode <-> GraphEdge', () => {
-    // Based on fixtures/generate/openapi/14-circular-refs.yaml
     const schemas = {
       GraphNode: {
         type: 'object',
@@ -417,7 +409,6 @@ describe('analyzeCircularSchemas', () => {
   })
 
   it.concurrent('should include EdgeMetadata in extendedCyclicSchemas', () => {
-    // Based on fixtures/generate/openapi/14-circular-refs.yaml
     const schemas = {
       GraphNode: {
         type: 'object',
@@ -452,7 +443,6 @@ describe('analyzeCircularSchemas', () => {
   })
 
   it.concurrent('should detect Comment -> CommentAuthor -> Comment indirect cycle', () => {
-    // Based on fixtures/generate/openapi/14-circular-refs.yaml
     const schemas = {
       Comment: {
         type: 'object',

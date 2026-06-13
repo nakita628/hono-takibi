@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "generate": "hono-takibi",
-    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -17,7 +16,6 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "hono-takibi": "workspace:*",
-    "typescript": "^5.9.0",
-    "vitest": "^4.0.0"
+    "typescript": "^5.9.0"
   }
 }

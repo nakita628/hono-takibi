@@ -10,7 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -19,7 +19,7 @@ jobs:
 
       - run: vp install
 
-      - run: vp run build
+      - run: vp run hono-takibi#build
 
       - run: vp check
 

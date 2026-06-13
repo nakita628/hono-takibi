@@ -1,0 +1,46 @@
+name: deploy
+
+on:
+  workflow_run:
+    workflows: [Test]
+    types: [completed]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Check unpublished version
+        id: ver
+        run: |
+          CUR=$(jq -r .version packages/hono-takibi/package.json)
+          npm view "hono-takibi@$CUR" version >/dev/null 2>&1 || echo "version=$CUR" >> $GITHUB_OUTPUT
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.version
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - run: corepack enable
+
+      - run: pnpm install
+
+      - run: pnpm -F hono-takibi build
+
+      - run: pnpm -F hono-takibi publish --no-git-checks

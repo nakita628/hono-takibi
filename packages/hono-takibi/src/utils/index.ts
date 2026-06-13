@@ -350,6 +350,12 @@ export function baseError(typeMessage: string | undefined, requiredMessage: stri
   return `{error:(issue)=>issue.input===undefined?${JSON.stringify(requiredMessage)}:${JSON.stringify(typeMessage)}}` as const
 }
 
+export function statusCodeToNumber(statusCode: string) {
+  if (statusCode === 'default') return 200
+  if (statusCode.toUpperCase().endsWith('XX')) return Number.parseInt(statusCode[0], 10) * 100
+  return Number.parseInt(statusCode, 10)
+}
+
 export function makeInferRequestType(
   clientName: string,
   pathResult: {
