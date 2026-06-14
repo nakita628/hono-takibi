@@ -2,7 +2,7 @@
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
-Every per-feature OpenAPI spec merged into one document via scripts/merge-specs.mjs. Each former spec is namespaced by a path/name prefix.
+Single fixture document covering every generator feature. Each feature group is namespaced by a path/name prefix (e.g. /minimal, /vendorExtensions, MinimalUser). Edit this file directly.
 
 # Authentication
 

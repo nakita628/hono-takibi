@@ -57,9 +57,9 @@ const NO_EXPORTS = {
   exportMediaTypesTypes: false,
 } as const
 
-// Every per-feature spec is merged into a single namespaced document
-// (openapi/all-features.yaml, built by scripts/merge-specs.mjs). The whole
-// generator surface is exercised in one pass with all component exports on.
+// A single namespaced document (openapi/all-features.yaml) holds every feature
+// under a path/name prefix. The whole generator surface is exercised in one
+// pass with all component exports on.
 const SPECS = [
   { name: 'all-features', yaml: 'all-features.yaml', flags: ALL_EXPORTS },
 ] as const

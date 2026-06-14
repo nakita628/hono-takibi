@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: All Features — consolidated generate fixture
   version: 1.0.0
-  description: Every per-feature OpenAPI spec merged into one document via scripts/merge-specs.mjs. Each former spec is namespaced by a path/name prefix.
+  description: Single fixture document covering every generator feature. Each feature group is namespaced by a path/name prefix (e.g. /minimal, /vendorExtensions, MinimalUser). Edit this file directly.
 paths:
   /minimal/health:
     get:
