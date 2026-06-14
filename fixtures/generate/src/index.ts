@@ -57,27 +57,11 @@ const NO_EXPORTS = {
   exportMediaTypesTypes: false,
 } as const
 
+// Every per-feature spec is merged into a single namespaced document
+// (openapi/all-features.yaml, built by scripts/merge-specs.mjs). The whole
+// generator surface is exercised in one pass with all component exports on.
 const SPECS = [
-  { name: '01-minimal', yaml: 'core/minimal.yaml', flags: NO_EXPORTS },
-  { name: '02-all-exports', yaml: 'core/all-exports.yaml', flags: ALL_EXPORTS },
-  { name: '03-circular-refs', yaml: 'schema/circular-refs.yaml', flags: NO_EXPORTS },
-  { name: '04-security-schemes', yaml: 'core/security-schemes.yaml', flags: { ...NO_EXPORTS, exportSecuritySchemes: true } },
-  { name: '05-content-types', yaml: 'core/content-types.yaml', flags: NO_EXPORTS },
-  { name: '06-parameters-merge', yaml: 'core/parameters-merge.yaml', flags: { ...NO_EXPORTS, exportParameters: true, exportParametersTypes: true } },
-  { name: '07-schema-edge-cases', yaml: 'schema/edge-cases.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
-  { name: '08-callbacks-links', yaml: 'callbacks/callbacks-links.yaml', flags: { ...NO_EXPORTS, exportCallbacks: true, exportLinks: true } },
-  { name: '09-crud-refs', yaml: 'core/crud-refs.yaml', flags: NO_EXPORTS },
-  { name: '10-comprehensive', yaml: 'core/comprehensive.yaml', flags: ALL_EXPORTS },
-  { name: '11-composition-keywords', yaml: 'schema/composition-keywords.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
-  { name: '12-callbacks-field', yaml: 'callbacks/callbacks-field.yaml', flags: { ...NO_EXPORTS, exportCallbacks: true } },
-  { name: '13-array-object-constraints', yaml: 'schema/array-object-constraints.yaml', flags: NO_EXPORTS },
-  { name: '14-trailing-slash', yaml: 'trailing/trailing-slash.yaml', flags: NO_EXPORTS },
-  { name: '15-readonly-ref', yaml: 'readonly/readonly-ref.yaml', flags: { ...NO_EXPORTS, exportResponses: true, exportRequestBodies: true, exportExamples: true } },
-  { name: '16-trailing-slash-real', yaml: 'trailing/trailing-slash-real.yaml', flags: NO_EXPORTS },
-  { name: '17-default-response', yaml: 'core/default-response.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
-  { name: '18-complex-schemas', yaml: 'schema/complex.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
-  { name: '19-brand', yaml: 'vendor/brand.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
-  { name: '20-pagination', yaml: 'vendor/pagination.yaml', flags: { ...NO_EXPORTS, exportSchemas: true, exportSchemasTypes: true } },
+  { name: 'all-features', yaml: 'all-features.yaml', flags: ALL_EXPORTS },
 ] as const
 
 const CLIENT_STUB = `import { hc } from 'hono/client'
@@ -110,7 +94,7 @@ function makeTasks(openAPI: Parameters<typeof type>[0], outDir: string, flags: (
 // One representative spec also exercises split mode so the per-endpoint file
 // layout + barrel re-export resolution is type-checked (the single-file path
 // above does not cover barrel resolution).
-const SPLIT_COVERAGE_SPEC = '10-comprehensive'
+const SPLIT_COVERAGE_SPEC = 'all-features'
 
 // Barrel re-export resolution is framework-independent (`export * from './op'`),
 // so a couple representative frameworks suffice; keep the set small so the

@@ -1,0 +1,742 @@
+openapi: '3.1.0'
+info:
+  title: Vendor Extensions (x-*) — consolidated type-check fixture
+  version: '1.0.0'
+  description: |
+    Single spec exercising every schema-level x-* vendor extension so the
+    generate harness type-checks all of them in one pass (routes / type / rpc
+    / hooks / mock / test / docs).
+
+    Placement rules (enforced to keep mock+test type-safe):
+    - Value-transform extensions whose input type differs from output type
+      (x-codec / x-transform / x-pipe / x-preprocess / x-stringbool) are placed
+      on requestBody schemas ONLY. The mock generator emits faker values from
+      the surface `type` (the codec INPUT side) while `z.infer` exposes the
+      OUTPUT side; putting them in a response would mismatch mock -> handler.
+    - x-brand is nominal and the mock generator casts it via `as z.infer<...>`,
+      so branded schemas may appear in responses (and path params).
+    - operation-level x-pagination lives in its own spec (vendor/pagination.yaml).
+paths:
+  # ── x-brand: nominal types across route param / request / response ──
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /users/{userId}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /posts:
+    post:
+      operationId: createPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePost'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+  # ── String pre-validation transforms + checks (request-only) ──
+  /transforms:
+    post:
+      operationId: postTransforms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransformForm'
+      responses:
+        '200':
+          description: OK
+
+  # ── Coerce (request-only) ──
+  /coerce:
+    post:
+      operationId: postCoerce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoerceForm'
+      responses:
+        '200':
+          description: OK
+
+  # ── Type-changing replacements: codec / transform / pipe / preprocess /
+  #    stringbool — requestBody ONLY (output type != input type) ──
+  /replacements:
+    post:
+      operationId: postReplacements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplacementForm'
+      responses:
+        '200':
+          description: OK
+
+  # ── Format-specific options (request-only) ──
+  /formats:
+    post:
+      operationId: postFormats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormatOptions'
+      responses:
+        '200':
+          description: OK
+
+  # ── Custom validation: refine / superRefine + readonly / prefault / catch ──
+  /custom:
+    post:
+      operationId: postCustom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomForm'
+      responses:
+        '200':
+          description: OK
+
+  # ── x-*-message: field-level (1 keyword = 1 message) ──
+  /messages:
+    post:
+      operationId: postMessages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageForm'
+      responses:
+        '200':
+          description: OK
+
+  # ── x-*-message: combinators / object / conditional / applicators ──
+  /composition:
+    post:
+      operationId: postComposition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Composition'
+      responses:
+        '200':
+          description: OK
+  /conditional:
+    post:
+      operationId: postConditional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Conditional'
+      responses:
+        '200':
+          description: OK
+  /applicators:
+    post:
+      operationId: postApplicators
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Applicators'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    # ───────────────────────────── x-brand ─────────────────────────────
+    UserId:
+      type: string
+      format: uuid
+      x-brand: UserId
+    PostId:
+      type: string
+      format: uuid
+      x-brand: PostId
+    Email:
+      type: string
+      format: email
+      x-brand: Email
+    Price:
+      type: number
+      minimum: 0
+      x-brand: Price
+    Quantity:
+      type: integer
+      minimum: 0
+      x-brand: Quantity
+    Username:
+      type: string
+      minLength: 3
+      maxLength: 20
+      x-brand: Username
+    Tags:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 10
+      x-brand: Tags
+    CreateUser:
+      type: object
+      required:
+        - email
+        - username
+        - price
+      properties:
+        email:
+          $ref: '#/components/schemas/Email'
+        username:
+          $ref: '#/components/schemas/Username'
+        price:
+          $ref: '#/components/schemas/Price'
+        tags:
+          $ref: '#/components/schemas/Tags'
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - username
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        email:
+          $ref: '#/components/schemas/Email'
+        username:
+          $ref: '#/components/schemas/Username'
+    CreatePost:
+      type: object
+      required:
+        - authorId
+        - title
+        - quantity
+      properties:
+        authorId:
+          $ref: '#/components/schemas/UserId'
+        title:
+          type: string
+        quantity:
+          $ref: '#/components/schemas/Quantity'
+    Post:
+      type: object
+      required:
+        - id
+        - authorId
+        - title
+      properties:
+        id:
+          $ref: '#/components/schemas/PostId'
+        authorId:
+          $ref: '#/components/schemas/UserId'
+        title:
+          type: string
+
+    # ──────────── String transforms / checks (string -> string) ────────────
+    TransformForm:
+      type: object
+      required:
+        - trimmed
+        - lowered
+        - uppered
+        - normalized
+        - lowercased
+        - uppercased
+        - startsWithHttps
+        - endsWithTest
+        - includesSlug
+        - emailNormalized
+        - allChained
+      properties:
+        trimmed:
+          type: string
+          x-trim: true
+        lowered:
+          type: string
+          x-toLowerCase: true
+        uppered:
+          type: string
+          x-toUpperCase: true
+        normalized:
+          type: string
+          x-normalize: NFC
+        lowercased:
+          type: string
+          x-lowercase: true
+        uppercased:
+          type: string
+          x-uppercase: true
+        startsWithHttps:
+          type: string
+          x-startsWith: 'https://'
+        endsWithTest:
+          type: string
+          x-endsWith: '.test'
+        includesSlug:
+          type: string
+          x-includes: '/api/'
+        emailNormalized:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+        allChained:
+          type: string
+          x-trim: true
+          x-toLowerCase: true
+          x-normalize: NFC
+
+    # ───────────────────────────── x-coerce ─────────────────────────────
+    CoerceForm:
+      type: object
+      required:
+        - asString
+        - asDate
+        - asNumber
+        - asInt
+        - asBool
+      properties:
+        asString:
+          type: string
+          x-coerce: true
+        asDate:
+          type: string
+          format: date-time
+          x-coerce: true
+        asNumber:
+          type: number
+          x-coerce: true
+        asInt:
+          type: integer
+          x-coerce: true
+          minimum: 0
+        asBool:
+          type: boolean
+          x-coerce: true
+
+    # ─── Type-changing replacements (input type != output type) — req only ───
+    ReplacementForm:
+      type: object
+      required:
+        - codecDate
+        - transformed
+        - piped
+        - preprocessed
+        - asStringBool
+        - asStringBoolCustom
+      properties:
+        # x-codec: ISO string <-> Date (official arg names, see zod.dev/codecs)
+        codecDate:
+          type: string
+          format: date-time
+          x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (isoString) => new Date(isoString), encode: (date) => date.toISOString() })'
+        # x-transform: string -> string
+        transformed:
+          type: string
+          x-transform: 'z.string().transform((val) => val.toUpperCase())'
+        # x-pipe: string -> number (transform bridges string output to number input)
+        piped:
+          type: string
+          x-pipe: 'z.string().transform((val) => Number(val)).pipe(z.number().int().positive())'
+        # x-preprocess: unknown -> string
+        preprocessed:
+          type: string
+          x-preprocess: 'z.preprocess((val) => (typeof val === "string" ? val.trim() : val), z.string())'
+        # x-stringbool: string -> boolean
+        asStringBool:
+          type: boolean
+          x-stringbool: true
+        asStringBoolCustom:
+          type: boolean
+          x-stringbool:
+            truthy: ['yes', 'on']
+            falsy: ['no', 'off']
+            case: 'sensitive'
+
+    # ─────────────────────── Format-specific options ───────────────────────
+    FormatOptions:
+      type: object
+      required:
+        - emailHtml5
+        - customEmail
+        - uuidV8
+        - httpsUrl
+        - hostScopedUrl
+        - preciseDatetime
+        - localDatetime
+        - colonMac
+        - dotMac
+        - hs256Jwt
+        - sha256Hash
+      properties:
+        emailHtml5:
+          type: string
+          format: email
+          x-emailPattern: html5
+        customEmail:
+          type: string
+          format: email
+          x-emailRegex: '^.+@example\.com$'
+        uuidV8:
+          type: string
+          format: uuid
+          x-uuidVersion: v8
+        httpsUrl:
+          type: string
+          format: uri
+          x-urlProtocol: '^https$'
+          x-urlNormalize: true
+        hostScopedUrl:
+          type: string
+          format: uri
+          x-urlHostname: '^example\.com$'
+        preciseDatetime:
+          type: string
+          format: date-time
+          x-isoPrecision: 3
+          x-isoOffset: true
+        localDatetime:
+          type: string
+          format: date-time
+          x-isoLocal: true
+        colonMac:
+          type: string
+          format: mac
+          x-macDelimiter: ':'
+        dotMac:
+          type: string
+          format: mac
+          x-macDelimiter: '.'
+        hs256Jwt:
+          type: string
+          format: jwt
+          x-jwtAlg: HS256
+        sha256Hash:
+          type: string
+          format: hash
+          x-hashAlg: sha256
+          x-hashEnc: hex
+
+    # ────────── refine / superRefine + readonly / prefault / catch ──────────
+    CustomForm:
+      type: object
+      required:
+        - password
+        - normalizedEmail
+        - config
+        - greeting
+        - retries
+      properties:
+        password:
+          type: string
+          x-refine: '.refine((val) => val.length >= 8, { message: "Password must be at least 8 characters" }).refine((val) => /[A-Z]/.test(val), { message: "Password must contain an uppercase letter" })'
+        normalizedEmail:
+          type: string
+          format: email
+          x-superRefine: '.superRefine((val, ctx) => { if (val.endsWith("@blocked.example")) ctx.addIssue({ code: "custom", message: "Blocked domain" }) })'
+        config:
+          type: object
+          properties:
+            name:
+              type: string
+          x-readonly: true
+        greeting:
+          type: string
+          x-prefault: 'hello'
+        retries:
+          type: integer
+          x-catch: 0
+
+    # ───────────────── x-*-message: field-level (1 keyword) ─────────────────
+    MessageForm:
+      type: object
+      required:
+        - username
+        - code
+        - slug
+        - age
+        - score
+        - count
+        - active
+        - tags
+        - pin
+        - role
+        - priority
+        - color
+        - kind
+        - uniqueTags
+        - namespaced
+        - prefixed
+        - payload
+      dependentRequired:
+        token:
+          - tokenLabel
+      x-dependentRequired-message: 'tokenLabel is required when token is provided'
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 16
+          x-error-message: 'username must be a string'
+          x-minLength-message: 'username must be at least 3 characters'
+          x-maxLength-message: 'username must be at most 16 characters'
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          x-length-message: 'code must be exactly 6 characters'
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          x-pattern-message: 'slug must be lowercase alphanumeric with hyphens'
+        age:
+          type: integer
+          minimum: 0
+          maximum: 120
+          x-error-message: 'age must be an integer'
+          x-minimum-message: 'age must be >= 0'
+          x-maximum-message: 'age must be <= 120'
+        score:
+          type: number
+          multipleOf: 0.5
+          exclusiveMinimum: 0
+          exclusiveMaximum: 100
+          x-error-message: 'score must be a number'
+          x-multipleOf-message: 'score must be a multiple of 0.5'
+          x-exclusiveMinimum-message: 'score must be > 0'
+          x-exclusiveMaximum-message: 'score must be < 100'
+        count:
+          type: integer
+          multipleOf: 5
+          x-multipleOf-message: 'count must be a multiple of 5'
+        active:
+          type: boolean
+          x-error-message: 'active must be a boolean'
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-error-message: 'tags must be an array'
+          x-minItems-message: 'tags must contain at least 1 item'
+          x-maxItems-message: 'tags must contain at most 5 items'
+        pin:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+          x-length-message: 'pin must contain exactly 4 digits'
+        role:
+          type: string
+          enum: [admin, editor, viewer]
+          x-error-message: 'role must be a string'
+          x-enum-message: 'role must be one of admin, editor, viewer'
+        priority:
+          type: integer
+          enum: [1, 2, 3]
+          x-error-message: 'priority must be 1, 2, or 3'
+        color:
+          type: string
+          const: 'red'
+          x-const-message: 'color must be exactly "red"'
+        kind:
+          type: string
+          x-required-message: 'kind is required'
+          x-error-message: 'kind must be a string'
+        uniqueTags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          x-uniqueItems-message: 'uniqueTags must contain unique values'
+        namespaced:
+          type: object
+          minProperties: 1
+          maxProperties: 3
+          additionalProperties: false
+          properties:
+            a:
+              type: string
+            b:
+              type: string
+            c:
+              type: string
+          x-minProperties-message: 'namespaced must have at least 1 property'
+          x-maxProperties-message: 'namespaced must have at most 3 properties'
+          x-additionalProperties-message: 'namespaced contains an unrecognized key'
+        prefixed:
+          type: object
+          patternProperties:
+            '^x_':
+              type: string
+          x-patternProperties-message: 'x_ keys must be strings'
+        payload:
+          type: string
+          x-required-message: 'payload is required'
+          x-error-message: 'payload must be a string'
+        token:
+          type: string
+        tokenLabel:
+          type: string
+
+    # ────── combinators: anyOf / oneOf / not / allOf / implication ──────
+    Composition:
+      type: object
+      required:
+        - anyValue
+      properties:
+        anyValue:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'anyValue must be a string or integer'
+        oneValue:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'oneValue must match exactly one type'
+        notString:
+          not:
+            type: string
+          x-not-message: 'notString must not be a string'
+        merged:
+          allOf:
+            - type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+            - type: object
+              required: [age]
+              properties:
+                age:
+                  type: integer
+          x-allOf-message: 'merged validation failed'
+        propertyNames:
+          type: object
+          additionalProperties:
+            type: string
+          propertyNames:
+            pattern: '^[a-z][a-z0-9_]*$'
+          x-propertyNames-message: 'keys must start with a lowercase letter'
+      anyOf:
+        - not:
+            required: [hasLicense]
+            properties:
+              hasLicense:
+                const: true
+        - required: [licenseNumber]
+      x-implication-message: 'licenseNumber is required when hasLicense is true'
+
+    # ───────────── conditional: if / then / else messages ─────────────
+    Conditional:
+      type: object
+      required:
+        - kind
+      properties:
+        kind:
+          type: string
+          enum: [premium, basic]
+        feature:
+          type: string
+      if:
+        type: object
+        properties:
+          kind:
+            const: premium
+        required: [kind]
+      then:
+        type: object
+        required: [feature]
+        properties:
+          feature:
+            type: string
+      else:
+        type: object
+        required: []
+      x-if-message: 'kind discriminator is invalid'
+      x-then-message: 'feature is required for premium'
+      x-else-message: 'feature must be omitted for basic'
+
+    # ── array/object applicators: properties / prefixItems / items /
+    #    unevaluatedProperties / unevaluatedItems ──
+    Applicators:
+      type: object
+      required:
+        - tuple
+        - list
+        - meta
+      properties:
+        tuple:
+          type: array
+          prefixItems:
+            - type: string
+            - type: integer
+          items:
+            type: boolean
+          x-prefixItems-message: 'tuple positions must be [string, integer]'
+          x-items-message: 'extra tuple items must be booleans'
+          unevaluatedItems: false
+          x-unevaluatedItems-message: 'no items beyond the declared tuple shape'
+        list:
+          type: array
+          items:
+            type: string
+          x-items-message: 'list items must be strings'
+        meta:
+          properties:
+            id:
+              type: string
+          x-properties-message: 'meta.id must be a string'
+          unevaluatedProperties: false
+          x-unevaluatedProperties-message: 'meta only allows the id field'
