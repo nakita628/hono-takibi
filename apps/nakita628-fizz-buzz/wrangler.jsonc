@@ -1,0 +1,6 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nakita628-fizz-buzz",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-14"
+}
