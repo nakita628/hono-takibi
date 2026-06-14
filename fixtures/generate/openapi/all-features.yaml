@@ -1,0 +1,4190 @@
+openapi: 3.1.0
+info:
+  title: All Features — consolidated generate fixture
+  version: 1.0.0
+  description: Single fixture document covering every generator feature. Each feature group is namespaced by a path/name prefix (e.g. /minimal, /vendorExtensions, MinimalUser). Edit this file directly.
+paths:
+  /minimal/health:
+    get:
+      operationId: minimalGetHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+  /allExports/users:
+    get:
+      operationId: allExportsGetUsers
+      parameters:
+        - $ref: "#/components/parameters/AllExportsPageParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/AllExportsUserListResponse"
+    post:
+      operationId: allExportsCreateUser
+      requestBody:
+        $ref: "#/components/requestBodies/AllExportsCreateUserBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllExportsUser"
+          links:
+            GetUser:
+              $ref: "#/components/links/AllExportsGetUserLink"
+  /allExports/users/{id}:
+    get:
+      operationId: allExportsGetUserById
+      parameters:
+        - $ref: "#/components/parameters/AllExportsUserIdParam"
+      security:
+        - AllExportsBearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllExportsUser"
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/AllExportsXRequestId"
+  /circularRefs/tree:
+    get:
+      operationId: circularRefsGetTree
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CircularRefsTreeNode"
+    post:
+      operationId: circularRefsCreateTree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CircularRefsTreeNode"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CircularRefsTreeNode"
+  /circularRefs/graph:
+    get:
+      operationId: circularRefsGetGraph
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CircularRefsNodeA"
+  /securitySchemes/public:
+    get:
+      operationId: securitySchemesGetPublic
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+  /securitySchemes/bearer-protected:
+    get:
+      operationId: securitySchemesGetBearerProtected
+      security:
+        - SecuritySchemesBearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                required:
+                  - data
+  /securitySchemes/api-key-protected:
+    get:
+      operationId: securitySchemesGetApiKeyProtected
+      security:
+        - SecuritySchemesApiKeyAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                required:
+                  - data
+  /securitySchemes/basic-protected:
+    get:
+      operationId: securitySchemesGetBasicProtected
+      security:
+        - SecuritySchemesBasicAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                required:
+                  - data
+  /securitySchemes/oauth-protected:
+    get:
+      operationId: securitySchemesGetOAuthProtected
+      security:
+        - SecuritySchemesOAuth2:
+            - read
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                required:
+                  - data
+  /securitySchemes/multi-auth:
+    get:
+      operationId: securitySchemesGetMultiAuth
+      security:
+        - SecuritySchemesBearerAuth: []
+          SecuritySchemesApiKeyAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                required:
+                  - data
+  /contentTypes/json:
+    post:
+      operationId: contentTypesPostJson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: integer
+              required:
+                - name
+                - value
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+  /contentTypes/form:
+    post:
+      operationId: contentTypesPostForm
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                required:
+                  - success
+  /contentTypes/upload:
+    post:
+      operationId: contentTypesUploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+              required:
+                - file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                required:
+                  - url
+  /contentTypes/text:
+    post:
+      operationId: contentTypesPostText
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  /contentTypes/multi-content:
+    post:
+      operationId: contentTypesPostMultiContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+              required:
+                - data
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+              required:
+                - data
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  received:
+                    type: boolean
+                required:
+                  - received
+  /parametersMerge/items/{itemId}:
+    parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: version
+        in: header
+        schema:
+          type: string
+          default: "1"
+    get:
+      operationId: parametersMergeGetItem
+      parameters:
+        - name: fields
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParametersMergeItem"
+    put:
+      operationId: parametersMergeUpdateItem
+      parameters:
+        - name: version
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParametersMergeItemUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParametersMergeItem"
+    delete:
+      operationId: parametersMergeDeleteItem
+      responses:
+        "204":
+          description: Deleted
+  /parametersMerge/items:
+    get:
+      operationId: parametersMergeListItems
+      parameters:
+        - $ref: "#/components/parameters/ParametersMergeLimitParam"
+        - $ref: "#/components/parameters/ParametersMergeOffsetParam"
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - created
+              - updated
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ParametersMergeItem"
+                  total:
+                    type: integer
+                required:
+                  - items
+                  - total
+  /schemaEdgeCases/nullable:
+    post:
+      operationId: schemaEdgeCasesPostNullable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchemaEdgeCasesNullableFields"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaEdgeCasesNullableFields"
+  /schemaEdgeCases/discriminated:
+    post:
+      operationId: schemaEdgeCasesPostDiscriminated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SchemaEdgeCasesShape"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaEdgeCasesShape"
+  /schemaEdgeCases/composed:
+    get:
+      operationId: schemaEdgeCasesGetComposed
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaEdgeCasesComposedObject"
+  /schemaEdgeCases/deep-nested:
+    get:
+      operationId: schemaEdgeCasesGetDeepNested
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaEdgeCasesLevel1"
+  /schemaEdgeCases/additional-props:
+    get:
+      operationId: schemaEdgeCasesGetAdditionalProps
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaEdgeCasesDynamicMap"
+  /callbacksLinks/subscriptions:
+    post:
+      operationId: callbacksLinksCreateSubscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CallbacksLinksSubscriptionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbacksLinksSubscription"
+          links:
+            GetSubscription:
+              $ref: "#/components/links/CallbacksLinksGetSubscriptionLink"
+      callbacks:
+        onEvent:
+          $ref: "#/components/callbacks/CallbacksLinksSubscriptionEvent"
+  /callbacksLinks/subscriptions/{id}:
+    get:
+      operationId: callbacksLinksGetSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbacksLinksSubscription"
+          links:
+            DeleteSubscription:
+              $ref: "#/components/links/CallbacksLinksDeleteSubscriptionLink"
+    delete:
+      operationId: callbacksLinksDeleteSubscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /callbacksLinks/webhooks/test:
+    post:
+      operationId: callbacksLinksTestWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+              required:
+                - url
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sent:
+                    type: boolean
+                required:
+                  - sent
+  /crudRefs/posts:
+    get:
+      operationId: crudRefsListPosts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CrudRefsPost"
+                  total:
+                    type: integer
+                required:
+                  - posts
+                  - total
+    post:
+      operationId: crudRefsCreatePost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrudRefsCreatePost"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrudRefsPost"
+  /crudRefs/posts/{id}:
+    get:
+      operationId: crudRefsGetPost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrudRefsPost"
+    put:
+      operationId: crudRefsUpdatePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrudRefsUpdatePost"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrudRefsPost"
+    delete:
+      operationId: crudRefsDeletePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /crudRefs/posts/{id}/comments:
+    get:
+      operationId: crudRefsListComments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrudRefsComment"
+    post:
+      operationId: crudRefsCreateComment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrudRefsCreateComment"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrudRefsComment"
+  /crudRefs/tags:
+    get:
+      operationId: crudRefsListTags
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrudRefsTag"
+  /comprehensive/users:
+    get:
+      operationId: comprehensiveListUsers
+      parameters:
+        - $ref: "#/components/parameters/ComprehensivePageParam"
+        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ComprehensiveUser"
+                  total:
+                    type: integer
+                required:
+                  - users
+                  - total
+    post:
+      operationId: comprehensiveCreateUser
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveCreateUser"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveUser"
+  /comprehensive/users/{userId}:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: comprehensiveGetUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveUser"
+        "404":
+          $ref: "#/components/responses/ComprehensiveNotFound"
+    put:
+      operationId: comprehensiveUpdateUser
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveUpdateUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveUser"
+    delete:
+      operationId: comprehensiveDeleteUser
+      security:
+        - ComprehensiveBearerAuth: []
+      responses:
+        "204":
+          description: Deleted
+  /comprehensive/products:
+    get:
+      operationId: comprehensiveListProducts
+      parameters:
+        - $ref: "#/components/parameters/ComprehensivePageParam"
+        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ComprehensiveProduct"
+                  total:
+                    type: integer
+                required:
+                  - products
+                  - total
+    post:
+      operationId: comprehensiveCreateProduct
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveCreateProduct"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveProduct"
+  /comprehensive/products/{productId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: comprehensiveGetProduct
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveProduct"
+        "404":
+          $ref: "#/components/responses/ComprehensiveNotFound"
+    put:
+      operationId: comprehensiveUpdateProduct
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveUpdateProduct"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveProduct"
+  /comprehensive/products/{productId}/reviews:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: comprehensiveListReviews
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ComprehensiveReview"
+    post:
+      operationId: comprehensiveCreateReview
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveCreateReview"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveReview"
+  /comprehensive/orders:
+    get:
+      operationId: comprehensiveListOrders
+      security:
+        - ComprehensiveBearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ComprehensivePageParam"
+        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - shipped
+              - delivered
+              - cancelled
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ComprehensiveOrder"
+                  total:
+                    type: integer
+                required:
+                  - orders
+                  - total
+    post:
+      operationId: comprehensiveCreateOrder
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComprehensiveCreateOrder"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveOrder"
+  /comprehensive/orders/{orderId}:
+    parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      operationId: comprehensiveGetOrder
+      security:
+        - ComprehensiveBearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprehensiveOrder"
+        "404":
+          $ref: "#/components/responses/ComprehensiveNotFound"
+  /comprehensive/categories:
+    get:
+      operationId: comprehensiveListCategories
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ComprehensiveCategory"
+  /comprehensive/upload/image:
+    post:
+      operationId: comprehensiveUploadImage
+      security:
+        - ComprehensiveBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                alt:
+                  type: string
+              required:
+                - image
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                  width:
+                    type: integer
+                  height:
+                    type: integer
+                required:
+                  - url
+                  - width
+                  - height
+  /compositionKeywords/one-of:
+    post:
+      operationId: compositionKeywordsPostOneOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompositionKeywordsPaymentMethod"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsPaymentMethod"
+  /compositionKeywords/any-of:
+    post:
+      operationId: compositionKeywordsPostAnyOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompositionKeywordsSearchFilter"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsSearchFilter"
+  /compositionKeywords/all-of:
+    post:
+      operationId: compositionKeywordsPostAllOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompositionKeywordsEmployee"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsEmployee"
+  /compositionKeywords/not:
+    post:
+      operationId: compositionKeywordsPostNot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompositionKeywordsNotStringValue"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNotStringValue"
+  /compositionKeywords/not-ref:
+    get:
+      operationId: compositionKeywordsGetNotRef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNotAdmin"
+  /compositionKeywords/not-enum:
+    get:
+      operationId: compositionKeywordsGetNotEnum
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNotDraftOrArchived"
+  /compositionKeywords/not-const:
+    get:
+      operationId: compositionKeywordsGetNotConst
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNotSpecificValue"
+  /compositionKeywords/not-composition:
+    get:
+      operationId: compositionKeywordsGetNotComposition
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNotStringOrNumber"
+  /compositionKeywords/all-of-sibling:
+    get:
+      operationId: compositionKeywordsGetAllOfSibling
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsExtendedWithSibling"
+  /compositionKeywords/nullable-one-of:
+    get:
+      operationId: compositionKeywordsGetNullableOneOf
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsNullablePayment"
+  /compositionKeywords/any-of-three:
+    get:
+      operationId: compositionKeywordsGetAnyOfThree
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsFlexibleId"
+  /compositionKeywords/any-of-ref:
+    get:
+      operationId: compositionKeywordsGetAnyOfRef
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompositionKeywordsPetChoice"
+  /callbacksField/orders:
+    post:
+      operationId: callbacksFieldCreateOrder
+      summary: Create an order with callback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CallbacksFieldOrderRequest"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbacksFieldOrder"
+      callbacks:
+        onOrderCreated:
+          "{$request.body#/callbackUrl}":
+            post:
+              operationId: callbacksFieldOnOrderCreated
+              summary: Order created notification
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/CallbacksFieldOrderEvent"
+              responses:
+                "200":
+                  description: Callback received
+  /callbacksField/payments:
+    post:
+      operationId: callbacksFieldCreatePayment
+      summary: Create a payment with multiple callbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CallbacksFieldPaymentRequest"
+      responses:
+        "201":
+          description: Payment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallbacksFieldPayment"
+      callbacks:
+        onPaymentSuccess:
+          "{$request.body#/successUrl}":
+            post:
+              operationId: callbacksFieldOnPaymentSuccess
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/CallbacksFieldPaymentEvent"
+              responses:
+                "200":
+                  description: OK
+        onPaymentFailure:
+          "{$request.body#/failureUrl}":
+            post:
+              operationId: callbacksFieldOnPaymentFailure
+              requestBody:
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/CallbacksFieldPaymentEvent"
+              responses:
+                "200":
+                  description: OK
+  /callbacksField/items:
+    get:
+      operationId: callbacksFieldListItems
+      summary: List items (no callbacks)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+  /arrayObjectConstraints/tags:
+    get:
+      operationId: arrayObjectConstraintsGetTags
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                  ids:
+                    type: array
+                    items:
+                      type: integer
+                    uniqueItems: true
+                    minItems: 1
+                    maxItems: 100
+                  labels:
+                    type: array
+                    items:
+                      type: string
+                    uniqueItems: true
+                    minItems: 3
+                    maxItems: 3
+                required:
+                  - tags
+                  - ids
+                  - labels
+    post:
+      operationId: arrayObjectConstraintsCreateTag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                    value:
+                      type: string
+                  minProperties: 1
+                  maxProperties: 10
+                config:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                  minProperties: 1
+                limited:
+                  type: object
+                  properties:
+                    a:
+                      type: string
+                    b:
+                      type: string
+                  maxProperties: 5
+              required:
+                - metadata
+      responses:
+        "201":
+          description: Created
+  /arrayObjectConstraints/settings:
+    get:
+      operationId: arrayObjectConstraintsGetSettings
+      parameters:
+        - name: filter
+          in: query
+          allowReserved: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                propertyNames:
+                  pattern: ^[a-z_]+$
+                additionalProperties:
+                  type: string
+    put:
+      operationId: arrayObjectConstraintsUpdateSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  contentEncoding: base64
+                  contentMediaType: image/png
+              required:
+                - avatar
+      responses:
+        "200":
+          description: OK
+  /arrayObjectConstraints/config:
+    post:
+      operationId: arrayObjectConstraintsCreateConfig
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: object
+                  patternProperties:
+                    ^x-:
+                      type: string
+                  additionalProperties:
+                    type: string
+                headers:
+                  type: object
+                  patternProperties:
+                    ^X-Custom-:
+                      type: string
+                  additionalProperties: true
+                keys:
+                  type: object
+                  propertyNames:
+                    pattern: ^[a-z_]+$
+                  additionalProperties:
+                    type: string
+              required:
+                - data
+      responses:
+        "201":
+          description: Created
+  /arrayObjectConstraints/payment:
+    post:
+      operationId: arrayObjectConstraintsCreatePayment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                creditCard:
+                  type: string
+                billingAddress:
+                  type: string
+                email:
+                  type: string
+              dependentRequired:
+                creditCard:
+                  - billingAddress
+      responses:
+        "201":
+          description: Created
+  /trailingSlash/api/reverseChiban/:
+    get:
+      operationId: trailingSlashGetApiReverseChibanIndex
+      summary: Reverse Chiban (trailing slash)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required:
+                  - result
+  /trailingSlash/api/reverseChiban:
+    get:
+      operationId: trailingSlashGetApiReverseChiban
+      summary: Reverse Chiban (no trailing slash)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required:
+                  - result
+  /trailingSlash/posts/:
+    get:
+      operationId: trailingSlashGetPostsIndex
+      summary: List posts (trailing slash only)
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+                  total:
+                    type: integer
+                required:
+                  - items
+                  - total
+    post:
+      operationId: trailingSlashPostPostsIndex
+      summary: Create post (trailing slash only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              required:
+                - title
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                required:
+                  - id
+                  - title
+  /trailingSlash/users/{id}/:
+    get:
+      operationId: trailingSlashGetUsersIdIndex
+      summary: Get user (trailing slash with path param)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+  /trailingSlash/items/:
+    get:
+      operationId: trailingSlashGetItemsIndex
+      summary: List items (trailing slash only)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - items
+  /readonlyRef/users:
+    get:
+      operationId: readonlyRefListUsers
+      summary: List users
+      responses:
+        "200":
+          $ref: "#/components/responses/ReadonlyRefUserList"
+    post:
+      operationId: readonlyRefCreateUser
+      summary: Create user
+      requestBody:
+        $ref: "#/components/requestBodies/ReadonlyRefCreateUser"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadonlyRefUser"
+        "400":
+          $ref: "#/components/responses/ReadonlyRefBadRequest"
+  /readonlyRef/users/{id}:
+    get:
+      operationId: readonlyRefGetUser
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadonlyRefUser"
+        "404":
+          $ref: "#/components/responses/ReadonlyRefNotFound"
+    put:
+      operationId: readonlyRefUpdateUser
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: "#/components/requestBodies/ReadonlyRefUpdateUser"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadonlyRefUser"
+  /readonlyRef/items:
+    get:
+      operationId: readonlyRefListItems
+      summary: List items (uses $ref response alias)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReadonlyRefItem"
+        "500":
+          $ref: "#/components/responses/ReadonlyRefServerError"
+  /trailingSlashReal/api/reverseGeocode/:
+    get:
+      summary: Reverse geocode lookup
+      operationId: trailingSlashRealGetApiReverseGeocodeIndex
+      parameters:
+        - name: callback
+          in: query
+          description: Callback function name for JSONP
+          required: false
+          schema:
+            type: string
+        - name: search_type
+          in: query
+          description: Search type
+          required: false
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
+              - "2"
+            default: "0"
+        - name: lat
+          in: query
+          description: Latitude
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          description: Longitude
+          required: false
+          schema:
+            type: number
+            format: double
+        - name: polygon
+          in: query
+          description: Polygon coordinates
+          required: false
+          schema:
+            type: string
+            pattern: ^(\d+\.\d+,\d+\.\d+,)*\d+\.\d+,\d+\.\d+$
+        - name: radius
+          in: query
+          description: Search radius in meters
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+        - name: include_shape
+          in: query
+          description: Include shape data
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: include_count
+          in: query
+          description: Include total count
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: limit
+          in: query
+          description: Number of results
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+        - name: offset
+          in: query
+          description: Result offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - results
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - success
+                      - zero results
+                      - error
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - region
+                        - city
+                        - code
+                        - lat
+                        - lon
+                      properties:
+                        region:
+                          type: string
+                        city:
+                          type: string
+                        code:
+                          type: string
+                        lat:
+                          type: string
+                        lon:
+                          type: string
+  /trailingSlashReal/api/v2/public/booking/account/register/oauth/:
+    post:
+      tags:
+        - v2/public/booking/account/register/oauth
+      operationId: trailingSlashRealPostApiV2PublicBookingAccountRegisterOauthIndex
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                profile:
+                  type: object
+              required:
+                - account
+                - profile
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  provisionalId:
+                    type: string
+                required:
+                  - message
+        "404":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  provisionalId:
+                    type: string
+                required:
+                  - message
+  /trailingSlashReal/api/v2/public/booking/account/register/email:
+    post:
+      tags:
+        - v2/public/booking/account/register/email
+      operationId: trailingSlashRealPostApiV2PublicBookingAccountRegisterEmail
+      summary: Send registration URL via email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+  /defaultResponse/items:
+    post:
+      operationId: defaultResponseCreateItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DefaultResponseItem"
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DefaultResponseItem"
+  /defaultResponse/ping:
+    get:
+      operationId: defaultResponsePing
+      responses:
+        2XX:
+          description: ok
+          content:
+            text/plain:
+              schema:
+                type: string
+  /complexSchemas/expressions:
+    post:
+      operationId: complexSchemasEvaluateExpression
+      description: Circular reference with oneOf (expression tree)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplexSchemasExpression"
+      responses:
+        "200":
+          description: Evaluation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasExpression"
+  /complexSchemas/shapes:
+    post:
+      operationId: complexSchemasCreateShape
+      description: 5-variant discriminated union
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplexSchemasShape"
+      responses:
+        "200":
+          description: Created shape
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasShape"
+  /complexSchemas/documents:
+    post:
+      operationId: complexSchemasCreateDocument
+      description: allOf inside oneOf (nested composition)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplexSchemasDocument"
+      responses:
+        "200":
+          description: Created document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasDocument"
+  /complexSchemas/configs:
+    post:
+      operationId: complexSchemasCreateConfig
+      description: Deeply nested allOf chain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplexSchemasFullConfig"
+      responses:
+        "200":
+          description: Created config
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasFullConfig"
+  /complexSchemas/nullable-union:
+    get:
+      operationId: complexSchemasGetNullableUnion
+      description: Nullable anyOf with mixed types
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasNullableResult"
+  /complexSchemas/nested-circular:
+    get:
+      operationId: complexSchemasGetNestedCircular
+      description: Circular reference through allOf
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplexSchemasCategory"
+  /vendorExtensions/users:
+    post:
+      operationId: vendorExtensionsCreateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsCreateUser"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendorExtensionsUser"
+  /vendorExtensions/users/{userId}:
+    get:
+      operationId: vendorExtensionsGetUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/VendorExtensionsUserId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendorExtensionsUser"
+  /vendorExtensions/posts:
+    post:
+      operationId: vendorExtensionsCreatePost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsCreatePost"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VendorExtensionsPost"
+  /vendorExtensions/transforms:
+    post:
+      operationId: vendorExtensionsPostTransforms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsTransformForm"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/coerce:
+    post:
+      operationId: vendorExtensionsPostCoerce
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsCoerceForm"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/replacements:
+    post:
+      operationId: vendorExtensionsPostReplacements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsReplacementForm"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/formats:
+    post:
+      operationId: vendorExtensionsPostFormats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsFormatOptions"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/custom:
+    post:
+      operationId: vendorExtensionsPostCustom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsCustomForm"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/messages:
+    post:
+      operationId: vendorExtensionsPostMessages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsMessageForm"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/composition:
+    post:
+      operationId: vendorExtensionsPostComposition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsComposition"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/conditional:
+    post:
+      operationId: vendorExtensionsPostConditional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsConditional"
+      responses:
+        "200":
+          description: OK
+  /vendorExtensions/applicators:
+    post:
+      operationId: vendorExtensionsPostApplicators
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorExtensionsApplicators"
+      responses:
+        "200":
+          description: OK
+  /pagination/items:
+    get:
+      operationId: paginationListItems
+      summary: List items with pagination
+      x-pagination: true
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationItemsPage"
+  /pagination/feeds:
+    get:
+      operationId: paginationListFeeds
+      summary: Feed (paginated, no args)
+      x-pagination: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationItemsPage"
+  /pagination/users/{userId}/posts:
+    get:
+      operationId: paginationListUserPosts
+      summary: User's posts (paginated, path param)
+      x-pagination: true
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginationItemsPage"
+components:
+  schemas:
+    AllExportsUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+        - email
+    AllExportsUserList:
+      type: array
+      items:
+        $ref: "#/components/schemas/AllExportsUser"
+    CircularRefsTreeNode:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/CircularRefsTreeNode"
+      required:
+        - id
+        - value
+    CircularRefsNodeA:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/CircularRefsNodeB"
+      required:
+        - id
+    CircularRefsNodeB:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/CircularRefsNodeC"
+      required:
+        - id
+    CircularRefsNodeC:
+      type: object
+      properties:
+        id:
+          type: integer
+        ref:
+          $ref: "#/components/schemas/CircularRefsNodeA"
+      required:
+        - id
+    ParametersMergeItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - createdAt
+    ParametersMergeItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+    SchemaEdgeCasesNullableFields:
+      type: object
+      properties:
+        name:
+          type: string
+        nickname:
+          type:
+            - string
+            - "null"
+        age:
+          type:
+            - integer
+            - "null"
+        tags:
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+      required:
+        - name
+    SchemaEdgeCasesCircle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: circle
+        radius:
+          type: number
+      required:
+        - kind
+        - radius
+    SchemaEdgeCasesRectangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: rectangle
+        width:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - width
+        - height
+    SchemaEdgeCasesShape:
+      oneOf:
+        - $ref: "#/components/schemas/SchemaEdgeCasesCircle"
+        - $ref: "#/components/schemas/SchemaEdgeCasesRectangle"
+      discriminator:
+        propertyName: kind
+        mapping:
+          circle: "#/components/schemas/Circle"
+          rectangle: "#/components/schemas/Rectangle"
+    SchemaEdgeCasesBase:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - createdAt
+    SchemaEdgeCasesExtended:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+    SchemaEdgeCasesComposedObject:
+      allOf:
+        - $ref: "#/components/schemas/SchemaEdgeCasesBase"
+        - $ref: "#/components/schemas/SchemaEdgeCasesExtended"
+        - type: object
+          properties:
+            extra:
+              type: boolean
+    SchemaEdgeCasesLevel1:
+      type: object
+      properties:
+        level2:
+          type: object
+          properties:
+            level3:
+              type: object
+              properties:
+                value:
+                  type: string
+              required:
+                - value
+          required:
+            - level3
+      required:
+        - level2
+    SchemaEdgeCasesDynamicMap:
+      type: object
+      additionalProperties:
+        type: string
+    SchemaEdgeCasesAnyOfExample:
+      anyOf:
+        - type: string
+        - type: integer
+        - type: boolean
+    CallbacksLinksSubscriptionRequest:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - created
+              - updated
+              - deleted
+      required:
+        - callbackUrl
+        - events
+    CallbacksLinksSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+        callbackUrl:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - active
+            - paused
+            - cancelled
+      required:
+        - id
+        - callbackUrl
+        - events
+        - status
+    CallbacksLinksEventPayload:
+      type: object
+      properties:
+        event:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true
+      required:
+        - event
+        - timestamp
+    CrudRefsPost:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        author:
+          $ref: "#/components/schemas/CrudRefsAuthor"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrudRefsTag"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - body
+        - author
+        - createdAt
+        - updatedAt
+    CrudRefsCreatePost:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - title
+        - body
+    CrudRefsUpdatePost:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: integer
+    CrudRefsComment:
+      type: object
+      properties:
+        id:
+          type: integer
+        body:
+          type: string
+        author:
+          $ref: "#/components/schemas/CrudRefsAuthor"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - body
+        - author
+        - createdAt
+    CrudRefsCreateComment:
+      type: object
+      properties:
+        body:
+          type: string
+      required:
+        - body
+    CrudRefsAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+      required:
+        - id
+        - name
+    CrudRefsTag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+      required:
+        - id
+        - name
+        - slug
+    CrudRefsPagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+      required:
+        - page
+        - limit
+        - total
+    CrudRefsError:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+    ComprehensiveUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum:
+            - admin
+            - customer
+        address:
+          $ref: "#/components/schemas/ComprehensiveAddress"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+    ComprehensiveCreateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+          enum:
+            - admin
+            - customer
+        address:
+          $ref: "#/components/schemas/ComprehensiveAddress"
+      required:
+        - name
+        - email
+        - password
+    ComprehensiveUpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          $ref: "#/components/schemas/ComprehensiveAddress"
+    ComprehensiveAddress:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+      required:
+        - street
+        - city
+        - country
+    ComprehensiveProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        category:
+          $ref: "#/components/schemas/ComprehensiveCategory"
+        tags:
+          type: array
+          items:
+            type: string
+        inStock:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - price
+        - category
+        - inStock
+        - createdAt
+    ComprehensiveCreateProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        categoryId:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - price
+        - categoryId
+    ComprehensiveUpdateProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        categoryId:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+    ComprehensiveCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        parentId:
+          type:
+            - integer
+            - "null"
+      required:
+        - id
+        - name
+    ComprehensiveReview:
+      type: object
+      properties:
+        id:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        author:
+          $ref: "#/components/schemas/ComprehensiveUser"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - rating
+        - author
+        - createdAt
+    ComprehensiveCreateReview:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      required:
+        - rating
+    ComprehensiveOrder:
+      type: object
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: "#/components/schemas/ComprehensiveUser"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComprehensiveOrderItem"
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - shipped
+            - delivered
+            - cancelled
+        totalPrice:
+          type: number
+        shippingAddress:
+          $ref: "#/components/schemas/ComprehensiveAddress"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - user
+        - items
+        - status
+        - totalPrice
+        - shippingAddress
+        - createdAt
+    ComprehensiveOrderItem:
+      type: object
+      properties:
+        product:
+          $ref: "#/components/schemas/ComprehensiveProduct"
+        quantity:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+      required:
+        - product
+        - quantity
+        - price
+    ComprehensiveCreateOrder:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+                minimum: 1
+            required:
+              - productId
+              - quantity
+        shippingAddress:
+          $ref: "#/components/schemas/ComprehensiveAddress"
+        callbackUrl:
+          type: string
+          format: uri
+      required:
+        - items
+        - shippingAddress
+    ComprehensiveError:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+    CompositionKeywordsCreditCard:
+      type: object
+      properties:
+        type:
+          type: string
+          const: credit_card
+        cardNumber:
+          type: string
+        expiry:
+          type: string
+      required:
+        - type
+        - cardNumber
+        - expiry
+    CompositionKeywordsBankTransfer:
+      type: object
+      properties:
+        type:
+          type: string
+          const: bank_transfer
+        bankCode:
+          type: string
+        accountNumber:
+          type: string
+      required:
+        - type
+        - bankCode
+        - accountNumber
+    CompositionKeywordsPaymentMethod:
+      oneOf:
+        - $ref: "#/components/schemas/CompositionKeywordsCreditCard"
+        - $ref: "#/components/schemas/CompositionKeywordsBankTransfer"
+      discriminator:
+        propertyName: type
+        mapping:
+          credit_card: "#/components/schemas/CreditCard"
+          bank_transfer: "#/components/schemas/BankTransfer"
+    CompositionKeywordsNullablePayment:
+      oneOf:
+        - $ref: "#/components/schemas/CompositionKeywordsCreditCard"
+        - $ref: "#/components/schemas/CompositionKeywordsBankTransfer"
+      nullable: true
+    CompositionKeywordsSearchFilter:
+      anyOf:
+        - type: object
+          properties:
+            keyword:
+              type: string
+          required:
+            - keyword
+        - type: object
+          properties:
+            category:
+              type: integer
+          required:
+            - category
+    CompositionKeywordsFlexibleId:
+      description: Accepts string, integer, or UUID
+      anyOf:
+        - type: string
+        - type: integer
+        - type: string
+          format: uuid
+    CompositionKeywordsCat:
+      type: object
+      properties:
+        name:
+          type: string
+        purring:
+          type: boolean
+      required:
+        - name
+    CompositionKeywordsDog:
+      type: object
+      properties:
+        name:
+          type: string
+        barkVolume:
+          type: number
+      required:
+        - name
+    CompositionKeywordsPetChoice:
+      anyOf:
+        - $ref: "#/components/schemas/CompositionKeywordsCat"
+        - $ref: "#/components/schemas/CompositionKeywordsDog"
+    CompositionKeywordsPerson:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - name
+        - email
+    CompositionKeywordsEmployeeInfo:
+      type: object
+      properties:
+        employeeId:
+          type: integer
+        department:
+          type: string
+      required:
+        - employeeId
+    CompositionKeywordsEmployee:
+      description: An employee with personal and work info
+      allOf:
+        - $ref: "#/components/schemas/CompositionKeywordsPerson"
+        - $ref: "#/components/schemas/CompositionKeywordsEmployeeInfo"
+        - type: object
+          properties:
+            startDate:
+              type: string
+              format: date
+    CompositionKeywordsBaseEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - createdAt
+    CompositionKeywordsExtendedWithSibling:
+      description: allOf with sibling properties merged
+      allOf:
+        - $ref: "#/components/schemas/CompositionKeywordsBaseEntity"
+      properties:
+        label:
+          type: string
+        active:
+          type: boolean
+      required:
+        - label
+    CompositionKeywordsNotStringValue:
+      not:
+        type: string
+    CompositionKeywordsNotAdmin:
+      not:
+        $ref: "#/components/schemas/CompositionKeywordsAdminRole"
+    CompositionKeywordsAdminRole:
+      type: object
+      properties:
+        role:
+          type: string
+          const: admin
+      required:
+        - role
+    CompositionKeywordsNotDraftOrArchived:
+      not:
+        enum:
+          - draft
+          - archived
+    CompositionKeywordsNotSpecificValue:
+      not:
+        const: forbidden
+    CompositionKeywordsNotStringOrNumber:
+      description: Rejects if value matches string or number union
+      not:
+        anyOf:
+          - type: string
+          - type: number
+    CallbacksFieldOrderRequest:
+      type: object
+      properties:
+        item:
+          type: string
+        quantity:
+          type: integer
+        callbackUrl:
+          type: string
+          format: uri
+      required:
+        - item
+        - quantity
+        - callbackUrl
+    CallbacksFieldOrder:
+      type: object
+      properties:
+        id:
+          type: string
+        item:
+          type: string
+        quantity:
+          type: integer
+        status:
+          type: string
+      required:
+        - id
+        - item
+        - quantity
+        - status
+    CallbacksFieldOrderEvent:
+      type: object
+      properties:
+        orderId:
+          type: string
+        event:
+          type: string
+          enum:
+            - created
+            - confirmed
+            - shipped
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - orderId
+        - event
+        - timestamp
+    CallbacksFieldPaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        successUrl:
+          type: string
+          format: uri
+        failureUrl:
+          type: string
+          format: uri
+      required:
+        - amount
+        - currency
+        - successUrl
+        - failureUrl
+    CallbacksFieldPayment:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+      required:
+        - id
+        - amount
+        - currency
+        - status
+    CallbacksFieldPaymentEvent:
+      type: object
+      properties:
+        paymentId:
+          type: string
+        status:
+          type: string
+          enum:
+            - success
+            - failure
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - paymentId
+        - status
+        - timestamp
+    ReadonlyRefUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - id
+        - name
+        - email
+    ReadonlyRefItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+      required:
+        - id
+        - title
+    ReadonlyRefErrorBody:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      required:
+        - code
+        - message
+    DefaultResponseItem:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    ComplexSchemasLiteralExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: literal
+        value:
+          anyOf:
+            - type: string
+            - type: number
+            - type: boolean
+      required:
+        - type
+        - value
+    ComplexSchemasUnaryExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: unary
+        operator:
+          type: string
+          enum:
+            - "-"
+            - "!"
+        operand:
+          $ref: "#/components/schemas/ComplexSchemasExpression"
+      required:
+        - type
+        - operator
+        - operand
+    ComplexSchemasBinaryExpr:
+      type: object
+      properties:
+        type:
+          type: string
+          const: binary
+        operator:
+          type: string
+          enum:
+            - +
+            - "-"
+            - "*"
+            - /
+        left:
+          $ref: "#/components/schemas/ComplexSchemasExpression"
+        right:
+          $ref: "#/components/schemas/ComplexSchemasExpression"
+      required:
+        - type
+        - operator
+        - left
+        - right
+    ComplexSchemasExpression:
+      oneOf:
+        - $ref: "#/components/schemas/ComplexSchemasLiteralExpr"
+        - $ref: "#/components/schemas/ComplexSchemasUnaryExpr"
+        - $ref: "#/components/schemas/ComplexSchemasBinaryExpr"
+      discriminator:
+        propertyName: type
+        mapping:
+          literal: "#/components/schemas/LiteralExpr"
+          unary: "#/components/schemas/UnaryExpr"
+          binary: "#/components/schemas/BinaryExpr"
+    ComplexSchemasCircle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: circle
+        radius:
+          type: number
+      required:
+        - kind
+        - radius
+    ComplexSchemasRectangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: rectangle
+        width:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - width
+        - height
+    ComplexSchemasTriangle:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: triangle
+        base:
+          type: number
+        height:
+          type: number
+      required:
+        - kind
+        - base
+        - height
+    ComplexSchemasPolygon:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: polygon
+        sides:
+          type: integer
+          minimum: 3
+        sideLength:
+          type: number
+      required:
+        - kind
+        - sides
+        - sideLength
+    ComplexSchemasEllipse:
+      type: object
+      properties:
+        kind:
+          type: string
+          const: ellipse
+        semiMajor:
+          type: number
+        semiMinor:
+          type: number
+      required:
+        - kind
+        - semiMajor
+        - semiMinor
+    ComplexSchemasShape:
+      oneOf:
+        - $ref: "#/components/schemas/ComplexSchemasCircle"
+        - $ref: "#/components/schemas/ComplexSchemasRectangle"
+        - $ref: "#/components/schemas/ComplexSchemasTriangle"
+        - $ref: "#/components/schemas/ComplexSchemasPolygon"
+        - $ref: "#/components/schemas/ComplexSchemasEllipse"
+      discriminator:
+        propertyName: kind
+        mapping:
+          circle: "#/components/schemas/Circle"
+          rectangle: "#/components/schemas/Rectangle"
+          triangle: "#/components/schemas/Triangle"
+          polygon: "#/components/schemas/Polygon"
+          ellipse: "#/components/schemas/Ellipse"
+    ComplexSchemasDocumentBase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    ComplexSchemasArticleContent:
+      type: object
+      properties:
+        docType:
+          type: string
+          const: article
+        body:
+          type: string
+        wordCount:
+          type: integer
+      required:
+        - docType
+        - body
+    ComplexSchemasSpreadsheetContent:
+      type: object
+      properties:
+        docType:
+          type: string
+          const: spreadsheet
+        rows:
+          type: integer
+        columns:
+          type: integer
+      required:
+        - docType
+        - rows
+        - columns
+    ComplexSchemasArticle:
+      allOf:
+        - $ref: "#/components/schemas/ComplexSchemasDocumentBase"
+        - $ref: "#/components/schemas/ComplexSchemasArticleContent"
+    ComplexSchemasSpreadsheet:
+      allOf:
+        - $ref: "#/components/schemas/ComplexSchemasDocumentBase"
+        - $ref: "#/components/schemas/ComplexSchemasSpreadsheetContent"
+    ComplexSchemasDocument:
+      description: oneOf where each branch is an allOf composition
+      oneOf:
+        - $ref: "#/components/schemas/ComplexSchemasArticle"
+        - $ref: "#/components/schemas/ComplexSchemasSpreadsheet"
+      discriminator:
+        propertyName: docType
+        mapping:
+          article: "#/components/schemas/Article"
+          spreadsheet: "#/components/schemas/Spreadsheet"
+    ComplexSchemasBaseConfig:
+      type: object
+      properties:
+        version:
+          type: integer
+      required:
+        - version
+    ComplexSchemasNetworkConfig:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+      required:
+        - host
+        - port
+    ComplexSchemasSecurityConfig:
+      type: object
+      properties:
+        tlsEnabled:
+          type: boolean
+        certPath:
+          type: string
+      required:
+        - tlsEnabled
+    ComplexSchemasFullConfig:
+      description: Three-level allOf chain with all refs
+      allOf:
+        - $ref: "#/components/schemas/ComplexSchemasBaseConfig"
+        - $ref: "#/components/schemas/ComplexSchemasNetworkConfig"
+        - $ref: "#/components/schemas/ComplexSchemasSecurityConfig"
+    ComplexSchemasSuccessResult:
+      type: object
+      properties:
+        status:
+          type: string
+          const: success
+        data:
+          type: object
+          additionalProperties: true
+      required:
+        - status
+        - data
+    ComplexSchemasErrorResult:
+      type: object
+      properties:
+        status:
+          type: string
+          const: error
+        message:
+          type: string
+        code:
+          type: integer
+      required:
+        - status
+        - message
+    ComplexSchemasNullableResult:
+      description: Nullable anyOf combining success and error
+      anyOf:
+        - $ref: "#/components/schemas/ComplexSchemasSuccessResult"
+        - $ref: "#/components/schemas/ComplexSchemasErrorResult"
+      nullable: true
+    ComplexSchemasCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        parent:
+          $ref: "#/components/schemas/ComplexSchemasCategory"
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComplexSchemasCategory"
+      required:
+        - id
+        - name
+    VendorExtensionsUserId:
+      type: string
+      format: uuid
+      x-brand: UserId
+    VendorExtensionsPostId:
+      type: string
+      format: uuid
+      x-brand: PostId
+    VendorExtensionsEmail:
+      type: string
+      format: email
+      x-brand: Email
+    VendorExtensionsPrice:
+      type: number
+      minimum: 0
+      x-brand: Price
+    VendorExtensionsQuantity:
+      type: integer
+      minimum: 0
+      x-brand: Quantity
+    VendorExtensionsUsername:
+      type: string
+      minLength: 3
+      maxLength: 20
+      x-brand: Username
+    VendorExtensionsTags:
+      type: array
+      items:
+        type: string
+      minItems: 1
+      maxItems: 10
+      x-brand: Tags
+    VendorExtensionsCreateUser:
+      type: object
+      required:
+        - email
+        - username
+        - price
+      properties:
+        email:
+          $ref: "#/components/schemas/VendorExtensionsEmail"
+        username:
+          $ref: "#/components/schemas/VendorExtensionsUsername"
+        price:
+          $ref: "#/components/schemas/VendorExtensionsPrice"
+        tags:
+          $ref: "#/components/schemas/VendorExtensionsTags"
+    VendorExtensionsUser:
+      type: object
+      required:
+        - id
+        - email
+        - username
+      properties:
+        id:
+          $ref: "#/components/schemas/VendorExtensionsUserId"
+        email:
+          $ref: "#/components/schemas/VendorExtensionsEmail"
+        username:
+          $ref: "#/components/schemas/VendorExtensionsUsername"
+    VendorExtensionsCreatePost:
+      type: object
+      required:
+        - authorId
+        - title
+        - quantity
+      properties:
+        authorId:
+          $ref: "#/components/schemas/VendorExtensionsUserId"
+        title:
+          type: string
+        quantity:
+          $ref: "#/components/schemas/VendorExtensionsQuantity"
+    VendorExtensionsPost:
+      type: object
+      required:
+        - id
+        - authorId
+        - title
+      properties:
+        id:
+          $ref: "#/components/schemas/VendorExtensionsPostId"
+        authorId:
+          $ref: "#/components/schemas/VendorExtensionsUserId"
+        title:
+          type: string
+    VendorExtensionsTransformForm:
+      type: object
+      required:
+        - trimmed
+        - lowered
+        - uppered
+        - normalized
+        - lowercased
+        - uppercased
+        - startsWithHttps
+        - endsWithTest
+        - includesSlug
+        - emailNormalized
+        - allChained
+      properties:
+        trimmed:
+          type: string
+          x-trim: true
+        lowered:
+          type: string
+          x-toLowerCase: true
+        uppered:
+          type: string
+          x-toUpperCase: true
+        normalized:
+          type: string
+          x-normalize: NFC
+        lowercased:
+          type: string
+          x-lowercase: true
+        uppercased:
+          type: string
+          x-uppercase: true
+        startsWithHttps:
+          type: string
+          x-startsWith: https://
+        endsWithTest:
+          type: string
+          x-endsWith: .test
+        includesSlug:
+          type: string
+          x-includes: /api/
+        emailNormalized:
+          type: string
+          format: email
+          x-trim: true
+          x-toLowerCase: true
+        allChained:
+          type: string
+          x-trim: true
+          x-toLowerCase: true
+          x-normalize: NFC
+    VendorExtensionsCoerceForm:
+      type: object
+      required:
+        - asString
+        - asDate
+        - asNumber
+        - asInt
+        - asBool
+      properties:
+        asString:
+          type: string
+          x-coerce: true
+        asDate:
+          type: string
+          format: date-time
+          x-coerce: true
+        asNumber:
+          type: number
+          x-coerce: true
+        asInt:
+          type: integer
+          x-coerce: true
+          minimum: 0
+        asBool:
+          type: boolean
+          x-coerce: true
+    VendorExtensionsReplacementForm:
+      type: object
+      required:
+        - codecDate
+        - transformed
+        - piped
+        - preprocessed
+        - asStringBool
+        - asStringBoolCustom
+      properties:
+        codecDate:
+          type: string
+          format: date-time
+          x-codec: "z.codec(z.iso.datetime(), z.date(), { decode: (isoString) => new Date(isoString), encode: (date) => date.toISOString() })"
+        transformed:
+          type: string
+          x-transform: z.string().transform((val) => val.toUpperCase())
+        piped:
+          type: string
+          x-pipe: z.string().transform((val) => Number(val)).pipe(z.number().int().positive())
+        preprocessed:
+          type: string
+          x-preprocess: 'z.preprocess((val) => (typeof val === "string" ? val.trim() : val), z.string())'
+        asStringBool:
+          type: boolean
+          x-stringbool: true
+        asStringBoolCustom:
+          type: boolean
+          x-stringbool:
+            truthy:
+              - yes
+              - on
+            falsy:
+              - no
+              - off
+            case: sensitive
+    VendorExtensionsFormatOptions:
+      type: object
+      required:
+        - emailHtml5
+        - customEmail
+        - uuidV8
+        - httpsUrl
+        - hostScopedUrl
+        - preciseDatetime
+        - localDatetime
+        - colonMac
+        - dotMac
+        - hs256Jwt
+        - sha256Hash
+      properties:
+        emailHtml5:
+          type: string
+          format: email
+          x-emailPattern: html5
+        customEmail:
+          type: string
+          format: email
+          x-emailRegex: ^.+@example\.com$
+        uuidV8:
+          type: string
+          format: uuid
+          x-uuidVersion: v8
+        httpsUrl:
+          type: string
+          format: uri
+          x-urlProtocol: ^https$
+          x-urlNormalize: true
+        hostScopedUrl:
+          type: string
+          format: uri
+          x-urlHostname: ^example\.com$
+        preciseDatetime:
+          type: string
+          format: date-time
+          x-isoPrecision: 3
+          x-isoOffset: true
+        localDatetime:
+          type: string
+          format: date-time
+          x-isoLocal: true
+        colonMac:
+          type: string
+          format: mac
+          x-macDelimiter: ":"
+        dotMac:
+          type: string
+          format: mac
+          x-macDelimiter: .
+        hs256Jwt:
+          type: string
+          format: jwt
+          x-jwtAlg: HS256
+        sha256Hash:
+          type: string
+          format: hash
+          x-hashAlg: sha256
+          x-hashEnc: hex
+    VendorExtensionsCustomForm:
+      type: object
+      required:
+        - password
+        - normalizedEmail
+        - config
+        - greeting
+        - retries
+      properties:
+        password:
+          type: string
+          x-refine: '.refine((val) => val.length >= 8, { message: "Password must be at least 8 characters" }).refine((val) => /[A-Z]/.test(val), { message: "Password must contain an uppercase letter" })'
+        normalizedEmail:
+          type: string
+          format: email
+          x-superRefine: '.superRefine((val, ctx) => { if (val.endsWith("@blocked.example")) ctx.addIssue({ code: "custom", message: "Blocked domain" }) })'
+        config:
+          type: object
+          properties:
+            name:
+              type: string
+          x-readonly: true
+        greeting:
+          type: string
+          x-prefault: hello
+        retries:
+          type: integer
+          x-catch: 0
+    VendorExtensionsMessageForm:
+      type: object
+      required:
+        - username
+        - code
+        - slug
+        - age
+        - score
+        - count
+        - active
+        - tags
+        - pin
+        - role
+        - priority
+        - color
+        - kind
+        - uniqueTags
+        - namespaced
+        - prefixed
+        - payload
+      dependentRequired:
+        token:
+          - tokenLabel
+      x-dependentRequired-message: tokenLabel is required when token is provided
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 16
+          x-error-message: username must be a string
+          x-minLength-message: username must be at least 3 characters
+          x-maxLength-message: username must be at most 16 characters
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          x-length-message: code must be exactly 6 characters
+        slug:
+          type: string
+          pattern: ^[a-z0-9-]+$
+          x-pattern-message: slug must be lowercase alphanumeric with hyphens
+        age:
+          type: integer
+          minimum: 0
+          maximum: 120
+          x-error-message: age must be an integer
+          x-minimum-message: age must be >= 0
+          x-maximum-message: age must be <= 120
+        score:
+          type: number
+          multipleOf: 0.5
+          exclusiveMinimum: 0
+          exclusiveMaximum: 100
+          x-error-message: score must be a number
+          x-multipleOf-message: score must be a multiple of 0.5
+          x-exclusiveMinimum-message: score must be > 0
+          x-exclusiveMaximum-message: score must be < 100
+        count:
+          type: integer
+          multipleOf: 5
+          x-multipleOf-message: count must be a multiple of 5
+        active:
+          type: boolean
+          x-error-message: active must be a boolean
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-error-message: tags must be an array
+          x-minItems-message: tags must contain at least 1 item
+          x-maxItems-message: tags must contain at most 5 items
+        pin:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+          x-length-message: pin must contain exactly 4 digits
+        role:
+          type: string
+          enum:
+            - admin
+            - editor
+            - viewer
+          x-error-message: role must be a string
+          x-enum-message: role must be one of admin, editor, viewer
+        priority:
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+          x-error-message: priority must be 1, 2, or 3
+        color:
+          type: string
+          const: red
+          x-const-message: color must be exactly "red"
+        kind:
+          type: string
+          x-required-message: kind is required
+          x-error-message: kind must be a string
+        uniqueTags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          x-uniqueItems-message: uniqueTags must contain unique values
+        namespaced:
+          type: object
+          minProperties: 1
+          maxProperties: 3
+          additionalProperties: false
+          properties:
+            a:
+              type: string
+            b:
+              type: string
+            c:
+              type: string
+          x-minProperties-message: namespaced must have at least 1 property
+          x-maxProperties-message: namespaced must have at most 3 properties
+          x-additionalProperties-message: namespaced contains an unrecognized key
+        prefixed:
+          type: object
+          patternProperties:
+            ^x_:
+              type: string
+          x-patternProperties-message: x_ keys must be strings
+        payload:
+          type: string
+          x-required-message: payload is required
+          x-error-message: payload must be a string
+        token:
+          type: string
+        tokenLabel:
+          type: string
+    VendorExtensionsComposition:
+      type: object
+      required:
+        - anyValue
+      properties:
+        anyValue:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: anyValue must be a string or integer
+        oneValue:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: oneValue must match exactly one type
+        notString:
+          not:
+            type: string
+          x-not-message: notString must not be a string
+        merged:
+          allOf:
+            - type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+            - type: object
+              required:
+                - age
+              properties:
+                age:
+                  type: integer
+          x-allOf-message: merged validation failed
+        propertyNames:
+          type: object
+          additionalProperties:
+            type: string
+          propertyNames:
+            pattern: ^[a-z][a-z0-9_]*$
+          x-propertyNames-message: keys must start with a lowercase letter
+      anyOf:
+        - not:
+            required:
+              - hasLicense
+            properties:
+              hasLicense:
+                const: true
+        - required:
+            - licenseNumber
+      x-implication-message: licenseNumber is required when hasLicense is true
+    VendorExtensionsConditional:
+      type: object
+      required:
+        - kind
+      properties:
+        kind:
+          type: string
+          enum:
+            - premium
+            - basic
+        feature:
+          type: string
+      if:
+        type: object
+        properties:
+          kind:
+            const: premium
+        required:
+          - kind
+      then:
+        type: object
+        required:
+          - feature
+        properties:
+          feature:
+            type: string
+      else:
+        type: object
+        required: []
+      x-if-message: kind discriminator is invalid
+      x-then-message: feature is required for premium
+      x-else-message: feature must be omitted for basic
+    VendorExtensionsApplicators:
+      type: object
+      required:
+        - tuple
+        - list
+        - meta
+      properties:
+        tuple:
+          type: array
+          prefixItems:
+            - type: string
+            - type: integer
+          items:
+            type: boolean
+          x-prefixItems-message: tuple positions must be [string, integer]
+          x-items-message: extra tuple items must be booleans
+          unevaluatedItems: false
+          x-unevaluatedItems-message: no items beyond the declared tuple shape
+        list:
+          type: array
+          items:
+            type: string
+          x-items-message: list items must be strings
+        meta:
+          properties:
+            id:
+              type: string
+          x-properties-message: meta.id must be a string
+          unevaluatedProperties: false
+          x-unevaluatedProperties-message: meta only allows the id field
+    PaginationItem:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    PaginationItemsPage:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaginationItem"
+        nextCursor:
+          type: string
+  responses:
+    AllExportsUserListResponse:
+      description: A list of users
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AllExportsUserList"
+    ComprehensiveNotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ComprehensiveError"
+    ReadonlyRefUserList:
+      description: User list response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReadonlyRefUser"
+              total:
+                type: integer
+            required:
+              - users
+              - total
+    ReadonlyRefNotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+    ReadonlyRefBadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+    ReadonlyRefServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+  parameters:
+    AllExportsPageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    AllExportsUserIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ParametersMergeLimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    ParametersMergeOffsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    ComprehensivePageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    ComprehensiveLimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+  examples:
+    AllExportsUserExample:
+      summary: Example user
+      value:
+        id: 1
+        name: Alice
+        email: alice@example.com
+    ReadonlyRefUserExample:
+      summary: A sample user
+      value:
+        id: u-001
+        name: Alice
+        email: alice@example.com
+    ReadonlyRefUserAlias:
+      $ref: "#/components/examples/ReadonlyRefUserExample"
+    ReadonlyRefItemExample:
+      summary: A sample item
+      value:
+        id: 1
+        title: Widget
+    ReadonlyRefItemAlias:
+      $ref: "#/components/examples/ReadonlyRefItemExample"
+  requestBodies:
+    AllExportsCreateUserBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+            required:
+              - name
+              - email
+    ReadonlyRefCreateUser:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+            required:
+              - name
+              - email
+    ReadonlyRefUpdateUser:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+                format: email
+  headers:
+    AllExportsXRequestId:
+      description: Unique request identifier
+      schema:
+        type: string
+        format: uuid
+  securitySchemes:
+    AllExportsBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    SecuritySchemesBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    SecuritySchemesApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    SecuritySchemesBasicAuth:
+      type: http
+      scheme: basic
+    SecuritySchemesOAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Read access
+            write: Write access
+    ComprehensiveBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  links:
+    AllExportsGetUserLink:
+      operationId: allExportsGetUserById
+      parameters:
+        id: $response.body#/id
+      description: Get the created user
+    CallbacksLinksGetSubscriptionLink:
+      operationId: callbacksLinksGetSubscription
+      parameters:
+        id: $response.body#/id
+      description: Get the created subscription
+    CallbacksLinksDeleteSubscriptionLink:
+      operationId: callbacksLinksDeleteSubscription
+      parameters:
+        id: $request.path.id
+      description: Delete this subscription
+  callbacks:
+    AllExportsUserCreated:
+      "{$request.body#/callbackUrl}":
+        post:
+          operationId: allExportsUserCreatedCallback
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/AllExportsUser"
+          responses:
+            "200":
+              description: Callback processed
+    CallbacksLinksSubscriptionEvent:
+      "{$request.body#/callbackUrl}":
+        post:
+          operationId: callbacksLinksSubscriptionEventCallback
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CallbacksLinksEventPayload"
+          responses:
+            "200":
+              description: Event processed
+  pathItems:
+    AllExportsUserItem:
+      get:
+        operationId: allExportsGetUserItem
+        responses:
+          "200":
+            description: OK
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/AllExportsUser"

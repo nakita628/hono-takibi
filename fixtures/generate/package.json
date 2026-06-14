@@ -6,7 +6,7 @@
   "scripts": {
     "generate": "tsx src/index.ts",
     "all": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "node scripts/typecheck.mjs"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
