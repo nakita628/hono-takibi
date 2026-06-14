@@ -4,12 +4,6 @@
 
 ![img](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/img/hono-takibi.png)
 
-```bash
-npm install -D hono-takibi
-```
-
-## OpenAPI to Hono Code Generator
-
 **[Hono Takibi](https://www.npmjs.com/package/hono-takibi)** generates type-safe [Hono](https://hono.dev/) code from [OpenAPI](https://www.openapis.org/) / [TypeSpec](https://typespec.io/) specifications.
 
 - OpenAPI schemas to [Zod](https://zod.dev/) schemas
@@ -18,6 +12,10 @@ npm install -D hono-takibi
 - Client library hooks (SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Query, Angular Query)
 - RPC client, mock server, TypeScript types
 - API reference docs with [hono-cli](https://github.com/honojs/cli) commands
+
+```bash
+npm install -D hono-takibi
+```
 
 ## Quick Start
 
@@ -278,7 +276,7 @@ export default defineConfig({
 })
 ```
 
-### API Reference Docs
+## API Reference Docs
 
 Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands:
 
@@ -314,11 +312,11 @@ import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  basePath: '/api',
-  // format: {}, // oxfmt FormatConfig
 
   output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
+  basePath: '/api',
   readonly: true,
+  // format: {}, // oxfmt FormatConfig
 
   template: {
     test: true,
@@ -499,7 +497,11 @@ export default defineConfig({
 })
 ```
 
-## Custom Validation Error Messages
+## Vendor Extensions (x-*)
+
+hono-takibi reads `x-*` vendor extensions on your OpenAPI / JSON Schema to customize the generated Zod. Each extension maps 1:1 to a Zod feature.
+
+### Custom Validation Error Messages
 
 Use `x-*` vendor extensions to attach custom Zod error messages, with **one extension per JSON Schema keyword** (1:1 mapping). The extension name follows the pattern `x-<jsonSchemaKeyword>-message` (e.g. `x-minLength-message`, `x-pattern-message`), plus four generic forms: `x-error-message`, `x-required-message`, `x-const-message`, `x-enum-message`.
 
@@ -518,8 +520,6 @@ z.string({ error: 'Name must be a string' })
   .min(1, { error: 'Name cannot be empty' })
   .max(50, { error: 'Name must be at most 50 characters' })
 ```
-
-### Extension Reference
 
 All custom message extensions follow the `x-<keyword>-message` naming convention and map directly to Zod validator error messages.
 
@@ -602,9 +602,9 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-unevaluatedProperties-message` | `unevaluatedProperties`         |
 | `x-unevaluatedItems-message`      | `unevaluatedItems`              |
 
-## Behavior Extensions
+### Behavior Extensions
 
-### String Pre-validation Transforms
+#### String Pre-validation Transforms
 
 | Extension       | Generated                     | Value                                   |
 | --------------- | ----------------------------- | --------------------------------------- |
@@ -624,7 +624,7 @@ homepage:
 z.string().trim().pipe(z.url())
 ```
 
-### String Validation Checks
+#### String Validation Checks
 
 | Extension     | Generated                | Value  |
 | ------------- | ------------------------ | ------ |
@@ -641,9 +641,9 @@ slug:
 z.string().lowercase()
 ```
 
-### Preprocess (Input Normalization)
+#### Preprocess
 
-#### `x-preprocess`
+**`x-preprocess`**
 
 ```yaml
 username:
@@ -655,9 +655,9 @@ username:
 z.preprocess((val) => (typeof val === 'string' ? val.trim() : val), z.string())
 ```
 
-### Type Coercion
+#### Type Coercion
 
-#### `x-coerce`
+**`x-coerce`**
 
 ```yaml
 asNumber:
@@ -674,7 +674,7 @@ z.coerce.number()
 z.coerce.date()
 ```
 
-#### `x-stringbool`
+**`x-stringbool`**
 
 ```yaml
 notify:
@@ -699,27 +699,27 @@ notify:
 z.stringbool({ truthy: ['yes', 'on'], falsy: ['no', 'off'], case: 'sensitive' })
 ```
 
-### Codec (Bidirectional Transform)
+#### Codec
 
-#### `x-codec`
+**`x-codec`**
 
 ```yaml
 updatedAt:
   type: string
   format: date-time
-  x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (val) => new Date(val), encode: (val) => val.toISOString() })'
+  x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (isoString) => new Date(isoString), encode: (date) => date.toISOString() })'
 ```
 
 ```ts
 z.codec(z.iso.datetime(), z.date(), {
-  decode: (val) => new Date(val),
-  encode: (val) => val.toISOString(),
+  decode: (isoString) => new Date(isoString),
+  encode: (date) => date.toISOString(),
 })
 ```
 
-### Custom Validation
+#### Custom Validation
 
-#### `x-refine`
+**`x-refine`**
 
 ```yaml
 password:
@@ -733,7 +733,7 @@ z.string()
   .refine((val) => /[A-Z]/.test(val), { message: 'Password must contain an uppercase letter' })
 ```
 
-#### `x-superRefine`
+**`x-superRefine`**
 
 ```yaml
 normalizedEmail:
@@ -750,9 +750,9 @@ z.email().superRefine((val, ctx) => {
 })
 ```
 
-### Transform & Pipe
+#### Transform & Pipe
 
-#### `x-transform`
+**`x-transform`**
 
 ```yaml
 code:
@@ -764,7 +764,7 @@ code:
 z.string().transform((val) => val.toUpperCase())
 ```
 
-#### `x-pipe`
+**`x-pipe`**
 
 ```yaml
 port:
@@ -776,9 +776,9 @@ port:
 z.string().pipe(z.number().int().positive())
 ```
 
-### Default & Fallback Values
+#### Default & Fallback Values
 
-#### `x-prefault`
+**`x-prefault`**
 
 ```yaml
 greeting:
@@ -790,7 +790,7 @@ greeting:
 z.string().prefault('hello')
 ```
 
-#### `x-catch`
+**`x-catch`**
 
 ```yaml
 retries:
@@ -802,9 +802,9 @@ retries:
 z.int().catch(0)
 ```
 
-### Immutability
+#### Immutability
 
-#### `x-readonly`
+**`x-readonly`**
 
 ```yaml
 config:
@@ -819,9 +819,9 @@ config:
 z.object({ name: z.string() }).readonly()
 ```
 
-### String Content Checks
+#### String Content Checks
 
-#### `x-startsWith` / `x-endsWith` / `x-includes`
+**`x-startsWith` / `x-endsWith` / `x-includes`**
 
 ```yaml
 url:
@@ -838,7 +838,7 @@ z.string().startsWith('https://').endsWith('.com')
 z.string().includes('/api/')
 ```
 
-### Format-Specific Options
+#### Format-Specific Options
 
 ```yaml
 htmlEmail:
@@ -863,9 +863,9 @@ preciseDatetime:
 
 | Extension        | Maps to                         | Values                           |
 | ---------------- | ------------------------------- | -------------------------------- |
-| `x-emailPattern` | `z.email({ pattern })`          | `html5` / `browser` / `unicode`  |
+| `x-emailPattern` | `z.email({ pattern })`          | `html5` / `rfc5322` / `unicode`  |
 | `x-emailRegex`   | `z.email({ pattern: /.../ })`   | custom regex string              |
-| `x-uuidVersion`  | `z.uuid({ version })`           | `v1` / `v4` / `v6` / `v7` / `v8` |
+| `x-uuidVersion`  | `z.uuid({ version })`           | `v1` / `v2` / `v3` / `v4` / `v5` / `v6` / `v7` / `v8` |
 | `x-urlProtocol`  | `z.url({ protocol: /.../ })`    | regex string                     |
 | `x-urlHostname`  | `z.url({ hostname: /.../ })`    | regex string                     |
 | `x-urlNormalize` | `z.url({ normalize })`          | `true` / `false`                 |
@@ -877,7 +877,7 @@ preciseDatetime:
 | `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                    |
 | `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`   |
 
-## Branded Types
+### Branded Types (x-brand)
 
 Use the `x-brand` vendor extension to generate [Zod branded types](https://zod.dev/api?id=branded-types), creating nominal types that are structurally identical but semantically distinct:
 
