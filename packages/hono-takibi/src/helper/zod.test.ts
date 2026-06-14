@@ -607,3 +607,30 @@ describe('helper/zod', () => {
     })
   })
 })
+
+describe('emitTypelessRefine array constraints', () => {
+  it('emits contains/minContains count guard', () => {
+    expect(
+      emitTypelessRefine({ contains: { type: 'string' }, minContains: 1 } as Schema, recurse),
+    ).toBe(
+      `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<1){ctx.addIssue({code:'custom'})}}}})`,
+    )
+  })
+
+  it('emits prefixItems positional guard plus trailing items guard', () => {
+    expect(
+      emitTypelessRefine(
+        { prefixItems: [{ type: 'string' }], items: { type: 'number' } } as Schema,
+        recurse,
+      ),
+    ).toBe(
+      `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length>0){const Schema=z.string();if(!Schema.safeParse(val[0]).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(let i=1;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})`,
+    )
+  })
+
+  it('emits minItems guard plus full-array items guard (no prefix)', () => {
+    expect(emitTypelessRefine({ items: { type: 'string' }, minItems: 2 } as Schema, recurse)).toBe(
+      `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<2){ctx.addIssue({code:'custom'})};{const Schema=z.string();for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})`,
+    )
+  })
+})

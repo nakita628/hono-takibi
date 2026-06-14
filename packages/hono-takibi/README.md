@@ -497,7 +497,7 @@ export default defineConfig({
 })
 ```
 
-## Vendor Extensions (x-*)
+## Vendor Extensions (x-\*)
 
 hono-takibi reads `x-*` vendor extensions on your OpenAPI / JSON Schema to customize the generated Zod. Each extension maps 1:1 to a Zod feature.
 
@@ -861,21 +861,21 @@ preciseDatetime:
   x-isoOffset: true
 ```
 
-| Extension        | Maps to                         | Values                           |
-| ---------------- | ------------------------------- | -------------------------------- |
-| `x-emailPattern` | `z.email({ pattern })`          | `html5` / `rfc5322` / `unicode`  |
-| `x-emailRegex`   | `z.email({ pattern: /.../ })`   | custom regex string              |
+| Extension        | Maps to                         | Values                                                |
+| ---------------- | ------------------------------- | ----------------------------------------------------- |
+| `x-emailPattern` | `z.email({ pattern })`          | `html5` / `rfc5322` / `unicode`                       |
+| `x-emailRegex`   | `z.email({ pattern: /.../ })`   | custom regex string                                   |
 | `x-uuidVersion`  | `z.uuid({ version })`           | `v1` / `v2` / `v3` / `v4` / `v5` / `v6` / `v7` / `v8` |
-| `x-urlProtocol`  | `z.url({ protocol: /.../ })`    | regex string                     |
-| `x-urlHostname`  | `z.url({ hostname: /.../ })`    | regex string                     |
-| `x-urlNormalize` | `z.url({ normalize })`          | `true` / `false`                 |
-| `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits         |
-| `x-isoOffset`    | `z.iso.datetime({ offset })`    | `true` / `false`                 |
-| `x-isoLocal`     | `z.iso.datetime({ local })`     | `true` / `false`                 |
-| `x-macDelimiter` | `z.mac({ delimiter })`          | `:` / `-` / `.`                  |
-| `x-jwtAlg`       | `z.jwt({ alg })`                | `HS256` etc.                     |
-| `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                    |
-| `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`   |
+| `x-urlProtocol`  | `z.url({ protocol: /.../ })`    | regex string                                          |
+| `x-urlHostname`  | `z.url({ hostname: /.../ })`    | regex string                                          |
+| `x-urlNormalize` | `z.url({ normalize })`          | `true` / `false`                                      |
+| `x-isoPrecision` | `z.iso.datetime({ precision })` | fractional second digits                              |
+| `x-isoOffset`    | `z.iso.datetime({ offset })`    | `true` / `false`                                      |
+| `x-isoLocal`     | `z.iso.datetime({ local })`     | `true` / `false`                                      |
+| `x-macDelimiter` | `z.mac({ delimiter })`          | `:` / `-` / `.`                                       |
+| `x-jwtAlg`       | `z.jwt({ alg })`                | `HS256` etc.                                          |
+| `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                                         |
+| `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`                        |
 
 ### Branded Types (x-brand)
 

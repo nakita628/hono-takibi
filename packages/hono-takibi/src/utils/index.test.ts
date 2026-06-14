@@ -248,6 +248,7 @@ describe('utils', () => {
       ['foo@bar!baz', 'FooBarBaz'],
       ['post.title', 'PostTitle'],
       ['テスト', 'Unnamed37447'],
+      ['user名前', 'User43033'],
       ['123startWithNumber', '_123startWithNumber'],
     ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
       expect(toIdentifierPascalCase(input)).toBe(expected)
