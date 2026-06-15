@@ -79,8 +79,8 @@ export async function honoTakibi() {
   const openAPI = openAPIResult.value
   const jobs = makeJob(openAPI, config)
   const results = await Promise.all(jobs.map((job) => job.run(job.output)))
-  const failure = results.find((result) => !result.ok)
-  if (failure) return failure
+  const e = results.find((result) => !result.ok)
+  if (e) return e
   const value = results
     .map((result) => (result.ok ? result.value : ''))
     .filter((v) => v !== '')

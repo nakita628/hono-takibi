@@ -108,10 +108,6 @@ const ConfigSchema = z
     basePath: z.string().default('/'),
     readonly: z.boolean().exactOptional(),
     format: z.custom<FormatConfig>(() => true).exactOptional(),
-    // `define` discriminates the two template modes; `routeHandler` is non-define-only, so it
-    // is mutually exclusive with define by structure rather than a refine. `output` (the
-    // route/handler directory) exists in both modes: define defaults it to `src/routes`,
-    // non-define leaves it optional and falls back to `handlers` next to the app entry.
     template: z
       .discriminatedUnion('define', [
         z

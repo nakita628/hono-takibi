@@ -578,3 +578,36 @@ describe('makeTypeString', () => {
     })
   })
 })
+
+describe('makeTypeString array items edge cases', () => {
+  it('object const collapses to JSON.stringify', () => {
+    expect(makeTypeString({ const: { a: 1 } }, 'X')).toBe('{"a":1}')
+  })
+  it('array const collapses to JSON.stringify', () => {
+    expect(makeTypeString({ const: [1, 'a'] }, 'X')).toBe('[1,"a"]')
+  })
+  it('boolean items:true → unknown[]', () => {
+    expect(makeTypeString({ type: 'array', items: true }, 'X')).toBe('unknown[]')
+  })
+  it('tuple items (2 entries) → positional tuple', () => {
+    expect(
+      makeTypeString({ type: 'array', items: [{ type: 'string' }, { type: 'number' }] }, 'X'),
+    ).toBe('[string,number]')
+  })
+  it('tuple items (2 entries, readonly) → readonly positional tuple', () => {
+    expect(
+      makeTypeString(
+        { type: 'array', items: [{ type: 'string' }, { type: 'number' }] },
+        'X',
+        undefined,
+        true,
+      ),
+    ).toBe('readonly [string,number]')
+  })
+  it('single-entry items array → element[]', () => {
+    expect(makeTypeString({ type: 'array', items: [{ type: 'string' }] }, 'X')).toBe('string[]')
+  })
+  it('empty items array → unknown[]', () => {
+    expect(makeTypeString({ type: 'array', items: [] }, 'X')).toBe('unknown[]')
+  })
+})

@@ -645,3 +645,16 @@ describe('integer', () => {
     })
   })
 })
+
+describe('integer min/max non-zero (.min/.max emit paths)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'integer', minimum: 5 }, 'z.int().min(5)'],
+    [{ type: 'integer', maximum: 10 }, 'z.int().max(10)'],
+    [{ type: 'integer', format: 'int64', minimum: 5 }, 'z.int64().min(5n)'],
+    [{ type: 'integer', format: 'int64', maximum: 10 }, 'z.int64().max(10n)'],
+    [{ type: 'integer', format: 'bigint', minimum: 5 }, 'z.bigint().min(BigInt(5))'],
+    [{ type: 'integer', format: 'bigint', maximum: 10 }, 'z.bigint().max(BigInt(10))'],
+  ])('integer(%o) → %s', (input, expected) => {
+    expect(integer(input)).toBe(expected)
+  })
+})
