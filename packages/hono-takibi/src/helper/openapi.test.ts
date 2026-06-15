@@ -1813,3 +1813,31 @@ describe('openapi helper', () => {
     })
   })
 })
+
+describe('makeContent / makePathParameters / makeOperation reference & no-schema paths', () => {
+  it('makeContent drops a media entry that is neither $ref nor has a schema', () => {
+    expect(makeContent({ 'application/json': {} })).toStrictEqual([])
+  })
+  it('makeContent resolves a $ref media entry', () => {
+    expect(makeContent({ 'application/json': { $ref: '#/components/schemas/Foo' } })).toStrictEqual(
+      ["'application/json':FooSchema"],
+    )
+  })
+  it('makePathParameters resolves a top-level $ref parameter', () => {
+    expect(makePathParameters([{ $ref: '#/components/parameters/Foo' }])).toBe('[FooParamsSchema]')
+  })
+  it('makeOperation serializes a $ref parameter and a schema-less parameter', () => {
+    expect(
+      makeOperation({
+        parameters: [{ $ref: '#/components/parameters/Foo' }],
+        responses: { '200': { description: 'ok' } },
+      }),
+    ).toBe('{parameters:[FooParamsSchema],responses:{200:{description:"ok"}}}')
+    expect(
+      makeOperation({
+        parameters: [{ name: 'x', in: 'query' }],
+        responses: { '200': { description: 'ok' } },
+      }),
+    ).toBe('{parameters:[{"name":"x","in":"query"}],responses:{200:{description:"ok"}}}')
+  })
+})

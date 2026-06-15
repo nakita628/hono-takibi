@@ -97,3 +97,16 @@ describe('_enum', () => {
   // rejected input). Whole-enum messages now come from x-error-message;
   // per-value business rules belong in handler code.
 })
+
+describe('_enum number/boolean literals (String(v) emit path)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'integer', enum: [1] }, 'z.literal(1)'],
+    [{ type: 'number', enum: [3.14] }, 'z.literal(3.14)'],
+    [{ type: 'boolean', enum: [true] }, 'z.literal(true)'],
+    [{ type: 'boolean', enum: [false] }, 'z.literal(false)'],
+    [{ type: 'integer', enum: [1, 2] }, 'z.union([z.literal(1),z.literal(2)])'],
+    [{ type: 'boolean', enum: [true, false] }, 'z.union([z.literal(true),z.literal(false)])'],
+  ])('_enum(%o) → %s', (input, expected) => {
+    expect(_enum(input)).toBe(expected)
+  })
+})

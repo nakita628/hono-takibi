@@ -582,3 +582,34 @@ describe('object', () => {
     })
   })
 })
+
+describe('object if/then/else split-branch (per-branch message override)', () => {
+  it.concurrent('emits split if/else when x-then-message is present', () => {
+    expect(
+      object({
+        type: 'object',
+        if: { type: 'object', properties: { a: { type: 'string' } } },
+        // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+        then: { type: 'object', properties: { b: { type: 'number' } } },
+        else: { type: 'object', properties: { c: { type: 'boolean' } } },
+        'x-then-message': 'then failed',
+      } as Schema),
+    ).toBe(
+      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()});const ifOk=If.safeParse(o).success;if(ifOk){const Branch=z.object({b:z.number().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"then failed"})}}}else{const Branch=z.object({c:z.boolean().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
+    )
+  })
+
+  it.concurrent('emits merged ternary branch when no per-branch message is present', () => {
+    expect(
+      object({
+        type: 'object',
+        if: { type: 'object', properties: { a: { type: 'string' } } },
+        // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
+        then: { type: 'object', properties: { b: { type: 'number' } } },
+        else: { type: 'object', properties: { c: { type: 'boolean' } } },
+      } as Schema),
+    ).toBe(
+      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({b:z.number().exactOptional()}):z.object({c:z.boolean().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`,
+    )
+  })
+})

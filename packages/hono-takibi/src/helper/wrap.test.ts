@@ -910,3 +910,50 @@ describe('wrap', () => {
     })
   })
 })
+
+describe('formatLiteral via default (format-aware literals)', () => {
+  it.concurrent.each<[string, Schema, string]>([
+    ['z.boolean()', { type: 'boolean', default: true }, 'z.boolean().default(true)'],
+    ['z.boolean()', { type: 'boolean', default: false }, 'z.boolean().default(false)'],
+    ['z.number()', { type: 'number', default: 3.14 }, 'z.number().default(3.14)'],
+    ['z.int64()', { type: 'integer', format: 'int64', default: 5 }, 'z.int64().default(5n)'],
+    [
+      'z.bigint()',
+      { type: 'integer', format: 'bigint', default: 5 },
+      'z.bigint().default(BigInt(5))',
+    ],
+    [
+      'z.date()',
+      { type: 'date', default: '2020-01-01' },
+      'z.date().default(new Date("2020-01-01"))',
+    ],
+  ])('wrap(%s, %o) → %s', (zod, schema, expected) => {
+    expect(wrap(zod, schema)).toBe(expected)
+  })
+})
+
+describe('filterUnsupportedProps (required coercion + nested boolean schemas)', () => {
+  it.concurrent('coerces non-string required entries to strings (YAML literal quirk)', () => {
+    expect(wrap('z.object({})', { type: 'object', required: [1, true, 'x'] } as Schema)).toBe(
+      'z.object({}).openapi({"required":["1","true","x"]})',
+    )
+  })
+
+  it.concurrent('drops nested boolean `items` from preserved schema keys', () => {
+    expect(
+      wrap('z.object({})', {
+        type: 'object',
+        $defs: { Foo: { type: 'array', items: true } },
+      } as Schema),
+    ).toBe('z.object({}).openapi({"$defs":{"Foo":{"type":"array"}}})')
+  })
+
+  it.concurrent('drops nested `not` whose value is a boolean schema', () => {
+    expect(
+      wrap('z.object({})', {
+        type: 'object',
+        $defs: { Foo: { not: { not: true } } },
+      } as unknown as Schema),
+    ).toBe('z.object({}).openapi({"$defs":{"Foo":{}}})')
+  })
+})

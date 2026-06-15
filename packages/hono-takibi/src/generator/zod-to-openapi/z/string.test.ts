@@ -839,3 +839,22 @@ describe('string', () => {
     })
   })
 })
+
+describe('string format:hash without x-hashAlg (z.string fallback)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'string', format: 'hash' }, 'z.string()'],
+    [{ type: 'string', format: 'hash', 'x-error-message': 'bad' }, 'z.string({error:"bad"})'],
+  ])('string(%o) → %s', (input, expected) => {
+    expect(string(input)).toBe(expected)
+  })
+})
+
+describe('string pattern with unicode property escapes (/u flag)', () => {
+  it.concurrent.each<[Schema, string]>([
+    [{ type: 'string', pattern: '\\p{L}+' }, 'z.string().regex(/\\p{L}+/u)'],
+    [{ type: 'string', pattern: '\\p{Lu}\\p{Ll}+' }, 'z.string().regex(/\\p{Lu}\\p{Ll}+/u)'],
+    [{ type: 'string', pattern: '[a-z]+' }, 'z.string().regex(/[a-z]+/)'],
+  ])('string(%o) → %s', (input, expected) => {
+    expect(string(input)).toBe(expected)
+  })
+})

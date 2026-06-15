@@ -599,3 +599,18 @@ describe('Use Case: OpenAPI path item parsing', () => {
     expect(result.delete).toBe(undefined)
   })
 })
+
+describe('makeOperationDeps pickAllBodyInfo $ref resolution', () => {
+  it('falls back to application/json when a referenced requestBody has no content', () => {
+    const deps = makeOperationDeps('client', {}, { Empty: { description: 'no content' } })
+    expect(
+      deps.pickAllBodyInfo({ requestBody: { $ref: '#/components/requestBodies/Empty' } }),
+    ).toStrictEqual({ form: [], json: [{ contentType: 'application/json' }] })
+  })
+  it('returns undefined when the referenced requestBody is missing', () => {
+    const deps = makeOperationDeps('client', {}, { Empty: { description: 'no content' } })
+    expect(deps.pickAllBodyInfo({ requestBody: { $ref: '#/components/requestBodies/Nope' } })).toBe(
+      undefined,
+    )
+  })
+})
