@@ -77,15 +77,27 @@ export function getItemsInfiniteQueryKey(
   return ['items', '/items', args, 'infinite'] as const
 }
 
-export function getItemsInfiniteQueryOptions(
+export function getItemsInfiniteQueryOptions<TPageParam = unknown>(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<typeof client.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.items.$get>
+  },
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.items.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
+        client.items.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
   }
@@ -97,6 +109,12 @@ export function useInfiniteItems<
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.items.$get>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<typeof client.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.items.$get>
+  },
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
@@ -112,9 +130,9 @@ export function useInfiniteItems<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ pageParam, signal }) {
       return parseResponse(
-        client.items.$get(toValue(args), {
+        client.items.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -168,12 +186,23 @@ export function getFeedsInfiniteQueryKey() {
   return ['feeds', '/feeds', 'infinite'] as const
 }
 
-export function getFeedsInfiniteQueryOptions(options?: ClientRequestOptions) {
+export function getFeedsInfiniteQueryOptions<TPageParam = unknown>(
+  pagination: {
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.feeds.$get>
+  },
+  options?: ClientRequestOptions,
+) {
   return {
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.feeds.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+        client.feeds.$get(pagination.getRequestArgs(pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
   }
@@ -183,23 +212,28 @@ export function useInfiniteFeeds<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>>,
   TError = unknown,
   TPageParam = unknown,
->(options: {
-  query: UseInfiniteQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>>,
-    TError,
-    TData,
-    ReturnType<typeof getFeedsInfiniteQueryKey>,
-    TPageParam
-  >
-  options?: ClientRequestOptions
-}) {
+>(
+  pagination: {
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.feeds.$get>
+  },
+  options: {
+    query: UseInfiniteQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>>,
+      TError,
+      TData,
+      ReturnType<typeof getFeedsInfiniteQueryKey>,
+      TPageParam
+    >
+    options?: ClientRequestOptions
+  },
+) {
   const { query: queryOptions, options: clientOptions } = options
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }) {
+    queryFn({ pageParam, signal }) {
       return parseResponse(
-        client.feeds.$get(undefined, {
+        client.feeds.$get(pagination.getRequestArgs(pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -276,15 +310,24 @@ export function getUsersUserIdPostsInfiniteQueryKey(
   return ['users', '/users/:userId/posts', args, 'infinite'] as const
 }
 
-export function getUsersUserIdPostsInfiniteQueryOptions(
+export function getUsersUserIdPostsInfiniteQueryOptions<TPageParam = unknown>(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':userId']['posts']['$get']>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
+  },
   options?: ClientRequestOptions,
 ) {
   return {
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getUsersUserIdPostsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.users[':userId'].posts.$get(toValue(args), {
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
           init: { ...options?.init, signal },
         }),
@@ -303,6 +346,12 @@ export function useInfiniteUsersUserIdPosts<
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':userId']['posts']['$get']>>,
+  pagination: {
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
+  },
   options: {
     query: UseInfiniteQueryOptions<
       Awaited<
@@ -324,9 +373,9 @@ export function useInfiniteUsersUserIdPosts<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }) {
+    queryFn({ pageParam, signal }) {
       return parseResponse(
-        client.users[':userId'].posts.$get(toValue(args), {
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),

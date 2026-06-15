@@ -117,14 +117,24 @@ export function getItemsInfiniteQueryOptions<TPageParam = unknown>(
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.items.$get>
   },
   options?: ClientRequestOptions,
 ) {
   return infiniteQueryOptions({
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.items.$get(args, { ...options, init: { ...options?.init, signal } }),
+        client.items.$get(pagination.getRequestArgs(args, pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -151,6 +161,10 @@ export function useInfiniteItems<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.items.$get>
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -167,9 +181,15 @@ export function useInfiniteItems<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        client.items.$get(pagination.getRequestArgs(args, pageParam), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -196,6 +216,10 @@ export function useSuspenseInfiniteItems<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.items.$get>
   },
   options?: {
     query?: UseSuspenseInfiniteQueryOptions<
@@ -212,9 +236,15 @@ export function useSuspenseInfiniteItems<
   return useSuspenseInfiniteQuery({
     ...queryOptions,
     queryKey: getItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        client.items.$get(pagination.getRequestArgs(args, pageParam), {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -305,14 +335,21 @@ export function getFeedsInfiniteQueryOptions<TPageParam = unknown>(
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.feeds.$get>
   },
   options?: ClientRequestOptions,
 ) {
   return infiniteQueryOptions({
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.feeds.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+        client.feeds.$get(pagination.getRequestArgs(pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -338,6 +375,7 @@ export function useInfiniteFeeds<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.feeds.$get>
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -354,9 +392,12 @@ export function useInfiniteFeeds<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.feeds.$get(undefined, {
+        client.feeds.$get(pagination.getRequestArgs(pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -385,6 +426,7 @@ export function useSuspenseInfiniteFeeds<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.feeds.$get>
   },
   options?: {
     query?: UseSuspenseInfiniteQueryOptions<
@@ -401,9 +443,12 @@ export function useSuspenseInfiniteFeeds<
   return useSuspenseInfiniteQuery({
     ...queryOptions,
     queryKey: getFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.feeds.$get(undefined, {
+        client.feeds.$get(pagination.getRequestArgs(pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -542,14 +587,21 @@ export function getUsersUserIdPostsInfiniteQueryOptions<TPageParam = unknown>(
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
   },
   options?: ClientRequestOptions,
 ) {
   return infiniteQueryOptions({
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getUsersUserIdPostsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.users[':userId'].posts.$get(args, {
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(args, pageParam), {
           ...options,
           init: { ...options?.init, signal },
         }),
@@ -591,6 +643,10 @@ export function useInfiniteUsersUserIdPosts<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -613,9 +669,12 @@ export function useInfiniteUsersUserIdPosts<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getUsersUserIdPostsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.users[':userId'].posts.$get(args, {
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(args, pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -657,6 +716,10 @@ export function useSuspenseInfiniteUsersUserIdPosts<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+      pageParam: unknown,
+    ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
   },
   options?: {
     query?: UseSuspenseInfiniteQueryOptions<
@@ -679,9 +742,12 @@ export function useSuspenseInfiniteUsersUserIdPosts<
   return useSuspenseInfiniteQuery({
     ...queryOptions,
     queryKey: getUsersUserIdPostsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getUsersUserIdPostsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.users[':userId'].posts.$get(args, {
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(args, pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),

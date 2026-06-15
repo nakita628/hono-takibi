@@ -73,17 +73,31 @@ export function useInfiniteGetItems<TError = unknown>(
     swr?: SWRInfiniteConfiguration<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>>,
       TError
-    > & { swrKey?: SWRInfiniteKeyLoader }
+    > & {
+      swrKey?: (
+        index: number,
+        previousPageData: Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>
+        > | null,
+      ) => readonly [...ReturnType<typeof getGetItemsInfiniteKey>, number]
+    }
     options?: ClientRequestOptions
+    pagination: {
+      getRequestArgs: (
+        args: InferRequestType<typeof client.items.$get>,
+        index: number,
+      ) => InferRequestType<typeof client.items.$get>
+    }
   },
 ) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions, pagination } = options
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetItemsInfiniteKey(args), index] as const)
   return useSWRInfinite(
     keyLoader,
-    async () => parseResponse(client.items.$get(args, clientOptions)),
+    ([, , , , index]: readonly [...ReturnType<typeof getGetItemsInfiniteKey>, number]) =>
+      parseResponse(client.items.$get(pagination.getRequestArgs(args, index), clientOptions)),
     restSwrOptions,
   )
 }
@@ -134,16 +148,25 @@ export function useInfiniteGetFeeds<TError = unknown>(options: {
   swr?: SWRInfiniteConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>>,
     TError
-  > & { swrKey?: SWRInfiniteKeyLoader }
+  > & {
+    swrKey?: (
+      index: number,
+      previousPageData: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.feeds.$get>>>>
+      > | null,
+    ) => readonly [...ReturnType<typeof getGetFeedsInfiniteKey>, number]
+  }
   options?: ClientRequestOptions
+  pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.feeds.$get> }
 }) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions, pagination } = options
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetFeedsInfiniteKey(), index] as const)
   return useSWRInfinite(
     keyLoader,
-    async () => parseResponse(client.feeds.$get(undefined, clientOptions)),
+    ([, , , index]: readonly [...ReturnType<typeof getGetFeedsInfiniteKey>, number]) =>
+      parseResponse(client.feeds.$get(pagination.getRequestArgs(index), clientOptions)),
     restSwrOptions,
   )
 }
@@ -212,18 +235,38 @@ export function useInfiniteGetUsersUserIdPosts<TError = unknown>(
         >
       >,
       TError
-    > & { swrKey?: SWRInfiniteKeyLoader }
+    > & {
+      swrKey?: (
+        index: number,
+        previousPageData: Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.users)[':userId']['posts']['$get']>>
+            >
+          >
+        > | null,
+      ) => readonly [...ReturnType<typeof getGetUsersUserIdPostsInfiniteKey>, number]
+    }
     options?: ClientRequestOptions
+    pagination: {
+      getRequestArgs: (
+        args: InferRequestType<(typeof client.users)[':userId']['posts']['$get']>,
+        index: number,
+      ) => InferRequestType<(typeof client.users)[':userId']['posts']['$get']>
+    }
   },
 ) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions, pagination } = options
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
     customKeyLoader ??
     ((index: number) => [...getGetUsersUserIdPostsInfiniteKey(args), index] as const)
   return useSWRInfinite(
     keyLoader,
-    async () => parseResponse(client.users[':userId'].posts.$get(args, clientOptions)),
+    ([, , , , index]: readonly [...ReturnType<typeof getGetUsersUserIdPostsInfiniteKey>, number]) =>
+      parseResponse(
+        client.users[':userId'].posts.$get(pagination.getRequestArgs(args, index), clientOptions),
+      ),
     restSwrOptions,
   )
 }
