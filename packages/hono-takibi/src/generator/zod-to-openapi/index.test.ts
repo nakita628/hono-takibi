@@ -2730,8 +2730,10 @@ describe('zodToOpenAPI', () => {
         }
       })
 
-      it.concurrent('string format: binary → z.file() (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'binary' } as Schema)).toBe('z.file()')
+      it.concurrent('string format: binary → z.file().openapi({type,format}) (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
+        expect(zodToOpenAPI({ type: 'string', format: 'binary' } as Schema)).toBe(
+          'z.file().openapi({type:"string",format:"binary"})',
+        )
         const runtime = z.file()
         const result = runtime.safeParse('plain string')
         expect(result.success).toBe(false)

@@ -2887,7 +2887,7 @@ export const XmlContentMediaTypeSchema = z.object({ root: z.string().exactOption
 
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const BinaryContentMediaTypeSchema = z.file()
+export const BinaryContentMediaTypeSchema = z.file().openapi({ type: 'string', format: 'binary' })
 
 export const getDataRoute = createRoute({
   method: 'get',

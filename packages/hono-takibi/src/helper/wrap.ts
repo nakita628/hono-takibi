@@ -331,9 +331,30 @@ export function wrap(
     })
     return `{${entries.join(',')}}`
   }
+  // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's
+  // schema derivation: emitting it without an explicit `type`/`format` makes
+  // `getOpenAPIDocument()` throw `UnknownZodTypeError`. `type`/`format` are
+  // dropped as `zodExpressedProps` above, so re-surface them in `.openapi()`
+  // for the binary-file case only (other formats are derived from the chain).
+  const typeList = Array.isArray(schema.type)
+    ? schema.type
+    : schema.type !== undefined
+      ? [schema.type]
+      : []
+  const isBinaryFile =
+    schema.format === 'binary' &&
+    typeList.includes('string') &&
+    schema.contentEncoding === undefined &&
+    schema.contentMediaType === undefined &&
+    schema.contentSchema === undefined &&
+    schema['x-codec'] === undefined
+  const fileMetaProps = isBinaryFile
+    ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
+    : []
   const result = [
     meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
     ...headerMetaProps,
+    ...fileMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385
