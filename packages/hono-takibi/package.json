@@ -53,9 +53,6 @@
       "import": "./dist/core/docs/index.js"
     }
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "tsdown"
   },
