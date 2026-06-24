@@ -223,7 +223,6 @@ const ConfigSchema = z
       .object({
         output: FileOutputSchema,
         import: z.string(),
-        basePath: z.string().exactOptional(),
         testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
       })
       .readonly()

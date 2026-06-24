@@ -710,43 +710,6 @@ describe('parseConfig()', () => {
     })
   })
 
-  describe('test.basePath option', () => {
-    it.concurrent('accepts test.basePath', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        test: { output: 'src/index.test.ts', import: './index', basePath: '/api' },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.basePath).toBe('/api')
-      }
-    })
-
-    it.concurrent('test.basePath is undefined when omitted (falls back to global basePath)', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        test: { output: 'src/index.test.ts', import: './index' },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.basePath).toBe(undefined)
-      }
-    })
-
-    it.concurrent('test.basePath is independent of the global basePath', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        basePath: '/',
-        test: { output: 'src/index.test.ts', import: './index', basePath: '/api' },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.basePath).toBe('/')
-        expect(result.value.test?.basePath).toBe('/api')
-      }
-    })
-  })
-
   describe('testFramework option', () => {
     it.concurrent('accepts test.testFramework: bun', () => {
       const result = parseConfig({

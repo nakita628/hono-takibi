@@ -481,7 +481,6 @@ export default defineConfig({
   test: {
     output: './src/test.ts',
     import: '.',
-    basePath: '/api', // prepended to every generated test request path; set it to the prefix your running app actually serves routes under — whether from app.basePath('/api'), a sub-app mount (app.route('/api', api)), middleware-gated '/api/*', or '/api'-prefixed spec paths
     testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 

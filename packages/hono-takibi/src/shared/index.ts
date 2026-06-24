@@ -360,7 +360,7 @@ export function makeJob(
               openAPI,
               output,
               config.test?.import ?? '',
-              config.test?.basePath ?? config.basePath,
+              config.basePath,
               config.test?.testFramework,
             ),
         }
