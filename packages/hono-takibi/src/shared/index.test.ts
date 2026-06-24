@@ -628,3 +628,36 @@ export default app
     expect(content.split('\n').filter((l) => l.includes("from '@/components'")).length).toBe(1)
   })
 })
+
+describe('makeJob test.basePath', () => {
+  it('prefixes generated test request paths with test.basePath, overriding the global basePath', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-'))
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      basePath: '/',
+      test: { output: `${tmpDir}/app.test.ts`, import: './app', basePath: '/api' },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    for (const r of await Promise.all(jobs.map((job) => job.run(job.output))))
+      if (!r.ok) throw new Error(r.error)
+    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
+    expect(content.includes('app.request(`/api/health`')).toBe(true)
+    expect(content.includes('app.request(`/health`')).toBe(false)
+  })
+
+  it('falls back to the global basePath when test.basePath is omitted', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-fallback-'))
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      basePath: '/api',
+      test: { output: `${tmpDir}/app.test.ts`, import: './app' },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    for (const r of await Promise.all(jobs.map((job) => job.run(job.output))))
+      if (!r.ok) throw new Error(r.error)
+    const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
+    expect(content.includes('app.request(`/api/health`')).toBe(true)
+  })
+})
