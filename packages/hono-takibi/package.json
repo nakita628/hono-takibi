@@ -60,16 +60,16 @@
     "@apidevtools/swagger-parser": "^12.1.0",
     "@typespec/compiler": "^1.13.0",
     "@typespec/openapi3": "^1.13.0",
-    "oxfmt": "^0.54.0",
+    "oxfmt": "^0.56.0",
     "ts-morph": "^28.0.0",
     "typescript": "^6.0.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "@typespec/http": "^1.13.0",
     "@typespec/rest": "^0.83.0",
     "@typespec/versioning": "^0.83.0",
-    "tsdown": "0.22.2"
+    "tsdown": "0.22.3"
   }
 }
