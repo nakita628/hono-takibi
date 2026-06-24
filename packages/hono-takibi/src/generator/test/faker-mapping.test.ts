@@ -537,6 +537,153 @@ describe('schemaToFaker', () => {
     })
   })
 
+  describe('numeric format with constraints', () => {
+    it.concurrent('respects minimum/maximum over int32 default range', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int32', minimum: 0, maximum: 100 })).toBe(
+        'faker.number.int({ min: 0, max: 100 })',
+      )
+    })
+
+    it.concurrent('keeps int32 upper bound when only minimum is set', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int32', minimum: 5 })).toBe(
+        'faker.number.int({ min: 5, max: 2147483647 })',
+      )
+    })
+
+    it.concurrent('keeps int32 lower bound when only maximum is set', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int32', maximum: 5 })).toBe(
+        'faker.number.int({ min: -2147483648, max: 5 })',
+      )
+    })
+
+    it.concurrent('respects minimum/maximum for int64 as bigint literals', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int64', minimum: 0, maximum: 1000 })).toBe(
+        'faker.number.bigInt({ min: 0n, max: 1000n })',
+      )
+    })
+
+    it.concurrent('respects minimum/maximum for the bigint format', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'bigint', minimum: 0, maximum: 5 })).toBe(
+        'faker.number.bigInt({ min: 0n, max: 5n })',
+      )
+    })
+
+    it.concurrent('shifts int64 exclusive bounds inward as bigint literals', () => {
+      expect(
+        schemaToFaker({
+          type: 'integer',
+          format: 'int64',
+          exclusiveMinimum: 0,
+          exclusiveMaximum: 1000,
+        }),
+      ).toBe('faker.number.bigInt({ min: 1n, max: 999n })')
+    })
+
+    it.concurrent('keeps int64 default upper bound as a bigint literal when only minimum is set', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int64', minimum: 5 })).toBe(
+        'faker.number.bigInt({ min: 5n, max: 9007199254740991n })',
+      )
+    })
+
+    it.concurrent('drops multipleOf for int64 (faker.number.bigInt has no multipleOf option)', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'int64', multipleOf: 5 })).toBe(
+        'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
+      )
+    })
+
+    it.concurrent('respects minimum/maximum for float', () => {
+      expect(schemaToFaker({ type: 'number', format: 'float', minimum: 0, maximum: 10 })).toBe(
+        'faker.number.float({ min: 0, max: 10, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('keeps double fractionDigits while respecting bounds', () => {
+      expect(schemaToFaker({ type: 'number', format: 'double', minimum: 0, maximum: 1 })).toBe(
+        'faker.number.float({ min: 0, max: 1, fractionDigits: 4 })',
+      )
+    })
+  })
+
+  describe('property name hint with constraints', () => {
+    it.concurrent('respects minimum/maximum over the age hint', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 18, maximum: 65 }, 'age')).toBe(
+        'faker.number.int({ min: 18, max: 65 })',
+      )
+    })
+
+    it.concurrent('respects maximum over the count hint', () => {
+      expect(schemaToFaker({ type: 'integer', maximum: 50 }, 'count')).toBe(
+        'faker.number.int({ min: 1, max: 50 })',
+      )
+    })
+
+    it.concurrent('respects minimum/maximum over the price hint', () => {
+      expect(schemaToFaker({ type: 'number', minimum: 9.99, maximum: 99.99 }, 'price')).toBe(
+        'faker.number.float({ min: 9.99, max: 99.99, fractionDigits: 2 })',
+      )
+    })
+  })
+
+  describe('exclusive bounds', () => {
+    it.concurrent('shifts integer number-form exclusive bounds inward', () => {
+      expect(schemaToFaker({ type: 'integer', exclusiveMinimum: 0, exclusiveMaximum: 10 })).toBe(
+        'faker.number.int({ min: 1, max: 9 })',
+      )
+    })
+
+    it.concurrent('shifts integer boolean-form exclusiveMinimum inward', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 0, exclusiveMinimum: true })).toBe(
+        'faker.number.int({ min: 1, max: 1000 })',
+      )
+    })
+
+    it.concurrent('shifts integer boolean-form exclusiveMaximum inward', () => {
+      expect(schemaToFaker({ type: 'integer', maximum: 10, exclusiveMaximum: true })).toBe(
+        'faker.number.int({ min: 1, max: 9 })',
+      )
+    })
+
+    it.concurrent('treats boolean-form exclusiveMinimum false as inclusive', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 0, exclusiveMinimum: false })).toBe(
+        'faker.number.int({ min: 0, max: 1000 })',
+      )
+    })
+
+    it.concurrent('approximates float exclusiveMinimum with the inclusive bound', () => {
+      expect(schemaToFaker({ type: 'number', format: 'float', exclusiveMinimum: 0 })).toBe(
+        'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
+      )
+    })
+  })
+
+  describe('multipleOf', () => {
+    it.concurrent('appends multipleOf for integer', () => {
+      expect(schemaToFaker({ type: 'integer', multipleOf: 5 })).toBe(
+        'faker.number.int({ min: 1, max: 1000, multipleOf: 5 })',
+      )
+    })
+
+    it.concurrent('appends multipleOf alongside minimum/maximum', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 10, maximum: 100, multipleOf: 5 })).toBe(
+        'faker.number.int({ min: 10, max: 100, multipleOf: 5 })',
+      )
+    })
+
+    it.concurrent('drops fractionDigits when float has multipleOf', () => {
+      expect(schemaToFaker({ type: 'number', format: 'float', multipleOf: 0.5 })).toBe(
+        'faker.number.float({ min: 1, max: 1000, multipleOf: 0.5 })',
+      )
+    })
+  })
+
+  describe('unsatisfiable range (input is source of truth)', () => {
+    it.concurrent('passes through inverted minimum/maximum unchanged', () => {
+      expect(schemaToFaker({ type: 'integer', minimum: 10, maximum: 5 })).toBe(
+        'faker.number.int({ min: 10, max: 5 })',
+      )
+    })
+  })
+
   describe('fallback', () => {
     it.concurrent('returns undefined for empty schema', () => {
       expect(schemaToFaker({})).toBe('undefined')

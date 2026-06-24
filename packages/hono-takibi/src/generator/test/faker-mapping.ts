@@ -74,6 +74,84 @@ const PROPERTY_NAME_TO_FAKER: { [k: string]: string } = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
+const hasNumericConstraint = (schema: Schema) =>
+  schema.minimum !== undefined ||
+  schema.maximum !== undefined ||
+  schema.exclusiveMinimum !== undefined ||
+  schema.exclusiveMaximum !== undefined ||
+  schema.multipleOf !== undefined
+
+// Normalize JSON Schema / OpenAPI numeric bounds into faker-compatible inclusive
+// min/max. `exclusiveMinimum`/`exclusiveMaximum` are either a number (JSON Schema
+// 2020-12 / OpenAPI 3.1) or a boolean paired with `minimum`/`maximum` (OpenAPI 3.0).
+// faker only takes inclusive bounds, so integers shift by ±1 and floats approximate.
+function numericRange(
+  schema: {
+    readonly minimum?: number
+    readonly maximum?: number
+    readonly exclusiveMinimum?: number | boolean
+    readonly exclusiveMaximum?: number | boolean
+    readonly multipleOf?: number
+  },
+  integer: boolean,
+) {
+  const step = integer ? 1 : 0
+  const min =
+    typeof schema.exclusiveMinimum === 'number'
+      ? schema.exclusiveMinimum + step
+      : schema.exclusiveMinimum === true && schema.minimum !== undefined
+        ? schema.minimum + step
+        : schema.minimum
+  const max =
+    typeof schema.exclusiveMaximum === 'number'
+      ? schema.exclusiveMaximum - step
+      : schema.exclusiveMaximum === true && schema.maximum !== undefined
+        ? schema.maximum - step
+        : schema.maximum
+  return {
+    ...(min !== undefined ? { min } : {}),
+    ...(max !== undefined ? { max } : {}),
+    ...(schema.multipleOf !== undefined ? { multipleOf: schema.multipleOf } : {}),
+  }
+}
+
+// Build a faker numeric expression from a resolved range, filling each unset side
+// with the format/type default. `faker.number.float` rejects `multipleOf` and
+// `fractionDigits` together, so `multipleOf` drops `fractionDigits`.
+function numericFaker(
+  schema: Schema,
+  range: { readonly min?: number; readonly max?: number; readonly multipleOf?: number },
+) {
+  if (schema.type === 'integer' && (schema.format === 'int64' || schema.format === 'bigint')) {
+    return `faker.number.bigInt({ min: ${range.min ?? 0}n, max: ${range.max ?? 9007199254740991}n })`
+  }
+  if (schema.type === 'integer') {
+    const defaultMin = schema.format === 'int32' ? -2147483648 : 1
+    const defaultMax = schema.format === 'int32' ? 2147483647 : 1000
+    const parts = [
+      `min: ${range.min ?? defaultMin}`,
+      `max: ${range.max ?? defaultMax}`,
+      ...(range.multipleOf !== undefined ? [`multipleOf: ${range.multipleOf}`] : []),
+    ]
+    return `faker.number.int({ ${parts.join(', ')} })`
+  }
+  const defaultMax = schema.format === 'double' ? 1000000 : 1000
+  const fractionDigits = schema.format === 'double' ? 4 : 2
+  const parts =
+    range.multipleOf !== undefined
+      ? [
+          `min: ${range.min ?? 1}`,
+          `max: ${range.max ?? defaultMax}`,
+          `multipleOf: ${range.multipleOf}`,
+        ]
+      : [
+          `min: ${range.min ?? 1}`,
+          `max: ${range.max ?? defaultMax}`,
+          `fractionDigits: ${fractionDigits}`,
+        ]
+  return `faker.number.float({ ${parts.join(', ')} })`
+}
+
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
@@ -146,6 +224,11 @@ export function schemaToFaker(
     const variants = union.map((s) => schemaToFaker(s, propertyName, options)).join(', ')
     return `faker.helpers.arrayElement([${variants}])`
   }
+  // Numeric constraints win over format/property-name defaults so generated
+  // values satisfy the schema's bounds (minimum/maximum/exclusive*/multipleOf).
+  if ((schema.type === 'integer' || schema.type === 'number') && hasNumericConstraint(schema)) {
+    return numericFaker(schema, numericRange(schema, schema.type === 'integer'))
+  }
   if (schema.format && FORMAT_TO_FAKER[schema.format]) {
     return FORMAT_TO_FAKER[schema.format]
   }
@@ -166,12 +249,7 @@ export function schemaToFaker(
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
     }
     if (schema.type === 'integer' || schema.type === 'number') {
-      const min = schema.minimum ?? 1
-      const max = schema.maximum ?? 1000
-      if (schema.type === 'integer') {
-        return `faker.number.int({ min: ${min}, max: ${max} })`
-      }
-      return `faker.number.float({ min: ${min}, max: ${max}, fractionDigits: 2 })`
+      return numericFaker(schema, numericRange(schema, schema.type === 'integer'))
     }
     return TYPE_TO_FAKER[schema.type]
   }

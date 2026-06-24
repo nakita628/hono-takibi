@@ -25,6 +25,32 @@ describe('wrap', () => {
     })
   })
 
+  describe('file', () => {
+    it.concurrent('re-surfaces type/format so z.file() survives getOpenAPIDocument()', () => {
+      expect(wrap('z.file()', { type: 'string', format: 'binary' })).toBe(
+        'z.file().openapi({type:"string",format:"binary"})',
+      )
+    })
+
+    it.concurrent('merges type/format ahead of other openapi metadata (description)', () => {
+      expect(
+        wrap('z.file()', { type: 'string', format: 'binary', description: 'cover image' }),
+      ).toBe('z.file().openapi({type:"string",format:"binary","description":"cover image"})')
+    })
+
+    it.concurrent('emits nullable union type for a nullable binary file', () => {
+      expect(wrap('z.file()', { type: ['string', 'null'], format: 'binary' })).toBe(
+        'z.file().nullable().openapi({type:["string","null"],format:"binary"})',
+      )
+    })
+
+    it.concurrent('does not inject type/format when contentEncoding makes it a non-file string', () => {
+      expect(
+        wrap('z.base64()', { type: 'string', format: 'binary', contentEncoding: 'base64' }),
+      ).toBe('z.base64()')
+    })
+  })
+
   describe('number', () => {
     it.concurrent('adds .default and .nullable for z.number() when default and nullable=true', () => {
       expect(
