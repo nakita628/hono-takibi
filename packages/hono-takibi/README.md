@@ -481,6 +481,7 @@ export default defineConfig({
   test: {
     output: './src/test.ts',
     import: '.',
+    basePath: '/api',
     testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
 
