@@ -1,5 +1,6 @@
 {
   "name": "hono-takibi",
+  "type": "module",
   "version": "0.9.99993",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
@@ -21,7 +22,6 @@
   "files": [
     "dist"
   ],
-  "type": "module",
   "sideEffects": false,
   "exports": {
     "./vite-plugin": {
