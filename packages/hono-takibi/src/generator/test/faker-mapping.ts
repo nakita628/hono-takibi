@@ -152,6 +152,36 @@ function numericFaker(
   return `faker.number.float({ ${parts.join(', ')} })`
 }
 
+// Resolves a `$ref` against the component schema map. Returns the schema
+// unchanged when it has no `$ref` or the target is unknown (so callers can
+// treat unresolved refs conservatively).
+function resolveRef(schema: Schema, schemas: { readonly [k: string]: Schema } | undefined): Schema {
+  if (!schema.$ref) return schema
+  const name = schema.$ref.split('/').at(-1)
+  const resolved = name ? schemas?.[name] : undefined
+  return resolved ?? schema
+}
+
+// Decides whether a schema mocks to a primitive (string/number/enum/const) as
+// opposed to an object. Used by the `allOf` branch to tell a scalar refinement
+// (e.g. a branded scalar or an enum alias, common in TypeSpec output) from an
+// object composition. Anything unresolvable, object-shaped, array, or a union
+// is treated as non-scalar so it stays on the object-spread path — this also
+// keeps `$ref` members spreadable when no schema map is supplied (unit tests).
+function isKnownScalar(
+  schema: Schema,
+  schemas: { readonly [k: string]: Schema } | undefined,
+): boolean {
+  const resolved = resolveRef(schema, schemas)
+  if (resolved.enum || resolved.const !== undefined) return true
+  if (resolved.properties || resolved.type === 'object') return false
+  if (resolved.allOf && resolved.allOf.length > 0) {
+    return resolved.allOf.every((s) => isKnownScalar(s, schemas))
+  }
+  if (resolved.oneOf || resolved.anyOf || resolved.type === 'array') return false
+  return typeof resolved.type === 'string'
+}
+
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
@@ -205,12 +235,32 @@ export function schemaToFaker(
     return '{}'
   }
   if (schema.allOf && schema.allOf.length > 0) {
+    // A scalar refinement (`allOf` of only scalar/enum members, no own
+    // properties) is not an object composition — spreading its primitive value
+    // would corrupt it (`{ ...'follow' }` → `{0:'f',...}`). A single member (the
+    // common branded-scalar / enum-alias wrapper) is delegated without
+    // spreading, so a `$ref` member stays `mockX()` (a primitive) and reuses its
+    // generator. Multiple members (a constrained scalar split across `allOf`)
+    // are merged into one synthetic scalar and recursed. Object members of a
+    // mixed `allOf` are spread; scalar members there (a contradictory schema)
+    // are dropped since they cannot spread into an object.
+    if (!schema.properties && schema.allOf.every((s) => isKnownScalar(s, options.schemas))) {
+      const [only] = schema.allOf
+      if (schema.allOf.length === 1 && only) {
+        return schemaToFaker(only, propertyName, options)
+      }
+      const mergedScalar = schema.allOf
+        .map((s) => resolveRef(s, options.schemas))
+        .reduce<Schema>((acc, s) => ({ ...acc, ...s }), {})
+      return schemaToFaker(mergedScalar, propertyName, options)
+    }
     const merged = schema.allOf
-      .map((s) => schemaToFaker(s, propertyName, options))
-      .map((m) => `...${m}`)
+      .filter((s) => !isKnownScalar(s, options.schemas))
+      .map((s) => `...${schemaToFaker(s, propertyName, options)}`)
       .join(', ')
     if (schema.properties) {
-      return `{ ${merged}, ${renderProps(schema.properties, schema.required)} }`
+      const props = renderProps(schema.properties, schema.required)
+      return merged.length > 0 ? `{ ${merged}, ${props} }` : `{ ${props} }`
     }
     return `{ ${merged} }`
   }
