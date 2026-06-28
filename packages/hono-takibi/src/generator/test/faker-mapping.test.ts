@@ -164,6 +164,37 @@ describe('schemaToFaker', () => {
         }),
       ).toBe('{ ...mockBase(), ...mockExtra() }')
     })
+
+    it.concurrent('delegates a single scalar member without spreading', () => {
+      expect(
+        schemaToFaker({ allOf: [{ $ref: '#/components/schemas/Kind' }] }, undefined, {
+          schemas: { Kind: { type: 'string', enum: ['a', 'b'] } },
+        }),
+      ).toBe('mockKind()')
+    })
+
+    it.concurrent('inlines a single inline enum member without spreading', () => {
+      expect(schemaToFaker({ allOf: [{ type: 'string', enum: ['a', 'b'] }] })).toBe(
+        'faker.helpers.arrayElement(["a", "b"] as const)',
+      )
+    })
+
+    it.concurrent('spreads only the object members of a mixed allOf, dropping scalars', () => {
+      expect(
+        schemaToFaker(
+          {
+            allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: '#/components/schemas/Tag' }],
+          },
+          undefined,
+          {
+            schemas: {
+              Base: { type: 'object', properties: { x: { type: 'string' } } },
+              Tag: { type: 'string', enum: ['a'] },
+            },
+          },
+        ),
+      ).toBe('{ ...mockBase() }')
+    })
   })
 
   describe('oneOf / anyOf', () => {

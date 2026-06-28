@@ -1481,4 +1481,535 @@ export default app
 `)
     })
   })
+
+  describe('allOf-wrapped scalar / enum and branded-scalar casing', () => {
+    it('delegates an allOf-wrapped enum (no spread), casts a camelCase brand to its PascalCase const, and drops the unused base model', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/n': {
+            get: {
+              operationId: 'getN',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Notification' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            userId: { type: 'string', 'x-brand': 'userId' },
+            notificationType: { type: 'string', enum: ['follow', 'like'] },
+            Notification: {
+              type: 'object',
+              required: ['id', 'type'],
+              properties: {
+                id: { $ref: '#/components/schemas/userId' },
+                type: { allOf: [{ $ref: '#/components/schemas/notificationType' }] },
+              },
+            },
+            AuthUser: { type: 'object', properties: { token: { type: 'string' } } },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserIdSchema = z.string().brand<'userId'>().openapi('UserId')
+
+const NotificationTypeSchema = z.enum(['follow', 'like']).openapi('NotificationType')
+
+const NotificationSchema = z
+  .object({ id: UserIdSchema, type: NotificationTypeSchema })
+  .openapi({ required: ['id', 'type'] })
+  .openapi('Notification')
+
+export const getNRoute = createRoute({
+  method: 'get',
+  path: '/n',
+  operationId: 'getN',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: NotificationSchema } } },
+  },
+})
+
+function mockuserId() {
+  return faker.string.alpha({ length: { min: 5, max: 20 } }) as z.infer<typeof UserIdSchema>
+}
+
+function mocknotificationType() {
+  return faker.helpers.arrayElement(['follow', 'like'] as const)
+}
+
+function mockNotification() {
+  return { id: mockuserId(), type: mocknotificationType() }
+}
+
+const getNRouteHandler: RouteHandler<typeof getNRoute> = async (c) => {
+  return c.json(mockNotification(), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getNRoute, getNRouteHandler)
+
+export default app
+`)
+    })
+  })
+
+  describe('response example', () => {
+    it('returns the authored media example verbatim, cast to the success schema', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/me': {
+            get: {
+              operationId: 'getMe',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                      example: { id: 1, name: 'Alice' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: { id: { type: 'integer' }, name: { type: 'string' } },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserSchema = z
+  .object({ id: z.int(), name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+  .openapi('User')
+
+export const getMeRoute = createRoute({
+  method: 'get',
+  path: '/me',
+  operationId: 'getMe',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: UserSchema, example: { id: 1, name: 'Alice' } } },
+    },
+  },
+})
+
+const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getMeRoute, getMeRouteHandler)
+
+export default app
+`)
+    })
+
+    it('prefers the first entry of examples (plural) over faker', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/me': {
+            get: {
+              operationId: 'getMe',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                      examples: {
+                        first: { summary: 'First', value: { id: 1, name: 'Alice' } },
+                        second: { summary: 'Second', value: { id: 2, name: 'Bob' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: { id: { type: 'integer' }, name: { type: 'string' } },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserSchema = z
+  .object({ id: z.int(), name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+  .openapi('User')
+
+export const getMeRoute = createRoute({
+  method: 'get',
+  path: '/me',
+  operationId: 'getMe',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: UserSchema,
+          examples: {
+            first: { summary: 'First', value: { id: 1, name: 'Alice' } },
+            second: { summary: 'Second', value: { id: 2, name: 'Bob' } },
+          },
+        },
+      },
+    },
+  },
+})
+
+const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getMeRoute, getMeRouteHandler)
+
+export default app
+`)
+    })
+
+    it('resolves an examples $ref against components.examples', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/me': {
+            get: {
+              operationId: 'getMe',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                      examples: { default: { $ref: '#/components/examples/UserExample' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              required: ['id', 'name'],
+              properties: { id: { type: 'integer' }, name: { type: 'string' } },
+            },
+          },
+          examples: { UserExample: { summary: 'User', value: { id: 1, name: 'Alice' } } },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserSchema = z
+  .object({ id: z.int(), name: z.string() })
+  .openapi({ required: ['id', 'name'] })
+  .openapi('User')
+
+const UserExampleExample = { summary: 'User', value: { id: 1, name: 'Alice' } }
+
+export const getMeRoute = createRoute({
+  method: 'get',
+  path: '/me',
+  operationId: 'getMe',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: UserSchema, examples: { default: UserExampleExample } },
+      },
+    },
+  },
+})
+
+const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getMeRoute, getMeRouteHandler)
+
+export default app
+`)
+    })
+
+    it('returns an inline-schema example verbatim without a cast', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/v': {
+            get: {
+              operationId: 'getV',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { ok: { type: 'boolean' } } },
+                      example: { ok: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getVRoute = createRoute({
+  method: 'get',
+  path: '/v',
+  operationId: 'getV',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z.object({ ok: z.boolean().exactOptional() }),
+          example: { ok: true },
+        },
+      },
+    },
+  },
+})
+
+const getVRouteHandler: RouteHandler<typeof getVRoute> = async (c) => {
+  return c.json({ ok: true }, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getVRoute, getVRouteHandler)
+
+export default app
+`)
+    })
+
+    it('prefers a response example over x-pagination slicing', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/posts': {
+            get: {
+              operationId: 'getPosts',
+              'x-pagination': true,
+              parameters: [
+                { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+                { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+              ],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
+                      example: [{ id: 1 }, { id: 2 }],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Post: { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const PostSchema = z
+  .object({ id: z.int() })
+  .openapi({ required: ['id'] })
+  .openapi('Post')
+
+export const getPostsRoute = createRoute({
+  method: 'get',
+  path: '/posts',
+  operationId: 'getPosts',
+  request: {
+    query: z.object({
+      page: z.coerce
+        .number()
+        .int()
+        .default(1)
+        .exactOptional()
+        .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
+      rows: z.coerce
+        .number()
+        .int()
+        .default(20)
+        .exactOptional()
+        .openapi({
+          param: { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+        }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.array(PostSchema), example: [{ id: 1 }, { id: 2 }] },
+      },
+    },
+  },
+})
+
+const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
+  return c.json([{ id: 1 }, { id: 2 }], 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getPostsRoute, getPostsRouteHandler)
+
+export default app
+`)
+    })
+  })
+
+  describe('x-pagination list handler', () => {
+    it('slices a bare-array response by page/rows against a stable module-scope pool', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1.0.0' },
+        paths: {
+          '/posts': {
+            get: {
+              operationId: 'getPosts',
+              'x-pagination': true,
+              parameters: [
+                { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+                { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+              ],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'array', items: { $ref: '#/components/schemas/Post' } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Post: { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
+          },
+        },
+      }
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const PostSchema = z
+  .object({ id: z.int() })
+  .openapi({ required: ['id'] })
+  .openapi('Post')
+
+export const getPostsRoute = createRoute({
+  method: 'get',
+  path: '/posts',
+  operationId: 'getPosts',
+  request: {
+    query: z.object({
+      page: z.coerce
+        .number()
+        .int()
+        .default(1)
+        .exactOptional()
+        .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
+      rows: z.coerce
+        .number()
+        .int()
+        .default(20)
+        .exactOptional()
+        .openapi({
+          param: { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+        }),
+    }),
+  },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: z.array(PostSchema) } } },
+  },
+})
+
+function mockPost() {
+  return { id: faker.number.int({ min: 1, max: 99999 }) }
+}
+
+const getPostsTotal = faker.number.int({ min: 0, max: 60 })
+
+const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
+  const query = c.req.valid('query')
+  const rows = query.rows ?? 20
+  const page = query.page ?? 1
+  const start = (page - 1) * rows
+  const items = Array.from({ length: getPostsTotal }, () => mockPost())
+  return c.json(items.slice(start, start + rows), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getPostsRoute, getPostsRouteHandler)
+
+export default app
+`)
+    })
+  })
 })

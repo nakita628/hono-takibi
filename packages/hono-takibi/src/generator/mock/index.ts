@@ -6,8 +6,21 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type { OpenAPI, Responses, Schema } from '../../openapi/index.js'
-import { methodPath, statusCodeToNumber } from '../../utils/index.js'
+import type {
+  Components,
+  Media,
+  OpenAPI,
+  Operation,
+  Parameter,
+  Responses,
+  Schema,
+} from '../../openapi/index.js'
+import {
+  ensureSuffix,
+  methodPath,
+  statusCodeToNumber,
+  toIdentifierPascalCase,
+} from '../../utils/index.js'
 import { schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
@@ -121,6 +134,51 @@ function detectCircularSchemas(schemas: { readonly [k: string]: Schema }) {
   return circular
 }
 
+// Collects every `#/components/schemas/X` reference reachable by walking an
+// arbitrary OpenAPI node (parameters, request bodies, responses, headers,
+// nested schemas — including `additionalProperties` and `not`). A generic walk
+// is used instead of the schema-shaped `collectRefs` so no reference position
+// is missed: under-collection would drop a const a route references (TS2304),
+// whereas over-collection only risks a harmless unused-var.
+function collectSchemaRefs(node: unknown, refs: Set<string>): Set<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) collectSchemaRefs(item, refs)
+    return refs
+  }
+  if (node !== null && typeof node === 'object') {
+    for (const [key, value] of Object.entries(node)) {
+      if (key === '$ref' && typeof value === 'string' && value.includes('/components/schemas/')) {
+        const name = value.split('/').at(-1)
+        if (name) refs.add(name)
+      } else {
+        collectSchemaRefs(value, refs)
+      }
+    }
+  }
+  return refs
+}
+
+// Expands a set of root schema names to its transitive closure through the
+// component schema map. A schema referenced only by an unreferenced schema is
+// excluded, so base models reached via `is`/`allOf` from an unused model are
+// dropped (no unused-var) while everything a route actually needs is kept.
+function schemaClosure(roots: Set<string>, schemas: { readonly [k: string]: Schema }) {
+  const used = new Set<string>()
+  const stack = [...roots]
+  while (stack.length > 0) {
+    const name = stack.pop()
+    if (name === undefined || used.has(name)) continue
+    used.add(name)
+    const schema = schemas[name]
+    if (schema) {
+      for (const ref of collectSchemaRefs(schema, new Set<string>())) {
+        if (!used.has(ref)) stack.push(ref)
+      }
+    }
+  }
+  return used
+}
+
 function makeMockFunction(
   name: string,
   schema: Schema,
@@ -136,8 +194,12 @@ function makeMockFunction(
   // Cast via `z.infer<typeof <Name>Schema>` to satisfy the type without any
   // runtime overhead — branding is a TS-only construct so the assertion is
   // safe; an `as` cast is the standard escape hatch for nominal brand types.
+  // The cast target must match the emitted const name, which `helper/schema.ts`
+  // derives as `toIdentifierPascalCase(ensureSuffix(name, 'Schema'))` — using
+  // the raw name here would mis-case it (e.g. `userIdSchema` vs `UserIdSchema`).
   const sanitized = name.replace(/\./g, '')
-  const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${sanitized}Schema>` : mockBody
+  const schemaConst = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
+  const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${schemaConst}>` : mockBody
   return `function mock${sanitized}()${returnType}{return ${body}}` as const
 }
 
@@ -296,13 +358,121 @@ function makeAuthCheck(
   return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, 401)}`
 }
 
-function makeHandlerBody(
-  statusCode: number,
-  jsonSchema: Schema | undefined,
-  textSchema: Schema | undefined,
-  schemas: { readonly [k: string]: Schema },
-  allRefs: Set<string>,
-) {
+// Reads a media object's representative example. Mirrors the docs generator's
+// `extractMediaExample`: `example` (singular) wins, otherwise the first entry of
+// `examples`. `$ref` entries resolve against `components.examples`;
+// `externalValue`-only entries yield `undefined` (the value lives outside the
+// document) so the handler falls back to faker.
+function extractMediaExample(media: Media, components: Components | undefined): unknown {
+  if (media.example !== undefined) return media.example
+  if (!media.examples) return undefined
+  const first = Object.values(media.examples)[0]
+  if (!first) return undefined
+  if ('$ref' in first && typeof first.$ref === 'string') {
+    const name = first.$ref.split('/').at(-1)
+    const resolved = name ? components?.examples?.[name] : undefined
+    return resolved && 'value' in resolved ? resolved.value : undefined
+  }
+  return 'value' in first ? first.value : undefined
+}
+
+// Pagination query-parameter conventions. `cursor`/opaque tokens are excluded:
+// they cannot be turned into an array offset, so a `cursor`-only endpoint stays
+// on the plain (non-sliced) path.
+const PAGE_PARAM_NAMES: readonly string[] = ['page', 'pageNumber', 'page_number']
+const OFFSET_PARAM_NAMES: readonly string[] = ['offset', 'skip']
+const ROWS_PARAM_NAMES: readonly string[] = [
+  'rows',
+  'limit',
+  'perPage',
+  'per_page',
+  'pageSize',
+  'page_size',
+  'size',
+  'take',
+]
+
+// Detects page-size and page/offset query params on an `x-pagination` operation.
+// Returns `undefined` unless both a page-size param and a page/offset param are
+// present, so `c.req.valid('query')` is only emitted when the route actually
+// declares a query schema with those keys.
+function detectPagination(operation: Operation) {
+  if (operation['x-pagination'] !== true) return undefined
+  const queryParams = (operation.parameters ?? []).filter(
+    (p): p is Parameter => 'in' in p && p.in === 'query',
+  )
+  const rows = queryParams.find((p) => ROWS_PARAM_NAMES.includes(p.name))
+  if (!rows) return undefined
+  const pageParam = queryParams.find((p) => PAGE_PARAM_NAMES.includes(p.name))
+  const offsetParam = pageParam
+    ? undefined
+    : queryParams.find((p) => OFFSET_PARAM_NAMES.includes(p.name))
+  const cursor = pageParam ?? offsetParam
+  if (!cursor) return undefined
+  const defaultRows = typeof rows.schema?.default === 'number' ? rows.schema.default : 20
+  return {
+    rowsParam: rows.name,
+    cursorParam: cursor.name,
+    offsetStyle: offsetParam !== undefined,
+    defaultRows,
+  } as const
+}
+
+function makeHandlerBody(args: {
+  readonly statusCode: number
+  readonly jsonSchema: Schema | undefined
+  readonly textSchema: Schema | undefined
+  readonly schemas: { readonly [k: string]: Schema }
+  readonly allRefs: Set<string>
+  readonly exampleValue: unknown
+  readonly exampleCast: string | undefined
+  readonly pagination:
+    | {
+        readonly totalConst: string
+        readonly rowsParam: string
+        readonly cursorParam: string
+        readonly offsetStyle: boolean
+        readonly defaultRows: number
+      }
+    | undefined
+}) {
+  const {
+    statusCode,
+    jsonSchema,
+    textSchema,
+    schemas,
+    allRefs,
+    exampleValue,
+    exampleCast,
+    pagination,
+  } = args
+  // A spec-authored example is the strongest signal of intent: return it
+  // verbatim instead of faker. The cast mirrors the `x-brand` handling — an
+  // authored literal can be widened (e.g. `string` vs an enum/branded member),
+  // so it is pinned to the success schema's inferred type when that schema is a
+  // named `$ref`.
+  if (exampleValue !== undefined) {
+    const cast = exampleCast ? ` as z.infer<typeof ${exampleCast}>` : ''
+    return `return c.json(${JSON.stringify(exampleValue)}${cast}, ${statusCode})`
+  }
+  if (pagination && jsonSchema?.type === 'array' && jsonSchema.items) {
+    collectRefs(jsonSchema, allRefs)
+    const itemSchema = Array.isArray(jsonSchema.items) ? jsonSchema.items[0] : jsonSchema.items
+    const itemFaker = schemaToFaker(itemSchema, undefined, { schemas })
+    // `valid('query')` returns the coerced query (the route declares these as
+    // `z.coerce.number().default(...)`), so `rows`/`page` are already numbers.
+    // The pool size is a module-scope constant (not re-rolled per request) so
+    // page count is stable: the last page is reliably shorter than `rows`,
+    // which is what an infinite-query `getNextPageParam` checks to stop.
+    const startExpr = pagination.offsetStyle
+      ? `const start = query.${pagination.cursorParam} ?? 0`
+      : `const page = query.${pagination.cursorParam} ?? 1\nconst start = (page - 1) * rows`
+    return `const query = c.req.valid('query')
+const rows = query.${pagination.rowsParam} ?? ${pagination.defaultRows}
+${startExpr}
+const items = Array.from({ length: ${pagination.totalConst} }, () => (${itemFaker}))
+return c.json(items.slice(start, start + rows), ${statusCode})`
+  }
   if (jsonSchema) {
     collectRefs(jsonSchema, allRefs)
     const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
@@ -346,18 +516,51 @@ export function makeMock(
       const textMedia = successResponse?.content?.['text/plain']
       const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
       const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-      const handlerBody = makeHandlerBody(statusCode, jsonSchema, textSchema, schemas, allRefs)
+      const exampleValue = jsonMedia
+        ? extractMediaExample(jsonMedia, openapi.components)
+        : undefined
+      const exampleCast =
+        exampleValue !== undefined && jsonSchema?.$ref
+          ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
+          : undefined
+      const pag = detectPagination(operation)
+      // Pagination slicing applies only to a bare-array success response with no
+      // authored example (example wins). The pool-size constant is hoisted to
+      // module scope so repeated requests to the same page are stable.
+      const pagination =
+        pag && exampleValue === undefined && jsonSchema?.type === 'array' && jsonSchema.items
+          ? { totalConst: `${routeId}Total`, ...pag }
+          : undefined
+      const handlerBody = makeHandlerBody({
+        statusCode,
+        jsonSchema,
+        textSchema,
+        schemas,
+        allRefs,
+        exampleValue,
+        exampleCast,
+        pagination,
+      })
+      // Pool size is hoisted to module scope (stable across requests) and capped
+      // so a hostile spec `default` (e.g. `default: 1e9`) cannot blow up the
+      // `Array.from({ length })` allocation at mock startup.
+      const paginationDecl = pagination
+        ? `const ${pagination.totalConst} = faker.number.int({ min: 0, max: ${Math.min(pagination.defaultRows * 3, 3000)} })`
+        : ''
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)
       const usesContext = handlerBody.includes('c.') || authCheck !== ''
       const param = usesContext ? 'c' : '_c'
       const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${handlerBody}}`
-      return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
+      return [{ entry: { routeId, method, path: p, requiresAuth }, handler, paginationDecl }]
     }),
   )
   const routeMetas = processed.map(({ entry }) => entry)
   const handlers = processed.map(({ handler }) => handler)
+  const paginationDecls = processed.flatMap(({ paginationDecl }) =>
+    paginationDecl.length > 0 ? [paginationDecl] : [],
+  )
   const allDeps = new Set<string>()
   for (const ref of allRefs) {
     collectAllDependencies(ref, schemas, allDeps)
@@ -369,8 +572,33 @@ export function makeMock(
     .map((refName) =>
       makeMockFunction(refName, schemas[refName], schemas, circularSchemas.has(refName)),
     )
-  const components = openapi.components
-    ? componentsCode(openapi.components, {
+  // Emit only the schema consts a route can reach. Roots are every
+  // `#/components/schemas/X` referenced from the paths and from the non-schema
+  // component objects a route may `$ref` (responses, parameters, request
+  // bodies, headers); the closure then pulls in their transitive deps. Base
+  // models reached only via `is`/`allOf` from an unused model fall away (no
+  // unused-var), while everything `routeCode` references stays.
+  const rootRefs = collectSchemaRefs(filteredOpenapi.paths, new Set<string>())
+  if (openapi.components) {
+    collectSchemaRefs(openapi.components.responses, rootRefs)
+    collectSchemaRefs(openapi.components.parameters, rootRefs)
+    collectSchemaRefs(openapi.components.requestBodies, rootRefs)
+    collectSchemaRefs(openapi.components.headers, rootRefs)
+    collectSchemaRefs(openapi.components.callbacks, rootRefs)
+    collectSchemaRefs(openapi.components.pathItems, rootRefs)
+    collectSchemaRefs(openapi.components.links, rootRefs)
+  }
+  const usedSchemaNames = schemaClosure(rootRefs, schemas)
+  const filteredComponents = openapi.components
+    ? {
+        ...openapi.components,
+        schemas: Object.fromEntries(
+          Object.entries(schemas).filter(([name]) => usedSchemaNames.has(name)),
+        ),
+      }
+    : undefined
+  const components = filteredComponents
+    ? componentsCode(filteredComponents, {
         exportSchemasTypes: false,
         exportSchemas: false,
         exportParametersTypes: false,
@@ -402,7 +630,15 @@ import { faker } from '@faker-js/faker'${needsCookieImport ? `\nimport { getCook
 export const api = app${appSetup}
 
 export default app`
-  return [imports, components, routes, mockFunctions.join('\n\n'), handlersJoined, appCode]
+  return [
+    imports,
+    components,
+    routes,
+    mockFunctions.join('\n\n'),
+    paginationDecls.join('\n'),
+    handlersJoined,
+    appCode,
+  ]
     .filter((s) => s.length > 0)
     .join('\n\n')
 }
