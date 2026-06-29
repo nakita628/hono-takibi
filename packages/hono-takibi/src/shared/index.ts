@@ -370,7 +370,11 @@ export function makeJob(
           name: 'mock',
           output: config.mock.output,
           split: false,
-          run: (output: string) => mock(openAPI, output, config.basePath, config.readonly),
+          run: (output: string) =>
+            mock(openAPI, output, config.basePath, {
+              ...config.mock,
+              ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
+            }),
         }
       : undefined,
     config.docs

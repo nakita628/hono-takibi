@@ -486,6 +486,11 @@ export default defineConfig({
 
   mock: {
     output: './src/mock.ts',
+    useExamples: true,
+    locale: 'en',
+    delay: false,
+    arrayMin: 1,
+    arrayMax: 10,
   },
 
   docs: {

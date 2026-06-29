@@ -290,6 +290,100 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('mock option', () => {
+    it.concurrent('accepts the orval-aligned mock options', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: {
+          output: 'src/mock.ts',
+          useExamples: false,
+          locale: 'ja',
+          delay: 500,
+          arrayMin: 2,
+          arrayMax: 10,
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.mock?.output).toBe('src/mock.ts')
+        expect(result.value.mock?.useExamples).toBe(false)
+        expect(result.value.mock?.locale).toBe('ja')
+        expect(result.value.mock?.delay).toBe(500)
+        expect(result.value.mock?.arrayMin).toBe(2)
+        expect(result.value.mock?.arrayMax).toBe(10)
+      }
+    })
+
+    it.concurrent('accepts delay as a { min, max } range', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', delay: { min: 100, max: 500 } },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.mock?.delay).toStrictEqual({ min: 100, max: 500 })
+      }
+    })
+
+    it.concurrent('rejects a delay range with min greater than max', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', delay: { min: 500, max: 100 } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: mock.delay: delay.min must be <= delay.max. Swap the values or remove one.',
+        )
+      }
+    })
+
+    it.concurrent('accepts delay: false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', delay: false },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.mock?.delay).toBe(false)
+      }
+    })
+
+    it.concurrent('accepts arrayMin equal to arrayMax', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', arrayMin: 5, arrayMax: 5 },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('rejects arrayMin greater than arrayMax', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', arrayMin: 6, arrayMax: 5 },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: mock: arrayMin must be <= arrayMax. Swap the values or remove one.',
+        )
+      }
+    })
+
+    it.concurrent('rejects a locale that could break out of the import path', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        mock: { output: 'src/mock.ts', locale: '../../../etc/passwd' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          "Invalid config: mock.locale: Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
+        )
+      }
+    })
+  })
+
   describe('routes.import and webhooks.import', () => {
     it.concurrent('preserves routes.import through parsing', () => {
       const result = parseConfig({

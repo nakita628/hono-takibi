@@ -230,8 +230,38 @@ const ConfigSchema = z
     mock: z
       .object({
         output: FileOutputSchema,
+        useExamples: z.boolean().exactOptional(),
+        locale: z
+          .string()
+          .regex(/^[A-Za-z_]{1,40}$/, {
+            error: "Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
+          })
+          .exactOptional(),
+        delay: z
+          .union([
+            z.number().int().nonnegative().max(60000),
+            z.literal(false),
+            z
+              .object({
+                min: z.number().int().nonnegative().max(60000),
+                max: z.number().int().nonnegative().max(60000),
+              })
+              .readonly()
+              .refine((v) => v.min <= v.max, {
+                message: 'delay.min must be <= delay.max. Swap the values or remove one.',
+              }),
+          ])
+          .exactOptional(),
+        arrayMin: z.number().int().nonnegative().max(1000).exactOptional(),
+        arrayMax: z.number().int().nonnegative().max(1000).exactOptional(),
       })
       .readonly()
+      .refine(
+        (v) => v.arrayMin === undefined || v.arrayMax === undefined || v.arrayMin <= v.arrayMax,
+        {
+          message: 'arrayMin must be <= arrayMax. Swap the values or remove one.',
+        },
+      )
       .exactOptional(),
     docs: z
       .discriminatedUnion('curl', [

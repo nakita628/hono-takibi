@@ -25,7 +25,7 @@ const FORMAT_TO_FAKER: { [k: string]: string } = {
   gender: 'faker.person.gender()',
   bic: 'faker.finance.bic()',
   iban: 'faker.finance.iban()',
-  binary: 'new Blob([faker.string.alphanumeric(100)])',
+  binary: 'new File([faker.string.alphanumeric(100)], faker.system.fileName())',
   byte: 'btoa(faker.string.alphanumeric(10))',
   int32: 'faker.number.int({ min: -2147483648, max: 2147483647 })',
   int64: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
@@ -182,10 +182,15 @@ function isKnownScalar(
   return typeof resolved.type === 'string'
 }
 
+export type FakerOptions = {
+  readonly arrayMin?: number
+  readonly arrayMax?: number
+}
+
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
-  options: {
+  options: FakerOptions & {
     readonly useExamples?: boolean
     readonly schemas?: { readonly [k: string]: Schema }
   } = {},
@@ -208,7 +213,14 @@ export function schemaToFaker(
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
     if (!itemSchema) return '[]'
     const itemFaker = schemaToFaker(itemSchema, undefined, options)
-    return `Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (${itemFaker}))`
+    // A spec `minItems`/`maxItems` wins so the array satisfies the route's own
+    // response schema (which enforces them); `arrayMin`/`arrayMax` then `1`/`10`
+    // fill an unconstrained side. The default upper bound floors to `min` so a
+    // lone `minItems` never yields an inverted `{ min, max }` (an explicit
+    // `maxItems` is still honored verbatim, mirroring the numeric range).
+    const min = schema.minItems ?? options.arrayMin ?? 1
+    const max = schema.maxItems ?? options.arrayMax ?? Math.max(min, 10)
+    return `Array.from({ length: faker.number.int({ min: ${min}, max: ${max} }) }, () => (${itemFaker}))`
   }
   const renderProps = (
     properties: { readonly [k: string]: Schema },
@@ -218,6 +230,8 @@ export function schemaToFaker(
     return Object.entries(properties)
       .map(([k, v]) => {
         const value = schemaToFaker(v, k, options)
+        // An optional property may be absent and a nullable one may be null, so
+        // the mock exercises both — staying faithful to what the spec allows.
         if (!(requiredSet.has(k) || v.nullable)) {
           return `${k}: faker.helpers.arrayElement([${value}, undefined])`
         }
@@ -295,7 +309,7 @@ export function schemaToFaker(
         return `faker.helpers.fromRegExp(/${escapeRegexLiteral(schema.pattern)}/)`
       }
       const min = schema.minLength ?? 5
-      const max = schema.maxLength ?? 20
+      const max = schema.maxLength ?? Math.max(min, 20)
       return `faker.string.alpha({ length: { min: ${min}, max: ${max} } })`
     }
     if (schema.type === 'integer' || schema.type === 'number') {
