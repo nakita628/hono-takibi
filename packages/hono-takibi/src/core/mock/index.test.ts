@@ -85,8 +85,7 @@ describe('mock', () => {
         },
       },
     }
-    // readonly !== undefined takes the `{ readonly }` branch of the wrapper.
-    const result = await mock(openAPI, output, '/', true)
+    const result = await mock(openAPI, output, '/', { readonly: true })
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe(`Generated mock server written to ${output}`)

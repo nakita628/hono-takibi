@@ -6,22 +6,14 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import type {
-  Components,
-  Media,
-  OpenAPI,
-  Operation,
-  Parameter,
-  Responses,
-  Schema,
-} from '../../openapi/index.js'
+import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import {
   ensureSuffix,
   methodPath,
   statusCodeToNumber,
   toIdentifierPascalCase,
 } from '../../utils/index.js'
-import { schemaToFaker } from '../test/faker-mapping.js'
+import { type FakerOptions, schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
@@ -184,8 +176,9 @@ function makeMockFunction(
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
+  fakerOptions: FakerOptions,
 ) {
-  const mockBody = schemaToFaker(schema, undefined, { schemas })
+  const mockBody = schemaToFaker(schema, undefined, { schemas, ...fakerOptions })
   const returnType = isCircular ? ': any' : ''
   // When the schema is annotated with `x-brand`, the corresponding zod schema
   // is `.brand<"X">()` and the inferred type is `T & $brand<"X">`. The faker
@@ -376,75 +369,25 @@ function extractMediaExample(media: Media, components: Components | undefined): 
   return 'value' in first ? first.value : undefined
 }
 
-// Pagination query-parameter conventions. `cursor`/opaque tokens are excluded:
-// they cannot be turned into an array offset, so a `cursor`-only endpoint stays
-// on the plain (non-sliced) path.
-const PAGE_PARAM_NAMES: readonly string[] = ['page', 'pageNumber', 'page_number']
-const OFFSET_PARAM_NAMES: readonly string[] = ['offset', 'skip']
-const ROWS_PARAM_NAMES: readonly string[] = [
-  'rows',
-  'limit',
-  'perPage',
-  'per_page',
-  'pageSize',
-  'page_size',
-  'size',
-  'take',
-]
-
-// Detects page-size and page/offset query params on an `x-pagination` operation.
-// Returns `undefined` unless both a page-size param and a page/offset param are
-// present, so `c.req.valid('query')` is only emitted when the route actually
-// declares a query schema with those keys.
-function detectPagination(operation: Operation) {
-  if (operation['x-pagination'] !== true) return undefined
-  const queryParams = (operation.parameters ?? []).filter(
-    (p): p is Parameter => 'in' in p && p.in === 'query',
-  )
-  const rows = queryParams.find((p) => ROWS_PARAM_NAMES.includes(p.name))
-  if (!rows) return undefined
-  const pageParam = queryParams.find((p) => PAGE_PARAM_NAMES.includes(p.name))
-  const offsetParam = pageParam
-    ? undefined
-    : queryParams.find((p) => OFFSET_PARAM_NAMES.includes(p.name))
-  const cursor = pageParam ?? offsetParam
-  if (!cursor) return undefined
-  const defaultRows = typeof rows.schema?.default === 'number' ? rows.schema.default : 20
-  return {
-    rowsParam: rows.name,
-    cursorParam: cursor.name,
-    offsetStyle: offsetParam !== undefined,
-    defaultRows,
-  } as const
-}
-
 function makeHandlerBody(args: {
   readonly statusCode: number
   readonly jsonSchema: Schema | undefined
   readonly textSchema: Schema | undefined
   readonly schemas: { readonly [k: string]: Schema }
+  readonly fakerOptions: FakerOptions
   readonly allRefs: Set<string>
   readonly exampleValue: unknown
   readonly exampleCast: string | undefined
-  readonly pagination:
-    | {
-        readonly totalConst: string
-        readonly rowsParam: string
-        readonly cursorParam: string
-        readonly offsetStyle: boolean
-        readonly defaultRows: number
-      }
-    | undefined
 }) {
   const {
     statusCode,
     jsonSchema,
     textSchema,
     schemas,
+    fakerOptions,
     allRefs,
     exampleValue,
     exampleCast,
-    pagination,
   } = args
   // A spec-authored example is the strongest signal of intent: return it
   // verbatim instead of faker. The cast mirrors the `x-brand` handling — an
@@ -455,44 +398,57 @@ function makeHandlerBody(args: {
     const cast = exampleCast ? ` as z.infer<typeof ${exampleCast}>` : ''
     return `return c.json(${JSON.stringify(exampleValue)}${cast}, ${statusCode})`
   }
-  if (pagination && jsonSchema?.type === 'array' && jsonSchema.items) {
-    collectRefs(jsonSchema, allRefs)
-    const itemSchema = Array.isArray(jsonSchema.items) ? jsonSchema.items[0] : jsonSchema.items
-    const itemFaker = schemaToFaker(itemSchema, undefined, { schemas })
-    // `valid('query')` returns the coerced query (the route declares these as
-    // `z.coerce.number().default(...)`), so `rows`/`page` are already numbers.
-    // The pool size is a module-scope constant (not re-rolled per request) so
-    // page count is stable: the last page is reliably shorter than `rows`,
-    // which is what an infinite-query `getNextPageParam` checks to stop.
-    const startExpr = pagination.offsetStyle
-      ? `const start = query.${pagination.cursorParam} ?? 0`
-      : `const page = query.${pagination.cursorParam} ?? 1\nconst start = (page - 1) * rows`
-    return `const query = c.req.valid('query')
-const rows = query.${pagination.rowsParam} ?? ${pagination.defaultRows}
-${startExpr}
-const items = Array.from({ length: ${pagination.totalConst} }, () => (${itemFaker}))
-return c.json(items.slice(start, start + rows), ${statusCode})`
-  }
   if (jsonSchema) {
     collectRefs(jsonSchema, allRefs)
-    const mockData = schemaToFaker(jsonSchema, undefined, { schemas })
+    const mockData = schemaToFaker(jsonSchema, undefined, { schemas, ...fakerOptions })
     return `return c.json(${mockData}, ${statusCode})`
   }
   if (textSchema) {
-    const mockData = schemaToFaker(textSchema, undefined, { schemas })
+    const mockData = schemaToFaker(textSchema, undefined, { schemas, ...fakerOptions })
     return `return c.text(${mockData}, ${statusCode})`
   }
   if (statusCode === 204) return `return new Response(null, { status: 204 })`
   return `return c.body(null, ${statusCode})`
 }
 
-export function makeMock(
-  openapi: OpenAPI,
-  basePath: string,
-  options: {
-    readonly readonly?: boolean
-  } = {},
-) {
+export type MockOptions = FakerOptions & {
+  readonly readonly?: boolean
+  readonly useExamples?: boolean
+  readonly locale?: string
+  readonly delay?: number | { readonly min: number; readonly max: number } | false
+}
+
+// Builds the optional response-delay middleware. A fixed `number` sleeps that
+// many ms; a `{ min, max }` range sleeps a per-request random duration via
+// `faker.number.int`. `false`/omitted emit nothing, leaving the output
+// byte-identical to a mock without a delay. The middleware is cross-cutting (not
+// woven into handler bodies) so the response generators stay pure; `setTimeout`
+// is a WHATWG global, so the mock runs unchanged on Node, Bun, Deno and Workers.
+function delayMiddlewareCode(delay: MockOptions['delay']) {
+  const ms =
+    typeof delay === 'number'
+      ? `${delay}`
+      : typeof delay === 'object' && delay !== null
+        ? `faker.number.int({ min: ${delay.min}, max: ${delay.max} })`
+        : undefined
+  if (ms === undefined) return ''
+  return `\n\napp.use(async (_c, next) => {\n  await new Promise((resolve) => setTimeout(resolve, ${ms}))\n  await next()\n})`
+}
+
+export function makeMock(openapi: OpenAPI, basePath: string, options: MockOptions = {}) {
+  // Split the emit-shell knobs off; the rest is exactly `FakerOptions`, threaded
+  // into `schemaToFaker`. `useExamples` is destructured out (not threaded) so it
+  // gates the media-level example only (`extractMediaExample`); keeping it out of
+  // `fakerOptions` preserves the property-level example behavior in one place.
+  // It defaults to `true`: the mock has always preferred a spec-authored example.
+  const {
+    useExamples: useExamplesOption,
+    locale,
+    delay,
+    readonly: readonlyOption,
+    ...fakerOptions
+  } = options
+  const useExamples = useExamplesOption ?? true
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
@@ -516,51 +472,33 @@ export function makeMock(
       const textMedia = successResponse?.content?.['text/plain']
       const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
       const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-      const exampleValue = jsonMedia
-        ? extractMediaExample(jsonMedia, openapi.components)
-        : undefined
+      const exampleValue =
+        useExamples && jsonMedia ? extractMediaExample(jsonMedia, openapi.components) : undefined
       const exampleCast =
         exampleValue !== undefined && jsonSchema?.$ref
           ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
-          : undefined
-      const pag = detectPagination(operation)
-      // Pagination slicing applies only to a bare-array success response with no
-      // authored example (example wins). The pool-size constant is hoisted to
-      // module scope so repeated requests to the same page are stable.
-      const pagination =
-        pag && exampleValue === undefined && jsonSchema?.type === 'array' && jsonSchema.items
-          ? { totalConst: `${routeId}Total`, ...pag }
           : undefined
       const handlerBody = makeHandlerBody({
         statusCode,
         jsonSchema,
         textSchema,
         schemas,
+        fakerOptions,
         allRefs,
         exampleValue,
         exampleCast,
-        pagination,
       })
-      // Pool size is hoisted to module scope (stable across requests) and capped
-      // so a hostile spec `default` (e.g. `default: 1e9`) cannot blow up the
-      // `Array.from({ length })` allocation at mock startup.
-      const paginationDecl = pagination
-        ? `const ${pagination.totalConst} = faker.number.int({ min: 0, max: ${Math.min(pagination.defaultRows * 3, 3000)} })`
-        : ''
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)
       const usesContext = handlerBody.includes('c.') || authCheck !== ''
       const param = usesContext ? 'c' : '_c'
       const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${handlerBody}}`
-      return [{ entry: { routeId, method, path: p, requiresAuth }, handler, paginationDecl }]
+      return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
     }),
   )
   const routeMetas = processed.map(({ entry }) => entry)
   const handlers = processed.map(({ handler }) => handler)
-  const paginationDecls = processed.flatMap(({ paginationDecl }) =>
-    paginationDecl.length > 0 ? [paginationDecl] : [],
-  )
   const allDeps = new Set<string>()
   for (const ref of allRefs) {
     collectAllDependencies(ref, schemas, allDeps)
@@ -570,7 +508,13 @@ export function makeMock(
   const mockFunctions = sortedRefs
     .filter((refName) => schemas[refName])
     .map((refName) =>
-      makeMockFunction(refName, schemas[refName], schemas, circularSchemas.has(refName)),
+      makeMockFunction(
+        refName,
+        schemas[refName],
+        schemas,
+        circularSchemas.has(refName),
+        fakerOptions,
+      ),
     )
   // Emit only the schema consts a route can reach. Roots are every
   // `#/components/schemas/X` referenced from the paths and from the non-schema
@@ -614,31 +558,31 @@ export function makeMock(
         exportPathItems: false,
         exportMediaTypes: false,
         exportMediaTypesTypes: false,
-        ...(options.readonly !== undefined ? { readonly: options.readonly } : {}),
+        ...(readonlyOption !== undefined ? { readonly: readonlyOption } : {}),
       })
     : ''
-  const routes = routeCode(filteredOpenapi, options.readonly)
+  const routes = routeCode(filteredOpenapi, readonlyOption)
   const appSetup = routeMetas
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
     .join('')
   const handlersJoined = handlers.join('\n\n')
   const needsCookieImport = handlersJoined.includes('getCookie(c,')
+  // A faker locale swaps only the import specifier; the `faker` binding name is
+  // unchanged so every handler body stays byte-identical. The locale string is
+  // validated upstream (config) to a faker locale-code shape, so it cannot break
+  // out of the import path.
+  const fakerImport = locale
+    ? `import { faker } from '@faker-js/faker/locale/${locale}'`
+    : `import { faker } from '@faker-js/faker'`
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
-import { faker } from '@faker-js/faker'${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` : ''}`
-  const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}
+${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` : ''}`
+  const delayMiddleware = delayMiddlewareCode(delay)
+  const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}${delayMiddleware}
 
 export const api = app${appSetup}
 
 export default app`
-  return [
-    imports,
-    components,
-    routes,
-    mockFunctions.join('\n\n'),
-    paginationDecls.join('\n'),
-    handlersJoined,
-    appCode,
-  ]
+  return [imports, components, routes, mockFunctions.join('\n\n'), handlersJoined, appCode]
     .filter((s) => s.length > 0)
     .join('\n\n')
 }

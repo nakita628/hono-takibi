@@ -1025,7 +1025,7 @@ describe('makeTestFile - circular schema references', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
     )
   })
 
@@ -2688,7 +2688,7 @@ describe('makeTestFile - self-referential circular schema', () => {
     }
     const result = makeTestFile(spec)
     expect(result).toBe(
-      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
     )
   })
 })

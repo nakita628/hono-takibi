@@ -108,19 +108,19 @@ describe('schemaToFaker', () => {
   describe('array', () => {
     it.concurrent('generates array of strings', () => {
       expect(schemaToFaker({ type: 'array', items: { type: 'string' } })).toBe(
-        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
+        'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
       )
     })
 
     it.concurrent('generates array of integers', () => {
       expect(schemaToFaker({ type: 'array', items: { type: 'integer' } })).toBe(
-        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.number.int({ min: 1, max: 1000 })))',
+        'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.number.int({ min: 1, max: 1000 })))',
       )
     })
 
     it.concurrent('generates array of $ref', () => {
       expect(schemaToFaker({ type: 'array', items: { $ref: '#/components/schemas/Tag' } })).toBe(
-        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (mockTag()))',
+        'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTag()))',
       )
     })
   })
@@ -232,6 +232,12 @@ describe('schemaToFaker', () => {
 
     it.concurrent('uses format for uuid', () => {
       expect(schemaToFaker({ type: 'string', format: 'uuid' })).toBe('faker.string.uuid()')
+    })
+
+    it.concurrent('generates a File for binary (matches the z.file() / File response type)', () => {
+      expect(schemaToFaker({ type: 'string', format: 'binary' })).toBe(
+        'new File([faker.string.alphanumeric(100)], faker.system.fileName())',
+      )
     })
 
     it.concurrent('generates a number for int32 (z.int32() is a number)', () => {
@@ -519,7 +525,7 @@ describe('schemaToFaker', () => {
         items: [{ type: 'string' as const }, { type: 'integer' as const }],
       }
       expect(schemaToFaker(schema)).toBe(
-        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
+        'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.string.alpha({ length: { min: 5, max: 20 } })))',
       )
     })
 
@@ -711,6 +717,100 @@ describe('schemaToFaker', () => {
     it.concurrent('passes through inverted minimum/maximum unchanged', () => {
       expect(schemaToFaker({ type: 'integer', minimum: 10, maximum: 5 })).toBe(
         'faker.number.int({ min: 10, max: 5 })',
+      )
+    })
+  })
+
+  describe('FakerOptions', () => {
+    it.concurrent('defaults array length to min 1 max 10 when bounds are omitted', () => {
+      expect(schemaToFaker({ type: 'array', items: { type: 'boolean' } })).toBe(
+        'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('applies arrayMin and arrayMax to generated array length', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' } }, undefined, {
+          arrayMin: 2,
+          arrayMax: 10,
+        }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 2, max: 10 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('keeps arrayMin 0 instead of coercing the falsy value to 1', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' } }, undefined, { arrayMin: 0 }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 0, max: 10 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('uses schema minItems and maxItems for array length', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' }, minItems: 2, maxItems: 5 }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 2, max: 5 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('lets schema minItems and maxItems win over arrayMin and arrayMax', () => {
+      expect(
+        schemaToFaker(
+          { type: 'array', items: { type: 'boolean' }, minItems: 2, maxItems: 4 },
+          undefined,
+          {
+            arrayMin: 1,
+            arrayMax: 99,
+          },
+        ),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 2, max: 4 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('floors the default upper bound to minItems so a lone minItems never inverts', () => {
+      expect(schemaToFaker({ type: 'array', items: { type: 'boolean' }, minItems: 20 })).toBe(
+        'Array.from({ length: faker.number.int({ min: 20, max: 20 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('fills the lower bound from default when only maxItems is set', () => {
+      expect(schemaToFaker({ type: 'array', items: { type: 'boolean' }, maxItems: 5 })).toBe(
+        'Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('passes an inverted minItems/maxItems through unchanged (input is source of truth)', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' }, minItems: 5, maxItems: 3 }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 5, max: 3 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('floors the default string max to minLength so a lone minLength never inverts', () => {
+      expect(schemaToFaker({ type: 'string', minLength: 25 })).toBe(
+        'faker.string.alpha({ length: { min: 25, max: 25 } })',
+      )
+    })
+
+    it.concurrent('defaults string length to min 5 max 20 when bounds are omitted', () => {
+      expect(schemaToFaker({ type: 'string' })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('wraps optional and nullable properties by default', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          properties: { a: { type: 'string' }, b: { type: 'string', nullable: true } },
+          required: ['b'],
+        }),
+      ).toBe(
+        '{ a: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), b: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]) }',
       )
     })
   })
