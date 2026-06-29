@@ -1833,7 +1833,7 @@ export default app
 `)
     })
 
-    it('prefers a response example over x-pagination slicing', async () => {
+    it('prefers a response example over faker on an x-pagination operation', async () => {
       const spec: OpenAPI = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
@@ -1921,7 +1921,7 @@ export default app
   })
 
   describe('x-pagination list handler', () => {
-    it('slices a bare-array response by page/rows against a stable module-scope pool', async () => {
+    it('returns a plain faker array without page/rows slicing (orval-aligned)', async () => {
       const spec: OpenAPI = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
@@ -1993,20 +1993,260 @@ function mockPost() {
   return { id: faker.number.int({ min: 1, max: 99999 }) }
 }
 
-const getPostsTotal = faker.number.int({ min: 0, max: 60 })
-
 const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
-  const query = c.req.valid('query')
-  const rows = query.rows ?? 20
-  const page = query.page ?? 1
-  const start = (page - 1) * rows
-  const items = Array.from({ length: getPostsTotal }, () => mockPost())
-  return c.json(items.slice(start, start + rows), 200)
+  return c.json(
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockPost()),
+    200,
+  )
 }
 
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getPostsRoute, getPostsRouteHandler)
+
+export default app
+`)
+    })
+  })
+
+  describe('locale', () => {
+    it('imports the localized faker entry when locale is set', async () => {
+      const result = await fmt(makeMock(minimalOpenAPI, '/', { locale: 'ja' }))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker/locale/ja'
+
+export const getHealthRoute = createRoute({
+  method: 'get',
+  path: '/health',
+  operationId: 'getHealth',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  return c.json(
+    {
+      status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    })
+  })
+
+  describe('delay', () => {
+    it('emits a delay middleware when delay is a number', async () => {
+      const result = await fmt(makeMock(minimalOpenAPI, '/', { delay: 1000 }))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getHealthRoute = createRoute({
+  method: 'get',
+  path: '/health',
+  operationId: 'getHealth',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  return c.json(
+    {
+      status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+app.use(async (_c, next) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await next()
+})
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    })
+
+    it('emits a random-range delay middleware when delay is { min, max }', async () => {
+      const result = await fmt(makeMock(minimalOpenAPI, '/', { delay: { min: 100, max: 500 } }))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getHealthRoute = createRoute({
+  method: 'get',
+  path: '/health',
+  operationId: 'getHealth',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  return c.json(
+    {
+      status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+app.use(async (_c, next) => {
+  await new Promise((resolve) => setTimeout(resolve, faker.number.int({ min: 100, max: 500 })))
+  await next()
+})
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    })
+
+    it('omits the delay middleware when delay is false', async () => {
+      const withFalse = await fmt(makeMock(minimalOpenAPI, '/', { delay: false }))
+      const without = await fmt(makeMock(minimalOpenAPI, '/'))
+      if (!withFalse.ok) throw new Error(withFalse.error)
+      if (!without.ok) throw new Error(without.error)
+      expect(withFalse.value).toBe(without.value)
+    })
+  })
+
+  describe('useExamples', () => {
+    const exampleOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Example API', version: '1.0.0' },
+      paths: {
+        '/ping': {
+          get: {
+            operationId: 'getPing',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { msg: { type: 'string' } } },
+                    example: { msg: 'pong' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    it('returns the spec example verbatim by default', async () => {
+      const result = await fmt(makeMock(exampleOpenAPI, '/'))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getPingRoute = createRoute({
+  method: 'get',
+  path: '/ping',
+  operationId: 'getPing',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z.object({ msg: z.string().exactOptional() }),
+          example: { msg: 'pong' },
+        },
+      },
+    },
+  },
+})
+
+const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  return c.json({ msg: 'pong' }, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getPingRoute, getPingRouteHandler)
+
+export default app
+`)
+    })
+
+    it('fakes the response instead of the example when useExamples is false', async () => {
+      const result = await fmt(makeMock(exampleOpenAPI, '/', { useExamples: false }))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getPingRoute = createRoute({
+  method: 'get',
+  path: '/ping',
+  operationId: 'getPing',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z.object({ msg: z.string().exactOptional() }),
+          example: { msg: 'pong' },
+        },
+      },
+    },
+  },
+})
+
+const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  return c.json(
+    {
+      msg: faker.helpers.arrayElement([
+        faker.string.alpha({ length: { min: 5, max: 20 } }),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getPingRoute, getPingRouteHandler)
 
 export default app
 `)
