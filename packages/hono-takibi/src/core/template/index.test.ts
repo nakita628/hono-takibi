@@ -37,12 +37,12 @@ describe('template', () => {
       expect(result.value).toBe('🔥 Generated code and template files written')
     }
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
-    expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
   })
 
-  it('writes handlers to a custom output directory and imports from there', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-output-'))
-    const output = path.join(tmpDir, 'routes.ts')
+  it('treats a server/index.ts output as a module dir: app and handlers go one level up', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-dirmodule-'))
+    const output = path.join(tmpDir, 'server', 'index.ts')
     const openAPI: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
@@ -57,59 +57,17 @@ describe('template', () => {
         },
       },
     }
-    const result = await template(
-      openAPI,
-      output,
-      false,
-      '/',
-      undefined,
-      undefined,
-      false,
-      'vitest',
-      path.join(tmpDir, 'controllers'),
-    )
+    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
     expect(result.ok).toBe(true)
-    // handlers go to the custom dir, not the default `handlers`
-    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
-    expect(fs.existsSync(path.join(tmpDir, 'handlers'))).toBe(false)
+    // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
+    expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
-      "import { healthHandler } from './controllers'",
+      "import { healthHandler } from './handlers'",
     )
-  })
-
-  it('resolves a custom output directory through a pathAlias', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-alias-'))
-    const output = path.join(tmpDir, 'routes.ts')
-    const openAPI: OpenAPI = {
-      openapi: '3.1.0',
-      info: { title: 'Test API', version: '1.0.0' },
-      paths: {
-        '/health': {
-          get: {
-            operationId: 'healthCheck',
-            responses: {
-              '200': { description: 'OK' },
-            },
-          },
-        },
-      },
-    }
-    const result = await template(
-      openAPI,
-      output,
-      false,
-      '/',
-      '@/',
-      undefined,
-      false,
-      'vitest',
-      path.join(tmpDir, 'controllers'),
-    )
-    expect(result.ok).toBe(true)
-    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
-      "import { healthHandler } from '@/controllers'",
-    )
+    expect(
+      fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf-8').split('\n'),
+    ).toContain("import { getHealthRoute } from '../server'")
   })
 
   it('merges into an existing app file, preserving custom imports', async () => {

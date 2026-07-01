@@ -7,6 +7,8 @@ export default defineConfig({
   test: {
     include: ['packages/**/src/**/*.test.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', 'apps/**'],
+    // process.chdir-based tests (bare index.ts outputs) rely on per-file process isolation.
+    pool: 'forks',
     coverage: {
       include: ['packages/hono-takibi/src/**/*.ts'],
       exclude: ['**/*.test.ts', '**/*.d.ts', '**/node_modules/**', '**/dist/**'],

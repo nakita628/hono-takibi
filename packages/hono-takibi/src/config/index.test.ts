@@ -623,23 +623,116 @@ describe('parseConfig()', () => {
       })
       expect(result.ok).toBe(true)
       if (result.ok) {
-        const tpl = result.value.template
-        expect(tpl?.define).toBe(true)
-        if (tpl?.define === true) {
-          expect(tpl.output).toBe('src/routes')
-        }
+        expect(result.value.template?.define).toBe(true)
       }
     })
 
-    it.concurrent('fails when define is true but output is missing', () => {
+    it.concurrent('passes when define is true and output is omitted', () => {
       const result = parseConfig({
         input: 'openapi.yaml',
+        template: { define: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.output).toBe(undefined)
+        expect(result.value.template?.define).toBe(true)
+      }
+    })
+
+    it.concurrent('fails when define is true and output is not an index.ts file', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: './src/routes.ts',
         template: { define: true },
       })
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(result.error).toBe(
-          'Invalid config: template.define requires output (the app entry file, e.g. ./src/index.ts).',
+          'Invalid config: with template.define, output is the app entry and must be an index.ts file (e.g. ./src/index.ts), or omitted to default to src/index.ts. Other names collide with the derived routes/ directory.',
+        )
+      }
+    })
+
+    it.concurrent('passes when define is true and output is a relocated index.ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: './server/index.ts',
+        template: { define: true },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes when define is true and output is a bare index.ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: 'index.ts',
+        template: { define: true },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('fails when define is true and a per-type component output is specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { schemas: { output: 'src/schemas', split: true } },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: with template.define, per-type component outputs (components.schemas, components.responses, ...) are not supported. Use components.output for a single components file.',
+        )
+      }
+    })
+
+    it.concurrent('passes when define is true and components.output is specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: 'shared/components.ts' },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('fails when define is true and components.output hits the app entry', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: './src/index.ts',
+        template: { define: true },
+        components: { output: 'src/index.ts' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+        )
+      }
+    })
+
+    it.concurrent('fails when define is true and components.output is inside the derived routes dir', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: './src/routes/index.ts' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+        )
+      }
+    })
+
+    it.concurrent('fails when define is true and routes is specified', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        routes: { output: 'src/routes.ts' },
+        template: { define: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: template.define and routes are mutually exclusive. define derives routes/ next to the app entry (output, default src/index.ts).',
         )
       }
     })
@@ -662,85 +755,25 @@ describe('parseConfig()', () => {
       expect(result.ok).toBe(true)
     })
 
-    it.concurrent('passes with template.output and define', () => {
-      const result = parseConfig({
+    it.concurrent('ignores a removed template.output key in both variants', () => {
+      const defineResult = parseConfig({
         input: 'openapi.yaml',
         output: 'src/index.ts',
-        template: { define: true, output: 'src/routes' },
+        template: { define: true, output: 'src/controllers' },
       })
-      expect(result.ok).toBe(true)
-    })
-
-    it.concurrent('keeps template.output in the non-define variant', () => {
-      const result = parseConfig({
+      expect(defineResult.ok).toBe(true)
+      if (defineResult.ok) {
+        expect('output' in (defineResult.value.template ?? {})).toBe(false)
+      }
+      const nonDefineResult = parseConfig({
         input: 'openapi.yaml',
         output: 'src/index.ts',
         template: { output: 'src/controllers' },
       })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.template?.define).toBe(false)
-        expect(result.value.template?.output).toBe('src/controllers')
-      }
-    })
-
-    it.concurrent('fails when template.output is a .ts file', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        output: 'src/index.ts',
-        template: { define: true, output: 'src/routes.ts' },
-      })
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: template.output: template.output must be a directory, not a .ts file',
-        )
-      }
-    })
-  })
-
-  describe('template.output default (define mode)', () => {
-    it.concurrent('defaults template.output to src/routes when omitted in define mode', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        output: 'src/index.ts',
-        template: { define: true },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        const tpl = result.value.template
-        expect(tpl?.define).toBe(true)
-        if (tpl?.define === true) {
-          expect(tpl.output).toBe('src/routes')
-        }
-      }
-    })
-
-    it.concurrent('keeps an explicit template.output unchanged', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        output: 'src/index.ts',
-        template: { define: true, output: 'controllers' },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        const tpl = result.value.template
-        expect(tpl?.define).toBe(true)
-        if (tpl?.define === true) {
-          expect(tpl.output).toBe('controllers')
-        }
-      }
-    })
-
-    it.concurrent('leaves template.output undefined when define is false', () => {
-      const result = parseConfig({
-        input: 'openapi.yaml',
-        output: 'src/index.ts',
-        template: { routeHandler: true },
-      })
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.template?.define).toBe(false)
+      expect(nonDefineResult.ok).toBe(true)
+      if (nonDefineResult.ok) {
+        expect(nonDefineResult.value.template?.define).toBe(false)
+        expect('output' in (nonDefineResult.value.template ?? {})).toBe(false)
       }
     })
   })
