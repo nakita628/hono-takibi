@@ -16,32 +16,30 @@ export async function defineTemplate(
   basePath: string,
   pathAlias: string | undefined,
   routeImport: string | undefined,
-  handlerDir: string,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
-  // The generated route/handler directory (resolved in config). Everything else
-  // (app import specifier, handler write path, test import) derives from it.
-  const baseDir = path.dirname(output)
+  // The generated route/handler directory always sits next to the app entry
+  // (`dirname(target)/routes`). Everything else (app import specifier, handler
+  // write path, test import) derives from it.
+  const baseDir = path.dirname(target)
+  const handlerDir = baseDir === '.' ? 'routes' : `${baseDir}/routes`
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
-  // The alias maps to the app entry's directory, so resolve the handler dir relative to it
-  // (keeps nested dirs like `src/api/controllers` → `@/api/controllers`, not just the basename).
   const handlerImport = aliasPrefix
-    ? `${aliasPrefix}/${path.relative(baseDir, handlerDir).replaceAll('\\', '/')}`
-    : makeModuleSpec(output, { output: handlerDir })
+    ? `${aliasPrefix}/routes`
+    : makeModuleSpec(target, { output: handlerDir })
   const [appFmtResult, handlersResult] = await Promise.all([
     fmt(app(openAPI, output, basePath, pathAlias, routeImport, false, true, handlerImport)),
     defineOpenAPIRouteHandler(
       openAPI,
-      output,
+      target,
       componentsOutput,
       test,
       pathAlias,
       basePath,
       testFramework,
       readonly,
-      handlerDir,
     ),
   ])
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error } as const

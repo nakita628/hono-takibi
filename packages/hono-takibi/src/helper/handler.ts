@@ -116,12 +116,7 @@ function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
   return `${path.basename(fileName, '.ts')}.test.ts`
 }
 
-function makePaths(
-  output: string,
-  pathAlias: string | undefined,
-  routeImport?: string,
-  handlerDir?: string,
-) {
+function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
   const isDot = output === '.' || output === './'
   const isIndexFile = !isDot && output.endsWith('/index.ts')
   const baseDir = isDot
@@ -129,7 +124,7 @@ function makePaths(
     : isIndexFile
       ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
       : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
-  const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
+  const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : output.endsWith('.ts')
@@ -427,7 +422,6 @@ export async function zodOpenAPIHonoHandler(
   routeHandler = false,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
-  handlerDir?: string,
 ) {
   const paths = openapi.paths
   const handlers = makeMergedHandlers(
@@ -441,12 +435,7 @@ export async function zodOpenAPIHonoHandler(
         ),
     ),
   )
-  const { handlerPath, importFrom, testImportFrom } = makePaths(
-    output,
-    pathAlias,
-    routeImport,
-    handlerDir,
-  )
+  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
@@ -538,7 +527,6 @@ export async function defineOpenAPIRouteHandler(
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
-  handlerDir?: string,
 ) {
   const handlers = defineEntries(openapi, readonly).reduce<
     ReadonlyMap<
@@ -561,7 +549,7 @@ export async function defineOpenAPIRouteHandler(
     })
   }, new Map())
   const baseDir = path.dirname(output)
-  const handlerPath = handlerDir ?? (baseDir === '.' ? 'handlers' : `${baseDir}/handlers`)
+  const handlerPath = baseDir === '.' ? 'routes' : `${baseDir}/routes`
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
   // The alias maps to the app entry's directory; resolve the components module relative to it

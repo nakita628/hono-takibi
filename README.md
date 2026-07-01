@@ -200,7 +200,6 @@ export default app
 ```ts
 export default defineConfig({
   input: 'openapi.yaml',
-  output: './src/index.ts',
   template: { define: true },
 })
 ```
@@ -221,7 +220,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 })
 ```
 
-Component schemas go to `components/index.ts` (override with `components.output`). Set `template.output` to change the route directory (default `./src/routes`).
+The app entry defaults to `src/index.ts` (override with `output`, which must be an `index.ts` path such as `./server/index.ts`). Route files always go to `routes/` next to the app entry, and component schemas to `components/index.ts` (override with `components.output`).
 
 ## Client Library Integrations
 
@@ -305,7 +304,7 @@ export default defineConfig({
 
 ## Full Config Reference
 
-Some options are mutually exclusive: `output` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
+Some options are mutually exclusive: `output` ↔ `routes`, `template.define` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
@@ -313,7 +312,7 @@ import { defineConfig } from 'hono-takibi/config'
 export default defineConfig({
   input: 'openapi.yaml',
 
-  output: './src/routes.ts', // single-file mode; with template.define, the app entry (required)
+  output: './src/routes.ts', // single-file mode; with template.define, the app entry (an index.ts path, default ./src/index.ts)
   basePath: '/api',
   readonly: true,
   // format: {}, // oxfmt FormatConfig
@@ -322,7 +321,6 @@ export default defineConfig({
     test: true,
     routeHandler: false, // true: RouteHandler exports
     define: false, // true: defineOpenAPIRoute output
-    // output: './src/routes', // define mode dir (default ./src/routes)
     pathAlias: '@/',
     testFramework: 'vitest', // "vitest" | "vite-plus" | "bun"
   },
