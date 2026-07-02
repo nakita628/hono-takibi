@@ -681,6 +681,12 @@ describe('schemaToFaker', () => {
     it.concurrent('keeps the name hint for an unconstrained string', () => {
       expect(schemaToFaker({ type: 'string' }, 'name')).toBe('faker.person.fullName()')
     })
+
+    it.concurrent('treats minLength 0 as a constraint over the name hint', () => {
+      expect(schemaToFaker({ type: 'string', minLength: 0 }, 'name')).toBe(
+        'faker.string.alpha({ length: { min: 0, max: 20 } })',
+      )
+    })
   })
 
   describe('exclusive bounds', () => {

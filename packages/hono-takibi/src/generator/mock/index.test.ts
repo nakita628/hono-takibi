@@ -2286,11 +2286,15 @@ export default app
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
-Object.defineProperty(BigInt.prototype, 'toJSON', {
-  value(this: bigint) {
-    return this.toString()
-  },
-})
+if (typeof BigInt.prototype.toJSON !== 'function') {
+  Object.defineProperty(BigInt.prototype, 'toJSON', {
+    value(this: bigint) {
+      return this.toString()
+    },
+    writable: true,
+    configurable: true,
+  })
+}
 
 export const getBigRoute = createRoute({
   method: 'get',
@@ -2353,11 +2357,15 @@ export default app
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
-Object.defineProperty(BigInt.prototype, 'toJSON', {
-  value(this: bigint) {
-    return this.toString()
-  },
-})
+if (typeof BigInt.prototype.toJSON !== 'function') {
+  Object.defineProperty(BigInt.prototype, 'toJSON', {
+    value(this: bigint) {
+      return this.toString()
+    },
+    writable: true,
+    configurable: true,
+  })
+}
 
 const CounterSchema = z
   .object({ total: z.bigint() })

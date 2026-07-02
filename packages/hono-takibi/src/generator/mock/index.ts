@@ -567,14 +567,18 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
     .join('')
   const handlersJoined = handlers.join('\n\n')
   const mockFunctionsJoined = mockFunctions.join('\n\n')
-  // `format: int64`/`bigint` mocks to a `bigint` (matching the zod schema's
-  // inferred type), but `JSON.stringify` throws on BigInt, so `c.json` would
-  // return 500. The `toJSON` hook serializes it as a decimal string — the
-  // conventional wire form for 64-bit integers in JSON.
+  // The generator mocks `format: int64`/`bigint` as a `bigint` (matching the
+  // zod schema's inferred type), but `JSON.stringify` throws on BigInt, so
+  // `c.json` would return 500. The `toJSON` hook serializes it as a decimal
+  // string — the conventional wire form for 64-bit integers in JSON. The
+  // `typeof` guard keeps the hook idempotent (a second mock file or another
+  // library defining it first must not throw), and `writable`/`configurable`
+  // mirror `Date.prototype.toJSON` so the hook stays removable; `enumerable`
+  // stays false so the key never leaks into spreads.
   const bigIntSerializer = `${mockFunctionsJoined}\n${handlersJoined}`.includes(
     'faker.number.bigInt(',
   )
-    ? `Object.defineProperty(BigInt.prototype, 'toJSON', {\n  value(this: bigint) {\n    return this.toString()\n  },\n})`
+    ? `if(typeof BigInt.prototype.toJSON!=='function'){Object.defineProperty(BigInt.prototype,'toJSON',{value(this:bigint){return this.toString()},writable:true,configurable:true})}`
     : ''
   const needsCookieImport = handlersJoined.includes('getCookie(c,')
   // A faker locale swaps only the import specifier; the `faker` binding name is
