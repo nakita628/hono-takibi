@@ -2,7 +2,7 @@ import ts from 'typescript'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
-import { ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
+import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
 function makeSourceFile(code: string) {
   return ts.createSourceFile('temp.ts', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
@@ -19,157 +19,26 @@ function getChildren(node: ts.Node): readonly ts.Node[] {
 }
 
 function collectIdentifiers(node: ts.Node): readonly string[] {
-  const visit = (n: ts.Node): readonly string[] => {
-    const current: readonly string[] = ts.isIdentifier(n) ? [n.text] : []
-    const children: readonly string[] = getChildren(n).flatMap(visit)
-    return [...current, ...children]
-  }
-  return visit(node)
-}
-
-function extractIdentifiers(code: string, varNames: ReadonlySet<string>) {
-  const sourceFile = makeSourceFile(code)
-  const allIdentifiers = collectIdentifiers(sourceFile)
-  const found = new Set(allIdentifiers.filter((id) => varNames.has(id)))
-  return [...found] as const
-}
-
-function createInitialState(): {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: readonly string[]
-  readonly sccs: readonly (readonly string[])[]
-  readonly index: number
-} {
-  return {
-    indices: new Map<string, number>(),
-    lowLinks: new Map<string, number>(),
-    onStack: new Set<string>(),
-    stack: [],
-    sccs: [],
-    index: 0,
-  }
-}
-
-function popStackUntil(
-  stack: readonly string[],
-  onStack: Set<string>,
-  name: string,
-): {
-  readonly scc: readonly string[]
-  readonly newStack: readonly string[]
-  readonly newOnStack: Set<string>
-} {
-  const idx = stack.lastIndexOf(name)
-  if (idx === -1) return { scc: [], newStack: stack, newOnStack: onStack }
-  const scc = stack.slice(idx)
-  const newStack = stack.slice(0, idx)
-  const newOnStack = new Set([...onStack].filter((n) => !scc.includes(n)))
-  return { scc, newStack, newOnStack }
-}
-
-function tarjanConnect(
-  name: string,
-  deps: ReadonlyMap<string, readonly string[]>,
-  var2name: ReadonlyMap<string, string>,
-  state: {
-    readonly indices: Map<string, number>
-    readonly lowLinks: Map<string, number>
-    readonly onStack: Set<string>
-    readonly stack: readonly string[]
-    readonly sccs: readonly (readonly string[])[]
-    readonly index: number
-  },
-): {
-  readonly indices: Map<string, number>
-  readonly lowLinks: Map<string, number>
-  readonly onStack: Set<string>
-  readonly stack: readonly string[]
-  readonly sccs: readonly (readonly string[])[]
-  readonly index: number
-} {
-  const currentIndex = state.index
-  const indices = new Map(state.indices).set(name, currentIndex)
-  const lowLinks = new Map(state.lowLinks).set(name, currentIndex)
-  const stack: readonly string[] = [...state.stack, name]
-  const onStack = new Set([...state.onStack, name])
-  const initialState: {
-    readonly indices: Map<string, number>
-    readonly lowLinks: Map<string, number>
-    readonly onStack: Set<string>
-    readonly stack: readonly string[]
-    readonly sccs: readonly (readonly string[])[]
-    readonly index: number
-  } = {
-    ...state,
-    indices,
-    lowLinks,
-    stack,
-    onStack,
-    index: currentIndex + 1,
-  }
-
-  const afterDeps = (deps.get(name) ?? []).reduce<{
-    readonly indices: Map<string, number>
-    readonly lowLinks: Map<string, number>
-    readonly onStack: Set<string>
-    readonly stack: readonly string[]
-    readonly sccs: readonly (readonly string[])[]
-    readonly index: number
-  }>((s, depVar) => {
-    const depName = var2name.get(depVar)
-    if (depName === undefined) return s
-
-    if (!s.indices.has(depName)) {
-      const afterConnect = tarjanConnect(depName, deps, var2name, s)
-      const newLowLink = Math.min(
-        afterConnect.lowLinks.get(name) ?? 0,
-        afterConnect.lowLinks.get(depName) ?? 0,
-      )
-      const updatedLowLinks = new Map(afterConnect.lowLinks).set(name, newLowLink)
-      return { ...afterConnect, lowLinks: updatedLowLinks }
-    }
-    if (s.onStack.has(depName)) {
-      const newLowLink = Math.min(s.lowLinks.get(name) ?? 0, s.indices.get(depName) ?? 0)
-      const updatedLowLinks = new Map(s.lowLinks).set(name, newLowLink)
-      return { ...s, lowLinks: updatedLowLinks }
-    }
-    return s
-  }, initialState)
-
-  if (afterDeps.lowLinks.get(name) === afterDeps.indices.get(name)) {
-    const { scc, newStack, newOnStack } = popStackUntil(afterDeps.stack, afterDeps.onStack, name)
-    return {
-      ...afterDeps,
-      stack: newStack,
-      onStack: newOnStack,
-      sccs: [...afterDeps.sccs, scc],
+  const identifiers: string[] = []
+  const visit = (n: ts.Node): void => {
+    if (ts.isIdentifier(n)) identifiers.push(n.text)
+    for (const child of getChildren(n)) {
+      visit(child)
     }
   }
-
-  return afterDeps
+  visit(node)
+  return identifiers
 }
 
-function findCyclicSchemas(
-  names: readonly string[],
-  deps: ReadonlyMap<string, readonly string[]>,
-): ReadonlySet<string> {
-  const name2var = new Map(names.map((n) => [n, toIdentifierPascalCase(ensureSuffix(n, 'Schema'))]))
+function findCyclicSchemas(names: readonly string[], deps: ReadonlyMap<string, readonly string[]>) {
   const var2name = new Map(names.map((n) => [toIdentifierPascalCase(ensureSuffix(n, 'Schema')), n]))
-  const finalState = names.reduce(
-    (state, n) => (state.indices.has(n) ? state : tarjanConnect(n, deps, var2name, state)),
-    createInitialState(),
+  const nameDeps = new Map(
+    names.map((n) => [
+      n,
+      (deps.get(n) ?? []).map((v) => var2name.get(v)).filter((x) => x !== undefined),
+    ]),
   )
-  return new Set(
-    finalState.sccs.flatMap((scc) => {
-      if (scc.length > 1) return [...scc]
-      const single = scc[0]
-      if (!single) return []
-      const selfVar = name2var.get(single)
-      return selfVar && (deps.get(single) ?? []).includes(selfVar) ? [single] : []
-    }),
-  )
+  return cyclicNodes(nameDeps)
 }
 
 export function analyzeCircularSchemas(
@@ -189,11 +58,29 @@ export function analyzeCircularSchemas(
       zodToOpenAPI(schemas[n], undefined, readonly === true ? { readonly: true } : undefined),
     ]),
   )
+  const batchedSource = makeSourceFile(
+    schemaNames
+      .map(
+        (n) => `const ${toIdentifierPascalCase(ensureSuffix(n, 'Schema'))} = ${zSchemaMap.get(n)}`,
+      )
+      .join('\n'),
+  )
+  const initializerIdentifiers = new Map(
+    batchedSource.statements.flatMap((statement) => {
+      if (!ts.isVariableStatement(statement)) return []
+      const declaration = statement.declarationList.declarations[0]
+      if (!(declaration && ts.isIdentifier(declaration.name) && declaration.initializer)) return []
+      return [[declaration.name.text, collectIdentifiers(declaration.initializer)] as const]
+    }),
+  )
   const depsMap = new Map(
     schemaNames.map((n) => {
-      const code = zSchemaMap.get(n) ?? ''
       const selfVar = toIdentifierPascalCase(ensureSuffix(n, 'Schema'))
-      return [n, extractIdentifiers(code, varNameSet).filter((v) => v !== selfVar)]
+      const identifiers = initializerIdentifiers.get(selfVar) ?? []
+      return [
+        n,
+        [...new Set(identifiers.filter((id) => varNameSet.has(id)))].filter((v) => v !== selfVar),
+      ]
     }),
   )
   const cyclicSchemas = findCyclicSchemas(schemaNames, depsMap)
@@ -310,36 +197,26 @@ function topoSort(
     map.get(makeKey('variable', name)) ??
     map.get(makeKey('type', name)) ??
     map.get(makeKey('interface', name))
-  const visit = (
-    key: string,
-    state: {
-      readonly sorted: readonly {
-        readonly name: string
-        readonly fullText: string
-        readonly refs: readonly string[]
-        readonly kind: 'variable' | 'type' | 'interface'
-      }[]
-      readonly perm: ReadonlySet<string>
-      readonly temp: ReadonlySet<string>
-    },
-  ): typeof state => {
-    if (state.perm.has(key) || state.temp.has(key)) return state
+  const sorted: ReturnType<typeof createDeclaration>[] = []
+  const perm = new Set<string>()
+  const temp = new Set<string>()
+  const visit = (key: string): void => {
+    if (perm.has(key) || temp.has(key)) return
     const decl = map.get(key)
-    if (!decl) return state
-
-    const withTemp: typeof state = { ...state, temp: new Set([...state.temp, key]) }
-    const afterRefs = decl.refs
-      .map((ref) => findByName(ref))
-      .filter((d) => d !== undefined)
-      .reduce((s, d) => visit(makeKey(d.kind, d.name), s), withTemp)
-    return {
-      sorted: [...afterRefs.sorted, decl],
-      perm: new Set([...afterRefs.perm, key]),
-      temp: new Set([...afterRefs.temp].filter((t) => t !== key)),
+    if (!decl) return
+    temp.add(key)
+    for (const ref of decl.refs) {
+      const found = findByName(ref)
+      if (found) visit(makeKey(found.kind, found.name))
     }
+    temp.delete(key)
+    perm.add(key)
+    sorted.push(decl)
   }
-  const initial: Parameters<typeof visit>[1] = { sorted: [], perm: new Set(), temp: new Set() }
-  return decls.reduce((state, d) => visit(makeKey(d.kind, d.name), state), initial).sorted
+  for (const decl of decls) {
+    visit(makeKey(decl.kind, decl.name))
+  }
+  return sorted
 }
 
 export function ast(code: string) {

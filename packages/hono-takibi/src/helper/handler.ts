@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
 import { schemaToFaker } from '../generator/test/faker-mapping.js'
-import { makeHandlerTestCode } from '../generator/test/index.js'
+import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
 import {
@@ -436,6 +436,7 @@ export async function zodOpenAPIHonoHandler(
     ),
   )
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
@@ -456,7 +457,7 @@ export async function zodOpenAPIHonoHandler(
       const content = finalFmtResult.ok ? finalFmtResult.value : merged
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (test) {
+      if (handlerTestContext) {
         const testContent = makeHandlerTestCode(
           openapi,
           `${handlerPath}/${handler.fileName}`,
@@ -464,6 +465,7 @@ export async function zodOpenAPIHonoHandler(
           testImportFrom,
           basePath,
           testFramework,
+          handlerTestContext,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -580,6 +582,7 @@ export async function defineOpenAPIRouteHandler(
       { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
     ]),
   )
+  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const handlerList = [...handlers.values()]
@@ -600,7 +603,7 @@ export async function defineOpenAPIRouteHandler(
       const content = finalFmtResult.ok ? finalFmtResult.value : merged
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (test) {
+      if (handlerTestContext) {
         const testContent = makeHandlerTestCode(
           openapi,
           `${handlerPath}/${handler.fileName}`,
@@ -608,6 +611,7 @@ export async function defineOpenAPIRouteHandler(
           testImportFrom,
           basePath,
           testFramework,
+          handlerTestContext,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)
@@ -685,6 +689,7 @@ export async function mockZodOpenAPIHonoHandler(
     ),
   )
   const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
   const results = await Promise.all([
@@ -705,7 +710,7 @@ export async function mockZodOpenAPIHonoHandler(
       const content = finalFmtResult.ok ? finalFmtResult.value : merged
       const writeResult = await writeFile(filePath, content)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (test) {
+      if (handlerTestContext) {
         const testContent = makeHandlerTestCode(
           openapi,
           `${handlerPath}/${handler.fileName}`,
@@ -713,6 +718,7 @@ export async function mockZodOpenAPIHonoHandler(
           testImportFrom,
           basePath,
           testFramework,
+          handlerTestContext,
         )
         if (testContent) {
           const testFmtResult = await fmt(testContent)

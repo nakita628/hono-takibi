@@ -8,6 +8,7 @@ import {
 } from '../../guard/index.js'
 import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import {
+  cyclicNodes,
   ensureSuffix,
   methodPath,
   statusCodeToNumber,
@@ -92,38 +93,9 @@ function topologicalSort(
 }
 
 function detectCircularSchemas(schemas: { readonly [k: string]: Schema }) {
-  const circular = new Set<string>()
-  for (const name of Object.keys(schemas)) {
-    const schema = schemas[name]
-    if (!schema) continue
-    for (const dep of collectRefs(schema)) {
-      if (dep === name) {
-        circular.add(name)
-        break
-      }
-      const visited = new Set<string>()
-      const stack = [dep]
-      while (stack.length > 0) {
-        const current = stack[stack.length - 1]
-        stack.length -= 1
-        if (current === undefined) break
-        if (current === name) {
-          circular.add(name)
-          break
-        }
-        if (visited.has(current)) continue
-        visited.add(current)
-        const s = schemas[current]
-        if (s) {
-          for (const r of collectRefs(s)) {
-            stack.push(r)
-          }
-        }
-      }
-      if (circular.has(name)) break
-    }
-  }
-  return circular
+  return cyclicNodes(
+    new Map(Object.entries(schemas).map(([name, schema]) => [name, [...collectRefs(schema)]])),
+  )
 }
 
 // Collects every `#/components/schemas/X` reference reachable by walking an
