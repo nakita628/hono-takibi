@@ -107,7 +107,14 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'rpc' }
   }),
-  takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
+  // Writes through the real fsp writeFile with the received document embedded,
+  // so an identical document produces byte-identical output and no rewrite.
+  takibi: vi.fn(async (openAPI: unknown, output: string) => {
+    const { writeFile } = await import('../fsp/index.js')
+    await fsp.mkdir(path.dirname(output), { recursive: true })
+    await writeFile(output, `// ${JSON.stringify(openAPI)}`)
+    return { ok: true, value: 'takibi' }
+  }),
   template: vi.fn(async () => ({ ok: true, value: 'template' })),
   test: vi.fn(async () => ({ ok: true, value: 'test' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
@@ -131,15 +138,6 @@ vi.mock('../format/index.js', () => ({
   fmt: vi.fn(async (source: string) => ({ ok: true as const, value: String(source) })),
   setFormatOptions: vi.fn(),
 }))
-vi.mock('../fsp/index.js', () => ({
-  mkdir: vi.fn(async () => ({ ok: true })),
-  writeFile: vi.fn(async (filePath: string, content: string) => {
-    await fsp.mkdir(path.dirname(filePath), { recursive: true })
-    await fsp.writeFile(filePath, content, 'utf8')
-    return { ok: true }
-  }),
-}))
-
 const { route: routeMock } = await import('../core/index.js')
 
 const testState: { previousWorkingDirectory: string; sandboxDirectory: string } = {
@@ -562,7 +560,7 @@ describe('honoTakibiVite', () => {
 
   // --- runAllGenerationTasks: error paths ---
 
-  it('logs error when parseOpenAPI fails', async () => {
+  it('logs error and does not send full-reload when parseOpenAPI fails', async () => {
     const { parseOpenAPI } = await import('../openapi/index.js')
     vi.mocked(parseOpenAPI).mockImplementationOnce(async () => ({
       ok: false,
@@ -574,13 +572,18 @@ describe('honoTakibiVite', () => {
       routes: { output: 'out/route', split: true },
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const { server, reloaded } = createMockViteDevServer(configuration)
+    const { server } = createMockViteDevServer(configuration)
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await reloaded
+    await vi.waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('❌ parseOpenAPI: parse failure'))
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('❌ parseOpenAPI: parse failure'))
+    expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
     logSpy.mockRestore()
   })
 
@@ -616,18 +619,19 @@ describe('honoTakibiVite', () => {
       'svelte-query': { output: 'out/svelte/index.ts', import: '@svl' },
       'vue-query': { output: 'out/vue/index.ts', import: '@vue' },
     }
-    const { server, reloaded } = createMockViteDevServer(configuration)
+    const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await reloaded
 
     const core = await import('../core/index.js')
-    expect(core.takibi).toHaveBeenCalled()
-    expect(core.type).toHaveBeenCalled()
-    expect(core.mock).toHaveBeenCalled()
-    expect(core.docs).toHaveBeenCalled()
-    expect(core.test).toHaveBeenCalled()
-    expect(core.rpc).toHaveBeenCalled()
+    await vi.waitFor(() => {
+      expect(core.takibi).toHaveBeenCalled()
+      expect(core.type).toHaveBeenCalled()
+      expect(core.mock).toHaveBeenCalled()
+      expect(core.docs).toHaveBeenCalled()
+      expect(core.test).toHaveBeenCalled()
+      expect(core.rpc).toHaveBeenCalled()
+    })
     const hookLibraries = vi.mocked(core.hooks).mock.calls.map((call) => call[3])
     expect(hookLibraries).toContain('swr')
     expect(hookLibraries).toContain('tanstack-query')
@@ -653,23 +657,24 @@ describe('honoTakibiVite', () => {
         mediaTypes: { output: 'out/mediaTypes.ts' },
       },
     }
-    const { server, reloaded } = createMockViteDevServer(configuration)
+    const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await reloaded
 
     const core = await import('../core/index.js')
-    expect(core.parameters).toHaveBeenCalled()
-    expect(core.headers).toHaveBeenCalled()
-    expect(core.securitySchemes).toHaveBeenCalled()
-    expect(core.requestBodies).toHaveBeenCalled()
-    expect(core.responses).toHaveBeenCalled()
-    expect(core.examples).toHaveBeenCalled()
-    expect(core.links).toHaveBeenCalled()
-    expect(core.callbacks).toHaveBeenCalled()
-    expect(core.pathItems).toHaveBeenCalled()
-    expect(core.mediaTypes).toHaveBeenCalled()
-    expect(core.webhooks).toHaveBeenCalled()
+    await vi.waitFor(() => {
+      expect(core.parameters).toHaveBeenCalled()
+      expect(core.headers).toHaveBeenCalled()
+      expect(core.securitySchemes).toHaveBeenCalled()
+      expect(core.requestBodies).toHaveBeenCalled()
+      expect(core.responses).toHaveBeenCalled()
+      expect(core.examples).toHaveBeenCalled()
+      expect(core.links).toHaveBeenCalled()
+      expect(core.callbacks).toHaveBeenCalled()
+      expect(core.pathItems).toHaveBeenCalled()
+      expect(core.mediaTypes).toHaveBeenCalled()
+      expect(core.webhooks).toHaveBeenCalled()
+    })
   })
 
   it('logs error when a generator returns failure result', async () => {
@@ -683,15 +688,15 @@ describe('honoTakibiVite', () => {
       output: 'out/single.ts' as const,
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const { server, reloaded } = createMockViteDevServer(configuration)
+    const { server } = createMockViteDevServer(configuration)
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await reloaded
-
-    expect(logSpy.mock.calls.some(([msg]) => /takibi internal failure/.test(String(msg)))).toBe(
-      true,
-    )
+    await vi.waitFor(() => {
+      expect(logSpy.mock.calls.some(([msg]) => /takibi internal failure/.test(String(msg)))).toBe(
+        true,
+      )
+    })
     logSpy.mockRestore()
   })
 
@@ -715,15 +720,266 @@ describe('honoTakibiVite', () => {
     errorSpy.mockRestore()
   })
 
-  it('skips generation when config has no outputs', async () => {
+  it('does not send full-reload when config has no outputs', async () => {
     const configuration = { input: 'openapi.yaml' }
+    const { server } = createMockViteDevServer(configuration)
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+
+    const { parseOpenAPI } = await import('../openapi/index.js')
+    await vi.waitFor(() => {
+      expect(parseOpenAPI).toHaveBeenCalled()
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
+  })
+
+  // --- input content hash short-circuit ---
+
+  it('skips regeneration (including split cleanup) when watched input contents are unchanged', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
     const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await reloaded
 
-    // No throw → success path covered. Verify ws.send still called.
-    // (Falls into runGenerationAndReload which still triggers full-reload.)
+    // A skipped run must not run the split cleanup either, or this file would vanish.
+    await fsp.writeFile('out/route/marker.ts', '// not produced by generators', 'utf8')
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await vi.waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
+    })
+
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun)
+    expect(await fileExists('out/route/marker.ts')).toBe(true)
+    expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
+    logSpy.mockRestore()
+  })
+
+  it('regenerates when a declared output is missing even if input is unchanged', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    await fsp.rm('out/route', { recursive: true, force: true })
+    const reloadDeferred = createDeferred<void>()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') reloadDeferred.resolve()
+    }
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await reloadDeferred.promise
+
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    expect(fs.existsSync('out/route')).toBe(true)
+  })
+
+  it('config change regenerates even when input is unchanged, then unchanged input skips', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+    if (watcherCallback) await watcherCallback('change', configPath)
+    await vi.waitFor(() => {
+      expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    })
+
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await vi.waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
+    })
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    logSpy.mockRestore()
+  })
+
+  it('regenerates on every event when watched input files are absent', async () => {
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    const firstReload = createDeferred<void>()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') firstReload.resolve()
+    }
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await firstReload.promise
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+
+    const secondReload = createDeferred<void>()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') secondReload.resolve()
+    }
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await secondReload.promise
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 2)
+  })
+
+  it('serializes an overlapping config-change run with an in-flight input-change run', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const configLoadState = { count: 0 }
+    server.ssrLoadModule = async (_moduleId: string) => {
+      configLoadState.count++
+      return { default: configuration }
+    }
+    const gate = createDeferred<void>()
+    vi.mocked(routeMock).mockImplementationOnce(async () => {
+      await gate.promise
+      return { ok: true, value: 'Generated route code written to out/route' } as const
+    })
+
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0\ninfo:\n  title: changed', 'utf8')
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await vi.waitFor(() => {
+      expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    })
+
+    const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+    const configEvent = watcherCallback ? watcherCallback('change', configPath) : undefined
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    expect(configLoadState.count).toBe(0)
+
+    gate.resolve()
+    await vi.waitFor(() => {
+      expect(configLoadState.count).toBe(1)
+    })
+    await configEvent
+  })
+
+  it('regenerates when watched input content changes', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      routes: { output: 'out/route', split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
+    const reloadDeferred = createDeferred<void>()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') reloadDeferred.resolve()
+    }
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0\ninfo:\n  title: changed', 'utf8')
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await reloadDeferred.promise
+
+    expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
+  })
+
+  // --- output snapshot: reload only when output files change ---
+
+  it('does not send full-reload when regenerated outputs are byte-identical', async () => {
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
+    const configuration = {
+      input: 'openapi.yaml',
+      output: 'out/single.ts',
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback as typeof watcherCallback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+
+    const core = await import('../core/index.js')
+    const callsAfterInitialRun = vi.mocked(core.takibi).mock.calls.length
+    const sendSpy = vi.fn()
+    server.ws.send = (payload) => sendSpy(payload)
+    // Input bytes change (hash short-circuit does not engage) but the parsed
+    // document is identical, so the regenerated output is byte-identical and
+    // the real writeFile leaves the file untouched.
+    await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0 # comment only', 'utf8')
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await vi.waitFor(() => {
+      expect(vi.mocked(core.takibi).mock.calls.length).toBe(callsAfterInitialRun + 1)
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
   })
 })
