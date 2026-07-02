@@ -67,18 +67,34 @@ export function useInfiniteGetPaginationItems<TError = unknown>(
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pagination.items.$get>>>>
       >,
       TError
-    > & { swrKey?: SWRInfiniteKeyLoader }
+    > & {
+      swrKey?: (
+        index: number,
+        previousPageData: Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pagination.items.$get>>>>
+        > | null,
+      ) => readonly [...ReturnType<typeof getGetPaginationItemsInfiniteKey>, number]
+    }
     options?: ClientRequestOptions
+    pagination: {
+      getRequestArgs: (
+        args: InferRequestType<typeof client.pagination.items.$get>,
+        index: number,
+      ) => InferRequestType<typeof client.pagination.items.$get>
+    }
   },
 ) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions, pagination } = options
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
     customKeyLoader ??
     ((index: number) => [...getGetPaginationItemsInfiniteKey(args), index] as const)
   return useSWRInfinite(
     keyLoader,
-    async () => parseResponse(client.pagination.items.$get(args, clientOptions)),
+    ([, , , , index]: readonly [...ReturnType<typeof getGetPaginationItemsInfiniteKey>, number]) =>
+      parseResponse(
+        client.pagination.items.$get(pagination.getRequestArgs(args, index), clientOptions),
+      ),
     restSwrOptions,
   )
 }

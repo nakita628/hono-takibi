@@ -55,16 +55,27 @@ export function useInfiniteGetPaginationFeeds<TError = unknown>(options: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pagination.feeds.$get>>>>
     >,
     TError
-  > & { swrKey?: SWRInfiniteKeyLoader }
+  > & {
+    swrKey?: (
+      index: number,
+      previousPageData: Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pagination.feeds.$get>>>>
+      > | null,
+    ) => readonly [...ReturnType<typeof getGetPaginationFeedsInfiniteKey>, number]
+  }
   options?: ClientRequestOptions
+  pagination: {
+    getRequestArgs: (index: number) => InferRequestType<typeof client.pagination.feeds.$get>
+  }
 }) {
-  const { swr: swrOptions, options: clientOptions } = options ?? {}
+  const { swr: swrOptions, options: clientOptions, pagination } = options
   const { swrKey: customKeyLoader, ...restSwrOptions } = swrOptions ?? {}
   const keyLoader =
     customKeyLoader ?? ((index: number) => [...getGetPaginationFeedsInfiniteKey(), index] as const)
   return useSWRInfinite(
     keyLoader,
-    async () => parseResponse(client.pagination.feeds.$get(undefined, clientOptions)),
+    ([, , , index]: readonly [...ReturnType<typeof getGetPaginationFeedsInfiniteKey>, number]) =>
+      parseResponse(client.pagination.feeds.$get(pagination.getRequestArgs(index), clientOptions)),
     restSwrOptions,
   )
 }

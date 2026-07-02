@@ -201,10 +201,6 @@ const SchemaEdgeCasesDynamicMapSchema = z
   .record(z.string(), z.string())
   .openapi('SchemaEdgeCasesDynamicMap')
 
-const SchemaEdgeCasesAnyOfExampleSchema = z
-  .union([z.string(), z.int(), z.boolean()])
-  .openapi('SchemaEdgeCasesAnyOfExample')
-
 const CallbacksLinksSubscriptionRequestSchema = z
   .object({ callbackUrl: z.url(), events: z.array(z.enum(['created', 'updated', 'deleted'])) })
   .openapi({ required: ['callbackUrl', 'events'] })
@@ -279,16 +275,6 @@ const CrudRefsCreateCommentSchema = z
   .object({ body: z.string() })
   .openapi({ required: ['body'] })
   .openapi('CrudRefsCreateComment')
-
-const CrudRefsPaginationSchema = z
-  .object({ page: z.int(), limit: z.int(), total: z.int() })
-  .openapi({ required: ['page', 'limit', 'total'] })
-  .openapi('CrudRefsPagination')
-
-const CrudRefsErrorSchema = z
-  .object({ code: z.int(), message: z.string() })
-  .openapi({ required: ['code', 'message'] })
-  .openapi('CrudRefsError')
 
 const ComprehensiveAddressSchema = z
   .object({
@@ -1771,7 +1757,10 @@ export const postContentTypesUploadRoute = createRoute({
       content: {
         'multipart/form-data': {
           schema: z
-            .object({ file: z.file(), description: z.string().exactOptional() })
+            .object({
+              file: z.file().openapi({ type: 'string', format: 'binary' }),
+              description: z.string().exactOptional(),
+            })
             .openapi({ required: ['file'] }),
         },
       },
@@ -2638,7 +2627,10 @@ export const postComprehensiveUploadImageRoute = createRoute({
       content: {
         'multipart/form-data': {
           schema: z
-            .object({ image: z.file(), alt: z.string().exactOptional() })
+            .object({
+              image: z.file().openapi({ type: 'string', format: 'binary' }),
+              alt: z.string().exactOptional(),
+            })
             .openapi({ required: ['image'] }),
         },
       },
@@ -3989,7 +3981,7 @@ function mockAllExportsUser() {
 }
 
 function mockAllExportsUserList() {
-  return Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockAllExportsUser())
+  return Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockAllExportsUser())
 }
 
 function mockCircularRefsTreeNode(): any {
@@ -3997,7 +3989,7 @@ function mockCircularRefsTreeNode(): any {
     id: faker.number.int({ min: 1, max: 99999 }),
     value: faker.string.alpha({ length: { min: 5, max: 20 } }),
     children: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockCircularRefsTreeNode(),
       ),
       undefined,
@@ -4096,7 +4088,7 @@ function mockCallbacksLinksSubscription() {
   return {
     id: faker.string.alpha({ length: { min: 5, max: 20 } }),
     callbackUrl: faker.internet.url(),
-    events: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+    events: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
       faker.string.alpha({ length: { min: 5, max: 20 } }),
     ),
     status: faker.helpers.arrayElement(['active', 'paused', 'cancelled'] as const),
@@ -4126,7 +4118,7 @@ function mockCrudRefsPost() {
     body: faker.string.alpha({ length: { min: 5, max: 20 } }),
     author: mockCrudRefsAuthor(),
     tags: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockCrudRefsTag()),
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockCrudRefsTag()),
       undefined,
     ]),
     createdAt: faker.date.past().toISOString(),
@@ -4177,10 +4169,10 @@ function mockComprehensiveProduct() {
     id: faker.number.int({ min: 1, max: 99999 }),
     name: faker.person.fullName(),
     description: faker.helpers.arrayElement([faker.lorem.paragraph(), undefined]),
-    price: faker.number.float({ min: 1, max: 10000, fractionDigits: 2 }),
+    price: faker.number.float({ min: 0, max: 1000, fractionDigits: 2 }),
     category: mockComprehensiveCategory(),
     tags: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         faker.string.alpha({ length: { min: 5, max: 20 } }),
       ),
       undefined,
@@ -4206,7 +4198,7 @@ function mockComprehensiveReview() {
 function mockComprehensiveOrderItem() {
   return {
     product: mockComprehensiveProduct(),
-    quantity: faker.number.int({ min: 1, max: 100 }),
+    quantity: faker.number.int({ min: 1, max: 1000 }),
     price: faker.number.float({ min: 1, max: 10000, fractionDigits: 2 }),
   }
 }
@@ -4215,7 +4207,7 @@ function mockComprehensiveOrder() {
   return {
     id: faker.number.int({ min: 1, max: 99999 }),
     user: mockComprehensiveUser(),
-    items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+    items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
       mockComprehensiveOrderItem(),
     ),
     status: faker.helpers.arrayElement([
@@ -4568,7 +4560,7 @@ function mockComplexSchemasCategory(): any {
     name: faker.person.fullName(),
     parent: faker.helpers.arrayElement([mockComplexSchemasCategory(), undefined]),
     children: faker.helpers.arrayElement([
-      Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockComplexSchemasCategory(),
       ),
       undefined,
@@ -4616,7 +4608,9 @@ function mockPaginationItem() {
 
 function mockPaginationItemsPage() {
   return {
-    items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockPaginationItem()),
+    items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
+      mockPaginationItem(),
+    ),
     nextCursor: faker.helpers.arrayElement([
       faker.string.alpha({ length: { min: 5, max: 20 } }),
       undefined,
@@ -4754,7 +4748,7 @@ const getParametersMergeItemsRouteHandler: RouteHandler<
 > = async (c) => {
   return c.json(
     {
-      items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockParametersMergeItem(),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -4820,7 +4814,9 @@ const postCallbacksLinksWebhooksTestRouteHandler: RouteHandler<
 const getCrudRefsPostsRouteHandler: RouteHandler<typeof getCrudRefsPostsRoute> = async (c) => {
   return c.json(
     {
-      posts: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockCrudRefsPost()),
+      posts: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
+        mockCrudRefsPost(),
+      ),
       total: faker.number.int({ min: 1, max: 1000 }),
     },
     200,
@@ -4849,7 +4845,7 @@ const getCrudRefsPostsIdCommentsRouteHandler: RouteHandler<
   typeof getCrudRefsPostsIdCommentsRoute
 > = async (c) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockCrudRefsComment()),
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockCrudRefsComment()),
     200,
   )
 }
@@ -4862,7 +4858,7 @@ const postCrudRefsPostsIdCommentsRouteHandler: RouteHandler<
 
 const getCrudRefsTagsRouteHandler: RouteHandler<typeof getCrudRefsTagsRoute> = async (c) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockCrudRefsTag()),
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockCrudRefsTag()),
     200,
   )
 }
@@ -4872,7 +4868,7 @@ const getComprehensiveUsersRouteHandler: RouteHandler<typeof getComprehensiveUse
 ) => {
   return c.json(
     {
-      users: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      users: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockComprehensiveUser(),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -4910,7 +4906,7 @@ const getComprehensiveProductsRouteHandler: RouteHandler<
 > = async (c) => {
   return c.json(
     {
-      products: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      products: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockComprehensiveProduct(),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -4941,7 +4937,7 @@ const getComprehensiveProductsProductIdReviewsRouteHandler: RouteHandler<
   typeof getComprehensiveProductsProductIdReviewsRoute
 > = async (c) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockComprehensiveReview()),
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockComprehensiveReview()),
     200,
   )
 }
@@ -4957,7 +4953,7 @@ const getComprehensiveOrdersRouteHandler: RouteHandler<typeof getComprehensiveOr
 ) => {
   return c.json(
     {
-      orders: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      orders: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockComprehensiveOrder(),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -4982,7 +4978,9 @@ const getComprehensiveCategoriesRouteHandler: RouteHandler<
   typeof getComprehensiveCategoriesRoute
 > = async (c) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockComprehensiveCategory()),
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
+      mockComprehensiveCategory(),
+    ),
     200,
   )
 }
@@ -5088,7 +5086,7 @@ const getCallbacksFieldItemsRouteHandler: RouteHandler<typeof getCallbacksFieldI
   c,
 ) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => ({
       id: faker.string.alpha({ length: { min: 5, max: 20 } }),
       name: faker.person.fullName(),
     })),
@@ -5101,13 +5099,13 @@ const getArrayObjectConstraintsTagsRouteHandler: RouteHandler<
 > = async (c) => {
   return c.json(
     {
-      tags: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      tags: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         faker.string.alpha({ length: { min: 5, max: 20 } }),
       ),
-      ids: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      ids: Array.from({ length: faker.number.int({ min: 1, max: 100 }) }, () =>
         faker.number.int({ min: 1, max: 1000 }),
       ),
-      labels: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      labels: Array.from({ length: faker.number.int({ min: 3, max: 3 }) }, () =>
         faker.string.alpha({ length: { min: 5, max: 20 } }),
       ),
     },
@@ -5162,7 +5160,7 @@ const getTrailingSlashPostsIndexRouteHandler: RouteHandler<
 > = async (c) => {
   return c.json(
     {
-      items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         faker.string.alpha({ length: { min: 5, max: 20 } }),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -5194,7 +5192,7 @@ const getTrailingSlashItemsIndexRouteHandler: RouteHandler<
 > = async (c) => {
   return c.json(
     {
-      items: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      items: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         faker.string.alpha({ length: { min: 5, max: 20 } }),
       ),
     },
@@ -5207,7 +5205,7 @@ const getReadonlyRefUsersRouteHandler: RouteHandler<typeof getReadonlyRefUsersRo
 ) => {
   return c.json(
     {
-      users: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () =>
+      users: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
         mockReadonlyRefUser(),
       ),
       total: faker.number.int({ min: 1, max: 1000 }),
@@ -5238,7 +5236,7 @@ const getReadonlyRefItemsRouteHandler: RouteHandler<typeof getReadonlyRefItemsRo
   c,
 ) => {
   return c.json(
-    Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => mockReadonlyRefItem()),
+    Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockReadonlyRefItem()),
     200,
   )
 }
@@ -5249,7 +5247,7 @@ const getTrailingSlashRealApiReverseGeocodeIndexRouteHandler: RouteHandler<
   return c.json(
     {
       status: faker.helpers.arrayElement(['success', 'zero results', 'error'] as const),
-      results: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
+      results: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => ({
         region: faker.string.alpha({ length: { min: 5, max: 20 } }),
         city: faker.location.city(),
         code: faker.string.alpha({ length: { min: 5, max: 20 } }),
