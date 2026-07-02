@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { extractTestCases, makeHandlerTestCode, makeTestFile } from './test-generator.js'
+import {
+  extractTestCases,
+  makeHandlerTestCode,
+  makeHandlerTestContext,
+  makeTestFile,
+} from './test-generator.js'
 
 // ─── Fixtures ───────────────────────────────────────────────────
 
@@ -456,6 +461,71 @@ describe('makeHandlerTestCode', () => {
   it('non-matching handler — empty string', () => {
     const result = makeHandlerTestCode(pathParamSpec, 'handlers/users.ts', [], '../app')
     expect(result).toBe('')
+  })
+
+  it('with precomputed context — same output as without', () => {
+    const context = makeHandlerTestContext(pathParamSpec)
+    const result = makeHandlerTestCode(
+      pathParamSpec,
+      'handlers/tasks.ts',
+      [],
+      '../app',
+      '/',
+      'vitest',
+      context,
+    )
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Tasks',()=>{describe('GET /tasks/{taskId}',()=>{it('should return 200 - Get task',async()=>{const taskId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/tasks/${taskId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/tasks/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n",
+    )
+  })
+
+  it('with precomputed context — circular schema mock output matches default', () => {
+    const circularSpec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Circular Handler API', version: '1.0.0' },
+      paths: {
+        '/nodes': {
+          post: {
+            operationId: 'createNode',
+            summary: 'Create node',
+            requestBody: {
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/TreeNode' } },
+              },
+            },
+            responses: { '201': { description: 'Created' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          TreeNode: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              children: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/TreeNode' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const withContext = makeHandlerTestCode(
+      circularSpec,
+      'handlers/nodes.ts',
+      [],
+      '../app',
+      '/',
+      'vitest',
+      makeHandlerTestContext(circularSpec),
+    )
+    const withoutContext = makeHandlerTestCode(circularSpec, 'handlers/nodes.ts', [], '../app')
+    expect(withContext).toBe(withoutContext)
+    expect(withContext).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTreeNode(): any {\n  return { id: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n",
+    )
   })
 
   it('with basePath', () => {

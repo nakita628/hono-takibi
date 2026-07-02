@@ -5,6 +5,8 @@ import { pathToFileURL } from 'node:url'
 import { type FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
+import { deriveAppEntry } from '../utils/index.js'
+
 const DirectoryOutputSchema = z.string().regex(/^(?!.*\.ts$).+/, {
   error: 'split mode requires directory, not .ts file',
 })
@@ -113,12 +115,6 @@ const ConfigSchema = z
         z
           .object({
             define: z.literal(true),
-            output: z
-              .string()
-              .regex(/^(?!.*\.ts$).+/, {
-                error: 'template.output must be a directory, not a .ts file',
-              })
-              .default('src/routes'),
             test: z.boolean().default(false),
             pathAlias: z.string().exactOptional(),
             testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
@@ -128,12 +124,6 @@ const ConfigSchema = z
           .object({
             define: z.literal(false).optional().default(false),
             routeHandler: z.boolean().default(false),
-            output: z
-              .string()
-              .regex(/^(?!.*\.ts$).+/, {
-                error: 'template.output must be a directory, not a .ts file',
-              })
-              .exactOptional(),
             test: z.boolean().default(false),
             pathAlias: z.string().exactOptional(),
             testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
@@ -293,9 +283,64 @@ const ConfigSchema = z
     message:
       'output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
   })
-  .refine((v) => !(v.template?.define && !v.output), {
-    message: 'template.define requires output (the app entry file, e.g. ./src/index.ts).',
+  .refine((v) => !(v.template?.define === true && v.routes), {
+    message:
+      'template.define and routes are mutually exclusive. define derives routes/ next to the app entry (output, default src/index.ts).',
   })
+  .refine(
+    (v) =>
+      !(
+        v.template?.define === true &&
+        v.output !== undefined &&
+        !(v.output === 'index.ts' || v.output.endsWith('/index.ts'))
+      ),
+    {
+      message:
+        'with template.define, output is the app entry and must be an index.ts file (e.g. ./src/index.ts), or omitted to default to src/index.ts. Other names collide with the derived routes/ directory.',
+    },
+  )
+  .refine(
+    (v) =>
+      !(
+        v.template?.define === true &&
+        v.components !== undefined &&
+        (
+          [
+            'schemas',
+            'responses',
+            'parameters',
+            'examples',
+            'requestBodies',
+            'headers',
+            'securitySchemes',
+            'links',
+            'callbacks',
+            'pathItems',
+            'mediaTypes',
+          ] as const
+        ).some((k) => v.components?.[k] !== undefined)
+      ),
+    {
+      message:
+        'with template.define, per-type component outputs (components.schemas, components.responses, ...) are not supported. Use components.output for a single components file.',
+    },
+  )
+  .refine(
+    (v) => {
+      if (v.template?.define !== true || v.components?.output === undefined) return true
+      const normalize = (p: string) => p.replace(/^\.\//, '')
+      const componentsOutput = normalize(v.components.output)
+      const appEntry = normalize(v.output ?? deriveAppEntry(componentsOutput))
+      if (!appEntry.endsWith('index.ts')) return true
+      const baseDir = appEntry === 'index.ts' ? '' : appEntry.slice(0, -'/index.ts'.length)
+      const routesDir = baseDir === '' ? 'routes' : `${baseDir}/routes`
+      return componentsOutput !== appEntry && !componentsOutput.startsWith(`${routesDir}/`)
+    },
+    {
+      message:
+        'with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+    },
+  )
 
 export function parseConfig(config: unknown) {
   const result = ConfigSchema.safeParse(config)

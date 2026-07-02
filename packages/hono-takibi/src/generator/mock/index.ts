@@ -8,6 +8,7 @@ import {
 } from '../../guard/index.js'
 import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import {
+  cyclicNodes,
   ensureSuffix,
   methodPath,
   statusCodeToNumber,
@@ -92,38 +93,9 @@ function topologicalSort(
 }
 
 function detectCircularSchemas(schemas: { readonly [k: string]: Schema }) {
-  const circular = new Set<string>()
-  for (const name of Object.keys(schemas)) {
-    const schema = schemas[name]
-    if (!schema) continue
-    for (const dep of collectRefs(schema)) {
-      if (dep === name) {
-        circular.add(name)
-        break
-      }
-      const visited = new Set<string>()
-      const stack = [dep]
-      while (stack.length > 0) {
-        const current = stack[stack.length - 1]
-        stack.length -= 1
-        if (current === undefined) break
-        if (current === name) {
-          circular.add(name)
-          break
-        }
-        if (visited.has(current)) continue
-        visited.add(current)
-        const s = schemas[current]
-        if (s) {
-          for (const r of collectRefs(s)) {
-            stack.push(r)
-          }
-        }
-      }
-      if (circular.has(name)) break
-    }
-  }
-  return circular
+  return cyclicNodes(
+    new Map(Object.entries(schemas).map(([name, schema]) => [name, [...collectRefs(schema)]])),
+  )
 }
 
 // Collects every `#/components/schemas/X` reference reachable by walking an
@@ -566,6 +538,20 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
     .join('')
   const handlersJoined = handlers.join('\n\n')
+  const mockFunctionsJoined = mockFunctions.join('\n\n')
+  // The generator mocks `format: int64`/`bigint` as a `bigint` (matching the
+  // zod schema's inferred type), but `JSON.stringify` throws on BigInt, so
+  // `c.json` would return 500. The `toJSON` hook serializes it as a decimal
+  // string — the conventional wire form for 64-bit integers in JSON. The
+  // `typeof` guard keeps the hook idempotent (a second mock file or another
+  // library defining it first must not throw), and `writable`/`configurable`
+  // mirror `Date.prototype.toJSON` so the hook stays removable; `enumerable`
+  // stays false so the key never leaks into spreads.
+  const bigIntSerializer = `${mockFunctionsJoined}\n${handlersJoined}`.includes(
+    'faker.number.bigInt(',
+  )
+    ? `if(typeof BigInt.prototype.toJSON!=='function'){Object.defineProperty(BigInt.prototype,'toJSON',{value(this:bigint){return this.toString()},writable:true,configurable:true})}`
+    : ''
   const needsCookieImport = handlersJoined.includes('getCookie(c,')
   // A faker locale swaps only the import specifier; the `faker` binding name is
   // unchanged so every handler body stays byte-identical. The locale string is
@@ -582,7 +568,15 @@ ${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` 
 export const api = app${appSetup}
 
 export default app`
-  return [imports, components, routes, mockFunctions.join('\n\n'), handlersJoined, appCode]
+  return [
+    imports,
+    bigIntSerializer,
+    components,
+    routes,
+    mockFunctionsJoined,
+    handlersJoined,
+    appCode,
+  ]
     .filter((s) => s.length > 0)
     .join('\n\n')
 }

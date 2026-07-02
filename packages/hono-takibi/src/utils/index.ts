@@ -315,6 +315,30 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
 }
 
 /**
+ * Derives the define-mode app entry from a components output path.
+ *
+ * The path is read as `<anchor>/<module>` where module is either a flat
+ * `.ts` file or a `<dir>/index.ts` pair; the app entry is `<anchor>/index.ts`.
+ *
+ * @param componentsOutput - The components output path (a `.ts` file).
+ * @returns The derived app entry path.
+ *
+ * @example
+ * ```ts
+ * deriveAppEntry('./server/components/index.ts') // → './server/index.ts'
+ * deriveAppEntry('server/components.ts') // → 'server/index.ts'
+ * deriveAppEntry('components/index.ts') // → 'index.ts'
+ * ```
+ */
+export function deriveAppEntry(componentsOutput: string) {
+  const container = componentsOutput.endsWith('/index.ts')
+    ? componentsOutput.slice(0, -'/index.ts'.length)
+    : componentsOutput
+  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
+  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
+}
+
+/**
  * Formats an error message argument using the Zod v4 unified `error` parameter.
  *
  * @param message - The error message string
@@ -370,4 +394,65 @@ export function makeInferRequestType(
   return hasBracket
     ? (`InferRequestType<typeof ${clientName}${typeofPrefix}${bracketSuffix}['$${method}']>` as const)
     : (`InferRequestType<typeof ${clientName}${runtimePath}.$${method}>` as const)
+}
+
+export function cyclicNodes(deps: ReadonlyMap<string, readonly string[]>) {
+  const indices = new Map<string, number>()
+  const lowLinks = new Map<string, number>()
+  const onStack = new Set<string>()
+  const stack: string[] = []
+  const result = new Set<string>()
+  const open = (node: string) => {
+    const index = indices.size
+    indices.set(node, index)
+    lowLinks.set(node, index)
+    stack.push(node)
+    onStack.add(node)
+  }
+  const close = (node: string) => {
+    if (lowLinks.get(node) !== indices.get(node)) return
+    const sccStart = stack.lastIndexOf(node)
+    const scc = stack.slice(sccStart)
+    stack.length = sccStart
+    for (const member of scc) {
+      onStack.delete(member)
+    }
+    if (scc.length > 1 || (deps.get(node) ?? []).includes(node)) {
+      for (const member of scc) {
+        result.add(member)
+      }
+    }
+  }
+  const connect = (root: string) => {
+    open(root)
+    const frames = [{ node: root, depIndex: 0 }]
+    while (frames.length > 0) {
+      const frame = frames[frames.length - 1]
+      if (frame === undefined) return
+      const dep = (deps.get(frame.node) ?? [])[frame.depIndex]
+      if (dep === undefined) {
+        close(frame.node)
+        frames.length -= 1
+        const parent = frames[frames.length - 1]
+        if (parent) {
+          lowLinks.set(
+            parent.node,
+            Math.min(lowLinks.get(parent.node) ?? 0, lowLinks.get(frame.node) ?? 0),
+          )
+        }
+        continue
+      }
+      frame.depIndex += 1
+      if (!indices.has(dep)) {
+        open(dep)
+        frames.push({ node: dep, depIndex: 0 })
+      } else if (onStack.has(dep)) {
+        lowLinks.set(frame.node, Math.min(lowLinks.get(frame.node) ?? 0, indices.get(dep) ?? 0))
+      }
+    }
+  }
+  for (const node of deps.keys()) {
+    if (!indices.has(node)) connect(node)
+  }
+  return result
 }

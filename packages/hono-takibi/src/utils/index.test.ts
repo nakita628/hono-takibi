@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vite-plus/test'
 import { isHttpMethod, isRecord } from '../guard/index.js'
 import {
   capitalize,
+  cyclicNodes,
+  deriveAppEntry,
   ensureSuffix,
   error,
   escapeHtml,
@@ -306,6 +308,23 @@ export * from './user'
       expect(ensureSuffix(input, suffix)).toBe(expected)
     })
   })
+  // deriveAppEntry
+  describe('deriveAppEntry', () => {
+    it.concurrent.each([
+      ['./server/components/index.ts', './server/index.ts'],
+      ['server/components/index.ts', 'server/index.ts'],
+      ['server/components.ts', 'server/index.ts'],
+      ['src/api/components/index.ts', 'src/api/index.ts'],
+      ['/srv/app/components/index.ts', '/srv/app/index.ts'],
+      ['components/index.ts', 'index.ts'],
+      ['components.ts', 'index.ts'],
+      ['./components/index.ts', 'index.ts'],
+      ['index.ts', 'index.ts'],
+      ['./index.ts', 'index.ts'],
+    ])(`deriveAppEntry('%s') -> '%s'`, (input, expected) => {
+      expect(deriveAppEntry(input)).toBe(expected)
+    })
+  })
   // error
   describe('error', () => {
     it.concurrent.each([
@@ -566,6 +585,177 @@ export * from './user'
 
     it('treats a lowercase wildcard the same as uppercase', () => {
       expect(statusCodeToNumber('2xx')).toBe(200)
+    })
+  })
+
+  describe('cyclicNodes', () => {
+    it('should return empty set for an empty graph', () => {
+      expect(cyclicNodes(new Map())).toStrictEqual(new Set())
+    })
+
+    it('should return empty set for an acyclic chain', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['C']],
+            ['C', []],
+          ]),
+        ),
+      ).toStrictEqual(new Set())
+    })
+
+    it('should detect a self-loop', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['A']],
+            ['B', ['A']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A']))
+    })
+
+    it('should detect a two-node cycle', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['A']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B']))
+    })
+
+    it('should exclude a node that only points into a cycle', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['C']],
+            ['C', ['B']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['B', 'C']))
+    })
+
+    it('should detect a three-node cycle and exclude a branch out of it', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['C']],
+            ['C', ['A', 'D']],
+            ['D', []],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B', 'C']))
+    })
+
+    it('should ignore edges to nodes that do not exist in the graph', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['Missing']],
+            ['B', ['A']],
+          ]),
+        ),
+      ).toStrictEqual(new Set())
+    })
+
+    it('should detect two independent cycles', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['A']],
+            ['C', ['D']],
+            ['D', ['C']],
+            ['E', []],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B', 'C', 'D']))
+    })
+
+    it('should return empty set for a diamond DAG (shared successor is not a cycle)', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B', 'C']],
+            ['B', ['D']],
+            ['C', ['D']],
+            ['D', []],
+          ]),
+        ),
+      ).toStrictEqual(new Set())
+    })
+
+    it('should keep a cycle intact and exclude a later node that cross-edges into it', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['A']],
+            ['C', ['A']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B']))
+    })
+
+    it('should detect a self-loop alongside a separate multi-node cycle', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['A']],
+            ['B', ['C']],
+            ['C', ['B']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B', 'C']))
+    })
+
+    it('should include a self-looping branch node hanging off a cycle', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['C']],
+            ['C', ['A', 'D']],
+            ['D', ['D']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B', 'C', 'D']))
+    })
+
+    it('should detect two cycles connected by a one-way bridge', () => {
+      expect(
+        cyclicNodes(
+          new Map([
+            ['A', ['B']],
+            ['B', ['A', 'C']],
+            ['C', ['D']],
+            ['D', ['C']],
+          ]),
+        ),
+      ).toStrictEqual(new Set(['A', 'B', 'C', 'D']))
+    })
+
+    it('should return empty set for a 10000-node linear chain without stack overflow', () => {
+      const chainEntries: [string, string[]][] = Array.from({ length: 10000 }, (_, i) => [
+        `N${i}`,
+        i + 1 < 10000 ? [`N${i + 1}`] : [],
+      ])
+      expect(cyclicNodes(new Map(chainEntries))).toStrictEqual(new Set())
+    })
+
+    it('should detect all nodes of a 10000-node ring without stack overflow', () => {
+      const ringEntries: [string, string[]][] = Array.from({ length: 10000 }, (_, i) => [
+        `N${i}`,
+        [`N${(i + 1) % 10000}`],
+      ])
+      expect(cyclicNodes(new Map(ringEntries))).toStrictEqual(
+        new Set(Array.from({ length: 10000 }, (_, i) => `N${i}`)),
+      )
     })
   })
 })

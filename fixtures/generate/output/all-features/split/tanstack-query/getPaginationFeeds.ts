@@ -14,7 +14,7 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../../client'
 
@@ -109,14 +109,21 @@ export function getPaginationFeedsInfiniteQueryOptions<TPageParam = unknown>(
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.pagination.feeds.$get>
   },
   options?: ClientRequestOptions,
 ) {
   return infiniteQueryOptions({
     queryKey: getPaginationFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.feeds.$get(undefined, { ...options, init: { ...options?.init, signal } }),
+        client.pagination.feeds.$get(pagination.getRequestArgs(pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -144,6 +151,7 @@ export function useInfinitePaginationFeeds<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.pagination.feeds.$get>
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -162,9 +170,12 @@ export function useInfinitePaginationFeeds<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getPaginationFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.feeds.$get(undefined, {
+        client.pagination.feeds.$get(pagination.getRequestArgs(pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -195,6 +206,7 @@ export function useSuspenseInfinitePaginationFeeds<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.pagination.feeds.$get>
   },
   options?: {
     query?: UseSuspenseInfiniteQueryOptions<
@@ -213,9 +225,12 @@ export function useSuspenseInfinitePaginationFeeds<
   return useSuspenseInfiniteQuery({
     ...queryOptions,
     queryKey: getPaginationFeedsInfiniteQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationFeedsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.feeds.$get(undefined, {
+        client.pagination.feeds.$get(pagination.getRequestArgs(pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),

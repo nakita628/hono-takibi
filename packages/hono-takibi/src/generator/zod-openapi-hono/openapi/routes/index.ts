@@ -8,6 +8,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
     readonly?: boolean,
   ): readonly { readonly name: string; readonly code: string }[] => {
     const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
+      const request = makeRequest(operation.parameters, operation.requestBody, readonly)
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(path)}`,
@@ -18,9 +19,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
           ? `externalDocs:${JSON.stringify(operation.externalDocs)}`
           : undefined,
         operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-        makeRequest(operation.parameters, operation.requestBody, readonly)
-          ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
-          : undefined,
+        request ? `request:${request}` : undefined,
         operation.responses
           ? `responses:${makeOperationResponses(operation.responses, readonly)}`
           : undefined,

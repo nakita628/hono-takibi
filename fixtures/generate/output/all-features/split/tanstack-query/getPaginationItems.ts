@@ -123,14 +123,24 @@ export function getPaginationItemsInfiniteQueryOptions<TPageParam = unknown>(
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.pagination.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.pagination.items.$get>
   },
   options?: ClientRequestOptions,
 ) {
   return infiniteQueryOptions({
     queryKey: getPaginationItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.items.$get(args, { ...options, init: { ...options?.init, signal } }),
+        client.pagination.items.$get(pagination.getRequestArgs(args, pageParam), {
+          ...options,
+          init: { ...options?.init, signal },
+        }),
       )
     },
     initialPageParam: pagination.initialPageParam,
@@ -159,6 +169,10 @@ export function useInfinitePaginationItems<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.pagination.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.pagination.items.$get>
   },
   options?: {
     query?: UseInfiniteQueryOptions<
@@ -177,9 +191,12 @@ export function useInfinitePaginationItems<
   return useInfiniteQuery({
     ...queryOptions,
     queryKey: getPaginationItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.items.$get(args, {
+        client.pagination.items.$get(pagination.getRequestArgs(args, pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
@@ -211,6 +228,10 @@ export function useSuspenseInfinitePaginationItems<
       >[],
       lastPageParam: TPageParam,
     ) => TPageParam | undefined | null
+    getRequestArgs: (
+      args: InferRequestType<typeof client.pagination.items.$get>,
+      pageParam: unknown,
+    ) => InferRequestType<typeof client.pagination.items.$get>
   },
   options?: {
     query?: UseSuspenseInfiniteQueryOptions<
@@ -229,9 +250,12 @@ export function useSuspenseInfinitePaginationItems<
   return useSuspenseInfiniteQuery({
     ...queryOptions,
     queryKey: getPaginationItemsInfiniteQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
+    queryFn({
+      pageParam,
+      signal,
+    }: QueryFunctionContext<ReturnType<typeof getPaginationItemsInfiniteQueryKey>, TPageParam>) {
       return parseResponse(
-        client.pagination.items.$get(args, {
+        client.pagination.items.$get(pagination.getRequestArgs(args, pageParam), {
           ...clientOptions,
           init: { ...clientOptions?.init, signal },
         }),
