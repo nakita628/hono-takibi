@@ -4,6 +4,7 @@ import { isHttpMethod, isRecord } from '../guard/index.js'
 import {
   capitalize,
   cyclicNodes,
+  deriveAppEntry,
   ensureSuffix,
   error,
   escapeHtml,
@@ -305,6 +306,23 @@ export * from './user'
       ['', 'Example', 'Example'],
     ])(`ensureSuffix('%s', '%s') -> '%s'`, (input, suffix, expected) => {
       expect(ensureSuffix(input, suffix)).toBe(expected)
+    })
+  })
+  // deriveAppEntry
+  describe('deriveAppEntry', () => {
+    it.concurrent.each([
+      ['./server/components/index.ts', './server/index.ts'],
+      ['server/components/index.ts', 'server/index.ts'],
+      ['server/components.ts', 'server/index.ts'],
+      ['src/api/components/index.ts', 'src/api/index.ts'],
+      ['/srv/app/components/index.ts', '/srv/app/index.ts'],
+      ['components/index.ts', 'index.ts'],
+      ['components.ts', 'index.ts'],
+      ['./components/index.ts', 'index.ts'],
+      ['index.ts', 'index.ts'],
+      ['./index.ts', 'index.ts'],
+    ])(`deriveAppEntry('%s') -> '%s'`, (input, expected) => {
+      expect(deriveAppEntry(input)).toBe(expected)
     })
   })
   // error

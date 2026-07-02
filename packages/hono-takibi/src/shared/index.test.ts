@@ -62,6 +62,98 @@ describe('makeJob define mode', () => {
     ])
   })
 
+  it('derives the app entry from components.output when output is omitted', () => {
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      template: { define: true },
+      components: { output: './server/components/index.ts' },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
+      { name: 'components', output: './server/components/index.ts' },
+      { name: 'template', output: './server/index.ts' },
+    ])
+  })
+
+  it('derives the app entry from a flat components.output file when output is omitted', () => {
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      template: { define: true },
+      components: { output: 'server/components.ts' },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
+      { name: 'components', output: 'server/components.ts' },
+      { name: 'template', output: 'server/index.ts' },
+    ])
+  })
+
+  it('prefers explicit output over the components.output anchor', () => {
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      output: 'src/index.ts',
+      template: { define: true },
+      components: { output: 'shared/components.ts' },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
+      { name: 'components', output: 'shared/components.ts' },
+      { name: 'template', output: 'src/index.ts' },
+    ])
+  })
+
+  it('anchors generated files to the components.output directory when output is omitted', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-anchor-'))
+    const cfg = parseConfig({
+      input: 'openapi.yaml',
+      template: { define: true },
+      components: { output: `${tmpDir}/server/components/index.ts` },
+    })
+    if (!cfg.ok) throw new Error(cfg.error)
+    const jobs = makeJob(openAPI, cfg.value)
+    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
+    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
+
+    expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getHealthRoute } from './routes'
+
+const app = new OpenAPIHono()
+
+export const api = app.openapiRoutes([getUsersIdRoute, getHealthRoute] as const)
+
+export default app
+`)
+    expect(read('routes/users.ts'))
+      .toBe(`import { createRoute, defineOpenAPIRoute, z } from '@hono/zod-openapi'
+import { UserSchema } from '../components'
+
+export const getUsersIdRoute = defineOpenAPIRoute({
+  route: createRoute({
+    method: 'get',
+    path: '/users/{id}',
+    operationId: 'getUser',
+    request: {
+      params: z.object({
+        id: z.string().openapi({
+          param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+      }),
+    },
+    responses: {
+      200: { description: 'ok', content: { 'application/json': { schema: UserSchema } } },
+    },
+  }),
+  handler: async (c) => {},
+  addRoute: true,
+})
+`)
+    expect(fs.existsSync(path.join(tmpDir, 'server', 'components', 'index.ts'))).toBe(true)
+  })
+
   it('generates defineOpenAPIRoute handlers, openapiRoutes app, and components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-'))
     const cfg = parseConfig({

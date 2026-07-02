@@ -315,6 +315,30 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
 }
 
 /**
+ * Derives the define-mode app entry from a components output path.
+ *
+ * The path is read as `<anchor>/<module>` where module is either a flat
+ * `.ts` file or a `<dir>/index.ts` pair; the app entry is `<anchor>/index.ts`.
+ *
+ * @param componentsOutput - The components output path (a `.ts` file).
+ * @returns The derived app entry path.
+ *
+ * @example
+ * ```ts
+ * deriveAppEntry('./server/components/index.ts') // → './server/index.ts'
+ * deriveAppEntry('server/components.ts') // → 'server/index.ts'
+ * deriveAppEntry('components/index.ts') // → 'index.ts'
+ * ```
+ */
+export function deriveAppEntry(componentsOutput: string) {
+  const container = componentsOutput.endsWith('/index.ts')
+    ? componentsOutput.slice(0, -'/index.ts'.length)
+    : componentsOutput
+  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
+  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
+}
+
+/**
  * Formats an error message argument using the Zod v4 unified `error` parameter.
  *
  * @param message - The error message string

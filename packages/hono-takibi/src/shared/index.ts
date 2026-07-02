@@ -27,15 +27,22 @@ import {
   webhooks,
 } from '../core/index.js'
 import type { OpenAPI } from '../openapi/index.js'
+import { deriveAppEntry } from '../utils/index.js'
 
 export function makeJob(
   openAPI: OpenAPI,
   config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
 ) {
   const defineOn = config.template?.define === true
-  // In define mode the app entry defaults to src/index.ts; routes/ and components/
-  // are always derived next to it.
-  const appOutput = config.output ?? (defineOn ? 'src/index.ts' : config.routes?.output)
+  // In define mode the app entry anchors routes/ and components/. When output is
+  // omitted, the anchor is inferred from components.output, else src/index.ts.
+  const appOutput =
+    config.output ??
+    (defineOn
+      ? config.components?.output
+        ? deriveAppEntry(config.components.output)
+        : 'src/index.ts'
+      : config.routes?.output)
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)

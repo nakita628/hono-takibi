@@ -5,6 +5,8 @@ import { pathToFileURL } from 'node:url'
 import { type FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
+import { deriveAppEntry } from '../utils/index.js'
+
 const DirectoryOutputSchema = z.string().regex(/^(?!.*\.ts$).+/, {
   error: 'split mode requires directory, not .ts file',
 })
@@ -327,11 +329,11 @@ const ConfigSchema = z
     (v) => {
       if (v.template?.define !== true || v.components?.output === undefined) return true
       const normalize = (p: string) => p.replace(/^\.\//, '')
-      const appEntry = normalize(v.output ?? 'src/index.ts')
+      const componentsOutput = normalize(v.components.output)
+      const appEntry = normalize(v.output ?? deriveAppEntry(componentsOutput))
       if (!appEntry.endsWith('index.ts')) return true
       const baseDir = appEntry === 'index.ts' ? '' : appEntry.slice(0, -'/index.ts'.length)
       const routesDir = baseDir === '' ? 'routes' : `${baseDir}/routes`
-      const componentsOutput = normalize(v.components.output)
       return componentsOutput !== appEntry && !componentsOutput.startsWith(`${routesDir}/`)
     },
     {

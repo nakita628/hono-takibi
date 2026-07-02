@@ -723,6 +723,53 @@ describe('parseConfig()', () => {
       }
     })
 
+    it.concurrent('passes when define is true with both output and a non-colliding components.output', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/index.ts',
+        template: { define: true },
+        components: { output: 'shared/components.ts' },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('passes when define is true and only components.output anchors the layout', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: './server/components/index.ts' },
+      })
+      expect(result.ok).toBe(true)
+    })
+
+    it.concurrent('fails when the anchor derived from components.output puts components inside routes/', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: './server/routes/index.ts' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+        )
+      }
+    })
+
+    it.concurrent('fails when a bare components.output collides with the derived app entry', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: 'index.ts' },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toBe(
+          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+        )
+      }
+    })
+
     it.concurrent('fails when define is true and routes is specified', () => {
       const result = parseConfig({
         input: 'openapi.yaml',

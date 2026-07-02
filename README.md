@@ -220,7 +220,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 })
 ```
 
-The app entry defaults to `src/index.ts` (override with `output`, which must be an `index.ts` path such as `./server/index.ts`). Route files always go to `routes/` next to the app entry, and component schemas to `components/index.ts` (override with `components.output`).
+The app entry defaults to `src/index.ts` (override with `output`, which must be an `index.ts` path such as `./server/index.ts`). Route files always go to `routes/` next to the app entry, and component schemas to `components/index.ts` (override with `components.output`). When `output` is omitted, `components.output` also anchors the layout: `components: { output: './server/components/index.ts' }` puts the app entry at `server/index.ts` and routes at `server/routes/`.
 
 ## Client Library Integrations
 
