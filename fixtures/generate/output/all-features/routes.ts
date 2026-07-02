@@ -2061,7 +2061,10 @@ export const postContentTypesUploadRoute = createRoute({
       content: {
         'multipart/form-data': {
           schema: z
-            .object({ file: z.file(), description: z.string().exactOptional() })
+            .object({
+              file: z.file().openapi({ type: 'string', format: 'binary' }),
+              description: z.string().exactOptional(),
+            })
             .openapi({ required: ['file'] }),
         },
       },
@@ -2931,7 +2934,10 @@ export const postComprehensiveUploadImageRoute = createRoute({
       content: {
         'multipart/form-data': {
           schema: z
-            .object({ image: z.file(), alt: z.string().exactOptional() })
+            .object({
+              image: z.file().openapi({ type: 'string', format: 'binary' }),
+              alt: z.string().exactOptional(),
+            })
             .openapi({ required: ['image'] }),
         },
       },

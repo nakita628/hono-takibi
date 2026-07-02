@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 
@@ -69,16 +70,110 @@ function debounce(delayMilliseconds: number, callback: () => void): () => void {
   return wrappedFunction
 }
 
+function isWatchedInputFile(filePath: string): boolean {
+  return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
+}
+
+async function listWatchedInputFiles(directory: string): Promise<readonly string[]> {
+  const entries = await fsp.readdir(directory, { withFileTypes: true }).catch(() => [])
+  const nested = await Promise.all(
+    entries.map((entry) => {
+      const entryPath = path.join(directory, entry.name)
+      if (entry.isDirectory()) {
+        return entry.name === 'node_modules' || entry.name.startsWith('.')
+          ? Promise.resolve([])
+          : listWatchedInputFiles(entryPath)
+      }
+      return Promise.resolve(entry.isFile() && isWatchedInputFile(entryPath) ? [entryPath] : [])
+    }),
+  )
+  return nested.flat()
+}
+
+/**
+ * Hashes the contents of all watched input files under the input directory.
+ *
+ * Returns null when the set cannot be read reliably, so callers treat
+ * "unknown" as "changed" and regenerate.
+ */
+async function hashWatchedInputs(directory: string) {
+  const files = [...(await listWatchedInputFiles(directory))].sort()
+  if (files.length === 0) return null
+  const contents = await Promise.all(
+    files.map(async (file) => ({
+      file,
+      content: await fsp.readFile(file, 'utf-8').catch(() => null),
+    })),
+  )
+  if (contents.some((entry) => entry.content === null)) return null
+  const hash = crypto.createHash('sha256')
+  for (const entry of contents) {
+    hash.update(entry.file)
+    hash.update('\0')
+    hash.update(entry.content ?? '')
+    hash.update('\0')
+  }
+  return hash.digest('hex')
+}
+
+async function listOutputFiles(
+  target: string,
+): Promise<readonly { readonly file: string; readonly mtimeMs: number }[]> {
+  const stats = await fsp.stat(target).catch(() => null)
+  if (!stats) return []
+  if (stats.isFile()) return [{ file: target, mtimeMs: stats.mtimeMs }]
+  if (!stats.isDirectory()) return []
+  const entries = await fsp.readdir(target, { withFileTypes: true }).catch(() => [])
+  const nested = await Promise.all(
+    entries.map((entry) => listOutputFiles(path.join(target, entry.name))),
+  )
+  return nested.flat()
+}
+
+/**
+ * Snapshots mtimes of all files under the job output paths.
+ *
+ * `writeFile` skips identical content, so an unchanged mtime means the file
+ * was not rewritten. For `.ts` outputs the sibling split directory
+ * (`dir/name/` derived from `dir/name.ts`) is included as well.
+ */
+async function snapshotOutputs(outputPaths: readonly string[]) {
+  const targets = [
+    ...new Set(
+      outputPaths.flatMap((outputPath) => [
+        outputPath,
+        ...(outputPath.endsWith('.ts')
+          ? [path.join(path.dirname(outputPath), path.basename(outputPath, '.ts'))]
+          : []),
+      ]),
+    ),
+  ]
+  const collected = await Promise.all(targets.map((target) => listOutputFiles(target)))
+  return new Map(collected.flat().map((entry) => [entry.file, entry.mtimeMs]))
+}
+
+function sameOutputSnapshot(
+  before: ReadonlyMap<string, number>,
+  after: ReadonlyMap<string, number>,
+): boolean {
+  return (
+    before.size === after.size &&
+    [...before].every(([file, mtimeMs]) => after.get(file) === mtimeMs)
+  )
+}
+
 /**
  * Runs all code generation tasks in parallel based on the provided configuration.
  *
  * @param config - Parsed configuration object
- * @returns Promise resolving to object containing log messages
+ * @returns Promise resolving to object containing log messages and whether any output file changed
  */
 async function runAllGenerationTasks(config: Config) {
   if (config.format) setFormatOptions(config.format)
   const openAPIResult = await parseOpenAPI(config.input)
-  if (!openAPIResult.ok) return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`] }
+  if (!openAPIResult.ok) {
+    return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`], changed: false }
+  }
   const openAPI = openAPIResult.value
 
   const cleanupSplitOutput = async (absOutput: string): Promise<void> => {
@@ -92,8 +187,11 @@ async function runAllGenerationTasks(config: Config) {
     )
   }
 
+  const jobs = makeJob(openAPI, config)
+  const outputPaths = jobs.map((job) => path.resolve(process.cwd(), job.output))
+  const beforeSnapshot = await snapshotOutputs(outputPaths)
   const logs = await Promise.all(
-    makeJob(openAPI, config).map(async (job) => {
+    jobs.map(async (job) => {
       const absOutput = path.resolve(process.cwd(), job.output)
       if (job.split) await cleanupSplitOutput(absOutput)
       const result = await job.run(absOutput)
@@ -102,7 +200,8 @@ async function runAllGenerationTasks(config: Config) {
         : `❌ ${job.name}: ${result.error}`
     }),
   )
-  return { logs }
+  const afterSnapshot = await snapshotOutputs(outputPaths)
+  return { logs, changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot) }
 }
 
 /**
@@ -125,6 +224,13 @@ function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string
   ]
   server.watcher.add(watchPatterns)
   return inputDirectory
+}
+
+async function allOutputsExist(config: Config) {
+  const stats = await Promise.all(
+    extractOutputPaths(config).map((outputPath) => fsp.stat(outputPath).catch(() => null)),
+  )
+  return stats.every((stat) => stat !== null)
 }
 
 function extractOutputPaths(config: Config): readonly string[] {
@@ -165,23 +271,53 @@ export function honoTakibiVite(): any {
     current: Config | null
     previous: Config | null
     inputDirectory: string | null
+    lastInputHash: string | null
+    runQueue: Promise<void>
   } = {
     current: null,
     previous: null,
     inputDirectory: null,
+    lastInputHash: null,
+    runQueue: Promise.resolve(),
   }
   const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
   const runGeneration = async () => {
-    if (!pluginState.current) return
+    if (!pluginState.current) return false
     console.log('🔥 hono-takibi')
-    const { logs } = await runAllGenerationTasks(pluginState.current)
+    const { logs, changed } = await runAllGenerationTasks(pluginState.current)
     for (const logMessage of logs) {
       console.log(logMessage)
     }
+    return changed
   }
   const runGenerationAndReload = async (server?: ViteDevServer) => {
-    await runGeneration()
-    if (server) server.ws.send({ type: 'full-reload' })
+    const changed = await runGeneration()
+    if (server && changed) server.ws.send({ type: 'full-reload' })
+  }
+  // Skipping additionally requires every declared output to exist, so deleting
+  // a generated file and touching the input still regenerates it.
+  const runIfInputsChanged = async (server: ViteDevServer) => {
+    if (!pluginState.inputDirectory || !pluginState.current) return
+    const inputHash = await hashWatchedInputs(pluginState.inputDirectory)
+    if (
+      inputHash !== null &&
+      inputHash === pluginState.lastInputHash &&
+      (await allOutputsExist(pluginState.current))
+    ) {
+      console.log('⏭️ input unchanged - skipped regeneration')
+      return
+    }
+    pluginState.lastInputHash = inputHash
+    await runGenerationAndReload(server)
+  }
+  // Serializes generation runs: a config-change run bypasses the debounce and
+  // could otherwise interleave its cleanup with another run's writes.
+  const enqueueRun = (task: () => Promise<void>) => {
+    const queued = pluginState.runQueue
+      .then(task)
+      .catch((error) => console.error('❌ run error:', error))
+    pluginState.runQueue = queued
+    return queued
   }
   const handleConfigurationChange = async (server: ViteDevServer) => {
     const nextConfiguration = await readConfigurationWithHotReload(server)
@@ -221,10 +357,12 @@ export function honoTakibiVite(): any {
     }
     pluginState.previous = pluginState.current
     pluginState.current = nextConfiguration.value
-    pluginState.inputDirectory = addInputGlobsToWatcher(
+    const inputDirectory = addInputGlobsToWatcher(
       server,
       path.resolve(process.cwd(), pluginState.current.input),
     )
+    pluginState.inputDirectory = inputDirectory
+    pluginState.lastInputHash = await hashWatchedInputs(inputDirectory)
     await runGenerationAndReload(server)
   }
   const vitePlugin = {
@@ -233,9 +371,7 @@ export function honoTakibiVite(): any {
       const absoluteFilePath = path.resolve(context.file)
       if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
         console.log('config changed (hot-update)')
-        handleConfigurationChange(context.server).catch((error) =>
-          console.error('❌ hot-update error:', error),
-        )
+        void enqueueRun(() => handleConfigurationChange(context.server))
         return []
       }
       return
@@ -251,33 +387,36 @@ export function honoTakibiVite(): any {
           return
         }
         pluginState.current = initialConfiguration.value
-        pluginState.inputDirectory = addInputGlobsToWatcher(
+        const inputDirectory = addInputGlobsToWatcher(
           server,
           path.resolve(process.cwd(), pluginState.current.input),
         )
+        pluginState.inputDirectory = inputDirectory
+        pluginState.lastInputHash = await hashWatchedInputs(inputDirectory)
         server.watcher.add(absoluteConfigFilePath)
         // 200ms debounce: editors emit multiple fs events on save, and batch file changes
         // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
-        const debouncedRunGeneration = debounce(200, () => void runGenerationAndReload(server))
+        const debouncedRunGeneration = debounce(
+          200,
+          () => void enqueueRun(() => runIfInputsChanged(server)),
+        )
 
         server.watcher.on('all', async (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)
           if (absoluteChangedPath === absoluteConfigFilePath) {
             console.log('config changed (watch)')
-            await handleConfigurationChange(server)
+            await enqueueRun(() => handleConfigurationChange(server))
             return
           }
           if (
             pluginState.inputDirectory &&
             absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
-            (absoluteChangedPath.endsWith('.yaml') ||
-              absoluteChangedPath.endsWith('.json') ||
-              absoluteChangedPath.endsWith('.tsp'))
+            isWatchedInputFile(absoluteChangedPath)
           ) {
             debouncedRunGeneration()
           }
         })
-        await runGenerationAndReload(server)
+        await enqueueRun(() => runGenerationAndReload(server))
       })().catch((e) => console.error('❌ watch error:', e))
     },
   }

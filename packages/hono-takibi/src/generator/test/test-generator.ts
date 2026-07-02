@@ -9,6 +9,7 @@ import {
   isSecurityScheme,
 } from '../../guard/index.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
+import { cyclicNodes } from '../../utils/index.js'
 import { schemaToFaker } from './faker-mapping.js'
 
 function collectSchemaRefs(
@@ -175,27 +176,9 @@ function shallowRefs(schema: Schema): readonly string[] {
   return [...selfRef, ...propRefs, ...itemRefs, ...compositeRefs] as const
 }
 
-function reachesSelf(
-  start: string,
-  target: string,
-  schemas: { [k: string]: Schema },
-  visited: Set<string> = new Set<string>(),
-): boolean {
-  if (start === target) return true
-  if (visited.has(start)) return false
-  visited.add(start)
-  const schema = schemas[start]
-  if (!schema) return false
-  return shallowRefs(schema).some((dep) => reachesSelf(dep, target, schemas, visited))
-}
-
-function detectCircularSchemas(schemas: { [k: string]: Schema }): Set<string> {
-  return new Set(
-    Object.keys(schemas).filter((name) => {
-      const schema = schemas[name]
-      if (!schema) return false
-      return shallowRefs(schema).some((dep) => reachesSelf(dep, name, schemas))
-    }),
+function detectCircularSchemas(schemas: { [k: string]: Schema }) {
+  return cyclicNodes(
+    new Map(Object.entries(schemas).map(([name, schema]) => [name, shallowRefs(schema)])),
   )
 }
 
@@ -223,10 +206,14 @@ function topologicalOrder(
   return [...usedSchemaNames].flatMap((name) => visit(name, visited, new Set()))
 }
 
-function makeMockFunctions(spec: OpenAPI, usedSchemaNames: Set<string>) {
+function makeMockFunctions(
+  spec: OpenAPI,
+  usedSchemaNames: Set<string>,
+  circularSchemas?: ReadonlySet<string>,
+) {
   if (!spec.components?.schemas || usedSchemaNames.size === 0) return ''
   const schemas = spec.components.schemas
-  const circular = detectCircularSchemas(schemas)
+  const circular = circularSchemas ?? detectCircularSchemas(schemas)
   return topologicalOrder(usedSchemaNames, schemas)
     .map((name) => {
       const returnType = circular.has(name) ? ': any' : ''
@@ -415,6 +402,13 @@ function getPathFirstSegment(path: string) {
   return sanitized === '' ? '__root' : sanitized
 }
 
+export function makeHandlerTestContext(spec: OpenAPI) {
+  return {
+    testCases: extractTestCases(spec),
+    circularSchemas: detectCircularSchemas(spec.components?.schemas ?? {}),
+  } as const
+}
+
 export function makeHandlerTestCode(
   spec: OpenAPI,
   handlerPath: string,
@@ -422,15 +416,15 @@ export function makeHandlerTestCode(
   importFrom: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  context: ReturnType<typeof makeHandlerTestContext> = makeHandlerTestContext(spec),
 ) {
   const handlerFileName = path.basename(handlerPath, '.ts')
-  const testCases = extractTestCases(spec)
-  const relevantCases = testCases.filter(
+  const relevantCases = context.testCases.filter(
     (testCase) => getPathFirstSegment(testCase.path) === handlerFileName,
   )
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((testCase) => testCase.usedSchemaRefs))
-  const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
+  const mockFunctions = makeMockFunctions(spec, usedSchemaNames, context.circularSchemas)
   const testCasesCode = relevantCases
     .map((testCase) => makeTestCase(testCase, basePath, spec.components?.schemas))
     .join('')

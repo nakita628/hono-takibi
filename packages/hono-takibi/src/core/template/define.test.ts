@@ -29,25 +29,24 @@ const openAPI: OpenAPI = {
 }
 
 describe('defineTemplate', () => {
-  it('writes the app to a .ts output and defineOpenAPIRoute handlers next to it', async () => {
+  it('writes the app to a .ts output and defineOpenAPIRoute handlers to routes/ next to it', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-'))
     const result = await defineTemplate(
       openAPI,
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       path.join(tmpDir, 'components.ts'),
       false,
       '/',
       undefined,
       undefined,
-      path.join(tmpDir, 'handlers'),
     )
     expect(result).toStrictEqual({
       ok: true,
       value: '🔥 Generated code and template files written',
     })
-    expect(fs.readFileSync(path.join(tmpDir, 'routes.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
-import { getHealthRoute } from './handlers'
+import { getHealthRoute } from './routes'
 
 const app = new OpenAPIHono()
 
@@ -56,7 +55,7 @@ export const api = app.openapiRoutes([getHealthRoute] as const)
 export default app
 `,
     )
-    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'health.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.ts'), 'utf-8')).toBe(
       `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
 
 export const getHealthRoute = defineOpenAPIRoute({
@@ -83,20 +82,22 @@ export const getHealthRoute = defineOpenAPIRoute({
       '/',
       undefined,
       undefined,
-      path.join(tmpDir, 'src', 'handlers'),
     )
     expect(result).toStrictEqual({
       ok: true,
       value: '🔥 Generated code and template files written',
     })
     expect(fs.existsSync(path.join(tmpDir, 'src', 'index.ts'))).toBe(true)
-    expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers', 'health.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'health.ts'))).toBe(true)
+    expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { getHealthRoute } from './routes'",
+    )
   })
 
   it('merges into an existing app file, preserving custom imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-merge-'))
     fs.writeFileSync(
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { customThing } from './custom-marker'
 
@@ -105,16 +106,15 @@ export const api = new OpenAPIHono()
     )
     const result = await defineTemplate(
       openAPI,
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       path.join(tmpDir, 'components.ts'),
       false,
       '/',
       undefined,
       undefined,
-      path.join(tmpDir, 'handlers'),
     )
     expect(result.ok).toBe(true)
-    const content = fs.readFileSync(path.join(tmpDir, 'routes.ts'), 'utf-8')
+    const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
 
@@ -122,18 +122,17 @@ export const api = new OpenAPIHono()
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-test-'))
     const result = await defineTemplate(
       openAPI,
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       path.join(tmpDir, 'components.ts'),
       true,
       '/',
       undefined,
       undefined,
-      path.join(tmpDir, 'handlers'),
     )
     expect(result.ok).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'health.test.ts'), 'utf-8')).toBe(
+    expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.test.ts'), 'utf-8')).toBe(
       `import { describe, it, expect } from 'vitest'
-import app from '../routes'
+import app from '..'
 
 describe('Health', () => {
   describe('GET /health', () => {
@@ -147,19 +146,42 @@ describe('Health', () => {
     )
   })
 
+  it('emits routes/ at cwd when output is a bare index.ts', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-dot-'))
+    const origCwd = process.cwd()
+    process.chdir(tmpDir)
+    try {
+      const result = await defineTemplate(
+        openAPI,
+        'index.ts',
+        'components.ts',
+        false,
+        '/',
+        undefined,
+        undefined,
+      )
+      expect(result.ok).toBe(true)
+      expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
+      expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+        "import { getHealthRoute } from './routes'",
+      )
+    } finally {
+      process.chdir(origCwd)
+    }
+  })
+
   it('propagates the error when the app target cannot be read', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-unreadable-'))
     // A directory at the target path makes readFile fail with a non-ENOENT error.
-    fs.mkdirSync(path.join(tmpDir, 'routes.ts'))
+    fs.mkdirSync(path.join(tmpDir, 'index.ts'))
     const result = await defineTemplate(
       openAPI,
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       path.join(tmpDir, 'components.ts'),
       false,
       '/',
       undefined,
       undefined,
-      path.join(tmpDir, 'handlers'),
     )
     expect(result.ok).toBe(false)
     if (!result.ok) {
@@ -171,18 +193,17 @@ describe('Health', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-alias-'))
     const result = await defineTemplate(
       openAPI,
-      path.join(tmpDir, 'routes.ts'),
+      path.join(tmpDir, 'index.ts'),
       path.join(tmpDir, 'components.ts'),
       false,
       '/',
       '@/',
       undefined,
-      path.join(tmpDir, 'controllers'),
     )
     expect(result.ok).toBe(true)
-    expect(fs.existsSync(path.join(tmpDir, 'controllers', 'health.ts'))).toBe(true)
-    expect(fs.readFileSync(path.join(tmpDir, 'routes.ts'), 'utf-8').split('\n')).toContain(
-      "import { getHealthRoute } from '@/controllers'",
+    expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
+    expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8').split('\n')).toContain(
+      "import { getHealthRoute } from '@/routes'",
     )
   })
 })

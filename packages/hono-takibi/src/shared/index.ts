@@ -27,16 +27,22 @@ import {
   webhooks,
 } from '../core/index.js'
 import type { OpenAPI } from '../openapi/index.js'
+import { deriveAppEntry } from '../utils/index.js'
 
 export function makeJob(
   openAPI: OpenAPI,
   config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
 ) {
   const defineOn = config.template?.define === true
-  const appOutput = config.output ?? config.routes?.output
-  // `template.output` is the route/handler directory; both template modes accept it (define
-  // defaults to `src/routes`, non-define falls back to `handlers` next to the app entry).
-  const defineHandlerDir = defineOn ? config.template?.output : undefined
+  // In define mode the app entry anchors routes/ and components/. When output is
+  // omitted, the anchor is inferred from components.output, else src/index.ts.
+  const appOutput =
+    config.output ??
+    (defineOn
+      ? config.components?.output
+        ? deriveAppEntry(config.components.output)
+        : 'src/index.ts'
+      : config.routes?.output)
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -393,7 +399,7 @@ export function makeJob(
             ),
         }
       : undefined,
-    config.template && defineOn && appOutput && componentsOutput && defineHandlerDir
+    config.template && defineOn && appOutput && componentsOutput
       ? {
           name: 'template',
           output: appOutput,
@@ -407,7 +413,6 @@ export function makeJob(
               config.basePath,
               config.template?.pathAlias,
               config.routes?.import,
-              defineHandlerDir,
               config.template?.testFramework,
               config.readonly,
             ),
@@ -427,7 +432,6 @@ export function makeJob(
                 config.routes?.import,
                 config.template?.define === false ? config.template.routeHandler : false,
                 config.template?.testFramework,
-                config.template?.output,
               ),
           }
         : undefined,
