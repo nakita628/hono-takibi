@@ -296,10 +296,18 @@ export function schemaToFaker(
   if (schema.format && FORMAT_TO_FAKER[schema.format]) {
     return FORMAT_TO_FAKER[schema.format]
   }
+  // A property-name hint is a guess; explicit string constraints are the
+  // schema's own contract. A hint that ignores `pattern`/`minLength`/`maxLength`
+  // can emit values the response schema itself rejects (422 in the host app),
+  // so constrained strings fall through to the constraint-aware string branch.
   if (propertyName && PROPERTY_NAME_TO_FAKER[propertyName]) {
     const hint = PROPERTY_NAME_TO_FAKER[propertyName]
     const isNumberHint = hint.includes('faker.number.')
-    if (!(isNumberHint && schema.type === 'string')) {
+    const hasStringConstraint =
+      schema.pattern !== undefined ||
+      schema.minLength !== undefined ||
+      schema.maxLength !== undefined
+    if (!(schema.type === 'string' && (isNumberHint || hasStringConstraint))) {
       return hint
     }
   }

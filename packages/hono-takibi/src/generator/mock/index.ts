@@ -566,6 +566,16 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
     .map(({ routeId }) => `.openapi(${routeId}Route, ${routeId}RouteHandler)`)
     .join('')
   const handlersJoined = handlers.join('\n\n')
+  const mockFunctionsJoined = mockFunctions.join('\n\n')
+  // `format: int64`/`bigint` mocks to a `bigint` (matching the zod schema's
+  // inferred type), but `JSON.stringify` throws on BigInt, so `c.json` would
+  // return 500. The `toJSON` hook serializes it as a decimal string — the
+  // conventional wire form for 64-bit integers in JSON.
+  const bigIntSerializer = `${mockFunctionsJoined}\n${handlersJoined}`.includes(
+    'faker.number.bigInt(',
+  )
+    ? `Object.defineProperty(BigInt.prototype, 'toJSON', {\n  value(this: bigint) {\n    return this.toString()\n  },\n})`
+    : ''
   const needsCookieImport = handlersJoined.includes('getCookie(c,')
   // A faker locale swaps only the import specifier; the `faker` binding name is
   // unchanged so every handler body stays byte-identical. The locale string is
@@ -582,7 +592,15 @@ ${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` 
 export const api = app${appSetup}
 
 export default app`
-  return [imports, components, routes, mockFunctions.join('\n\n'), handlersJoined, appCode]
+  return [
+    imports,
+    bigIntSerializer,
+    components,
+    routes,
+    mockFunctionsJoined,
+    handlersJoined,
+    appCode,
+  ]
     .filter((s) => s.length > 0)
     .join('\n\n')
 }

@@ -659,6 +659,28 @@ describe('schemaToFaker', () => {
         'faker.number.float({ min: 9.99, max: 99.99, fractionDigits: 2 })',
       )
     })
+
+    it.concurrent('respects pattern over the status hint', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^[0-9]+$' }, 'status')).toBe(
+        'faker.helpers.fromRegExp(/^[0-9]+$/)',
+      )
+    })
+
+    it.concurrent('respects maxLength over the name hint', () => {
+      expect(schemaToFaker({ type: 'string', maxLength: 5 }, 'name')).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 5 } })',
+      )
+    })
+
+    it.concurrent('respects minLength over the title hint', () => {
+      expect(schemaToFaker({ type: 'string', minLength: 30 }, 'title')).toBe(
+        'faker.string.alpha({ length: { min: 30, max: 30 } })',
+      )
+    })
+
+    it.concurrent('keeps the name hint for an unconstrained string', () => {
+      expect(schemaToFaker({ type: 'string' }, 'name')).toBe('faker.person.fullName()')
+    })
   })
 
   describe('exclusive bounds', () => {

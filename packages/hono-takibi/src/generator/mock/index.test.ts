@@ -2252,4 +2252,141 @@ export default app
 `)
     })
   })
+
+  describe('int64 / bigint response (BigInt JSON serialization)', () => {
+    it('emits a BigInt toJSON hook for an inline int64 response', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/big': {
+            get: {
+              operationId: 'getBig',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { type: 'integer', format: 'int64' } },
+                        required: ['id'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = await fmt(makeMock(spec, '/'))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+Object.defineProperty(BigInt.prototype, 'toJSON', {
+  value(this: bigint) {
+    return this.toString()
+  },
+})
+
+export const getBigRoute = createRoute({
+  method: 'get',
+  path: '/big',
+  operationId: 'getBig',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.object({ id: z.int64() }).openapi({ required: ['id'] }) },
+      },
+    },
+  },
+})
+
+const getBigRouteHandler: RouteHandler<typeof getBigRoute> = async (c) => {
+  return c.json({ id: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) }, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getBigRoute, getBigRouteHandler)
+
+export default app
+`)
+    })
+
+    it('emits a BigInt toJSON hook when only a component mock returns a bigint', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        components: {
+          schemas: {
+            Counter: {
+              type: 'object',
+              properties: { total: { type: 'integer', format: 'bigint' } },
+              required: ['total'],
+            },
+          },
+        },
+        paths: {
+          '/counter': {
+            get: {
+              operationId: 'getCounter',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Counter' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = await fmt(makeMock(spec, '/'))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+Object.defineProperty(BigInt.prototype, 'toJSON', {
+  value(this: bigint) {
+    return this.toString()
+  },
+})
+
+const CounterSchema = z
+  .object({ total: z.bigint() })
+  .openapi({ required: ['total'] })
+  .openapi('Counter')
+
+export const getCounterRoute = createRoute({
+  method: 'get',
+  path: '/counter',
+  operationId: 'getCounter',
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: CounterSchema } } },
+  },
+})
+
+function mockCounter() {
+  return { total: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) }
+}
+
+const getCounterRouteHandler: RouteHandler<typeof getCounterRoute> = async (c) => {
+  return c.json(mockCounter(), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getCounterRoute, getCounterRouteHandler)
+
+export default app
+`)
+    })
+  })
 })
