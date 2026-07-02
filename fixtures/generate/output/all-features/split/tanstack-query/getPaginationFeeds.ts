@@ -14,7 +14,7 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../../client'
 

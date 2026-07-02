@@ -297,7 +297,7 @@ import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -574,7 +574,7 @@ import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -696,7 +696,7 @@ import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -833,7 +833,7 @@ import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -1542,7 +1542,7 @@ import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -1658,7 +1658,7 @@ import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
 import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -2355,7 +2355,7 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -2898,7 +2898,7 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -3176,7 +3176,7 @@ import type {
   InfiniteData,
   UseMutationOptions,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -3461,7 +3461,7 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -6804,7 +6804,7 @@ import type {
   QueryFunctionContext,
   UseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -7115,7 +7115,7 @@ import type {
   QueryFunctionContext,
   UseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -7273,7 +7273,7 @@ import type {
   UseInfiniteQueryOptions,
   UseMutationOptions,
 } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -7435,7 +7435,7 @@ import type {
   QueryFunctionContext,
   UseInfiniteQueryOptions,
 } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -9583,7 +9583,7 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/svelte-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -9783,7 +9783,7 @@ import type {
   InfiniteData,
   CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -9999,7 +9999,7 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
 } from '@tanstack/svelte-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 

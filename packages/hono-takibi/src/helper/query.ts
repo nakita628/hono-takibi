@@ -684,8 +684,14 @@ function makeSWRHeader(
     lines.push("import useSWRMutation from'swr/mutation'")
     lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
   }
-  // Hono client imports
-  const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
+  // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
+  // `pagination.getRequestArgs` even when the operation itself takes no args, so the
+  // import must follow hasInfiniteQuery too (an args-less paginated op in a split file
+  // has hasAnyArgs=false).
+  const honoTypeImports = [
+    'ClientRequestOptions',
+    ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
+  ]
   lines.push(`import type{${honoTypeImports.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")
   lines.push(`import{${clientName}}from'${importPath}'`)
@@ -1231,8 +1237,14 @@ function makeHeader(
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args
   // (used in makeQueryKeyGetterCode for args:MaybeRefOrGetter<...> and toValue(args))
   const needsVueImports = config.isVueQuery && hasQueryWithArgs
-  // Hono client imports
-  const honoTypeImports = ['ClientRequestOptions', ...(hasAnyArgs ? ['InferRequestType'] : [])]
+  // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
+  // `pagination.getRequestArgs` even when the operation itself takes no args, so the
+  // import must follow hasInfiniteQuery too (an args-less paginated op in a split file
+  // has hasAnyArgs=false).
+  const honoTypeImports = [
+    'ClientRequestOptions',
+    ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
+  ]
   const lines = [
     ...(queryImports.length > 0
       ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
