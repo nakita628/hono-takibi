@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { schemaToFaker } from './faker-mapping.js'
+import { schemaToFaker } from './faker.js'
 
 describe('schemaToFaker', () => {
   describe('example values', () => {
@@ -749,7 +749,7 @@ describe('schemaToFaker', () => {
     })
   })
 
-  describe('FakerOptions', () => {
+  describe('array options', () => {
     it.concurrent('defaults array length to min 1 max 10 when bounds are omitted', () => {
       expect(schemaToFaker({ type: 'array', items: { type: 'boolean' } })).toBe(
         'Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (faker.datatype.boolean()))',

@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { extractTestCases, makeHandlerTestCode, makeTestFile, schemaToFaker } from './index.js'
+import { extractTestCases, makeHandlerTestCode, makeTestFile } from './index.js'
 
 describe('generator/test barrel exports', () => {
-  it('should export schemaToFaker as function', () => {
-    expect(typeof schemaToFaker).toBe('function')
-  })
-
   it('should export extractTestCases as function', () => {
     expect(typeof extractTestCases).toBe('function')
   })
@@ -17,32 +13,6 @@ describe('generator/test barrel exports', () => {
 
   it('should export makeTestFile as function', () => {
     expect(typeof makeTestFile).toBe('function')
-  })
-})
-
-describe('schemaToFaker', () => {
-  it('should generate faker code for string type', () => {
-    expect(schemaToFaker({ type: 'string' })).toBe(
-      'faker.string.alpha({ length: { min: 5, max: 20 } })',
-    )
-  })
-
-  it('should generate faker code for integer type', () => {
-    expect(schemaToFaker({ type: 'integer' })).toBe('faker.number.int({ min: 1, max: 1000 })')
-  })
-
-  it('should generate faker code for object type', () => {
-    expect(
-      schemaToFaker({
-        type: 'object',
-        properties: {
-          id: { type: 'integer' },
-          name: { type: 'string' },
-        },
-      }),
-    ).toBe(
-      '{ id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]), name: faker.helpers.arrayElement([faker.person.fullName(), undefined]) }',
-    )
   })
 })
 

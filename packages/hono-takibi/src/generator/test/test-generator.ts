@@ -8,9 +8,9 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
+import { schemaToFaker } from '../../helper/faker.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { cyclicNodes } from '../../utils/index.js'
-import { schemaToFaker } from './faker-mapping.js'
 
 function collectSchemaRefs(
   schema: Schema,

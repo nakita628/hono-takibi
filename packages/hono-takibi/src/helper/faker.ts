@@ -1,5 +1,5 @@
-import type { Schema } from '../../openapi/index.js'
-import { escapeRegexLiteral } from '../../utils/index.js'
+import type { Schema } from '../openapi/index.js'
+import { escapeRegexLiteral } from '../utils/index.js'
 
 const FORMAT_TO_FAKER: { [k: string]: string } = {
   date: 'faker.date.past().toISOString().slice(0, 10)',
@@ -182,15 +182,12 @@ function isKnownScalar(
   return typeof resolved.type === 'string'
 }
 
-export type FakerOptions = {
-  readonly arrayMin?: number
-  readonly arrayMax?: number
-}
-
 export function schemaToFaker(
   schema: Schema,
   propertyName?: string,
-  options: FakerOptions & {
+  options: {
+    readonly arrayMin?: number
+    readonly arrayMax?: number
     readonly useExamples?: boolean
     readonly schemas?: { readonly [k: string]: Schema }
   } = {},

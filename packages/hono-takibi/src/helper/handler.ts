@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from '../fsp/index.js'
-import { schemaToFaker } from '../generator/test/faker-mapping.js'
 import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
 import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
@@ -15,6 +14,7 @@ import {
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
+import { schemaToFaker } from './faker.js'
 
 function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
   if (schema.$ref) {
