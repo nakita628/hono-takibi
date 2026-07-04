@@ -6,6 +6,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
+import { schemaToFaker } from '../../helper/faker.js'
 import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import {
   cyclicNodes,
@@ -14,7 +15,6 @@ import {
   statusCodeToNumber,
   toIdentifierPascalCase,
 } from '../../utils/index.js'
-import { type FakerOptions, schemaToFaker } from '../test/faker-mapping.js'
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
@@ -148,7 +148,7 @@ function makeMockFunction(
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
-  fakerOptions: FakerOptions,
+  fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number },
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas, ...fakerOptions })
   const returnType = isCircular ? ': any' : ''
@@ -346,7 +346,7 @@ function makeHandlerBody(args: {
   readonly jsonSchema: Schema | undefined
   readonly textSchema: Schema | undefined
   readonly schemas: { readonly [k: string]: Schema }
-  readonly fakerOptions: FakerOptions
+  readonly fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number }
   readonly allRefs: Set<string>
   readonly exampleValue: unknown
   readonly exampleCast: string | undefined
@@ -383,7 +383,9 @@ function makeHandlerBody(args: {
   return `return c.body(null, ${statusCode})`
 }
 
-export type MockOptions = FakerOptions & {
+export type MockOptions = {
+  readonly arrayMin?: number
+  readonly arrayMax?: number
   readonly readonly?: boolean
   readonly useExamples?: boolean
   readonly locale?: string
@@ -408,8 +410,9 @@ function delayMiddlewareCode(delay: MockOptions['delay']) {
 }
 
 export function makeMock(openapi: OpenAPI, basePath: string, options: MockOptions = {}) {
-  // Split the emit-shell knobs off; the rest is exactly `FakerOptions`, threaded
-  // into `schemaToFaker`. `useExamples` is destructured out (not threaded) so it
+  // Split the emit-shell knobs off; the rest is exactly the faker knobs
+  // (`arrayMin`/`arrayMax`), threaded into `schemaToFaker`. `useExamples` is
+  // destructured out (not threaded) so it
   // gates the media-level example only (`extractMediaExample`); keeping it out of
   // `fakerOptions` preserves the property-level example behavior in one place.
   // It defaults to `true`: the mock has always preferred a spec-authored example.

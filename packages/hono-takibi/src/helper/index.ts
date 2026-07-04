@@ -1,6 +1,7 @@
 export * from './ast.js'
 export * from './code.js'
 export * from './exports.js'
+export * from './faker.js'
 export * from './rpc.js'
 export * from './openapi.js'
 export * from './query.js'
