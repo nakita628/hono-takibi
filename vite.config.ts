@@ -16,7 +16,9 @@ export default defineConfig({
     },
   },
   lint: {
-    ignorePatterns: ['**/apps/**', '**/dist/**', '**/fixtures/**'],
+    // website/ is a standalone VitePress site outside the pnpm workspace, with its own
+    // vitepress/vue deps the root typecheck can't resolve — exclude it from lint/typecheck.
+    ignorePatterns: ['**/apps/**', '**/dist/**', '**/fixtures/**', '**/website/**'],
     options: {
       typeAware: true,
       typeCheck: true,
