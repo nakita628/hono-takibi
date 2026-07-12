@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [".vitepress/**/*.ts", ".vitepress/**/*.d.ts", "e2e/**/*.ts", "playwright.config.ts"],
+  "exclude": [".vitepress/dist", ".vitepress/cache", "node_modules"]
+}

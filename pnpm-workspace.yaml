@@ -2,6 +2,9 @@ packages:
   - apps/*
   - packages/*
   - fixtures/*
+  - website
+overrides:
+  '@typespec/bundler>@typespec/compiler': 1.12.0
 allowBuilds:
   esbuild: true
   sharp: true
