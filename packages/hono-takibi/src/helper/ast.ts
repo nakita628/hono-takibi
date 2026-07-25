@@ -1,4 +1,4 @@
-import ts from 'typescript'
+import { ts } from 'ts-morph'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import type { Schema } from '../openapi/index.js'
