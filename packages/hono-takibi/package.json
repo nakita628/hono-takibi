@@ -58,22 +58,27 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
-    "@typespec/compiler": "^1.13.0",
-    "@typespec/openapi3": "^1.13.0",
-    "oxfmt": "^0.57.0",
+    "@typespec/compiler": "^1.14.0",
+    "@typespec/openapi3": "^1.14.0",
+    "oxfmt": "^0.60.0",
     "ts-morph": "^28.0.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
-    "@hono/zod-openapi": "^1.4.0",
-    "@types/node": "^26.0.1",
-    "@typespec/http": "^1.13.0",
-    "@typespec/rest": "^0.83.0",
-    "@typespec/versioning": "^0.83.0",
-    "hono": "^4.12.27",
-    "tsdown": "0.22.3",
+    "@hono/zod-openapi": "^1.5.1",
+    "@types/node": "^26.1.1",
+    "@typespec/events": "^0.84.0",
+    "@typespec/http": "^1.14.0",
+    "@typespec/json-schema": "^1.14.0",
+    "@typespec/rest": "^0.84.0",
+    "@typespec/sse": "^0.84.0",
+    "@typespec/streams": "^0.84.0",
+    "@typespec/versioning": "^0.84.0",
+    "@typespec/xml": "^0.84.0",
+    "hono": "^4.12.32",
+    "tsdown": "0.22.14",
     "zod": "^4.0.0"
   }
 }
