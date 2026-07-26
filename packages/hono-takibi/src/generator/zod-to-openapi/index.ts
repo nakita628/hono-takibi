@@ -86,12 +86,18 @@ export function zodToOpenAPI(
     )
     if (allOfMessage || unevalCheck) {
       const safeParseBranches = (() => {
-        if (!allOfMessage) {
-          return 'const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){ctx.issues.push({...issue,input:issue.input})}}'
-        }
-        // Per-issue.code dispatch required: ctx.issues is a discriminated union.
-        const isArrow = /^\s*\(.*?\)\s*=>/.test(allOfMessage)
-        const msgExpr = isArrow ? `(${allOfMessage})(issue)` : JSON.stringify(allOfMessage)
+        // Per-issue.code dispatch required even without a custom message:
+        // ctx.issues is a discriminated union, and spreading the un-narrowed
+        // issue union is not assignable to it.
+        const isArrow = allOfMessage ? /^\s*\(.*?\)\s*=>/.test(allOfMessage) : false
+        const msgExpr = allOfMessage
+          ? isArrow
+            ? `(${allOfMessage})(issue)`
+            : JSON.stringify(allOfMessage)
+          : undefined
+        const pushArg = msgExpr
+          ? `{...issue,input:issue.input,message:${msgExpr}}`
+          : '{...issue,input:issue.input}'
         // Issue code order from Zod v4 source (zod/v4/core/errors.d.ts).
         // `satisfies` couples to `$ZodIssueCode` so renames break compile here.
         // build here instead of silently miscompiling user output.
@@ -111,7 +117,7 @@ export function zodToOpenAPI(
         const branches = codes
           .map(
             (c, i) =>
-              `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push({...issue,input:issue.input,message:${msgExpr}})}`,
+              `${i === 0 ? '' : 'else '}if(issue.code==='${c}'){ctx.issues.push(${pushArg})}`,
           )
           .join('')
         return `const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){${branches}}}`

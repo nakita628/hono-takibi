@@ -30,7 +30,7 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 Create `hono-takibi.config.ts`:
 
 ```ts
-import { defineConfig } from 'hono-takibi/config'
+import { defineConfig } from 'hono-takibi'
 
 export default defineConfig({
   input: 'openapi.yaml',
@@ -307,7 +307,7 @@ export default defineConfig({
 Some options are mutually exclusive: `output` ↔ `routes`, `template.define` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
 ```ts
-import { defineConfig } from 'hono-takibi/config'
+import { defineConfig } from 'hono-takibi'
 
 export default defineConfig({
   input: 'openapi.yaml',

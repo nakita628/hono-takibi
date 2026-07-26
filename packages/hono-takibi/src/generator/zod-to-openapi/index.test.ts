@@ -12661,4 +12661,19 @@ describe('zodToOpenAPI', () => {
       }
     })
   })
+  describe('allOf + unevaluatedProperties without a custom message', () => {
+    it.concurrent('re-pushes sub-issues via per-code dispatch (assignable to the raw-issue union)', () => {
+      expect(
+        zodToOpenAPI({
+          allOf: [
+            { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+            { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] },
+          ],
+          unevaluatedProperties: false,
+        }),
+      ).toBe(
+        `(()=>{const Schema=z.object({id:z.string()}).openapi({"required":["id"]}).and(z.object({name:z.string()}).openapi({"required":["name"]}));return z.unknown().check((ctx)=>{const result=Schema.safeParse(ctx.value);if(!result.success){for(const issue of result.error.issues){if(issue.code==='invalid_type'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_big'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='too_small'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_format'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='not_multiple_of'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='unrecognized_keys'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_union'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_key'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_element'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='invalid_value'){ctx.issues.push({...issue,input:issue.input})}else if(issue.code==='custom'){ctx.issues.push({...issue,input:issue.input})}}};((ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["id"]){e.add(k)};for(const k of ["name"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o})}}})(ctx)}).pipe(Schema)})()`,
+      )
+    })
+  })
 })

@@ -20,10 +20,13 @@ jobs:
           node-version: '22'
           cache: true
 
-      - run: vp install
+      # Not `vp install`: it left the test/ workspace importer without node_modules
+      # on CI (missing .bin shims and deps at vitest globalSetup). A full pnpm
+      # install links every workspace importer.
+      - run: corepack enable && pnpm install --frozen-lockfile
 
       - run: vp run hono-takibi#build
 
-      - run: vp check
-
       - run: vp test --coverage
+
+      - run: vp check

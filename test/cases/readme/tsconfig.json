@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/readme/**/*",
+    "../../hosts/readme-*.ts",
+    "../../runtime/readme*.test.ts"
+  ]
+}

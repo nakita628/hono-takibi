@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["../../__generated__/crud/**/*", "../../runtime/crud-client.test.ts"]
+}

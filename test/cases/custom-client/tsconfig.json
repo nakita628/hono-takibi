@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/custom-client/**/*",
+    "../../hosts/users-app.ts",
+    "../../hosts/users-auth-client.ts"
+  ]
+}
