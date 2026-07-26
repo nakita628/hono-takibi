@@ -12,7 +12,12 @@ const results = cases.map((name) => {
   return {
     name,
     ok:
-      spawnSync(tsc, ['-p', path.join(testRoot, 'cases', name)], { stdio: 'inherit' }).status === 0,
+      spawnSync(tsc, ['-p', path.join(testRoot, 'cases', name)], {
+        stdio: 'inherit',
+        // Faker-heavy outputs (all-features mock/test) need more headroom than
+        // the default old-space limit; each case is heap-isolated per process.
+        env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' },
+      }).status === 0,
   }
 })
 const failed = results.filter((result) => !result.ok).map((result) => result.name)

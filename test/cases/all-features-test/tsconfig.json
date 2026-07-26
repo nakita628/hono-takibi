@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/all-features/test.ts",
+    "../../__generated__/all-features/mock.ts"
+  ]
+}

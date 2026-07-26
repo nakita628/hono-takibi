@@ -1,4 +1,4 @@
-import { defineConfig } from 'hono-takibi/config'
+import { defineConfig } from 'hono-takibi'
 
 export default defineConfig({
   input: '../../specs/health.yaml',

@@ -1,7 +1,6 @@
 packages:
   - apps/*
   - packages/*
-  - fixtures/*
   - test
   - website
 overrides:

@@ -32,7 +32,6 @@ export default defineConfig({
     ignorePatterns: [
       '**/apps/**',
       '**/dist/**',
-      '**/fixtures/**',
       '**/website/**',
       'test/__generated__/**',
       // Overlay sources are copy templates completed inside __generated__/<case>
@@ -46,7 +45,7 @@ export default defineConfig({
     },
   },
   fmt: {
-    ignorePatterns: ['**/node_modules/**', '**/dist/**', '**/fixtures/**', 'test/__generated__/**'],
+    ignorePatterns: ['**/node_modules/**', '**/dist/**', 'test/__generated__/**'],
     printWidth: 100,
     singleQuote: true,
     semi: false,
