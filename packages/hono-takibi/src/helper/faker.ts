@@ -324,3 +324,19 @@ export function schemaToFaker(
   }
   return 'undefined'
 }
+
+/**
+ * Sentinel path-param value both the test generator (request path) and the mock
+ * generator (404 guard) agree on. The pair forms a cross-generator contract:
+ * a generated test requests this value and the generated mock answers 404.
+ */
+export function getNonExistentValue(schema?: Schema, schemas?: { readonly [k: string]: Schema }) {
+  if (!schema) return '__non_existent__'
+  const resolved =
+    schema.$ref && schemas
+      ? (schemas[schema.$ref.replace('#/components/schemas/', '')] ?? schema)
+      : schema
+  if (resolved.type === 'integer' || resolved.type === 'number') return '-1'
+  if (resolved.format === 'uuid') return '00000000-0000-0000-0000-000000000000'
+  return '__non_existent__'
+}

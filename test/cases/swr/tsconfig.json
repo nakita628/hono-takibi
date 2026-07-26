@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": [
+    "../../__generated__/swr/**/*",
+    "../../hosts/users-app.ts",
+    "../../hosts/users-client.ts",
+    "../../runtime/swr.test.tsx"
+  ]
+}

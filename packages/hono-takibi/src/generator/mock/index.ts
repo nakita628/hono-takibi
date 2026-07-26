@@ -2,11 +2,12 @@ import {
   isHttpMethod,
   isMediaWithSchema,
   isOperation,
+  isParameter,
   isRefObject,
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
 import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
 import {
   cyclicNodes,
@@ -466,9 +467,50 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)
-      const usesContext = handlerBody.includes('c.') || authCheck !== ''
+      // The generated test suite requests getNonExistentValue() sentinels for
+      // routes declaring a 404, so the mock must answer 404 for exactly those
+      // values — the two generators share the sentinel as a contract.
+      const pathParams = (operation.parameters ?? []).flatMap((rawParam) => {
+        const resolved = rawParam.$ref
+          ? (openapi.components?.parameters?.[
+              rawParam.$ref.replace('#/components/parameters/', '')
+            ] ?? rawParam)
+          : rawParam
+        if (!(isParameter(resolved) && resolved.in === 'path')) return []
+        return [{ name: resolved.name, schema: resolved.schema ?? { type: 'string' as const } }]
+      })
+      const notFoundResponse =
+        operation.responses?.[String(404)] !== undefined
+          ? resolveResponse(operation.responses[String(404)], componentResponses)
+          : undefined
+      const notFoundCheck =
+        notFoundResponse !== undefined && pathParams.length > 0
+          ? (() => {
+              const condition = pathParams
+                .map(
+                  (p) => `c.req.param('${p.name}') === '${getNonExistentValue(p.schema, schemas)}'`,
+                )
+                .join(' || ')
+              const notFoundJsonMedia = notFoundResponse.content?.['application/json']
+              const notFoundBody = makeHandlerBody({
+                statusCode: 404,
+                jsonSchema:
+                  notFoundJsonMedia && isMediaWithSchema(notFoundJsonMedia)
+                    ? notFoundJsonMedia.schema
+                    : undefined,
+                textSchema: undefined,
+                schemas,
+                fakerOptions,
+                allRefs,
+                exampleValue: undefined,
+                exampleCast: undefined,
+              })
+              return `if(${condition}){${notFoundBody}}`
+            })()
+          : ''
+      const usesContext = handlerBody.includes('c.') || authCheck !== '' || notFoundCheck !== ''
       const param = usesContext ? 'c' : '_c'
-      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${handlerBody}}`
+      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${notFoundCheck}${handlerBody}}`
       return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
     }),
   )
@@ -546,14 +588,15 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   // zod schema's inferred type), but `JSON.stringify` throws on BigInt, so
   // `c.json` would return 500. The `toJSON` hook serializes it as a decimal
   // string — the conventional wire form for 64-bit integers in JSON. The
-  // `typeof` guard keeps the hook idempotent (a second mock file or another
-  // library defining it first must not throw), and `writable`/`configurable`
-  // mirror `Date.prototype.toJSON` so the hook stays removable; `enumerable`
+  // `in` guard keeps the hook idempotent (a second mock file or another
+  // library defining it first must not throw) while typechecking without a
+  // BigInt interface augmentation, and `writable`/`configurable` mirror
+  // `Date.prototype.toJSON` so the hook stays removable; `enumerable`
   // stays false so the key never leaks into spreads.
   const bigIntSerializer = `${mockFunctionsJoined}\n${handlersJoined}`.includes(
     'faker.number.bigInt(',
   )
-    ? `if(typeof BigInt.prototype.toJSON!=='function'){Object.defineProperty(BigInt.prototype,'toJSON',{value(this:bigint){return this.toString()},writable:true,configurable:true})}`
+    ? `if(!('toJSON'in BigInt.prototype)){Object.defineProperty(BigInt.prototype,'toJSON',{value(this:bigint){return this.toString()},writable:true,configurable:true})}`
     : ''
   const needsCookieImport = handlersJoined.includes('getCookie(c,')
   // A faker locale swaps only the import specifier; the `faker` binding name is

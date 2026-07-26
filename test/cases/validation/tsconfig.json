@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/validation/**/*",
+    "../../hosts/coercion-app.ts",
+    "../../runtime/validation.test.ts"
+  ]
+}

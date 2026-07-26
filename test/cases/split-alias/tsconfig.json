@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["../../__generated__/split-alias/src/*"],
+      "@/*": ["../../__generated__/split-alias/src/*"]
+    }
+  },
+  "include": ["../../__generated__/split-alias/**/*", "./consumer.ts"]
+}

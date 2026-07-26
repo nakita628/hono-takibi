@@ -8,7 +8,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { cyclicNodes } from '../../utils/index.js'
 
@@ -220,17 +220,6 @@ function makeMockFunctions(
       return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
     })
     .join('\n\n')
-}
-
-function getNonExistentValue(schema?: Schema, schemas?: { [key: string]: Schema }) {
-  if (!schema) return '__non_existent__'
-  const resolved =
-    schema.$ref && schemas
-      ? (schemas[schema.$ref.replace('#/components/schemas/', '')] ?? schema)
-      : schema
-  if (resolved.type === 'integer' || resolved.type === 'number') return '-1'
-  if (resolved.format === 'uuid') return '00000000-0000-0000-0000-000000000000'
-  return '__non_existent__'
 }
 
 function makeAuthHeader(sec: {

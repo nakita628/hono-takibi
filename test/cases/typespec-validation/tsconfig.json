@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/typespec-validation/**/*",
+    "../../hosts/typespec-validation-*.ts",
+    "../../runtime/typespec-validation*.test.ts"
+  ]
+}

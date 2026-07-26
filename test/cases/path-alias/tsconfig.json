@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@": ["../../__generated__/path-alias/src/index.ts"],
+      "@/*": ["../../__generated__/path-alias/src/*"]
+    }
+  },
+  "include": ["../../__generated__/path-alias/**/*"]
+}

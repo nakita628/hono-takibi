@@ -2286,7 +2286,7 @@ export default app
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
-if (typeof BigInt.prototype.toJSON !== 'function') {
+if (!('toJSON' in BigInt.prototype)) {
   Object.defineProperty(BigInt.prototype, 'toJSON', {
     value(this: bigint) {
       return this.toString()
@@ -2357,7 +2357,7 @@ export default app
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
-if (typeof BigInt.prototype.toJSON !== 'function') {
+if (!('toJSON' in BigInt.prototype)) {
   Object.defineProperty(BigInt.prototype, 'toJSON', {
     value(this: bigint) {
       return this.toString()
@@ -2392,6 +2392,110 @@ const getCounterRouteHandler: RouteHandler<typeof getCounterRoute> = async (c) =
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getCounterRoute, getCounterRouteHandler)
+
+export default app
+`)
+    })
+  })
+  describe('404 sentinel guard (contract with the test generator)', () => {
+    it('answers 404 for the non-existent sentinel when the route declares a 404', async () => {
+      const spec: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/items/{id}': {
+            get: {
+              operationId: 'getItem',
+              parameters: [
+                {
+                  name: 'id',
+                  in: 'path',
+                  required: true,
+                  schema: { type: 'string', format: 'uuid' },
+                },
+              ],
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { type: 'string', format: 'uuid' } },
+                        required: ['id'],
+                      },
+                    },
+                  },
+                },
+                '404': {
+                  description: 'Not Found',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { error: { type: 'string' } },
+                        required: ['error'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const result = await fmt(makeMock(spec, '/'))
+      if (!result.ok) throw new Error(result.error)
+      expect(result.value)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getItemsIdRoute = createRoute({
+  method: 'get',
+  path: '/items/{id}',
+  operationId: 'getItem',
+  request: {
+    params: z.object({
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': { schema: z.object({ id: z.uuid() }).openapi({ required: ['id'] }) },
+      },
+    },
+    404: {
+      description: 'Not Found',
+      content: {
+        'application/json': {
+          schema: z.object({ error: z.string() }).openapi({ required: ['error'] }),
+        },
+      },
+    },
+  },
+})
+
+const getItemsIdRouteHandler: RouteHandler<typeof getItemsIdRoute> = async (c) => {
+  if (c.req.param('id') === '00000000-0000-0000-0000-000000000000') {
+    return c.json({ error: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 404)
+  }
+  return c.json({ id: faker.string.uuid() }, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getItemsIdRoute, getItemsIdRouteHandler)
 
 export default app
 `)

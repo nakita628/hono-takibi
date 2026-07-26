@@ -1,0 +1,585 @@
+openapi: '3.1.0'
+info:
+  title: x-* Vendor Extension Messages
+  version: '1.0.0'
+  description: |
+    Exhaustive fixture exercising every documented x-*-message variant supported by hono-takibi.
+
+paths:
+  /form:
+    post:
+      operationId: postForm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Form'
+      responses:
+        '200':
+          description: OK
+
+  /composition:
+    post:
+      operationId: postComposition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Composition'
+      responses:
+        '200':
+          description: OK
+
+  /dictionary:
+    post:
+      operationId: postDictionary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dictionary'
+      responses:
+        '200':
+          description: OK
+
+  /merged:
+    post:
+      operationId: postMerged
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Merged'
+      responses:
+        '200':
+          description: OK
+
+  /merged-arrow:
+    post:
+      operationId: postMergedArrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergedArrow'
+      responses:
+        '200':
+          description: OK
+
+  /payment:
+    post:
+      operationId: postPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '200':
+          description: OK
+
+  /bounds:
+    post:
+      operationId: postBounds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bounds'
+      responses:
+        '200':
+          description: OK
+
+  /basket:
+    post:
+      operationId: postBasket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Basket'
+      responses:
+        '200':
+          description: OK
+
+  /write-only:
+    post:
+      operationId: postWriteOnly
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriteOnly'
+      responses:
+        '200':
+          description: OK
+
+  /contains-default:
+    post:
+      operationId: postContainsDefault
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContainsDefault'
+      responses:
+        '200':
+          description: OK
+
+  /misc:
+    post:
+      operationId: postMisc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Misc'
+      responses:
+        '200':
+          description: OK
+
+  /strict-allof:
+    post:
+      operationId: postStrictAllOf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StrictAllOf'
+      responses:
+        '200':
+          description: OK
+
+  /implication:
+    post:
+      operationId: postImplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Implication'
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    # Field-level coverage (v3.0: 1 keyword = 1 message):
+    #   x-error-message      → string / integer / number / boolean / array constructors
+    #   x-minimum-message    → number .gte()
+    #   x-maximum-message    → number .lte()
+    #   x-minLength-message  → string .min()
+    #   x-maxLength-message  → string .max()
+    #   x-minItems-message   → array .min()
+    #   x-maxItems-message   → array .max()
+    #   x-size-message       → string .length() / array .length()
+    #   x-pattern-message    → string .regex()
+    #   x-multipleOf-message → integer & number .multipleOf()
+    #   x-dependentRequired-message → object dependentRequired
+    Form:
+      type: object
+      required:
+        - username
+        - code
+        - slug
+        - age
+        - score
+        - count
+        - active
+        - tags
+        - pin
+        - role
+        - priority
+        - quota
+      dependentRequired:
+        token:
+          - tokenLabel
+      x-dependentRequired-message: 'tokenLabel is required when token is provided'
+      properties:
+        # x-error-message (string ctor) + x-minLength-message + x-maxLength-message
+        username:
+          type: string
+          minLength: 3
+          maxLength: 16
+          x-error-message: 'username must be a string'
+          x-minLength-message: 'username must be at least 3 characters'
+          x-maxLength-message: 'username must be at most 16 characters'
+        # x-size-message (string .length())
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          x-length-message: 'code must be exactly 6 characters'
+        # x-pattern-message (.regex())
+        slug:
+          type: string
+          pattern: '^[a-z0-9-]+$'
+          x-pattern-message: 'slug must be lowercase alphanumeric with hyphens'
+        # x-error-message (integer ctor) + x-minimum-message (.gte()) + x-maximum-message (.lte())
+        age:
+          type: integer
+          minimum: 0
+          maximum: 120
+          x-error-message: 'age must be an integer'
+          x-minimum-message: 'age must be >= 0'
+          x-maximum-message: 'age must be <= 120'
+        # x-error-message (number ctor) + x-multipleOf-message (number .multipleOf())
+        score:
+          type: number
+          multipleOf: 0.5
+          x-error-message: 'score must be a number'
+          x-multipleOf-message: 'score must be a multiple of 0.5'
+        # x-multipleOf-message (integer .multipleOf())
+        count:
+          type: integer
+          multipleOf: 5
+          x-multipleOf-message: 'count must be a multiple of 5'
+        # x-error-message (boolean ctor)
+        active:
+          type: boolean
+          x-error-message: 'active must be a boolean'
+        # x-error-message (array ctor) + x-minItems-message + x-maxItems-message
+        tags:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+          x-error-message: 'tags must be an array'
+          x-minItems-message: 'tags must contain at least 1 item'
+          x-maxItems-message: 'tags must contain at most 5 items'
+        # x-size-message (array .length())
+        pin:
+          type: array
+          items:
+            type: integer
+          minItems: 4
+          maxItems: 4
+          x-length-message: 'pin must contain exactly 4 digits'
+        # x-error-message on a string enum (whole-enum violation message)
+        role:
+          type: string
+          enum: [admin, editor, viewer]
+          x-error-message: 'role must be one of admin, editor, viewer'
+        # x-error-message on an integer enum
+        priority:
+          type: integer
+          enum: [1, 2, 3]
+          x-error-message: 'priority must be 1, 2, or 3'
+        token:
+          type: string
+        tokenLabel:
+          type: string
+        # Arrow-function message — no args
+        nickname:
+          type: string
+          x-error-message: '() => "nickname is invalid"'
+        # Arrow-function message — (iss) inspects iss.input to branch between
+        # "missing" vs "wrong type" without needing two separate keys
+        quota:
+          type: integer
+          minimum: 0
+          x-error-message: '(iss) => iss.input === undefined ? "quota is required" : "quota must be an integer"'
+          x-minimum-message: '(iss) => `quota must be >= 0 (received: ${iss.input})`'
+
+    # Composition extensions: x-anyOf-message, x-oneOf-message, x-not-message
+    Composition:
+      type: object
+      required:
+        - anyValue
+      properties:
+        anyValue:
+          anyOf:
+            - type: string
+            - type: integer
+          x-anyOf-message: 'anyValue must be a string or integer'
+        oneValue:
+          oneOf:
+            - type: string
+            - type: integer
+          x-oneOf-message: 'oneValue must match exactly one type'
+        notString:
+          not:
+            type: string
+          x-not-message: 'notString must not be a string'
+
+    # Object key extension: x-propertyNames-message
+    Dictionary:
+      type: object
+      additionalProperties:
+        type: string
+      propertyNames:
+        pattern: '^[a-z][a-z0-9_]*$'
+      x-propertyNames-message: 'keys must start with a lowercase letter and contain only [a-z0-9_]'
+
+    # x-allOf-message — string form (Pattern C: replaces sub-issue messages with this string)
+    Merged:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+              x-minLength-message: 'name must be at least 3 chars'
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+              x-minimum-message: 'age must be >= 0'
+      x-allOf-message: 'merged validation failed'
+
+    # x-allOf-message — arrow function form (issue-aware)
+    MergedArrow:
+      allOf:
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 3
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: integer
+              minimum: 0
+      x-allOf-message: '(issue) => "merged failed at " + issue.path.join(".")'
+
+    # x-dependentSchemas-message — distinct from x-dependentRequired-message.
+    # dependentRequired fires when the dependency key exists but a required
+    # property is missing. dependentSchemas fires when the dependency key
+    # exists and the sub-schema validation against the whole object fails.
+    Payment:
+      type: object
+      required: [method]
+      properties:
+        method:
+          type: string
+        credit_card:
+          type: string
+        billing_zip:
+          type: string
+      dependentRequired:
+        credit_card: [billing_zip]
+      dependentSchemas:
+        credit_card:
+          properties:
+            credit_card:
+              type: string
+              pattern: '^[0-9]{16}$'
+      x-dependentRequired-message: 'billing_zip is required when credit_card is provided'
+      x-dependentSchemas-message: 'credit_card must be 16 digits when provided'
+
+    # x-exclusiveMinimum-message / x-exclusiveMaximum-message — distinct from
+    # x-minimum-message / x-maximum-message. inclusive vs exclusive boundary
+    # constraints must be expressible with independent messages (silent bug fix).
+    Bounds:
+      type: object
+      required: [score, ratio]
+      properties:
+        score:
+          type: number
+          minimum: 0
+          exclusiveMaximum: 100
+          x-minimum-message: 'score must be >= 0'
+          x-exclusiveMaximum-message: 'score must be < 100'
+        ratio:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 1
+          x-exclusiveMinimum-message: 'ratio must be > 0'
+          x-maximum-message: 'ratio must be <= 1'
+
+    # x-minContains-message / x-maxContains-message — independent from
+    # x-contains-message. v3.0 silent-bug fix: each failure mode gets a
+    # distinct message instead of all collapsing under x-contains-message.
+    Basket:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [kind]
+            properties:
+              kind:
+                type: string
+          contains:
+            type: object
+            required: [kind]
+            properties:
+              kind:
+                type: string
+                enum: [premium]
+          minContains: 2
+          maxContains: 5
+          x-minContains-message: 'must include at least 2 premium items'
+          x-maxContains-message: 'must include at most 5 premium items'
+
+    # v3.2: writeOnly OAS metadata propagation. Verifies that a property
+    # marked writeOnly in the OpenAPI source survives codegen and ends up
+    # in the generated OpenAPI document via .openapi({writeOnly: true}).
+    WriteOnly:
+      type: object
+      required: [name, password]
+      properties:
+        name:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+
+    # v3.2: contains / minContains / maxContains WITHOUT custom messages.
+    # Verifies the dynamic default messages embed the actual matched count
+    # (e.g. "Expected at least 2 matching items, got 1") so downstream
+    # defaultHook consumers can show actionable detail without slot setup.
+    ContainsDefault:
+      type: object
+      required: [tags, scores, ints]
+      properties:
+        # contains alone (no min/max) → "Expected at least 1 item matching contains schema, got N"
+        tags:
+          type: array
+          items:
+            type: string
+          contains:
+            const: 'special'
+        # minContains: 2 → "Expected at least 2 matching items, got N"
+        scores:
+          type: array
+          items:
+            type: number
+          contains:
+            type: number
+            minimum: 90
+          minContains: 2
+        # minContains + maxContains → both dynamic
+        ints:
+          type: array
+          items:
+            type: number
+          contains:
+            type: integer
+          minContains: 2
+          maxContains: 3
+
+    # Coverage backfill — runtime tests for x-*-message extensions that were
+    # previously only covered by codegen unit tests. Each property exercises
+    # one extension under a runtime POST + JSON safeParse + issue.message
+    # toStrictEqual assertion (yuri-検問 batch).
+    Misc:
+      type: object
+      required: [color, kind, tags, sized, namespaced, prefixed, payload]
+      properties:
+        # x-enum-message — value not in enum (vs x-error-message for type)
+        color:
+          type: string
+          enum: [red, green, blue]
+          x-error-message: 'color must be a string'
+          x-enum-message: 'color must be one of red, green, blue'
+        # x-const-message — wrong literal value
+        kind:
+          type: string
+          const: 'admin'
+          x-const-message: 'kind must be exactly "admin"'
+        # x-uniqueItems-message — duplicate elements
+        tags:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          x-uniqueItems-message: 'tags must contain unique values'
+        # x-contains-message — when contains alone (no min/max)
+        sized:
+          type: array
+          items:
+            type: string
+          contains:
+            type: string
+            enum: [premium]
+          x-contains-message: 'sized must contain at least one premium tag'
+        # x-minProperties-message + x-maxProperties-message + x-additionalProperties-message
+        namespaced:
+          type: object
+          minProperties: 1
+          maxProperties: 3
+          additionalProperties: false
+          properties:
+            a:
+              type: string
+            b:
+              type: string
+            c:
+              type: string
+          x-minProperties-message: 'namespaced must have at least 1 property'
+          x-maxProperties-message: 'namespaced must have at most 3 properties'
+          x-additionalProperties-message: 'namespaced contains an unrecognized key'
+        # x-patternProperties-message
+        prefixed:
+          type: object
+          patternProperties:
+            '^x_':
+              type: string
+          x-patternProperties-message: 'x_ keys must be strings'
+        # x-required-message — distinct message when input is undefined
+        payload:
+          type: string
+          x-required-message: 'payload is required'
+          x-error-message: 'payload must be a string'
+
+    # x-implication-message — semantic alias for the A → B implication
+    # pattern encoded as anyOf:[{not:A},{required:B}]. Takes precedence over
+    # x-anyOf-message on the anyOf path and reads more clearly when the
+    # author's intent is "if hasLicense=true then licenseNumber is required".
+    Implication:
+      type: object
+      properties:
+        hasLicense:
+          type: boolean
+        licenseNumber:
+          type: string
+      anyOf:
+        - not:
+            required: [hasLicense]
+            properties:
+              hasLicense:
+                const: true
+        - required: [licenseNumber]
+      x-implication-message: 'licenseNumber is required when hasLicense is true'
+
+    # allOf + unevaluatedProperties:false — JSON Schema 2020-12 §11.2.
+    # The composed ZodIntersection strips excess keys via z.object().strip
+    # before any inline refine observes them. The generator wraps the
+    # composed schema in z.unknown().check(ctx => ...).pipe(Schema) so the
+    # check evaluates the raw input against the union of evaluated keys.
+    StrictAllOf:
+      allOf:
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+        - type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+      unevaluatedProperties: false
+      x-unevaluatedProperties-message: 'Unknown field — only id and name are allowed.'

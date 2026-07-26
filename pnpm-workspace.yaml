@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
   - fixtures/*
+  - test
   - website
 overrides:
   '@typespec/bundler>@typespec/compiler': 1.12.0

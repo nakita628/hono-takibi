@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: Integration Coercion API
+  version: 0.0.0
+paths:
+  /coerce/{id}:
+    get:
+      operationId: coercePathId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Coerced path param echo
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - idType
+                  - idValue
+                properties:
+                  idType:
+                    type: string
+                  idValue:
+                    type: string
+  /search:
+    get:
+      operationId: search
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: active
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+      responses:
+        '200':
+          description: Coerced query echo
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - limit
+                  - limitType
+                  - activeType
+                  - idsTypes
+                properties:
+                  limit:
+                    type: number
+                  limitType:
+                    type: string
+                  activeType:
+                    type: string
+                  idsTypes:
+                    type: array
+                    items:
+                      type: string
