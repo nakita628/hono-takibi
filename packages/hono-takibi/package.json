@@ -16,7 +16,7 @@
     "url": "git+https://github.com/nakita628/hono-takibi.git"
   },
   "bin": {
-    "hono-takibi": "dist/index.js"
+    "hono-takibi": "dist/cli.js"
   },
   "files": [
     "dist"
@@ -24,6 +24,10 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
       "import": "./dist/vite-plugin/index.js"

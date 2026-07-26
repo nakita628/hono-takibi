@@ -97,7 +97,7 @@ const openapi = {
 
 describe('honoTakibi', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', 'openapi.json', '-o', 'zod-openapi-hono.ts']
+    process.argv = ['*/*/bin/node', '*/dist/cli.js', 'openapi.json', '-o', 'zod-openapi-hono.ts']
     fs.writeFileSync('openapi.json', JSON.stringify(openapi))
   })
   afterAll(() => {
@@ -182,7 +182,7 @@ export const getZodOpenapiHonoRoute = createRoute({
 
 describe('honoTakibi --help', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', '--help']
+    process.argv = ['*/*/bin/node', '*/dist/cli.js', '--help']
   })
 
   it('honoTakibi help requested --help', async () => {
@@ -200,7 +200,7 @@ Options:
 
 describe('honoTakibi -h', () => {
   beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/index.js', '-h']
+    process.argv = ['*/*/bin/node', '*/dist/cli.js', '-h']
   })
 
   it('honoTakibi help requested -h', async () => {
@@ -216,7 +216,7 @@ Options:
 
   describe('honoTakibi missing output', () => {
     beforeAll(() => {
-      process.argv = ['node', 'dist/index.js', 'openapi.yaml']
+      process.argv = ['node', 'dist/cli.js', 'openapi.yaml']
     })
 
     it('should fail if output is not specified', async () => {
@@ -227,7 +227,7 @@ Options:
 
   describe('honoTakibi no args', () => {
     beforeAll(() => {
-      process.argv = ['node', 'dist/index.js']
+      process.argv = ['node', 'dist/cli.js']
     })
 
     it('should fail when neither config nor positional args are supplied', async () => {
@@ -245,7 +245,7 @@ Options:
 
   describe('honoTakibi rejects unsupported input extension', () => {
     beforeAll(() => {
-      process.argv = ['node', 'dist/index.js', 'spec.txt', '-o', 'out.ts']
+      process.argv = ['node', 'dist/cli.js', 'spec.txt', '-o', 'out.ts']
     })
 
     it('returns help text when input file is not .yaml/.json/.tsp', async () => {
@@ -260,7 +260,7 @@ Options:
 
   describe('honoTakibi rejects unsupported output extension', () => {
     beforeAll(() => {
-      process.argv = ['node', 'dist/index.js', 'spec.yaml', '-o', 'out.js']
+      process.argv = ['node', 'dist/cli.js', 'spec.yaml', '-o', 'out.js']
     })
 
     it('returns help text when output file is not .ts', async () => {
@@ -277,7 +277,7 @@ Options:
       // Pointing at a non-existent .yaml file forces parseOpenAPI to fail
       // — the CLI's `openAPIResult.ok === false` branch should surface the
       // error verbatim instead of throwing.
-      process.argv = ['node', 'dist/index.js', 'this-file-does-not-exist.yaml', '-o', 'out.ts']
+      process.argv = ['node', 'dist/cli.js', 'this-file-does-not-exist.yaml', '-o', 'out.ts']
     })
 
     it('returns ok:false with the parser error string when input is missing', async () => {
@@ -296,7 +296,7 @@ describe('honoTakibi x-brand', () => {
   beforeAll(() => {
     process.argv = [
       '*/*/bin/node',
-      '*/dist/index.js',
+      '*/dist/cli.js',
       'brand-test.json',
       '-o',
       'brand-test-output.ts',

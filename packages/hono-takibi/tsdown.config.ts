@@ -2,7 +2,8 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: {
-    index: './src/index.ts',
+    cli: './src/index.ts',
+    index: './src/config/index.ts',
     'vite-plugin/index': './src/vite-plugin/index.ts',
     'config/index': './src/config/index.ts',
     'generator/zod-openapi-hono/openapi/index': './src/generator/zod-openapi-hono/openapi/index.ts',
