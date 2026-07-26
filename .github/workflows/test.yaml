@@ -22,6 +22,11 @@ jobs:
 
       - run: vp install
 
+      # vp install alone left the test/ workspace importer without node_modules on CI
+      # (its .bin shims and deps were missing at vitest globalSetup). A full pnpm
+      # install guarantees every workspace importer is linked.
+      - run: corepack enable && pnpm install --frozen-lockfile
+
       - run: vp run hono-takibi#build
 
       - run: vp test --coverage

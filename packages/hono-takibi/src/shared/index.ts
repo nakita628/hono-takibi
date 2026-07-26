@@ -27,7 +27,6 @@ import {
   webhooks,
 } from '../core/index.js'
 import type { OpenAPI } from '../openapi/index.js'
-import { deriveAppEntry } from '../utils/index.js'
 
 export function makeJob(
   openAPI: OpenAPI,
@@ -35,13 +34,23 @@ export function makeJob(
 ) {
   const defineOn = config.template?.define === true
   // In define mode the app entry anchors routes/ and components/. When output is
-  // omitted, the anchor is inferred from components.output, else src/index.ts.
+  // omitted, the anchor is inferred from components.output (`<anchor>/<module>`,
+  // module being a flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`),
+  // else src/index.ts.
+  const componentsContainer = config.components?.output?.endsWith('/index.ts')
+    ? config.components.output.slice(0, -'/index.ts'.length)
+    : config.components?.output
+  const componentsAnchor = componentsContainer?.includes('/')
+    ? componentsContainer.slice(0, componentsContainer.lastIndexOf('/'))
+    : ''
   const appOutput =
     config.output ??
     (defineOn
-      ? config.components?.output
-        ? deriveAppEntry(config.components.output)
-        : 'src/index.ts'
+      ? config.components?.output === undefined
+        ? 'src/index.ts'
+        : componentsAnchor === '' || componentsAnchor === '.'
+          ? 'index.ts'
+          : `${componentsAnchor}/index.ts`
       : config.routes?.output)
   const componentsOutput =
     config.components?.output ??

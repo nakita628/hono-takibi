@@ -26,12 +26,24 @@ export default defineConfig({
     import: './client',
   },
   swr: { output: '../../__generated__/all-features/swr.ts', import: './client' },
-  'tanstack-query': { output: '../../__generated__/all-features/tanstack-query.ts', import: './client' },
-  'preact-query': { output: '../../__generated__/all-features/preact-query.ts', import: './client' },
+  'tanstack-query': {
+    output: '../../__generated__/all-features/tanstack-query.ts',
+    import: './client',
+  },
+  'preact-query': {
+    output: '../../__generated__/all-features/preact-query.ts',
+    import: './client',
+  },
   'solid-query': { output: '../../__generated__/all-features/solid-query.ts', import: './client' },
   'vue-query': { output: '../../__generated__/all-features/vue-query.ts', import: './client' },
-  'svelte-query': { output: '../../__generated__/all-features/svelte-query.ts', import: './client' },
-  'angular-query': { output: '../../__generated__/all-features/angular-query.ts', import: './client' },
+  'svelte-query': {
+    output: '../../__generated__/all-features/svelte-query.ts',
+    import: './client',
+  },
+  'angular-query': {
+    output: '../../__generated__/all-features/angular-query.ts',
+    import: './client',
+  },
   mock: {
     output: '../../__generated__/all-features/mock.ts',
   },

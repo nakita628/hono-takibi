@@ -8,7 +8,7 @@ paths:
     get:
       operationId: minimalGetHealth
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -23,51 +23,51 @@ paths:
     get:
       operationId: allExportsGetUsers
       parameters:
-        - $ref: "#/components/parameters/AllExportsPageParam"
+        - $ref: '#/components/parameters/AllExportsPageParam'
       responses:
-        "200":
-          $ref: "#/components/responses/AllExportsUserListResponse"
+        '200':
+          $ref: '#/components/responses/AllExportsUserListResponse'
     post:
       operationId: allExportsCreateUser
       requestBody:
-        $ref: "#/components/requestBodies/AllExportsCreateUserBody"
+        $ref: '#/components/requestBodies/AllExportsCreateUserBody'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AllExportsUser"
+                $ref: '#/components/schemas/AllExportsUser'
           links:
             GetUser:
-              $ref: "#/components/links/AllExportsGetUserLink"
+              $ref: '#/components/links/AllExportsGetUserLink'
   /allExports/users/{id}:
     get:
       operationId: allExportsGetUserById
       parameters:
-        - $ref: "#/components/parameters/AllExportsUserIdParam"
+        - $ref: '#/components/parameters/AllExportsUserIdParam'
       security:
         - AllExportsBearerAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AllExportsUser"
+                $ref: '#/components/schemas/AllExportsUser'
           headers:
             X-Request-Id:
-              $ref: "#/components/headers/AllExportsXRequestId"
+              $ref: '#/components/headers/AllExportsXRequestId'
   /circularRefs/tree:
     get:
       operationId: circularRefsGetTree
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CircularRefsTreeNode"
+                $ref: '#/components/schemas/CircularRefsTreeNode'
     post:
       operationId: circularRefsCreateTree
       requestBody:
@@ -75,29 +75,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CircularRefsTreeNode"
+              $ref: '#/components/schemas/CircularRefsTreeNode'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CircularRefsTreeNode"
+                $ref: '#/components/schemas/CircularRefsTreeNode'
   /circularRefs/graph:
     get:
       operationId: circularRefsGetGraph
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CircularRefsNodeA"
+                $ref: '#/components/schemas/CircularRefsNodeA'
   /securitySchemes/public:
     get:
       operationId: securitySchemesGetPublic
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -114,7 +114,7 @@ paths:
       security:
         - SecuritySchemesBearerAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -131,7 +131,7 @@ paths:
       security:
         - SecuritySchemesApiKeyAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -148,7 +148,7 @@ paths:
       security:
         - SecuritySchemesBasicAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -166,7 +166,7 @@ paths:
         - SecuritySchemesOAuth2:
             - read
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -184,7 +184,7 @@ paths:
         - SecuritySchemesBearerAuth: []
           SecuritySchemesApiKeyAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -213,7 +213,7 @@ paths:
                 - name
                 - value
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -245,7 +245,7 @@ paths:
                 - username
                 - password
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -274,7 +274,7 @@ paths:
               required:
                 - file
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -295,7 +295,7 @@ paths:
             schema:
               type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             text/plain:
@@ -324,7 +324,7 @@ paths:
               required:
                 - data
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -346,7 +346,7 @@ paths:
         in: header
         schema:
           type: string
-          default: "1"
+          default: '1'
     get:
       operationId: parametersMergeGetItem
       parameters:
@@ -355,12 +355,12 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ParametersMergeItem"
+                $ref: '#/components/schemas/ParametersMergeItem'
     put:
       operationId: parametersMergeUpdateItem
       parameters:
@@ -374,25 +374,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ParametersMergeItemUpdate"
+              $ref: '#/components/schemas/ParametersMergeItemUpdate'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ParametersMergeItem"
+                $ref: '#/components/schemas/ParametersMergeItem'
     delete:
       operationId: parametersMergeDeleteItem
       responses:
-        "204":
+        '204':
           description: Deleted
   /parametersMerge/items:
     get:
       operationId: parametersMergeListItems
       parameters:
-        - $ref: "#/components/parameters/ParametersMergeLimitParam"
-        - $ref: "#/components/parameters/ParametersMergeOffsetParam"
+        - $ref: '#/components/parameters/ParametersMergeLimitParam'
+        - $ref: '#/components/parameters/ParametersMergeOffsetParam'
         - name: sort
           in: query
           schema:
@@ -402,7 +402,7 @@ paths:
               - created
               - updated
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -412,7 +412,7 @@ paths:
                   items:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ParametersMergeItem"
+                      $ref: '#/components/schemas/ParametersMergeItem'
                   total:
                     type: integer
                 required:
@@ -426,14 +426,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SchemaEdgeCasesNullableFields"
+              $ref: '#/components/schemas/SchemaEdgeCasesNullableFields'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaEdgeCasesNullableFields"
+                $ref: '#/components/schemas/SchemaEdgeCasesNullableFields'
   /schemaEdgeCases/discriminated:
     post:
       operationId: schemaEdgeCasesPostDiscriminated
@@ -442,44 +442,44 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SchemaEdgeCasesShape"
+              $ref: '#/components/schemas/SchemaEdgeCasesShape'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaEdgeCasesShape"
+                $ref: '#/components/schemas/SchemaEdgeCasesShape'
   /schemaEdgeCases/composed:
     get:
       operationId: schemaEdgeCasesGetComposed
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaEdgeCasesComposedObject"
+                $ref: '#/components/schemas/SchemaEdgeCasesComposedObject'
   /schemaEdgeCases/deep-nested:
     get:
       operationId: schemaEdgeCasesGetDeepNested
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaEdgeCasesLevel1"
+                $ref: '#/components/schemas/SchemaEdgeCasesLevel1'
   /schemaEdgeCases/additional-props:
     get:
       operationId: schemaEdgeCasesGetAdditionalProps
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SchemaEdgeCasesDynamicMap"
+                $ref: '#/components/schemas/SchemaEdgeCasesDynamicMap'
   /callbacksLinks/subscriptions:
     post:
       operationId: callbacksLinksCreateSubscription
@@ -488,20 +488,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CallbacksLinksSubscriptionRequest"
+              $ref: '#/components/schemas/CallbacksLinksSubscriptionRequest'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CallbacksLinksSubscription"
+                $ref: '#/components/schemas/CallbacksLinksSubscription'
           links:
             GetSubscription:
-              $ref: "#/components/links/CallbacksLinksGetSubscriptionLink"
+              $ref: '#/components/links/CallbacksLinksGetSubscriptionLink'
       callbacks:
         onEvent:
-          $ref: "#/components/callbacks/CallbacksLinksSubscriptionEvent"
+          $ref: '#/components/callbacks/CallbacksLinksSubscriptionEvent'
   /callbacksLinks/subscriptions/{id}:
     get:
       operationId: callbacksLinksGetSubscription
@@ -512,15 +512,15 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CallbacksLinksSubscription"
+                $ref: '#/components/schemas/CallbacksLinksSubscription'
           links:
             DeleteSubscription:
-              $ref: "#/components/links/CallbacksLinksDeleteSubscriptionLink"
+              $ref: '#/components/links/CallbacksLinksDeleteSubscriptionLink'
     delete:
       operationId: callbacksLinksDeleteSubscription
       parameters:
@@ -530,7 +530,7 @@ paths:
           schema:
             type: string
       responses:
-        "204":
+        '204':
           description: Deleted
   /callbacksLinks/webhooks/test:
     post:
@@ -548,7 +548,7 @@ paths:
               required:
                 - url
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -574,7 +574,7 @@ paths:
             type: integer
             default: 10
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -584,7 +584,7 @@ paths:
                   posts:
                     type: array
                     items:
-                      $ref: "#/components/schemas/CrudRefsPost"
+                      $ref: '#/components/schemas/CrudRefsPost'
                   total:
                     type: integer
                 required:
@@ -597,14 +597,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CrudRefsCreatePost"
+              $ref: '#/components/schemas/CrudRefsCreatePost'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CrudRefsPost"
+                $ref: '#/components/schemas/CrudRefsPost'
   /crudRefs/posts/{id}:
     get:
       operationId: crudRefsGetPost
@@ -615,12 +615,12 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CrudRefsPost"
+                $ref: '#/components/schemas/CrudRefsPost'
     put:
       operationId: crudRefsUpdatePost
       parameters:
@@ -634,14 +634,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CrudRefsUpdatePost"
+              $ref: '#/components/schemas/CrudRefsUpdatePost'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CrudRefsPost"
+                $ref: '#/components/schemas/CrudRefsPost'
     delete:
       operationId: crudRefsDeletePost
       parameters:
@@ -651,7 +651,7 @@ paths:
           schema:
             type: integer
       responses:
-        "204":
+        '204':
           description: Deleted
   /crudRefs/posts/{id}/comments:
     get:
@@ -663,14 +663,14 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CrudRefsComment"
+                  $ref: '#/components/schemas/CrudRefsComment'
     post:
       operationId: crudRefsCreateComment
       parameters:
@@ -684,34 +684,34 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CrudRefsCreateComment"
+              $ref: '#/components/schemas/CrudRefsCreateComment'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CrudRefsComment"
+                $ref: '#/components/schemas/CrudRefsComment'
   /crudRefs/tags:
     get:
       operationId: crudRefsListTags
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CrudRefsTag"
+                  $ref: '#/components/schemas/CrudRefsTag'
   /comprehensive/users:
     get:
       operationId: comprehensiveListUsers
       parameters:
-        - $ref: "#/components/parameters/ComprehensivePageParam"
-        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+        - $ref: '#/components/parameters/ComprehensivePageParam'
+        - $ref: '#/components/parameters/ComprehensiveLimitParam'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -721,7 +721,7 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ComprehensiveUser"
+                      $ref: '#/components/schemas/ComprehensiveUser'
                   total:
                     type: integer
                 required:
@@ -736,14 +736,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveCreateUser"
+              $ref: '#/components/schemas/ComprehensiveCreateUser'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveUser"
+                $ref: '#/components/schemas/ComprehensiveUser'
   /comprehensive/users/{userId}:
     parameters:
       - name: userId
@@ -754,14 +754,14 @@ paths:
     get:
       operationId: comprehensiveGetUser
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveUser"
-        "404":
-          $ref: "#/components/responses/ComprehensiveNotFound"
+                $ref: '#/components/schemas/ComprehensiveUser'
+        '404':
+          $ref: '#/components/responses/ComprehensiveNotFound'
     put:
       operationId: comprehensiveUpdateUser
       security:
@@ -771,27 +771,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveUpdateUser"
+              $ref: '#/components/schemas/ComprehensiveUpdateUser'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveUser"
+                $ref: '#/components/schemas/ComprehensiveUser'
     delete:
       operationId: comprehensiveDeleteUser
       security:
         - ComprehensiveBearerAuth: []
       responses:
-        "204":
+        '204':
           description: Deleted
   /comprehensive/products:
     get:
       operationId: comprehensiveListProducts
       parameters:
-        - $ref: "#/components/parameters/ComprehensivePageParam"
-        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+        - $ref: '#/components/parameters/ComprehensivePageParam'
+        - $ref: '#/components/parameters/ComprehensiveLimitParam'
         - name: category
           in: query
           schema:
@@ -805,7 +805,7 @@ paths:
           schema:
             type: number
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -815,7 +815,7 @@ paths:
                   products:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ComprehensiveProduct"
+                      $ref: '#/components/schemas/ComprehensiveProduct'
                   total:
                     type: integer
                 required:
@@ -830,14 +830,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveCreateProduct"
+              $ref: '#/components/schemas/ComprehensiveCreateProduct'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveProduct"
+                $ref: '#/components/schemas/ComprehensiveProduct'
   /comprehensive/products/{productId}:
     parameters:
       - name: productId
@@ -848,14 +848,14 @@ paths:
     get:
       operationId: comprehensiveGetProduct
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveProduct"
-        "404":
-          $ref: "#/components/responses/ComprehensiveNotFound"
+                $ref: '#/components/schemas/ComprehensiveProduct'
+        '404':
+          $ref: '#/components/responses/ComprehensiveNotFound'
     put:
       operationId: comprehensiveUpdateProduct
       security:
@@ -865,14 +865,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveUpdateProduct"
+              $ref: '#/components/schemas/ComprehensiveUpdateProduct'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveProduct"
+                $ref: '#/components/schemas/ComprehensiveProduct'
   /comprehensive/products/{productId}/reviews:
     parameters:
       - name: productId
@@ -883,14 +883,14 @@ paths:
     get:
       operationId: comprehensiveListReviews
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ComprehensiveReview"
+                  $ref: '#/components/schemas/ComprehensiveReview'
     post:
       operationId: comprehensiveCreateReview
       security:
@@ -900,22 +900,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveCreateReview"
+              $ref: '#/components/schemas/ComprehensiveCreateReview'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveReview"
+                $ref: '#/components/schemas/ComprehensiveReview'
   /comprehensive/orders:
     get:
       operationId: comprehensiveListOrders
       security:
         - ComprehensiveBearerAuth: []
       parameters:
-        - $ref: "#/components/parameters/ComprehensivePageParam"
-        - $ref: "#/components/parameters/ComprehensiveLimitParam"
+        - $ref: '#/components/parameters/ComprehensivePageParam'
+        - $ref: '#/components/parameters/ComprehensiveLimitParam'
         - name: status
           in: query
           schema:
@@ -927,7 +927,7 @@ paths:
               - delivered
               - cancelled
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -937,7 +937,7 @@ paths:
                   orders:
                     type: array
                     items:
-                      $ref: "#/components/schemas/ComprehensiveOrder"
+                      $ref: '#/components/schemas/ComprehensiveOrder'
                   total:
                     type: integer
                 required:
@@ -952,14 +952,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComprehensiveCreateOrder"
+              $ref: '#/components/schemas/ComprehensiveCreateOrder'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveOrder"
+                $ref: '#/components/schemas/ComprehensiveOrder'
   /comprehensive/orders/{orderId}:
     parameters:
       - name: orderId
@@ -972,26 +972,26 @@ paths:
       security:
         - ComprehensiveBearerAuth: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComprehensiveOrder"
-        "404":
-          $ref: "#/components/responses/ComprehensiveNotFound"
+                $ref: '#/components/schemas/ComprehensiveOrder'
+        '404':
+          $ref: '#/components/responses/ComprehensiveNotFound'
   /comprehensive/categories:
     get:
       operationId: comprehensiveListCategories
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ComprehensiveCategory"
+                  $ref: '#/components/schemas/ComprehensiveCategory'
   /comprehensive/upload/image:
     post:
       operationId: comprehensiveUploadImage
@@ -1012,7 +1012,7 @@ paths:
               required:
                 - image
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1038,14 +1038,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CompositionKeywordsPaymentMethod"
+              $ref: '#/components/schemas/CompositionKeywordsPaymentMethod'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsPaymentMethod"
+                $ref: '#/components/schemas/CompositionKeywordsPaymentMethod'
   /compositionKeywords/any-of:
     post:
       operationId: compositionKeywordsPostAnyOf
@@ -1054,14 +1054,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CompositionKeywordsSearchFilter"
+              $ref: '#/components/schemas/CompositionKeywordsSearchFilter'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsSearchFilter"
+                $ref: '#/components/schemas/CompositionKeywordsSearchFilter'
   /compositionKeywords/all-of:
     post:
       operationId: compositionKeywordsPostAllOf
@@ -1070,14 +1070,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CompositionKeywordsEmployee"
+              $ref: '#/components/schemas/CompositionKeywordsEmployee'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsEmployee"
+                $ref: '#/components/schemas/CompositionKeywordsEmployee'
   /compositionKeywords/not:
     post:
       operationId: compositionKeywordsPostNot
@@ -1086,94 +1086,94 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CompositionKeywordsNotStringValue"
+              $ref: '#/components/schemas/CompositionKeywordsNotStringValue'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNotStringValue"
+                $ref: '#/components/schemas/CompositionKeywordsNotStringValue'
   /compositionKeywords/not-ref:
     get:
       operationId: compositionKeywordsGetNotRef
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNotAdmin"
+                $ref: '#/components/schemas/CompositionKeywordsNotAdmin'
   /compositionKeywords/not-enum:
     get:
       operationId: compositionKeywordsGetNotEnum
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNotDraftOrArchived"
+                $ref: '#/components/schemas/CompositionKeywordsNotDraftOrArchived'
   /compositionKeywords/not-const:
     get:
       operationId: compositionKeywordsGetNotConst
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNotSpecificValue"
+                $ref: '#/components/schemas/CompositionKeywordsNotSpecificValue'
   /compositionKeywords/not-composition:
     get:
       operationId: compositionKeywordsGetNotComposition
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNotStringOrNumber"
+                $ref: '#/components/schemas/CompositionKeywordsNotStringOrNumber'
   /compositionKeywords/all-of-sibling:
     get:
       operationId: compositionKeywordsGetAllOfSibling
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsExtendedWithSibling"
+                $ref: '#/components/schemas/CompositionKeywordsExtendedWithSibling'
   /compositionKeywords/nullable-one-of:
     get:
       operationId: compositionKeywordsGetNullableOneOf
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsNullablePayment"
+                $ref: '#/components/schemas/CompositionKeywordsNullablePayment'
   /compositionKeywords/any-of-three:
     get:
       operationId: compositionKeywordsGetAnyOfThree
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsFlexibleId"
+                $ref: '#/components/schemas/CompositionKeywordsFlexibleId'
   /compositionKeywords/any-of-ref:
     get:
       operationId: compositionKeywordsGetAnyOfRef
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CompositionKeywordsPetChoice"
+                $ref: '#/components/schemas/CompositionKeywordsPetChoice'
   /callbacksField/orders:
     post:
       operationId: callbacksFieldCreateOrder
@@ -1183,17 +1183,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CallbacksFieldOrderRequest"
+              $ref: '#/components/schemas/CallbacksFieldOrderRequest'
       responses:
-        "201":
+        '201':
           description: Order created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CallbacksFieldOrder"
+                $ref: '#/components/schemas/CallbacksFieldOrder'
       callbacks:
         onOrderCreated:
-          "{$request.body#/callbackUrl}":
+          '{$request.body#/callbackUrl}':
             post:
               operationId: callbacksFieldOnOrderCreated
               summary: Order created notification
@@ -1201,9 +1201,9 @@ paths:
                 content:
                   application/json:
                     schema:
-                      $ref: "#/components/schemas/CallbacksFieldOrderEvent"
+                      $ref: '#/components/schemas/CallbacksFieldOrderEvent'
               responses:
-                "200":
+                '200':
                   description: Callback received
   /callbacksField/payments:
     post:
@@ -1214,45 +1214,45 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CallbacksFieldPaymentRequest"
+              $ref: '#/components/schemas/CallbacksFieldPaymentRequest'
       responses:
-        "201":
+        '201':
           description: Payment created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CallbacksFieldPayment"
+                $ref: '#/components/schemas/CallbacksFieldPayment'
       callbacks:
         onPaymentSuccess:
-          "{$request.body#/successUrl}":
+          '{$request.body#/successUrl}':
             post:
               operationId: callbacksFieldOnPaymentSuccess
               requestBody:
                 content:
                   application/json:
                     schema:
-                      $ref: "#/components/schemas/CallbacksFieldPaymentEvent"
+                      $ref: '#/components/schemas/CallbacksFieldPaymentEvent'
               responses:
-                "200":
+                '200':
                   description: OK
         onPaymentFailure:
-          "{$request.body#/failureUrl}":
+          '{$request.body#/failureUrl}':
             post:
               operationId: callbacksFieldOnPaymentFailure
               requestBody:
                 content:
                   application/json:
                     schema:
-                      $ref: "#/components/schemas/CallbacksFieldPaymentEvent"
+                      $ref: '#/components/schemas/CallbacksFieldPaymentEvent'
               responses:
-                "200":
+                '200':
                   description: OK
   /callbacksField/items:
     get:
       operationId: callbacksFieldListItems
       summary: List items (no callbacks)
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1272,7 +1272,7 @@ paths:
     get:
       operationId: arrayObjectConstraintsGetTags
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1336,7 +1336,7 @@ paths:
               required:
                 - metadata
       responses:
-        "201":
+        '201':
           description: Created
   /arrayObjectConstraints/settings:
     get:
@@ -1348,7 +1348,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1373,7 +1373,7 @@ paths:
               required:
                 - avatar
       responses:
-        "200":
+        '200':
           description: OK
   /arrayObjectConstraints/config:
     post:
@@ -1406,7 +1406,7 @@ paths:
               required:
                 - data
       responses:
-        "201":
+        '201':
           description: Created
   /arrayObjectConstraints/payment:
     post:
@@ -1427,14 +1427,14 @@ paths:
                 creditCard:
                   - billingAddress
       responses:
-        "201":
+        '201':
           description: Created
   /trailingSlash/api/reverseChiban/:
     get:
       operationId: trailingSlashGetApiReverseChibanIndex
       summary: Reverse Chiban (trailing slash)
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1450,7 +1450,7 @@ paths:
       operationId: trailingSlashGetApiReverseChiban
       summary: Reverse Chiban (no trailing slash)
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1472,7 +1472,7 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1503,7 +1503,7 @@ paths:
               required:
                 - title
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
@@ -1528,7 +1528,7 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1547,7 +1547,7 @@ paths:
       operationId: trailingSlashGetItemsIndex
       summary: List items (trailing slash only)
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -1565,22 +1565,22 @@ paths:
       operationId: readonlyRefListUsers
       summary: List users
       responses:
-        "200":
-          $ref: "#/components/responses/ReadonlyRefUserList"
+        '200':
+          $ref: '#/components/responses/ReadonlyRefUserList'
     post:
       operationId: readonlyRefCreateUser
       summary: Create user
       requestBody:
-        $ref: "#/components/requestBodies/ReadonlyRefCreateUser"
+        $ref: '#/components/requestBodies/ReadonlyRefCreateUser'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReadonlyRefUser"
-        "400":
-          $ref: "#/components/responses/ReadonlyRefBadRequest"
+                $ref: '#/components/schemas/ReadonlyRefUser'
+        '400':
+          $ref: '#/components/responses/ReadonlyRefBadRequest'
   /readonlyRef/users/{id}:
     get:
       operationId: readonlyRefGetUser
@@ -1592,14 +1592,14 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReadonlyRefUser"
-        "404":
-          $ref: "#/components/responses/ReadonlyRefNotFound"
+                $ref: '#/components/schemas/ReadonlyRefUser'
+        '404':
+          $ref: '#/components/responses/ReadonlyRefNotFound'
     put:
       operationId: readonlyRefUpdateUser
       summary: Update user
@@ -1610,29 +1610,29 @@ paths:
           schema:
             type: string
       requestBody:
-        $ref: "#/components/requestBodies/ReadonlyRefUpdateUser"
+        $ref: '#/components/requestBodies/ReadonlyRefUpdateUser'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReadonlyRefUser"
+                $ref: '#/components/schemas/ReadonlyRefUser'
   /readonlyRef/items:
     get:
       operationId: readonlyRefListItems
       summary: List items (uses $ref response alias)
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ReadonlyRefItem"
-        "500":
-          $ref: "#/components/responses/ReadonlyRefServerError"
+                  $ref: '#/components/schemas/ReadonlyRefItem'
+        '500':
+          $ref: '#/components/responses/ReadonlyRefServerError'
   /trailingSlashReal/api/reverseGeocode/:
     get:
       summary: Reverse geocode lookup
@@ -1651,10 +1651,10 @@ paths:
           schema:
             type: string
             enum:
-              - "0"
-              - "1"
-              - "2"
-            default: "0"
+              - '0'
+              - '1'
+              - '2'
+            default: '0'
         - name: lat
           in: query
           description: Latitude
@@ -1713,7 +1713,7 @@ paths:
             type: integer
             default: 0
       responses:
-        "200":
+        '200':
           description: Successful response
           content:
             application/json:
@@ -1770,7 +1770,7 @@ paths:
                 - account
                 - profile
       responses:
-        "200":
+        '200':
           description: Default Response
           content:
             application/json:
@@ -1783,7 +1783,7 @@ paths:
                     type: string
                 required:
                   - message
-        "404":
+        '404':
           description: Default Response
           content:
             application/json:
@@ -1815,7 +1815,7 @@ paths:
               required:
                 - email
       responses:
-        "200":
+        '200':
           description: Default Response
           content:
             application/json:
@@ -1834,14 +1834,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DefaultResponseItem"
+              $ref: '#/components/schemas/DefaultResponseItem'
       responses:
         default:
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DefaultResponseItem"
+                $ref: '#/components/schemas/DefaultResponseItem'
   /defaultResponse/ping:
     get:
       operationId: defaultResponsePing
@@ -1861,14 +1861,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComplexSchemasExpression"
+              $ref: '#/components/schemas/ComplexSchemasExpression'
       responses:
-        "200":
+        '200':
           description: Evaluation result
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasExpression"
+                $ref: '#/components/schemas/ComplexSchemasExpression'
   /complexSchemas/shapes:
     post:
       operationId: complexSchemasCreateShape
@@ -1878,14 +1878,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComplexSchemasShape"
+              $ref: '#/components/schemas/ComplexSchemasShape'
       responses:
-        "200":
+        '200':
           description: Created shape
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasShape"
+                $ref: '#/components/schemas/ComplexSchemasShape'
   /complexSchemas/documents:
     post:
       operationId: complexSchemasCreateDocument
@@ -1895,14 +1895,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComplexSchemasDocument"
+              $ref: '#/components/schemas/ComplexSchemasDocument'
       responses:
-        "200":
+        '200':
           description: Created document
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasDocument"
+                $ref: '#/components/schemas/ComplexSchemasDocument'
   /complexSchemas/configs:
     post:
       operationId: complexSchemasCreateConfig
@@ -1912,36 +1912,36 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ComplexSchemasFullConfig"
+              $ref: '#/components/schemas/ComplexSchemasFullConfig'
       responses:
-        "200":
+        '200':
           description: Created config
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasFullConfig"
+                $ref: '#/components/schemas/ComplexSchemasFullConfig'
   /complexSchemas/nullable-union:
     get:
       operationId: complexSchemasGetNullableUnion
       description: Nullable anyOf with mixed types
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasNullableResult"
+                $ref: '#/components/schemas/ComplexSchemasNullableResult'
   /complexSchemas/nested-circular:
     get:
       operationId: complexSchemasGetNestedCircular
       description: Circular reference through allOf
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ComplexSchemasCategory"
+                $ref: '#/components/schemas/ComplexSchemasCategory'
   /vendorExtensions/users:
     post:
       operationId: vendorExtensionsCreateUser
@@ -1950,14 +1950,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsCreateUser"
+              $ref: '#/components/schemas/VendorExtensionsCreateUser'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VendorExtensionsUser"
+                $ref: '#/components/schemas/VendorExtensionsUser'
   /vendorExtensions/users/{userId}:
     get:
       operationId: vendorExtensionsGetUser
@@ -1966,14 +1966,14 @@ paths:
           in: path
           required: true
           schema:
-            $ref: "#/components/schemas/VendorExtensionsUserId"
+            $ref: '#/components/schemas/VendorExtensionsUserId'
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VendorExtensionsUser"
+                $ref: '#/components/schemas/VendorExtensionsUser'
   /vendorExtensions/posts:
     post:
       operationId: vendorExtensionsCreatePost
@@ -1982,14 +1982,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsCreatePost"
+              $ref: '#/components/schemas/VendorExtensionsCreatePost'
       responses:
-        "201":
+        '201':
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VendorExtensionsPost"
+                $ref: '#/components/schemas/VendorExtensionsPost'
   /vendorExtensions/transforms:
     post:
       operationId: vendorExtensionsPostTransforms
@@ -1998,9 +1998,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsTransformForm"
+              $ref: '#/components/schemas/VendorExtensionsTransformForm'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/coerce:
     post:
@@ -2010,9 +2010,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsCoerceForm"
+              $ref: '#/components/schemas/VendorExtensionsCoerceForm'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/replacements:
     post:
@@ -2022,9 +2022,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsReplacementForm"
+              $ref: '#/components/schemas/VendorExtensionsReplacementForm'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/formats:
     post:
@@ -2034,9 +2034,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsFormatOptions"
+              $ref: '#/components/schemas/VendorExtensionsFormatOptions'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/custom:
     post:
@@ -2046,9 +2046,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsCustomForm"
+              $ref: '#/components/schemas/VendorExtensionsCustomForm'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/messages:
     post:
@@ -2058,9 +2058,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsMessageForm"
+              $ref: '#/components/schemas/VendorExtensionsMessageForm'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/composition:
     post:
@@ -2070,9 +2070,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsComposition"
+              $ref: '#/components/schemas/VendorExtensionsComposition'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/conditional:
     post:
@@ -2082,9 +2082,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsConditional"
+              $ref: '#/components/schemas/VendorExtensionsConditional'
       responses:
-        "200":
+        '200':
           description: OK
   /vendorExtensions/applicators:
     post:
@@ -2094,9 +2094,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VendorExtensionsApplicators"
+              $ref: '#/components/schemas/VendorExtensionsApplicators'
       responses:
-        "200":
+        '200':
           description: OK
   /pagination/items:
     get:
@@ -2113,24 +2113,24 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginationItemsPage"
+                $ref: '#/components/schemas/PaginationItemsPage'
   /pagination/feeds:
     get:
       operationId: paginationListFeeds
       summary: Feed (paginated, no args)
       x-pagination: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginationItemsPage"
+                $ref: '#/components/schemas/PaginationItemsPage'
   /pagination/users/{userId}/posts:
     get:
       operationId: paginationListUserPosts
@@ -2147,12 +2147,12 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginationItemsPage"
+                $ref: '#/components/schemas/PaginationItemsPage'
 components:
   schemas:
     AllExportsUser:
@@ -2172,7 +2172,7 @@ components:
     AllExportsUserList:
       type: array
       items:
-        $ref: "#/components/schemas/AllExportsUser"
+        $ref: '#/components/schemas/AllExportsUser'
     CircularRefsTreeNode:
       type: object
       properties:
@@ -2183,7 +2183,7 @@ components:
         children:
           type: array
           items:
-            $ref: "#/components/schemas/CircularRefsTreeNode"
+            $ref: '#/components/schemas/CircularRefsTreeNode'
       required:
         - id
         - value
@@ -2193,7 +2193,7 @@ components:
         id:
           type: integer
         ref:
-          $ref: "#/components/schemas/CircularRefsNodeB"
+          $ref: '#/components/schemas/CircularRefsNodeB'
       required:
         - id
     CircularRefsNodeB:
@@ -2202,7 +2202,7 @@ components:
         id:
           type: integer
         ref:
-          $ref: "#/components/schemas/CircularRefsNodeC"
+          $ref: '#/components/schemas/CircularRefsNodeC'
       required:
         - id
     CircularRefsNodeC:
@@ -2211,7 +2211,7 @@ components:
         id:
           type: integer
         ref:
-          $ref: "#/components/schemas/CircularRefsNodeA"
+          $ref: '#/components/schemas/CircularRefsNodeA'
       required:
         - id
     ParametersMergeItem:
@@ -2241,15 +2241,15 @@ components:
         nickname:
           type:
             - string
-            - "null"
+            - 'null'
         age:
           type:
             - integer
-            - "null"
+            - 'null'
         tags:
           type:
             - array
-            - "null"
+            - 'null'
           items:
             type: string
       required:
@@ -2281,13 +2281,13 @@ components:
         - height
     SchemaEdgeCasesShape:
       oneOf:
-        - $ref: "#/components/schemas/SchemaEdgeCasesCircle"
-        - $ref: "#/components/schemas/SchemaEdgeCasesRectangle"
+        - $ref: '#/components/schemas/SchemaEdgeCasesCircle'
+        - $ref: '#/components/schemas/SchemaEdgeCasesRectangle'
       discriminator:
         propertyName: kind
         mapping:
-          circle: "#/components/schemas/Circle"
-          rectangle: "#/components/schemas/Rectangle"
+          circle: '#/components/schemas/Circle'
+          rectangle: '#/components/schemas/Rectangle'
     SchemaEdgeCasesBase:
       type: object
       properties:
@@ -2310,8 +2310,8 @@ components:
         - name
     SchemaEdgeCasesComposedObject:
       allOf:
-        - $ref: "#/components/schemas/SchemaEdgeCasesBase"
-        - $ref: "#/components/schemas/SchemaEdgeCasesExtended"
+        - $ref: '#/components/schemas/SchemaEdgeCasesBase'
+        - $ref: '#/components/schemas/SchemaEdgeCasesExtended'
         - type: object
           properties:
             extra:
@@ -2406,11 +2406,11 @@ components:
         body:
           type: string
         author:
-          $ref: "#/components/schemas/CrudRefsAuthor"
+          $ref: '#/components/schemas/CrudRefsAuthor'
         tags:
           type: array
           items:
-            $ref: "#/components/schemas/CrudRefsTag"
+            $ref: '#/components/schemas/CrudRefsTag'
         createdAt:
           type: string
           format: date-time
@@ -2457,7 +2457,7 @@ components:
         body:
           type: string
         author:
-          $ref: "#/components/schemas/CrudRefsAuthor"
+          $ref: '#/components/schemas/CrudRefsAuthor'
         createdAt:
           type: string
           format: date-time
@@ -2538,7 +2538,7 @@ components:
             - admin
             - customer
         address:
-          $ref: "#/components/schemas/ComprehensiveAddress"
+          $ref: '#/components/schemas/ComprehensiveAddress'
         createdAt:
           type: string
           format: date-time
@@ -2565,7 +2565,7 @@ components:
             - admin
             - customer
         address:
-          $ref: "#/components/schemas/ComprehensiveAddress"
+          $ref: '#/components/schemas/ComprehensiveAddress'
       required:
         - name
         - email
@@ -2579,7 +2579,7 @@ components:
           type: string
           format: email
         address:
-          $ref: "#/components/schemas/ComprehensiveAddress"
+          $ref: '#/components/schemas/ComprehensiveAddress'
     ComprehensiveAddress:
       type: object
       properties:
@@ -2610,7 +2610,7 @@ components:
           type: number
           minimum: 0
         category:
-          $ref: "#/components/schemas/ComprehensiveCategory"
+          $ref: '#/components/schemas/ComprehensiveCategory'
         tags:
           type: array
           items:
@@ -2673,7 +2673,7 @@ components:
         parentId:
           type:
             - integer
-            - "null"
+            - 'null'
       required:
         - id
         - name
@@ -2689,7 +2689,7 @@ components:
         comment:
           type: string
         author:
-          $ref: "#/components/schemas/ComprehensiveUser"
+          $ref: '#/components/schemas/ComprehensiveUser'
         createdAt:
           type: string
           format: date-time
@@ -2715,11 +2715,11 @@ components:
         id:
           type: integer
         user:
-          $ref: "#/components/schemas/ComprehensiveUser"
+          $ref: '#/components/schemas/ComprehensiveUser'
         items:
           type: array
           items:
-            $ref: "#/components/schemas/ComprehensiveOrderItem"
+            $ref: '#/components/schemas/ComprehensiveOrderItem'
         status:
           type: string
           enum:
@@ -2731,7 +2731,7 @@ components:
         totalPrice:
           type: number
         shippingAddress:
-          $ref: "#/components/schemas/ComprehensiveAddress"
+          $ref: '#/components/schemas/ComprehensiveAddress'
         createdAt:
           type: string
           format: date-time
@@ -2747,7 +2747,7 @@ components:
       type: object
       properties:
         product:
-          $ref: "#/components/schemas/ComprehensiveProduct"
+          $ref: '#/components/schemas/ComprehensiveProduct'
         quantity:
           type: integer
           minimum: 1
@@ -2774,7 +2774,7 @@ components:
               - productId
               - quantity
         shippingAddress:
-          $ref: "#/components/schemas/ComprehensiveAddress"
+          $ref: '#/components/schemas/ComprehensiveAddress'
         callbackUrl:
           type: string
           format: uri
@@ -2821,17 +2821,17 @@ components:
         - accountNumber
     CompositionKeywordsPaymentMethod:
       oneOf:
-        - $ref: "#/components/schemas/CompositionKeywordsCreditCard"
-        - $ref: "#/components/schemas/CompositionKeywordsBankTransfer"
+        - $ref: '#/components/schemas/CompositionKeywordsCreditCard'
+        - $ref: '#/components/schemas/CompositionKeywordsBankTransfer'
       discriminator:
         propertyName: type
         mapping:
-          credit_card: "#/components/schemas/CreditCard"
-          bank_transfer: "#/components/schemas/BankTransfer"
+          credit_card: '#/components/schemas/CreditCard'
+          bank_transfer: '#/components/schemas/BankTransfer'
     CompositionKeywordsNullablePayment:
       oneOf:
-        - $ref: "#/components/schemas/CompositionKeywordsCreditCard"
-        - $ref: "#/components/schemas/CompositionKeywordsBankTransfer"
+        - $ref: '#/components/schemas/CompositionKeywordsCreditCard'
+        - $ref: '#/components/schemas/CompositionKeywordsBankTransfer'
       nullable: true
     CompositionKeywordsSearchFilter:
       anyOf:
@@ -2874,8 +2874,8 @@ components:
         - name
     CompositionKeywordsPetChoice:
       anyOf:
-        - $ref: "#/components/schemas/CompositionKeywordsCat"
-        - $ref: "#/components/schemas/CompositionKeywordsDog"
+        - $ref: '#/components/schemas/CompositionKeywordsCat'
+        - $ref: '#/components/schemas/CompositionKeywordsDog'
     CompositionKeywordsPerson:
       type: object
       properties:
@@ -2899,8 +2899,8 @@ components:
     CompositionKeywordsEmployee:
       description: An employee with personal and work info
       allOf:
-        - $ref: "#/components/schemas/CompositionKeywordsPerson"
-        - $ref: "#/components/schemas/CompositionKeywordsEmployeeInfo"
+        - $ref: '#/components/schemas/CompositionKeywordsPerson'
+        - $ref: '#/components/schemas/CompositionKeywordsEmployeeInfo'
         - type: object
           properties:
             startDate:
@@ -2920,7 +2920,7 @@ components:
     CompositionKeywordsExtendedWithSibling:
       description: allOf with sibling properties merged
       allOf:
-        - $ref: "#/components/schemas/CompositionKeywordsBaseEntity"
+        - $ref: '#/components/schemas/CompositionKeywordsBaseEntity'
       properties:
         label:
           type: string
@@ -2933,7 +2933,7 @@ components:
         type: string
     CompositionKeywordsNotAdmin:
       not:
-        $ref: "#/components/schemas/CompositionKeywordsAdminRole"
+        $ref: '#/components/schemas/CompositionKeywordsAdminRole'
     CompositionKeywordsAdminRole:
       type: object
       properties:
@@ -3122,10 +3122,10 @@ components:
         operator:
           type: string
           enum:
-            - "-"
-            - "!"
+            - '-'
+            - '!'
         operand:
-          $ref: "#/components/schemas/ComplexSchemasExpression"
+          $ref: '#/components/schemas/ComplexSchemasExpression'
       required:
         - type
         - operator
@@ -3140,13 +3140,13 @@ components:
           type: string
           enum:
             - +
-            - "-"
-            - "*"
+            - '-'
+            - '*'
             - /
         left:
-          $ref: "#/components/schemas/ComplexSchemasExpression"
+          $ref: '#/components/schemas/ComplexSchemasExpression'
         right:
-          $ref: "#/components/schemas/ComplexSchemasExpression"
+          $ref: '#/components/schemas/ComplexSchemasExpression'
       required:
         - type
         - operator
@@ -3154,15 +3154,15 @@ components:
         - right
     ComplexSchemasExpression:
       oneOf:
-        - $ref: "#/components/schemas/ComplexSchemasLiteralExpr"
-        - $ref: "#/components/schemas/ComplexSchemasUnaryExpr"
-        - $ref: "#/components/schemas/ComplexSchemasBinaryExpr"
+        - $ref: '#/components/schemas/ComplexSchemasLiteralExpr'
+        - $ref: '#/components/schemas/ComplexSchemasUnaryExpr'
+        - $ref: '#/components/schemas/ComplexSchemasBinaryExpr'
       discriminator:
         propertyName: type
         mapping:
-          literal: "#/components/schemas/LiteralExpr"
-          unary: "#/components/schemas/UnaryExpr"
-          binary: "#/components/schemas/BinaryExpr"
+          literal: '#/components/schemas/LiteralExpr'
+          unary: '#/components/schemas/UnaryExpr'
+          binary: '#/components/schemas/BinaryExpr'
     ComplexSchemasCircle:
       type: object
       properties:
@@ -3233,19 +3233,19 @@ components:
         - semiMinor
     ComplexSchemasShape:
       oneOf:
-        - $ref: "#/components/schemas/ComplexSchemasCircle"
-        - $ref: "#/components/schemas/ComplexSchemasRectangle"
-        - $ref: "#/components/schemas/ComplexSchemasTriangle"
-        - $ref: "#/components/schemas/ComplexSchemasPolygon"
-        - $ref: "#/components/schemas/ComplexSchemasEllipse"
+        - $ref: '#/components/schemas/ComplexSchemasCircle'
+        - $ref: '#/components/schemas/ComplexSchemasRectangle'
+        - $ref: '#/components/schemas/ComplexSchemasTriangle'
+        - $ref: '#/components/schemas/ComplexSchemasPolygon'
+        - $ref: '#/components/schemas/ComplexSchemasEllipse'
       discriminator:
         propertyName: kind
         mapping:
-          circle: "#/components/schemas/Circle"
-          rectangle: "#/components/schemas/Rectangle"
-          triangle: "#/components/schemas/Triangle"
-          polygon: "#/components/schemas/Polygon"
-          ellipse: "#/components/schemas/Ellipse"
+          circle: '#/components/schemas/Circle'
+          rectangle: '#/components/schemas/Rectangle'
+          triangle: '#/components/schemas/Triangle'
+          polygon: '#/components/schemas/Polygon'
+          ellipse: '#/components/schemas/Ellipse'
     ComplexSchemasDocumentBase:
       type: object
       properties:
@@ -3290,22 +3290,22 @@ components:
         - columns
     ComplexSchemasArticle:
       allOf:
-        - $ref: "#/components/schemas/ComplexSchemasDocumentBase"
-        - $ref: "#/components/schemas/ComplexSchemasArticleContent"
+        - $ref: '#/components/schemas/ComplexSchemasDocumentBase'
+        - $ref: '#/components/schemas/ComplexSchemasArticleContent'
     ComplexSchemasSpreadsheet:
       allOf:
-        - $ref: "#/components/schemas/ComplexSchemasDocumentBase"
-        - $ref: "#/components/schemas/ComplexSchemasSpreadsheetContent"
+        - $ref: '#/components/schemas/ComplexSchemasDocumentBase'
+        - $ref: '#/components/schemas/ComplexSchemasSpreadsheetContent'
     ComplexSchemasDocument:
       description: oneOf where each branch is an allOf composition
       oneOf:
-        - $ref: "#/components/schemas/ComplexSchemasArticle"
-        - $ref: "#/components/schemas/ComplexSchemasSpreadsheet"
+        - $ref: '#/components/schemas/ComplexSchemasArticle'
+        - $ref: '#/components/schemas/ComplexSchemasSpreadsheet'
       discriminator:
         propertyName: docType
         mapping:
-          article: "#/components/schemas/Article"
-          spreadsheet: "#/components/schemas/Spreadsheet"
+          article: '#/components/schemas/Article'
+          spreadsheet: '#/components/schemas/Spreadsheet'
     ComplexSchemasBaseConfig:
       type: object
       properties:
@@ -3337,9 +3337,9 @@ components:
     ComplexSchemasFullConfig:
       description: Three-level allOf chain with all refs
       allOf:
-        - $ref: "#/components/schemas/ComplexSchemasBaseConfig"
-        - $ref: "#/components/schemas/ComplexSchemasNetworkConfig"
-        - $ref: "#/components/schemas/ComplexSchemasSecurityConfig"
+        - $ref: '#/components/schemas/ComplexSchemasBaseConfig'
+        - $ref: '#/components/schemas/ComplexSchemasNetworkConfig'
+        - $ref: '#/components/schemas/ComplexSchemasSecurityConfig'
     ComplexSchemasSuccessResult:
       type: object
       properties:
@@ -3368,8 +3368,8 @@ components:
     ComplexSchemasNullableResult:
       description: Nullable anyOf combining success and error
       anyOf:
-        - $ref: "#/components/schemas/ComplexSchemasSuccessResult"
-        - $ref: "#/components/schemas/ComplexSchemasErrorResult"
+        - $ref: '#/components/schemas/ComplexSchemasSuccessResult'
+        - $ref: '#/components/schemas/ComplexSchemasErrorResult'
       nullable: true
     ComplexSchemasCategory:
       type: object
@@ -3379,11 +3379,11 @@ components:
         name:
           type: string
         parent:
-          $ref: "#/components/schemas/ComplexSchemasCategory"
+          $ref: '#/components/schemas/ComplexSchemasCategory'
         children:
           type: array
           items:
-            $ref: "#/components/schemas/ComplexSchemasCategory"
+            $ref: '#/components/schemas/ComplexSchemasCategory'
       required:
         - id
         - name
@@ -3427,13 +3427,13 @@ components:
         - price
       properties:
         email:
-          $ref: "#/components/schemas/VendorExtensionsEmail"
+          $ref: '#/components/schemas/VendorExtensionsEmail'
         username:
-          $ref: "#/components/schemas/VendorExtensionsUsername"
+          $ref: '#/components/schemas/VendorExtensionsUsername'
         price:
-          $ref: "#/components/schemas/VendorExtensionsPrice"
+          $ref: '#/components/schemas/VendorExtensionsPrice'
         tags:
-          $ref: "#/components/schemas/VendorExtensionsTags"
+          $ref: '#/components/schemas/VendorExtensionsTags'
     VendorExtensionsUser:
       type: object
       required:
@@ -3442,11 +3442,11 @@ components:
         - username
       properties:
         id:
-          $ref: "#/components/schemas/VendorExtensionsUserId"
+          $ref: '#/components/schemas/VendorExtensionsUserId'
         email:
-          $ref: "#/components/schemas/VendorExtensionsEmail"
+          $ref: '#/components/schemas/VendorExtensionsEmail'
         username:
-          $ref: "#/components/schemas/VendorExtensionsUsername"
+          $ref: '#/components/schemas/VendorExtensionsUsername'
     VendorExtensionsCreatePost:
       type: object
       required:
@@ -3455,11 +3455,11 @@ components:
         - quantity
       properties:
         authorId:
-          $ref: "#/components/schemas/VendorExtensionsUserId"
+          $ref: '#/components/schemas/VendorExtensionsUserId'
         title:
           type: string
         quantity:
-          $ref: "#/components/schemas/VendorExtensionsQuantity"
+          $ref: '#/components/schemas/VendorExtensionsQuantity'
     VendorExtensionsPost:
       type: object
       required:
@@ -3468,9 +3468,9 @@ components:
         - title
       properties:
         id:
-          $ref: "#/components/schemas/VendorExtensionsPostId"
+          $ref: '#/components/schemas/VendorExtensionsPostId'
         authorId:
-          $ref: "#/components/schemas/VendorExtensionsUserId"
+          $ref: '#/components/schemas/VendorExtensionsUserId'
         title:
           type: string
     VendorExtensionsTransformForm:
@@ -3564,7 +3564,7 @@ components:
         codecDate:
           type: string
           format: date-time
-          x-codec: "z.codec(z.iso.datetime(), z.date(), { decode: (isoString) => new Date(isoString), encode: (date) => date.toISOString() })"
+          x-codec: 'z.codec(z.iso.datetime(), z.date(), { decode: (isoString) => new Date(isoString), encode: (date) => date.toISOString() })'
         transformed:
           type: string
           x-transform: z.string().transform((val) => val.toUpperCase())
@@ -3635,7 +3635,7 @@ components:
         colonMac:
           type: string
           format: mac
-          x-macDelimiter: ":"
+          x-macDelimiter: ':'
         dotMac:
           type: string
           format: mac
@@ -3946,7 +3946,7 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/PaginationItem"
+            $ref: '#/components/schemas/PaginationItem'
         nextCursor:
           type: string
   responses:
@@ -3955,13 +3955,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/AllExportsUserList"
+            $ref: '#/components/schemas/AllExportsUserList'
     ComprehensiveNotFound:
       description: Resource not found
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ComprehensiveError"
+            $ref: '#/components/schemas/ComprehensiveError'
     ReadonlyRefUserList:
       description: User list response
       content:
@@ -3972,7 +3972,7 @@ components:
               users:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ReadonlyRefUser"
+                  $ref: '#/components/schemas/ReadonlyRefUser'
               total:
                 type: integer
             required:
@@ -3983,19 +3983,19 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+            $ref: '#/components/schemas/ReadonlyRefErrorBody'
     ReadonlyRefBadRequest:
       description: Bad request
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+            $ref: '#/components/schemas/ReadonlyRefErrorBody'
     ReadonlyRefServerError:
       description: Server error
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ReadonlyRefErrorBody"
+            $ref: '#/components/schemas/ReadonlyRefErrorBody'
   parameters:
     AllExportsPageParam:
       name: page
@@ -4050,14 +4050,14 @@ components:
         name: Alice
         email: alice@example.com
     ReadonlyRefUserAlias:
-      $ref: "#/components/examples/ReadonlyRefUserExample"
+      $ref: '#/components/examples/ReadonlyRefUserExample'
     ReadonlyRefItemExample:
       summary: A sample item
       value:
         id: 1
         title: Widget
     ReadonlyRefItemAlias:
-      $ref: "#/components/examples/ReadonlyRefItemExample"
+      $ref: '#/components/examples/ReadonlyRefItemExample'
   requestBodies:
     AllExportsCreateUserBody:
       required: true
@@ -4154,37 +4154,37 @@ components:
       description: Delete this subscription
   callbacks:
     AllExportsUserCreated:
-      "{$request.body#/callbackUrl}":
+      '{$request.body#/callbackUrl}':
         post:
           operationId: allExportsUserCreatedCallback
           requestBody:
             content:
               application/json:
                 schema:
-                  $ref: "#/components/schemas/AllExportsUser"
+                  $ref: '#/components/schemas/AllExportsUser'
           responses:
-            "200":
+            '200':
               description: Callback processed
     CallbacksLinksSubscriptionEvent:
-      "{$request.body#/callbackUrl}":
+      '{$request.body#/callbackUrl}':
         post:
           operationId: callbacksLinksSubscriptionEventCallback
           requestBody:
             content:
               application/json:
                 schema:
-                  $ref: "#/components/schemas/CallbacksLinksEventPayload"
+                  $ref: '#/components/schemas/CallbacksLinksEventPayload'
           responses:
-            "200":
+            '200':
               description: Event processed
   pathItems:
     AllExportsUserItem:
       get:
         operationId: allExportsGetUserItem
         responses:
-          "200":
+          '200':
             description: OK
             content:
               application/json:
                 schema:
-                  $ref: "#/components/schemas/AllExportsUser"
+                  $ref: '#/components/schemas/AllExportsUser'
