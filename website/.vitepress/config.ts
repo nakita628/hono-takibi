@@ -49,7 +49,11 @@ export default defineConfig({
       { text: 'Docs', link: '/docs' },
       { text: 'Playground', link: '/playground' },
     ],
-
+    sidebar: [
+      {text: 'Docs', link: '/docs'},
+      {text: 'Guides', link: '/guides'},
+      {text: 'Playground', link: '/playground'},
+    ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/nakita628/hono-takibi' },
       { icon: 'npm', link: 'https://www.npmjs.com/package/hono-takibi' },
