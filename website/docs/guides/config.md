@@ -1,3 +1,13 @@
+---
+title: Configuration
+prev: 
+  text: 'Docs'
+  link: '/docs'
+next:
+  text: 'Vendor'
+  link: '/docs/guides/vendor'
+---
+
 # Configuration
 
 ## Configuration File
@@ -37,7 +47,8 @@ bunx hono-takibi
 
 ::: code-group
 
-```ts [hono-takibi.config.ts]
+```ts
+// hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi'
 
 export default defineConfig({
@@ -230,5 +241,3 @@ export default defineConfig({
   },
 })
 ```
-
-:::

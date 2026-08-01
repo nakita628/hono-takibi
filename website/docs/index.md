@@ -1,3 +1,11 @@
+---
+title: Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
+prev: false
+next:
+  text: 'Guides'
+  link: '/docs/guides/config'
+---
+
 # Hono Takibi
 
 [Hono Takibi](https://www.npmjs.com/package/hono-takibi) generates type-safe [Hono](https://hono.dev/) code from [OpenAPI](https://www.openapis.org/) / [TypeSpec](https://typespec.io/) specifications.

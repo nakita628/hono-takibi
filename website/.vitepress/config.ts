@@ -50,9 +50,25 @@ export default defineConfig({
       { text: 'Playground', link: '/playground' },
     ],
     sidebar: [
-      {text: 'Docs', link: '/docs'},
-      {text: 'Guides', link: '/guides'},
-      {text: 'Playground', link: '/playground'},
+      {
+        text: 'Docs',
+        // collapsed: true,
+        link: '/docs',
+      },
+      {
+        text: 'Guides',
+        // collapsed: true,
+        items: [
+          { text: 'Configuration', link: '/docs/guides/config' },
+          { text: 'Vendor', link: '/docs/guides/vendor' },
+          { text: 'Vite Plugin', link: '/docs/guides/vite-plugin' },
+        ],
+      },
+      {
+        text: 'Playground',
+        // collapsed: true,
+        link: '/playground',
+      },
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/nakita628/hono-takibi' },
