@@ -1,6 +1,6 @@
 ---
 title: Vendor Extensions (x-\*)
-prev: 
+prev:
   text: 'Configuration'
   link: '/docs/guides/config'
 next:

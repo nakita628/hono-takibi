@@ -1,6 +1,6 @@
 ---
 title: Configuration
-prev: 
+prev:
   text: 'Docs'
   link: '/docs'
 next:

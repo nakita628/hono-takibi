@@ -1,6 +1,6 @@
 ---
 title: Vite Plugin
-prev: 
+prev:
   text: 'Vendor'
   link: '/docs/guides/vendor'
 next:

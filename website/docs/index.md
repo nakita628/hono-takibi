@@ -32,7 +32,6 @@ bun add -D hono-takibi
 
 :::
 
-
 ::: code-group
 
 ```sh [npm]
