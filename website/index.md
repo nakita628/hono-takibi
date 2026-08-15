@@ -13,11 +13,14 @@ hero:
       text: View on GitHub
       link: https://github.com/nakita628/hono-takibi
 
-features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+# features:
+#   - icon: 🔥
+#     title: OpenAPI to Hono Code
+#     details: Generate Hono code from OpenAPI specifications.
+#   - icon: 🌍
+#     title: Client Code Generation
+#     details: Generate Tanstack Query,SWR ... code from OpenAPI specifications.
+#   - icon: 🔧
+#     title: Configuration
+#     details: Configure the generator to your needs.
 ---

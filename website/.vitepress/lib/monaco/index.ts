@@ -37,9 +37,9 @@ const EXTRA_LIB_MODULES = [
 export async function loadMonaco() {
   const [monaco, editorWorker, jsonWorker, tsWorker] = await Promise.all([
     import('monaco-editor'),
-    import('monaco-editor/esm/vs/editor/editor.worker?worker'),
-    import('monaco-editor/esm/vs/language/json/json.worker?worker'),
-    import('monaco-editor/esm/vs/language/typescript/ts.worker?worker'),
+    import('monaco-editor/editor/editor.worker.js?worker'),
+    import('monaco-editor/language/json/json.worker.js?worker'),
+    import('monaco-editor/language/typescript/ts.worker.js?worker'),
   ])
   self.MonacoEnvironment = {
     getWorker: (_workerId: string, label: string) => {
@@ -120,8 +120,7 @@ export function registerTypeSpecLanguage(monaco: MonacoEditor) {
 }
 
 export function configureTypeScriptDefaults(monaco: MonacoEditor) {
-  const { typescriptDefaults, ScriptTarget, ModuleKind, ModuleResolutionKind } =
-    monaco.languages.typescript
+  const { typescriptDefaults, ScriptTarget, ModuleKind, ModuleResolutionKind } = monaco.typescript
   typescriptDefaults.setCompilerOptions({
     target: ScriptTarget.ES2020,
     module: ModuleKind.ESNext,
@@ -205,7 +204,7 @@ async function getBundledDts(
 // worker) and nothing else. Failures degrade to no type info — generation
 // never depends on it.
 export function loadOutputEditorTypes(monaco: MonacoEditor) {
-  const { typescriptDefaults } = monaco.languages.typescript
+  const { typescriptDefaults } = monaco.typescript
   return Promise.all(
     EXTRA_LIB_MODULES.map(async (mod) => {
       const dts = await getBundledDts(
