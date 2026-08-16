@@ -22,45 +22,45 @@ export async function parseOpenAPI(input: string) {
       }
       const [record] = await getOpenAPI3(program)
       const tsp = 'document' in record ? record.document : record.versions[0].document
-      // const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
-      // return { ok: true, value: openAPI } as const
-
-      const bundled = await bundle(input, {
-        plugins: [readFiles()],
-      })
-
-      const { schema, errors } = await dereference(bundled)
-
-      if (errors.length > 0) {
+      const { schema, errors } = dereference(JSON.parse(JSON.stringify(tsp)))
+      if (errors && errors.length > 0) {
         return {
           ok: false,
           error: errors.map((error) => error.message).join('\n'),
         } as const
       }
+      if (!schema) {
+        return {
+          ok: false,
+          error: 'Failed to parse OpenAPI document. Check the input file content.',
+        } as const
+      }
+      return { ok: true, value: schema as OpenAPI } as const
     }
-
-    const bundled = await bundle(input, {
+    const bundled = (await bundle(input, {
       plugins: [readFiles()],
-    })
-
-    const { schema, errors } = await dereference(bundled)
-
-    if (errors.length > 0) {
+      treeShake: false,
+    })) as OpenAPI
+    const { schema, errors } = dereference(bundled)
+    if (errors && errors.length > 0) {
       return {
         ok: false,
         error: errors.map((error) => error.message).join('\n'),
       } as const
     }
-    // const openAPI = (await SwaggerParser.bundle(input)) as OpenAPI
-    return { ok: true, value: schema } as const
+    if (!schema) {
+      return {
+        ok: false,
+        error: 'Failed to parse OpenAPI document. Check the input file content.',
+      } as const
+    }
+    return { ok: true, value: schema as OpenAPI } as const
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }
 
-type BaseOpenAPI = Awaited<ReturnType<typeof bundle>>
-
-export type OpenAPI = BaseOpenAPI & {
+export type OpenAPI = {
   readonly openapi?: string
   readonly $self?: string
   readonly info?: {
@@ -82,7 +82,7 @@ export type OpenAPI = BaseOpenAPI & {
   }
   readonly jsonSchemaDialect?: string
   readonly servers?: readonly Server[]
-  readonly paths: PathItem
+  readonly paths: OpenAPIPaths
   readonly webhooks?: {
     readonly [k: string]: PathItem
   }
@@ -97,8 +97,6 @@ export type OpenAPI = BaseOpenAPI & {
     readonly kind?: string
   }[]
   readonly externalDocs?: ExternalDocs
-} & {
-  paths: OpenAPIPaths
 }
 
 export type Components = {
@@ -176,7 +174,7 @@ type OAuthFlow = {
 }
 
 export type OpenAPIPaths = {
-  readonly [P in keyof NonNullable<BaseOpenAPI['paths']>]: PathItem
+  readonly [path: string]: PathItem
 }
 
 export type Type =
