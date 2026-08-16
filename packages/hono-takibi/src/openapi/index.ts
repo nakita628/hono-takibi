@@ -1,24 +1,11 @@
 import path from 'node:path'
 
-/**
- * Uses `bundle()` to resolve external $refs while preserving internal ones.
- * This enables variable references (e.g., `UserSchema`) instead of duplicated inline schemas,
- * supports circular references via `z.lazy()`, and allows dependency-aware topological sorting.
- *
- * @see https://apitools.dev/swagger-parser/docs/
- */
-import SwaggerParser from '@apidevtools/swagger-parser'
+import { bundle } from '@scalar/json-magic/bundle'
+import { readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { dereference } from '@scalar/openapi-parser'
 import { compile, NodeHost } from '@typespec/compiler'
 import { getOpenAPI3 } from '@typespec/openapi3'
 
-/**
- * Parses input into an OpenAPI document.
- *
- * Supports `.yaml`, `.json`, and `.tsp` (TypeSpec) inputs.
- *
- * @param input - Path to OpenAPI file (.yaml, .json) or TypeSpec file (.tsp)
- * @returns Result object with parsed OpenAPI or error message
- */
 export async function parseOpenAPI(input: string) {
   try {
     if (typeof input === 'string' && input.endsWith('.tsp')) {
@@ -35,20 +22,43 @@ export async function parseOpenAPI(input: string) {
       }
       const [record] = await getOpenAPI3(program)
       const tsp = 'document' in record ? record.document : record.versions[0].document
-      const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
-      return { ok: true, value: openAPI } as const
+      // const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
+      // return { ok: true, value: openAPI } as const
+
+      const bundled = await bundle(input, {
+        plugins: [readFiles()],
+      })
+
+      const { schema, errors } = await dereference(bundled)
+
+      if (errors.length > 0) {
+        return {
+          ok: false,
+          error: errors.map((error) => error.message).join('\n'),
+        } as const
+      }
     }
-    // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
-    // The parser validates the spec at runtime but does not express this guarantee in its type definition,
-    // so we assert `OpenAPI` here to enable typed access in the generator.
-    const openAPI = (await SwaggerParser.bundle(input)) as OpenAPI
-    return { ok: true, value: openAPI } as const
+
+    const bundled = await bundle(input, {
+      plugins: [readFiles()],
+    })
+
+    const { schema, errors } = await dereference(bundled)
+
+    if (errors.length > 0) {
+      return {
+        ok: false,
+        error: errors.map((error) => error.message).join('\n'),
+      } as const
+    }
+    // const openAPI = (await SwaggerParser.bundle(input)) as OpenAPI
+    return { ok: true, value: schema } as const
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }
 }
 
-type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.bundle>>
+type BaseOpenAPI = Awaited<ReturnType<typeof bundle>>
 
 export type OpenAPI = BaseOpenAPI & {
   readonly openapi?: string

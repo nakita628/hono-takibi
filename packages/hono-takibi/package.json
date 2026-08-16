@@ -57,7 +57,8 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^12.1.0",
+    "@scalar/json-magic": "^0.13.0",
+    "@scalar/openapi-parser": "^0.28.14",
     "@typespec/compiler": "^1.14.0",
     "@typespec/openapi3": "^1.14.0",
     "oxfmt": "^0.60.0",
