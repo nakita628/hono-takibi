@@ -11,7 +11,7 @@ import {
   operationHasArgs,
   parsePathItem,
   resolveSplitOutDir,
-} from './index.js'
+} from './rpc.js'
 
 function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)

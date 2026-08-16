@@ -284,7 +284,7 @@ function resolveSuccessResponse(
       (key) =>
         !priority.includes(key) && statusCodeToNumber(key) >= 200 && statusCodeToNumber(key) < 300,
     )
-    .sort((a, b) => statusCodeToNumber(a) - statusCodeToNumber(b))
+    .toSorted((a, b) => statusCodeToNumber(a) - statusCodeToNumber(b))
   const key = [...priority, ...others][0]
   if (!key) return undefined
   return {

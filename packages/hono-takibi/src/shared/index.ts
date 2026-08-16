@@ -116,7 +116,7 @@ export function makeJob(
       ? {
           name: 'webhooks',
           output: config.webhooks.output,
-          split: config.webhooks.split === true,
+          split: config.webhooks.split,
           run: (output: string) =>
             webhooks(
               openAPI,
@@ -138,7 +138,7 @@ export function makeJob(
       ? {
           name: 'schemas',
           output: config.components.schemas.output,
-          split: config.components.schemas.split === true,
+          split: config.components.schemas.split,
           run: (output: string) =>
             schemas(
               openAPI.components?.schemas,
@@ -153,7 +153,7 @@ export function makeJob(
       ? {
           name: 'parameters',
           output: config.components.parameters.output,
-          split: config.components.parameters.split === true,
+          split: config.components.parameters.split,
           run: (output: string) =>
             parameters(
               openAPI.components?.parameters,
@@ -169,7 +169,7 @@ export function makeJob(
       ? {
           name: 'headers',
           output: config.components.headers.output,
-          split: config.components.headers.split === true,
+          split: config.components.headers.split,
           run: (output: string) =>
             headers(
               openAPI.components?.headers,
@@ -185,7 +185,7 @@ export function makeJob(
       ? {
           name: 'examples',
           output: config.components.examples.output,
-          split: config.components.examples.split === true,
+          split: config.components.examples.split,
           run: (output: string) =>
             examples(
               openAPI.components?.examples,
@@ -199,7 +199,7 @@ export function makeJob(
       ? {
           name: 'links',
           output: config.components.links.output,
-          split: config.components.links.split === true,
+          split: config.components.links.split,
           run: (output: string) =>
             links(
               openAPI.components?.links,
@@ -213,7 +213,7 @@ export function makeJob(
       ? {
           name: 'callbacks',
           output: config.components.callbacks.output,
-          split: config.components.callbacks.split === true,
+          split: config.components.callbacks.split,
           run: (output: string) =>
             callbacks(
               openAPI.components?.callbacks,
@@ -228,7 +228,7 @@ export function makeJob(
       ? {
           name: 'pathItems',
           output: config.components.pathItems.output,
-          split: config.components.pathItems.split === true,
+          split: config.components.pathItems.split,
           run: (output: string) =>
             pathItems(
               openAPI.components ?? {},
@@ -242,7 +242,7 @@ export function makeJob(
       ? {
           name: 'mediaTypes',
           output: config.components.mediaTypes.output,
-          split: config.components.mediaTypes.split === true,
+          split: config.components.mediaTypes.split,
           run: (output: string) =>
             mediaTypes(
               openAPI.components?.mediaTypes,
@@ -257,7 +257,7 @@ export function makeJob(
       ? {
           name: 'securitySchemes',
           output: config.components.securitySchemes.output,
-          split: config.components.securitySchemes.split === true,
+          split: config.components.securitySchemes.split,
           run: (output: string) =>
             securitySchemes(
               openAPI.components?.securitySchemes,
@@ -271,7 +271,7 @@ export function makeJob(
       ? {
           name: 'requestBodies',
           output: config.components.requestBodies.output,
-          split: config.components.requestBodies.split === true,
+          split: config.components.requestBodies.split,
           run: (output: string) =>
             requestBodies(
               openAPI.components?.requestBodies,
@@ -286,7 +286,7 @@ export function makeJob(
       ? {
           name: 'responses',
           output: config.components.responses.output,
-          split: config.components.responses.split === true,
+          split: config.components.responses.split,
           run: (output: string) =>
             responses(
               openAPI.components?.responses,
@@ -301,7 +301,7 @@ export function makeJob(
       ? {
           name: 'routes',
           output: config.routes.output,
-          split: config.routes.split === true,
+          split: config.routes.split,
           run: (output: string) =>
             route(
               openAPI,
@@ -326,7 +326,7 @@ export function makeJob(
       ? {
           name: 'rpc',
           output: config.rpc.output,
-          split: config.rpc.split === true,
+          split: config.rpc.split,
           run: (output: string) =>
             rpc(
               openAPI,
@@ -356,10 +356,10 @@ export function makeJob(
         ? {
             name: library,
             output: cfg.output,
-            split: cfg.split === true,
+            split: cfg.split,
             run: (output: string) =>
               hooks(openAPI, output, cfg.import, library, {
-                split: cfg.split === true,
+                split: cfg.split,
                 clientName: cfg.client ?? 'client',
               }),
           }
