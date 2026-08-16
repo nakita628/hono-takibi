@@ -3,9 +3,6 @@ packages:
   - packages/*
   - test
   - website
-overrides:
-  '@typespec/bundler>@typespec/compiler': 1.14.0
-  '@types/node': ^26.1.2
 allowBuilds:
   esbuild: true
   sharp: true

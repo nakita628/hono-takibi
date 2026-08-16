@@ -32,10 +32,6 @@
       "types": "./dist/vite-plugin/index.d.ts",
       "import": "./dist/vite-plugin/index.js"
     },
-    "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js"
-    },
     "./zod-openapi-hono": {
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
@@ -82,7 +78,6 @@
     "@typespec/versioning": "^0.84.0",
     "@typespec/xml": "^0.84.0",
     "hono": "^4.12.32",
-    "tsdown": "0.22.14",
-    "zod": "^4.0.0"
+    "tsdown": "0.22.14"
   }
 }

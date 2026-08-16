@@ -41,7 +41,7 @@ export function methodPath(method: string, path: string) {
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
-  return apiPath ? `${method}${apiPath}${suffix}` : `${method}`
+  return apiPath ? `${method}${apiPath}${suffix}` : method
 }
 
 /**
@@ -309,7 +309,7 @@ export function zodToOpenAPISchema(
  */
 export function makeBarrel(value: { readonly [k: string]: unknown }) {
   return `${Object.keys(value)
-    .sort()
+    .toSorted()
     .map((k) => `export * from './${k.charAt(0).toLowerCase() + k.slice(1)}'`)
     .join('\n')}\n`
 }

@@ -1,9 +1,12 @@
 // @vitest-environment happy-dom
+// Verifies the generated SWR hooks (cases/swr) rendered with @testing-library/react
+// against the users host app: useSWR / useSWRMutation / useSWRInfinite resolution,
+// error surfacing as DetailedError, and SWR cache-key identity.
 import { renderHook, waitFor } from '@testing-library/react'
 import { DetailedError } from 'hono/client'
 import type { ReactNode } from 'react'
 import { SWRConfig, unstable_serialize } from 'swr'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import {
   getGetUsersIdKey,

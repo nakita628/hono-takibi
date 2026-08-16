@@ -135,7 +135,7 @@ vi.mock('../openapi/index.js', () => ({
 }))
 
 vi.mock('../format/index.js', () => ({
-  fmt: vi.fn(async (source: string) => ({ ok: true as const, value: String(source) })),
+  fmt: vi.fn(async (source: string) => ({ ok: true as const, value: source })),
   setFormatOptions: vi.fn(),
 }))
 const { route: routeMock } = await import('../core/index.js')

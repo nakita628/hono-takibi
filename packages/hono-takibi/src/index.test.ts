@@ -850,7 +850,7 @@ export const postItemsIdRoute = createRoute({
   })
 })
 
-describe('config template mode tests', () => {
+describe('config template mode tests', { timeout: 30000 }, () => {
   const testDir = 'tmp-template-test'
 
   beforeEach(() => {

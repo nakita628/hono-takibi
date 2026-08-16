@@ -8,5 +8,6 @@ export default defineConfig({
   test: {
     output: '../../__generated__/mock/mock.test.ts',
     import: './mock',
+    testFramework: 'vite-plus',
   },
 })

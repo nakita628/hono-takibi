@@ -23,7 +23,7 @@ export async function makeExports(
   const keys = Object.keys(value)
   const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
   const indexCode = `${keys
-    .sort()
+    .toSorted()
     .map((v) => `export * from './${uncapitalize(v)}'`)
     .join('\n')}\n`
   const asConst = readonly ? ' as const' : ''

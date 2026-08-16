@@ -764,13 +764,7 @@ function flattenResponseSchemaFields(
       if (propSchema.type === 'object' && propSchema.properties) {
         return [
           row,
-          ...flattenResponseSchemaFields(
-            propSchema,
-            components,
-            `${nestedPrefix}`,
-            visited,
-            depth + 1,
-          ),
+          ...flattenResponseSchemaFields(propSchema, components, nestedPrefix, visited, depth + 1),
         ]
       }
       if (propSchema.$ref) {
@@ -783,7 +777,7 @@ function flattenResponseSchemaFields(
             ...flattenResponseSchemaFields(
               innerResolved,
               components,
-              `${nestedPrefix}`,
+              nestedPrefix,
               visited,
               depth + 1,
             ),
@@ -800,7 +794,7 @@ function flattenResponseSchemaFields(
               ...flattenResponseSchemaFields(
                 resolvedItem,
                 components,
-                `${nestedPrefix}`,
+                nestedPrefix,
                 visited,
                 depth + 1,
               ),

@@ -97,7 +97,7 @@ async function listWatchedInputFiles(directory: string): Promise<readonly string
  * "unknown" as "changed" and regenerate.
  */
 async function hashWatchedInputs(directory: string) {
-  const files = [...(await listWatchedInputFiles(directory))].sort()
+  const files = [...(await listWatchedInputFiles(directory))].toSorted()
   if (files.length === 0) return null
   const contents = await Promise.all(
     files.map(async (file) => ({
@@ -401,11 +401,11 @@ export function honoTakibiVite(): any {
           () => void enqueueRun(() => runIfInputsChanged(server)),
         )
 
-        server.watcher.on('all', async (_eventType, filePath) => {
+        server.watcher.on('all', (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)
           if (absoluteChangedPath === absoluteConfigFilePath) {
             console.log('config changed (watch)')
-            await enqueueRun(() => handleConfigurationChange(server))
+            void enqueueRun(() => handleConfigurationChange(server))
             return
           }
           if (
