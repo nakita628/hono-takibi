@@ -3,12 +3,6 @@ packages:
   - packages/*
   - test
   - website
-overrides:
-  '@typespec/bundler>@typespec/compiler': 1.14.0
-  # TypeSpec refuses to load two versions of the same library in one compile;
-  # keep @typespec/openapi on a single version until the whole 1.x line is bumped together.
-  '@typespec/openapi': 1.14.0
-  '@types/node': ^26.1.2
 allowBuilds:
   esbuild: true
   sharp: true

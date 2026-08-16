@@ -1,4 +1,37 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:best-practices"]
+  "extends": [
+    "config:best-practices",
+    ":timezone(Asia/Tokyo)",
+    "schedule:weekly",
+    "group:allNonMajor",
+    ":maintainLockFilesWeekly"
+  ],
+  "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": {
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      "description": "Keep GitHub Actions on exact version tags (@vX.Y.Z), not SHA digests",
+      "matchManagers": ["github-actions"],
+      "pinDigests": false
+    },
+    {
+      "description": "Keep semver ranges in devDependencies instead of pinning",
+      "matchDepTypes": ["devDependencies"],
+      "rangeStrategy": "auto"
+    },
+    {
+      "description": "TypeSpec cannot load two versions of one library in a single compile; bump the whole line together",
+      "matchPackageNames": ["@typespec/**"],
+      "groupName": "typespec"
+    },
+    {
+      "description": "Automerge non-major updates of stable (>=1.0.0) packages once CI passes",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    }
+  ]
 }
