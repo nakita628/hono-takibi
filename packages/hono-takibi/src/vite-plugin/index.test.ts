@@ -154,9 +154,21 @@ beforeEach(async () => {
   await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/schema'), { recursive: true })
   await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/route'), { recursive: true })
   await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/rpc'), { recursive: true })
-  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'), '// should be pruned', 'utf8')
-  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/extra.ts'), '// should be pruned', 'utf8')
-  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'), '// should be pruned', 'utf8')
+  await fsp.writeFile(
+    path.join(testState.sandboxDirectory, 'out/schema/extra.ts'),
+    '// should be pruned',
+    'utf8',
+  )
+  await fsp.writeFile(
+    path.join(testState.sandboxDirectory, 'out/route/extra.ts'),
+    '// should be pruned',
+    'utf8',
+  )
+  await fsp.writeFile(
+    path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'),
+    '// should be pruned',
+    'utf8',
+  )
 
   await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/schema/README.md'), 'keep', 'utf8')
   await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/README.md'), 'keep', 'utf8')
@@ -177,10 +189,18 @@ describe('honoTakibiVite', () => {
     const configuration = {
       input: 'openapi.yaml',
       components: {
-        schemas: { output: path.join(testState.sandboxDirectory, 'out/schema'), split: true, exportTypes: true },
+        schemas: {
+          output: path.join(testState.sandboxDirectory, 'out/schema'),
+          split: true,
+          exportTypes: true,
+        },
       },
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
-      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc'), split: true, import: '@rpc' },
+      rpc: {
+        output: path.join(testState.sandboxDirectory, 'out/rpc'),
+        split: true,
+        import: '@rpc',
+      },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -189,12 +209,20 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'))).toBe(false)
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts'))).toBe(false)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'))).toBe(
+      false,
+    )
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts'))).toBe(
+      false,
+    )
     expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'))).toBe(false)
 
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md'))).toBe(true)
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md'))).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md'))).toBe(
+      true,
+    )
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md'))).toBe(
+      true,
+    )
     expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/README.md'))).toBe(true)
 
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/schema'))).toBe(true)
@@ -287,13 +315,25 @@ describe('honoTakibiVite', () => {
 
   it('cleans up stale directories when config changes', async () => {
     await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/stale-schema'), { recursive: true })
-    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/stale-schema/User.ts'), '// stale', 'utf8')
-    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/stale-schema/Pet.ts'), '// stale', 'utf8')
+    await fsp.writeFile(
+      path.join(testState.sandboxDirectory, 'out/stale-schema/User.ts'),
+      '// stale',
+      'utf8',
+    )
+    await fsp.writeFile(
+      path.join(testState.sandboxDirectory, 'out/stale-schema/Pet.ts'),
+      '// stale',
+      'utf8',
+    )
 
     const initialConfiguration = {
       input: 'openapi.yaml',
       components: {
-        schemas: { output: path.join(testState.sandboxDirectory, 'out/stale-schema'), split: true, exportTypes: true },
+        schemas: {
+          output: path.join(testState.sandboxDirectory, 'out/stale-schema'),
+          split: true,
+          exportTypes: true,
+        },
       },
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
@@ -619,9 +659,18 @@ describe('honoTakibiVite', () => {
       test: { output: path.join(testState.sandboxDirectory, 'out/api.test.ts'), import: './api' },
       rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts'), import: '@rpc' },
       swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts'), import: '@swr' },
-      'tanstack-query': { output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts'), import: '@tan' },
-      'svelte-query': { output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts'), import: '@svl' },
-      'vue-query': { output: path.join(testState.sandboxDirectory, 'out/vue/index.ts'), import: '@vue' },
+      'tanstack-query': {
+        output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts'),
+        import: '@tan',
+      },
+      'svelte-query': {
+        output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts'),
+        import: '@svl',
+      },
+      'vue-query': {
+        output: path.join(testState.sandboxDirectory, 'out/vue/index.ts'),
+        import: '@vue',
+      },
     }
     const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
@@ -761,7 +810,11 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     // A skipped run must not run the split cleanup either, or this file would vanish.
-    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/marker.ts'), '// not produced by generators', 'utf8')
+    await fsp.writeFile(
+      path.join(testState.sandboxDirectory, 'out/route/marker.ts'),
+      '// not produced by generators',
+      'utf8',
+    )
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
     const sendSpy = vi.fn()
     server.ws.send = (payload) => sendSpy(payload)
@@ -773,7 +826,9 @@ describe('honoTakibiVite', () => {
     })
 
     expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun)
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/marker.ts'))).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/marker.ts'))).toBe(
+      true,
+    )
     expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
     logSpy.mockRestore()
   })
@@ -795,7 +850,10 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
-    await fsp.rm(path.join(testState.sandboxDirectory, 'out/route'), { recursive: true, force: true })
+    await fsp.rm(path.join(testState.sandboxDirectory, 'out/route'), {
+      recursive: true,
+      force: true,
+    })
     const reloadDeferred = createDeferred<void>()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') reloadDeferred.resolve()
