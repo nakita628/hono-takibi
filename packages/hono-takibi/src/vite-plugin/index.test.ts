@@ -151,21 +151,25 @@ beforeEach(async () => {
   testState.sandboxDirectory = await fsp.mkdtemp(path.join(os.tmpdir(), 'takibi-test-'))
   process.chdir(testState.sandboxDirectory)
 
-  await fsp.mkdir('out/schema', { recursive: true })
-  await fsp.mkdir('out/route', { recursive: true })
-  await fsp.mkdir('out/rpc', { recursive: true })
-  await fsp.writeFile('out/schema/extra.ts', '// should be pruned', 'utf8')
-  await fsp.writeFile('out/route/extra.ts', '// should be pruned', 'utf8')
-  await fsp.writeFile('out/rpc/extra.ts', '// should be pruned', 'utf8')
+  await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/schema'), { recursive: true })
+  await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/route'), { recursive: true })
+  await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/rpc'), { recursive: true })
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'), '// should be pruned', 'utf8')
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/extra.ts'), '// should be pruned', 'utf8')
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'), '// should be pruned', 'utf8')
 
-  await fsp.writeFile('out/schema/README.md', 'keep', 'utf8')
-  await fsp.writeFile('out/route/README.md', 'keep', 'utf8')
-  await fsp.writeFile('out/rpc/README.md', 'keep', 'utf8')
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/schema/README.md'), 'keep', 'utf8')
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/README.md'), 'keep', 'utf8')
+  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/rpc/README.md'), 'keep', 'utf8')
 })
 
 afterEach(async () => {
   process.chdir(testState.previousWorkingDirectory)
-  await fsp.rm(testState.sandboxDirectory, { recursive: true, force: true })
+  // In-flight generation tasks may still write into the sandbox; retry until
+  // the removal wins over the last write.
+  await vi.waitFor(async () => {
+    await fsp.rm(testState.sandboxDirectory, { recursive: true, force: true })
+  })
 })
 
 describe('honoTakibiVite', () => {
@@ -173,10 +177,10 @@ describe('honoTakibiVite', () => {
     const configuration = {
       input: 'openapi.yaml',
       components: {
-        schemas: { output: 'out/schema', split: true, exportTypes: true },
+        schemas: { output: path.join(testState.sandboxDirectory, 'out/schema'), split: true, exportTypes: true },
       },
-      routes: { output: 'out/route', split: true },
-      rpc: { output: 'out/rpc', split: true, import: '@rpc' },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc'), split: true, import: '@rpc' },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -185,23 +189,23 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    expect(await fileExists('out/schema/extra.ts')).toBe(false)
-    expect(await fileExists('out/route/extra.ts')).toBe(false)
-    expect(await fileExists('out/rpc/extra.ts')).toBe(false)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/extra.ts'))).toBe(false)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts'))).toBe(false)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'))).toBe(false)
 
-    expect(await fileExists('out/schema/README.md')).toBe(true)
-    expect(await fileExists('out/route/README.md')).toBe(true)
-    expect(await fileExists('out/rpc/README.md')).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md'))).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md'))).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/README.md'))).toBe(true)
 
-    expect(fs.existsSync('out/schema')).toBe(true)
-    expect(fs.existsSync('out/route')).toBe(true)
-    expect(fs.existsSync('out/rpc')).toBe(true)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/schema'))).toBe(true)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/route'))).toBe(true)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/rpc'))).toBe(true)
   })
 
   it('runs routes even without schema outputs', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -236,7 +240,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate returns empty array for config file changes', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -261,7 +265,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate returns undefined for non-config files', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -282,16 +286,16 @@ describe('honoTakibiVite', () => {
   })
 
   it('cleans up stale directories when config changes', async () => {
-    await fsp.mkdir('out/stale-schema', { recursive: true })
-    await fsp.writeFile('out/stale-schema/User.ts', '// stale', 'utf8')
-    await fsp.writeFile('out/stale-schema/Pet.ts', '// stale', 'utf8')
+    await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/stale-schema'), { recursive: true })
+    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/stale-schema/User.ts'), '// stale', 'utf8')
+    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/stale-schema/Pet.ts'), '// stale', 'utf8')
 
     const initialConfiguration = {
       input: 'openapi.yaml',
       components: {
-        schemas: { output: 'out/stale-schema', split: true, exportTypes: true },
+        schemas: { output: path.join(testState.sandboxDirectory, 'out/stale-schema'), split: true, exportTypes: true },
       },
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const { server, reloaded } = createMockViteDevServer(initialConfiguration)
@@ -300,11 +304,11 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    expect(fs.existsSync('out/stale-schema')).toBe(true)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(true)
 
     const newConfiguration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const { server: newServer, reloaded: newReloaded } = createMockViteDevServer(newConfiguration)
@@ -339,13 +343,13 @@ describe('honoTakibiVite', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(fs.existsSync('out/stale-schema')).toBe(false)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
   })
 
   it('watcher.add is called during configureServer', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const addSpy = vi.fn()
@@ -362,7 +366,7 @@ describe('honoTakibiVite', () => {
   it('watcher.on is called to register file change handler', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const onSpy = vi.fn()
@@ -381,7 +385,7 @@ describe('honoTakibiVite', () => {
   it('sends full-reload via ws after generation', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
     const sendSpy = vi.fn()
@@ -447,7 +451,7 @@ describe('honoTakibiVite', () => {
   it('invalidates all modules when resolveId returns null', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const invalidateAllSpy = vi.fn()
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -466,7 +470,7 @@ describe('honoTakibiVite', () => {
   it('regenerates when input .yaml file changes inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -491,7 +495,7 @@ describe('honoTakibiVite', () => {
   it('ignores file changes outside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -514,7 +518,7 @@ describe('honoTakibiVite', () => {
   it('ignores non-yaml/json/tsp files inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -538,7 +542,7 @@ describe('honoTakibiVite', () => {
   it('handles config file change via watcher callback', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -569,7 +573,7 @@ describe('honoTakibiVite', () => {
 
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server } = createMockViteDevServer(configuration)
@@ -591,7 +595,7 @@ describe('honoTakibiVite', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const configuration = {
       input: 'openapi.yaml',
-      output: 'out/routes.json' as const,
+      output: path.join(testState.sandboxDirectory, 'out/routes.json'),
     }
     const { server } = createMockViteDevServer(configuration)
 
@@ -608,16 +612,16 @@ describe('honoTakibiVite', () => {
   it('runs full pipeline: type/mock/docs/test/template + all clients', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      output: 'out/single.ts',
-      type: { output: 'out/types.ts' },
-      mock: { output: 'out/mock.ts' },
-      docs: { output: 'out/api.md' },
-      test: { output: 'out/api.test.ts', import: './api' },
-      rpc: { output: 'out/rpc/index.ts', import: '@rpc' },
-      swr: { output: 'out/swr/index.ts', import: '@swr' },
-      'tanstack-query': { output: 'out/tanstack/index.ts', import: '@tan' },
-      'svelte-query': { output: 'out/svelte/index.ts', import: '@svl' },
-      'vue-query': { output: 'out/vue/index.ts', import: '@vue' },
+      output: path.join(testState.sandboxDirectory, 'out/single.ts'),
+      type: { output: path.join(testState.sandboxDirectory, 'out/types.ts') },
+      mock: { output: path.join(testState.sandboxDirectory, 'out/mock.ts') },
+      docs: { output: path.join(testState.sandboxDirectory, 'out/api.md') },
+      test: { output: path.join(testState.sandboxDirectory, 'out/api.test.ts'), import: './api' },
+      rpc: { output: path.join(testState.sandboxDirectory, 'out/rpc/index.ts'), import: '@rpc' },
+      swr: { output: path.join(testState.sandboxDirectory, 'out/swr/index.ts'), import: '@swr' },
+      'tanstack-query': { output: path.join(testState.sandboxDirectory, 'out/tanstack/index.ts'), import: '@tan' },
+      'svelte-query': { output: path.join(testState.sandboxDirectory, 'out/svelte/index.ts'), import: '@svl' },
+      'vue-query': { output: path.join(testState.sandboxDirectory, 'out/vue/index.ts'), import: '@vue' },
     }
     const { server } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
@@ -642,19 +646,19 @@ describe('honoTakibiVite', () => {
   it('runs every component generator branch', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      webhooks: { output: 'out/webhooks.ts' },
+      webhooks: { output: path.join(testState.sandboxDirectory, 'out/webhooks.ts') },
       components: {
-        schemas: { output: 'out/schemas.ts' },
-        parameters: { output: 'out/parameters.ts' },
-        headers: { output: 'out/headers.ts' },
-        securitySchemes: { output: 'out/security.ts' },
-        requestBodies: { output: 'out/bodies.ts' },
-        responses: { output: 'out/responses.ts' },
-        examples: { output: 'out/examples.ts' },
-        links: { output: 'out/links.ts' },
-        callbacks: { output: 'out/callbacks.ts' },
-        pathItems: { output: 'out/pathItems.ts' },
-        mediaTypes: { output: 'out/mediaTypes.ts' },
+        schemas: { output: path.join(testState.sandboxDirectory, 'out/schemas.ts') },
+        parameters: { output: path.join(testState.sandboxDirectory, 'out/parameters.ts') },
+        headers: { output: path.join(testState.sandboxDirectory, 'out/headers.ts') },
+        securitySchemes: { output: path.join(testState.sandboxDirectory, 'out/security.ts') },
+        requestBodies: { output: path.join(testState.sandboxDirectory, 'out/bodies.ts') },
+        responses: { output: path.join(testState.sandboxDirectory, 'out/responses.ts') },
+        examples: { output: path.join(testState.sandboxDirectory, 'out/examples.ts') },
+        links: { output: path.join(testState.sandboxDirectory, 'out/links.ts') },
+        callbacks: { output: path.join(testState.sandboxDirectory, 'out/callbacks.ts') },
+        pathItems: { output: path.join(testState.sandboxDirectory, 'out/pathItems.ts') },
+        mediaTypes: { output: path.join(testState.sandboxDirectory, 'out/mediaTypes.ts') },
       },
     }
     const { server } = createMockViteDevServer(configuration)
@@ -685,7 +689,7 @@ describe('honoTakibiVite', () => {
     }))
     const configuration = {
       input: 'openapi.yaml',
-      output: 'out/single.ts' as const,
+      output: path.join(testState.sandboxDirectory, 'out/single.ts'),
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server } = createMockViteDevServer(configuration)
@@ -703,7 +707,7 @@ describe('honoTakibiVite', () => {
   it('handleHotUpdate logs config error when invalid config is loaded later', async () => {
     const initialConfiguration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(initialConfiguration)
     const plugin = honoTakibiVite()
@@ -744,7 +748,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -757,7 +761,7 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     // A skipped run must not run the split cleanup either, or this file would vanish.
-    await fsp.writeFile('out/route/marker.ts', '// not produced by generators', 'utf8')
+    await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/marker.ts'), '// not produced by generators', 'utf8')
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
     const sendSpy = vi.fn()
     server.ws.send = (payload) => sendSpy(payload)
@@ -769,7 +773,7 @@ describe('honoTakibiVite', () => {
     })
 
     expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun)
-    expect(await fileExists('out/route/marker.ts')).toBe(true)
+    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/marker.ts'))).toBe(true)
     expect(sendSpy).not.toHaveBeenCalledWith({ type: 'full-reload' })
     logSpy.mockRestore()
   })
@@ -778,7 +782,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -791,7 +795,7 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
-    await fsp.rm('out/route', { recursive: true, force: true })
+    await fsp.rm(path.join(testState.sandboxDirectory, 'out/route'), { recursive: true, force: true })
     const reloadDeferred = createDeferred<void>()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') reloadDeferred.resolve()
@@ -801,14 +805,14 @@ describe('honoTakibiVite', () => {
     await reloadDeferred.promise
 
     expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
-    expect(fs.existsSync('out/route')).toBe(true)
+    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/route'))).toBe(true)
   })
 
   it('config change regenerates even when input is unchanged, then unchanged input skips', async () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -840,7 +844,7 @@ describe('honoTakibiVite', () => {
   it('regenerates on every event when watched input files are absent', async () => {
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -875,7 +879,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -922,7 +926,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      routes: { output: 'out/route', split: true },
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
@@ -953,7 +957,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0', 'utf8')
     const configuration = {
       input: 'openapi.yaml',
-      output: 'out/single.ts',
+      output: path.join(testState.sandboxDirectory, 'out/single.ts'),
     }
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
