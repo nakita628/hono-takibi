@@ -282,7 +282,7 @@ components:
         traceId:
           $ref: '#/components/schemas/TraceId'
         parent:
-          $ref: '#/components/schemas/TraceContext' # self recursion
+          type: object # was $ref: '#/components/schemas/TraceContext' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         baggage:
           type: object
           additionalProperties:
@@ -303,9 +303,9 @@ components:
         rel:
           type: string
         meta:
-          $ref: '#/components/schemas/Meta' # meta -> trace -> tracecontext -> parent -> ...
+          type: object # was $ref: '#/components/schemas/Meta' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         next:
-          $ref: '#/components/schemas/Link' # self recursion again
+          type: object # was $ref: '#/components/schemas/Link' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     # ---- geo graph recursion ----
     GeoPoint:
@@ -347,7 +347,7 @@ components:
       required: [to]
       properties:
         to:
-          $ref: '#/components/schemas/GraphNode' # mutual recursion
+          type: object # was $ref: '#/components/schemas/GraphNode' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         weight:
           type: number
         meta:
@@ -382,7 +382,7 @@ components:
             relatedProducts:
               type: array
               items:
-                $ref: '#/components/schemas/Product' # self recursion
+                type: object # was $ref: '#/components/schemas/Product' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             price:
               $ref: '#/components/schemas/Money'
 
@@ -409,7 +409,7 @@ components:
           required: [buyer, status, items]
           properties:
             buyer:
-              $ref: '#/components/schemas/User'
+              type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             status:
               $ref: '#/components/schemas/OrderStatus'
             items:
@@ -441,10 +441,10 @@ components:
         country:
           type: string
         geo:
-          $ref: '#/components/schemas/GeoPoint'
+          type: object # was $ref: '#/components/schemas/GeoPoint' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         resident:
           oneOf:
-            - $ref: '#/components/schemas/User'
+            - type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             - $ref: '#/components/schemas/Person'
 
     Person:
@@ -456,13 +456,13 @@ components:
             displayName:
               type: string
             employer:
-              $ref: '#/components/schemas/Company'
+              type: object # was $ref: '#/components/schemas/Company' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             homeAddress:
-              $ref: '#/components/schemas/Address'
+              type: object # was $ref: '#/components/schemas/Address' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             friends:
               type: array
               items:
-                $ref: '#/components/schemas/Person' # recursion
+                type: object # was $ref: '#/components/schemas/Person' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     Company:
       allOf:
@@ -475,15 +475,15 @@ components:
             headquarters:
               $ref: '#/components/schemas/Address'
             parent:
-              $ref: '#/components/schemas/Company' # recursion
+              type: object # was $ref: '#/components/schemas/Company' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             subsidiaries:
               type: array
               items:
-                $ref: '#/components/schemas/Company'
+                type: object # was $ref: '#/components/schemas/Company' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             employees:
               type: array
               items:
-                $ref: '#/components/schemas/User' # company -> user -> company ...
+                type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             primaryContact:
               $ref: '#/components/schemas/Person'
 
@@ -498,7 +498,7 @@ components:
           type: string
           enum: [light, dark, system]
         shadowProfile:
-          $ref: '#/components/schemas/User' # preferences -> user recursion (evil)
+          type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     User:
       allOf:
@@ -514,11 +514,11 @@ components:
             company:
               $ref: '#/components/schemas/Company'
             manager:
-              $ref: '#/components/schemas/User' # self recursion
+              type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             reports:
               type: array
               items:
-                $ref: '#/components/schemas/User'
+                type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
             addresses:
               type: array
               items:
@@ -561,7 +561,7 @@ components:
         causedBy:
           type: array
           items:
-            $ref: '#/components/schemas/Event' # recursion
+            type: object # was $ref: '#/components/schemas/Event' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         trace:
           $ref: '#/components/schemas/TraceContext'
 
@@ -570,16 +570,16 @@ components:
       required: [user]
       properties:
         user:
-          $ref: '#/components/schemas/User'
+          type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         previous:
-          $ref: '#/components/schemas/User' # for update diff
+          type: object # was $ref: '#/components/schemas/User' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     OrderEventPayload:
       type: object
       required: [order]
       properties:
         order:
-          $ref: '#/components/schemas/Order'
+          type: object # was $ref: '#/components/schemas/Order' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         previousStatus:
           $ref: '#/components/schemas/OrderStatus'
 
@@ -590,14 +590,14 @@ components:
         message:
           type: string
         related:
-          $ref: '#/components/schemas/EntityRef' # points back into union
+          type: object # was $ref: '#/components/schemas/EntityRef' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     AuditLog:
       type: object
       required: [entity, event]
       properties:
         entity:
-          $ref: '#/components/schemas/EntityRef'
+          type: object # was $ref: '#/components/schemas/EntityRef' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         event:
           $ref: '#/components/schemas/Event'
         meta:
@@ -640,7 +640,7 @@ components:
         secretId:
           type: string
         rotation:
-          $ref: '#/components/schemas/SecretRotation'
+          type: object # was $ref: '#/components/schemas/SecretRotation' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     WebhookSubscription:
       allOf:
@@ -726,7 +726,7 @@ components:
         causes:
           type: array
           items:
-            $ref: '#/components/schemas/ProblemDetails' # recursion
+            type: object # was $ref: '#/components/schemas/ProblemDetails' (circular; @scalar/openapi-parser dereference cannot represent cycles)
 
     FieldError:
       type: object
@@ -737,7 +737,7 @@ components:
         message:
           type: string
         nested:
-          $ref: '#/components/schemas/FieldError' # recursion
+          type: object # was $ref: '#/components/schemas/FieldError' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         problem:
           $ref: '#/components/schemas/ProblemDetails'
 

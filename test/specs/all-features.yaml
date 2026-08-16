@@ -2183,7 +2183,7 @@ components:
         children:
           type: array
           items:
-            $ref: '#/components/schemas/CircularRefsTreeNode'
+            type: object # was $ref: '#/components/schemas/CircularRefsTreeNode' (circular; @scalar/openapi-parser dereference cannot represent cycles)
       required:
         - id
         - value
@@ -2211,7 +2211,7 @@ components:
         id:
           type: integer
         ref:
-          $ref: '#/components/schemas/CircularRefsNodeA'
+          type: object # was $ref: '#/components/schemas/CircularRefsNodeA' (circular; @scalar/openapi-parser dereference cannot represent cycles)
       required:
         - id
     ParametersMergeItem:
@@ -3125,7 +3125,7 @@ components:
             - '-'
             - '!'
         operand:
-          $ref: '#/components/schemas/ComplexSchemasExpression'
+          type: object # was $ref: '#/components/schemas/ComplexSchemasExpression' (circular; @scalar/openapi-parser dereference cannot represent cycles)
       required:
         - type
         - operator
@@ -3144,9 +3144,9 @@ components:
             - '*'
             - /
         left:
-          $ref: '#/components/schemas/ComplexSchemasExpression'
+          type: object # was $ref: '#/components/schemas/ComplexSchemasExpression' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         right:
-          $ref: '#/components/schemas/ComplexSchemasExpression'
+          type: object # was $ref: '#/components/schemas/ComplexSchemasExpression' (circular; @scalar/openapi-parser dereference cannot represent cycles)
       required:
         - type
         - operator
@@ -3379,11 +3379,11 @@ components:
         name:
           type: string
         parent:
-          $ref: '#/components/schemas/ComplexSchemasCategory'
+          type: object # was $ref: '#/components/schemas/ComplexSchemasCategory' (circular; @scalar/openapi-parser dereference cannot represent cycles)
         children:
           type: array
           items:
-            $ref: '#/components/schemas/ComplexSchemasCategory'
+            type: object # was $ref: '#/components/schemas/ComplexSchemasCategory' (circular; @scalar/openapi-parser dereference cannot represent cycles)
       required:
         - id
         - name
