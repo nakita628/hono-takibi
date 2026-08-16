@@ -78,7 +78,6 @@
     "@typespec/versioning": "^0.84.0",
     "@typespec/xml": "^0.84.0",
     "hono": "^4.12.32",
-    "tsdown": "0.22.14",
-    "zod": "^4.0.0"
+    "tsdown": "0.22.14"
   }
 }
