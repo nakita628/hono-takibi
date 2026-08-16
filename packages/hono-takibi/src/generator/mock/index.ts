@@ -232,16 +232,20 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
     Object.entries(openapi.paths).map(([path, pathItem]) => {
       const filteredPathItem = Object.fromEntries(
         Object.entries(pathItem).map(([k, v]) => {
+          const operation: unknown = v
           if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(k))
             return [k, v]
-          if (!hasRequestBodyContent(v)) return [k, v]
-          const jsonContent = v.requestBody.content['application/json']
+          if (!hasRequestBodyContent(operation)) return [k, v]
+          const jsonContent = operation.requestBody.content['application/json']
           if (!jsonContent) return [k, v]
           return [
             k,
             {
-              ...v,
-              requestBody: { ...v.requestBody, content: { 'application/json': jsonContent } },
+              ...operation,
+              requestBody: {
+                ...operation.requestBody,
+                content: { 'application/json': jsonContent },
+              },
             },
           ]
         }),

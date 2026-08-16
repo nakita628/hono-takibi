@@ -673,6 +673,7 @@ describe('extractTestCases - security schemes', () => {
         securitySchemes: {
           oauth2: {
             type: 'oauth2',
+            // @ts-expect-error OAuthFlow models tokenUrl/refreshUrl as required, unused by implicit flow
             flows: { implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} } },
           },
         },
@@ -937,6 +938,7 @@ describe('makeTestFile - security auth headers', () => {
         securitySchemes: {
           oauth2: {
             type: 'oauth2',
+            // @ts-expect-error OAuthFlow models tokenUrl/refreshUrl as required, unused by implicit flow
             flows: { implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} } },
           },
         },
@@ -2555,6 +2557,7 @@ describe('makeTestFile - oauth2 scheme', () => {
           oauth2Scheme: {
             type: 'oauth2',
             flows: {
+              // @ts-expect-error OAuthFlow models tokenUrl/refreshUrl as required, unused by implicit flow
               implicit: {
                 authorizationUrl: 'https://example.com/oauth/authorize',
                 scopes: {},

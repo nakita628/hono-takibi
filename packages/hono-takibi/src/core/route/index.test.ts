@@ -413,6 +413,7 @@ export const getZodOpenapiHonoRoute = createRoute({
                 servers: [{ url: 'https://api.example.com' }],
                 callbacks: {
                   onData: {
+                    // @ts-expect-error Operation.callbacks models a $ref shape, not expression → PathItem maps
                     '{$request.body#/url}': {
                       post: { responses: { '200': { description: 'OK' } } },
                     },

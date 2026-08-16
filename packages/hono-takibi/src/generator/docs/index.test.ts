@@ -2763,6 +2763,7 @@ This operation does not require authentication
                 tokenUrl: 'https://example.com/oauth/token',
                 scopes: { read: 'Read access', write: 'Write access' },
               },
+              // @ts-expect-error OAuthFlow models tokenUrl/refreshUrl as required, unused by implicit flow
               implicit: {
                 authorizationUrl: 'https://example.com/oauth/implicit',
                 scopes: {},
