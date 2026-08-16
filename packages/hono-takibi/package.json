@@ -32,10 +32,6 @@
       "types": "./dist/vite-plugin/index.d.ts",
       "import": "./dist/vite-plugin/index.js"
     },
-    "./config": {
-      "types": "./dist/config/index.d.ts",
-      "import": "./dist/config/index.js"
-    },
     "./zod-openapi-hono": {
       "types": "./dist/generator/zod-openapi-hono/openapi/index.d.ts",
       "import": "./dist/generator/zod-openapi-hono/openapi/index.js"
