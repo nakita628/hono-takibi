@@ -1,5 +1,7 @@
+// Verifies the full-stack template output (cases/crud: template + rpc + mock) end to end
+// via hono/testing testClient: CRUD flows, int query params, and an int64 cursor.
 import { testClient } from 'hono/testing'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { api } from '../__generated__/crud/src/index'
 

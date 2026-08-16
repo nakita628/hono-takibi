@@ -6,7 +6,7 @@
  * behavior is correct: validation messages match README text exactly,
  * transforms run in the documented order, codecs round-trip, etc.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import app from '../hosts/readme-app'
 

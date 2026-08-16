@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+// Verifies the basePath config option (cases/basepath): generated route paths omit
+// the prefix, the generated mock app mounts it, so requests resolve only under /api/v1.
+import { describe, expect, it } from 'vite-plus/test'
 
 import app from '../__generated__/basepath/mock'
 

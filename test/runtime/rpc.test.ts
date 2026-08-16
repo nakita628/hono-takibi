@@ -1,5 +1,8 @@
+// Verifies the generated RPC client functions (cases/rpc, parseResponse mode): 2xx
+// resolves with the parsed body, non-2xx rejects with hono/client DetailedError
+// carrying the typed error contract, and 204 resolves with undefined.
 import { DetailedError } from 'hono/client'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { deleteUsersId, getUsers, getUsersId, postUsers } from '../__generated__/rpc/rpc'
 

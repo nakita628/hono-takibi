@@ -1,6 +1,9 @@
+// Verifies the generated TanStack Query helpers (cases/tanstack-query) against the
+// users host app: queryOptions / infiniteQueryOptions / mutationOptions behavior,
+// query-key identity (asserted through cache effects), and fetch cancellation.
 import { QueryClient } from '@tanstack/react-query'
 import { DetailedError } from 'hono/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import {
   getDeleteUsersIdMutationOptions,

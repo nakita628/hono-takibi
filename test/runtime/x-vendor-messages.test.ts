@@ -1,7 +1,10 @@
+// Verifies custom validation messages from x-* vendor extensions (cases/x-vendor-messages):
+// every x-*-message variant surfaces its configured text through the host's error hook,
+// exhaustively per constraint kind (length, items, range, size, format, ...).
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import app from '../hosts/x-vendor-messages-app'
 

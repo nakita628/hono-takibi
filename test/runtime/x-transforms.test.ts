@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest'
+// Verifies the x-* vendor-extension transforms (cases/x-transforms): string
+// pre-validation transforms (x-trim etc.), x-coerce, format options, and the
+// x-refine / x-superRefine / x-codec escape hatches — all at runtime via the host app.
+import { describe, expect, it } from 'vite-plus/test'
 
 import app from '../hosts/x-transforms-app'
 

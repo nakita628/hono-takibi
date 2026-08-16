@@ -3,6 +3,7 @@
   "include": [
     "../../__generated__/validation/**/*",
     "../../hosts/coercion-app.ts",
-    "../../runtime/validation.test.ts"
+    "../../runtime/validation.test.ts",
+    "../../runtime/query-coercion-why.test.ts"
   ]
 }

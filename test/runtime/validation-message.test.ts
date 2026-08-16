@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import appDefault from '../hosts/validation-message-app-default'
 import appDefaultHook from '../hosts/validation-message-app-default-hook'

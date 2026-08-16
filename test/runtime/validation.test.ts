@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+// Verifies wire-format coercion in generated routes (cases/validation, specs/coercion.yaml):
+// int64 path params become exact bigints, query integers/booleans/arrays arrive typed,
+// defaults apply, and garbage is rejected via the host's 422 defaultHook.
+// For WHY these coercions are necessary, see query-coercion-why.test.ts.
+import { describe, expect, it } from 'vite-plus/test'
 
 import { coercionApp } from '../hosts/coercion-app'
 

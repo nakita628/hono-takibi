@@ -14,6 +14,7 @@ export default defineConfig({
   test: {
     output: '../../__generated__/crud/src/index.test.ts',
     import: './index',
+    testFramework: 'vite-plus',
   },
   mock: {
     output: '../../__generated__/crud/src/mock.ts',
