@@ -10,7 +10,7 @@ permissions: {}
 
 concurrency:
   group: release
-  cancel-in-progress: false
+  queue: max
 
 jobs:
   check:
@@ -19,22 +19,83 @@ jobs:
     permissions:
       contents: read
     outputs:
-      unpublished: ${{ steps.ver.outputs.version }}
+      version: ${{ steps.ver.outputs.version }}
+      unpublished: ${{ steps.ver.outputs.unpublished }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Check version and npm publish state
+        id: ver
+        run: |
+          set -euo pipefail
+          VERSION=$(jq -r .version packages/hono-takibi/package.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if ! VERSIONS=$(npm view hono-takibi versions --json); then
+            echo "::error::Failed to query the npm registry for hono-takibi versions. Check https://status.npmjs.org/ and re-run the workflow"
+            exit 1
+          fi
+          if ! PUBLISHED=$(echo "$VERSIONS" | jq --arg version "$VERSION" '[.] | flatten | index($version) != null'); then
+            echo "::error::Unexpected npm registry response. Re-run the workflow"
+            exit 1
+          fi
+          if [ "$PUBLISHED" = "true" ]; then
+            echo "unpublished=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "unpublished=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  tag:
+    runs-on: ubuntu-latest
+    needs: check
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Check unpublished version
-        id: ver
+      - name: Create or verify tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
+          UNPUBLISHED: ${{ needs.check.outputs.unpublished }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          CUR=$(jq -r .version packages/hono-takibi/package.json)
-          npm view "hono-takibi@$CUR" version >/dev/null 2>&1 || echo "version=$CUR" >> $GITHUB_OUTPUT
+          LS_STATUS=0
+          git ls-remote --exit-code origin "refs/tags/v$VERSION" >/dev/null || LS_STATUS=$?
+          if [ "$LS_STATUS" -eq 2 ]; then
+            if [ "$UNPUBLISHED" = "false" ]; then
+              echo "::error::hono-takibi@$VERSION is already published, but tag v$VERSION does not exist. Cannot safely determine the published commit. Tag the commit that was actually published (git tag v$VERSION <sha> && git push origin v$VERSION), or bump the version and push again"
+              exit 1
+            fi
+            git tag "v$VERSION" "$HEAD_SHA"
+            git push origin "v$VERSION"
+            exit 0
+          fi
+          if [ "$LS_STATUS" -ne 0 ]; then
+            echo "::error::Failed to query origin for tag v$VERSION (git ls-remote exited with $LS_STATUS). Check connectivity to GitHub and re-run the workflow"
+            exit 1
+          fi
+          git fetch --depth=1 origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
+          TAG_SHA=$(git rev-parse "v$VERSION^{commit}")
+          if [ "$TAG_SHA" = "$HEAD_SHA" ]; then
+            echo "tag v$VERSION already points to $HEAD_SHA; skip"
+            exit 0
+          fi
+          if [ "$UNPUBLISHED" = "false" ] && gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "v$VERSION already fully released from $TAG_SHA; nothing to do for $HEAD_SHA"
+            exit 0
+          fi
+          echo "::error::v$VERSION already points to another commit ($TAG_SHA, expected $HEAD_SHA). Re-run the release workflow for $TAG_SHA, or bump the version in packages/hono-takibi/package.json and push again"
+          exit 1
 
   publish:
     runs-on: ubuntu-latest
-    needs: check
-    if: needs.check.outputs.unpublished
+    needs: [check, tag]
+    if: needs.check.outputs.unpublished == 'true'
     environment: release
     permissions:
       contents: read
@@ -43,6 +104,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
 
       - run: corepack enable
 
@@ -54,20 +116,20 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [check, publish]
-    if: ${{ !cancelled() && needs.check.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped') }}
+    needs: [check, tag, publish]
+    if: ${{ !cancelled() && needs.check.result == 'success' && needs.tag.result == 'success' && (needs.publish.result == 'success' || needs.publish.result == 'skipped') }}
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
 
       - name: Create release if missing
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET: ${{ github.event.workflow_run.head_sha }}
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
-          VERSION=$(jq -r .version packages/hono-takibi/package.json)
           gh release view "v$VERSION" >/dev/null 2>&1 && { echo "release v$VERSION already exists; skip"; exit 0; }
-          gh release create "v$VERSION" --generate-notes --target "$TARGET"
+          gh release create "v$VERSION" --verify-tag --generate-notes
