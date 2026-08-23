@@ -57,18 +57,6 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
 }
 
-function makeQueryOptionsGetterName(pathStr: string) {
-  return `get${capitalize(methodPath('', pathStr))}QueryOptions`
-}
-
-function makeInfiniteQueryOptionsGetterName(pathStr: string) {
-  return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
-}
-
-function makeMutationOptionsGetterName(method: string, pathStr: string) {
-  return `get${capitalize(methodPath(method, pathStr))}MutationOptions`
-}
-
 // Structured key pattern: ['prefix','/full/path',args?] enables both per-prefix
 // and per-endpoint invalidation.
 // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
@@ -912,7 +900,7 @@ function makeHookCode(
     const queryHookName = makeHookName('', pathStr, config.hookPrefix)
     const pathFuncName = methodPath('', pathStr)
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
-    const optionsGetterName = makeQueryOptionsGetterName(pathStr)
+    const optionsGetterName = `get${capitalize(methodPath('', pathStr))}QueryOptions`
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
@@ -941,7 +929,7 @@ function makeHookCode(
     // Generate infinite query key getter (only when infinite query hooks are enabled
     // AND endpoint declares `x-pagination: true`)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
-    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
+    const infiniteOptionsGetterName = `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
     const infiniteKeyGetterCode = hasInfinite
@@ -1056,7 +1044,7 @@ function makeHookCode(
     } as const
   }
   // Mutation: emit factory + hook
-  const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
+  const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions`
   const optionsGetterCode = makeMutationOptionsGetterCode(
     optionsGetterName,
     hasArgs,

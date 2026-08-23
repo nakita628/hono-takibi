@@ -30,10 +30,6 @@ import {
   toIdentifierPascalCase,
 } from '../utils/index.js'
 
-function toVariableName(name: string, suffix: string) {
-  return toIdentifierPascalCase(ensureSuffix(name, suffix))
-}
-
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
     readonly prefix: string
@@ -53,14 +49,16 @@ export function makeRef($ref: string) {
   ]
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
-    const parentSchema = toVariableName(decodeURIComponent(propertiesMatch[1]), 'Schema')
+    const parentSchema = toIdentifierPascalCase(
+      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
+    )
     return `z.lazy(()=>${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodeURIComponent(rawRef)
   const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
-  return toVariableName(decodedRef, match?.suffix ?? 'Schema')
+  return toIdentifierPascalCase(ensureSuffix(decodedRef, match?.suffix ?? 'Schema'))
 }
 
 export function makeExamples(examples: {

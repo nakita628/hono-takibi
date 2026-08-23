@@ -68,10 +68,6 @@ function collectExportedConsts(file: SourceFile, suffix: string) {
   return map
 }
 
-function collectHandlerMap(file: SourceFile) {
-  return collectExportedConsts(file, 'Handler')
-}
-
 /**
  * Lists the names of exported `const` declarations whose name ends with `suffix`.
  */
@@ -110,8 +106,8 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
 
   // Single pass over each file to collect handler name → statement maps
-  const existingHandlers = collectHandlerMap(existingFile)
-  const generatedHandlers = collectHandlerMap(generatedFile)
+  const existingHandlers = collectExportedConsts(existingFile, 'Handler')
+  const generatedHandlers = collectExportedConsts(generatedFile, 'Handler')
 
   // Delete operations: codegen-owned handlers in existing but not in generated
   const generatedHasInline = [...generatedHandlers.keys()].some(isInlineHandlerName)

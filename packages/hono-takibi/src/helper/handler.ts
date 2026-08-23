@@ -104,10 +104,6 @@ function makeMockHandlerCode(
   } as const
 }
 
-function makeStubHandlerCode(routeId: string) {
-  return `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`
-}
-
 function sanitizeHandlerSegment(segment: string) {
   return segment
     .replaceAll(/\{([^}]+)\}/g, '$1')
@@ -238,10 +234,6 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   return { handlerPath, importFrom, testImportFrom } as const
 }
 
-function makeInlineStubContent(routeId: string) {
-  return `.openapi(${routeId}Route,(c)=>{})`
-}
-
 function makeInlineMockContent(
   routeId: string,
   operation: Operation,
@@ -293,7 +285,7 @@ function makeInlineStubHandlerInfo(
   return {
     fileName,
     testFileName: makeTestFileName(fileName),
-    contents: [makeInlineStubContent(routeId)],
+    contents: [`.openapi(${routeId}Route,(c)=>{})`],
     routeNames: [`${routeId}Route`],
     needsFaker: false,
     usedRefs: new Set(),
@@ -403,7 +395,9 @@ function makeStubHandlerInfo(
   return {
     fileName,
     testFileName: makeTestFileName(fileName),
-    contents: [makeStubHandlerCode(routeId)],
+    contents: [
+      `export const ${routeId}RouteHandler:RouteHandler<typeof ${routeId}Route>=async(c)=>{}`,
+    ],
     routeNames: [`${routeId}Route`],
     needsFaker: false,
     usedRefs: new Set(),

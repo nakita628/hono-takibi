@@ -49,14 +49,6 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
 }
 
 /**
- * Returns the inner `error:"..."` (or `error:(issue)=>...`) string without
- * surrounding braces, so it can be merged into a format options object.
- */
-function errorInner(message: string): string {
-  return error(message).slice(1, -1)
-}
-
-/**
  * Builds format-specific option entries (excluding `error`) for Zod v4 format
  * constructors like `z.email({ pattern })`, `z.iso.datetime({ precision })`.
  * Returns an empty array when no options apply.
@@ -126,7 +118,7 @@ export function string(
   const baseErrorArg = baseError(errorMessage, coerce ? undefined : requiredMessage)
 
   // Hash: z.hash(algo, { enc }) — algo is a required positional arg. The hash
-  // branch passes x-error-message via errorInner below; the format-specific slot
+  // branch merges x-error-message into its options object below; the format-specific slot
   // is reserved for the standard validation-format constructors (email/uuid/url/...).
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
@@ -135,7 +127,8 @@ export function string(
     const enc = schema['x-hashEnc']
     const opts = [
       enc ? `enc:${JSON.stringify(enc)}` : undefined,
-      errorMessage ? errorInner(errorMessage) : undefined,
+      // `error(...)` returns `{error:...}`; strip the braces to merge it into the options object
+      errorMessage ? error(errorMessage).slice(1, -1) : undefined,
     ].filter((v) => v !== undefined)
     const optsStr = opts.length > 0 ? `,{${opts.join(',')}}` : ''
     return `z.hash(${JSON.stringify(algo)}${optsStr})`
