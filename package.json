@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.10",
-    "happy-dom": "^15.11.7",
+    "happy-dom": "^20.0.0",
     "vite-plus": "^0.2.6"
   },
   "packageManager": "pnpm@11.22.0"

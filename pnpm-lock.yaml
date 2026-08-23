@@ -12,20 +12,20 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
       happy-dom:
-        specifier: ^15.11.7
-        version: 15.11.7
+        specifier: ^20.0.0
+        version: 20.11.6
       vite-plus:
         specifier: ^0.2.6
-        version: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
+        version: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
   apps/nakita628-fizz-buzz:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.4.0
-        version: 1.6.0(hono@4.13.2)(zod@4.4.3)
+        version: 1.6.1(hono@4.13.3)(zod@4.4.3)
       hono:
         specifier: ^4.12.25
-        version: 4.13.2
+        version: 4.13.3
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -65,7 +65,7 @@ importers:
         version: 1.14.0(63e409c33520d4bf0a43758beedc514c)
       oxfmt:
         specifier: ^0.60.0
-        version: 0.60.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
+        version: 0.60.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
       ts-morph:
         specifier: ^28.0.0
         version: 28.0.0
@@ -81,7 +81,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.5.1
-        version: 1.6.0(hono@4.13.2)(zod@4.4.3)
+        version: 1.6.1(hono@4.13.3)(zod@4.4.3)
       '@types/node':
         specifier: ^26.1.1
         version: 26.2.0
@@ -111,7 +111,7 @@ importers:
         version: 0.84.0(@typespec/compiler@1.14.0(@types/node@26.2.0))
       hono:
         specifier: ^4.12.32
-        version: 4.13.2
+        version: 4.13.3
       tsdown:
         specifier: 0.22.14
         version: 0.22.14(typescript@7.0.2)
@@ -123,7 +123,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.2.1
-        version: 1.6.0(hono@4.13.2)(zod@4.4.3)
+        version: 1.6.1(hono@4.13.3)(zod@4.4.3)
       '@tanstack/angular-query-experimental':
         specifier: ^5.101.0
         version: 5.101.4(@angular/common@22.1.2(@angular/core@22.1.2(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.2(rxjs@7.8.2))
@@ -165,7 +165,7 @@ importers:
         version: 15.11.7
       hono:
         specifier: ^4.11.7
-        version: 4.13.2
+        version: 4.13.3
       hono-takibi:
         specifier: workspace:^
         version: link:../packages/hono-takibi
@@ -738,8 +738,8 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@hono/zod-openapi@1.6.0':
-    resolution: {integrity: sha512-42HXUBIaGmQh+hZGLw3Hy5piOreIXgnBnUSs55mtn2gnW/xWtU9nQwEUtRRCk5to8Vm2XbfO0J83eUCwCf5eTg==}
+  '@hono/zod-openapi@1.6.1':
+    resolution: {integrity: sha512-z1xS3FZxl4bBkU3kMIsQsLtsqxPTha5XZCsDEPMSZ6+3RRBQI7KED1GeoDpq2WueXCacsNIjcB0MtCnEHY7ahQ==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       hono: '>=4.10.0'
@@ -1951,6 +1951,12 @@ packages:
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
 
+  '@types/whatwg-mimetype@3.0.2':
+    resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
     engines: {node: '>=16.20.0'}
@@ -2777,6 +2783,10 @@ packages:
     resolution: {integrity: sha512-ScQ4IuvIEF1TMlP7Zt+vjJ//9zlPb2SDcxWxM3bk8s6t6GGdJ7KO1dCcTidOPJKePW30LE/2cT7wCyPho9/Wxg==}
     engines: {node: 20 || >=22}
 
+  buffer-image-size@0.6.4:
+    resolution: {integrity: sha512-nEh+kZOPY1w+gcCMobZ6ETUp9WfibndnosbpwB1iJk/8Gt5ZF2bhS6+B6bPYz424KtwsR6Rflc3tCz1/ghX2dQ==}
+    engines: {node: '>=4.0'}
+
   cac@7.0.0:
     resolution: {integrity: sha512-tixWYgm5ZoOD+3g6UTea91eow5z6AAHaho3g0V9CNSNb45gM8SmflpAc+GRd1InC4AqN/07Unrgp56Y94N9hJQ==}
     engines: {node: '>=20.19.0'}
@@ -2995,6 +3005,10 @@ packages:
     resolution: {integrity: sha512-KyrFvnl+J9US63TEzwoiJOQzZBJY7KgBushJA8X61DMbNsH+2ONkDuLDnCnwUiPTF42tLoEmrPyoqbenVA5zrg==}
     engines: {node: '>=18.0.0'}
 
+  happy-dom@20.11.6:
+    resolution: {integrity: sha512-Hldbg8AdAa5a5oDcZpjqnGitp7JB0hqWmfv/8qr+kft4vzSD8BHsbdRfzYvL/0QcbKcURC/yyoygbeDQarPvYg==}
+    engines: {node: '>=20.0.0'}
+
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
@@ -3005,8 +3019,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.13.2:
-    resolution: {integrity: sha512-JydRilDRkYBQMt9qR9U92mXxmbGqsqSn/IKOrh4e7/gEbn+0zSr8igTu0obwJoNGN4sez28DIql7FBHWydoJpA==}
+  hono@4.13.3:
+    resolution: {integrity: sha512-r8AO2mYHoLxSHkgafNeC/BXyb2vWRxD3jem4Ts+ptav8oTG5FIRifAjuJEmZI4bSvvc2ns0GxmIYiZnHqN3mMw==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -4210,17 +4224,17 @@ snapshots:
       vue: 3.5.41(typescript@7.0.2)
       vue-demi: 0.14.10(vue@3.5.41(typescript@7.0.2))
 
-  '@hono/zod-openapi@1.6.0(hono@4.13.2)(zod@4.4.3)':
+  '@hono/zod-openapi@1.6.1(hono@4.13.3)(zod@4.4.3)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 9.1.0(zod@4.4.3)
-      '@hono/zod-validator': 0.9.0(hono@4.13.2)(zod@4.4.3)
-      hono: 4.13.2
+      '@hono/zod-validator': 0.9.0(hono@4.13.3)(zod@4.4.3)
+      hono: 4.13.3
       openapi3-ts: 4.6.1
       zod: 4.4.3
 
-  '@hono/zod-validator@0.9.0(hono@4.13.2)(zod@4.4.3)':
+  '@hono/zod-validator@0.9.0(hono@4.13.3)(zod@4.4.3)':
     dependencies:
-      hono: 4.13.2
+      hono: 4.13.3
       zod: 4.4.3
 
   '@iconify-json/logos@1.2.12':
@@ -5169,6 +5183,12 @@ snapshots:
 
   '@types/web-bluetooth@0.0.21': {}
 
+  '@types/whatwg-mimetype@3.0.2': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 26.2.0
+
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
 
@@ -5422,7 +5442,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@15.11.7)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.6)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
       ws: 8.21.3
     transitivePeerDependencies:
       - bufferutil
@@ -5442,7 +5462,7 @@ snapshots:
       obug: 2.1.4
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@15.11.7)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.6)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
     optionalDependencies:
       '@vitest/browser': 4.1.10(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(vitest@4.1.10)
 
@@ -5853,6 +5873,10 @@ snapshots:
     dependencies:
       balanced-match: 4.0.4
 
+  buffer-image-size@0.6.4:
+    dependencies:
+      '@types/node': 26.2.0
+
   cac@7.0.0: {}
 
   call-me-maybe@1.0.2: {}
@@ -6056,6 +6080,19 @@ snapshots:
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
 
+  happy-dom@20.11.6:
+    dependencies:
+      '@types/node': 26.2.0
+      '@types/whatwg-mimetype': 3.0.2
+      '@types/ws': 8.18.1
+      buffer-image-size: 0.6.4
+      entities: 7.0.1
+      whatwg-mimetype: 3.0.0
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   has-flag@4.0.0: {}
 
   hast-util-to-html@9.0.5:
@@ -6076,7 +6113,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
 
-  hono@4.13.2: {}
+  hono@4.13.3: {}
 
   hookable@5.5.3: {}
 
@@ -6301,7 +6338,7 @@ snapshots:
     dependencies:
       yaml: 2.9.0
 
-  oxfmt@0.60.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
+  oxfmt@0.60.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
     dependencies:
       tinypool: 2.1.0
     optionalDependencies:
@@ -6325,7 +6362,7 @@ snapshots:
       '@oxfmt/binding-win32-ia32-msvc': 0.60.0
       '@oxfmt/binding-win32-x64-msvc': 0.60.0
       svelte: 5.56.9
-      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
+      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
   oxfmt@0.62.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@22.20.1)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@5.9.3)(vite@7.3.6(@types/node@22.20.1)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
     dependencies:
@@ -6353,7 +6390,7 @@ snapshots:
       svelte: 5.56.9
       vite-plus: 0.2.9(@types/node@22.20.1)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@5.9.3)(vite@7.3.6(@types/node@22.20.1)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
-  oxfmt@0.62.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
+  oxfmt@0.62.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
     dependencies:
       tinypool: 2.1.0
     optionalDependencies:
@@ -6377,7 +6414,7 @@ snapshots:
       '@oxfmt/binding-win32-ia32-msvc': 0.62.0
       '@oxfmt/binding-win32-x64-msvc': 0.62.0
       svelte: 5.56.9
-      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
+      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
   oxlint-tsgolint@7.0.2001:
     optionalDependencies:
@@ -6412,7 +6449,7 @@ snapshots:
       oxlint-tsgolint: 7.0.2001
       vite-plus: 0.2.9(@types/node@22.20.1)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@5.9.3)(vite@7.3.6(@types/node@22.20.1)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
-  oxlint@1.77.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
+  oxlint@1.77.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.77.0
       '@oxlint/binding-android-arm64': 1.77.0
@@ -6434,7 +6471,7 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.77.0
       '@oxlint/binding-win32-x64-msvc': 1.77.0
       oxlint-tsgolint: 7.0.2001
-      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
+      vite-plus: 0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0)
 
   package-manager-detector@1.8.0: {}
 
@@ -6934,7 +6971,7 @@ snapshots:
       - vite
       - yaml
 
-  vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0):
+  vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0):
     dependencies:
       '@oxc-project/types': 0.143.0
       '@oxlint/plugins': 1.73.0
@@ -6948,10 +6985,10 @@ snapshots:
       '@vitest/spy': 4.1.10
       '@vitest/utils': 4.1.10
       '@voidzero-dev/vite-plus-core': 0.2.9(@types/node@26.2.0)(esbuild@0.28.2)(typescript@7.0.2)(yaml@2.9.0)
-      oxfmt: 0.62.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
-      oxlint: 1.77.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@15.11.7)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
+      oxfmt: 0.62.0(svelte@5.56.9)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
+      oxlint: 1.77.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.2.9(@types/node@26.2.0)(@vitest/coverage-v8@4.1.10)(esbuild@0.28.2)(happy-dom@20.11.6)(svelte@5.56.9)(typescript@7.0.2)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(yaml@2.9.0))
       oxlint-tsgolint: 7.0.2001
-      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@15.11.7)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.6)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
     optionalDependencies:
       '@voidzero-dev/vite-plus-darwin-arm64': 0.2.9
       '@voidzero-dev/vite-plus-darwin-x64': 0.2.9
@@ -7133,6 +7170,36 @@ snapshots:
       '@vitest/browser-preview': 4.1.10(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(vitest@4.1.10)
       '@vitest/coverage-v8': 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
       happy-dom: 15.11.7
+    transitivePeerDependencies:
+      - msw
+
+  vitest@4.1.10(@types/node@26.2.0)(@vitest/browser-preview@4.1.10)(@vitest/coverage-v8@4.1.10)(happy-dom@20.11.6)(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0)):
+    dependencies:
+      '@vitest/expect': 4.1.10
+      '@vitest/mocker': 4.1.10(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))
+      '@vitest/pretty-format': 4.1.10
+      '@vitest/runner': 4.1.10
+      '@vitest/snapshot': 4.1.10
+      '@vitest/spy': 4.1.10
+      '@vitest/utils': 4.1.10
+      es-module-lexer: 2.3.1
+      expect-type: 1.4.0
+      magic-string: 0.30.21
+      obug: 2.1.4
+      pathe: 2.0.3
+      picomatch: 4.0.5
+      std-env: 4.2.0
+      tinybench: 2.9.0
+      tinyexec: 1.3.0
+      tinyglobby: 0.2.17
+      tinyrainbow: 3.1.1
+      vite: 7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/node': 26.2.0
+      '@vitest/browser-preview': 4.1.10(vite@7.3.6(@types/node@26.2.0)(lightningcss@1.33.0)(yaml@2.9.0))(vitest@4.1.10)
+      '@vitest/coverage-v8': 4.1.10(@vitest/browser@4.1.10)(vitest@4.1.10)
+      happy-dom: 20.11.6
     transitivePeerDependencies:
       - msw
 
