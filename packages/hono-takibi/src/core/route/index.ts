@@ -1,7 +1,7 @@
 import { basename, dirname, join } from 'node:path'
 
 import { emit } from '../../emit/index.js'
-import { isParameterRef, isPathItemRef } from '../../guard/index.js'
+import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
 import { makeImports } from '../../helper/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
@@ -78,7 +78,7 @@ export async function route(
       return pathItem
     }
     return Object.entries(openAPI.paths).flatMap(([path, pathItem]) => {
-      if (!pathItem) return [] as const
+      if (!isPathItemEntry(pathItem)) return [] as const
       const resolved = resolvePathItem(pathItem)
       return (
         ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const

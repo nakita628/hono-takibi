@@ -13,7 +13,7 @@ afterEach(() => {
   if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true })
 })
 
-const openAPI: OpenAPI = {
+const openAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -26,7 +26,7 @@ const openAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('defineTemplate', () => {
   it('writes the app to a .ts output and defineOpenAPIRoute handlers to routes/ next to it', async () => {

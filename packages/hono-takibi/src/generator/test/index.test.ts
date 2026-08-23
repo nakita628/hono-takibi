@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
+import type { OpenAPI } from '../../openapi/index.js'
 import { extractTestCases, makeHandlerTestCode, makeTestFile } from './index.js'
 
 describe('generator/test barrel exports', () => {
@@ -31,7 +32,7 @@ describe('extractTestCases', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(extractTestCases(openAPI)).toStrictEqual([
       {
         operationId: 'getUsers',
@@ -68,7 +69,7 @@ describe('makeTestFile', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(makeTestFile(openAPI, '..')).toBe(`import{describe,it,expect}from'vitest'
 import app from'..'
 

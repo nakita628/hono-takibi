@@ -5,7 +5,7 @@ import { defineEntries } from './index.js'
 
 describe('defineEntries', () => {
   it.concurrent('wraps createRoute and a stub handler in defineOpenAPIRoute', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -16,7 +16,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getHealth',
@@ -27,7 +27,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('resolves a parameter $ref against components.parameters', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       components: {
@@ -44,7 +44,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getPosts',
@@ -55,7 +55,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('drops a parameter $ref that has no matching component', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -67,7 +67,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getPosts',
@@ -78,7 +78,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('merges path-level parameters with operation parameters', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -93,7 +93,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getUsersId',
@@ -104,7 +104,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('resolves a pathItem $ref and merges sibling properties over it', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       components: {
@@ -120,7 +120,7 @@ describe('defineEntries', () => {
           parameters: [{ name: 'trace', in: 'query', required: false, schema: { type: 'string' } }],
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getHealth',
@@ -131,7 +131,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('keeps the inline pathItem when its $ref has no matching component', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -140,7 +140,7 @@ describe('defineEntries', () => {
           get: { operationId: 'getHealth', responses: { 200: { description: 'ok' } } },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getHealth',
@@ -151,7 +151,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('keeps the inline pathItem when its $ref does not point at components.pathItems', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -160,7 +160,7 @@ describe('defineEntries', () => {
           get: { operationId: 'getHealth', responses: { 200: { description: 'ok' } } },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getHealth',
@@ -171,7 +171,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('drops a parameter $ref that does not point at components.parameters', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.1.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -183,7 +183,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getPosts',
@@ -194,7 +194,7 @@ describe('defineEntries', () => {
   })
 
   it.concurrent('references component schemas by identifier and resolves path params', () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'test', version: '1.0.0' },
       paths: {
@@ -211,7 +211,7 @@ describe('defineEntries', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     expect(defineEntries(openapi)).toStrictEqual([
       {
         name: 'getUsersId',

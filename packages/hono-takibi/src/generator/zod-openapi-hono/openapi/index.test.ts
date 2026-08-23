@@ -465,7 +465,7 @@ describe('zodOpenAPIHono', () => {
   })
 
   it.concurrent('generates webhooks from OpenAPI 3.1 webhooks section', () => {
-    const openapiWithWebhooks: OpenAPI = {
+    const openapiWithWebhooks = {
       openapi: '3.1.0',
       info: { title: 'Webhook API', version: '1.0.0' },
       paths: {
@@ -488,7 +488,7 @@ describe('zodOpenAPIHono', () => {
           },
         },
       },
-    }
+    } as OpenAPI
 
     const result = zodOpenAPIHono(openapiWithWebhooks, {
       exportSchemasTypes: false,

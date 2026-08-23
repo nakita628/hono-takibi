@@ -3,6 +3,7 @@ import { STATUS_CODES } from 'node:http'
 import {
   isMedia,
   isOAuthFlowValue,
+  isOpenAPIPaths,
   isRecord,
   isRefObject,
   isRequestBody,
@@ -15,6 +16,7 @@ import {
 import type {
   Components,
   OpenAPI,
+  OpenAPIPaths,
   Operation,
   Parameter,
   Responses,
@@ -518,7 +520,8 @@ function resolveOperationParameters(operation: Operation, components: Components
 }
 
 function getPathParameters(openAPI: OpenAPI, pathStr: string) {
-  const pathItem = openAPI.paths?.[pathStr]
+  const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
+  const pathItem = paths[pathStr]
   if (!pathItem?.parameters) return [] as const
   const params: readonly (Parameter | { readonly $ref?: string })[] = pathItem.parameters
   return params.flatMap((parameter) => {
@@ -1054,8 +1057,8 @@ function makeSchemasSection(
 }
 
 function collectEndpoints(openAPI: OpenAPI): readonly Endpoint[] {
-  if (!openAPI.paths) return []
-  return Object.entries(openAPI.paths).flatMap(([pathStr, pathItem]) => {
+  const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
+  return Object.entries(paths).flatMap(([pathStr, pathItem]) => {
     if (!pathItem) return []
     return HTTP_METHODS.flatMap((method) => {
       const operation = pathItem[method]

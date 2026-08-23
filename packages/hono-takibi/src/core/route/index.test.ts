@@ -8,7 +8,7 @@ import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index
 import type { OpenAPI } from '../../openapi/index.js'
 import { route } from './index.js'
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.0.0',
   info: { title: '(title)', version: '0.0.0' },
   tags: [{ name: 'Hono' }],
@@ -87,7 +87,7 @@ const openapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('route', () => {
   it('should generate route code (single file)', async () => {
@@ -167,11 +167,11 @@ export const getZodOpenapiHonoRoute = createRoute({
   it('falls back to single-file write when split is true but paths is empty', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route'))
     try {
-      const emptyOpenapi: OpenAPI = {
+      const emptyOpenapi = {
         openapi: '3.0.0',
         info: { title: 'Empty', version: '0.0.0' },
         paths: {},
-      }
+      } as OpenAPI
       const out = path.join(dir, 'empty.ts')
       const result = await route(emptyOpenapi, { output: out, split: true })
       expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
@@ -363,7 +363,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 
   describe('multi-method per path', () => {
-    const multiMethodOpenAPI: OpenAPI = {
+    const multiMethodOpenAPI = {
       openapi: '3.0.0',
       info: { title: 'T', version: '0.0.0' },
       paths: {
@@ -372,7 +372,7 @@ export const getZodOpenapiHonoRoute = createRoute({
           get: { operationId: 'cg', responses: { '200': { description: 'OK' } } },
         },
       },
-    }
+    } as OpenAPI
 
     it('split: each method on the same path becomes its own file', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-multimethod-'))
@@ -397,7 +397,7 @@ export const getZodOpenapiHonoRoute = createRoute({
     it('emits summary, description, externalDocs, deprecated, security, servers, callbacks', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-rich-'))
       try {
-        const richOpenapi: OpenAPI = {
+        const richOpenapi = {
           openapi: '3.0.0',
           info: { title: 'T', version: '0.0.0' },
           paths: {
@@ -422,7 +422,7 @@ export const getZodOpenapiHonoRoute = createRoute({
               },
             },
           },
-        }
+        } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await route(richOpenapi, { output: out })
         expect(result).toStrictEqual({
@@ -458,7 +458,7 @@ export const postRichRoute = createRoute({
     it('resolves an operation-level parameter $ref (same output as path-level placement)', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))
       try {
-        const refOpenapi: OpenAPI = {
+        const refOpenapi = {
           openapi: '3.0.0',
           info: { title: 'T', version: '0.0.0' },
           paths: {
@@ -475,7 +475,7 @@ export const postRichRoute = createRoute({
               IdParam: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
             },
           },
-        }
+        } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await route(refOpenapi, { output: out })
         expect(result).toStrictEqual({
@@ -502,7 +502,7 @@ export const getUsersIdRoute = createRoute({
     it('resolves a path-level parameter $ref to an existing component parameter', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))
       try {
-        const refOpenapi: OpenAPI = {
+        const refOpenapi = {
           openapi: '3.0.0',
           info: { title: 'T', version: '0.0.0' },
           paths: {
@@ -519,7 +519,7 @@ export const getUsersIdRoute = createRoute({
               IdParam: { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
             },
           },
-        }
+        } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await route(refOpenapi, { output: out })
         expect(result).toStrictEqual({
@@ -546,7 +546,7 @@ export const getUsersIdRoute = createRoute({
     it('resolves a path-level $ref to an existing component pathItem', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-ref-'))
       try {
-        const refOpenapi: OpenAPI = {
+        const refOpenapi = {
           openapi: '3.0.0',
           info: { title: 'T', version: '0.0.0' },
           paths: { '/ping': { $ref: '#/components/pathItems/Ping' } },
@@ -555,7 +555,7 @@ export const getUsersIdRoute = createRoute({
               Ping: { get: { operationId: 'ping', responses: { '200': { description: 'OK' } } } },
             },
           },
-        }
+        } as OpenAPI
         const out = path.join(dir, 'routes.ts')
         const result = await route(refOpenapi, { output: out })
         expect(result).toStrictEqual({

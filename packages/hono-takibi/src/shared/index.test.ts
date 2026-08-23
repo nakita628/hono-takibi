@@ -656,7 +656,7 @@ export * from './tags'
       // Spec drops the health resource.
       const withoutHealth = {
         ...openAPI,
-        paths: { '/users/{id}': openAPI.paths['/users/{id}'] },
+        paths: { '/users/{id}': (openAPI.paths as Record<string, unknown>)['/users/{id}'] },
       } as unknown as OpenAPI
       for (const r of await run(withoutHealth)) if (!r.ok) throw new Error(r.error)
 

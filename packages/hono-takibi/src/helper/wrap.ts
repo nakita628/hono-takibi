@@ -308,9 +308,9 @@ export function wrap(
   const serializeMedia = (mediaObj: unknown): string => {
     if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
     const { examples: mediaExamples, ...mediaRest } = mediaObj
-    const restEntries = Object.entries(mediaRest).map(
-      ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
-    )
+    const restEntries = Object.entries(mediaRest)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
     const examplesEntry = isExamplesInput(mediaExamples)
       ? `"examples":${makeExamples(mediaExamples)}`
       : undefined
@@ -324,15 +324,17 @@ export function wrap(
     return `{${entries.join(',')}}`
   }
   const serializeParam = (param: Parameter): string => {
-    const entries = Object.entries(param).map(([key, value]) => {
-      if (key === 'examples' && isExamplesInput(value)) {
-        return `"examples":${makeExamples(value)}`
-      }
-      if (key === 'content' && isRecord(value)) {
-        return `"content":${serializeContent(value)}`
-      }
-      return `${JSON.stringify(key)}:${JSON.stringify(value)}`
-    })
+    const entries = Object.entries(param)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => {
+        if (key === 'examples' && isExamplesInput(value)) {
+          return `"examples":${makeExamples(value)}`
+        }
+        if (key === 'content' && isRecord(value)) {
+          return `"content":${serializeContent(value)}`
+        }
+        return `${JSON.stringify(key)}:${JSON.stringify(value)}`
+      })
     return `{${entries.join(',')}}`
   }
   // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's

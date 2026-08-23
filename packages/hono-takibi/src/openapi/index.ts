@@ -34,10 +34,10 @@ export async function parseOpenAPI(input: string) {
         } as const
       }
       const [record] = await getOpenAPI3(program)
+      // The emitter returns a self-contained document (every `$ref` is `#/...`),
+      // so there is nothing for `bundle()` to resolve here.
       const tsp = 'document' in record ? record.document : record.versions[0].document
-      // oxlint-disable-next-line typescript/no-unsafe-argument -- the TypeSpec emitter hands back a plain OpenAPI document
-      const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
-      return { ok: true, value: openAPI } as const
+      return { ok: true, value: tsp as OpenAPI } as const
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
     // The parser validates the spec at runtime but does not express this guarantee in its type definition,

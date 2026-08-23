@@ -26,7 +26,7 @@ const minimalGetOpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 const minimalPostOpenAPI = {
   openapi: '3.0.0' as const,
@@ -39,7 +39,7 @@ const minimalPostOpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('Query Hook Generation Shared Module', () => {
   describe('makeQueryHooks - error cases', () => {

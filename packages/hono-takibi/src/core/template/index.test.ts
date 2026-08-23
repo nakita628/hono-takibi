@@ -17,7 +17,7 @@ describe('template', () => {
   it('should generate app template and handler files', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-'))
     const output = path.join(tmpDir, 'routes.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -30,7 +30,7 @@ describe('template', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await template(openAPI, output, false, '/', undefined, undefined, false)
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -43,7 +43,7 @@ describe('template', () => {
   it('treats a server/index.ts output as a module dir: app and handlers go one level up', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-dirmodule-'))
     const output = path.join(tmpDir, 'server', 'index.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -56,7 +56,7 @@ describe('template', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await template(openAPI, output, false, '/', undefined, undefined, false)
     expect(result.ok).toBe(true)
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
@@ -83,7 +83,7 @@ import { customThing } from './custom-marker'
 export const api = new OpenAPIHono()
 `,
     )
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -96,7 +96,7 @@ export const api = new OpenAPIHono()
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await template(openAPI, output, false, '/', undefined, undefined, false)
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
@@ -124,7 +124,7 @@ export const api = app.openapi(getBooksRoute, getBooksRouteHandler)
 export const debug = { workerEnv, appEnv, BookService, ReviewService }
 `,
     )
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -143,7 +143,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await template(openAPI, output, false, '/', '@/api', undefined, true)
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
@@ -169,7 +169,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
   it('keeps an implemented inline sub-router mounted when a tag would rename its file', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-template-inline-tag-'))
     const output = path.join(tmpDir, 'routes.ts')
-    const untagged: OpenAPI = {
+    const untagged = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -177,7 +177,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
           get: { operationId: 'getUsers', responses: { '200': { description: 'OK' } } },
         },
       },
-    }
+    } as OpenAPI
     const first = await template(untagged, output, false, '/', undefined, undefined, false)
     expect(first.ok).toBe(true)
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'
@@ -191,7 +191,7 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
 `
     fs.writeFileSync(path.join(tmpDir, 'handlers', 'users.ts'), implemented)
 
-    const tagged: OpenAPI = {
+    const tagged = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -203,7 +203,7 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
           },
         },
       },
-    }
+    } as OpenAPI
     const second = await template(tagged, output, false, '/', undefined, undefined, false)
     expect(second.ok).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
@@ -226,7 +226,7 @@ export default app
     const output = path.join(tmpDir, 'routes.ts')
     // A directory at the target path makes readFile fail with a non-ENOENT error.
     fs.mkdirSync(path.join(tmpDir, 'index.ts'))
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -239,7 +239,7 @@ export default app
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await template(openAPI, output, false, '/', undefined, undefined, false)
     expect(result.ok).toBe(false)
     if (!result.ok) {

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { app } from './index.js'
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.1.0',
   info: {
     title: 'HonoTakibi',
@@ -90,7 +90,7 @@ const openapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('app', () => {
   it.concurrent('app Test', () => {

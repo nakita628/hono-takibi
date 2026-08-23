@@ -9,7 +9,7 @@ import { hooks } from './index.js'
 
 describe('swr hooks', () => {
   /** Simple OpenAPI spec for basic tests */
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -40,7 +40,7 @@ describe('swr hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('swr', () => {
     it('should generate the correct swr hooks code', async () => {
@@ -521,7 +521,7 @@ export function usePostUsers<TError = unknown>(options?: {
                 get: { operationId: 'getRoot', responses: { '200': { description: 'OK' } } },
               },
             },
-          },
+          } as OpenAPI,
           out,
           '../client',
           'swr',
@@ -544,7 +544,7 @@ export function usePostUsers<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-client-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const simpleOpenAPI: OpenAPI = {
+        const simpleOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -556,7 +556,7 @@ export function usePostUsers<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(simpleOpenAPI, out, '../api', 'swr', {
           split: false,
@@ -658,7 +658,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
   })
 
   /** Test OpenAPI spec for operations without arguments */
-  const openapiNoArgs: OpenAPI = {
+  const openapiNoArgs = {
     openapi: '3.1.0',
     info: { title: 'No Args Test', version: '1.0.0' },
     paths: {
@@ -674,7 +674,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('swr (no args operations)', () => {
     it('should generate hooks without args correctly', async () => {
@@ -806,7 +806,7 @@ export function usePostPing<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-hyphen-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const hyphenOpenAPI: OpenAPI = {
+        const hyphenOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -818,7 +818,7 @@ export function usePostPing<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(hyphenOpenAPI, out, '../client', 'swr', { split: false })
 
@@ -925,7 +925,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-params-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const paramOpenAPI: OpenAPI = {
+        const paramOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -947,7 +947,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(paramOpenAPI, out, '../client', 'swr', { split: false })
 
@@ -1098,7 +1098,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
   })
 
   /** Full CRUD resource OpenAPI spec for split mode tests */
-  const openapiCrud: OpenAPI = {
+  const openapiCrud = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -1141,7 +1141,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('swr (split mode with full CRUD resource)', () => {
     it('should generate split files for GET list, GET by id, POST, PUT, DELETE', async () => {
@@ -1510,7 +1510,7 @@ export * from './deleteUsersId'
   })
 
   /** Simple OpenAPI spec for immutable tests */
-  const openapiImmutable: OpenAPI = {
+  const openapiImmutable = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -1522,7 +1522,7 @@ export * from './deleteUsersId'
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('swr (immutable mode)', () => {
     it('should generate both useSWR and useSWRImmutable hooks by default', async () => {
@@ -1631,7 +1631,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-enabled-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const simpleOpenAPI: OpenAPI = {
+        const simpleOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -1643,7 +1643,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(simpleOpenAPI, out, '../client', 'swr', { split: false })
 
@@ -1746,7 +1746,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-no-pag-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const openAPI: OpenAPI = {
+        const openAPI = {
           openapi: '3.1.0',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -1758,7 +1758,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
               },
             },
           },
-        }
+        } as OpenAPI
         const result = await hooks(openAPI, out, '../client', 'swr', { split: false })
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
@@ -1777,7 +1777,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
 
 describe('tanstack-query hooks', () => {
   /** Simple OpenAPI spec for basic tests */
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -1808,7 +1808,7 @@ describe('tanstack-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('tanstackQuery', () => {
     it('should generate the correct tanstack-query hooks code', async () => {
@@ -2858,7 +2858,7 @@ export function usePostUsers<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-client-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const simpleOpenAPI: OpenAPI = {
+        const simpleOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -2870,7 +2870,7 @@ export function usePostUsers<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(simpleOpenAPI, out, '../api', 'tanstack-query', {
           split: false,
@@ -3125,7 +3125,7 @@ export function useSuspenseInfiniteUsers<
   })
 
   /** Test OpenAPI spec for operations without arguments */
-  const openapiNoArgs: OpenAPI = {
+  const openapiNoArgs = {
     openapi: '3.1.0',
     info: { title: 'No Args Test', version: '1.0.0' },
     paths: {
@@ -3141,7 +3141,7 @@ export function useSuspenseInfiniteUsers<
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('tanstackQuery (no args operations)', () => {
     it('should generate hooks without args correctly', async () => {
@@ -3422,7 +3422,7 @@ export function usePostPing<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-hyphen-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const hyphenOpenAPI: OpenAPI = {
+        const hyphenOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -3434,7 +3434,7 @@ export function usePostPing<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(hyphenOpenAPI, out, '../client', 'tanstack-query', {
           split: false,
@@ -3704,7 +3704,7 @@ export function useSuspenseInfiniteHonoX<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-params-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const paramOpenAPI: OpenAPI = {
+        const paramOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -3726,7 +3726,7 @@ export function useSuspenseInfiniteHonoX<
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(paramOpenAPI, out, '../client', 'tanstack-query', {
           split: false,
@@ -4057,7 +4057,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
 
   describe('tanstackQuery (split mode - CRUD)', () => {
     it('should generate correct split files for full CRUD resource', async () => {
-      const openapiCrud: OpenAPI = {
+      const openapiCrud = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -4100,7 +4100,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-crud-'))
       try {
@@ -4799,7 +4799,7 @@ export function useSuspenseInfiniteUsers<
 
   describe('tanstackQuery (header parameters excluded from query key)', () => {
     it('omits header field from queryKey arg across query/suspense/infinite hooks', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -4814,7 +4814,7 @@ export function useSuspenseInfiniteUsers<
             },
           },
         },
-      }
+      } as OpenAPI
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
@@ -5078,7 +5078,7 @@ export function useSuspenseInfiniteUsers<
 
 describe('preact-query hooks', () => {
   /** Simple OpenAPI spec for basic tests */
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -5109,7 +5109,7 @@ describe('preact-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('preactQuery', () => {
     it('should generate the correct preact-query hooks code', async () => {
@@ -5618,7 +5618,7 @@ export function usePostUsers<TError = unknown>(options?: {
 
   describe('preactQuery (header parameters excluded from query key)', () => {
     it('omits header field from queryKey arg across query/suspense/infinite hooks', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -5633,7 +5633,7 @@ export function usePostUsers<TError = unknown>(options?: {
             },
           },
         },
-      }
+      } as OpenAPI
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-pq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
@@ -5896,7 +5896,7 @@ export function useSuspenseInfiniteUsers<
 })
 
 describe('solid-query hooks', () => {
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -5918,7 +5918,7 @@ describe('solid-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('solidQuery', () => {
     it('should generate the correct solid-query hooks code', async () => {
@@ -6464,7 +6464,7 @@ export function createPostUsers<TError = unknown>(
 
 describe('vue-query hooks', () => {
   /** Simple OpenAPI spec for basic tests */
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -6495,7 +6495,7 @@ describe('vue-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('vueQuery', () => {
     it('should generate the correct vue-query hooks code', async () => {
@@ -7085,7 +7085,7 @@ export function usePostUsers<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-client-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const simpleOpenAPI: OpenAPI = {
+        const simpleOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -7097,7 +7097,7 @@ export function usePostUsers<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(simpleOpenAPI, out, '../api', 'vue-query', {
           split: false,
@@ -7236,7 +7236,7 @@ export function useInfiniteUsers<
   })
 
   /** Test OpenAPI spec for operations without arguments */
-  const openapiNoArgs: OpenAPI = {
+  const openapiNoArgs = {
     openapi: '3.1.0',
     info: { title: 'No Args Test', version: '1.0.0' },
     paths: {
@@ -7252,7 +7252,7 @@ export function useInfiniteUsers<
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('vueQuery (no args operations)', () => {
     it('should generate hooks without args correctly', async () => {
@@ -7408,7 +7408,7 @@ export function usePostPing<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-hyphen-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const hyphenOpenAPI: OpenAPI = {
+        const hyphenOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -7420,7 +7420,7 @@ export function usePostPing<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(hyphenOpenAPI, out, '../client', 'vue-query', { split: false })
 
@@ -7564,7 +7564,7 @@ export function useInfiniteHonoX<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-params-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const paramOpenAPI: OpenAPI = {
+        const paramOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -7586,7 +7586,7 @@ export function useInfiniteHonoX<
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(paramOpenAPI, out, '../client', 'vue-query', { split: false })
 
@@ -7773,7 +7773,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
   })
 
   /** Full CRUD OpenAPI spec for split mode tests */
-  const openapiCrud: OpenAPI = {
+  const openapiCrud = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -7816,7 +7816,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('vueQuery (split mode with full CRUD)', () => {
     it('should generate correct split files for full CRUD resource', async () => {
@@ -8263,7 +8263,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-put-patch-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const putPatchOpenAPI: OpenAPI = {
+        const putPatchOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -8292,7 +8292,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(putPatchOpenAPI, out, '../client', 'vue-query', { split: false })
 
@@ -8366,7 +8366,7 @@ export function usePatchUsersId<TError = unknown>(options?: {
 
   describe('vueQuery (header parameters excluded from query key)', () => {
     it('omits header field from queryKey arg and infinite queryKey arg', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -8381,7 +8381,7 @@ export function usePatchUsersId<TError = unknown>(options?: {
             },
           },
         },
-      }
+      } as OpenAPI
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
@@ -8534,7 +8534,7 @@ export function useInfiniteUsers<
 
 describe('svelte-query hooks', () => {
   /** Simple OpenAPI spec for basic tests */
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -8577,7 +8577,7 @@ describe('svelte-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('svelteQuery', () => {
     it('should generate the correct svelte-query hooks code', async () => {
@@ -9541,7 +9541,7 @@ export function createDeletePetsPetId<TError = unknown>(
   })
 
   /** OpenAPI spec for custom client name test */
-  const openapiCustomClient: OpenAPI = {
+  const openapiCustomClient = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -9553,7 +9553,7 @@ export function createDeletePetsPetId<TError = unknown>(
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('svelteQuery (custom client name)', () => {
     it('should generate code with custom client name', async () => {
@@ -9737,7 +9737,7 @@ export function createInfiniteUsers<
   })
 
   /** Test OpenAPI spec for operations without arguments */
-  const openapiNoArgs: OpenAPI = {
+  const openapiNoArgs = {
     openapi: '3.1.0',
     info: { title: 'No Args Test', version: '1.0.0' },
     paths: {
@@ -9753,7 +9753,7 @@ export function createInfiniteUsers<
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('svelteQuery (no args operations)', () => {
     it('should generate hooks without args correctly', async () => {
@@ -9964,7 +9964,7 @@ export function createPostPing<TError = unknown>(
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-hyphen-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const hyphenOpenAPI: OpenAPI = {
+        const hyphenOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -9976,7 +9976,7 @@ export function createPostPing<TError = unknown>(
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(hyphenOpenAPI, out, '../client', 'svelte-query', {
           split: false,
@@ -10163,7 +10163,7 @@ export function createInfiniteHonoX<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-params-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const paramOpenAPI: OpenAPI = {
+        const paramOpenAPI = {
           openapi: '3.0.3',
           info: { title: 'Test', version: '1.0.0' },
           paths: {
@@ -10185,7 +10185,7 @@ export function createInfiniteHonoX<
               },
             },
           },
-        }
+        } as OpenAPI
 
         const result = await hooks(paramOpenAPI, out, '../client', 'svelte-query', { split: false })
 
@@ -10412,7 +10412,7 @@ export function createDeleteUsersId<TError = unknown>(
   })
 
   /** Full CRUD OpenAPI spec for split mode tests */
-  const openapiCrud: OpenAPI = {
+  const openapiCrud = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -10455,7 +10455,7 @@ export function createDeleteUsersId<TError = unknown>(
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('svelteQuery (split mode with full CRUD)', () => {
     it('should generate correct split files for full CRUD resource', async () => {
@@ -10978,7 +10978,7 @@ export function createDeleteUsersId<TError = unknown>(
 
   describe('svelteQuery (header parameters excluded from query key)', () => {
     it('omits header field from queryKey arg in createQuery and infinite hook', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -10993,7 +10993,7 @@ export function createDeleteUsersId<TError = unknown>(
             },
           },
         },
-      }
+      } as OpenAPI
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-sv-header-'))
       try {
         const out = path.join(dir, 'index.ts')
@@ -11175,7 +11175,7 @@ export function createInfiniteUsers<
 })
 
 describe('angular-query hooks', () => {
-  const openapiSimple: OpenAPI = {
+  const openapiSimple = {
     openapi: '3.1.0',
     info: { title: 'Test', version: '1.0.0' },
     paths: {
@@ -11197,7 +11197,7 @@ describe('angular-query hooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   describe('angularQuery', () => {
     it('should generate the correct angular-query hooks code', async () => {
@@ -11475,7 +11475,7 @@ export function injectPostUsers<TError = unknown>(
             openapi: '3.1.0',
             info: { title: 'Test', version: '1.0.0' },
             paths: { '/hono': { get: { responses: { '200': { description: 'OK' } } } } },
-          },
+          } as OpenAPI,
           out,
           '../client',
           'angular-query',

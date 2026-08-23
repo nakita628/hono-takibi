@@ -8,7 +8,7 @@ import type { OpenAPI } from '../../openapi/index.js'
 import { template } from '../template/index.js'
 import { takibi } from './index.js'
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.1.0',
   info: { title: 'HonoTakibi', version: 'v1' },
   tags: [{ name: 'Hono' }, { name: 'HonoX' }, { name: 'ZodOpenAPIHono' }],
@@ -77,7 +77,7 @@ const openapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 const componentsOptions = {
   exportSchemasTypes: true,
@@ -404,7 +404,7 @@ export default app
 })
 
 // Simple OpenAPI for strict tests
-const simpleOpenapi: OpenAPI = {
+const simpleOpenapi = {
   openapi: '3.1.0',
   info: { title: 'Test', version: 'v1' },
   paths: {
@@ -427,7 +427,7 @@ const simpleOpenapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('basePath behavior', () => {
   it('basePath not specified: generates app without .basePath()', async () => {

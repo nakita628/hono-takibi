@@ -4,6 +4,7 @@ import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
   isMediaWithSchema,
+  isOpenAPIPaths,
   isOperation,
   isParameter,
   isParameterArray,
@@ -14,6 +15,7 @@ import {
 import type {
   Components,
   OpenAPI,
+  OpenAPIPaths,
   Operation,
   Parameter,
   Reference,
@@ -49,7 +51,8 @@ export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: 
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {
-  const { paths, components } = openAPI
+  const { components } = openAPI
+  const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
   const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
     const honoPath = makeHonoPath(openApiPath)
     const pathLevelParams = isParameterArray(pathItem.parameters) ? pathItem.parameters : []

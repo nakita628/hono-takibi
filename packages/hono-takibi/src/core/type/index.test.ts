@@ -9,7 +9,7 @@ import { type } from './index.js'
 
 describe('type', () => {
   it('should generate declaration file for basic schema', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       components: {
@@ -33,7 +33,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -50,7 +50,7 @@ describe('type', () => {
   })
 
   it('should generate declaration file for path parameters', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -61,7 +61,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -77,7 +77,7 @@ describe('type', () => {
   })
 
   it('should generate declaration file for query parameters', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -91,7 +91,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -107,7 +107,7 @@ describe('type', () => {
   })
 
   it('should generate declaration file for cookie parameters', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -121,7 +121,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -137,7 +137,7 @@ describe('type', () => {
   })
 
   it('should generate declaration file for header parameters', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -150,7 +150,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -166,7 +166,7 @@ describe('type', () => {
   })
 
   it('should generate declaration file for response types', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -194,7 +194,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -210,7 +210,7 @@ describe('type', () => {
   })
 
   it('should generate DeepReadonly types when readonly is true', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -235,7 +235,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -251,7 +251,7 @@ describe('type', () => {
   })
 
   it('should not include DeepReadonly when readonly is false', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -261,7 +261,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -277,7 +277,7 @@ describe('type', () => {
   })
 
   it('should escape single quotes in enum values', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -307,7 +307,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -326,7 +326,7 @@ describe('type', () => {
     'should generate types with query, header, cookie, and path parameters',
     { timeout: 10000 },
     async () => {
-      const openapi: OpenAPI = {
+      const openapi = {
         openapi: '3.0.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -359,7 +359,7 @@ describe('type', () => {
             },
           },
         },
-      }
+      } as OpenAPI
       const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
       try {
         const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -376,7 +376,7 @@ describe('type', () => {
   )
 
   it('should generate type with readonly flag', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -399,7 +399,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -415,7 +415,7 @@ describe('type', () => {
   })
 
   it('should generate type with $ref parameter resolution', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       components: {
@@ -437,7 +437,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -453,7 +453,7 @@ describe('type', () => {
   })
 
   it('should generate type with form request body', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -478,7 +478,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -494,7 +494,7 @@ describe('type', () => {
   })
 
   it('handles circular allOf references without stack overflow', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Circular', version: '1.0.0' },
       components: {
@@ -525,7 +525,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -537,7 +537,7 @@ describe('type', () => {
   })
 
   it('handles self-referencing allOf without stack overflow', { timeout: 10000 }, async () => {
-    const openapi: OpenAPI = {
+    const openapi = {
       openapi: '3.0.0',
       info: { title: 'Self-ref', version: '1.0.0' },
       components: {
@@ -563,7 +563,7 @@ describe('type', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`

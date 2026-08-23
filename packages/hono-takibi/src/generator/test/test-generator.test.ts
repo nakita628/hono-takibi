@@ -10,7 +10,7 @@ import {
 
 // ─── Fixtures ───────────────────────────────────────────────────
 
-const simpleGetSpec: OpenAPI = {
+const simpleGetSpec = {
   openapi: '3.1.0',
   info: { title: 'Simple API', version: '1.0.0' },
   paths: {
@@ -22,9 +22,9 @@ const simpleGetSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const postSpec: OpenAPI = {
+const postSpec = {
   openapi: '3.1.0',
   info: { title: 'Post API', version: '1.0.0' },
   paths: {
@@ -55,9 +55,9 @@ const postSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const pathParamSpec: OpenAPI = {
+const pathParamSpec = {
   openapi: '3.1.0',
   info: { title: 'PathParam API', version: '1.0.0' },
   paths: {
@@ -74,9 +74,9 @@ const pathParamSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const queryParamSpec: OpenAPI = {
+const queryParamSpec = {
   openapi: '3.1.0',
   info: { title: 'Query API', version: '1.0.0' },
   paths: {
@@ -103,9 +103,9 @@ const queryParamSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const bearerSpec: OpenAPI = {
+const bearerSpec = {
   openapi: '3.1.0',
   info: { title: 'Auth API', version: '1.0.0' },
   paths: {
@@ -123,9 +123,9 @@ const bearerSpec: OpenAPI = {
       bearerAuth: { type: 'http', scheme: 'bearer' },
     },
   },
-}
+} as OpenAPI
 
-const basePathSpec: OpenAPI = {
+const basePathSpec = {
   openapi: '3.1.0',
   info: { title: 'BasePath API', version: '1.0.0' },
   paths: {
@@ -137,9 +137,9 @@ const basePathSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const deleteSpec: OpenAPI = {
+const deleteSpec = {
   openapi: '3.1.0',
   info: { title: 'Delete API', version: '1.0.0' },
   paths: {
@@ -156,9 +156,9 @@ const deleteSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const multiTagSpec: OpenAPI = {
+const multiTagSpec = {
   openapi: '3.1.0',
   info: { title: 'MultiTag API', version: '1.0.0' },
   tags: [
@@ -183,9 +183,9 @@ const multiTagSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const refParamSpec: OpenAPI = {
+const refParamSpec = {
   openapi: '3.1.0',
   info: { title: 'RefParam API', version: '1.0.0' },
   paths: {
@@ -207,9 +207,9 @@ const refParamSpec: OpenAPI = {
       TaskId: { name: 'taskId', in: 'path', required: true, schema: { type: 'string' } },
     },
   },
-}
+} as OpenAPI
 
-const basePathRootSpec: OpenAPI = {
+const basePathRootSpec = {
   openapi: '3.1.0',
   info: { title: 'BasePath Root API', version: '1.0.0' },
   paths: {
@@ -229,7 +229,7 @@ const basePathRootSpec: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 // ─── extractTestCases ───────────────────────────────────────────
 
@@ -480,7 +480,7 @@ describe('makeHandlerTestCode', () => {
   })
 
   it('with precomputed context — circular schema mock output matches default', () => {
-    const circularSpec: OpenAPI = {
+    const circularSpec = {
       openapi: '3.1.0',
       info: { title: 'Circular Handler API', version: '1.0.0' },
       paths: {
@@ -511,7 +511,7 @@ describe('makeHandlerTestCode', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const withContext = makeHandlerTestCode(
       circularSpec,
       'handlers/nodes.ts',
@@ -557,7 +557,7 @@ describe('makeHandlerTestCode', () => {
   })
 
   it('with security — bearer auth generates 401 test', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Auth Handler API', version: '1.0.0' },
       paths: {
@@ -576,7 +576,7 @@ describe('makeHandlerTestCode', () => {
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Users',()=>{describe('GET /users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/users`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n",
@@ -588,7 +588,7 @@ describe('makeHandlerTestCode', () => {
 
 describe('extractTestCases - security schemes', () => {
   it('basic auth security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Basic Auth API', version: '1.0.0' },
       paths: {
@@ -605,13 +605,13 @@ describe('extractTestCases - security schemes', () => {
           basicAuth: { type: 'http', scheme: 'basic' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'basic', name: 'Authorization' }])
   })
 
   it('apiKey security in header', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'ApiKey API', version: '1.0.0' },
       paths: {
@@ -628,13 +628,13 @@ describe('extractTestCases - security schemes', () => {
           apiKeyAuth: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-API-Key', in: 'header' }])
   })
 
   it('apiKey security in query', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'ApiKey Query API', version: '1.0.0' },
       paths: {
@@ -651,13 +651,13 @@ describe('extractTestCases - security schemes', () => {
           apiKeyQuery: { type: 'apiKey', name: 'api_key', in: 'query' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'api_key', in: 'query' }])
   })
 
   it('oauth2 security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'OAuth2 API', version: '1.0.0' },
       paths: {
@@ -677,13 +677,13 @@ describe('extractTestCases - security schemes', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'oauth2', name: 'Authorization' }])
   })
 
   it('global security is used when operation has no security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Global Auth API', version: '1.0.0' },
       security: [{ bearerAuth: [] }],
@@ -700,13 +700,13 @@ describe('extractTestCases - security schemes', () => {
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'bearer', name: 'Authorization' }])
   })
 
   it('operation security overrides global security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Override Auth API', version: '1.0.0' },
       security: [{ bearerAuth: [] }],
@@ -725,7 +725,7 @@ describe('extractTestCases - security schemes', () => {
           basicAuth: { type: 'http', scheme: 'basic' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'basic', name: 'Authorization' }])
   })
@@ -735,7 +735,7 @@ describe('extractTestCases - security schemes', () => {
 
 describe('extractTestCases - header parameters', () => {
   it('header parameters are extracted', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Header API', version: '1.0.0' },
       paths: {
@@ -760,7 +760,7 @@ describe('extractTestCases - header parameters', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].headerParams).toStrictEqual([
       { name: 'X-Request-Id', fakerCode: 'faker.string.uuid()', required: true },
@@ -777,7 +777,7 @@ describe('extractTestCases - header parameters', () => {
 
 describe('extractTestCases - $ref parameters', () => {
   it('$ref query parameter is resolved from components', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'RefQuery API', version: '1.0.0' },
       paths: {
@@ -801,7 +801,7 @@ describe('extractTestCases - $ref parameters', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].queryParams).toStrictEqual([
       {
@@ -817,7 +817,7 @@ describe('extractTestCases - $ref parameters', () => {
 
 describe('extractTestCases - usedSchemaRefs', () => {
   it('request body with $ref schema collects schema refs', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Ref Body API', version: '1.0.0' },
       paths: {
@@ -854,7 +854,7 @@ describe('extractTestCases - usedSchemaRefs', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['Order', 'Item'])
     expect(result[0].requestBody).toStrictEqual({
@@ -868,7 +868,7 @@ describe('extractTestCases - usedSchemaRefs', () => {
 
 describe('makeTestFile - security auth headers', () => {
   it('basic auth — generates Authorization Basic header and 401 test', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Basic API', version: '1.0.0' },
       paths: {
@@ -886,7 +886,7 @@ describe('makeTestFile - security auth headers', () => {
           basicAuth: { type: 'http', scheme: 'basic' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Basic API',()=>{describe('default',()=>{describe('GET /secure',()=>{it('should return 200 - Secure endpoint',async()=>{\nconst res=await app.request(`/secure`,{method:'GET',headers:{'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/secure`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -894,7 +894,7 @@ describe('makeTestFile - security auth headers', () => {
   })
 
   it('apiKey in header — generates X-API-Key header and 401 test', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'ApiKey API', version: '1.0.0' },
       paths: {
@@ -912,7 +912,7 @@ describe('makeTestFile - security auth headers', () => {
           apiKeyAuth: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('ApiKey API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-API-Key':faker.string.alphanumeric(32)}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -920,7 +920,7 @@ describe('makeTestFile - security auth headers', () => {
   })
 
   it('oauth2 — generates Bearer token header and 401 test', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'OAuth2 API', version: '1.0.0' },
       paths: {
@@ -941,7 +941,7 @@ describe('makeTestFile - security auth headers', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('OAuth2 API',()=>{describe('default',()=>{describe('GET /profile',()=>{it('should return 200 - Get profile',async()=>{\nconst res=await app.request(`/profile`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/profile`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -953,7 +953,7 @@ describe('makeTestFile - security auth headers', () => {
 
 describe('makeTestFile - getNonExistentValue for 404 tests', () => {
   it('uuid path param — uses zero UUID for 404', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'UUID API', version: '1.0.0' },
       paths: {
@@ -977,7 +977,7 @@ describe('makeTestFile - getNonExistentValue for 404 tests', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('UUID API',()=>{describe('items',()=>{describe('GET /items/{itemId}',()=>{it('should return 200 - Get item',async()=>{const itemId=faker.string.uuid()\nconst res=await app.request(`/items/${itemId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/items/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1005,7 +1005,7 @@ describe('makeTestFile - getNonExistentValue for 404 tests', () => {
 
 describe('makeTestFile - $ref request body with mock functions', () => {
   it('generates mock functions for $ref schemas in topological order', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mock API', version: '1.0.0' },
       paths: {
@@ -1044,7 +1044,7 @@ describe('makeTestFile - $ref request body with mock functions', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockItem() {\n  return { name: faker.person.fullName() }\n}\n\nfunction mockOrder() {\n  return { item: mockItem() }\n}\n\ndescribe('Mock API',()=>{describe('orders',()=>{describe('POST /orders',()=>{it('should return 201 - Create order',async()=>{const body=mockOrder()\nconst res=await app.request(`/orders`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
@@ -1056,7 +1056,7 @@ describe('makeTestFile - $ref request body with mock functions', () => {
 
 describe('makeTestFile - circular schema references', () => {
   it('circular self-reference adds : any return type', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Circular API', version: '1.0.0' },
       paths: {
@@ -1092,7 +1092,7 @@ describe('makeTestFile - circular schema references', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTreeNode(): any {\n  return { value: faker.string.alpha({ length: { min: 5, max: 20 } }), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTreeNode())), undefined]) }\n}\n\ndescribe('Circular API',()=>{describe('nodes',()=>{describe('POST /nodes',()=>{it('should return 201 - Create node',async()=>{const body=mockTreeNode()\nconst res=await app.request(`/nodes`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
@@ -1100,7 +1100,7 @@ describe('makeTestFile - circular schema references', () => {
   })
 
   it('mutual circular reference adds : any return type', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mutual Circular API', version: '1.0.0' },
       paths: {
@@ -1138,7 +1138,7 @@ describe('makeTestFile - circular schema references', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     // Both A and B are circular; no faker.* calls so no faker import
     expect(result).toBe(
@@ -1151,7 +1151,7 @@ describe('makeTestFile - circular schema references', () => {
 
 describe('makeTestFile - basePath variations', () => {
   it('basePath /api/v1 — deeply nested prefix', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Nested BasePath API', version: '1.0.0' },
       paths: {
@@ -1163,7 +1163,7 @@ describe('makeTestFile - basePath variations', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/api/v1')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Nested BasePath API',()=>{describe('default',()=>{describe('GET /api/v1/users',()=>{it('should return 200 - List users',async()=>{\nconst res=await app.request(`/api/v1/users`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -1186,7 +1186,7 @@ describe('makeTestFile - bun framework with faker', () => {
 
 describe('makeTestFile - header parameters in output', () => {
   it('required header params appear in request headers', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Header Test API', version: '1.0.0' },
       paths: {
@@ -1206,7 +1206,7 @@ describe('makeTestFile - header parameters in output', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     const expected =
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Header Test API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200 - Get data',async()=>{const X-Request-Id=faker.string.uuid()\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-Request-Id':String(X-Request-Id)}})\nexpect(res.status).toBe(200)})})\n})\n})\n"
@@ -1218,7 +1218,7 @@ describe('makeTestFile - header parameters in output', () => {
 
 describe('makeTestFile - security combined with body and headers', () => {
   it('security + request body generates both auth header and content-type', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Combo API', version: '1.0.0' },
       paths: {
@@ -1248,7 +1248,7 @@ describe('makeTestFile - security combined with body and headers', () => {
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Combo API',()=>{describe('default',()=>{describe('POST /items',()=>{it('should return 201 - Create item',async()=>{const body={ name: faker.person.fullName() }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${faker.string.alphanumeric(32)}`},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})\nit('should return 401 without auth',async()=>{const body={ name: faker.person.fullName() }\nconst res=await app.request(`/items`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -1260,7 +1260,7 @@ describe('makeTestFile - security combined with body and headers', () => {
 
 describe('makeTestFile - operationId fallback', () => {
   it('generates operationId from method+path when not provided', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'NoOpId API', version: '1.0.0' },
       paths: {
@@ -1270,7 +1270,7 @@ describe('makeTestFile - operationId fallback', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].operationId).toBe('get_health')
   })
@@ -1280,7 +1280,7 @@ describe('makeTestFile - operationId fallback', () => {
 
 describe('extractTestCases - $ref path parameter schema refs', () => {
   it('collects schema refs from $ref path parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Ref Param API', version: '1.0.0' },
       paths: {
@@ -1304,13 +1304,13 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['UserId'])
   })
 
   it('collects schema refs from both $ref path params and request body', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mixed Ref API', version: '1.0.0' },
       paths: {
@@ -1350,13 +1350,13 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['CommentRequest', 'CommentBody', 'PostId'])
   })
 
   it('deduplicates refs shared between path params and request body', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Dedup API', version: '1.0.0' },
       paths: {
@@ -1394,13 +1394,13 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['UserId'])
   })
 
   it('collects refs from multiple path params on the same endpoint', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Multi Param API', version: '1.0.0' },
       paths: {
@@ -1431,13 +1431,13 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
           PostId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['UserId', 'PostId'])
   })
 
   it('inline path param schema produces empty usedSchemaRefs', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Inline API', version: '1.0.0' },
       paths: {
@@ -1449,7 +1449,7 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual([])
   })
@@ -1457,7 +1457,7 @@ describe('extractTestCases - $ref path parameter schema refs', () => {
 
 describe('makeTestFile - $ref path parameter mock functions', () => {
   it('generates mock functions for $ref schemas used in path parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Path Ref Mock API', version: '1.0.0' },
       paths: {
@@ -1482,7 +1482,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Path Ref Mock API',()=>{describe('users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -1490,7 +1490,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
   })
 
   it('resolves $ref to uuid format for 404 test non-existent value', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Ref UUID 404 API', version: '1.0.0' },
       paths: {
@@ -1518,7 +1518,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
           PostId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Ref UUID 404 API',()=>{describe('posts',()=>{describe('DELETE /posts/{postId}',()=>{it('should return 200',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/posts/00000000-0000-0000-0000-000000000000`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1526,7 +1526,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
   })
 
   it('resolves $ref to integer type for 404 test non-existent value', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Ref Int 404 API', version: '1.0.0' },
       paths: {
@@ -1554,7 +1554,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
           ItemId: { type: 'integer' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockItemId() {\n  return faker.number.int({ min: 1, max: 1000 })\n}\n\ndescribe('Ref Int 404 API',()=>{describe('items',()=>{describe('GET /items/{itemId}',()=>{it('should return 200',async()=>{const itemId=mockItemId()\nconst res=await app.request(`/items/${itemId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/items/-1`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1562,7 +1562,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
   })
 
   it('$ref string without format falls back to __non_existent__ for 404', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Ref String 404 API', version: '1.0.0' },
       paths: {
@@ -1590,7 +1590,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
           Slug: { type: 'string', minLength: 1, maxLength: 50 },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockSlug() {\n  return faker.string.alpha({ length: { min: 1, max: 50 } })\n}\n\ndescribe('Ref String 404 API',()=>{describe('users',()=>{describe('GET /users/{slug}',()=>{it('should return 200',async()=>{const slug=mockSlug()\nconst res=await app.request(`/users/${slug}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/users/__non_existent__`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1598,7 +1598,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
   })
 
   it('vite-plus framework with $ref path params and mock functions', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'VP Ref API', version: '1.0.0' },
       paths: {
@@ -1626,7 +1626,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
           PostId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/', 'vite-plus')
     expect(result).toBe(
       "import{describe,it,expect}from'vite-plus/test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('VP Ref API',()=>{describe('posts',()=>{describe('GET /posts/{postId}',()=>{it('should return 200',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/posts/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1636,7 +1636,7 @@ describe('makeTestFile - $ref path parameter mock functions', () => {
 
 describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
   it('handler test includes mock functions for $ref path parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Handler Ref API', version: '1.0.0' },
       paths: {
@@ -1661,7 +1661,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/users.ts', ['getUsersUserIdRoute'], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
@@ -1669,7 +1669,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
   })
 
   it('selects test cases by route name when the handler file is tag-named', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Tag Grouped API', version: '1.0.0' },
       paths: {
@@ -1691,7 +1691,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(
       spec,
       'handlers/reviews.ts',
@@ -1704,7 +1704,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
   })
 
   it('handler test with vite-plus framework', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'VP Handler API', version: '1.0.0' },
       paths: {
@@ -1729,7 +1729,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app', '/', 'vite-plus')
     expect(result).toBe(
       "import{describe,it,expect}from'vite-plus/test'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
@@ -1741,7 +1741,7 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
 
 describe('makeTestFile - namespace-qualified schema names', () => {
   it('sanitizes dotted schema names in mock function definitions and calls', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Namespaced API', version: '1.0.0' },
       paths: {
@@ -1778,7 +1778,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUsername() {\n  return faker.string.alpha({ length: { min: 1, max: 30 } })\n}\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockPassword() {\n  return faker.string.alpha({ length: { min: 6, max: 20 } })\n}\n\nfunction mockAuthSignupRequest() {\n  return { username: mockUsername(), name: faker.person.fullName(), email: mockEmail(), password: mockPassword() }\n}\n\ndescribe('Namespaced API',()=>{describe('Auth',()=>{describe('POST /auth/signup',()=>{it('should return 201',async()=>{const body=mockAuthSignupRequest()\nconst res=await app.request(`/auth/signup`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(201)})})\n})\n})\n",
@@ -1786,7 +1786,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
   })
 
   it('sanitizes dotted schema names in $ref path parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Dotted Path Param API', version: '1.0.0' },
       paths: {
@@ -1814,7 +1814,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
           'Types.PostId': { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTypesPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Dotted Path Param API',()=>{describe('posts',()=>{describe('DELETE /posts/{postId}',()=>{it('should return 200',async()=>{const postId=mockTypesPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/posts/00000000-0000-0000-0000-000000000000`,{method:'DELETE'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1822,7 +1822,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
   })
 
   it('sanitizes dotted schema names in makeHandlerTestCode', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Dotted Handler API', version: '1.0.0' },
       paths: {
@@ -1866,7 +1866,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/posts.ts', [], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockTypesCommentBody() {\n  return faker.string.alpha({ length: { min: 1, max: 280 } })\n}\n\nfunction mockPostsCommentRequest() {\n  return { body: mockTypesCommentBody() }\n}\n\nfunction mockTypesPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Posts',()=>{describe('POST /posts/comment/{postId}',()=>{it('should return 200',async()=>{const postId=mockTypesPostId()\nconst body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/${postId}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{const body=mockPostsCommentRequest()\nconst res=await app.request(`/posts/comment/00000000-0000-0000-0000-000000000000`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(404)})})\n})\n",
@@ -1874,7 +1874,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
   })
 
   it('dotted schema name with vite-plus framework', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'VP Dotted API', version: '1.0.0' },
       paths: {
@@ -1906,7 +1906,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/', 'vite-plus')
     expect(result).toBe(
       "import{describe,it,expect}from'vite-plus/test'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockEmail() {\n  return faker.internet.email()\n}\n\nfunction mockAuthLoginRequest() {\n  return { email: mockEmail() }\n}\n\ndescribe('VP Dotted API',()=>{describe('auth',()=>{describe('POST /auth/login',()=>{it('should return 200',async()=>{const body=mockAuthLoginRequest()\nconst res=await app.request(`/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -1918,7 +1918,7 @@ describe('makeTestFile - namespace-qualified schema names', () => {
 
 describe('extractTestCases - query param $ref', () => {
   it('collects schema refs from $ref query parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Query Ref API', version: '1.0.0' },
       paths: {
@@ -1942,7 +1942,7 @@ describe('extractTestCases - query param $ref', () => {
           Status: { type: 'string', enum: ['active', 'inactive'] },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['Status'])
   })
@@ -1950,7 +1950,7 @@ describe('extractTestCases - query param $ref', () => {
 
 describe('makeTestFile - $ref path param with basePath', () => {
   it('basePath is prepended to $ref path param URL in 200 and 404 tests', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'BP Ref API', version: '1.0.0' },
       paths: {
@@ -1978,7 +1978,7 @@ describe('makeTestFile - $ref path param with basePath', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/api')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('BP Ref API',()=>{describe('users',()=>{describe('GET /api/users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/api/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/api/users/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -1988,7 +1988,7 @@ describe('makeTestFile - $ref path param with basePath', () => {
 
 describe('makeTestFile - $ref path param with security', () => {
   it('generates 200 with auth + 401 without auth + 404 tests for secured $ref endpoint', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Secured Ref API', version: '1.0.0' },
       paths: {
@@ -2021,7 +2021,7 @@ describe('makeTestFile - $ref path param with security', () => {
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockPostId() {\n  return faker.string.uuid()\n}\n\ndescribe('Secured Ref API',()=>{describe('posts',()=>{describe('DELETE /posts/{postId}',()=>{it('should return 200',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{const postId=mockPostId()\nconst res=await app.request(`/posts/${postId}`,{method:'DELETE'})\nexpect(res.status).toBe(401)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/posts/00000000-0000-0000-0000-000000000000`,{method:'DELETE',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -2031,7 +2031,7 @@ describe('makeTestFile - $ref path param with security', () => {
 
 describe('makeTestFile - multiple endpoints sharing same $ref param', () => {
   it('generates mock function once even when shared across endpoints', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Shared Ref API', version: '1.0.0' },
       paths: {
@@ -2069,7 +2069,7 @@ describe('makeTestFile - multiple endpoints sharing same $ref param', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Shared Ref API',()=>{describe('users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\ndescribe('DELETE /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'DELETE'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2079,7 +2079,7 @@ describe('makeTestFile - multiple endpoints sharing same $ref param', () => {
 
 describe('makeHandlerTestCode - no matching routes returns empty', () => {
   it('returns empty string for handler with no matching endpoints', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mismatch API', version: '1.0.0' },
       paths: {
@@ -2103,7 +2103,7 @@ describe('makeHandlerTestCode - no matching routes returns empty', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/posts.ts', [], '../app')
     expect(result).toBe('')
   })
@@ -2113,7 +2113,7 @@ describe('makeHandlerTestCode - no matching routes returns empty', () => {
 
 describe('extractTestCases - header param $ref', () => {
   it('collects schema refs from $ref header parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Header Ref API', version: '1.0.0' },
       paths: {
@@ -2137,7 +2137,7 @@ describe('extractTestCases - header param $ref', () => {
           RequestId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['RequestId'])
   })
@@ -2145,7 +2145,7 @@ describe('extractTestCases - header param $ref', () => {
 
 describe('extractTestCases - components/parameters $ref resolution', () => {
   it('resolves parameter-level $ref and collects schema refs from it', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Param Ref API', version: '1.0.0' },
       paths: {
@@ -2170,7 +2170,7 @@ describe('extractTestCases - components/parameters $ref resolution', () => {
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['UserId'])
     expect(result[0].pathParams).toStrictEqual([
@@ -2185,7 +2185,7 @@ describe('extractTestCases - components/parameters $ref resolution', () => {
 
 describe('extractTestCases - mixed path, query, header $ref params', () => {
   it('collects all $ref schemas from path, query and header params combined', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'All Param Ref API', version: '1.0.0' },
       paths: {
@@ -2223,7 +2223,7 @@ describe('extractTestCases - mixed path, query, header $ref params', () => {
           CorrelationId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['UserId', 'PostStatus', 'CorrelationId'])
   })
@@ -2231,7 +2231,7 @@ describe('extractTestCases - mixed path, query, header $ref params', () => {
 
 describe('makeTestFile - no components/schemas defined', () => {
   it('generates test without mock functions when no schemas exist', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'No Schema API', version: '1.0.0' },
       paths: {
@@ -2242,7 +2242,7 @@ describe('makeTestFile - no components/schemas defined', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('No Schema API',()=>{describe('default',()=>{describe('GET /health',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/health`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2252,7 +2252,7 @@ describe('makeTestFile - no components/schemas defined', () => {
 
 describe('makeTestFile - multiple path params with mixed $ref and inline', () => {
   it('generates mock only for $ref params, inline params use faker directly', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mixed Param API', version: '1.0.0' },
       paths: {
@@ -2281,7 +2281,7 @@ describe('makeTestFile - multiple path params with mixed $ref and inline', () =>
           UserId: { type: 'string', format: 'uuid' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Mixed Param API',()=>{describe('orgs',()=>{describe('GET /orgs/{orgId}/users/{userId}',()=>{it('should return 200',async()=>{const orgId=faker.number.int({ min: 1, max: 1000 })\nconst userId=mockUserId()\nconst res=await app.request(`/orgs/${orgId}/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{\nconst res=await app.request(`/orgs/-1/users/00000000-0000-0000-0000-000000000000`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -2293,7 +2293,7 @@ describe('makeTestFile - multiple path params with mixed $ref and inline', () =>
 
 describe('extractTestCases - default successStatus', () => {
   it('defaults successStatus to 200 when no 2xx responses defined', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Error Only API', version: '1.0.0' },
       paths: {
@@ -2307,7 +2307,7 @@ describe('extractTestCases - default successStatus', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].successStatus).toBe(200)
     expect(result[0].errorStatuses).toStrictEqual([400, 500])
@@ -2316,7 +2316,7 @@ describe('extractTestCases - default successStatus', () => {
 
 describe('extractTestCases - successStatus picks lowest 2xx', () => {
   it('picks the lowest 2xx status when multiple are defined', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Multi Success API', version: '1.0.0' },
       paths: {
@@ -2331,7 +2331,7 @@ describe('extractTestCases - successStatus picks lowest 2xx', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].successStatus).toBe(200)
   })
@@ -2339,7 +2339,7 @@ describe('extractTestCases - successStatus picks lowest 2xx', () => {
 
 describe('extractTestCases - errorStatuses sorted ascending', () => {
   it('returns errorStatuses in ascending numeric order', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Sorted API', version: '1.0.0' },
       paths: {
@@ -2355,7 +2355,7 @@ describe('extractTestCases - errorStatuses sorted ascending', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].errorStatuses).toStrictEqual([400, 404, 500])
   })
@@ -2363,7 +2363,7 @@ describe('extractTestCases - errorStatuses sorted ascending', () => {
 
 describe('extractTestCases - default response key excluded from errorStatuses', () => {
   it('excludes the "default" response key from errorStatuses', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Default Key API', version: '1.0.0' },
       paths: {
@@ -2377,7 +2377,7 @@ describe('extractTestCases - default response key excluded from errorStatuses', 
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].errorStatuses).toStrictEqual([])
   })
@@ -2387,7 +2387,7 @@ describe('extractTestCases - default response key excluded from errorStatuses', 
 
 describe('extractTestCases - global security fallback', () => {
   it('uses spec-level security when operation has no security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Global Sec API', version: '1.0.0' },
       security: [{ bearerAuth: [] }],
@@ -2404,7 +2404,7 @@ describe('extractTestCases - global security fallback', () => {
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'bearer', name: 'Authorization' }])
   })
@@ -2412,7 +2412,7 @@ describe('extractTestCases - global security fallback', () => {
 
 describe('extractTestCases - operation security overrides global security', () => {
   it('operation-level empty security disables global security', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Override Sec API', version: '1.0.0' },
       security: [{ bearerAuth: [] }],
@@ -2430,7 +2430,7 @@ describe('extractTestCases - operation security overrides global security', () =
           bearerAuth: { type: 'http', scheme: 'bearer' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([])
   })
@@ -2438,7 +2438,7 @@ describe('extractTestCases - operation security overrides global security', () =
 
 describe('extractTestCases - apiKey in query location', () => {
   it('registers apiKey with query location', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Api Key Query', version: '1.0.0' },
       paths: {
@@ -2455,7 +2455,7 @@ describe('extractTestCases - apiKey in query location', () => {
           apiKey: { type: 'apiKey', name: 'api_key', in: 'query' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'api_key', in: 'query' }])
   })
@@ -2463,7 +2463,7 @@ describe('extractTestCases - apiKey in query location', () => {
 
 describe('extractTestCases - apiKey in cookie location', () => {
   it('registers apiKey with cookie location', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Api Key Cookie', version: '1.0.0' },
       paths: {
@@ -2480,7 +2480,7 @@ describe('extractTestCases - apiKey in cookie location', () => {
           apiKey: { type: 'apiKey', name: 'session', in: 'cookie' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'session', in: 'cookie' }])
   })
@@ -2488,7 +2488,7 @@ describe('extractTestCases - apiKey in cookie location', () => {
 
 describe('extractTestCases - apiKey missing in defaults to header', () => {
   it('defaults apiKey in to "header" when the in field is missing', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Api Key No In', version: '1.0.0' },
       paths: {
@@ -2505,7 +2505,7 @@ describe('extractTestCases - apiKey missing in defaults to header', () => {
           apiKey: { type: 'apiKey', name: 'X-Token' } as never,
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-Token', in: 'header' }])
   })
@@ -2513,7 +2513,7 @@ describe('extractTestCases - apiKey missing in defaults to header', () => {
 
 describe('extractTestCases - apiKey missing name uses X-API-Key default', () => {
   it('defaults apiKey name to X-API-Key when scheme.name is missing', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Api Key No Name', version: '1.0.0' },
       paths: {
@@ -2530,7 +2530,7 @@ describe('extractTestCases - apiKey missing name uses X-API-Key default', () => 
           apiKey: { type: 'apiKey', in: 'header' } as never,
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].security).toStrictEqual([{ type: 'apiKey', name: 'X-API-Key', in: 'header' }])
   })
@@ -2540,7 +2540,7 @@ describe('extractTestCases - apiKey missing name uses X-API-Key default', () => 
 
 describe('makeTestFile - basic auth scheme', () => {
   it('generates Basic Authorization header using btoa', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Basic API', version: '1.0.0' },
       paths: {
@@ -2560,7 +2560,7 @@ describe('makeTestFile - basic auth scheme', () => {
           basicAuth: { type: 'http', scheme: 'basic' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Basic API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -2570,7 +2570,7 @@ describe('makeTestFile - basic auth scheme', () => {
 
 describe('makeTestFile - oauth2 scheme', () => {
   it('generates Bearer Authorization header for oauth2 scheme', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'OAuth2 API', version: '1.0.0' },
       paths: {
@@ -2598,7 +2598,7 @@ describe('makeTestFile - oauth2 scheme', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('OAuth2 API',()=>{describe('default',()=>{describe('GET /me',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/me`,{method:'GET',headers:{'Authorization':`Bearer ${faker.string.alphanumeric(32)}`}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/me`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -2608,7 +2608,7 @@ describe('makeTestFile - oauth2 scheme', () => {
 
 describe('makeTestFile - apiKey header auth', () => {
   it('generates custom header auth for apiKey in header', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Api Key Header', version: '1.0.0' },
       paths: {
@@ -2628,7 +2628,7 @@ describe('makeTestFile - apiKey header auth', () => {
           apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Api Key Header',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data`,{method:'GET',headers:{'X-API-Key':faker.string.alphanumeric(32)}})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -2638,7 +2638,7 @@ describe('makeTestFile - apiKey header auth', () => {
 
 describe('makeTestFile - apiKey in query appends credential to URL', () => {
   it('emits ?api_key=<value> for apiKey with in=query (success flow)', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Query Key API', version: '1.0.0' },
       paths: {
@@ -2658,7 +2658,7 @@ describe('makeTestFile - apiKey in query appends credential to URL', () => {
           apiKey: { type: 'apiKey', name: 'api_key', in: 'query' },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Query Key API',()=>{describe('default',()=>{describe('GET /data',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/data?api_key=${faker.string.alphanumeric(32)}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 401 without auth',async()=>{\nconst res=await app.request(`/data`,{method:'GET'})\nexpect(res.status).toBe(401)})})\n})\n})\n",
@@ -2670,7 +2670,7 @@ describe('makeTestFile - apiKey in query appends credential to URL', () => {
 
 describe('makeTestFile - bun test framework', () => {
   it('imports from "bun:test" when testFramework=bun', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Bun API', version: '1.0.0' },
       paths: {
@@ -2681,7 +2681,7 @@ describe('makeTestFile - bun test framework', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/', 'bun')
     expect(result).toBe(
       "import{describe,it,expect}from'bun:test'\nimport app from'./app'\n\ndescribe('Bun API',()=>{describe('default',()=>{describe('GET /ping',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/ping`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2691,7 +2691,7 @@ describe('makeTestFile - bun test framework', () => {
 
 describe('makeTestFile - vite-plus test framework', () => {
   it('imports from "vite-plus/test" when testFramework=vite-plus', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Vp API', version: '1.0.0' },
       paths: {
@@ -2702,7 +2702,7 @@ describe('makeTestFile - vite-plus test framework', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/', 'vite-plus')
     expect(result).toBe(
       "import{describe,it,expect}from'vite-plus/test'\nimport app from'./app'\n\ndescribe('Vp API',()=>{describe('default',()=>{describe('GET /ping',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/ping`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2714,7 +2714,7 @@ describe('makeTestFile - vite-plus test framework', () => {
 
 describe('makeTestFile - basePath prepended to request paths', () => {
   it('prepends non-root basePath to all request URLs', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Prefixed API', version: '1.0.0' },
       paths: {
@@ -2725,7 +2725,7 @@ describe('makeTestFile - basePath prepended to request paths', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/api/v1')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Prefixed API',()=>{describe('default',()=>{describe('GET /api/v1/health',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/api/v1/health`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2735,7 +2735,7 @@ describe('makeTestFile - basePath prepended to request paths', () => {
 
 describe('makeTestFile - root path with basePath uses basePath only', () => {
   it('uses basePath alone when spec path is "/"', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Root Prefix API', version: '1.0.0' },
       paths: {
@@ -2746,7 +2746,7 @@ describe('makeTestFile - root path with basePath uses basePath only', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec, './app', '/api')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\ndescribe('Root Prefix API',()=>{describe('default',()=>{describe('GET /api',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/api`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2758,7 +2758,7 @@ describe('makeTestFile - root path with basePath uses basePath only', () => {
 
 describe('makeTestFile - self-referential circular schema', () => {
   it('adds : any return type to mock function for self-referential schema', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Tree API', version: '1.0.0' },
       paths: {
@@ -2790,7 +2790,7 @@ describe('makeTestFile - self-referential circular schema', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\nfunction mockTree(): any {\n  return { value: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), undefined]), children: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (mockTree())), undefined]) }\n}\n\ndescribe('Tree API',()=>{describe('default',()=>{describe('POST /trees',()=>{it('should return 200',async()=>{const body=mockTree()\nconst res=await app.request(`/trees`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2800,7 +2800,7 @@ describe('makeTestFile - self-referential circular schema', () => {
 
 describe('makeTestFile - mutually recursive circular schemas', () => {
   it('adds : any return type to all mock functions in a cycle', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mutual API', version: '1.0.0' },
       paths: {
@@ -2832,7 +2832,7 @@ describe('makeTestFile - mutually recursive circular schemas', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'./app'\n\nfunction mockB(): any {\n  return { a: mockA() }\n}\n\nfunction mockA(): any {\n  return { b: mockB() }\n}\n\ndescribe('Mutual API',()=>{describe('default',()=>{describe('POST /a',()=>{it('should return 200',async()=>{const body=mockA()\nconst res=await app.request(`/a`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\nexpect(res.status).toBe(200)})})\n})\n})\n",
@@ -2844,7 +2844,7 @@ describe('makeTestFile - mutually recursive circular schemas', () => {
 
 describe('makeTestCase - 404 test preserves query params setup', () => {
   it('generates query param setup for both 200 and 404 tests', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Search API', version: '1.0.0' },
       paths: {
@@ -2873,7 +2873,7 @@ describe('makeTestCase - 404 test preserves query params setup', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeTestFile(spec)
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'./app'\n\ndescribe('Search API',()=>{describe('items',()=>{describe('GET /items/{id}',()=>{it('should return 200',async()=>{const id=faker.number.int({ min: 1, max: 99999 })\nconst q=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/items/${id}?q=${encodeURIComponent(String(q))}`,{method:'GET'})\nexpect(res.status).toBe(200)})\nit('should return 404 for non-existent resource',async()=>{const q=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/items/-1?q=${encodeURIComponent(String(q))}`,{method:'GET'})\nexpect(res.status).toBe(404)})})\n})\n})\n",
@@ -2885,7 +2885,7 @@ describe('makeTestCase - 404 test preserves query params setup', () => {
 
 describe('makeHandlerTestCode - filters routes by handler name', () => {
   it('includes only routes whose first path segment matches handler file name', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Mixed API', version: '1.0.0' },
       paths: {
@@ -2902,7 +2902,7 @@ describe('makeHandlerTestCode - filters routes by handler name', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/users.ts', [], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'../app'\n\ndescribe('Users',()=>{describe('GET /users',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/users`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
@@ -2912,7 +2912,7 @@ describe('makeHandlerTestCode - filters routes by handler name', () => {
 
 describe('makeHandlerTestCode - dashed path segment sanitized', () => {
   it('normalizes dashed path segment to camelCase for matching', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Dash API', version: '1.0.0' },
       paths: {
@@ -2923,7 +2923,7 @@ describe('makeHandlerTestCode - dashed path segment sanitized', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = makeHandlerTestCode(spec, 'handlers/userAccounts.ts', [], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport app from'../app'\n\ndescribe('UserAccounts',()=>{describe('GET /user-accounts',()=>{it('should return 200',async()=>{\nconst res=await app.request(`/user-accounts`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
@@ -2935,7 +2935,7 @@ describe('makeHandlerTestCode - dashed path segment sanitized', () => {
 
 describe('extractTestCases - nested $ref collection from object properties', () => {
   it('collects refs from nested object properties transitively', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Nested Ref API', version: '1.0.0' },
       paths: {
@@ -2974,7 +2974,7 @@ describe('extractTestCases - nested $ref collection from object properties', () 
           Tag: { type: 'string' },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['Order', 'Item', 'Tag'])
   })
@@ -2982,7 +2982,7 @@ describe('extractTestCases - nested $ref collection from object properties', () 
 
 describe('extractTestCases - empty parameters array', () => {
   it('returns empty pathParams/queryParams/headerParams for operation without parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'No Params API', version: '1.0.0' },
       paths: {
@@ -2993,7 +2993,7 @@ describe('extractTestCases - empty parameters array', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].pathParams).toStrictEqual([])
     expect(result[0].queryParams).toStrictEqual([])
@@ -3006,7 +3006,7 @@ describe('extractTestCases - empty parameters array', () => {
 
 describe('extractTestCases - uses fallback operationId when missing', () => {
   it('synthesizes operationId from method and path when operationId is missing', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'No OpId API', version: '1.0.0' },
       paths: {
@@ -3016,7 +3016,7 @@ describe('extractTestCases - uses fallback operationId when missing', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].operationId).toBe('get_users_{id}')
   })
@@ -3024,7 +3024,7 @@ describe('extractTestCases - uses fallback operationId when missing', () => {
 
 describe('extractTestCases - allOf composite ref collection', () => {
   it('collects nested $refs from allOf composite in request body', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'AllOf API', version: '1.0.0' },
       paths: {
@@ -3053,7 +3053,7 @@ describe('extractTestCases - allOf composite ref collection', () => {
           Extension: { type: 'object', properties: { ext: { type: 'string' } } },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].usedSchemaRefs).toStrictEqual(['Base', 'Extension'])
   })
@@ -3061,7 +3061,7 @@ describe('extractTestCases - allOf composite ref collection', () => {
 
 describe('extractTestCases - non-JSON request body ignored', () => {
   it('returns undefined requestBody when no application/json content', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Form API', version: '1.0.0' },
       paths: {
@@ -3079,7 +3079,7 @@ describe('extractTestCases - non-JSON request body ignored', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = extractTestCases(spec)
     expect(result[0].requestBody).toBe(undefined)
     expect(result[0].usedSchemaRefs).toStrictEqual([])

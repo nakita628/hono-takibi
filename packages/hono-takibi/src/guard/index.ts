@@ -162,6 +162,15 @@ export function isCallbacks(v: unknown): v is Callbacks {
   return typeof v === 'object' && v !== null && !('$ref' in v)
 }
 
+/**
+ * Narrows a `paths` entry to a Path Item Object. Unlike `isPathItem` this keeps
+ * `$ref` path items (OpenAPI 3.2 §4.8.9 allows `$ref` on a Path Item Object);
+ * callers resolve them against `components.pathItems`.
+ */
+export function isPathItemEntry(v: unknown): v is PathItem {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
 export function isPathItem(v: unknown): v is PathItem {
   return typeof v === 'object' && v !== null && !('$ref' in v)
 }
