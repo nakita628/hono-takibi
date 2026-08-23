@@ -9,6 +9,7 @@ import { makeBarrel, toIdentifierPascalCase } from '../../utils/index.js'
 
 export async function webhooks(
   openAPI: OpenAPI,
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   webhooks?: {
     readonly output: string
     readonly split?: boolean

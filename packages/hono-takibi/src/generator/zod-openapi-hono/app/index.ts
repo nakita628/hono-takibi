@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename } from 'node:path'
 
 import { isHttpMethod, isOperation } from '../../../guard/index.js'
 import { makeHandlerFileName } from '../../../helper/handler.js'
@@ -52,8 +52,8 @@ export function app(
   const routeMappings = getRouteMaps()
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
-    ? path.basename(output.replace(/\/index\.ts$/, ''))
-    : path.basename(output, '.ts')
+    ? basename(output.replace(/\/index\.ts$/, ''))
+    : basename(output, '.ts')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
     basePath !== '/'
@@ -86,7 +86,7 @@ export function app(
         ),
       ),
     ]
-    const handlerExportNames = handlerFileNames.map((fn) => `${path.basename(fn, '.ts')}Handler`)
+    const handlerExportNames = handlerFileNames.map((fn) => `${basename(fn, '.ts')}Handler`)
     const handlerModule =
       handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const handlerImport =

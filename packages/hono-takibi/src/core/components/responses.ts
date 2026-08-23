@@ -7,6 +7,7 @@ import type { Components } from '../../openapi/index.js'
 import { makeBarrel, uncapitalize } from '../../utils/index.js'
 
 export async function responses(
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   responses: Components['responses'],
   output: string,
   split: boolean,

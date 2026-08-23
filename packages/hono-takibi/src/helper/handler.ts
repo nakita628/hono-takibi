@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename, dirname, relative } from 'node:path'
 
 import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, writeFile } from '../fsp/index.js'
@@ -214,7 +214,7 @@ function makeOrphanHandlers(
 }
 
 function makeTestFileName(fileName: `${string}.ts`): `${string}.ts` {
-  return `${path.basename(fileName, '.ts')}.test.ts`
+  return `${basename(fileName, '.ts')}.test.ts`
 }
 
 function makePaths(output: string, pathAlias: string | undefined, routeImport?: string) {
@@ -229,7 +229,7 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   const routeModuleName = isIndexFile
     ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
     : output.endsWith('.ts')
-      ? path.basename(output, '.ts')
+      ? basename(output, '.ts')
       : 'index'
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const importFrom =
@@ -342,7 +342,7 @@ function makeInlineStubFileContent(
   },
   importFrom: string,
 ) {
-  const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
+  const exportName = `${basename(handler.fileName, '.ts')}Handler`
   const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
@@ -361,7 +361,7 @@ function makeInlineMockFileContent(
   importFrom: string,
   schemas: { readonly [k: string]: Schema },
 ) {
-  const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
+  const exportName = `${basename(handler.fileName, '.ts')}Handler`
   const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
@@ -504,7 +504,7 @@ function makeMockFileContent(
 }
 
 function makeBarrelContent(fileNames: readonly string[]): string {
-  return fileNames.map((h) => `export * from './${path.basename(h, '.ts')}'`).join('\n')
+  return fileNames.map((h) => `export * from './${basename(h, '.ts')}'`).join('\n')
 }
 
 /**
@@ -564,6 +564,7 @@ export async function zodOpenAPIHonoHandler(
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
       const filePath = `${handlerPath}/${handler.fileName}`
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const merged =
@@ -594,6 +595,7 @@ export async function zodOpenAPIHonoHandler(
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
               : testCode
+          // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
           const finalFmtResult = await fmt(mergedTestCode)
           const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
           const testWriteResult = await writeFile(testFilePath, finalTestCode)
@@ -606,6 +608,7 @@ export async function zodOpenAPIHonoHandler(
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
       const barrelPath = `${handlerPath}/index.ts`
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(barrelPath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const content =
@@ -675,7 +678,7 @@ export async function defineOpenAPIRouteHandler(
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
 ) {
-  const baseDir = path.dirname(output)
+  const baseDir = dirname(output)
   const handlerPath = baseDir === '.' ? 'routes' : `${baseDir}/routes`
   const existingResult = await scanExistingHandlerFiles(handlerPath, (code) =>
     collectExportedNames(code, 'Route'),
@@ -711,10 +714,10 @@ export async function defineOpenAPIRouteHandler(
   // The alias maps to the app entry's directory; resolve the components module relative to it
   // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
   const componentsModulePath = componentsOutput.endsWith('/index.ts')
-    ? path.dirname(componentsOutput)
+    ? dirname(componentsOutput)
     : componentsOutput.replace(/\.ts$/, '')
   const componentsImport = aliasPrefix
-    ? `${aliasPrefix}/${path.relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
+    ? `${aliasPrefix}/${relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
     : undefined
   const componentsMap = Object.fromEntries(
     (
@@ -750,6 +753,7 @@ export async function defineOpenAPIRouteHandler(
       const fileContent = makeImports(chain, filePath, componentsMap, false, ['defineOpenAPIRoute'])
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const merged =
@@ -792,6 +796,7 @@ export async function defineOpenAPIRouteHandler(
       const fmtResult = await fmt(makeBarrelContent(handlerList.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
       const barrelPath = `${handlerPath}/index.ts`
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(barrelPath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const content =
@@ -867,6 +872,7 @@ export async function mockZodOpenAPIHonoHandler(
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
       const filePath = `${handlerPath}/${handler.fileName}`
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(filePath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const merged =
@@ -897,6 +903,7 @@ export async function mockZodOpenAPIHonoHandler(
             existingTestResult.value !== null
               ? mergeTestFile(existingTestResult.value, testCode)
               : testCode
+          // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
           const finalFmtResult = await fmt(mergedTestCode)
           const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
           const testWriteResult = await writeFile(testFilePath, finalTestCode)
@@ -909,6 +916,7 @@ export async function mockZodOpenAPIHonoHandler(
       const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
       const barrelPath = `${handlerPath}/index.ts`
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const existingResult = await readFile(barrelPath)
       if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
       const content =

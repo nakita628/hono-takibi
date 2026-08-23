@@ -36,6 +36,7 @@ const DEEP_READONLY_TYPE =
  * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
  * @returns Result with success message or error
  */
+// oxlint-disable-next-line no-shadow -- `type` is also a natural local name for a type string
 export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
@@ -357,6 +358,7 @@ const PRIMITIVE_TYPE_MAP: { readonly [k: string]: string } = {
 
 function makeSingleTypeString(
   schema: Schema,
+  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
   type: string,
   components: Components | undefined,
   visited: Set<string>,
@@ -402,6 +404,7 @@ function makeAllOfTypeString(
     return result
   }, new Map<string, { type: string; required: boolean }>())
   if (mergedProps.size === 0) return '{}'
+  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
   const propertyStrings = [...mergedProps.entries()].map(([key, { type, required }]) => {
     const safeKey = makeSafeKey(key)
     return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`

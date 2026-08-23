@@ -15,6 +15,7 @@ app.openapi(
     if (!result.success) {
       const errors = result.error.issues.map((issue) => {
         let detail = issue.message
+        // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other issue code
         switch (issue.code) {
           case 'too_small':
             detail =

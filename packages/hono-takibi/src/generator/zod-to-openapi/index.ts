@@ -1,5 +1,7 @@
 import { isSchemaArray, isSingleSchema } from '../../guard/index.js'
-import { makeRef } from '../../helper/index.js'
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
+import { makeRef } from '../../helper/openapi.js'
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { wrap } from '../../helper/wrap.js'
 import {
   emitTypelessRefine,
@@ -8,6 +10,7 @@ import {
 } from '../../helper/zod.js'
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { baseError, error, normalizeTypes } from '../../utils/index.js'
+// oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
 function isRefOnly(s: Schema) {

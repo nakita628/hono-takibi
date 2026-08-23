@@ -11,6 +11,7 @@ import {
 } from '../../utils/index.js'
 
 export async function securitySchemes(
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   securitySchemes: Components['securitySchemes'],
   output: string,
   split: boolean,

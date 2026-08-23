@@ -1,5 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
+// oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {

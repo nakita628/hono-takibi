@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { emit } from '../../emit/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
@@ -144,7 +144,7 @@ export async function rpc(
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
     const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
-    const emitResult = await emit(code, path.dirname(output), output)
+    const emitResult = await emit(code, dirname(output), output)
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return { ok: true, value: `Generated rpc code written to ${output}` } as const
   }
@@ -157,10 +157,10 @@ export async function rpc(
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
       const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
       const fileSrc = `${header}${code}\n`
-      const filePath = path.join(outDir, `${funcName}.ts`)
-      return emit(fileSrc, path.dirname(filePath), filePath)
+      const filePath = join(outDir, `${funcName}.ts`)
+      return emit(fileSrc, dirname(filePath), filePath)
     }),
-    emit(index, path.dirname(indexPath), indexPath),
+    emit(index, dirname(indexPath), indexPath),
   ])
   const e = results.find((result) => !result.ok)
   if (e) return e

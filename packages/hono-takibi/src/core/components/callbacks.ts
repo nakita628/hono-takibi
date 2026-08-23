@@ -13,6 +13,7 @@ import {
 } from '../../utils/index.js'
 
 export async function callbacks(
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   callbacks: Components['callbacks'],
   output: string,
   split: boolean,

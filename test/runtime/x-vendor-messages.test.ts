@@ -521,24 +521,26 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     it('accepts each valid string enum value', async () => {
       const responses = await Promise.all(
         ['admin', 'editor', 'viewer'].map((role) =>
-          app.request('/form', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: 'taro',
-              code: 'ABC123',
-              slug: 'hello-world',
-              age: 25,
-              score: 1.5,
-              count: 10,
-              active: true,
-              tags: ['dev'],
-              pin: [1, 2, 3, 4],
-              role,
-              priority: 1,
-              quota: 5,
+          Promise.resolve(
+            app.request('/form', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role,
+                priority: 1,
+                quota: 5,
+              }),
             }),
-          }),
+          ),
         ),
       )
       for (const res of responses) {
@@ -549,24 +551,26 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     it('accepts each valid integer enum value', async () => {
       const responses = await Promise.all(
         [1, 2, 3].map((priority) =>
-          app.request('/form', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: 'taro',
-              code: 'ABC123',
-              slug: 'hello-world',
-              age: 25,
-              score: 1.5,
-              count: 10,
-              active: true,
-              tags: ['dev'],
-              pin: [1, 2, 3, 4],
-              role: 'admin',
-              priority,
-              quota: 5,
+          Promise.resolve(
+            app.request('/form', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority,
+                quota: 5,
+              }),
             }),
-          }),
+          ),
         ),
       )
       for (const res of responses) {

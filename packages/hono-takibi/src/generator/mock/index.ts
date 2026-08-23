@@ -497,6 +497,7 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
           ? (() => {
               const condition = pathParams
                 .map(
+                  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
                   (p) => `c.req.param('${p.name}') === '${getNonExistentValue(p.schema, schemas)}'`,
                 )
                 .join(' || ')

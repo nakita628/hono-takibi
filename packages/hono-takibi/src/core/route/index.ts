@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 import { emit } from '../../emit/index.js'
 import { isParameterRef, isPathItemRef } from '../../guard/index.js'
@@ -100,16 +100,16 @@ export async function route(
   const entries = routeEntries()
   if (!split || entries.length === 0) {
     const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)
-    const result = await emit(code, path.dirname(output), output)
+    const result = await emit(code, dirname(output), output)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
-  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+  const outDir = join(dirname(output), basename(output, '.ts'))
   const results = await Promise.all([
     ...entries.map(async ({ name, code }) => {
       const filePath = `${outDir}/${name}.ts`
       const withImports = makeImports(code, filePath, components)
-      const result = await emit(withImports, path.dirname(filePath), filePath)
+      const result = await emit(withImports, dirname(filePath), filePath)
       return result.ok ? { ok: true as const, value: filePath } : result
     }),
     emit(

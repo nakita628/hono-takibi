@@ -1176,11 +1176,13 @@ describe('Enums — thick coverage', () => {
   it('accepts all enum members', async () => {
     const roleResponses = await Promise.all(
       ['admin', 'editor', 'viewer'].map((role) =>
-        app.request('/enums', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ role, priority: 2, accepted: true }),
-        }),
+        Promise.resolve(
+          app.request('/enums', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ role, priority: 2, accepted: true }),
+          }),
+        ),
       ),
     )
     for (const res of roleResponses) {
@@ -1188,11 +1190,13 @@ describe('Enums — thick coverage', () => {
     }
     const priorityResponses = await Promise.all(
       [1, 2, 3].map((priority) =>
-        app.request('/enums', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ role: 'admin', priority, accepted: true }),
-        }),
+        Promise.resolve(
+          app.request('/enums', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ role: 'admin', priority, accepted: true }),
+          }),
+        ),
       ),
     )
     for (const res of priorityResponses) {

@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { basename } from 'node:path'
 
 import {
   isContentBody,
@@ -408,7 +408,7 @@ export function makeHandlerTestCode(
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   context: ReturnType<typeof makeHandlerTestContext> = makeHandlerTestContext(spec),
 ) {
-  const handlerFileName = path.basename(handlerPath, '.ts')
+  const handlerFileName = basename(handlerPath, '.ts')
   // Handler files are grouped by tag (or by an existing hand-written split), so the routes
   // they hold are the only reliable link; the path-segment match is a fallback for callers
   // that pass no route names.

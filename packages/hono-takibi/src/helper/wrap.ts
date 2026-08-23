@@ -1,5 +1,6 @@
 import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
 
 function hasNotProperty(v: unknown): v is { not: unknown } {

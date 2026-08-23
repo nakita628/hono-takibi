@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
 import {
   isMedia,
@@ -94,6 +95,7 @@ export function makeExamples(examples: {
       if ('$ref' in example && example.$ref) {
         return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const result = [
         example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
         example.description !== undefined
@@ -249,6 +251,7 @@ export function makeOperationCallbacks(
       }
       const summary = callbackRef.summary
       const description = callbackRef.description
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const result = [
         typeof summary === 'string' ? `summary:${JSON.stringify(summary)}` : undefined,
         typeof description === 'string' ? `description:${JSON.stringify(description)}` : undefined,
@@ -390,6 +393,7 @@ export function makeMedia(media: Media, readonly?: boolean) {
 export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
   const nestedEncoding = encoding.encoding
     ? Object.entries(encoding.encoding)
+        // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
         .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
         .join(',')
     : undefined
