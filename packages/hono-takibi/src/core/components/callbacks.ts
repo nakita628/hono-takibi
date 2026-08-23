@@ -1,9 +1,10 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
+import { isCallbacks } from '../../guard/index.js'
 import { makeConst } from '../../helper/code.js'
 import { makeCallback, makeImports } from '../../helper/index.js'
-import type { Callbacks, Components } from '../../openapi/index.js'
+import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
   makeBarrel,
@@ -28,8 +29,6 @@ export async function callbacks(
   const keys = Object.keys(callbacks)
   if (keys.length === 0) return { ok: true, value: 'No callbacks found' } as const
   const asConst = readonly ? ' as const' : ''
-  const isCallbacks = (v: unknown): v is Callbacks =>
-    typeof v === 'object' && v !== null && !('$ref' in v)
   if (split) {
     const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
     const results = await Promise.all([

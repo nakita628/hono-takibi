@@ -326,17 +326,16 @@ const ConfigSchema = z
   .refine(
     (v) => {
       if (v.template?.define !== true || v.components?.output === undefined) return true
-      const normalize = (p: string) => p.replace(/^\.\//, '')
-      const componentsOutput = normalize(v.components.output)
+      const componentsOutput = v.components.output.replace(/^\.\//, '')
       // `<anchor>/<module>` where module is a flat `.ts` file or a `<dir>/index.ts`
       // pair; the derived app entry is `<anchor>/index.ts`.
       const container = componentsOutput.endsWith('/index.ts')
         ? componentsOutput.slice(0, -'/index.ts'.length)
         : componentsOutput
       const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
-      const appEntry = normalize(
-        v.output ?? (anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`),
-      )
+      const appEntry = (
+        v.output ?? (anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`)
+      ).replace(/^\.\//, '')
       if (!appEntry.endsWith('index.ts')) return true
       const baseDir = appEntry === 'index.ts' ? '' : appEntry.slice(0, -'/index.ts'.length)
       const routesDir = baseDir === '' ? 'routes' : `${baseDir}/routes`
@@ -362,7 +361,7 @@ export async function readConfig() {
   const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
-    const mod = await import(pathToFileURL(abs).href)
+    const mod: unknown = await import(pathToFileURL(abs).href)
     if (
       typeof mod !== 'object' ||
       mod === null ||

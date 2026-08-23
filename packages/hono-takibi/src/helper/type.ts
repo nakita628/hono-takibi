@@ -111,14 +111,16 @@ function makeSingleTypeString(
   return 'unknown'
 }
 
+function wrapForArrayElement(type: string): string {
+  return type.startsWith('readonly ') ? `(${type})` : type
+}
+
 function makeArrayTypeString(
   schema: Schema,
   selfTypeName: string,
   cyclicGroup?: ReadonlySet<string>,
   readonly?: boolean,
 ): string {
-  const wrapForArrayElement = (type: string): string =>
-    type.startsWith('readonly ') ? `(${type})` : type
   const prefix = readonly ? 'readonly ' : ''
   if (!schema.items) return `${prefix}unknown[]`
   const items = schema.items

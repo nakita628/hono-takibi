@@ -5,10 +5,19 @@ import {
   isParameter,
   isRefObject,
   isSecurityArray,
+  isSchemaArray,
+  isSchemaObject,
   isSecurityScheme,
 } from '../../guard/index.js'
 import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
-import type { Components, Media, OpenAPI, Responses, Schema } from '../../openapi/index.js'
+import type {
+  Components,
+  Media,
+  OpenAPI,
+  Operation,
+  Responses,
+  Schema,
+} from '../../openapi/index.js'
 import {
   cyclicNodes,
   ensureSuffix,
@@ -25,9 +34,9 @@ function collectRefs(schema: Schema, refs: Set<string> = new Set()) {
     if (refName) refs.add(refName)
   }
   if (schema.items) {
-    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
+    const items = isSchemaArray(schema.items) ? schema.items : [schema.items]
     for (const item of items) {
-      collectRefs(item, refs)
+      if (isSchemaObject(item)) collectRefs(item, refs)
     }
   }
   if (schema.properties) {
@@ -200,7 +209,7 @@ function extractSecurityInfo(
           return [
             {
               type: 'apiKey',
-              name: scheme.name || 'X-API-Key',
+              name: scheme.name ?? 'X-API-Key',
               in: inLocation,
             },
           ] as const
@@ -216,7 +225,7 @@ function extractSecurityInfo(
 
 function hasRequestBodyContent(
   operation: unknown,
-): operation is { requestBody: { content: { readonly [k: string]: unknown } } } {
+): operation is Operation & { requestBody: { content: { readonly [k: string]: unknown } } } {
   if (typeof operation !== 'object' || operation === null) return false
   if (!('requestBody' in operation)) return false
   if (typeof operation.requestBody !== 'object' || operation.requestBody === null) return false
@@ -233,20 +242,20 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
       const filteredPathItem = Object.fromEntries(
         Object.entries(pathItem).map(([k, v]) => {
           if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(k))
-            return [k, v]
-          if (!hasRequestBodyContent(v)) return [k, v]
+            return [k, v] as const
+          if (!hasRequestBodyContent(v)) return [k, v] as const
           const jsonContent = v.requestBody.content['application/json']
-          if (!jsonContent) return [k, v]
+          if (!jsonContent) return [k, v] as const
           return [
             k,
             {
               ...v,
               requestBody: { ...v.requestBody, content: { 'application/json': jsonContent } },
             },
-          ]
+          ] as const
         }),
       )
-      return [path, filteredPathItem]
+      return [path, filteredPathItem] as const
     }),
   )
   return { ...openapi, paths: filteredPaths }

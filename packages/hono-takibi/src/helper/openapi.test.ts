@@ -1224,7 +1224,7 @@ describe('openapi helper', () => {
               },
             },
           },
-        } as any,
+        },
         responses: { 200: { description: 'OK' } },
       })
       expect(result).toBe(

@@ -7,6 +7,8 @@ import {
   isRefObject,
   isRequestBody,
   isResponses,
+  isSchemaArray,
+  isSchemaObject,
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
@@ -112,8 +114,8 @@ function formatSchemaType(schema: Schema | undefined): string {
     return `[${name}](#schema${name.toLowerCase()})`
   }
   if (schema.type === 'array' && schema.items) {
-    const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (itemSchema) {
+    const itemSchema = isSchemaArray(schema.items) ? schema.items[0] : schema.items
+    if (isSchemaObject(itemSchema)) {
       const inner = formatSchemaType(itemSchema)
       return `[${inner}]`
     }
@@ -132,6 +134,7 @@ function formatSchemaType(schema: Schema | undefined): string {
  * @see https://www.rfc-editor.org/rfc/rfc3849 - Documentation IPv6 (2001:DB8::/32)
  */
 function makeDefaultString(format: string | undefined) {
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other format
   switch (format) {
     case 'email':
       return 'user@example.com'
@@ -165,12 +168,13 @@ function makeDefaultString(format: string | undefined) {
 }
 
 function makeDefaultValue(schema: Schema): unknown {
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other type
   switch (schema.type) {
     case 'string':
       return makeDefaultString(schema.format)
     case 'number':
     case 'integer':
-      return schema.minimum !== undefined ? schema.minimum : 0
+      return schema.minimum ?? 0
     case 'boolean':
       return true
     default:
@@ -208,8 +212,8 @@ function makeExampleFromSchema(
   }
 
   if (schema.type === 'array' && schema.items) {
-    const item = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (item) return [makeExampleFromSchema(item, components, visited, depth + 1)]
+    const item = isSchemaArray(schema.items) ? schema.items[0] : schema.items
+    if (isSchemaObject(item)) return [makeExampleFromSchema(item, components, visited, depth + 1)]
     return []
   }
 
@@ -566,6 +570,7 @@ function flattenBodyParams(
 
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
+    // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : `» ${key}`
       const row = {
@@ -668,6 +673,7 @@ function makeParametersTable(
     for (const f of subFields) {
       rows.push({
         name: f.name,
+        // oxlint-disable-next-line no-underscore-dangle -- `in` is a reserved word
         in_: f.in_,
         type: f.type,
         required: f.required ? 'true' : 'false',
@@ -683,6 +689,7 @@ function makeParametersTable(
     '',
     '|Name|In|Type|Required|Description|',
     '|---|---|---|---|---|',
+    // oxlint-disable-next-line no-underscore-dangle -- `in` is a reserved word
     ...rows.map((r) => `|${r.name}|${r.in_}|${r.type}|${r.required}|${r.description}|`),
     '',
   ]
@@ -750,6 +757,7 @@ function flattenResponseSchemaFields(
   }
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
+    // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : key
       const row = {
@@ -785,8 +793,8 @@ function flattenResponseSchemaFields(
         }
       }
       if (propSchema.type === 'array' && propSchema.items) {
-        const itemSchema = Array.isArray(propSchema.items) ? propSchema.items[0] : propSchema.items
-        if (itemSchema) {
+        const itemSchema = isSchemaArray(propSchema.items) ? propSchema.items[0] : propSchema.items
+        if (isSchemaObject(itemSchema)) {
           const resolvedItem = resolveArrayItem(itemSchema, components, visited)
           if (resolvedItem.type === 'object' && resolvedItem.properties) {
             return [
@@ -807,8 +815,8 @@ function flattenResponseSchemaFields(
   }
 
   if (schema.type === 'array' && schema.items) {
-    const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (itemSchema) {
+    const itemSchema = isSchemaArray(schema.items) ? schema.items[0] : schema.items
+    if (isSchemaObject(itemSchema)) {
       const itemType = formatSchemaType(itemSchema)
       const anonRow = {
         name: '*anonymous*',
@@ -962,6 +970,7 @@ function flattenSchemaProperties(
   }
   if (schema.type === 'object' && schema.properties) {
     const requiredSet = new Set(schema.required ?? [])
+    // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : key
       return [

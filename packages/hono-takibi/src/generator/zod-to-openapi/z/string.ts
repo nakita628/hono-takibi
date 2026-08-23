@@ -51,7 +51,9 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
  * Returns the inner `error:"..."` (or `error:(issue)=>...`) string without
  * surrounding braces, so it can be merged into a format options object.
  */
-const errorInner = (message: string): string => error(message).slice(1, -1)
+function errorInner(message: string): string {
+  return error(message).slice(1, -1)
+}
 
 /**
  * Builds format-specific option entries (excluding `error`) for Zod v4 format
@@ -59,6 +61,7 @@ const errorInner = (message: string): string => error(message).slice(1, -1)
  * Returns an empty array when no options apply.
  */
 function makeFormatOptions(schema: Schema): readonly string[] {
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other format
   switch (schema.format) {
     case 'email': {
       // x-emailRegex wins over x-emailPattern when both are set.

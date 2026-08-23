@@ -1,4 +1,4 @@
-import type { Components, Content, Schema } from '../../../../openapi/index.js'
+import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
   toIdentifierPascalCase,
@@ -21,19 +21,15 @@ export function parametersCode(
   exportParametersTypes: boolean,
   readonly?: boolean,
 ) {
-  const getSchemaFromContent = (content: Content | undefined): Schema | undefined => {
-    if (!content) return undefined
-    const firstKey = Object.keys(content)[0]
-    if (!firstKey) return undefined
-    return content[firstKey]?.schema
-  }
   const { parameters } = components
   if (!parameters) return ''
   return Object.keys(parameters)
     .map((k) => {
       const parameter = parameters[k]
       // Handle parameters with content instead of schema (OpenAPI 3.x)
-      const schema = parameter.schema ?? getSchemaFromContent(parameter.content)
+      const contentKey = parameter.content ? Object.keys(parameter.content)[0] : undefined
+      const schema =
+        parameter.schema ?? (contentKey ? parameter.content?.[contentKey]?.schema : undefined)
       // Path/query primitive number/integer get the `coerce` hint so the
       // emitter produces `z.coerce.X().pipe(z.Y()...)` directly. Boolean/date/
       // object/array containers still string-replace post-hoc (out of scope).

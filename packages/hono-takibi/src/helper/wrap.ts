@@ -2,6 +2,46 @@ import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { makeExamples } from './openapi.js'
 
+function hasNotProperty(v: unknown): v is { not: unknown } {
+  return typeof v === 'object' && v !== null && 'not' in v
+}
+function isExamplesInput(v: unknown): v is {
+  readonly [k: string]:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly defaultValue?: unknown
+        readonly serializedValue?: string
+        readonly externalValue?: string
+        readonly value?: unknown
+      }
+    | {
+        readonly $ref?:
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/securitySchemes/${string}`
+          | `#/components/requestBodies/${string}`
+          | `#/components/responses/${string}`
+          | `#/components/headers/${string}`
+          | `#/components/examples/${string}`
+          | `#/components/links/${string}`
+          | `#/components/callbacks/${string}`
+          | `#/components/pathItems/${string}`
+          | `#/components/mediaTypes/${string}`
+        readonly summary?: string
+        readonly description?: string
+      }
+} {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every(
+      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    )
+  )
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -22,43 +62,6 @@ export function wrap(
     'min_items',
     'max_items',
   ])
-  const hasNotProperty = (v: unknown): v is { not: unknown } =>
-    typeof v === 'object' && v !== null && 'not' in v
-  const isExamplesInput = (
-    v: unknown,
-  ): v is {
-    readonly [k: string]:
-      | {
-          readonly summary?: string
-          readonly description?: string
-          readonly defaultValue?: unknown
-          readonly serializedValue?: string
-          readonly externalValue?: string
-          readonly value?: unknown
-        }
-      | {
-          readonly $ref?:
-            | `#/components/schemas/${string}`
-            | `#/components/parameters/${string}`
-            | `#/components/securitySchemes/${string}`
-            | `#/components/requestBodies/${string}`
-            | `#/components/responses/${string}`
-            | `#/components/headers/${string}`
-            | `#/components/examples/${string}`
-            | `#/components/links/${string}`
-            | `#/components/callbacks/${string}`
-            | `#/components/pathItems/${string}`
-            | `#/components/mediaTypes/${string}`
-          readonly summary?: string
-          readonly description?: string
-        }
-  } =>
-    typeof v === 'object' &&
-    v !== null &&
-    !Array.isArray(v) &&
-    Object.values(v).every(
-      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
-    )
   const filterUnsupportedProps = (obj: unknown): unknown => {
     if (obj === null || typeof obj !== 'object') {
       return obj

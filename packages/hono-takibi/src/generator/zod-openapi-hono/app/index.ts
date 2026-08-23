@@ -36,7 +36,7 @@ export function app(
   handlerModuleOverride?: string,
   inlineHandlerFileNames?: readonly string[],
 ) {
-  const getRouteMaps = (openapi: OpenAPI) => {
+  const getRouteMaps = () => {
     const paths = openapi.paths
     return Object.entries(paths).flatMap(([path, pathItem]) => {
       return Object.entries(pathItem).flatMap(([method]) => {
@@ -49,7 +49,7 @@ export function app(
       })
     })
   }
-  const routeMappings = getRouteMaps(openapi)
+  const routeMappings = getRouteMaps()
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
     ? path.basename(output.replace(/\/index\.ts$/, ''))

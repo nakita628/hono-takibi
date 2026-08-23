@@ -119,7 +119,7 @@ export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operat
           } as OpenAPI['paths'][string]['get'],
         },
       },
-    } as OpenAPI)
+    })
     expect(result).toBe(
       `export const getXRoute=createRoute({method:"get",path:"/x",operationId:"gx",responses:{200:{description:"OK"}}})`,
     )

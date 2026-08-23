@@ -261,10 +261,10 @@ export function operationHasArgs(
     ...deps.toParameterLikes(operation.parameters),
   ]
   const hasParams =
-    allParams.filter((p) => p.in === 'path').length > 0 ||
-    allParams.filter((p) => p.in === 'query').length > 0 ||
-    allParams.filter((p) => p.in === 'header').length > 0 ||
-    allParams.filter((p) => p.in === 'cookie').length > 0
+    allParams.some((p) => p.in === 'path') ||
+    allParams.some((p) => p.in === 'query') ||
+    allParams.some((p) => p.in === 'header') ||
+    allParams.some((p) => p.in === 'cookie')
   const allBodyInfo = deps.pickAllBodyInfo(operation)
   const hasBody =
     allBodyInfo !== undefined && (allBodyInfo.form.length > 0 || allBodyInfo.json.length > 0)

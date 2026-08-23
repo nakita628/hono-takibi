@@ -31,7 +31,7 @@ const minimalOpenAPI: OpenAPI = {
 
 const openAPIWithServers: OpenAPI = {
   ...minimalOpenAPI,
-  servers: [{ url: 'https://petstore3.swagger.io/api/v3' }] as any,
+  servers: [{ url: 'https://petstore3.swagger.io/api/v3' }],
 }
 
 const postOpenAPI: OpenAPI = {

@@ -1,3 +1,4 @@
+import { isSchemaArray, isSingleSchema } from '../../guard/index.js'
 import { makeRef } from '../../helper/index.js'
 import { wrap } from '../../helper/wrap.js'
 import {
@@ -8,6 +9,10 @@ import {
 import type { Header, Parameter, Schema } from '../../openapi/index.js'
 import { baseError, error, normalizeTypes } from '../../utils/index.js'
 import { _enum, integer, number, object, string } from './z/index.js'
+
+function isRefOnly(s: Schema) {
+  return s.$ref !== undefined && Object.keys(s).length === 1
+}
 
 export function zodToOpenAPI(
   schema: Schema | boolean,
@@ -33,9 +38,6 @@ export function zodToOpenAPI(
           const { isOptional: _, ...rest } = options
           return rest
         })()
-  const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
-    typeof items === 'object' && !Array.isArray(items)
-
   // JSON Schema 2020-12 §4.3.2: boolean schemas (true→z.any(), false→z.never()).
   if (schema === undefined) throw new Error('Schema is undefined')
   if (schema === true) return wrap('z.any()', {}, meta, options)
@@ -43,9 +45,6 @@ export function zodToOpenAPI(
   if (schema.$ref !== undefined) {
     return wrap(makeRef(schema.$ref), schema, meta, options)
   }
-  const isNullType = (s: Schema) =>
-    s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
-  const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
   if (schema.allOf !== undefined) {
     const effectiveAllOf =
       schema.properties !== undefined
@@ -62,8 +61,12 @@ export function zodToOpenAPI(
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
-      effectiveAllOf.some(isNullType)
-    const nonNull = effectiveAllOf.filter((s) => !isNullType(s))
+      effectiveAllOf.some(
+        (s) => s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1),
+      )
+    const nonNull = effectiveAllOf.filter(
+      (s) => !(s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)),
+    )
     if (nonNull.length === 0) return wrap('z.any()', { ...schema, nullable }, meta, options)
     const schemas = nonNull.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
@@ -429,7 +432,7 @@ export function zodToOpenAPI(
       return ''
     })()
     if (schema.prefixItems !== undefined && Array.isArray(schema.prefixItems)) {
-      const prefixCodes = schema.prefixItems.map((item) =>
+      const prefixCodes = schema.prefixItems.map((item: Schema) =>
         item.$ref ? makeRef(item.$ref) : zodToOpenAPI(item, undefined, childOptions),
       )
       // JSON Schema 2020-12 §10.3.1.1 + §11.2: prefixItems does NOT constrain
@@ -489,7 +492,7 @@ export function zodToOpenAPI(
     const itemSchema: Schema | undefined =
       schema.items === true
         ? undefined
-        : Array.isArray(schema.items)
+        : isSchemaArray(schema.items)
           ? schema.items[0]
           : schema.items
     const item = itemSchema
@@ -557,6 +560,7 @@ export function zodToOpenAPI(
       options,
     )
   }
+  // oxlint-disable-next-line no-console -- warns the user that a schema fell back to z.any()
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return wrap('z.any()', schema, meta, options)
 }

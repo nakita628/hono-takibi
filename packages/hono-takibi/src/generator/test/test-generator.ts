@@ -35,7 +35,7 @@ function collectSchemaRefs(
       ? schema.items
       : ([schema.items] as const)
     : ([] as const)
-  const itemRefs = items.flatMap((item) => collectSchemaRefs(item, schemas, visited))
+  const itemRefs = items.flatMap((item: Schema) => collectSchemaRefs(item, schemas, visited))
   const compositeRefs = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((k) => {
     const composite = schema[k]
     return composite ? composite.flatMap((sub) => collectSchemaRefs(sub, schemas, visited)) : []
@@ -71,7 +71,7 @@ function extractSecurityRequirements(
             scheme.in === 'header' || scheme.in === 'query' || scheme.in === 'cookie'
               ? scheme.in
               : 'header'
-          return [{ type: 'apiKey', name: scheme.name || 'X-API-Key', in: inLocation }] as const
+          return [{ type: 'apiKey', name: scheme.name ?? 'X-API-Key', in: inLocation }] as const
         }
         if (scheme.type === 'oauth2') {
           return [{ type: 'oauth2', name: 'Authorization' }] as const
@@ -87,13 +87,13 @@ export function extractTestCases(spec: OpenAPI) {
   return Object.entries(spec.paths).flatMap(([path, pathItem]) =>
     Object.entries(pathItem).flatMap(([method, operation]) => {
       if (!(isHttpMethod(method) && isOperation(operation))) return [] as const
-      const resolvedParams = (operation.parameters || ([] as const)).flatMap((rawParam) => {
+      const resolvedParams = (operation.parameters ?? ([] as const)).flatMap((rawParam) => {
         const param = rawParam.$ref
           ? (spec.components?.parameters?.[rawParam.$ref.replace('#/components/parameters/', '')] ??
             rawParam)
           : rawParam
         if (!isParameter(param)) return [] as const
-        const schema = param.schema || { type: 'string' as const }
+        const schema = param.schema ?? { type: 'string' as const }
         return [{ param, schema, fakerCode: schemaToFaker(schema, param.name) }] as const
       })
       const pathParams = resolvedParams
@@ -144,11 +144,11 @@ export function extractTestCases(spec: OpenAPI) {
       )
       return [
         {
-          operationId: operation.operationId || `${method}${path.replaceAll('/', '_')}`,
+          operationId: operation.operationId ?? `${method}${path.replaceAll('/', '_')}`,
           method: method.toUpperCase(),
           path,
-          summary: operation.summary || '',
-          description: operation.description || '',
+          summary: operation.summary ?? '',
+          description: operation.description ?? '',
           tag: operation.tags?.[0],
           pathParams,
           queryParams,
@@ -238,8 +238,8 @@ function makeAuthHeader(sec: {
       // RFC 6265: `Cookie: <name>=<value>`. apiKey-in-query is appended upstream.
       if (sec.in === 'cookie')
         return `'Cookie':\`${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}\``
-      return ''
   }
+  return ''
 }
 
 function makeTestCase(
@@ -354,17 +354,18 @@ export function makeTestFile(
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
   const testCases = extractTestCases(spec)
+  // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- an empty title falls back too
   const apiTitle = spec.info?.title || 'API'
   const usedSchemaNames = new Set(testCases.flatMap((tc) => tc.usedSchemaRefs))
   const byTag = testCases.reduce((acc, tc) => {
-    const tag = tc.tag || 'default'
-    return acc.set(tag, [...(acc.get(tag) || []), tc])
+    const tag = tc.tag ?? 'default'
+    return acc.set(tag, [...(acc.get(tag) ?? []), tc])
   }, new Map<string, ReturnType<typeof extractTestCases>>())
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
   const tagDescribes = [...byTag.entries()]
     .map(([tag, cases]) => {
       const tagInfo = spec.tags?.find((t) => t.name === tag)
-      const tagDescription = tagInfo?.description || tag
+      const tagDescription = tagInfo?.description ?? tag
       const testCasesCode = cases
         .map((tc) => makeTestCase(tc, basePath, spec.components?.schemas))
         .join('')

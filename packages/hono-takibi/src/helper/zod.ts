@@ -1,11 +1,5 @@
-import type { $ZodIssueCode } from 'zod/v4/core'
-
-import { isSchemaObject } from '../guard/index.js'
+import { isSchemaObject, isSingleSchema } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
-
-// Build-time check: emitted code uses Zod's "custom" issue code literally.
-const _CUSTOM_CODE_GUARD: $ZodIssueCode = 'custom'
-void _CUSTOM_CODE_GUARD
 
 // JSON Schema 2020-12 typeless keywords. Emit `z.unknown().superRefine(...)`
 // with value-type-aware checks. Messages are slot-driven (x-<keyword>-message).
@@ -213,9 +207,6 @@ function makeObjectChecks(schema: Schema, recurse: (s: Schema) => string): reado
 }
 
 function makeArrayChecks(schema: Schema, recurse: (s: Schema) => string): readonly string[] {
-  const isSingleSchema = (items: Schema | readonly Schema[] | boolean): items is Schema =>
-    typeof items === 'object' && !Array.isArray(items)
-
   const minItemsCheck =
     typeof schema.minItems === 'number'
       ? `if(val.length<${schema.minItems}){ctx.addIssue(${issueObj(messageFor(schema, 'minItems'))})}`
@@ -347,7 +338,7 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     allOfMessage !== undefined ? `,message:${JSON.stringify(allOfMessage)}` : ''
   const allOfChecks = Array.isArray(schema.allOf)
     ? schema.allOf.map(
-        (sub) =>
+        (sub: Schema) =>
           `{const Schema=${recurse(sub)};const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path${allOfMessageField}})}}}`,
       )
     : []
@@ -358,12 +349,12 @@ function makeGenericChecks(schema: Schema, recurse: (s: Schema) => string): read
     pickMessage(schema, 'x-error-message')
   const anyOfCheck =
     Array.isArray(schema.anyOf) && schema.anyOf.length > 0
-      ? `if(!(${schema.anyOf.map((sub) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMessage)})}`
+      ? `if(!(${schema.anyOf.map((sub: Schema) => `${recurse(sub)}.safeParse(val).success`).join('||')})){ctx.addIssue(${issueObj(anyOfMessage)})}`
       : undefined
   const oneOfMessage = messageFor(schema, 'oneOf')
   const oneOfCheck =
     Array.isArray(schema.oneOf) && schema.oneOf.length > 0
-      ? `if((${schema.oneOf.map((sub) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.addIssue(${issueObj(oneOfMessage)})}`
+      ? `if((${schema.oneOf.map((sub: Schema) => `(${recurse(sub)}.safeParse(val).success?1:0)`).join('+')})!==1){ctx.addIssue(${issueObj(oneOfMessage)})}`
       : undefined
   const notCheck = schema.not
     ? `if(${recurse(schema.not)}.safeParse(val).success){ctx.addIssue(${issueObj(messageFor(schema, 'not'))})}`

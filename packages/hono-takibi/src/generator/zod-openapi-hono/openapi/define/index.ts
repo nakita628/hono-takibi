@@ -1,3 +1,4 @@
+import { isParameterRef, isPathItemRef } from '../../../../guard/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
@@ -24,7 +25,7 @@ export function defineEntries(
   readonly tags?: readonly string[]
   readonly code: string
 }[] {
-  const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
+  const makeEntry = (path: string, method: string, operation: Operation) => {
     // Properties follow `openapi/index.ts` `Operation` declaration order (method/path are
     // createRoute-specific and lead; request merges parameters + requestBody).
     const properties = [
@@ -59,10 +60,6 @@ export function defineEntries(
       code: `export const ${entryName}Route=defineOpenAPIRoute({route:createRoute({${properties}}${asConst}),handler:async(c)=>{},addRoute:true})`,
     }
   }
-  const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-    ref.startsWith('#/components/parameters/')
-  const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
-    ref.startsWith('#/components/pathItems/')
   const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
     if ('name' in parameter && 'in' in parameter) return parameter
     const ref = '$ref' in parameter ? parameter.$ref : undefined
@@ -96,12 +93,7 @@ export function defineEntries(
           .map(resolveParameter)
           .filter((p) => p !== undefined)
         return [
-          makeEntry(
-            path,
-            method,
-            parameters.length > 0 ? { ...operation, parameters } : operation,
-            readonly,
-          ),
+          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
         ]
       },
     )

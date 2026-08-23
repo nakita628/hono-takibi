@@ -30,7 +30,9 @@ function makeJsDoc(
   if (description) sections.push(description.split('\n'))
   sections.push([`${method.toUpperCase()} ${path}`])
   const body = sections
-    .flatMap((lines, i) => (i === 0 ? lines : ['', ...lines]))
+    .map((lines) => lines.join('\n'))
+    .join('\n\n')
+    .split('\n')
     .map((line) => (line ? ` * ${line}` : ' *'))
     .join('\n')
   return `/**\n${body}\n */\n`

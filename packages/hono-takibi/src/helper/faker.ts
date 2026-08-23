@@ -1,3 +1,4 @@
+import { isSchemaArray, isSchemaObject } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { escapeRegexLiteral } from '../utils/index.js'
 
@@ -74,12 +75,15 @@ const PROPERTY_NAME_TO_FAKER: { [k: string]: string } = {
   age: 'faker.number.int({ min: 1, max: 120 })',
 }
 
-const hasNumericConstraint = (schema: Schema) =>
-  schema.minimum !== undefined ||
-  schema.maximum !== undefined ||
-  schema.exclusiveMinimum !== undefined ||
-  schema.exclusiveMaximum !== undefined ||
-  schema.multipleOf !== undefined
+function hasNumericConstraint(schema: Schema) {
+  return (
+    schema.minimum !== undefined ||
+    schema.maximum !== undefined ||
+    schema.exclusiveMinimum !== undefined ||
+    schema.exclusiveMaximum !== undefined ||
+    schema.multipleOf !== undefined
+  )
+}
 
 // Normalize JSON Schema / OpenAPI numeric bounds into faker-compatible inclusive
 // min/max. `exclusiveMinimum`/`exclusiveMaximum` are either a number (JSON Schema
@@ -203,12 +207,13 @@ export function schemaToFaker(
     return `faker.helpers.arrayElement([${values}] as const)`
   }
   if (schema.$ref) {
+    // oxlint-disable-next-line typescript/prefer-nullish-coalescing -- an empty trailing segment falls back too
     const refName = schema.$ref.split('/').pop() || 'unknown'
     return `mock${refName.replaceAll('.', '')}()`
   }
   if (schema.type === 'array' && schema.items) {
-    const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items
-    if (!itemSchema) return '[]'
+    const itemSchema = isSchemaArray(schema.items) ? schema.items[0] : schema.items
+    if (!isSchemaObject(itemSchema)) return '[]'
     const itemFaker = schemaToFaker(itemSchema, undefined, options)
     // A spec `minItems`/`maxItems` wins so the array satisfies the route's own
     // response schema (which enforces them); `arrayMin`/`arrayMax` then `1`/`10`
@@ -223,7 +228,7 @@ export function schemaToFaker(
     properties: { readonly [k: string]: Schema },
     required: readonly string[] | undefined,
   ) => {
-    const requiredSet = new Set(required || ([] as const))
+    const requiredSet = new Set(required ?? ([] as const))
     return Object.entries(properties)
       .map(([k, v]) => {
         const value = schemaToFaker(v, k, options)
@@ -262,7 +267,7 @@ export function schemaToFaker(
       }
       const mergedScalar = schema.allOf
         .map((s) => resolveRef(s, options.schemas))
-        .reduce<Schema>((acc, s) => ({ ...acc, ...s }), {})
+        .reduce<Schema>((acc, s) => Object.assign(acc, s), {})
       return schemaToFaker(mergedScalar, propertyName, options)
     }
     const merged = schema.allOf

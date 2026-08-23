@@ -4,7 +4,13 @@ import { fmt } from '../format/index.js'
 import { mkdir, readdir, readFile, writeFile } from '../fsp/index.js'
 import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
-import { isHttpMethod, isOperation, isOperationWithResponses } from '../guard/index.js'
+import {
+  isHttpMethod,
+  isOperation,
+  isOperationWithResponses,
+  isSchemaArray,
+  isSchemaObject,
+} from '../guard/index.js'
 import {
   collectExportedNames,
   collectInlineRouteNames,
@@ -24,9 +30,9 @@ function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
     if (refName) refs.add(refName)
   }
   if (schema.items) {
-    const items = Array.isArray(schema.items) ? schema.items : [schema.items]
+    const items = isSchemaArray(schema.items) ? schema.items : [schema.items]
     for (const item of items) {
-      makeRefs(item, refs)
+      if (isSchemaObject(item)) makeRefs(item, refs)
     }
   }
   if (schema.properties) {
@@ -122,7 +128,9 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
   return `${name}.ts`
 }
 
-const isTsFileName = (file: string): file is `${string}.ts` => file.endsWith('.ts')
+function isTsFileName(file: string): file is `${string}.ts` {
+  return file.endsWith('.ts')
+}
 
 /**
  * Scans the handler directory (non-recursively) for hand-written files. Returns the file

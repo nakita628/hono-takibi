@@ -12,15 +12,18 @@ const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
 Options:
   -h, --help                  display help for command`
 
+function isYamlOrJsonOrTsp(i: string): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` {
+  return i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
+}
+
+function isTs(o: string): o is `${string}.ts` {
+  return o.endsWith('.ts')
+}
+
 function parseCli(args: readonly string[]) {
   const input = args[0]
   const oIdx = args.indexOf('-o')
   const output = oIdx !== -1 ? args[oIdx + 1] : undefined
-  const isYamlOrJsonOrTsp = (
-    i: string,
-  ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-    i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-  const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
   if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
     return {
       ok: false,

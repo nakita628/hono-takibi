@@ -63,12 +63,13 @@ const SCAN = new RegExp(
   'g',
 )
 
-const classifyRef = (name: string): string | undefined =>
-  COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+function classifyRef(name: string): string | undefined {
+  return COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
     (best, entry) =>
       name.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
     undefined,
   )?.[0]
+}
 
 export function makeImports(
   code: string,

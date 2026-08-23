@@ -1,10 +1,11 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
+import { isPathItem } from '../../guard/index.js'
 import { makeConst } from '../../helper/code.js'
 import { makeImports } from '../../helper/index.js'
 import { makePathItem } from '../../helper/openapi.js'
-import type { Components, PathItem } from '../../openapi/index.js'
+import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,
   makeBarrel,
@@ -33,16 +34,11 @@ export async function pathItems(
   if (keys.length === 0) return { ok: true, value: 'No pathItems found' } as const
   const { output, split = false } = pathItemsConfig
   const pathItemsEntries = (
-    components: Components,
     exportPathItems: boolean,
-    readonly?: boolean,
   ): readonly { readonly key: string; readonly name: string; readonly code: string }[] => {
-    const { pathItems } = components
-    if (!pathItems) return []
+    if (!components.pathItems) return []
     const asConst = readonly ? ' as const' : ''
-    const isPathItem = (v: unknown): v is PathItem =>
-      typeof v === 'object' && v !== null && !('$ref' in v)
-    return Object.entries(pathItems).flatMap(([k, pathItemOrRef]) =>
+    return Object.entries(components.pathItems).flatMap(([k, pathItemOrRef]) =>
       isPathItem(pathItemOrRef)
         ? [
             {
@@ -54,7 +50,7 @@ export async function pathItems(
         : [],
     )
   }
-  const entries = pathItemsEntries(components, true, readonly)
+  const entries = pathItemsEntries(true)
   if (entries.length === 0) return { ok: true, value: 'No pathItems found' } as const
   if (!split) {
     const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, componentsConfig)

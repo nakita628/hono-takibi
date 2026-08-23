@@ -182,6 +182,10 @@ function parseStatements(sourceFile: ts.SourceFile) {
     .filter((d) => d !== undefined)
 }
 
+function makeKey(kind: 'variable' | 'type' | 'interface', name: string): string {
+  return `${kind}:${name}`
+}
+
 function topoSort(
   decls: readonly {
     readonly name: string
@@ -190,8 +194,6 @@ function topoSort(
     readonly kind: 'variable' | 'type' | 'interface'
   }[],
 ) {
-  const makeKey = (kind: 'variable' | 'type' | 'interface', name: string): string =>
-    `${kind}:${name}`
   const map = new Map(decls.map((d) => [makeKey(d.kind, d.name), d]))
   const findByName = (name: string): ReturnType<typeof createDeclaration> | undefined =>
     map.get(makeKey('variable', name)) ??

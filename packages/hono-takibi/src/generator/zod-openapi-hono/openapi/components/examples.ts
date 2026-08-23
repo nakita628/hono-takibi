@@ -1,3 +1,4 @@
+import { isRefObject } from '../../../../guard/index.js'
 import { ast } from '../../../../helper/ast.js'
 import { makeConst } from '../../../../helper/code.js'
 import { makeRef } from '../../../../helper/openapi.js'
@@ -18,13 +19,11 @@ import type { Components } from '../../../../openapi/index.js'
 export function examplesCode(components: Components, exportExamples: boolean, readonly?: boolean) {
   const { examples } = components
   if (!examples) return ''
-  const hasRef = (v: unknown): v is { readonly $ref: string } =>
-    typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string'
   const code = Object.keys(examples)
     .map((k) => {
       const example = examples[k]
       const asConst = readonly ? ' as const' : ''
-      if (hasRef(example)) {
+      if (isRefObject(example)) {
         return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}`
       }
       return `${makeConst(exportExamples, k, 'Example')}${JSON.stringify(example)}${asConst}`

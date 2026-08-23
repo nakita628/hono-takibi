@@ -18,31 +18,27 @@ import { error } from '../../../utils/index.js'
  * come from `x-error-message`; finer-grained business rules belong in
  * handler code, not the schema.
  */
+// oxlint-disable-next-line no-underscore-dangle -- `enum` is a reserved word
 export function _enum(schema: Schema) {
   const ht = (t: string): boolean =>
     schema.type === t || (Array.isArray(schema.type) && schema.type.some((v) => v === t))
-  const isPrimitive = (v: unknown): boolean =>
-    v === null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean'
-  const lit = (v: unknown): string => {
-    if (v === null) return 'null'
-    if (v === undefined) return 'undefined'
-    if (typeof v === 'string') return `'${v.replaceAll("'", "\\'")}'`
-    if (typeof v === 'number' || typeof v === 'boolean') return String(v)
-    return JSON.stringify(v)
-  }
   // Zod v4 `z.enum` emits a single issue code (`invalid_value`) for both type
   // and value mismatches, so a per-code dispatch isn't possible — the
   // override is a clearer name for the enum case (no new capability).
   const enumMessage = schema['x-enum-message']
   const errorMessage = enumMessage ?? schema['x-error-message']
   const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
+  // Outer literal — used when the literal is the entire schema output.
+  const outerLit = (v: unknown, suffix?: string): string => {
+    const arg = suffix ?? errorArg
+    if (v === null) return `z.literal(null${arg})`
+    if (typeof v === 'string') return `z.literal('${v.replaceAll("'", "\\'")}'${arg})`
+    if (typeof v === 'number' || typeof v === 'boolean') return `z.literal(${String(v)}${arg})`
+    return `z.custom<${JSON.stringify(v)}>()`
+  }
   // Inner literal — used inside a wrapper (z.union / z.tuple) that
   // already carries `errorArg`, so we don't repeat it.
-  const innerLit = (v: unknown): string =>
-    isPrimitive(v) ? `z.literal(${lit(v)})` : `z.custom<${JSON.stringify(v)}>()`
-  // Outer literal — used when the literal is the entire schema output.
-  const outerLit = (v: unknown): string =>
-    isPrimitive(v) ? `z.literal(${lit(v)}${errorArg})` : `z.custom<${JSON.stringify(v)}>()`
+  const innerLit = (v: unknown): string => outerLit(v, '')
   // Inner tuple — used inside a z.union of multiple tuples; the outer
   // union's errorArg covers this tuple too, so neither the tuple wrapper
   // nor its inner literals receive errorArg.

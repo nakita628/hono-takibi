@@ -174,19 +174,22 @@ export function escapeHtml(source: string) {
  * ```
  */
 export function toIdentifierPascalCase(text: string) {
+  // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
   const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
   const result = text
     .replaceAll(/[^A-Za-z0-9_$]/g, '_')
     .replaceAll(/_+/g, '_')
     .replaceAll(/^_+|_+$/g, '')
     .replace(/^([0-9])/, '_$1')
-    .replaceAll(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase())
-    .replace(/^([a-z])/, (_, c) => c.toUpperCase())
+    .replaceAll(/_+([a-zA-Z])/g, (_: string, c: string) => c.toUpperCase())
+    .replace(/^([a-z])/, (_: string, c: string) => c.toUpperCase())
   if (!result || /^_+$/.test(result)) {
+    // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `Unnamed${String(hash)}`
   }
   if (hasNonAscii) {
+    // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `${result}${String(hash)}`
   }

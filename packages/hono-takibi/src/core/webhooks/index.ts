@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
+import { isParameterRef } from '../../guard/index.js'
 import { makeImports } from '../../helper/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter } from '../../openapi/index.js'
@@ -24,16 +25,8 @@ export async function webhooks(
   if (!webhooks?.output) return { ok: false, error: 'webhooks.output is required' } as const
   if (!openAPI.webhooks) return { ok: false, error: 'No webhooks found' } as const
   const { output, split = false } = webhooks
-  const webhookEntries = (
-    openapi: OpenAPI,
-    readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
-    const baseName = (name: string, method: string) => {
-      const pascalName = toIdentifierPascalCase(name)
-      const camelName = pascalName.charAt(0).toLowerCase() + pascalName.slice(1)
-      return `${camelName}${method.charAt(0).toUpperCase()}${method.slice(1)}`
-    }
-    const makeEntry = (name: string, method: string, operation: Operation, readonly?: boolean) => {
+  const webhookEntries = (): readonly { readonly name: string; readonly code: string }[] => {
+    const makeEntry = (name: string, method: string, operation: Operation) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(`/${name}`)}`,
@@ -60,24 +53,23 @@ export async function webhooks(
         .filter((v) => v !== undefined)
         .join(',')
       const asConst = readonly ? ' as const' : ''
-      const entryName = baseName(name, method)
+      const pascalName = toIdentifierPascalCase(name)
+      const entryName = `${pascalName.charAt(0).toLowerCase() + pascalName.slice(1)}${method.charAt(0).toUpperCase()}${method.slice(1)}`
       return {
         name: entryName,
         code: `export const ${entryName}Webhook={${properties}}${asConst}`,
       }
     }
-    if (!openapi.webhooks) return []
-    const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-      ref.startsWith('#/components/parameters/')
+    if (!openAPI.webhooks) return []
     const resolve = (parameter: Parameter | { readonly $ref?: string }): Parameter | undefined => {
       if ('name' in parameter && 'in' in parameter) return parameter
       const ref = '$ref' in parameter ? parameter.$ref : undefined
       if (!(ref && isParameterRef(ref))) return undefined
-      const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+      const resolved = openAPI.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
       if (!resolved) return undefined
       return { ...resolved, $ref: ref }
     }
-    return Object.entries(openapi.webhooks).flatMap(([name, pathItem]) =>
+    return Object.entries(openAPI.webhooks).flatMap(([name, pathItem]) =>
       pathItem
         ? (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
             .filter((m) => pathItem[m]?.responses)
@@ -88,12 +80,12 @@ export async function webhooks(
               const params = sourceParams.map(resolve).filter((p) => p !== undefined)
               const effectiveOperation =
                 sourceParams.length > 0 ? { ...operation, parameters: params } : operation
-              return [makeEntry(name, method, effectiveOperation, readonly)]
+              return [makeEntry(name, method, effectiveOperation)]
             })
         : [],
     )
   }
-  const entries = webhookEntries(openAPI, readonly)
+  const entries = webhookEntries()
   if (entries.length === 0) return { ok: true, value: 'No webhooks found' } as const
   if (!split) {
     const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)

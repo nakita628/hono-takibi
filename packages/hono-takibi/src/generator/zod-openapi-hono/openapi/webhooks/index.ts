@@ -1,18 +1,11 @@
+import { isParameterRef } from '../../../../guard/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter } from '../../../../openapi/index.js'
 import { toIdentifierPascalCase } from '../../../../utils/index.js'
 
 export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
-  const webhookEntries = (
-    openapi: OpenAPI,
-    readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
-    const baseName = (name: string, method: string) => {
-      const pascalName = toIdentifierPascalCase(name)
-      const camelName = pascalName.charAt(0).toLowerCase() + pascalName.slice(1)
-      return `${camelName}${method.charAt(0).toUpperCase()}${method.slice(1)}`
-    }
-    const makeEntry = (name: string, method: string, operation: Operation, readonly?: boolean) => {
+  const webhookEntries = (): readonly { readonly name: string; readonly code: string }[] => {
+    const makeEntry = (name: string, method: string, operation: Operation) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(`/${name}`)}`,
@@ -39,15 +32,14 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
         .filter((v) => v !== undefined)
         .join(',')
       const asConst = readonly ? ' as const' : ''
-      const entryName = baseName(name, method)
+      const pascalName = toIdentifierPascalCase(name)
+      const entryName = `${pascalName.charAt(0).toLowerCase() + pascalName.slice(1)}${method.charAt(0).toUpperCase()}${method.slice(1)}`
       return {
         name: entryName,
         code: `export const ${entryName}Webhook={${properties}}${asConst}`,
       }
     }
     if (!openapi.webhooks) return []
-    const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-      ref.startsWith('#/components/parameters/')
     const resolve = (parameter: Parameter | { readonly $ref?: string }): Parameter | undefined => {
       if ('name' in parameter && 'in' in parameter) return parameter
       const ref = '$ref' in parameter ? parameter.$ref : undefined
@@ -67,12 +59,12 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
               const params = sourceParams.map(resolve).filter((p) => p !== undefined)
               const effectiveOperation =
                 sourceParams.length > 0 ? { ...operation, parameters: params } : operation
-              return [makeEntry(name, method, effectiveOperation, readonly)]
+              return [makeEntry(name, method, effectiveOperation)]
             })
         : [],
     )
   }
-  return webhookEntries(openapi, readonly)
+  return webhookEntries()
     .map((e) => e.code)
     .join('\n\n')
 }
