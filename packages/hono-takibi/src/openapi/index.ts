@@ -71,6 +71,7 @@ export type OpenAPI = {
   }
   readonly jsonSchemaDialect?: string
   readonly servers?: readonly Server[]
+  readonly paths: PathItem
   readonly webhooks?: {
     readonly [k: string]: PathItem
   }
@@ -85,7 +86,6 @@ export type OpenAPI = {
     readonly kind?: string
   }[]
   readonly externalDocs?: ExternalDocs
-  readonly paths: OpenAPIPaths
 }
 
 export type Components = {
