@@ -742,13 +742,12 @@ describe('string', () => {
     //          (index.test.ts の `v3.2 sample #7` と同じ「手動 mirror」パターン。
     //          `new Function` / `eval` を避けるため typescript-eslint
     //          `no-implied-eval` 警告を増やさない設計。)
-    it.concurrent('C: ランタイム: x-error-message="M" 指定時、不正 base64 で issue.message === "M"', async () => {
+    it.concurrent('C: ランタイム: x-error-message="M" 指定時、不正 base64 で issue.message === "M"', () => {
       // codegen 出力が `message:"M"` 文字列を含むこと自体は ケース A の
       // `toBe` 完全一致で既に検証済み。ここでは生成コードと等価な Zod schema を
       // TS で手動構築 (index.test.ts `v3.2 sample #7` と同じ pattern) し、
       // Zod ランタイム上で `x-error-message` の上書きが `issue.message` に
       // 反映されることを完全一致で確認する。
-      const { z } = await import('zod')
       const schema = z
         .base64()
         .transform((val, ctx) => {

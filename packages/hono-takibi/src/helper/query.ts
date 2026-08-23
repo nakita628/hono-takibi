@@ -811,7 +811,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
+  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/g, ':$1')
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -1340,14 +1340,14 @@ export async function makeQueryHooks(
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return {
       ok: true,
-      value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
+      value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`,
     } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
   const keysCode = prefixKeyCodes.length ? `${prefixKeyCodes.join('\n\n')}\n` : ''
-  const exportLines = Array.from(
-    new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
-  )
+  const exportLines = [
+    ...new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
+  ]
   const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
   const index = `${indexLines.join('\n')}\n`
   const results = await Promise.all([
@@ -1374,6 +1374,6 @@ export async function makeQueryHooks(
   if (e) return e
   return {
     ok: true,
-    value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
+    value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
   } as const
 }

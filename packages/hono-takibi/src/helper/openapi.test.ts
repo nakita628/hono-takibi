@@ -271,7 +271,7 @@ describe('openapi helper', () => {
       const result = makeLinkOrReference({
         operationId: 'getUser',
         server: { url: 'https://api.example.com' },
-      } as any)
+      })
       expect(result).toBe('{operationId:"getUser",server:{"url":"https://api.example.com"}}')
     })
     it.concurrent('generates link with summary', () => {
@@ -296,7 +296,7 @@ describe('openapi helper', () => {
         description: 'Full link',
         server: { url: 'https://api.example.com' },
         summary: 'Summary',
-      } as any)
+      })
       expect(result).toBe(
         '{operationRef:"#/paths/users/get",operationId:"getUser",parameters:{"id":"123"},requestBody:{"name":"test"},description:"Full link",server:{"url":"https://api.example.com"},summary:"Summary"}',
       )
@@ -1182,7 +1182,7 @@ describe('openapi helper', () => {
 
     it.concurrent('generates operation with security', () => {
       const result = makeOperation({
-        security: [{ bearerAuth: [] }] as any,
+        security: [{ bearerAuth: [] }],
         responses: { 200: { description: 'OK' } },
       })
       expect(result).toBe('{responses:{200:{description:"OK"}},security:[{"bearerAuth":[]}]}')
@@ -1297,7 +1297,7 @@ describe('openapi helper', () => {
 
     it.concurrent('generates pathItem with servers', () => {
       const result = makePathItem({
-        servers: [{ url: 'https://api.example.com' }] as any,
+        servers: [{ url: 'https://api.example.com' }],
         get: { responses: { 200: { description: 'OK' } } },
       })
       expect(result).toBe(

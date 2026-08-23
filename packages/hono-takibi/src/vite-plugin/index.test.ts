@@ -3,6 +3,7 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
+import type { FormatConfig } from 'oxfmt'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { honoTakibiVite } from './index.js'
@@ -40,7 +41,7 @@ const createDeferred = <T = void>() => {
 const fileExists = async (filePath: string) => !!(await fsp.stat(filePath).catch(() => null))
 
 const createMockViteDevServer = (configuration: unknown) => {
-  const reloadedDeferred = createDeferred<void>()
+  const reloadedDeferred = createDeferred()
 
   const server: ViteDevServer = {
     watcher: {
@@ -53,32 +54,56 @@ const createMockViteDevServer = (configuration: unknown) => {
       },
     },
     pluginContainer: {
-      resolveId: async (moduleId: string) => ({ id: moduleId }),
+      resolveId: (moduleId: string) => Promise.resolve({ id: moduleId }),
     },
     moduleGraph: {
       invalidateModule: (_module: { id?: string } | null) => {},
       invalidateAll: () => {},
       getModuleById: (moduleId: string) => ({ id: moduleId }),
     },
-    ssrLoadModule: async (_moduleId: string) => ({ default: configuration }),
+    ssrLoadModule: (_moduleId: string) => Promise.resolve({ default: configuration }),
   }
 
   return { server, reloaded: reloadedDeferred.promise }
 }
 
 vi.mock('../core/index.js', () => ({
-  callbacks: vi.fn(async () => ({ ok: true, value: 'callbacks' })),
-  docs: vi.fn(async () => ({ ok: true, value: 'docs' })),
-  examples: vi.fn(async () => ({ ok: true, value: 'examples' })),
-  headers: vi.fn(async () => ({ ok: true, value: 'headers' })),
-  links: vi.fn(async () => ({ ok: true, value: 'links' })),
-  mediaTypes: vi.fn(async () => ({ ok: true, value: 'mediaTypes' })),
-  mock: vi.fn(async () => ({ ok: true, value: 'mock' })),
-  parameters: vi.fn(async () => ({ ok: true, value: 'parameters' })),
-  pathItems: vi.fn(async () => ({ ok: true, value: 'pathItems' })),
-  requestBodies: vi.fn(async () => ({ ok: true, value: 'requestBodies' })),
-  responses: vi.fn(async () => ({ ok: true, value: 'responses' })),
-  schemas: vi.fn(async (_schemas: unknown, outputDir: string, split: boolean) => {
+  callbacks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'callbacks' }),
+  ),
+  docs: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'docs' }),
+  ),
+  examples: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'examples' }),
+  ),
+  headers: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'headers' }),
+  ),
+  links: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'links' }),
+  ),
+  mediaTypes: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'mediaTypes' }),
+  ),
+  mock: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'mock' }),
+  ),
+  parameters: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'parameters' }),
+  ),
+  pathItems: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'pathItems' }),
+  ),
+  requestBodies: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'requestBodies' }),
+  ),
+  responses: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'responses' }),
+  ),
+  schemas: vi.fn<
+    (schemas: unknown, outputDir: string, split: boolean) => Promise<{ ok: true; value: string }>
+  >(async (_schemas: unknown, outputDir: string, split: boolean) => {
     if (split) {
       await fsp.mkdir(outputDir, { recursive: true })
       await fsp.writeFile(path.join(outputDir, 'Pet.ts'), '// Pet', 'utf8')
@@ -87,9 +112,18 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'schemas' }
   }),
-  hooks: vi.fn(async () => ({ ok: true, value: 'hooks' })),
-  securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
-  route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
+  hooks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'hooks' }),
+  ),
+  securitySchemes: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'securitySchemes' }),
+  ),
+  route: vi.fn<
+    (
+      openAPI: unknown,
+      config: { output: string; split: boolean },
+    ) => Promise<{ ok: true; value: string }>
+  >(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
     if (config.split) {
       await fsp.mkdir(config.output, { recursive: true })
       await fsp.writeFile(path.join(config.output, 'getPets.ts'), '// getPets', 'utf8')
@@ -98,7 +132,14 @@ vi.mock('../core/index.js', () => ({
     }
     return { ok: true, value: 'route' }
   }),
-  rpc: vi.fn(async (_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) => {
+  rpc: vi.fn<
+    (
+      openAPI: unknown,
+      outputDir: string,
+      importPath: string,
+      split: boolean,
+    ) => Promise<{ ok: true; value: string }>
+  >(async (_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) => {
     if (split) {
       await fsp.mkdir(outputDir, { recursive: true })
       await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
@@ -109,34 +150,48 @@ vi.mock('../core/index.js', () => ({
   }),
   // Writes through the real fsp writeFile with the received document embedded,
   // so an identical document produces byte-identical output and no rewrite.
-  takibi: vi.fn(async (openAPI: unknown, output: string) => {
-    const { writeFile } = await import('../fsp/index.js')
-    await fsp.mkdir(path.dirname(output), { recursive: true })
-    await writeFile(output, `// ${JSON.stringify(openAPI)}`)
-    return { ok: true, value: 'takibi' }
-  }),
-  template: vi.fn(async () => ({ ok: true, value: 'template' })),
-  test: vi.fn(async () => ({ ok: true, value: 'test' })),
-  type: vi.fn(async () => ({ ok: true, value: 'type' })),
-  webhooks: vi.fn(async () => ({ ok: true, value: 'webhooks' })),
+  takibi: vi.fn<(openAPI: unknown, output: string) => Promise<{ ok: true; value: string }>>(
+    async (openAPI: unknown, output: string) => {
+      const { writeFile } = await import('../fsp/index.js')
+      await fsp.mkdir(path.dirname(output), { recursive: true })
+      await writeFile(output, `// ${JSON.stringify(openAPI)}`)
+      return { ok: true, value: 'takibi' }
+    },
+  ),
+  template: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'template' }),
+  ),
+  test: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'test' }),
+  ),
+  type: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'type' }),
+  ),
+  webhooks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
+    Promise.resolve({ ok: true, value: 'webhooks' }),
+  ),
 }))
 
 vi.mock('../openapi/index.js', () => ({
-  parseOpenAPI: vi.fn(async () => ({
-    ok: true,
-    value: {
-      paths: {
-        '/pets': { get: { responses: {} } },
-        '/users': { post: { responses: {} } },
+  parseOpenAPI: vi.fn<() => Promise<{ ok: true; value: unknown }>>(() =>
+    Promise.resolve({
+      ok: true,
+      value: {
+        paths: {
+          '/pets': { get: { responses: {} } },
+          '/users': { post: { responses: {} } },
+        },
+        components: { schemas: { Pet: {}, User: {} } },
       },
-      components: { schemas: { Pet: {}, User: {} } },
-    },
-  })),
+    }),
+  ),
 }))
 
 vi.mock('../format/index.js', () => ({
-  fmt: vi.fn(async (source: string) => ({ ok: true as const, value: source })),
-  setFormatOptions: vi.fn(),
+  fmt: vi.fn<(source: string) => Promise<{ ok: true; value: string }>>((source: string) =>
+    Promise.resolve({ ok: true, value: source }),
+  ),
+  setFormatOptions: vi.fn<(config: FormatConfig) => void>(),
 }))
 const { route: routeMock } = await import('../core/index.js')
 
@@ -277,7 +332,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    const reloadDeferred = createDeferred<void>()
+    const reloadDeferred = createDeferred()
     const originalSend = server.ws.send
     server.ws.send = (payload: { type: string; [key: string]: unknown }) => {
       originalSend(payload)
@@ -352,10 +407,12 @@ describe('honoTakibiVite', () => {
     }
 
     const { server: newServer, reloaded: newReloaded } = createMockViteDevServer(newConfiguration)
-    newServer.ssrLoadModule = async (_moduleId: string) => {
+    newServer.ssrLoadModule = (_moduleId: string) => {
       const callCount = (newServer as unknown as { callCount?: number }).callCount ?? 0
       ;(newServer as unknown as { callCount: number }).callCount = callCount + 1
-      return callCount === 0 ? { default: initialConfiguration } : { default: newConfiguration }
+      return Promise.resolve(
+        callCount === 0 ? { default: initialConfiguration } : { default: newConfiguration },
+      )
     }
 
     const newPlugin = honoTakibiVite()
@@ -366,18 +423,21 @@ describe('honoTakibiVite', () => {
       createMockViteDevServer(newConfiguration)
 
     const moduleLoadState = { loadCount: 0 }
-    changeServer.ssrLoadModule = async (_moduleId: string) => {
-      moduleLoadState.loadCount++
-      return moduleLoadState.loadCount === 1
-        ? { default: initialConfiguration }
-        : { default: newConfiguration }
+    changeServer.ssrLoadModule = (_moduleId: string) => {
+      moduleLoadState.loadCount += 1
+      return Promise.resolve(
+        moduleLoadState.loadCount === 1
+          ? { default: initialConfiguration }
+          : { default: newConfiguration },
+      )
     }
 
     const changePlugin = honoTakibiVite()
     changePlugin.configureServer(changeServer)
     await changeReloaded
 
-    changeServer.ssrLoadModule = async (_moduleId: string) => ({ default: newConfiguration })
+    changeServer.ssrLoadModule = (_moduleId: string) =>
+      Promise.resolve({ default: newConfiguration })
 
     await changePlugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server: changeServer })
 
@@ -392,7 +452,7 @@ describe('honoTakibiVite', () => {
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
-    const addSpy = vi.fn()
+    const addSpy = vi.fn<(paths: string | readonly string[]) => void>()
     const { server, reloaded } = createMockViteDevServer(configuration)
     server.watcher.add = addSpy
 
@@ -409,7 +469,8 @@ describe('honoTakibiVite', () => {
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
-    const onSpy = vi.fn()
+    const onSpy =
+      vi.fn<(event: 'all', callback: (eventType: string, filePath: string) => void) => void>()
     const { server, reloaded } = createMockViteDevServer(configuration)
     server.watcher.on = onSpy
 
@@ -428,8 +489,8 @@ describe('honoTakibiVite', () => {
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
 
-    const sendSpy = vi.fn()
-    const reloadedDeferred = createDeferred<void>()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
+    const reloadedDeferred = createDeferred()
     const { server } = createMockViteDevServer(configuration)
     server.ws.send = (payload: { type: string }) => {
       sendSpy(payload)
@@ -448,7 +509,7 @@ describe('honoTakibiVite', () => {
   it('logs config error when default export is not an object', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { server } = createMockViteDevServer({})
-    server.ssrLoadModule = async () => ({ default: 'not-an-object' })
+    server.ssrLoadModule = () => Promise.resolve({ default: 'not-an-object' })
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
@@ -463,7 +524,7 @@ describe('honoTakibiVite', () => {
   it('logs config error when parseConfig fails', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { server } = createMockViteDevServer({})
-    server.ssrLoadModule = async () => ({ default: { input: 'invalid.txt' } })
+    server.ssrLoadModule = () => Promise.resolve({ default: { input: 'invalid.txt' } })
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
@@ -476,9 +537,7 @@ describe('honoTakibiVite', () => {
   it('logs config error when ssrLoadModule throws', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { server } = createMockViteDevServer({})
-    server.ssrLoadModule = async () => {
-      throw new Error('module load failure')
-    }
+    server.ssrLoadModule = () => Promise.reject(new Error('module load failure'))
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
@@ -493,9 +552,9 @@ describe('honoTakibiVite', () => {
       input: 'openapi.yaml',
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
     }
-    const invalidateAllSpy = vi.fn()
+    const invalidateAllSpy = vi.fn<() => void>()
     const { server, reloaded } = createMockViteDevServer(configuration)
-    server.pluginContainer.resolveId = async () => null
+    server.pluginContainer.resolveId = () => Promise.resolve(null)
     server.moduleGraph.invalidateAll = invalidateAllSpy
 
     const plugin = honoTakibiVite()
@@ -515,7 +574,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -523,7 +582,7 @@ describe('honoTakibiVite', () => {
     await reloaded
     expect(watcherCallback).toBeDefined()
 
-    const reloadDeferred = createDeferred<void>()
+    const reloadDeferred = createDeferred()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') reloadDeferred.resolve()
     }
@@ -540,14 +599,14 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await reloaded
 
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
     if (watcherCallback) await watcherCallback('change', '/some/other/place/file.yaml')
     await new Promise((resolve) => setTimeout(resolve, 250))
@@ -563,14 +622,14 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await reloaded
 
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
     const txtPath = path.resolve(process.cwd(), 'note.txt')
     if (watcherCallback) await watcherCallback('change', txtPath)
@@ -587,7 +646,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -606,10 +665,9 @@ describe('honoTakibiVite', () => {
 
   it('logs error and does not send full-reload when parseOpenAPI fails', async () => {
     const { parseOpenAPI } = await import('../openapi/index.js')
-    vi.mocked(parseOpenAPI).mockImplementationOnce(async () => ({
-      ok: false,
-      error: 'parse failure',
-    }))
+    vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
+      Promise.resolve({ ok: false, error: 'parse failure' }),
+    )
 
     const configuration = {
       input: 'openapi.yaml',
@@ -617,7 +675,7 @@ describe('honoTakibiVite', () => {
     }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server } = createMockViteDevServer(configuration)
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
 
     const plugin = honoTakibiVite()
@@ -732,10 +790,9 @@ describe('honoTakibiVite', () => {
 
   it('logs error when a generator returns failure result', async () => {
     const core = await import('../core/index.js')
-    vi.mocked(core.takibi).mockImplementationOnce(async () => ({
-      ok: false as const,
-      error: 'takibi internal failure',
-    }))
+    vi.mocked(core.takibi).mockImplementationOnce(() =>
+      Promise.resolve({ ok: false as const, error: 'takibi internal failure' }),
+    )
     const configuration = {
       input: 'openapi.yaml',
       output: path.join(testState.sandboxDirectory, 'out/single.ts'),
@@ -763,7 +820,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
     await reloaded
 
-    server.ssrLoadModule = async () => ({ default: { input: 'broken.txt' } })
+    server.ssrLoadModule = () => Promise.resolve({ default: { input: 'broken.txt' } })
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
@@ -776,7 +833,7 @@ describe('honoTakibiVite', () => {
   it('does not send full-reload when config has no outputs', async () => {
     const configuration = { input: 'openapi.yaml' }
     const { server } = createMockViteDevServer(configuration)
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
 
     const plugin = honoTakibiVite()
@@ -802,7 +859,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -816,7 +873,7 @@ describe('honoTakibiVite', () => {
       'utf8',
     )
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
@@ -842,7 +899,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -854,7 +911,7 @@ describe('honoTakibiVite', () => {
       recursive: true,
       force: true,
     })
-    const reloadDeferred = createDeferred<void>()
+    const reloadDeferred = createDeferred()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') reloadDeferred.resolve()
     }
@@ -875,7 +932,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -907,7 +964,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -916,7 +973,7 @@ describe('honoTakibiVite', () => {
 
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
-    const firstReload = createDeferred<void>()
+    const firstReload = createDeferred()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') firstReload.resolve()
     }
@@ -924,7 +981,7 @@ describe('honoTakibiVite', () => {
     await firstReload.promise
     expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
 
-    const secondReload = createDeferred<void>()
+    const secondReload = createDeferred()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') secondReload.resolve()
     }
@@ -942,7 +999,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -950,11 +1007,11 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const configLoadState = { count: 0 }
-    server.ssrLoadModule = async (_moduleId: string) => {
-      configLoadState.count++
-      return { default: configuration }
+    server.ssrLoadModule = (_moduleId: string) => {
+      configLoadState.count += 1
+      return Promise.resolve({ default: configuration })
     }
-    const gate = createDeferred<void>()
+    const gate = createDeferred()
     vi.mocked(routeMock).mockImplementationOnce(async () => {
       await gate.promise
       return { ok: true, value: 'Generated route code written to out/route' } as const
@@ -989,7 +1046,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -997,7 +1054,7 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
-    const reloadDeferred = createDeferred<void>()
+    const reloadDeferred = createDeferred()
     server.ws.send = (payload) => {
       if (payload?.type === 'full-reload') reloadDeferred.resolve()
     }
@@ -1020,7 +1077,7 @@ describe('honoTakibiVite', () => {
     const { server, reloaded } = createMockViteDevServer(configuration)
     let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
     server.watcher.on = (_event: 'all', callback) => {
-      watcherCallback = callback as typeof watcherCallback
+      watcherCallback = callback
     }
 
     const plugin = honoTakibiVite()
@@ -1029,7 +1086,7 @@ describe('honoTakibiVite', () => {
 
     const core = await import('../core/index.js')
     const callsAfterInitialRun = vi.mocked(core.takibi).mock.calls.length
-    const sendSpy = vi.fn()
+    const sendSpy = vi.fn<(payload: { type: string }) => void>()
     server.ws.send = (payload) => sendSpy(payload)
     // Input bytes change (hash short-circuit does not engage) but the parsed
     // document is identical, so the regenerated output is byte-identical and

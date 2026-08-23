@@ -163,7 +163,7 @@ function makeMockFunction(
   // The cast target must match the emitted const name, which `helper/schema.ts`
   // derives as `toIdentifierPascalCase(ensureSuffix(name, 'Schema'))` — using
   // the raw name here would mis-case it (e.g. `userIdSchema` vs `UserIdSchema`).
-  const sanitized = name.replace(/\./g, '')
+  const sanitized = name.replaceAll('.', '')
   const schemaConst = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
   const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${schemaConst}>` : mockBody
   return `function mock${sanitized}()${returnType}{return ${body}}` as const

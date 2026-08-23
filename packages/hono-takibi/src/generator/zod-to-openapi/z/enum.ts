@@ -26,7 +26,7 @@ export function _enum(schema: Schema) {
   const lit = (v: unknown): string => {
     if (v === null) return 'null'
     if (v === undefined) return 'undefined'
-    if (typeof v === 'string') return `'${v.replace(/'/g, "\\'")}'`
+    if (typeof v === 'string') return `'${v.replaceAll("'", "\\'")}'`
     if (typeof v === 'number' || typeof v === 'boolean') return String(v)
     return JSON.stringify(v)
   }

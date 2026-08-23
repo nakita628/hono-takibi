@@ -144,7 +144,7 @@ export function extractTestCases(spec: OpenAPI) {
       )
       return [
         {
-          operationId: operation.operationId || `${method}${path.replace(/\//g, '_')}`,
+          operationId: operation.operationId || `${method}${path.replaceAll('/', '_')}`,
           method: method.toUpperCase(),
           path,
           summary: operation.summary || '',
@@ -217,7 +217,7 @@ function makeMockFunctions(
   return topologicalOrder(usedSchemaNames, schemas)
     .map((name) => {
       const returnType = circular.has(name) ? ': any' : ''
-      return `function mock${name.replace(/\./g, '')}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+      return `function mock${name.replaceAll('.', '')}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
     })
     .join('\n\n')
 }
@@ -328,17 +328,17 @@ function makeTestCase(
 // Safe single-quoted JS string literal (delimiter included).
 function quoteSingle(s: string) {
   return `'${s
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')}'`
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')
+    .replaceAll('	', '\\t')}'`
 }
 
 // Escape \, `, ${ for static text inside a template literal. Caller-added
 // ${...} substitution markers (added AFTER this escape) remain active.
 function escapeTemplateLiteral(s: string) {
-  return s.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
+  return s.replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${')
 }
 
 const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
@@ -361,7 +361,7 @@ export function makeTestFile(
     return acc.set(tag, [...(acc.get(tag) || []), tc])
   }, new Map<string, ReturnType<typeof extractTestCases>>())
   const mockFunctions = makeMockFunctions(spec, usedSchemaNames)
-  const tagDescribes = Array.from(byTag.entries())
+  const tagDescribes = [...byTag.entries()]
     .map(([tag, cases]) => {
       const tagInfo = spec.tags?.find((t) => t.name === tag)
       const tagDescription = tagInfo?.description || tag
@@ -383,11 +383,11 @@ export function makeTestFile(
 function getPathFirstSegment(path: string) {
   const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
   const sanitized = rawSegment
-    .replace(/\{([^}]+)\}/g, '$1')
-    .replace(/[^0-9A-Za-z._-]/g, '_')
-    .replace(/^[._-]+|[._-]+$/g, '')
-    .replace(/__+/g, '_')
-    .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+    .replaceAll(/\{([^}]+)\}/g, '$1')
+    .replaceAll(/[^0-9A-Za-z._-]/g, '_')
+    .replaceAll(/^[._-]+|[._-]+$/g, '')
+    .replaceAll(/__+/g, '_')
+    .replaceAll(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
   return sanitized === '' ? '__root' : sanitized
 }
 

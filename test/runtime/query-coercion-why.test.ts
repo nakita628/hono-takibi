@@ -330,26 +330,46 @@ const generatedSearchApp = new OpenAPIHono().openapi(generatedSearchRoute, (c) =
 
 describe('4. embedded copies match the imported generated artifact', () => {
   it('path route: identical status and body for exact, garbage, and overflow inputs', async () => {
-    for (const url of ['/coerce/9007199254740993', '/coerce/abc', '/coerce/1']) {
-      const embedded = await embeddedCoerceIdApp.request(url)
-      const generated = await generatedCoerceIdApp.request(url)
+    const pairs = await Promise.all(
+      ['/coerce/9007199254740993', '/coerce/abc', '/coerce/1'].map(async (url) => {
+        const [embedded, generated] = await Promise.all([
+          embeddedCoerceIdApp.request(url),
+          generatedCoerceIdApp.request(url),
+        ])
+        return {
+          embedded: { status: embedded.status, body: await embedded.json() },
+          generated: { status: generated.status, body: await generated.json() },
+        }
+      }),
+    )
+    for (const { embedded, generated } of pairs) {
       expect(generated.status).toBe(embedded.status)
-      expect(await generated.json()).toStrictEqual(await embedded.json())
+      expect(generated.body).toStrictEqual(embedded.body)
     }
   })
 
   it('search route: identical status and body for defaults, explicit values, and garbage', async () => {
-    for (const url of [
-      '/search?active=true',
-      '/search?active=false',
-      '/search?limit=5&active=true&ids=1&ids=2',
-      '/search?active=maybe',
-      '/search?active=true&limit=abc',
-    ]) {
-      const embedded = await embeddedSearchApp.request(url)
-      const generated = await generatedSearchApp.request(url)
+    const pairs = await Promise.all(
+      [
+        '/search?active=true',
+        '/search?active=false',
+        '/search?limit=5&active=true&ids=1&ids=2',
+        '/search?active=maybe',
+        '/search?active=true&limit=abc',
+      ].map(async (url) => {
+        const [embedded, generated] = await Promise.all([
+          embeddedSearchApp.request(url),
+          generatedSearchApp.request(url),
+        ])
+        return {
+          embedded: { status: embedded.status, body: await embedded.json() },
+          generated: { status: generated.status, body: await generated.json() },
+        }
+      }),
+    )
+    for (const { embedded, generated } of pairs) {
       expect(generated.status).toBe(embedded.status)
-      expect(await generated.json()).toStrictEqual(await embedded.json())
+      expect(generated.body).toStrictEqual(embedded.body)
     }
   })
 })

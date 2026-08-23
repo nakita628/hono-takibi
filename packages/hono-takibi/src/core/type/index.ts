@@ -71,7 +71,7 @@ function makeHonoSchemaType(openAPI: OpenAPI) {
 }
 
 function makeHonoPath(openApiPath: string) {
-  return openApiPath.replace(/\{([^}]+)\}/g, ':$1')
+  return openApiPath.replaceAll(/\{([^}]+)\}/g, ':$1')
 }
 
 function makeMethodType(
@@ -134,7 +134,7 @@ function makeInputType(
 }
 
 function makePathParams(openApiPath: string): readonly string[] {
-  return Array.from(openApiPath.matchAll(/\{([^}]+)\}/g)).map((m) => m[1])
+  return [...openApiPath.matchAll(/\{([^}]+)\}/g)].map((m) => m[1])
 }
 
 function makeParamPart(params: readonly Parameter[], components: Components | undefined) {
@@ -313,13 +313,15 @@ function makeSchemaTypeString(
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum
       .map((v) =>
-        typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : String(v),
+        typeof v === 'string'
+          ? `'${v.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
+          : String(v),
       )
       .join('|')
   }
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {
-      return `'${schema.const.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+      return `'${schema.const.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
     }
     if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
       return String(schema.const)
@@ -400,7 +402,7 @@ function makeAllOfTypeString(
     return result
   }, new Map<string, { type: string; required: boolean }>())
   if (mergedProps.size === 0) return '{}'
-  const propertyStrings = Array.from(mergedProps.entries()).map(([key, { type, required }]) => {
+  const propertyStrings = [...mergedProps.entries()].map(([key, { type, required }]) => {
     const safeKey = makeSafeKey(key)
     return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`
   })

@@ -204,7 +204,7 @@ export function schemaToFaker(
   }
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop() || 'unknown'
-    return `mock${refName.replace(/\./g, '')}()`
+    return `mock${refName.replaceAll('.', '')}()`
   }
   if (schema.type === 'array' && schema.items) {
     const itemSchema = Array.isArray(schema.items) ? schema.items[0] : schema.items

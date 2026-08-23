@@ -575,7 +575,7 @@ describe('makeTypeDefinitions', () => {
     const infos = makeSchemaInfos(schemas, ['Parent'], analysis)
 
     // Force needsTypeDef for Parent so makeTypeDefinitions processes it
-    const forcedInfos = infos.map((info) => ({ ...info, needsTypeDef: true }))
+    const forcedInfos = infos.map((info) => Object.assign({}, info, { needsTypeDef: true }))
     const typeDefs = makeTypeDefinitions(forcedInfos, schemas, analysis.cyclicGroupPascal)
 
     // Parent type should reference ChildType, which triggers additional type def

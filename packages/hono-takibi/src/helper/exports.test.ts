@@ -189,9 +189,13 @@ export * from './zebra'
       'Webhook',
     ] as const
 
-    for (const suffix of suffixes) {
-      const dir = `${testDir}/${suffix.toLowerCase()}`
-      const result = await makeExports({ Test: {} }, suffix, dir)
+    const results = await Promise.all(
+      suffixes.map(async (suffix) => {
+        const dir = `${testDir}/${suffix.toLowerCase()}`
+        return { suffix, dir, result: await makeExports({ Test: {} }, suffix, dir) }
+      }),
+    )
+    for (const { suffix, dir, result } of results) {
       expect(result.ok).toBe(true)
       if (result.ok) {
         expect(result.value).toBe(
@@ -218,7 +222,7 @@ export * from './zebra'
   it('should handle null value in component object', async () => {
     await makeExports(
       {
-        Empty: null as unknown as Record<string, unknown>,
+        Empty: null,
       },
       'Schema',
       `${testDir}/schemas`,

@@ -27,6 +27,6 @@ jobs:
 
       - run: vp run hono-takibi#build
 
-      - run: vp test --coverage
+      - run: vp run coverage
 
-      - run: vp check
+      - run: vp run check

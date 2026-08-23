@@ -30,8 +30,7 @@ function makeJsDoc(
   if (description) sections.push(description.split('\n'))
   sections.push([`${method.toUpperCase()} ${path}`])
   const body = sections
-    .map((lines, i) => (i === 0 ? lines : ['', ...lines]))
-    .flat()
+    .flatMap((lines, i) => (i === 0 ? lines : ['', ...lines]))
     .map((line) => (line ? ` * ${line}` : ' *'))
     .join('\n')
   return `/**\n${body}\n */\n`
@@ -148,9 +147,9 @@ export async function rpc(
     return { ok: true, value: `Generated rpc code written to ${output}` } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const exportLines = Array.from(
-    new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
-  )
+  const exportLines = [
+    ...new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
+  ]
   const index = `${exportLines.join('\n')}\n`
   const results = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {

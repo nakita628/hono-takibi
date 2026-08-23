@@ -1,4 +1,6 @@
 import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
@@ -263,7 +265,8 @@ describe('makeHandlerFileName (tags)', () => {
 /* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
 
 describe('zodOpenAPIHonoHandler', () => {
-  const testDir = 'tmp-handler-test'
+  // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
+  const testDir = path.join(os.tmpdir(), 'hono-takibi-tmp-handler-test')
 
   beforeEach(() => {
     fs.rmSync(testDir, { recursive: true, force: true })
@@ -289,7 +292,7 @@ describe('zodOpenAPIHonoHandler', () => {
         },
       },
     },
-  } as OpenAPI
+  }
 
   it('generates inline stub handler files', async () => {
     const result = await zodOpenAPIHonoHandler(simpleOpenAPI, `${testDir}/routes.ts`)
@@ -368,7 +371,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`)
 
@@ -415,7 +418,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     await zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`)
     const postsContent = fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf-8')
@@ -428,7 +431,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     await zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`)
     // The sub-router loses its registration and its route import; the file stays.
@@ -453,7 +456,7 @@ describe('zodOpenAPIHonoHandler', () => {
           post: { operationId: 'createPost', responses: { 201: { description: 'Created' } } },
         },
       },
-    } as OpenAPI
+    }
     await zodOpenAPIHonoHandler(
       firstOpenAPI,
       `${testDir}/routes.ts`,
@@ -475,7 +478,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
     const result = await zodOpenAPIHonoHandler(
       secondOpenAPI,
       `${testDir}/routes.ts`,
@@ -503,7 +506,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
     await zodOpenAPIHonoHandler(
       firstOpenAPI,
       `${testDir}/routes.ts`,
@@ -525,7 +528,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
     const result = await zodOpenAPIHonoHandler(
       secondOpenAPI,
       `${testDir}/routes.ts`,
@@ -559,7 +562,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     const shares = `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdSharesRoute } from '../routes'\n\nexport const authHandler = 'HAND WRITTEN'\n\nexport const getDocumentsDocumentIdSharesRouteHandler: RouteHandler<\n  typeof getDocumentsDocumentIdSharesRoute\n> = async (c) => {\n  return c.json([], 200)\n}\n`
     fs.writeFileSync(`${testDir}/handlers/shares.ts`, shares)
@@ -587,7 +590,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
     await zodOpenAPIHonoHandler(untagged, `${testDir}/routes.ts`)
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json([{ id: '1', name: 'Jane' }], 200)\n})\n`
     fs.writeFileSync(`${testDir}/handlers/users.ts`, implemented)
@@ -604,7 +607,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     const result = await zodOpenAPIHonoHandler(tagged, `${testDir}/routes.ts`)
 
     expect(result).toStrictEqual({ ok: true, value: undefined })
@@ -615,7 +618,7 @@ describe('zodOpenAPIHonoHandler', () => {
     )
   })
 
-  const probeDir = fs.mkdtempSync('tmp-case-probe-')
+  const probeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'hono-takibi-case-probe-'))
   fs.writeFileSync(`${probeDir}/A.ts`, '')
   const caseInsensitiveFs = fs.existsSync(`${probeDir}/a.ts`)
   fs.rmSync(probeDir, { recursive: true, force: true })
@@ -635,7 +638,7 @@ describe('zodOpenAPIHonoHandler', () => {
             },
           },
         },
-      } as OpenAPI
+      }
       fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
       fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const legacy = 1\n`)
       fs.writeFileSync(`${testDir}/handlers/users.ts`, `export const current = 1\n`)
@@ -668,7 +671,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(`${testDir}/handlers/a.ts`, `export const getUsersRouteHandler = 'A'\n`)
     fs.writeFileSync(`${testDir}/handlers/b.ts`, `export const getUsersRouteHandler = 'B'\n`)
@@ -713,7 +716,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(
       `${testDir}/handlers/documents.ts`,
@@ -762,7 +765,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     const legacy = `// Hand-written handler for a route that is intentionally not in the spec.\nexport const legacyRedirectHandler = 'REAL IMPLEMENTATION'\n`
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(`${testDir}/handlers/legacy.ts`, legacy)
@@ -810,7 +813,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'health', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await zodOpenAPIHonoHandler(
       openAPI,
@@ -849,7 +852,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const helper = 1\n`)
 
@@ -892,7 +895,7 @@ describe('zodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await zodOpenAPIHonoHandler(
       openAPI,
@@ -921,7 +924,7 @@ describe('zodOpenAPIHonoHandler', () => {
           get: { operationId: 'getRoot', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await zodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`)
     expect(result.ok).toBe(true)
@@ -944,7 +947,8 @@ describe('zodOpenAPIHonoHandler', () => {
 /* ─────────────────────────────── mockZodOpenAPIHonoHandler ─────────────────────────── */
 
 describe('mockZodOpenAPIHonoHandler', () => {
-  const testDir = 'tmp-mock-handler-test'
+  // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
+  const testDir = path.join(os.tmpdir(), 'hono-takibi-tmp-mock-handler-test')
 
   beforeEach(() => {
     fs.rmSync(testDir, { recursive: true, force: true })
@@ -990,7 +994,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
         },
       },
     },
-  } as OpenAPI
+  }
 
   it('generates inline mock handler files with faker', async () => {
     const result = await mockZodOpenAPIHonoHandler(
@@ -1033,7 +1037,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
 
@@ -1080,7 +1084,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
 
@@ -1102,7 +1106,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
     expect(result.ok).toBe(true)
@@ -1153,7 +1157,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     const result = await mockZodOpenAPIHonoHandler(
       openAPI,
@@ -1182,7 +1186,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           get: { operationId: 'getLegacy', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     await mockZodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, false)
     const legacyContent = fs.readFileSync(`${testDir}/handlers/legacy.ts`, 'utf-8')
@@ -1195,7 +1199,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     await mockZodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, false)
     expect(legacyContent).toBe(
@@ -1227,7 +1231,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
     fs.writeFileSync(
       `${testDir}/handlers/shares.ts`,
@@ -1265,7 +1269,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
         },
       },
-    } as OpenAPI
+    }
 
     // First generation
     await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, false)
@@ -1304,7 +1308,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
 
     // First generation: creates fresh handler + test files (null-existing branch)
     const first = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, true)
@@ -1322,7 +1326,8 @@ describe('mockZodOpenAPIHonoHandler', () => {
 /* ─────────────────────────────── defineOpenAPIRouteHandler ───────────────────────────── */
 
 describe('defineOpenAPIRouteHandler', () => {
-  const testDir = 'tmp-define-handler-test'
+  // Outside the (bind-mounted, eventually-consistent) workspace: see template tests.
+  const testDir = path.join(os.tmpdir(), 'hono-takibi-tmp-define-handler-test')
 
   beforeEach(() => {
     fs.rmSync(testDir, { recursive: true, force: true })
@@ -1353,7 +1358,7 @@ describe('defineOpenAPIRouteHandler', () => {
           },
         },
       },
-    } as OpenAPI
+    }
     fs.mkdirSync(`${testDir}/routes`, { recursive: true })
     fs.writeFileSync(
       `${testDir}/routes/reviews.ts`,

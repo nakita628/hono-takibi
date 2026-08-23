@@ -139,7 +139,7 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
 
-  const body = applyRangeOps(existingCode, bodyStart, allOps).replace(/\n{3,}/g, '\n\n')
+  const body = applyRangeOps(existingCode, bodyStart, allOps).replaceAll(/\n{3,}/g, '\n\n')
 
   // New handlers: in generated but not in existing
   const newHandlerStatements = [...generatedHandlers.entries()]
@@ -178,7 +178,7 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
     .map(([, stmt]): readonly [number, number, string] => [stmt.getFullStart(), stmt.getEnd(), ''])
     .filter(([start]) => start >= bodyStart)
     .toSorted(([a], [b]) => a - b)
-  const body = applyRangeOps(existingCode, bodyStart, deleteOps).replace(/\n{3,}/g, '\n\n')
+  const body = applyRangeOps(existingCode, bodyStart, deleteOps).replaceAll(/\n{3,}/g, '\n\n')
   const newRouteStatements = [...generatedRoutes.entries()]
     .filter(([name]) => !existingRoutes.has(name))
     .map(([, stmt]) => stmt.getText())
@@ -675,7 +675,7 @@ export function mergeTestFile(existingCode: string, generatedCode: string) {
     existingCode,
     bodyStart,
     staleRanges.map(([start, end]) => [start, end, ''] as const),
-  ).replace(/\n{3,}/g, '\n\n')
+  ).replaceAll(/\n{3,}/g, '\n\n')
   const existingMocks = extractMockFunctions(existingFile, existingCode)
   const missingMocks = [...extractMockFunctions(generatedFile, generatedCode).entries()]
     .filter(([name]) => !existingMocks.has(name))
@@ -774,5 +774,5 @@ function insertMissingMocks(body: string, missingMocks: readonly string[]) {
     describeMatch?.index !== undefined
       ? `${body.slice(0, describeMatch.index)}\n${missingMocks.join('\n\n')}\n${body.slice(describeMatch.index)}`
       : `\n${missingMocks.join('\n\n')}\n${body}`
-  return inserted.replace(/\n{3,}/g, '\n\n')
+  return inserted.replaceAll(/\n{3,}/g, '\n\n')
 }

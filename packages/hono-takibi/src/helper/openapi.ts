@@ -467,24 +467,24 @@ export function makeParameters(
       ? baseSchema
       : isStringWire && schema.type === 'boolean'
         ? baseSchema
-            .replace(/\bz\.boolean\(/g, 'z.stringbool(')
-            .replace(/\.default\("true"\)/g, '.default(true)')
-            .replace(/\.default\("false"\)/g, '.default(false)')
+            .replaceAll(/\bz\.boolean\(/g, 'z.stringbool(')
+            .replaceAll('.default("true")', '.default(true)')
+            .replaceAll('.default("false")', '.default(false)')
         : isStringWire && schema.type === 'date'
           ? `z.coerce.${baseSchema.replace('z.', '')}`
           : isStringWire && (schema.type === 'object' || schema.type === 'array')
             ? baseSchema
-                .replace(
+                .replaceAll(
                   /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
                   (_: string, type: string, constraints: string) =>
                     type === 'int'
                       ? `z.coerce.number().int()${constraints}`
                       : `z.coerce.number().pipe(z.${type}()${constraints})`,
                 )
-                .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                .replace(/z\.date\(\)/g, 'z.coerce.date()')
+                .replaceAll('z.bigint()', 'z.coerce.bigint()')
+                .replaceAll('z.number()', 'z.coerce.number()')
+                .replaceAll('z.boolean()', 'z.stringbool()')
+                .replaceAll('z.date()', 'z.coerce.date()')
             : baseSchema
     acc[param.in][makeSafeKey(param.name)] = z
     return acc

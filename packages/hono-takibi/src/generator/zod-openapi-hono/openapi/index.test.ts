@@ -1,4 +1,4 @@
-import { describe, it } from 'vite-plus/test'
+import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../../openapi/index.js'
 import { zodOpenAPIHono } from './index.js'
@@ -443,27 +443,28 @@ const openapi = {
 
 describe('zodOpenAPIHono', () => {
   it.concurrent('zodOpenAPIHono exportSchema=true, exportType=true', () => {
-    zodOpenAPIHono(openapi as unknown as OpenAPI, {
-      exportSchemasTypes: false,
-      exportSchemas: false,
-      exportParametersTypes: false,
-      exportParameters: false,
-      exportSecuritySchemes: false,
-      exportRequestBodies: false,
-      exportResponses: false,
-      exportHeadersTypes: false,
-      exportHeaders: false,
-      exportExamples: false,
-      exportLinks: false,
-      exportCallbacks: false,
-      exportPathItems: false,
-      exportMediaTypes: false,
-      exportMediaTypesTypes: false,
-    })
+    expect(() =>
+      zodOpenAPIHono(openapi as unknown as OpenAPI, {
+        exportSchemasTypes: false,
+        exportSchemas: false,
+        exportParametersTypes: false,
+        exportParameters: false,
+        exportSecuritySchemes: false,
+        exportRequestBodies: false,
+        exportResponses: false,
+        exportHeadersTypes: false,
+        exportHeaders: false,
+        exportExamples: false,
+        exportLinks: false,
+        exportCallbacks: false,
+        exportPathItems: false,
+        exportMediaTypes: false,
+        exportMediaTypesTypes: false,
+      }),
+    ).not.toThrow()
   })
 
-  it.concurrent('generates webhooks from OpenAPI 3.1 webhooks section', async () => {
-    const { expect } = await import('vite-plus/test')
+  it.concurrent('generates webhooks from OpenAPI 3.1 webhooks section', () => {
     const openapiWithWebhooks: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Webhook API', version: '1.0.0' },

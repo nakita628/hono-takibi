@@ -5,14 +5,16 @@
   "type": "module",
   "scripts": {
     "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
-    "check": "vp check --fix",
-    "test": "vp test",
-    "coverage": "vp test --coverage"
+    "build": "vp run hono-takibi#build",
+    "check": "vp run --filter './packages/*' --filter ./test --fail-if-no-match check",
+    "fix": "vp run --filter './packages/*' --filter ./test --fail-if-no-match fix",
+    "test": "vp run --filter './packages/*' --filter ./test --fail-if-no-match test",
+    "coverage": "vp run hono-takibi#coverage && vp run @hono-takibi/test#test"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "4.1.10",
     "happy-dom": "^20.0.0",
-    "vite-plus": "^0.2.6"
+    "vite-plus": "0.2.9"
   },
   "packageManager": "pnpm@11.22.0"
 }

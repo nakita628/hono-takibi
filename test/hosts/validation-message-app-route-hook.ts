@@ -44,6 +44,8 @@ app.openapi(
                 ? 'This field is required'
                 : `Expected ${issue.expected}, received ${typeof issue.input}`
             break
+          default:
+            break
         }
         return { pointer: `/${issue.path.join('/')}`, detail }
       })
@@ -58,6 +60,7 @@ app.openapi(
         422,
       )
     }
+    return undefined
   },
 )
 

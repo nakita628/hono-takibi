@@ -459,7 +459,7 @@ export const pingPostWebhook = {
           info: { title: 'T', version: '1.0.0' },
           paths: {},
           webhooks: {},
-        } as OpenAPI,
+        },
         { output: out },
       )
       expect(result).toStrictEqual({ ok: true, value: 'No webhooks found' })

@@ -37,6 +37,8 @@ const app = new OpenAPIHono({
                 ? 'This field is required'
                 : `Expected ${issue.expected}, received ${typeof issue.input}`
             break
+          default:
+            break
         }
         return { pointer: `/${issue.path.join('/')}`, detail }
       })
@@ -51,6 +53,7 @@ const app = new OpenAPIHono({
         422,
       )
     }
+    return undefined
   },
 })
 

@@ -7,7 +7,7 @@ import { zodToOpenAPI } from './index.js'
 describe('zodToOpenAPI', () => {
   describe('ref', () => {
     it.concurrent('codegen: bare $ref → ReferencedSchema identifier', () => {
-      expect(zodToOpenAPI({ $ref: '#/components/schemas/Test' } as Schema)).toBe('TestSchema')
+      expect(zodToOpenAPI({ $ref: '#/components/schemas/Test' })).toBe('TestSchema')
     })
     it.concurrent('runtime: a $ref-equivalent schema accepts an object matching its shape', () => {
       const TestSchema = z.object({ name: z.string() })
@@ -33,7 +33,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'array',
           items: { $ref: '#/components/schemas/Test' },
-        } as Schema),
+        }),
       ).toBe('z.array(TestSchema)')
     })
     it.concurrent('runtime: z.array of a $ref-equivalent accepts an array of matching objects', () => {
@@ -78,7 +78,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'array',
           prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number(),z.boolean()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}})',
       )
@@ -172,7 +172,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'array',
           prefixItems: [{ $ref: '#/components/schemas/Name' }, { type: 'number' }],
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[NameSchema,z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}})',
       )
@@ -224,7 +224,7 @@ describe('zodToOpenAPI', () => {
           type: 'array',
           prefixItems: [{ type: 'string' }, { type: 'number' }],
           description: 'A tuple of name and age',
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}}).openapi({"description":"A tuple of name and age"})',
       )
@@ -858,7 +858,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             description: 'wrap me',
             allOf: [{ $ref: '#/components/schemas/User' }],
-          } as Schema),
+          }),
         ).toBe('UserSchema.openapi({"description":"wrap me"})')
       })
       it.concurrent('regression: bare allOf [{$ref}] with sibling x-brand emits .brand and description', () => {
@@ -867,7 +867,7 @@ describe('zodToOpenAPI', () => {
             description: 'branded',
             'x-brand': 'UserId',
             allOf: [{ $ref: '#/components/schemas/User' }],
-          } as Schema),
+          }),
         ).toBe('UserSchema.brand<"UserId">().openapi({"description":"branded"})')
       })
       it.concurrent('allOf: GeoJsonObject + object with type enum (discriminator) + description/externalDocs', () => {
@@ -1097,7 +1097,7 @@ describe('zodToOpenAPI', () => {
     describe('not', () => {
       describe('not.type (single)', () => {
         it.concurrent('not.type: excludes string', () => {
-          expect(zodToOpenAPI({ not: { type: 'string' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'string' } })).toBe(
             `z.any().refine((val) => typeof val !== 'string')`,
           )
           const runtime = z.any().refine((val) => typeof val !== 'string')
@@ -1111,7 +1111,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes number', () => {
-          expect(zodToOpenAPI({ not: { type: 'number' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'number' } })).toBe(
             `z.any().refine((val) => typeof val !== 'number')`,
           )
           const runtime = z.any().refine((val) => typeof val !== 'number')
@@ -1125,7 +1125,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes integer (Number.isInteger)', () => {
-          expect(zodToOpenAPI({ not: { type: 'integer' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'integer' } })).toBe(
             `z.any().refine((val) => typeof val !== 'number' || !Number.isInteger(val))`,
           )
           const runtime = z.any().refine((val) => typeof val !== 'number' || !Number.isInteger(val))
@@ -1140,7 +1140,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes boolean', () => {
-          expect(zodToOpenAPI({ not: { type: 'boolean' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'boolean' } })).toBe(
             `z.any().refine((val) => typeof val !== 'boolean')`,
           )
           const runtime = z.any().refine((val) => typeof val !== 'boolean')
@@ -1154,7 +1154,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes array', () => {
-          expect(zodToOpenAPI({ not: { type: 'array' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'array' } })).toBe(
             'z.any().refine((val) => !Array.isArray(val))',
           )
           const runtime = z.any().refine((val) => !Array.isArray(val))
@@ -1168,7 +1168,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes object (but allows arrays/null)', () => {
-          expect(zodToOpenAPI({ not: { type: 'object' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'object' } })).toBe(
             `z.any().refine((val) => typeof val !== 'object' || val === null || Array.isArray(val))`,
           )
           const runtime = z
@@ -1186,7 +1186,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.type: excludes null', () => {
-          expect(zodToOpenAPI({ not: { type: 'null' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: 'null' } })).toBe(
             'z.any().refine((val) => val !== null)',
           )
           const runtime = z.any().refine((val) => val !== null)
@@ -1203,7 +1203,7 @@ describe('zodToOpenAPI', () => {
 
       describe('not.const', () => {
         it.concurrent('not.const: excludes literal "admin"', () => {
-          expect(zodToOpenAPI({ not: { const: 'admin' } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { const: 'admin' } })).toBe(
             `z.any().refine((val) => val !== "admin")`,
           )
           const runtime = z.any().refine((val) => val !== 'admin')
@@ -1217,9 +1217,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('not.const: excludes literal 42', () => {
-          expect(zodToOpenAPI({ not: { const: 42 } } as Schema)).toBe(
-            'z.any().refine((val) => val !== 42)',
-          )
+          expect(zodToOpenAPI({ not: { const: 42 } })).toBe('z.any().refine((val) => val !== 42)')
           const runtime = z.any().refine((val) => val !== 42)
           expect(runtime.safeParse(7).success).toBe(true)
           const result = runtime.safeParse(42)
@@ -1234,7 +1232,7 @@ describe('zodToOpenAPI', () => {
 
       describe('not.enum', () => {
         it.concurrent('not.enum: excludes ["a","b","c"]', () => {
-          expect(zodToOpenAPI({ not: { enum: ['a', 'b', 'c'] } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { enum: ['a', 'b', 'c'] } })).toBe(
             `z.any().refine((val) => !["a","b","c"].includes(val))`,
           )
           const runtime = z.any().refine((val) => !['a', 'b', 'c'].includes(val))
@@ -1261,7 +1259,7 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               not: { $ref: '#/components/schemas/Forbidden' },
-            } as Schema),
+            }),
           ).toBe('z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)')
           const ForbiddenSchema = z.string()
           const runtime = z.any().refine((val) => !ForbiddenSchema.safeParse(val).success)
@@ -1278,7 +1276,7 @@ describe('zodToOpenAPI', () => {
 
       describe('not.type (array)', () => {
         it.concurrent('not.type (array): excludes string and number', () => {
-          expect(zodToOpenAPI({ not: { type: ['string', 'number'] } } as Schema)).toBe(
+          expect(zodToOpenAPI({ not: { type: ['string', 'number'] } })).toBe(
             `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'))`,
           )
           const runtime = z
@@ -1307,7 +1305,7 @@ describe('zodToOpenAPI', () => {
           expect(
             zodToOpenAPI({
               not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
-            } as Schema),
+            }),
           ).toBe(
             'z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success)',
           )
@@ -1334,7 +1332,7 @@ describe('zodToOpenAPI', () => {
 
       describe('not fallback', () => {
         it.concurrent('not: empty schema falls back to z.never()', () => {
-          expect(zodToOpenAPI({ not: {} } as Schema)).toBe('z.never()')
+          expect(zodToOpenAPI({ not: {} })).toBe('z.never()')
           const runtime = z.never()
           // z.never() rejects all inputs — no valid sample exists
           const r1 = runtime.safeParse('abc')
@@ -1370,7 +1368,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { type: 'string' },
               'x-not-message': '文字列は不可',
-            } as Schema),
+            }),
           ).toBe(`z.any().refine((val) => typeof val !== 'string',{error:"文字列は不可"})`)
           const runtime = z
             .any()
@@ -1389,7 +1387,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { const: 42 },
               'x-not-message': '42は不可',
-            } as Schema),
+            }),
           ).toBe('z.any().refine((val) => val !== 42,{error:"42は不可"})')
           const runtime = z.any().refine((val) => val !== 42, { error: '42は不可' })
           expect(runtime.safeParse(7).success).toBe(true)
@@ -1406,7 +1404,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { enum: [1, 2, 3] },
               'x-not-message': '1,2,3は不可',
-            } as Schema),
+            }),
           ).toBe('z.any().refine((val) => ![1,2,3].includes(val),{error:"1,2,3は不可"})')
           const runtime = z
             .any()
@@ -1425,7 +1423,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { $ref: '#/components/schemas/Forbidden' },
               'x-not-message': '禁止スキーマ不可',
-            } as Schema),
+            }),
           ).toBe(
             'z.any().refine((val) => !ForbiddenSchema.safeParse(val).success,{error:"禁止スキーマ不可"})',
           )
@@ -1447,7 +1445,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { type: ['string', 'number'] },
               'x-not-message': '文字列・数値は不可',
-            } as Schema),
+            }),
           ).toBe(
             `z.any().refine((val) => (typeof val !== 'string') && (typeof val !== 'number'),{error:"文字列・数値は不可"})`,
           )
@@ -1477,7 +1475,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               not: { anyOf: [{ type: 'string' }, { type: 'number' }] },
               'x-not-message': 'union不可',
-            } as Schema),
+            }),
           ).toBe(
             'z.any().refine((val) => !z.union([z.string(),z.number()]).safeParse(val).success,{error:"union不可"})',
           )
@@ -1500,7 +1498,7 @@ describe('zodToOpenAPI', () => {
 
     describe('const', () => {
       it.concurrent('const: literal "fixed"', () => {
-        expect(zodToOpenAPI({ const: 'fixed' } as Schema)).toBe('z.literal("fixed")')
+        expect(zodToOpenAPI({ const: 'fixed' })).toBe('z.literal("fixed")')
         const runtime = z.literal('fixed')
         expect(runtime.safeParse('fixed').success).toBe(true)
         const result = runtime.safeParse('other')
@@ -1517,7 +1515,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('const: literal "fixed" nullable via `nullable: true`', () => {
-        expect(zodToOpenAPI({ const: 'fixed', nullable: true } as Schema)).toBe(
+        expect(zodToOpenAPI({ const: 'fixed', nullable: true })).toBe(
           'z.literal("fixed").nullable()',
         )
         const runtime = z.literal('fixed').nullable()
@@ -1537,7 +1535,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('const: literal "fixed" nullable via `type: [null]`', () => {
-        expect(zodToOpenAPI({ type: ['null'], const: 'fixed' } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: ['null'], const: 'fixed' })).toBe(
           'z.literal("fixed").nullable()',
         )
         const runtime = z.literal('fixed').nullable()
@@ -1561,7 +1559,7 @@ describe('zodToOpenAPI', () => {
     // enum
     describe('enum', () => {
       it.concurrent('enum: ["A","B"] string enum', () => {
-        expect(zodToOpenAPI({ enum: ['A', 'B'] } as Schema)).toBe('z.enum(["A","B"])')
+        expect(zodToOpenAPI({ enum: ['A', 'B'] })).toBe('z.enum(["A","B"])')
         const runtime = z.enum(['A', 'B'])
         expect(runtime.safeParse('A').success).toBe(true)
         const result = runtime.safeParse('C')
@@ -1583,7 +1581,7 @@ describe('zodToOpenAPI', () => {
             enum: ['A', 'B'],
             type: ['string'],
             nullable: true,
-          } as Schema),
+          }),
         ).toBe('z.enum(["A","B"]).nullable()')
         const runtime = z.enum(['A', 'B']).nullable()
         expect(runtime.safeParse('A').success).toBe(true)
@@ -1602,7 +1600,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: ["A","B"] nullable via `type: [string,null]`', () => {
-        expect(zodToOpenAPI({ enum: ['A', 'B'], type: ['string', 'null'] } as Schema)).toBe(
+        expect(zodToOpenAPI({ enum: ['A', 'B'], type: ['string', 'null'] })).toBe(
           'z.enum(["A","B"]).nullable()',
         )
         const runtime = z.enum(['A', 'B']).nullable()
@@ -1622,9 +1620,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: [1,2] numeric enum (z.union of literals)', () => {
-        expect(zodToOpenAPI({ enum: [1, 2] } as Schema)).toBe(
-          'z.union([z.literal(1),z.literal(2)])',
-        )
+        expect(zodToOpenAPI({ enum: [1, 2] })).toBe('z.union([z.literal(1),z.literal(2)])')
         const runtime = z.union([z.literal(1), z.literal(2)])
         expect(runtime.safeParse(1).success).toBe(true)
         const result = runtime.safeParse(3)
@@ -1663,7 +1659,7 @@ describe('zodToOpenAPI', () => {
             enum: [1, 2],
             type: ['number'],
             nullable: true,
-          } as Schema),
+          }),
         ).toBe('z.union([z.literal(1),z.literal(2)]).nullable()')
         const runtime = z.union([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse(2).success).toBe(true)
@@ -1699,7 +1695,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: [1,2] nullable via `type: [number,null]`', () => {
-        expect(zodToOpenAPI({ enum: [1, 2], type: ['number', 'null'] } as Schema)).toBe(
+        expect(zodToOpenAPI({ enum: [1, 2], type: ['number', 'null'] })).toBe(
           'z.union([z.literal(1),z.literal(2)]).nullable()',
         )
         const runtime = z.union([z.literal(1), z.literal(2)]).nullable()
@@ -1736,7 +1732,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: [true,false] boolean enum (z.union of literals)', () => {
-        expect(zodToOpenAPI({ enum: [true, false] } as Schema)).toBe(
+        expect(zodToOpenAPI({ enum: [true, false] })).toBe(
           'z.union([z.literal(true),z.literal(false)])',
         )
         const runtime = z.union([z.literal(true), z.literal(false)])
@@ -1778,7 +1774,7 @@ describe('zodToOpenAPI', () => {
             enum: [true, false],
             type: ['boolean'],
             nullable: true,
-          } as Schema),
+          }),
         ).toBe('z.union([z.literal(true),z.literal(false)]).nullable()')
         const runtime = z.union([z.literal(true), z.literal(false)]).nullable()
         expect(runtime.safeParse(true).success).toBe(true)
@@ -1818,7 +1814,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             enum: [true, false],
             type: ['boolean', 'null'],
-          } as Schema),
+          }),
         ).toBe('z.union([z.literal(true),z.literal(false)]).nullable()')
         const runtime = z.union([z.literal(true), z.literal(false)]).nullable()
         expect(runtime.safeParse(false).success).toBe(true)
@@ -1854,7 +1850,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: [null] only-null collapses to z.literal(null)', () => {
-        expect(zodToOpenAPI({ enum: [null] } as Schema)).toBe('z.literal(null)')
+        expect(zodToOpenAPI({ enum: [null] })).toBe('z.literal(null)')
         const runtime = z.literal(null)
         expect(runtime.safeParse(null).success).toBe(true)
         const result = runtime.safeParse(0)
@@ -1871,9 +1867,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: [null] with type:[null] → z.literal(null).nullable()', () => {
-        expect(zodToOpenAPI({ enum: [null], type: ['null'] } as Schema)).toBe(
-          'z.literal(null).nullable()',
-        )
+        expect(zodToOpenAPI({ enum: [null], type: ['null'] })).toBe('z.literal(null).nullable()')
         const runtime = z.literal(null).nullable()
         expect(runtime.safeParse(null).success).toBe(true)
         const result = runtime.safeParse(0)
@@ -1890,7 +1884,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: single string ["abc"] becomes z.literal', () => {
-        expect(zodToOpenAPI({ enum: ['abc'] } as Schema)).toBe(`z.literal('abc')`)
+        expect(zodToOpenAPI({ enum: ['abc'] })).toBe(`z.literal('abc')`)
         const runtime = z.literal('abc')
         expect(runtime.safeParse('abc').success).toBe(true)
         const result = runtime.safeParse('xyz')
@@ -1912,7 +1906,7 @@ describe('zodToOpenAPI', () => {
             enum: ['abc'],
             type: ['string'],
             nullable: true,
-          } as Schema),
+          }),
         ).toBe(`z.literal('abc').nullable()`)
         const runtime = z.literal('abc').nullable()
         expect(runtime.safeParse('abc').success).toBe(true)
@@ -1931,7 +1925,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: single string ["abc"] nullable via `type: [string,null]`', () => {
-        expect(zodToOpenAPI({ enum: ['abc'], type: ['string', 'null'] } as Schema)).toBe(
+        expect(zodToOpenAPI({ enum: ['abc'], type: ['string', 'null'] })).toBe(
           `z.literal('abc').nullable()`,
         )
         const runtime = z.literal('abc').nullable()
@@ -1951,7 +1945,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: type:array with single tuple [[1,2]] → tuple literal', () => {
-        expect(zodToOpenAPI({ type: 'array', enum: [[1, 2]] } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: 'array', enum: [[1, 2]] })).toBe(
           'z.tuple([z.literal(1),z.literal(2)])',
         )
         const runtime = z.tuple([z.literal(1), z.literal(2)])
@@ -1975,7 +1969,7 @@ describe('zodToOpenAPI', () => {
             type: 'array',
             nullable: true,
             enum: [[1, 2]],
-          } as Schema),
+          }),
         ).toBe('z.tuple([z.literal(1),z.literal(2)]).nullable()')
         const runtime = z.tuple([z.literal(1), z.literal(2)]).nullable()
         expect(runtime.safeParse([1, 2]).success).toBe(true)
@@ -1994,7 +1988,7 @@ describe('zodToOpenAPI', () => {
         }
       })
       it.concurrent('enum: array with single tuple, nullable via `type: [array,null]`', () => {
-        expect(zodToOpenAPI({ type: ['array', 'null'], enum: [[1, 2]] } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: ['array', 'null'], enum: [[1, 2]] })).toBe(
           'z.tuple([z.literal(1),z.literal(2)]).nullable()',
         )
         const runtime = z.tuple([z.literal(1), z.literal(2)]).nullable()
@@ -2021,7 +2015,7 @@ describe('zodToOpenAPI', () => {
               [1, 2],
               [3, 4],
             ],
-          } as Schema),
+          }),
         ).toBe(
           'z.union([z.tuple([z.literal(1),z.literal(2)]),z.tuple([z.literal(3),z.literal(4)])])',
         )
@@ -2076,7 +2070,7 @@ describe('zodToOpenAPI', () => {
               [1, 2],
               [3, 4],
             ],
-          } as Schema),
+          }),
         ).toBe(
           'z.union([z.tuple([z.literal(1),z.literal(2)]),z.tuple([z.literal(3),z.literal(4)])]).nullable()',
         )
@@ -2129,7 +2123,7 @@ describe('zodToOpenAPI', () => {
               [1, 2],
               [3, 4],
             ],
-          } as Schema),
+          }),
         ).toBe(
           'z.union([z.tuple([z.literal(1),z.literal(2)]),z.tuple([z.literal(3),z.literal(4)])]).nullable()',
         )
@@ -2179,7 +2173,7 @@ describe('zodToOpenAPI', () => {
     // string
     describe('string', () => {
       it.concurrent('string: bare type → z.string() (accepts "abc" / rejects 123)', () => {
-        expect(zodToOpenAPI({ type: 'string' } as Schema)).toBe('z.string()')
+        expect(zodToOpenAPI({ type: 'string' })).toBe('z.string()')
         const runtime = z.string()
         expect(runtime.safeParse('abc').success).toBe(true)
         const result = runtime.safeParse(123)
@@ -2197,9 +2191,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string: type:[string] + nullable → z.string().nullable() (accepts null / rejects 123)', () => {
-        expect(zodToOpenAPI({ type: ['string'], nullable: true } as Schema)).toBe(
-          'z.string().nullable()',
-        )
+        expect(zodToOpenAPI({ type: ['string'], nullable: true })).toBe('z.string().nullable()')
         const runtime = z.string().nullable()
         expect(runtime.safeParse(null).success).toBe(true)
         const result = runtime.safeParse(123)
@@ -2217,7 +2209,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string: type:[string,null] → z.string().nullable() (accepts null / rejects 123)', () => {
-        expect(zodToOpenAPI({ type: ['string', 'null'] } as Schema)).toBe('z.string().nullable()')
+        expect(zodToOpenAPI({ type: ['string', 'null'] })).toBe('z.string().nullable()')
         const runtime = z.string().nullable()
         expect(runtime.safeParse(null).success).toBe(true)
         const result = runtime.safeParse(123)
@@ -2235,7 +2227,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string: minLength/maxLength → z.string().min(1).max(10) (accepts "abc" / rejects "")', () => {
-        expect(zodToOpenAPI({ type: 'string', minLength: 1, maxLength: 10 } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: 'string', minLength: 1, maxLength: 10 })).toBe(
           'z.string().min(1).max(10)',
         )
         const runtime = z.string().min(1).max(10)
@@ -2257,7 +2249,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string: pattern → z.string().regex(/^\\w+$/) (accepts "abc" / rejects "!@#")', () => {
-        expect(zodToOpenAPI({ type: 'string', pattern: '^\\w+$' } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: 'string', pattern: '^\\w+$' })).toBe(
           'z.string().regex(/^\\w+$/)',
         )
         const runtime = z.string().regex(/^\w+$/)
@@ -2279,9 +2271,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string: default → z.string().default("test") (accepts "abc" / rejects 123)', () => {
-        expect(zodToOpenAPI({ type: 'string', default: 'test' } as Schema)).toBe(
-          'z.string().default("test")',
-        )
+        expect(zodToOpenAPI({ type: 'string', default: 'test' })).toBe('z.string().default("test")')
         const runtime = z.string().default('test')
         expect(runtime.safeParse('abc').success).toBe(true)
         const result = runtime.safeParse(123)
@@ -2304,7 +2294,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             default: 'test',
             nullable: true,
-          } as Schema),
+          }),
         ).toBe('z.string().nullable().default("test")')
         const runtime = z.string().nullable().default('test')
         expect(runtime.safeParse(null).success).toBe(true)
@@ -2327,7 +2317,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: ['string', 'null'],
             default: 'test',
-          } as Schema),
+          }),
         ).toBe('z.string().nullable().default("test")')
         const runtime = z.string().nullable().default('test')
         expect(runtime.safeParse(null).success).toBe(true)
@@ -2346,7 +2336,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: email → z.email() (accepts "a@b.com" / rejects "notmail")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'email' } as Schema)).toBe('z.email()')
+        expect(zodToOpenAPI({ type: 'string', format: 'email' })).toBe('z.email()')
         const runtime = z.email()
         expect(runtime.safeParse('a@b.com').success).toBe(true)
         const result = runtime.safeParse('notmail')
@@ -2367,7 +2357,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: uuid → z.uuid() (accepts canonical uuid / rejects "not-uuid")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'uuid' } as Schema)).toBe('z.uuid()')
+        expect(zodToOpenAPI({ type: 'string', format: 'uuid' })).toBe('z.uuid()')
         const runtime = z.uuid()
         expect(runtime.safeParse('550e8400-e29b-41d4-a716-446655440000').success).toBe(true)
         const result = runtime.safeParse('not-uuid')
@@ -2388,7 +2378,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: uuidv4 → z.uuidv4() (accepts a v4 uuid / rejects "not-uuid")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'uuidv4' } as Schema)).toBe('z.uuidv4()')
+        expect(zodToOpenAPI({ type: 'string', format: 'uuidv4' })).toBe('z.uuidv4()')
         const runtime = z.uuidv4()
         expect(runtime.safeParse('550e8400-e29b-41d4-a716-446655440000').success).toBe(true)
         const result = runtime.safeParse('not-uuid')
@@ -2409,7 +2399,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: uuidv7 → z.uuidv7() (accepts a v7 uuid / rejects "not-uuid")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'uuidv7' } as Schema)).toBe('z.uuidv7()')
+        expect(zodToOpenAPI({ type: 'string', format: 'uuidv7' })).toBe('z.uuidv7()')
         const runtime = z.uuidv7()
         expect(runtime.safeParse('018f4d1b-3b8c-7000-8000-000000000000').success).toBe(true)
         const result = runtime.safeParse('not-uuid')
@@ -2430,7 +2420,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: uri → z.url() (accepts "https://example.com" / rejects "not a url")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'uri' } as Schema)).toBe('z.url()')
+        expect(zodToOpenAPI({ type: 'string', format: 'uri' })).toBe('z.url()')
         const runtime = z.url()
         expect(runtime.safeParse('https://example.com').success).toBe(true)
         const result = runtime.safeParse('not a url')
@@ -2448,7 +2438,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: emoji → z.emoji() (accepts emoji / rejects plain ascii)', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'emoji' } as Schema)).toBe('z.emoji()')
+        expect(zodToOpenAPI({ type: 'string', format: 'emoji' })).toBe('z.emoji()')
         const runtime = z.emoji()
         expect(runtime.safeParse('🎉').success).toBe(true)
         const result = runtime.safeParse('abc')
@@ -2468,7 +2458,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: base64 → z.base64() (accepts "aGVsbG8=" / rejects "!!!not-base64!!!")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'base64' } as Schema)).toBe('z.base64()')
+        expect(zodToOpenAPI({ type: 'string', format: 'base64' })).toBe('z.base64()')
         const runtime = z.base64()
         expect(runtime.safeParse('aGVsbG8=').success).toBe(true)
         const result = runtime.safeParse('!!!not-base64!!!')
@@ -2486,7 +2476,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: nanoid → z.nanoid() (accepts 21-char nanoid / rejects "short")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'nanoid' } as Schema)).toBe('z.nanoid()')
+        expect(zodToOpenAPI({ type: 'string', format: 'nanoid' })).toBe('z.nanoid()')
         const runtime = z.nanoid()
         expect(runtime.safeParse('V1StGXR8_Z5jdHi6B-myT').success).toBe(true)
         const result = runtime.safeParse('short')
@@ -2506,7 +2496,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: cuid → z.cuid() (accepts a cuid / rejects "not-cuid")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'cuid' } as Schema)).toBe('z.cuid()')
+        expect(zodToOpenAPI({ type: 'string', format: 'cuid' })).toBe('z.cuid()')
         const runtime = z.cuid()
         expect(runtime.safeParse('cjld2cjxh0000qzrmn831i7rn').success).toBe(true)
         const result = runtime.safeParse('not-cuid')
@@ -2526,7 +2516,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: cuid2 → z.cuid2() (accepts a cuid2 / rejects "NOT_CUID2")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'cuid2' } as Schema)).toBe('z.cuid2()')
+        expect(zodToOpenAPI({ type: 'string', format: 'cuid2' })).toBe('z.cuid2()')
         const runtime = z.cuid2()
         expect(runtime.safeParse('tz4a98xxat96iws9zmbrgj3a').success).toBe(true)
         const result = runtime.safeParse('NOT_CUID2')
@@ -2546,7 +2536,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: ulid → z.ulid() (accepts a ULID / rejects "not-ulid")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'ulid' } as Schema)).toBe('z.ulid()')
+        expect(zodToOpenAPI({ type: 'string', format: 'ulid' })).toBe('z.ulid()')
         const runtime = z.ulid()
         expect(runtime.safeParse('01HXY0RQXKQZ8JK4F1J6Y2W3VZ').success).toBe(true)
         const result = runtime.safeParse('not-ulid')
@@ -2566,7 +2556,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: ipv4 → z.ipv4() (accepts "127.0.0.1" / rejects "999.999.999.999")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'ipv4' } as Schema)).toBe('z.ipv4()')
+        expect(zodToOpenAPI({ type: 'string', format: 'ipv4' })).toBe('z.ipv4()')
         const runtime = z.ipv4()
         expect(runtime.safeParse('127.0.0.1').success).toBe(true)
         const result = runtime.safeParse('999.999.999.999')
@@ -2587,7 +2577,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: ipv6 → z.ipv6() (accepts "::1" / rejects "not-ipv6")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'ipv6' } as Schema)).toBe('z.ipv6()')
+        expect(zodToOpenAPI({ type: 'string', format: 'ipv6' })).toBe('z.ipv6()')
         const runtime = z.ipv6()
         expect(runtime.safeParse('::1').success).toBe(true)
         const result = runtime.safeParse('not-ipv6')
@@ -2605,7 +2595,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: cidrv4 → z.cidrv4() (accepts "10.0.0.0/8" / rejects "not-cidr")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'cidrv4' } as Schema)).toBe('z.cidrv4()')
+        expect(zodToOpenAPI({ type: 'string', format: 'cidrv4' })).toBe('z.cidrv4()')
         const runtime = z.cidrv4()
         expect(runtime.safeParse('10.0.0.0/8').success).toBe(true)
         const result = runtime.safeParse('not-cidr')
@@ -2626,7 +2616,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: cidrv6 → z.cidrv6() (accepts "::/0" / rejects "not-cidr")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'cidrv6' } as Schema)).toBe('z.cidrv6()')
+        expect(zodToOpenAPI({ type: 'string', format: 'cidrv6' })).toBe('z.cidrv6()')
         const runtime = z.cidrv6()
         expect(runtime.safeParse('::/0').success).toBe(true)
         const result = runtime.safeParse('not-cidr')
@@ -2644,7 +2634,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: date → z.iso.date() (accepts "2024-01-01" / rejects "not-date")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'date' } as Schema)).toBe('z.iso.date()')
+        expect(zodToOpenAPI({ type: 'string', format: 'date' })).toBe('z.iso.date()')
         const runtime = z.iso.date()
         expect(runtime.safeParse('2024-01-01').success).toBe(true)
         const result = runtime.safeParse('not-date')
@@ -2665,7 +2655,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: time → z.iso.time() (accepts "12:34:56" / rejects "not-time")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'time' } as Schema)).toBe('z.iso.time()')
+        expect(zodToOpenAPI({ type: 'string', format: 'time' })).toBe('z.iso.time()')
         const runtime = z.iso.time()
         expect(runtime.safeParse('12:34:56').success).toBe(true)
         const result = runtime.safeParse('not-time')
@@ -2685,9 +2675,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: date-time → z.iso.datetime() (accepts ISO datetime / rejects "not-datetime")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'date-time' } as Schema)).toBe(
-          'z.iso.datetime()',
-        )
+        expect(zodToOpenAPI({ type: 'string', format: 'date-time' })).toBe('z.iso.datetime()')
         const runtime = z.iso.datetime()
         expect(runtime.safeParse('2024-01-01T00:00:00Z').success).toBe(true)
         const result = runtime.safeParse('not-datetime')
@@ -2708,9 +2696,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: duration → z.iso.duration() (accepts "P1Y" / rejects "not-duration")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'duration' } as Schema)).toBe(
-          'z.iso.duration()',
-        )
+        expect(zodToOpenAPI({ type: 'string', format: 'duration' })).toBe('z.iso.duration()')
         const runtime = z.iso.duration()
         expect(runtime.safeParse('P1Y').success).toBe(true)
         const result = runtime.safeParse('not-duration')
@@ -2731,7 +2717,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: binary → z.file().openapi({type,format}) (rejects non-File "plain string"; valid File omitted for Node test env)', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'binary' } as Schema)).toBe(
+        expect(zodToOpenAPI({ type: 'string', format: 'binary' })).toBe(
           'z.file().openapi({type:"string",format:"binary"})',
         )
         const runtime = z.file()
@@ -2750,7 +2736,7 @@ describe('zodToOpenAPI', () => {
       })
 
       it.concurrent('string format: jwt → z.jwt() (accepts a sample HS256 JWT / rejects "not-jwt")', () => {
-        expect(zodToOpenAPI({ type: 'string', format: 'jwt' } as Schema)).toBe('z.jwt()')
+        expect(zodToOpenAPI({ type: 'string', format: 'jwt' })).toBe('z.jwt()')
         const runtime = z.jwt()
         expect(
           runtime.safeParse(
@@ -2775,7 +2761,7 @@ describe('zodToOpenAPI', () => {
       describe('number', () => {
         describe('type: number', () => {
           it.concurrent('number: bare type → z.number()', () => {
-            expect(zodToOpenAPI({ type: 'number' } as Schema)).toBe('z.number()')
+            expect(zodToOpenAPI({ type: 'number' })).toBe('z.number()')
             const runtime = z.number()
             expect(runtime.safeParse(1.5).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -2792,9 +2778,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: type=[number] + nullable=true → nullable()', () => {
-            expect(zodToOpenAPI({ type: ['number'], nullable: true } as Schema)).toBe(
-              'z.number().nullable()',
-            )
+            expect(zodToOpenAPI({ type: ['number'], nullable: true })).toBe('z.number().nullable()')
             const runtime = z.number().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -2811,9 +2795,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: type=[number, null] → nullable()', () => {
-            expect(zodToOpenAPI({ type: ['number', 'null'] } as Schema)).toBe(
-              'z.number().nullable()',
-            )
+            expect(zodToOpenAPI({ type: ['number', 'null'] })).toBe('z.number().nullable()')
             const runtime = z.number().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -2835,7 +2817,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 minimum: 0,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.number().positive()')
             const runtime = z.number().positive()
             expect(runtime.safeParse(1).success).toBe(true)
@@ -2860,7 +2842,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 minimum: 0,
                 exclusiveMinimum: false,
-              } as Schema),
+              }),
             ).toBe('z.number().nonnegative()')
             const runtime = z.number().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -2885,7 +2867,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 maximum: 0,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.number().negative()')
             const runtime = z.number().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
@@ -2910,7 +2892,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 maximum: 0,
                 exclusiveMaximum: false,
-              } as Schema),
+              }),
             ).toBe('z.number().nonpositive()')
             const runtime = z.number().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -2930,9 +2912,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: minimum=100 → min(100)', () => {
-            expect(zodToOpenAPI({ type: 'number', minimum: 100 } as Schema)).toBe(
-              'z.number().min(100)',
-            )
+            expect(zodToOpenAPI({ type: 'number', minimum: 100 })).toBe('z.number().min(100)')
             const runtime = z.number().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
             const result = runtime.safeParse(99)
@@ -2951,7 +2931,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: minimum=0 (no exclusive) → min(0)', () => {
-            expect(zodToOpenAPI({ type: 'number', minimum: 0 } as Schema)).toBe('z.number().min(0)')
+            expect(zodToOpenAPI({ type: 'number', minimum: 0 })).toBe('z.number().min(0)')
             const runtime = z.number().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
             const result = runtime.safeParse(-1)
@@ -2975,7 +2955,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 minimum: 100,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.number().gt(100)')
             const runtime = z.number().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
@@ -2995,9 +2975,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: maximum=100 → max(100)', () => {
-            expect(zodToOpenAPI({ type: 'number', maximum: 100 } as Schema)).toBe(
-              'z.number().max(100)',
-            )
+            expect(zodToOpenAPI({ type: 'number', maximum: 100 })).toBe('z.number().max(100)')
             const runtime = z.number().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
             const result = runtime.safeParse(101)
@@ -3016,7 +2994,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: maximum=0 (no exclusive) → max(0)', () => {
-            expect(zodToOpenAPI({ type: 'number', maximum: 0 } as Schema)).toBe('z.number().max(0)')
+            expect(zodToOpenAPI({ type: 'number', maximum: 0 })).toBe('z.number().max(0)')
             const runtime = z.number().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
             const result = runtime.safeParse(1)
@@ -3040,7 +3018,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 maximum: 100,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.number().lt(100)')
             const runtime = z.number().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
@@ -3060,9 +3038,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: multipleOf(2)', () => {
-            expect(zodToOpenAPI({ type: 'number', multipleOf: 2 } as Schema)).toBe(
-              'z.number().multipleOf(2)',
-            )
+            expect(zodToOpenAPI({ type: 'number', multipleOf: 2 })).toBe('z.number().multipleOf(2)')
             const runtime = z.number().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
             const result = runtime.safeParse(3)
@@ -3080,9 +3056,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: default(100)', () => {
-            expect(zodToOpenAPI({ type: 'number', default: 100 } as Schema)).toBe(
-              'z.number().default(100)',
-            )
+            expect(zodToOpenAPI({ type: 'number', default: 100 })).toBe('z.number().default(100)')
             const runtime = z.number().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3104,7 +3078,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 default: 100,
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.number().nullable().default(100)')
             const runtime = z.number().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3126,7 +3100,7 @@ describe('zodToOpenAPI', () => {
               zodToOpenAPI({
                 type: ['number', 'null'],
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.number().nullable().default(100)')
             const runtime = z.number().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3147,7 +3121,7 @@ describe('zodToOpenAPI', () => {
 
         describe('type: number, format: float', () => {
           it.concurrent('number: format=float → z.float32()', () => {
-            expect(zodToOpenAPI({ type: 'number', format: 'float' } as Schema)).toBe('z.float32()')
+            expect(zodToOpenAPI({ type: 'number', format: 'float' })).toBe('z.float32()')
             const runtime = z.float32()
             expect(runtime.safeParse(1.5).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3169,7 +3143,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 format: 'float',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.float32().nullable()')
             const runtime = z.float32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3192,7 +3166,7 @@ describe('zodToOpenAPI', () => {
                 type: ['number', 'null'],
                 format: 'float',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.float32().nullable()')
             const runtime = z.float32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3210,9 +3184,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('number: format=float64 → z.float64()', () => {
-            expect(zodToOpenAPI({ type: 'number', format: 'float64' } as Schema)).toBe(
-              'z.float64()',
-            )
+            expect(zodToOpenAPI({ type: 'number', format: 'float64' })).toBe('z.float64()')
             const runtime = z.float64()
             expect(runtime.safeParse(1.5).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3234,7 +3206,7 @@ describe('zodToOpenAPI', () => {
                 type: 'number',
                 format: 'float64',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.float64().nullable()')
             const runtime = z.float64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3257,7 +3229,7 @@ describe('zodToOpenAPI', () => {
                 type: ['number', 'null'],
                 format: 'float64',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.float64().nullable()')
             const runtime = z.float64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3281,7 +3253,7 @@ describe('zodToOpenAPI', () => {
       describe('integer', () => {
         describe('type: integer', () => {
           it.concurrent('integer: bare type → z.int()', () => {
-            expect(zodToOpenAPI({ type: 'integer' } as Schema)).toBe('z.int()')
+            expect(zodToOpenAPI({ type: 'integer' })).toBe('z.int()')
             const runtime = z.int()
             expect(runtime.safeParse(1).success).toBe(true)
             const result = runtime.safeParse(1.5)
@@ -3299,9 +3271,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: type=[integer] + nullable=true → nullable()', () => {
-            expect(zodToOpenAPI({ type: ['integer'], nullable: true } as Schema)).toBe(
-              'z.int().nullable()',
-            )
+            expect(zodToOpenAPI({ type: ['integer'], nullable: true })).toBe('z.int().nullable()')
             const runtime = z.int().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3318,7 +3288,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: type=[integer, null] → nullable()', () => {
-            expect(zodToOpenAPI({ type: ['integer', 'null'] } as Schema)).toBe('z.int().nullable()')
+            expect(zodToOpenAPI({ type: ['integer', 'null'] })).toBe('z.int().nullable()')
             const runtime = z.int().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3340,7 +3310,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 minimum: 0,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int().positive()')
             const runtime = z.int().positive()
             expect(runtime.safeParse(1).success).toBe(true)
@@ -3365,7 +3335,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 minimum: 0,
                 exclusiveMinimum: false,
-              } as Schema),
+              }),
             ).toBe('z.int().nonnegative()')
             const runtime = z.int().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3390,7 +3360,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 maximum: 0,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int().negative()')
             const runtime = z.int().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
@@ -3415,7 +3385,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 maximum: 0,
                 exclusiveMaximum: false,
-              } as Schema),
+              }),
             ).toBe('z.int().nonpositive()')
             const runtime = z.int().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3435,9 +3405,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: minimum=100 → min(100)', () => {
-            expect(zodToOpenAPI({ type: 'integer', minimum: 100 } as Schema)).toBe(
-              'z.int().min(100)',
-            )
+            expect(zodToOpenAPI({ type: 'integer', minimum: 100 })).toBe('z.int().min(100)')
             const runtime = z.int().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
             const result = runtime.safeParse(99)
@@ -3456,7 +3424,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: minimum=0 (no exclusive) → min(0)', () => {
-            expect(zodToOpenAPI({ type: 'integer', minimum: 0 } as Schema)).toBe('z.int().min(0)')
+            expect(zodToOpenAPI({ type: 'integer', minimum: 0 })).toBe('z.int().min(0)')
             const runtime = z.int().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
             const result = runtime.safeParse(-1)
@@ -3480,7 +3448,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 minimum: 100,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int().gt(100)')
             const runtime = z.int().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
@@ -3500,9 +3468,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: maximum=100 → max(100)', () => {
-            expect(zodToOpenAPI({ type: 'integer', maximum: 100 } as Schema)).toBe(
-              'z.int().max(100)',
-            )
+            expect(zodToOpenAPI({ type: 'integer', maximum: 100 })).toBe('z.int().max(100)')
             const runtime = z.int().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
             const result = runtime.safeParse(101)
@@ -3521,7 +3487,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: maximum=0 (no exclusive) → max(0)', () => {
-            expect(zodToOpenAPI({ type: 'integer', maximum: 0 } as Schema)).toBe('z.int().max(0)')
+            expect(zodToOpenAPI({ type: 'integer', maximum: 0 })).toBe('z.int().max(0)')
             const runtime = z.int().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
             const result = runtime.safeParse(1)
@@ -3545,7 +3511,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 maximum: 100,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int().lt(100)')
             const runtime = z.int().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
@@ -3565,9 +3531,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: exclusiveMaximum=100 (numeric form) → lt(100)', () => {
-            expect(zodToOpenAPI({ type: 'integer', exclusiveMaximum: 100 } as Schema)).toBe(
-              'z.int().lt(100)',
-            )
+            expect(zodToOpenAPI({ type: 'integer', exclusiveMaximum: 100 })).toBe('z.int().lt(100)')
             const runtime = z.int().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
             const result = runtime.safeParse(100)
@@ -3586,9 +3550,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: multipleOf(2)', () => {
-            expect(zodToOpenAPI({ type: 'integer', multipleOf: 2 } as Schema)).toBe(
-              'z.int().multipleOf(2)',
-            )
+            expect(zodToOpenAPI({ type: 'integer', multipleOf: 2 })).toBe('z.int().multipleOf(2)')
             const runtime = z.int().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
             const result = runtime.safeParse(3)
@@ -3606,9 +3568,7 @@ describe('zodToOpenAPI', () => {
             }
           })
           it.concurrent('integer: default(100)', () => {
-            expect(zodToOpenAPI({ type: 'integer', default: 100 } as Schema)).toBe(
-              'z.int().default(100)',
-            )
+            expect(zodToOpenAPI({ type: 'integer', default: 100 })).toBe('z.int().default(100)')
             const runtime = z.int().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3630,7 +3590,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 default: 100,
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.int().nullable().default(100)')
             const runtime = z.int().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3652,7 +3612,7 @@ describe('zodToOpenAPI', () => {
               zodToOpenAPI({
                 type: ['integer', 'null'],
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.int().nullable().default(100)')
             const runtime = z.int().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3673,7 +3633,7 @@ describe('zodToOpenAPI', () => {
 
         describe('type: integer, format: int32', () => {
           it.concurrent('int32: bare → z.int32()', () => {
-            expect(zodToOpenAPI({ type: 'integer', format: 'int32' } as Schema)).toBe('z.int32()')
+            expect(zodToOpenAPI({ type: 'integer', format: 'int32' })).toBe('z.int32()')
             const runtime = z.int32()
             expect(runtime.safeParse(1).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -3695,7 +3655,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().nullable()')
             const runtime = z.int32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3717,7 +3677,7 @@ describe('zodToOpenAPI', () => {
               zodToOpenAPI({
                 type: ['integer', 'null'],
                 format: 'int32',
-              } as Schema),
+              }),
             ).toBe('z.int32().nullable()')
             const runtime = z.int32().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -3741,7 +3701,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 minimum: 0,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().positive()')
             const runtime = z.int32().positive()
             expect(runtime.safeParse(1).success).toBe(true)
@@ -3767,7 +3727,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 minimum: 0,
                 exclusiveMinimum: false,
-              } as Schema),
+              }),
             ).toBe('z.int32().nonnegative()')
             const runtime = z.int32().nonnegative()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3793,7 +3753,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 maximum: 0,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().negative()')
             const runtime = z.int32().negative()
             expect(runtime.safeParse(-1).success).toBe(true)
@@ -3819,7 +3779,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 maximum: 0,
                 exclusiveMaximum: false,
-              } as Schema),
+              }),
             ).toBe('z.int32().nonpositive()')
             const runtime = z.int32().nonpositive()
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3844,7 +3804,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 minimum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int32().min(100)')
             const runtime = z.int32().min(100)
             expect(runtime.safeParse(200).success).toBe(true)
@@ -3869,7 +3829,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 minimum: 0,
-              } as Schema),
+              }),
             ).toBe('z.int32().min(0)')
             const runtime = z.int32().min(0)
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3895,7 +3855,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 minimum: 100,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().gt(100)')
             const runtime = z.int32().gt(100)
             expect(runtime.safeParse(101).success).toBe(true)
@@ -3920,7 +3880,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 maximum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int32().max(100)')
             const runtime = z.int32().max(100)
             expect(runtime.safeParse(50).success).toBe(true)
@@ -3945,7 +3905,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 maximum: 0,
-              } as Schema),
+              }),
             ).toBe('z.int32().max(0)')
             const runtime = z.int32().max(0)
             expect(runtime.safeParse(0).success).toBe(true)
@@ -3971,7 +3931,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 maximum: 100,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().lt(100)')
             const runtime = z.int32().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
@@ -3996,7 +3956,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 exclusiveMaximum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int32().lt(100)')
             const runtime = z.int32().lt(100)
             expect(runtime.safeParse(99).success).toBe(true)
@@ -4021,7 +3981,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 multipleOf: 2,
-              } as Schema),
+              }),
             ).toBe('z.int32().multipleOf(2)')
             const runtime = z.int32().multipleOf(2)
             expect(runtime.safeParse(4).success).toBe(true)
@@ -4045,7 +4005,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int32',
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.int32().default(100)')
             const runtime = z.int32().default(100)
             expect(runtime.safeParse(1).success).toBe(true)
@@ -4069,7 +4029,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int32',
                 default: 100,
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.int32().nullable().default(100)')
             const runtime = z.int32().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4092,7 +4052,7 @@ describe('zodToOpenAPI', () => {
                 type: ['integer', 'null'],
                 format: 'int32',
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.int32().nullable().default(100)')
             const runtime = z.int32().nullable().default(100)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4113,7 +4073,7 @@ describe('zodToOpenAPI', () => {
 
         describe('type: integer, format: int64', () => {
           it.concurrent('int64: bare → z.int64()', () => {
-            expect(zodToOpenAPI({ type: 'integer', format: 'int64' } as Schema)).toBe('z.int64()')
+            expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
             const runtime = z.int64()
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4135,7 +4095,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().nullable()')
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4157,7 +4117,7 @@ describe('zodToOpenAPI', () => {
               zodToOpenAPI({
                 type: ['integer', 'null'],
                 format: 'int64',
-              } as Schema),
+              }),
             ).toBe('z.int64().nullable()')
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4181,7 +4141,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 0,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().positive()')
             const runtime = z.int64().positive()
             expect(runtime.safeParse(1n).success).toBe(true)
@@ -4207,7 +4167,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 0,
                 exclusiveMinimum: false,
-              } as Schema),
+              }),
             ).toBe('z.int64().nonnegative()')
             const runtime = z.int64().nonnegative()
             expect(runtime.safeParse(0n).success).toBe(true)
@@ -4233,7 +4193,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 0,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().negative()')
             const runtime = z.int64().negative()
             expect(runtime.safeParse(-1n).success).toBe(true)
@@ -4259,7 +4219,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 0,
                 exclusiveMaximum: false,
-              } as Schema),
+              }),
             ).toBe('z.int64().nonpositive()')
             const runtime = z.int64().nonpositive()
             expect(runtime.safeParse(0n).success).toBe(true)
@@ -4284,7 +4244,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 minimum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int64().min(100n)')
             const runtime = z.int64().min(100n)
             expect(runtime.safeParse(200n).success).toBe(true)
@@ -4309,7 +4269,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 minimum: 0,
-              } as Schema),
+              }),
             ).toBe('z.int64().min(0n)')
             const runtime = z.int64().min(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
@@ -4335,7 +4295,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 100,
                 exclusiveMinimum: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().gt(100n)')
             const runtime = z.int64().gt(100n)
             expect(runtime.safeParse(101n).success).toBe(true)
@@ -4360,7 +4320,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 maximum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int64().max(100n)')
             const runtime = z.int64().max(100n)
             expect(runtime.safeParse(50n).success).toBe(true)
@@ -4385,7 +4345,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 maximum: 0,
-              } as Schema),
+              }),
             ).toBe('z.int64().max(0n)')
             const runtime = z.int64().max(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
@@ -4411,7 +4371,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 100,
                 exclusiveMaximum: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().lt(100n)')
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
@@ -4436,7 +4396,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 exclusiveMaximum: 100,
-              } as Schema),
+              }),
             ).toBe('z.int64().lt(100n)')
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
@@ -4461,7 +4421,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 multipleOf: 2,
-              } as Schema),
+              }),
             ).toBe('z.int64().multipleOf(2n)')
             const runtime = z.int64().multipleOf(2n)
             expect(runtime.safeParse(4n).success).toBe(true)
@@ -4485,7 +4445,7 @@ describe('zodToOpenAPI', () => {
                 type: 'integer',
                 format: 'int64',
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.int64().default(100n)')
             const runtime = z.int64().default(100n)
             expect(runtime.safeParse(1n).success).toBe(true)
@@ -4509,7 +4469,7 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 default: 100,
                 nullable: true,
-              } as Schema),
+              }),
             ).toBe('z.int64().nullable().default(100n)')
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4532,7 +4492,7 @@ describe('zodToOpenAPI', () => {
                 type: ['integer', 'null'],
                 format: 'int64',
                 default: 100,
-              } as Schema),
+              }),
             ).toBe('z.int64().nullable().default(100n)')
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
@@ -4556,7 +4516,7 @@ describe('zodToOpenAPI', () => {
       describe('boolean', () => {
         // ----- Core boolean cases -----
         it.concurrent('boolean: bare type → z.boolean()', () => {
-          expect(zodToOpenAPI({ type: 'boolean' } as Schema)).toBe('z.boolean()')
+          expect(zodToOpenAPI({ type: 'boolean' })).toBe('z.boolean()')
           const runtime = z.boolean()
           expect(runtime.safeParse(true).success).toBe(true)
           const result = runtime.safeParse('a')
@@ -4573,9 +4533,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('boolean: type=[boolean] + nullable=true → nullable()', () => {
-          expect(zodToOpenAPI({ type: ['boolean'], nullable: true } as Schema)).toBe(
-            'z.boolean().nullable()',
-          )
+          expect(zodToOpenAPI({ type: ['boolean'], nullable: true })).toBe('z.boolean().nullable()')
           const runtime = z.boolean().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
           const result = runtime.safeParse('a')
@@ -4592,9 +4550,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('boolean: type=[boolean, null] → nullable()', () => {
-          expect(zodToOpenAPI({ type: ['boolean', 'null'] } as Schema)).toBe(
-            'z.boolean().nullable()',
-          )
+          expect(zodToOpenAPI({ type: ['boolean', 'null'] })).toBe('z.boolean().nullable()')
           const runtime = z.boolean().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
           const result = runtime.safeParse('a')
@@ -4611,9 +4567,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('boolean: default(true)', () => {
-          expect(zodToOpenAPI({ type: 'boolean', default: true } as Schema)).toBe(
-            'z.boolean().default(true)',
-          )
+          expect(zodToOpenAPI({ type: 'boolean', default: true })).toBe('z.boolean().default(true)')
           const runtime = z.boolean().default(true)
           expect(runtime.safeParse(false).success).toBe(true)
           const result = runtime.safeParse('a')
@@ -4635,7 +4589,7 @@ describe('zodToOpenAPI', () => {
               type: 'boolean',
               default: true,
               nullable: true,
-            } as Schema),
+            }),
           ).toBe('z.boolean().nullable().default(true)')
           const runtime = z.boolean().nullable().default(true)
           expect(runtime.safeParse(null).success).toBe(true)
@@ -4657,7 +4611,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: ['boolean', 'null'],
               default: true,
-            } as Schema),
+            }),
           ).toBe('z.boolean().nullable().default(true)')
           const runtime = z.boolean().nullable().default(true)
           expect(runtime.safeParse(null).success).toBe(true)
@@ -4676,9 +4630,7 @@ describe('zodToOpenAPI', () => {
         })
         // ----- P1: x-coerce -----
         it.concurrent('boolean: x-coerce=true → z.coerce.boolean()', () => {
-          expect(zodToOpenAPI({ type: 'boolean', 'x-coerce': true } as Schema)).toBe(
-            'z.coerce.boolean()',
-          )
+          expect(zodToOpenAPI({ type: 'boolean', 'x-coerce': true })).toBe('z.coerce.boolean()')
           const runtime = z.coerce.boolean()
           expect(runtime.safeParse('anything-truthy').success).toBe(true)
           expect(runtime.safeParse('').success).toBe(true) // coerce: empty string coerces to false
@@ -4688,7 +4640,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-coerce': true,
             'x-error-message': 'ブール必須',
-          } as Schema)
+          })
           expect(generated).toBe('z.coerce.boolean({error:"ブール必須"})')
         })
         it.concurrent('boolean: x-coerce=true + x-required-message → requiredMessage dropped (unreachable)', () => {
@@ -4697,7 +4649,7 @@ describe('zodToOpenAPI', () => {
             'x-coerce': true,
             'x-required-message': '必須です',
             'x-error-message': 'ブール必須',
-          } as Schema)
+          })
           expect(generated).toBe('z.coerce.boolean({error:"ブール必須"})')
         })
         it.concurrent('boolean: x-coerce=true + x-required-message only → requiredMessage dropped', () => {
@@ -4705,7 +4657,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-coerce': true,
             'x-required-message': '必須です',
-          } as Schema)
+          })
           expect(generated).toBe('z.coerce.boolean()')
         })
         it.concurrent('regression: z.coerce.boolean(undefined) succeeds with false — all error handlers unreachable', () => {
@@ -4718,7 +4670,7 @@ describe('zodToOpenAPI', () => {
         })
         // ----- P2: x-catch / x-prefault / x-readonly -----
         it.concurrent('boolean: x-catch=false → z.boolean().catch(false)', () => {
-          expect(zodToOpenAPI({ type: 'boolean', 'x-catch': false } as Schema)).toBe(
+          expect(zodToOpenAPI({ type: 'boolean', 'x-catch': false })).toBe(
             'z.boolean().catch(false)',
           )
           const runtime = z.boolean().catch(false)
@@ -4727,7 +4679,7 @@ describe('zodToOpenAPI', () => {
           expect(runtime.safeParse('a').success).toBe(true)
         })
         it.concurrent('boolean: x-prefault=true → z.boolean().prefault(true)', () => {
-          expect(zodToOpenAPI({ type: 'boolean', 'x-prefault': true } as Schema)).toBe(
+          expect(zodToOpenAPI({ type: 'boolean', 'x-prefault': true })).toBe(
             'z.boolean().prefault(true)',
           )
           const runtime = z.boolean().prefault(true)
@@ -4751,7 +4703,7 @@ describe('zodToOpenAPI', () => {
               type: 'boolean',
               default: true,
               'x-catch': false,
-            } as Schema),
+            }),
           ).toBe('z.boolean().default(true).catch(false)')
           const runtime = z.boolean().default(true).catch(false)
           expect(runtime.safeParse(undefined).success).toBe(true)
@@ -4763,23 +4715,21 @@ describe('zodToOpenAPI', () => {
               type: 'boolean',
               'x-prefault': true,
               'x-catch': false,
-            } as Schema),
+            }),
           ).toBe('z.boolean().prefault(true).catch(false)')
           const runtime = z.boolean().prefault(true).catch(false)
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse('a').success).toBe(true)
         })
         it.concurrent('object: x-readonly=true → z.object({}).readonly()', () => {
-          expect(zodToOpenAPI({ type: 'object', 'x-readonly': true } as Schema)).toBe(
+          expect(zodToOpenAPI({ type: 'object', 'x-readonly': true })).toBe(
             'z.object({}).readonly()',
           )
           const runtime = z.object({}).readonly()
           expect(runtime.safeParse({}).success).toBe(true)
         })
         it.concurrent('string: x-readonly=true → z.string().readonly()', () => {
-          expect(zodToOpenAPI({ type: 'string', 'x-readonly': true } as Schema)).toBe(
-            'z.string().readonly()',
-          )
+          expect(zodToOpenAPI({ type: 'string', 'x-readonly': true })).toBe('z.string().readonly()')
           const runtime = z.string().readonly()
           expect(runtime.safeParse('ok').success).toBe(true)
         })
@@ -4788,7 +4738,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             'x-catch': 'fallback',
             'x-brand': 'Tag',
-          } as Schema)
+          })
           expect(generated).toBe('z.string().catch("fallback").brand<"Tag">()')
           // runtime skipped: TS-only brand<> generic carries no runtime constraint
         })
@@ -4798,7 +4748,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               'x-refine': '.refine((val) => val.length > 5,{message:"Too short"})',
-            } as Schema),
+            }),
           ).toBe('z.string().refine((val) => val.length > 5,{message:"Too short"})')
           const runtime = z.string().refine((val) => val.length > 5, { message: 'Too short' })
           expect(runtime.safeParse('hello!').success).toBe(true)
@@ -4816,7 +4766,7 @@ describe('zodToOpenAPI', () => {
               type: 'string',
               'x-refine':
                 '.refine((val) => val.length > 5,{message:"Too short"}).refine((val) => /^[a-z]/.test(val),{message:"Lowercase start"})',
-            } as Schema),
+            }),
           ).toBe(
             'z.string().refine((val) => val.length > 5,{message:"Too short"}).refine((val) => /^[a-z]/.test(val),{message:"Lowercase start"})',
           )
@@ -4838,7 +4788,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               'x-refine': '.refine((val) => val !== "x",{path:["name"]})',
-            } as Schema),
+            }),
           ).toBe('z.string().refine((val) => val !== "x",{path:["name"]})')
           const runtime = z.string().refine((val) => val !== 'x', { path: ['name'] })
           expect(runtime.safeParse('y').success).toBe(true)
@@ -4856,7 +4806,7 @@ describe('zodToOpenAPI', () => {
               type: 'string',
               'x-superRefine':
                 ".superRefine((val, ctx) => { if (val === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) })",
-            } as Schema),
+            }),
           ).toBe(
             "z.string().superRefine((val, ctx) => { if (val === 'forbidden') ctx.addIssue({code:'custom',message:'no'}) })",
           )
@@ -4876,7 +4826,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             format: 'date-time',
             'x-codec': 'date',
-          } as Schema)
+          })
           expect(generated).toBe('date')
           // runtime skipped: z.codec API surface evaluation can be brittle
         })
@@ -4889,7 +4839,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               'x-codec':
                 'z.codec(z.number(),z.date(),{decode:(n)=>new Date(n),encode:(d)=>d.getTime()})',
-            } as Schema),
+            }),
           ).toBe('z.codec(z.number(),z.date(),{decode:(n)=>new Date(n),encode:(d)=>d.getTime()})')
         })
         it.concurrent('object: x-codec replaces base verbatim', () => {
@@ -4898,7 +4848,7 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               properties: { a: { type: 'string' } },
               'x-codec': 'CUSTOM_CODEC',
-            } as Schema),
+            }),
           ).toBe('CUSTOM_CODEC')
         })
         it.concurrent('array: x-codec replaces base verbatim', () => {
@@ -4907,7 +4857,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               'x-codec': 'CUSTOM_CODEC',
-            } as Schema),
+            }),
           ).toBe('CUSTOM_CODEC')
         })
         it.concurrent('precedence: x-preprocess wins over x-codec', () => {
@@ -4916,7 +4866,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               'x-preprocess': 'PRE',
               'x-codec': 'CODEC',
-            } as Schema),
+            }),
           ).toBe('PRE')
         })
         it.concurrent('precedence: x-pipe wins over x-codec', () => {
@@ -4925,7 +4875,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               'x-pipe': 'PIPE',
               'x-codec': 'CODEC',
-            } as Schema),
+            }),
           ).toBe('PIPE')
         })
         // ----- v2.5: x-required-message / x-error-message / x-const-message -----
@@ -4935,7 +4885,7 @@ describe('zodToOpenAPI', () => {
               type: 'string',
               'x-error-message': 'Type wrong',
               'x-required-message': 'Required',
-            } as Schema),
+            }),
           ).toBe('z.string({error:(issue)=>issue.input===undefined?"Required":"Type wrong"})')
           const runtime = z.string({
             error: (issue) => (issue.input === undefined ? 'Required' : 'Type wrong'),
@@ -4959,7 +4909,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               'x-required-message': 'Required only',
-            } as Schema),
+            }),
           ).toBe('z.string({error:(issue)=>issue.input===undefined?"Required only":undefined})')
           const runtime = z.string({
             error: (issue) => (issue.input === undefined ? 'Required only' : undefined),
@@ -4983,7 +4933,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               const: 'fixed',
               'x-const-message': 'Must be "fixed"',
-            } as Schema),
+            }),
           ).toBe('z.literal("fixed",{error:"Must be \\"fixed\\""})')
           const runtime = z.literal('fixed', { error: 'Must be "fixed"' })
           expect(runtime.safeParse('fixed').success).toBe(true)
@@ -5007,7 +4957,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'number' },
               contains: { const: 5 },
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.number()).superRefine((arr,ctx)=>{const Schema=z.literal(5);const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom"})}})',
           )
@@ -5041,7 +4991,7 @@ describe('zodToOpenAPI', () => {
               contains: { type: 'number', minimum: 0 },
               minContains: 2,
               maxContains: 5,
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.number()).superRefine((arr,ctx)=>{const Schema=z.number().min(0);const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<2){ctx.addIssue({code:"custom"})};if(matched>5){ctx.addIssue({code:"custom"})}})',
           )
@@ -5080,7 +5030,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               uniqueItems: true,
               'x-uniqueItems-message': 'Duplicates not allowed',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"Duplicates not allowed"});else seen.set(key,i)}})',
           )
@@ -5110,7 +5060,7 @@ describe('zodToOpenAPI', () => {
             required: ['name'],
             additionalProperties: false,
             'x-additionalProperties-message': 'No extra fields',
-          } as Schema)
+          })
           expect(generated).toBe(
             `z.strictObject({name:z.string()},{error:(issue)=>issue.code==='unrecognized_keys'?"No extra fields":undefined}).openapi({"required":["name"]})`,
           )
@@ -5122,7 +5072,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               $comment: 'this is a note',
-            } as Schema),
+            }),
           ).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('ok').success).toBe(true)
@@ -5144,7 +5094,7 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             contentEncoding: 'base64',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
@@ -5161,7 +5111,7 @@ describe('zodToOpenAPI', () => {
               properties: { name: { type: 'string' } },
               required: ['name'],
             },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({name:z.string()}).openapi({"required":["name"]}))',
           )
@@ -5178,7 +5128,7 @@ describe('zodToOpenAPI', () => {
                 required: ['billingAddress'],
               },
             },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({creditCard:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"creditCard")){return}const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"billingAddress")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"billingAddress")){const Schema=z.string();if(!Schema.safeParse(Reflect.get(val,"billingAddress")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["billingAddress"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
@@ -5193,7 +5143,7 @@ describe('zodToOpenAPI', () => {
             if: { properties: { type: { const: 'premium' } }, required: ['type'] },
             then: { required: ['premiumFeature'] },
             else: { required: ['basicFeature'] },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"type")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"type")){const Schema=z.literal("premium");if(!Schema.safeParse(Reflect.get(val,"type")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["type"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"premiumFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["premiumFeature"]}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"basicFeature")){ctx.addIssue({code:\'custom\'})}}}).openapi({"required":["basicFeature"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
@@ -5207,7 +5157,7 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               properties: { name: { type: 'string' } },
               unevaluatedProperties: false,
-            } as Schema),
+            }),
           ).toBe(
             'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const e=new Set();for(const k of ["name"]){e.add(k)};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
           )
@@ -5237,7 +5187,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               prefixItems: [{ type: 'string' }, { type: 'number' }],
               unevaluatedItems: false,
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}};for(let i=Prefix.length;i<arr.length;i++){ctx.addIssue({code:"custom",path:[i]})}})',
           )
@@ -5249,7 +5199,7 @@ describe('zodToOpenAPI', () => {
                 for (const issue of valid.error.issues)
                   ctx.addIssue({ ...issue, path: [i, ...issue.path] })
             }
-            for (let i = Prefix.length; i < arr.length; i++)
+            for (let i = Prefix.length; i < arr.length; i += 1)
               ctx.addIssue({ code: 'custom', path: [i], message: 'Unevaluated item at index ' + i })
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
@@ -5266,7 +5216,7 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             $schema: 'https://json-schema.org/draft/2020-12/schema',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.string().openapi({"$schema":"https://json-schema.org/draft/2020-12/schema"})',
           )
@@ -5276,24 +5226,24 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             $id: 'https://example.com/schemas/user.json',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.string().openapi({"$id":"https://example.com/schemas/user.json"})',
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
         it.concurrent('string: $anchor pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $anchor: 'user-name' } as Schema)
+          const generated = zodToOpenAPI({ type: 'string', $anchor: 'user-name' })
           expect(generated).toBe('z.string().openapi({"$anchor":"user-name"})')
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
         it.concurrent('string: $dynamicAnchor pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $dynamicAnchor: 'meta' } as Schema)
+          const generated = zodToOpenAPI({ type: 'string', $dynamicAnchor: 'meta' })
           expect(generated).toBe('z.string().openapi({"$dynamicAnchor":"meta"})')
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
         it.concurrent('string: $dynamicRef pass-through', () => {
-          const generated = zodToOpenAPI({ type: 'string', $dynamicRef: '#meta' } as Schema)
+          const generated = zodToOpenAPI({ type: 'string', $dynamicRef: '#meta' })
           expect(generated).toBe('z.string().openapi({"$dynamicRef":"#meta"})')
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
@@ -5301,7 +5251,7 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             $vocabulary: { 'https://json-schema.org/draft/2020-12/vocab/core': true },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.string().openapi({"$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true}})',
           )
@@ -5312,7 +5262,7 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             $defs: { Email: { type: 'string', format: 'email' } },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.string().openapi({"$defs":{"Email":{"type":"string","format":"email"}}})',
           )
@@ -5323,16 +5273,14 @@ describe('zodToOpenAPI', () => {
           const generated = zodToOpenAPI({
             type: 'string',
             contentEncoding: 'base64url',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64url().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
           // runtime skipped: env dependency on atob/Buffer
         })
         it.concurrent('string: contentEncoding=binary → z.string() (no decode)', () => {
-          expect(zodToOpenAPI({ type: 'string', contentEncoding: 'binary' } as Schema)).toBe(
-            'z.string()',
-          )
+          expect(zodToOpenAPI({ type: 'string', contentEncoding: 'binary' })).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
           const result = runtime.safeParse(1)
@@ -5349,9 +5297,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('string: contentEncoding=7bit → z.string() (no decode)', () => {
-          expect(zodToOpenAPI({ type: 'string', contentEncoding: '7bit' } as Schema)).toBe(
-            'z.string()',
-          )
+          expect(zodToOpenAPI({ type: 'string', contentEncoding: '7bit' })).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
           const result = runtime.safeParse(1)
@@ -5374,7 +5320,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64',
             contentMediaType: 'application/json',
             contentSchema: { $ref: '#/components/schemas/Inner' },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(InnerSchema)',
           )
@@ -5387,7 +5333,7 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               properties: { name: { type: 'string' } },
               unevaluatedProperties: { type: 'string' },
-            } as Schema),
+            }),
           ).toBe(
             'z.looseObject({name:z.string().exactOptional()}).superRefine((o,ctx)=>{const e=new Set();for(const k of ["name"]){e.add(k)};const Schema=z.string();for(const [k,val] of Object.entries(o)){if(e.has(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path]})}}}})',
           )
@@ -5426,7 +5372,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               prefixItems: [{ type: 'string' }],
               unevaluatedItems: { type: 'number' },
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}};const Rest=z.number();for(const [i,val] of arr.slice(Prefix.length).entries()){const result=Rest.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[Prefix.length+i,...issue.path]})}}}})',
           )
@@ -5469,7 +5415,7 @@ describe('zodToOpenAPI', () => {
               a: { type: 'object', required: ['b'], properties: { b: { type: 'string' } } },
               b: { type: 'object', required: ['a'], properties: { a: { type: 'string' } } },
             },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({a:z.string().exactOptional(),b:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"a")){return}const Schema=z.object({b:z.string()}).openapi({"required":["b"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"b")){return}const Schema=z.object({a:z.string()}).openapi({"required":["a"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
@@ -5485,7 +5431,7 @@ describe('zodToOpenAPI', () => {
             if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
             // oxlint-disable-next-line no-thenable -- JSON Schema `then` keyword as property name (essential)
             then: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.object({kind:z.literal("a")}).openapi({"required":["kind"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({x:z.string()}).openapi({"required":["x"]}):undefined;if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
@@ -5498,7 +5444,7 @@ describe('zodToOpenAPI', () => {
             properties: { kind: { type: 'string' }, x: { type: 'string' } },
             if: { type: 'object', properties: { kind: { const: 'a' } }, required: ['kind'] },
             else: { type: 'object', required: ['x'], properties: { x: { type: 'string' } } },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({kind:z.string().exactOptional(),x:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.object({kind:z.literal("a")}).openapi({"required":["kind"]});const ifOk=If.safeParse(o).success;const Branch=ifOk?undefined:z.object({x:z.string()}).openapi({"required":["x"]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
           )
@@ -5506,9 +5452,7 @@ describe('zodToOpenAPI', () => {
         })
         // ----- v2.8: contentEncoding fallback cases -----
         it.concurrent('string: contentEncoding=8bit → z.string() (fallback)', () => {
-          expect(zodToOpenAPI({ type: 'string', contentEncoding: '8bit' } as Schema)).toBe(
-            'z.string()',
-          )
+          expect(zodToOpenAPI({ type: 'string', contentEncoding: '8bit' })).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
           const result = runtime.safeParse(1)
@@ -5529,7 +5473,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               contentEncoding: 'quoted-printable',
-            } as Schema),
+            }),
           ).toBe('z.string()')
           const runtime = z.string()
           expect(runtime.safeParse('anything').success).toBe(true)
@@ -5553,7 +5497,7 @@ describe('zodToOpenAPI', () => {
             contentEncoding: 'base64url',
             contentMediaType: 'application/json',
             contentSchema: { type: 'array', items: { type: 'number' } },
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64url().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.array(z.number()))',
           )
@@ -5565,7 +5509,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64',
             contentMediaType: 'text/plain',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8"))',
           )
@@ -5577,7 +5521,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64',
             contentMediaType: 'image/png',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
@@ -5588,7 +5532,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64',
             contentMediaType: 'audio/mpeg',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
@@ -5599,7 +5543,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64',
             contentMediaType: 'video/mp4',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
@@ -5610,7 +5554,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64',
             contentMediaType: 'application/octet-stream',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
@@ -5622,7 +5566,7 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             contentEncoding: 'base64url',
             contentMediaType: 'image/jpeg',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.base64url().transform((val)=>typeof atob==="function"?Uint8Array.from(atob(val),(c)=>c.charCodeAt(0)):new Uint8Array(Buffer.from(val,"base64")))',
           )
@@ -5633,7 +5577,7 @@ describe('zodToOpenAPI', () => {
       // object
       describe('object', () => {
         it.concurrent('object: empty schema', () => {
-          expect(zodToOpenAPI({ type: 'object' } as Schema)).toBe('z.object({})')
+          expect(zodToOpenAPI({ type: 'object' })).toBe('z.object({})')
           const runtime = z.object({})
           expect(runtime.safeParse({}).success).toBe(true)
           const result = runtime.safeParse('string')
@@ -5650,9 +5594,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: nullable via nullable:true', () => {
-          expect(zodToOpenAPI({ type: ['object'], nullable: true } as Schema)).toBe(
-            'z.object({}).nullable()',
-          )
+          expect(zodToOpenAPI({ type: ['object'], nullable: true })).toBe('z.object({}).nullable()')
           const runtime = z.object({}).nullable()
           expect(runtime.safeParse({}).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
@@ -5670,9 +5612,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: nullable via type tuple', () => {
-          expect(zodToOpenAPI({ type: ['object', 'null'] } as Schema)).toBe(
-            'z.object({}).nullable()',
-          )
+          expect(zodToOpenAPI({ type: ['object', 'null'] })).toBe('z.object({}).nullable()')
           const runtime = z.object({}).nullable()
           expect(runtime.safeParse({}).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
@@ -5682,7 +5622,7 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             properties: { name: { type: 'string' } },
             required: ['name'],
-          } as Schema)
+          })
           expect(generated).toBe('z.object({name:z.string()}).openapi({"required":["name"]})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
@@ -5691,7 +5631,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'object',
               properties: { name: { type: 'string' } },
-            } as Schema),
+            }),
           ).toBe('z.object({name:z.string().exactOptional()})')
           const runtime = z.object({ name: z.string().exactOptional() })
           expect(runtime.safeParse({ name: 'foo' }).success).toBe(true)
@@ -5702,14 +5642,14 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             properties: { name: { type: 'string' }, age: { type: 'integer' } },
             required: ['name'],
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({name:z.string(),age:z.int().exactOptional()}).openapi({"required":["name"]})',
           )
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
         it.concurrent('object: additionalProperties:true → looseObject', () => {
-          expect(zodToOpenAPI({ type: 'object', additionalProperties: true } as Schema)).toBe(
+          expect(zodToOpenAPI({ type: 'object', additionalProperties: true })).toBe(
             'z.looseObject({})',
           )
           const runtime = z.looseObject({})
@@ -5720,7 +5660,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'object',
               additionalProperties: { type: 'string' },
-            } as Schema),
+            }),
           ).toBe('z.record(z.string(),z.string())')
           const runtime = z.record(z.string(), z.string())
           expect(runtime.safeParse({ a: 'foo' }).success).toBe(true)
@@ -5738,9 +5678,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('object: with default', () => {
-          expect(zodToOpenAPI({ type: 'object', default: {} } as Schema)).toBe(
-            'z.object({}).default({})',
-          )
+          expect(zodToOpenAPI({ type: 'object', default: {} })).toBe('z.object({}).default({})')
           const runtime = z.object({}).default({})
           expect(runtime.safeParse(undefined).success).toBe(true)
         })
@@ -5750,14 +5688,14 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               default: {},
               nullable: true,
-            } as Schema),
+            }),
           ).toBe('z.object({}).nullable().default({})')
           const runtime = z.object({}).nullable().default({})
           expect(runtime.safeParse(undefined).success).toBe(true)
           expect(runtime.safeParse(null).success).toBe(true)
         })
         it.concurrent('object: nullable via type tuple + default', () => {
-          expect(zodToOpenAPI({ type: ['object', 'null'], default: {} } as Schema)).toBe(
+          expect(zodToOpenAPI({ type: ['object', 'null'], default: {} })).toBe(
             'z.object({}).nullable().default({})',
           )
           const runtime = z.object({}).nullable().default({})
@@ -5773,7 +5711,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'array',
               items: { type: 'string' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.string())')
           const runtime = z.array(z.string())
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5795,7 +5733,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'array',
               items: { type: 'number' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.number())')
           const runtime = z.array(z.number())
           expect(runtime.safeParse([1, 2]).success).toBe(true)
@@ -5817,7 +5755,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'array',
               items: { type: 'integer' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.int())')
           const runtime = z.array(z.int())
           expect(runtime.safeParse([1]).success).toBe(true)
@@ -5840,7 +5778,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'array',
               items: { type: 'boolean' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.boolean())')
           const runtime = z.array(z.boolean())
           expect(runtime.safeParse([true]).success).toBe(true)
@@ -5862,7 +5800,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'array',
               items: { type: 'object' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.object({}))')
           const runtime = z.array(z.object({}))
           expect(runtime.safeParse([{}]).success).toBe(true)
@@ -5885,7 +5823,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               nullable: true,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).nullable()')
           const runtime = z.array(z.string()).nullable()
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5896,7 +5834,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: ['array', 'null'],
               items: { type: 'string' },
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).nullable()')
           const runtime = z.array(z.string()).nullable()
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5908,7 +5846,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               minItems: 1,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).min(1)')
           const runtime = z.array(z.string()).min(1)
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5933,7 +5871,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               maxItems: 10,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).max(10)')
           const runtime = z.array(z.string()).max(10)
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5959,7 +5897,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               minItems: 1,
               maxItems: 10,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).min(1).max(10)')
           const runtime = z.array(z.string()).min(1).max(10)
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -5984,7 +5922,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               uniqueItems: true,
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]});else seen.set(key,i)}})',
           )
@@ -6016,7 +5954,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               default: [],
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).default([])')
           const runtime = z.array(z.string()).default([])
           expect(runtime.safeParse(undefined).success).toBe(true)
@@ -6028,7 +5966,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               default: [],
               nullable: true,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).nullable().default([])')
           const runtime = z.array(z.string()).nullable().default([])
           expect(runtime.safeParse(undefined).success).toBe(true)
@@ -6040,7 +5978,7 @@ describe('zodToOpenAPI', () => {
               type: ['array', 'null'],
               items: { type: 'string' },
               default: [],
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).nullable().default([])')
           const runtime = z.array(z.string()).nullable().default([])
           expect(runtime.safeParse(undefined).success).toBe(true)
@@ -6099,7 +6037,7 @@ describe('zodToOpenAPI', () => {
       // null
       describe('null', () => {
         it.concurrent('null: bare', () => {
-          expect(zodToOpenAPI({ type: 'null' } as Schema)).toBe('z.null().nullable()')
+          expect(zodToOpenAPI({ type: 'null' })).toBe('z.null().nullable()')
           const runtime = z.null().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
           const result = runtime.safeParse(123)
@@ -6116,7 +6054,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('null: via type tuple', () => {
-          expect(zodToOpenAPI({ type: ['null'] } as Schema)).toBe('z.null().nullable()')
+          expect(zodToOpenAPI({ type: ['null'] })).toBe('z.null().nullable()')
           const runtime = z.null().nullable()
           expect(runtime.safeParse(null).success).toBe(true)
           const result = runtime.safeParse(123)
@@ -6142,7 +6080,7 @@ describe('zodToOpenAPI', () => {
               type: 'string',
               format: 'email',
               'x-error-message': 'Invalid email',
-            } as Schema),
+            }),
           ).toBe('z.email({error:"Invalid email"})')
           const runtime = z.email({ error: 'Invalid email' })
           expect(runtime.safeParse('a@b.co').success).toBe(true)
@@ -6170,7 +6108,7 @@ describe('zodToOpenAPI', () => {
               maxLength: 20,
               'x-minLength-message': '3文字以上',
               'x-maxLength-message': '20文字以下',
-            } as Schema),
+            }),
           ).toBe('z.string().min(3,{error:"3文字以上"}).max(20,{error:"20文字以下"})')
           const runtime = z.string().min(3, { error: '3文字以上' }).max(20, { error: '20文字以下' })
           expect(runtime.safeParse('abc').success).toBe(true)
@@ -6195,7 +6133,7 @@ describe('zodToOpenAPI', () => {
               type: 'string',
               pattern: '^[a-z]+$',
               'x-pattern-message': 'lowercase only',
-            } as Schema),
+            }),
           ).toBe('z.string().regex(/^[a-z]+$/,{error:"lowercase only"})')
           const runtime = z.string().regex(/^[a-z]+$/, { error: 'lowercase only' })
           expect(runtime.safeParse('abc').success).toBe(true)
@@ -6220,7 +6158,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               minimum: 0,
               'x-minimum-message': 'Must be >= 0',
-            } as Schema),
+            }),
           ).toBe('z.number().min(0,{error:"Must be >= 0"})')
           const runtime = z.number().min(0, { error: 'Must be >= 0' })
           expect(runtime.safeParse(1).success).toBe(true)
@@ -6245,7 +6183,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               maximum: 100,
               'x-maximum-message': 'Must be <= 100',
-            } as Schema),
+            }),
           ).toBe('z.number().max(100,{error:"Must be <= 100"})')
           const runtime = z.number().max(100, { error: 'Must be <= 100' })
           expect(runtime.safeParse(50).success).toBe(true)
@@ -6270,7 +6208,7 @@ describe('zodToOpenAPI', () => {
               type: 'integer',
               minimum: 1,
               'x-minimum-message': '1以上',
-            } as Schema),
+            }),
           ).toBe('z.int().min(1,{error:"1以上"})')
           const runtime = z.int().min(1, { error: '1以上' })
           expect(runtime.safeParse(1).success).toBe(true)
@@ -6296,7 +6234,7 @@ describe('zodToOpenAPI', () => {
               format: 'int64',
               maximum: 100,
               'x-maximum-message': '100以下',
-            } as Schema),
+            }),
           ).toBe('z.int64().max(100n,{error:"100以下"})')
           const runtime = z.int64().max(100n, { error: '100以下' })
           expect(runtime.safeParse(50n).success).toBe(true)
@@ -6321,7 +6259,7 @@ describe('zodToOpenAPI', () => {
             format: 'email',
             'x-error-message': 'メール不正',
             description: 'User email',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.email({error:"メール不正"}).openapi({"description":"User email"})',
           )
@@ -6359,7 +6297,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               'x-error-message': '文字列必須',
-            } as Schema),
+            }),
           ).toBe('z.string({error:"文字列必須"})')
           const runtime = z.string({ error: '文字列必須' })
           expect(runtime.safeParse('x').success).toBe(true)
@@ -6381,7 +6319,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'number',
               'x-error-message': '数値必須',
-            } as Schema),
+            }),
           ).toBe('z.number({error:"数値必須"})')
           const runtime = z.number({ error: '数値必須' })
           expect(runtime.safeParse(1).success).toBe(true)
@@ -6404,7 +6342,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               format: 'float',
               'x-error-message': 'float必須',
-            } as Schema),
+            }),
           ).toBe('z.float32({error:"float必須"})')
           const runtime = z.float32({ error: 'float必須' })
           expect(runtime.safeParse(1.5).success).toBe(true)
@@ -6426,7 +6364,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'integer',
               'x-error-message': '整数必須',
-            } as Schema),
+            }),
           ).toBe('z.int({error:"整数必須"})')
           const runtime = z.int({ error: '整数必須' })
           expect(runtime.safeParse(1).success).toBe(true)
@@ -6449,7 +6387,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'boolean',
               'x-error-message': 'ブール必須',
-            } as Schema),
+            }),
           ).toBe('z.boolean({error:"ブール必須"})')
           const runtime = z.boolean({ error: 'ブール必須' })
           expect(runtime.safeParse(true).success).toBe(true)
@@ -6473,7 +6411,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               minItems: 2,
               'x-error-message': 'common',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).min(2,{error:"common"})')
         })
         it.concurrent('array: x-minItems-message wins over x-error-message', () => {
@@ -6484,7 +6422,7 @@ describe('zodToOpenAPI', () => {
               minItems: 2,
               'x-error-message': 'common',
               'x-minItems-message': 'min wins',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).min(2,{error:"min wins"})')
         })
         it.concurrent('array: x-error-message fallback to .max()', () => {
@@ -6494,7 +6432,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               maxItems: 5,
               'x-error-message': 'common',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).max(5,{error:"common"})')
         })
         it.concurrent('array: x-error-message fallback to .length() (minItems === maxItems)', () => {
@@ -6505,7 +6443,7 @@ describe('zodToOpenAPI', () => {
               minItems: 3,
               maxItems: 3,
               'x-error-message': 'common',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).length(3,{error:"common"})')
         })
         it.concurrent('array: x-error-message fallback to uniqueItems superRefine', () => {
@@ -6515,7 +6453,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               uniqueItems: true,
               'x-error-message': 'common',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string(),{error:"common"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"common"});else seen.set(key,i)}})',
           )
@@ -6526,7 +6464,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               minItems: 2,
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).min(2)')
         })
         // Symmetric coverage for the remaining array slots so every chain
@@ -6539,7 +6477,7 @@ describe('zodToOpenAPI', () => {
               maxItems: 5,
               'x-error-message': 'common',
               'x-maxItems-message': 'max wins',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).max(5,{error:"max wins"})')
         })
         it.concurrent('array: x-length-message wins over x-error-message (fixed length)', () => {
@@ -6551,7 +6489,7 @@ describe('zodToOpenAPI', () => {
               maxItems: 3,
               'x-error-message': 'common',
               'x-length-message': 'len wins',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"common"}).length(3,{error:"len wins"})')
         })
         it.concurrent('array: x-uniqueItems-message wins over x-error-message', () => {
@@ -6562,7 +6500,7 @@ describe('zodToOpenAPI', () => {
               uniqueItems: true,
               'x-error-message': 'common',
               'x-uniqueItems-message': 'uniq wins',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string(),{error:"common"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"uniq wins"});else seen.set(key,i)}})',
           )
@@ -6573,7 +6511,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               'x-error-message': '配列必須',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"配列必須"})')
           const runtime = z.array(z.string(), { error: '配列必須' })
           expect(runtime.safeParse(['x']).success).toBe(true)
@@ -6595,7 +6533,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'null',
               'x-error-message': 'null必須',
-            } as Schema),
+            }),
           ).toBe('z.null({error:"null必須"}).nullable()')
           const runtime = z.null({ error: 'null必須' }).nullable()
           expect(runtime.safeParse(null).success).toBe(true)
@@ -6617,7 +6555,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               enum: ['A', 'B'],
               'x-error-message': '無効な値',
-            } as Schema),
+            }),
           ).toBe('z.enum(["A","B"],{error:"無効な値"})')
           const runtime = z.enum(['A', 'B'], { error: '無効な値' })
           expect(runtime.safeParse('A').success).toBe(true)
@@ -6639,7 +6577,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               enum: ['only'],
               'x-error-message': 'onlyのみ',
-            } as Schema),
+            }),
           ).toBe(`z.literal('only',{error:"onlyのみ"})`)
           const runtime = z.literal('only', { error: 'onlyのみ' })
           expect(runtime.safeParse('only').success).toBe(true)
@@ -6661,7 +6599,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               enum: [1, 2, 3],
               'x-error-message': '1-3のみ',
-            } as Schema),
+            }),
           ).toBe('z.union([z.literal(1),z.literal(2),z.literal(3)],{error:"1-3のみ"})')
           const runtime = z.union([z.literal(1), z.literal(2), z.literal(3)], { error: '1-3のみ' })
           expect(runtime.safeParse(1).success).toBe(true)
@@ -6709,7 +6647,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               enum: [42],
               'x-error-message': '42のみ',
-            } as Schema),
+            }),
           ).toBe('z.literal(42,{error:"42のみ"})')
           const runtime = z.literal(42, { error: '42のみ' })
           expect(runtime.safeParse(42).success).toBe(true)
@@ -6732,7 +6670,7 @@ describe('zodToOpenAPI', () => {
               type: 'boolean',
               enum: [true, false],
               'x-error-message': 'ブール値',
-            } as Schema),
+            }),
           ).toBe('z.union([z.literal(true),z.literal(false)],{error:"ブール値"})')
           const runtime = z.union([z.literal(true), z.literal(false)], { error: 'ブール値' })
           expect(runtime.safeParse(true).success).toBe(true)
@@ -6771,7 +6709,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'string',
               'x-error-message': '()=>"required"',
-            } as Schema),
+            }),
           ).toBe('z.string({error:()=>"required"})')
           const runtime = z.string({ error: () => 'required' })
           expect(runtime.safeParse('x').success).toBe(true)
@@ -6794,7 +6732,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               minimum: 0,
               'x-minimum-message': '(iss)=>iss.input===undefined?"required":"invalid"',
-            } as Schema),
+            }),
           ).toBe('z.number().min(0,{error:(iss)=>iss.input===undefined?"required":"invalid"})')
           const runtime = z
             .number()
@@ -6826,7 +6764,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'number' },
               minItems: 1,
               'x-minItems-message': 'At least 1',
-            } as Schema),
+            }),
           ).toBe('z.array(z.number()).min(1,{error:"At least 1"})')
           const runtime = z.array(z.number()).min(1, { error: 'At least 1' })
           expect(runtime.safeParse([1]).success).toBe(true)
@@ -6852,7 +6790,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'number' },
               maxItems: 5,
               'x-maxItems-message': 'At most 5',
-            } as Schema),
+            }),
           ).toBe('z.array(z.number()).max(5,{error:"At most 5"})')
           const runtime = z.array(z.number()).max(5, { error: 'At most 5' })
           expect(runtime.safeParse([1, 2]).success).toBe(true)
@@ -6880,7 +6818,7 @@ describe('zodToOpenAPI', () => {
               maxItems: 10,
               'x-minItems-message': '1個以上',
               'x-maxItems-message': '10個以下',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string()).min(1,{error:"1個以上"}).max(10,{error:"10個以下"})')
           const runtime = z
             .array(z.string())
@@ -6937,7 +6875,7 @@ describe('zodToOpenAPI', () => {
               items: { type: 'string' },
               uniqueItems: true,
               'x-uniqueItems-message': '重複不可',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"重複不可"});else seen.set(key,i)}})',
           )
@@ -6964,7 +6902,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               items: { type: 'string' },
               'x-error-message': '配列必須',
-            } as Schema),
+            }),
           ).toBe('z.array(z.string(),{error:"配列必須"})')
           const runtime = z.array(z.string(), { error: '配列必須' })
           expect(runtime.safeParse(['a']).success).toBe(true)
@@ -6987,7 +6925,7 @@ describe('zodToOpenAPI', () => {
               type: 'array',
               prefixItems: [{ type: 'string' }, { type: 'number' }],
               'x-error-message': 'タプル不正',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.unknown(),{error:"タプル不正"}).superRefine((arr,ctx)=>{const Prefix=[z.string(),z.number()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path],message:"タプル不正"})}}}})',
           )
@@ -7032,7 +6970,7 @@ describe('zodToOpenAPI', () => {
               'x-minItems-message': '1個以上',
               'x-maxItems-message': '5個以下',
               'x-uniqueItems-message': '重複不可',
-            } as Schema),
+            }),
           ).toBe(
             'z.array(z.string(),{error:"配列必須"}).min(1,{error:"1個以上"}).max(5,{error:"5個以下"}).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"重複不可"});else seen.set(key,i)}})',
           )
@@ -7080,7 +7018,7 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             minProperties: 1,
             'x-minProperties-message': 'At least 1',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({}).refine((val)=>Object.keys(val).length>=1,{error:"At least 1"})',
           )
@@ -7092,7 +7030,7 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             maxProperties: 5,
             'x-maxProperties-message': 'At most 5',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({}).refine((val)=>Object.keys(val).length<=5,{error:"At most 5"})',
           )
@@ -7105,7 +7043,7 @@ describe('zodToOpenAPI', () => {
             maxProperties: 10,
             'x-minProperties-message': '2個以上',
             'x-maxProperties-message': '10個以下',
-          } as Schema)
+          })
           expect(generated).toBe(
             'z.object({}).refine((val)=>Object.keys(val).length>=2,{error:"2個以上"}).refine((val)=>Object.keys(val).length<=10,{error:"10個以下"})',
           )
@@ -7116,7 +7054,7 @@ describe('zodToOpenAPI', () => {
             type: 'object',
             dependentRequired: { foo: ['bar'] },
             'x-error-message': 'fooにはbarが必要',
-          } as Schema)
+          })
           expect(generated).toBe(
             `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
           )
@@ -7132,7 +7070,7 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               propertyNames: { pattern: '^[a-z]+$' },
               'x-propertyNames-message': 'lowercase keys',
-            } as Schema),
+            }),
           ).toBe(
             'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"lowercase keys"})}}})',
           )
@@ -7158,7 +7096,7 @@ describe('zodToOpenAPI', () => {
               type: 'object',
               patternProperties: { '^S_': { type: 'string' } },
               'x-patternProperties-message': 'S_ keys must be strings',
-            } as Schema),
+            }),
           ).toBe(
             'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ keys must be strings"})}}}})',
           )
@@ -7200,7 +7138,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               const: 'fixed',
               'x-error-message': 'fixedのみ',
-            } as Schema),
+            }),
           ).toBe(`z.literal("fixed",{error:"fixedのみ"})`)
           const runtime = z.literal('fixed', { error: 'fixedのみ' })
           expect(runtime.safeParse('fixed').success).toBe(true)
@@ -7218,7 +7156,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('x-error-message on number const', () => {
-          expect(zodToOpenAPI({ const: 42, 'x-error-message': '42のみ' } as Schema)).toBe(
+          expect(zodToOpenAPI({ const: 42, 'x-error-message': '42のみ' })).toBe(
             'z.literal(42,{error:"42のみ"})',
           )
           const runtime = z.literal(42, { error: '42のみ' })
@@ -7237,7 +7175,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('x-error-message on boolean const', () => {
-          expect(zodToOpenAPI({ const: true, 'x-error-message': 'trueのみ' } as Schema)).toBe(
+          expect(zodToOpenAPI({ const: true, 'x-error-message': 'trueのみ' })).toBe(
             'z.literal(true,{error:"trueのみ"})',
           )
           const runtime = z.literal(true, { error: 'trueのみ' })
@@ -7256,7 +7194,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('const without x-error-message → existing behavior', () => {
-          expect(zodToOpenAPI({ const: 'fixed' } as Schema)).toBe(`z.literal("fixed")`)
+          expect(zodToOpenAPI({ const: 'fixed' })).toBe(`z.literal("fixed")`)
           const runtime = z.literal('fixed')
           expect(runtime.safeParse('fixed').success).toBe(true)
           const result = runtime.safeParse('other')
@@ -7282,7 +7220,7 @@ describe('zodToOpenAPI', () => {
               type: 'number',
               multipleOf: 2,
               'x-error-message': '偶数のみ',
-            } as Schema),
+            }),
           ).toBe('z.number({error:"偶数のみ"}).multipleOf(2,{error:"偶数のみ"})')
           const runtime = z.number({ error: '偶数のみ' }).multipleOf(2, { error: '偶数のみ' })
           expect(runtime.safeParse(4).success).toBe(true)
@@ -7306,7 +7244,7 @@ describe('zodToOpenAPI', () => {
               type: 'integer',
               multipleOf: 3,
               'x-error-message': '3の倍数',
-            } as Schema),
+            }),
           ).toBe('z.int({error:"3の倍数"}).multipleOf(3,{error:"3の倍数"})')
           const runtime = z.int({ error: '3の倍数' }).multipleOf(3, { error: '3の倍数' })
           expect(runtime.safeParse(9).success).toBe(true)
@@ -7331,7 +7269,7 @@ describe('zodToOpenAPI', () => {
               format: 'int64',
               multipleOf: 5,
               'x-error-message': '5の倍数',
-            } as Schema),
+            }),
           ).toBe('z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})')
           const runtime = z.int64({ error: '5の倍数' }).multipleOf(5n, { error: '5の倍数' })
           expect(runtime.safeParse(10n).success).toBe(true)
@@ -7358,7 +7296,7 @@ describe('zodToOpenAPI', () => {
             zodToOpenAPI({
               type: 'date',
               'x-error-message': '日付必須',
-            } as Schema),
+            }),
           ).toBe('z.date({error:"日付必須"})')
           const runtime = z.date({ error: '日付必須' })
           expect(runtime.safeParse(new Date()).success).toBe(true)
@@ -7376,7 +7314,7 @@ describe('zodToOpenAPI', () => {
           }
         })
         it.concurrent('date without x-error-message → existing behavior', () => {
-          expect(zodToOpenAPI({ type: 'date' } as Schema)).toBe('z.date()')
+          expect(zodToOpenAPI({ type: 'date' })).toBe('z.date()')
           const runtime = z.date()
           expect(runtime.safeParse(new Date()).success).toBe(true)
           const result = runtime.safeParse('not date')
@@ -7397,12 +7335,12 @@ describe('zodToOpenAPI', () => {
       // with description and example
       describe('with meta info', () => {
         it.concurrent('string: description preserved', () => {
-          const generated = zodToOpenAPI({ type: 'string', description: 'A string' } as Schema)
+          const generated = zodToOpenAPI({ type: 'string', description: 'A string' })
           expect(generated).toBe('z.string().openapi({"description":"A string"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
         it.concurrent('string: example preserved', () => {
-          const generated = zodToOpenAPI({ type: 'string', example: 'hello' } as Schema)
+          const generated = zodToOpenAPI({ type: 'string', example: 'hello' })
           expect(generated).toBe('z.string().openapi({"example":"hello"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
@@ -7411,22 +7349,22 @@ describe('zodToOpenAPI', () => {
             type: 'string',
             description: 'A string',
             example: 'hello',
-          } as Schema)
+          })
           expect(generated).toBe('z.string().openapi({"description":"A string","example":"hello"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
         it.concurrent('number: description preserved', () => {
-          const generated = zodToOpenAPI({ type: 'number', description: 'A number' } as Schema)
+          const generated = zodToOpenAPI({ type: 'number', description: 'A number' })
           expect(generated).toBe('z.number().openapi({"description":"A number"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
         it.concurrent('integer: description preserved', () => {
-          const generated = zodToOpenAPI({ type: 'integer', description: 'An integer' } as Schema)
+          const generated = zodToOpenAPI({ type: 'integer', description: 'An integer' })
           expect(generated).toBe('z.int().openapi({"description":"An integer"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
         it.concurrent('boolean: description preserved', () => {
-          const generated = zodToOpenAPI({ type: 'boolean', description: 'A boolean' } as Schema)
+          const generated = zodToOpenAPI({ type: 'boolean', description: 'A boolean' })
           expect(generated).toBe('z.boolean().openapi({"description":"A boolean"})')
           // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
         })
@@ -7437,7 +7375,7 @@ describe('zodToOpenAPI', () => {
   describe('readonly parameter', () => {
     it.concurrent('readonly: array of strings', () => {
       expect(
-        zodToOpenAPI({ type: 'array', items: { type: 'string' } } as Schema, undefined, {
+        zodToOpenAPI({ type: 'array', items: { type: 'string' } }, undefined, {
           readonly: true,
         }),
       ).toBe('z.array(z.string()).readonly()')
@@ -7458,7 +7396,7 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('readonly: array of numbers', () => {
       expect(
-        zodToOpenAPI({ type: 'array', items: { type: 'number' } } as Schema, undefined, {
+        zodToOpenAPI({ type: 'array', items: { type: 'number' } }, undefined, {
           readonly: true,
         }),
       ).toBe('z.array(z.number()).readonly()')
@@ -7479,7 +7417,7 @@ describe('zodToOpenAPI', () => {
     })
     it.concurrent('readonly: array of $ref', () => {
       const generated = zodToOpenAPI(
-        { type: 'array', items: { $ref: '#/components/schemas/Item' } } as Schema,
+        { type: 'array', items: { $ref: '#/components/schemas/Item' } },
         undefined,
         { readonly: true },
       )
@@ -7492,7 +7430,7 @@ describe('zodToOpenAPI', () => {
           {
             type: 'array',
             prefixItems: [{ type: 'string' }, { type: 'number' }],
-          } as Schema,
+          },
           undefined,
           { readonly: true },
         ),
@@ -7537,7 +7475,7 @@ describe('zodToOpenAPI', () => {
           type: 'object',
           properties: { name: { type: 'string' } },
           required: ['name'],
-        } as Schema,
+        },
         undefined,
         { readonly: true },
       )
@@ -7547,9 +7485,7 @@ describe('zodToOpenAPI', () => {
       // runtime skipped: generated code uses `.openapi(...)` (zod-openapi extension), not callable on bare z
     })
     it.concurrent('readonly: string primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'string' } as Schema, undefined, { readonly: true })).toBe(
-        'z.string()',
-      )
+      expect(zodToOpenAPI({ type: 'string' }, undefined, { readonly: true })).toBe('z.string()')
       const runtime = z.string()
       expect(runtime.safeParse('foo').success).toBe(true)
       const result = runtime.safeParse(1)
@@ -7566,9 +7502,7 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('readonly: number primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'number' } as Schema, undefined, { readonly: true })).toBe(
-        'z.number()',
-      )
+      expect(zodToOpenAPI({ type: 'number' }, undefined, { readonly: true })).toBe('z.number()')
       const runtime = z.number()
       expect(runtime.safeParse(1).success).toBe(true)
       const result = runtime.safeParse('x')
@@ -7585,9 +7519,7 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('readonly: boolean primitive — readonly omitted', () => {
-      expect(zodToOpenAPI({ type: 'boolean' } as Schema, undefined, { readonly: true })).toBe(
-        'z.boolean()',
-      )
+      expect(zodToOpenAPI({ type: 'boolean' }, undefined, { readonly: true })).toBe('z.boolean()')
       const runtime = z.boolean()
       expect(runtime.safeParse(true).success).toBe(true)
       const result = runtime.safeParse('x')
@@ -7713,27 +7645,25 @@ describe('zodToOpenAPI', () => {
 
   describe('x-brand', () => {
     it.concurrent('string with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' })).toBe(
         'z.string().brand<"UserId">()',
       )
     })
 
     it.concurrent('string with format uuid and x-brand', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-brand': 'UserId' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-brand': 'UserId' })).toBe(
         'z.uuid().brand<"UserId">()',
       )
     })
 
     it.concurrent('number with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'number', 'x-brand': 'Price' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'number', 'x-brand': 'Price' })).toBe(
         'z.number().brand<"Price">()',
       )
     })
 
     it.concurrent('integer with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'integer', 'x-brand': 'Count' } as Schema)).toBe(
-        'z.int().brand<"Count">()',
-      )
+      expect(zodToOpenAPI({ type: 'integer', 'x-brand': 'Count' })).toBe('z.int().brand<"Count">()')
     })
 
     it.concurrent('string with email format, min/max and x-brand', () => {
@@ -7744,7 +7674,7 @@ describe('zodToOpenAPI', () => {
           minLength: 5,
           maxLength: 100,
           'x-brand': 'Email',
-        } as Schema),
+        }),
       ).toBe('z.email().min(5).max(100).brand<"Email">()')
     })
 
@@ -7754,18 +7684,18 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           'x-brand': 'UserId',
           description: 'Unique user identifier',
-        } as Schema),
+        }),
       ).toBe('z.string().brand<"UserId">().openapi({"description":"Unique user identifier"})')
     })
 
     it.concurrent('nullable string with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'string', nullable: true, 'x-brand': 'UserId' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', nullable: true, 'x-brand': 'UserId' })).toBe(
         'z.string().nullable().brand<"UserId">()',
       )
     })
 
     it.concurrent('boolean with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'boolean', 'x-brand': 'Flag' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'boolean', 'x-brand': 'Flag' })).toBe(
         'z.boolean().brand<"Flag">()',
       )
     })
@@ -7776,7 +7706,7 @@ describe('zodToOpenAPI', () => {
           type: 'array',
           items: { type: 'string' },
           'x-brand': 'Tags',
-        } as Schema),
+        }),
       ).toBe('z.array(z.string()).brand<"Tags">()')
     })
 
@@ -7790,7 +7720,7 @@ describe('zodToOpenAPI', () => {
           },
           required: ['street', 'city'],
           'x-brand': 'Address',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({street:z.string(),city:z.string()}).brand<"Address">().openapi({"required":["street","city"]})',
       )
@@ -7806,7 +7736,7 @@ describe('zodToOpenAPI', () => {
           },
           required: ['id'],
           'x-brand': 'User',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({id:z.string(),name:z.string().exactOptional()}).brand<"User">().openapi({"required":["id"]})',
       )
@@ -7819,7 +7749,7 @@ describe('zodToOpenAPI', () => {
           items: { type: 'number' },
           minItems: 1,
           'x-brand': 'Scores',
-        } as Schema),
+        }),
       ).toBe('z.array(z.number()).min(1).brand<"Scores">()')
     })
   })
@@ -7847,8 +7777,8 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: empty array PASSES (spec §10.3.1.1: no length constraint)', () => {
       const Schema = z.array(z.unknown()).superRefine((arr, ctx) => {
         const Prefix = [z.string(), z.boolean()]
-        for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
-          const valid = Schema.safeParse(arr[i])
+        for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
+          const valid = PrefixSchema.safeParse(arr[i])
           if (!valid.success)
             for (const issue of valid.error.issues)
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
@@ -7869,8 +7799,8 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: rest type violation → path[2], invalid_type', () => {
       const Schema = z.array(z.unknown()).superRefine((arr, ctx) => {
         const Prefix = [z.string(), z.boolean()]
-        for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
-          const valid = Schema.safeParse(arr[i])
+        for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
+          const valid = PrefixSchema.safeParse(arr[i])
           if (!valid.success)
             for (const issue of valid.error.issues)
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
@@ -7896,8 +7826,8 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: prefix[0] type violation → full issue toStrictEqual', () => {
       const Schema = z.array(z.unknown()).superRefine((arr, ctx) => {
         const Prefix = [z.string(), z.boolean()]
-        for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
-          const valid = Schema.safeParse(arr[i])
+        for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
+          const valid = PrefixSchema.safeParse(arr[i])
           if (!valid.success)
             for (const issue of valid.error.issues)
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
@@ -8147,7 +8077,7 @@ describe('zodToOpenAPI', () => {
       if (valid.success) {
         const decoded = (valid.data as { image: Uint8Array }).image
         expect(decoded).toBeInstanceOf(Uint8Array)
-        expect(Array.from(decoded)).toStrictEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+        expect([...decoded]).toStrictEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
       }
     })
     it.concurrent('runtime: missing image key PASSES (exactOptional)', () => {
@@ -9458,7 +9388,7 @@ describe('zodToOpenAPI', () => {
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 x-coerce: string coercion at parse', () => {
     it.concurrent('codegen: z.coerce.string()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-coerce': true } as Schema)).toBe('z.coerce.string()')
+      expect(zodToOpenAPI({ type: 'string', 'x-coerce': true })).toBe('z.coerce.string()')
     })
     it.concurrent('runtime: 123 → "123" (coerced)', () => {
       const valid = z.coerce.string().safeParse(123)
@@ -9471,7 +9401,7 @@ describe('zodToOpenAPI', () => {
 
   describe('v3.2 x-catch: fallback on validation failure', () => {
     it.concurrent('codegen: z.number().catch(0)', () => {
-      expect(zodToOpenAPI({ type: 'number', 'x-catch': 0 } as Schema)).toBe('z.number().catch(0)')
+      expect(zodToOpenAPI({ type: 'number', 'x-catch': 0 })).toBe('z.number().catch(0)')
     })
     it.concurrent('runtime: invalid input "x" → returns 0', () => {
       const valid = z.number().catch(0).safeParse('x')
@@ -9491,7 +9421,7 @@ describe('zodToOpenAPI', () => {
 
   describe('v3.2 x-brand: branded types for nominal typing', () => {
     it.concurrent('codegen: z.string().brand<"UserId">()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' })).toBe(
         'z.string().brand<"UserId">()',
       )
     })
@@ -9606,7 +9536,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'number',
           'x-refine': '.refine((val) => val > 0,{message:"must be positive"})',
-        } as Schema),
+        }),
       ).toBe('z.number().refine((val) => val > 0,{message:"must be positive"})')
     })
     it.concurrent('runtime: 5 PASSES', () => {
@@ -9631,7 +9561,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'number',
           'x-refine': '.refine((val) => val > 0,{message:"正の数でなければなりません"})',
-        } as Schema),
+        }),
       ).toBe('z.number().refine((val) => val > 0,{message:"正の数でなければなりません"})')
     })
     it.concurrent('runtime: 1 PASSES', () => {
@@ -9673,7 +9603,7 @@ describe('zodToOpenAPI', () => {
           required: ['password', 'confirmPassword'],
           'x-refine':
             '.refine((val) => val.password === val.confirmPassword,{message:"パスワードが一致しません",path:["confirmPassword"]})',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({password:z.string(),confirmPassword:z.string()}).refine((val) => val.password === val.confirmPassword,{message:"パスワードが一致しません",path:["confirmPassword"]}).openapi({"required":["password","confirmPassword"]})',
       )
@@ -9709,7 +9639,7 @@ describe('zodToOpenAPI', () => {
           type: 'number',
           'x-refine':
             '.refine((val) => val > 0,{message:"正の数で必要です"}).refine((val) => val < 100,{message:"100未満で必要です"})',
-        } as Schema),
+        }),
       ).toBe(
         'z.number().refine((val) => val > 0,{message:"正の数で必要です"}).refine((val) => val < 100,{message:"100未満で必要です"})',
       )
@@ -9754,7 +9684,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           'x-superRefine':
             '.superRefine((val, ctx) => { if (val.includes(\' \')) ctx.addIssue({ code: "custom", path: [], message: "スペースは含められません" }) })',
-        } as Schema),
+        }),
       ).toBe(
         'z.string().superRefine((val, ctx) => { if (val.includes(\' \')) ctx.addIssue({ code: "custom", path: [], message: "スペースは含められません" }) })',
       )
@@ -9799,7 +9729,7 @@ describe('zodToOpenAPI', () => {
           required: ['password'],
           'x-superRefine':
             '.superRefine((val, ctx) => { if (val.password.length < 8) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードは8文字以上で必要です" }); if (!/[0-9]/.test(val.password)) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードに数字を含めてください" }) })',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({password:z.string()}).superRefine((val, ctx) => { if (val.password.length < 8) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードは8文字以上で必要です" }); if (!/[0-9]/.test(val.password)) ctx.addIssue({ code: "custom", path: ["password"], message: "パスワードに数字を含めてください" }) }).openapi({"required":["password"]})',
       )
@@ -9844,7 +9774,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           'x-superRefine':
             '.superRefine((val, ctx) => { if (val.length < 3) ctx.addIssue({ code: "custom", path: [], message: "3文字以上必要です" }) }).superRefine((val, ctx) => { if (!/^[a-z]/.test(val)) ctx.addIssue({ code: "custom", path: [], message: "小文字で始めてください" }) })',
-        } as Schema),
+        }),
       ).toBe(
         'z.string().superRefine((val, ctx) => { if (val.length < 3) ctx.addIssue({ code: "custom", path: [], message: "3文字以上必要です" }) }).superRefine((val, ctx) => { if (!/^[a-z]/.test(val)) ctx.addIssue({ code: "custom", path: [], message: "小文字で始めてください" }) })',
       )
@@ -9875,7 +9805,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'string',
           'x-error-message': '文字列で入力してください',
-        } as Schema),
+        }),
       ).toBe('z.string({error:"文字列で入力してください"})')
     })
     it.concurrent('runtime: 123 FAILS with 日本語 message', () => {
@@ -9905,7 +9835,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           pattern: '^\\d{3}-\\d{4}$',
           'x-pattern-message': '郵便番号は123-4567の形式で入力してください',
-        } as Schema),
+        }),
       ).toBe(
         'z.string().regex(/^\\d{3}-\\d{4}$/,{error:"郵便番号は123-4567の形式で入力してください"})',
       )
@@ -9945,7 +9875,7 @@ describe('zodToOpenAPI', () => {
           maxLength: 10,
           'x-minLength-message': '3文字以上で入力してください',
           'x-maxLength-message': '10文字以内で入力してください',
-        } as Schema),
+        }),
       ).toBe(
         'z.string().min(3,{error:"3文字以上で入力してください"}).max(10,{error:"10文字以内で入力してください"})',
       )
@@ -9998,7 +9928,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           enum: ['赤', '緑', '青'],
           'x-enum-message': '色は赤・緑・青のいずれかで指定してください',
-        } as Schema),
+        }),
       ).toBe('z.enum(["赤","緑","青"],{error:"色は赤・緑・青のいずれかで指定してください"})')
     })
     it.concurrent('runtime: "赤" PASSES', () => {
@@ -10039,7 +9969,7 @@ describe('zodToOpenAPI', () => {
             },
           },
           required: ['name'],
-        } as Schema),
+        }),
       ).toBe(
         'z.object({name:z.string({error:(issue)=>issue.input===undefined?"お名前は必須です":"お名前は文字列です"})}).openapi({"required":["name"]})',
       )
@@ -10094,7 +10024,7 @@ describe('zodToOpenAPI', () => {
           items: { type: 'number' },
           'x-refine':
             '.refine((arr) => arr.every((v) => v > 0),{message:"すべての要素は正の数で必要です"})',
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.number()).refine((arr) => arr.every((v) => v > 0),{message:"すべての要素は正の数で必要です"})',
       )
@@ -10143,7 +10073,7 @@ describe('zodToOpenAPI', () => {
           required: ['user'],
           'x-refine':
             '.refine((val) => val.user.profile.age >= 18,{message:"18歳以上で必要です",path:["user","profile","age"]})',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({user:z.object({profile:z.object({age:z.number()}).openapi({"required":["age"]})}).openapi({"required":["profile"]})}).refine((val) => val.user.profile.age >= 18,{message:"18歳以上で必要です",path:["user","profile","age"]}).openapi({"required":["user"]})',
       )
@@ -10188,7 +10118,7 @@ describe('zodToOpenAPI', () => {
           items: { type: 'string' },
           'x-superRefine':
             '.superRefine((arr, ctx) => { for (const [i, val] of arr.entries()) { if (val.length === 0) ctx.addIssue({ code: "custom", path: [i], message: `${i}番目の要素は空文字列にできません` }) } })',
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.string()).superRefine((arr, ctx) => { for (const [i, val] of arr.entries()) { if (val.length === 0) ctx.addIssue({ code: "custom", path: [i], message: `${i}番目の要素は空文字列にできません` }) } })',
       )
@@ -10240,7 +10170,7 @@ describe('zodToOpenAPI', () => {
           required: ['startDate', 'endDate'],
           'x-superRefine':
             '.superRefine((val, ctx) => { if (val.startDate > val.endDate) { ctx.addIssue({ code: "custom", path: ["startDate"], message: "開始日は終了日より前である必要があります" }); ctx.addIssue({ code: "custom", path: ["endDate"], message: "終了日は開始日より後である必要があります" }) } })',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({startDate:z.string(),endDate:z.string()}).superRefine((val, ctx) => { if (val.startDate > val.endDate) { ctx.addIssue({ code: "custom", path: ["startDate"], message: "開始日は終了日より前である必要があります" }); ctx.addIssue({ code: "custom", path: ["endDate"], message: "終了日は開始日より後である必要があります" }) } }).openapi({"required":["startDate","endDate"]})',
       )
@@ -10288,7 +10218,7 @@ describe('zodToOpenAPI', () => {
           type: 'number',
           multipleOf: 0.5,
           'x-multipleOf-message': '0.5の倍数で入力してください',
-        } as Schema),
+        }),
       ).toBe('z.number().multipleOf(0.5,{error:"0.5の倍数で入力してください"})')
     })
     it.concurrent('runtime: 1.5 PASSES', () => {
@@ -10325,7 +10255,7 @@ describe('zodToOpenAPI', () => {
           maximum: 100,
           'x-minimum-message': '0以上で入力してください',
           'x-maximum-message': '100以下で入力してください',
-        } as Schema),
+        }),
       ).toBe(
         'z.number().min(0,{error:"0以上で入力してください"}).max(100,{error:"100以下で入力してください"})',
       )
@@ -10389,7 +10319,7 @@ describe('zodToOpenAPI', () => {
           items: { type: 'string' },
           uniqueItems: true,
           'x-uniqueItems-message': '配列に重複する要素は許可されていません',
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.string()).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i],message:"配列に重複する要素は許可されていません"});else seen.set(key,i)}})',
       )
@@ -10418,7 +10348,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           not: { type: 'string' },
           'x-not-message': '文字列以外で入力してください',
-        } as Schema),
+        }),
       ).toBe(
         'z.any().refine((val) => typeof val !== \'string\',{error:"文字列以外で入力してください"})',
       )
@@ -10447,7 +10377,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           anyOf: [{ type: 'string' }, { type: 'number' }],
           'x-anyOf-message': '文字列または数値で入力してください',
-        } as Schema),
+        }),
       ).toBe('z.union([z.string(),z.number()],{error:"文字列または数値で入力してください"})')
     })
     it.concurrent('runtime: "abc" PASSES', () => {
@@ -10497,7 +10427,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           const: '管理者',
           'x-const-message': '値は「管理者」で必要です',
-        } as Schema),
+        }),
       ).toBe('z.literal("管理者",{error:"値は「管理者」で必要です"})')
     })
     it.concurrent('runtime: "管理者" PASSES', () => {
@@ -10537,7 +10467,7 @@ describe('zodToOpenAPI', () => {
           type: 'array',
           contains: { type: 'integer' },
           'x-contains-message': '配列に整数を1つ以上含めてください',
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.any()).superRefine((arr,ctx)=>{const Schema=z.int();const matched=arr.filter((i)=>Schema.safeParse(i).success).length;if(matched<1){ctx.addIssue({code:"custom",message:"配列に整数を1つ以上含めてください"})}})',
       )
@@ -10583,7 +10513,7 @@ describe('zodToOpenAPI', () => {
           },
           dependentRequired: { creditCard: ['cvv'] },
           'x-dependentRequired-message': 'creditCardを使う場合はcvvが必須です',
-        } as Schema),
+        }),
       ).toBe(
         'z.object({creditCard:z.string().exactOptional(),cvv:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"creditCard")){return}if(!Object.hasOwn(o,"cvv")){ctx.addIssue({code:\'custom\',message:"creditCardを使う場合はcvvが必須です",path:["cvv"]})}})',
       )
@@ -10626,7 +10556,7 @@ describe('zodToOpenAPI', () => {
           required: ['name'],
           additionalProperties: false,
           'x-additionalProperties-message': '想定外のフィールドが含まれています',
-        } as Schema),
+        }),
       ).toBe(
         'z.strictObject({name:z.string()},{error:(issue)=>issue.code===\'unrecognized_keys\'?"想定外のフィールドが含まれています":undefined}).openapi({"required":["name"]})',
       )
@@ -10657,9 +10587,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-emailPattern: html5 preset', () => {
     const EmailHtml5 = z.email({ pattern: z.regexes.html5Email })
     it.concurrent('codegen: z.email({pattern:z.regexes.html5Email})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'html5' } as Schema),
-      ).toBe('z.email({pattern:z.regexes.html5Email})')
+      expect(zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'html5' })).toBe(
+        'z.email({pattern:z.regexes.html5Email})',
+      )
     })
     it.concurrent('runtime: "alice@example.com" PASSES', () => {
       expect(EmailHtml5.safeParse('alice@example.com').success).toBe(true)
@@ -10685,9 +10615,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-emailPattern: rfc5322 preset', () => {
     const EmailRfc = z.email({ pattern: z.regexes.rfc5322Email })
     it.concurrent('codegen: z.email({pattern:z.regexes.rfc5322Email})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'rfc5322' } as Schema),
-      ).toBe('z.email({pattern:z.regexes.rfc5322Email})')
+      expect(zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'rfc5322' })).toBe(
+        'z.email({pattern:z.regexes.rfc5322Email})',
+      )
     })
     it.concurrent('runtime: "user@host.com" PASSES', () => {
       expect(EmailRfc.safeParse('user@host.com').success).toBe(true)
@@ -10713,9 +10643,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-emailPattern: unicode preset', () => {
     const EmailUni = z.email({ pattern: z.regexes.unicodeEmail })
     it.concurrent('codegen: z.email({pattern:z.regexes.unicodeEmail})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'unicode' } as Schema),
-      ).toBe('z.email({pattern:z.regexes.unicodeEmail})')
+      expect(zodToOpenAPI({ type: 'string', format: 'email', 'x-emailPattern': 'unicode' })).toBe(
+        'z.email({pattern:z.regexes.unicodeEmail})',
+      )
     })
     it.concurrent('runtime: "山田@例え.jp" PASSES', () => {
       expect(EmailUni.safeParse('山田@例え.jp').success).toBe(true)
@@ -10747,7 +10677,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           format: 'email',
           'x-emailRegex': '^[a-z]+@example\\.com$',
-        } as Schema),
+        }),
       ).toBe('z.email({pattern:/^[a-z]+@example\\.com$/})')
     })
     it.concurrent('runtime: "alice@example.com" PASSES', () => {
@@ -10774,9 +10704,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-uuidVersion: v4', () => {
     const UuidV4 = z.uuid({ version: 'v4' })
     it.concurrent('codegen: z.uuid({version:"v4"})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'uuid', 'x-uuidVersion': 'v4' } as Schema),
-      ).toBe('z.uuid({version:"v4"})')
+      expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-uuidVersion': 'v4' })).toBe(
+        'z.uuid({version:"v4"})',
+      )
     })
     it.concurrent('runtime: v4 UUID PASSES', () => {
       expect(UuidV4.safeParse('f47ac10b-58cc-4372-a567-0e02b2c3d479').success).toBe(true)
@@ -10803,9 +10733,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-uuidVersion: v7', () => {
     const UuidV7 = z.uuid({ version: 'v7' })
     it.concurrent('codegen: z.uuid({version:"v7"})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'uuid', 'x-uuidVersion': 'v7' } as Schema),
-      ).toBe('z.uuid({version:"v7"})')
+      expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-uuidVersion': 'v7' })).toBe(
+        'z.uuid({version:"v7"})',
+      )
     })
     it.concurrent('runtime: v7 UUID PASSES', () => {
       expect(UuidV7.safeParse('01890b13-0000-7000-8000-000000000000').success).toBe(true)
@@ -10832,9 +10762,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-isoPrecision: 0 (no fractional seconds)', () => {
     const Dt0 = z.iso.datetime({ precision: 0 })
     it.concurrent('codegen: z.iso.datetime({precision:0})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 0 } as Schema),
-      ).toBe('z.iso.datetime({precision:0})')
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 0 })).toBe(
+        'z.iso.datetime({precision:0})',
+      )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05Z" PASSES', () => {
       expect(Dt0.safeParse('2024-01-02T03:04:05Z').success).toBe(true)
@@ -10861,9 +10791,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-isoPrecision: 3 (millisecond precision required)', () => {
     const Dt3 = z.iso.datetime({ precision: 3 })
     it.concurrent('codegen: z.iso.datetime({precision:3})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 3 } as Schema),
-      ).toBe('z.iso.datetime({precision:3})')
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoPrecision': 3 })).toBe(
+        'z.iso.datetime({precision:3})',
+      )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05.123Z" PASSES', () => {
       expect(Dt3.safeParse('2024-01-02T03:04:05.123Z').success).toBe(true)
@@ -10890,9 +10820,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-isoOffset: true (timezone offset allowed)', () => {
     const DtOff = z.iso.datetime({ offset: true })
     it.concurrent('codegen: z.iso.datetime({offset:true})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoOffset': true } as Schema),
-      ).toBe('z.iso.datetime({offset:true})')
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoOffset': true })).toBe(
+        'z.iso.datetime({offset:true})',
+      )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05+09:00" PASSES', () => {
       expect(DtOff.safeParse('2024-01-02T03:04:05+09:00').success).toBe(true)
@@ -10911,9 +10841,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-isoLocal: true (no Z required)', () => {
     const DtLocal = z.iso.datetime({ local: true })
     it.concurrent('codegen: z.iso.datetime({local:true})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoLocal': true } as Schema),
-      ).toBe('z.iso.datetime({local:true})')
+      expect(zodToOpenAPI({ type: 'string', format: 'date-time', 'x-isoLocal': true })).toBe(
+        'z.iso.datetime({local:true})',
+      )
     })
     it.concurrent('runtime: "2024-01-02T03:04:05" PASSES (no Z)', () => {
       expect(DtLocal.safeParse('2024-01-02T03:04:05').success).toBe(true)
@@ -10931,9 +10861,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-urlProtocol: https only', () => {
     const UrlHttps = z.url({ protocol: /^https$/ })
     it.concurrent('codegen: z.url({protocol:/^https$/})', () => {
-      expect(
-        zodToOpenAPI({ type: 'string', format: 'url', 'x-urlProtocol': '^https$' } as Schema),
-      ).toBe('z.url({protocol:/^https$/})')
+      expect(zodToOpenAPI({ type: 'string', format: 'url', 'x-urlProtocol': '^https$' })).toBe(
+        'z.url({protocol:/^https$/})',
+      )
     })
     it.concurrent('runtime: "https://example.com" PASSES', () => {
       expect(UrlHttps.safeParse('https://example.com').success).toBe(true)
@@ -10964,7 +10894,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           format: 'url',
           'x-urlHostname': '^example\\.com$',
-        } as Schema),
+        }),
       ).toBe('z.url({hostname:/^example\\.com$/})')
     })
     it.concurrent('runtime: "https://example.com/x" PASSES', () => {
@@ -10991,7 +10921,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-macDelimiter: colon', () => {
     const MacColon = z.mac({ delimiter: ':' })
     it.concurrent('codegen: z.mac({delimiter:":"})', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'mac', 'x-macDelimiter': ':' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'mac', 'x-macDelimiter': ':' })).toBe(
         'z.mac({delimiter:":"})',
       )
     })
@@ -11019,7 +10949,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-macDelimiter: dash', () => {
     const MacDash = z.mac({ delimiter: '-' })
     it.concurrent('codegen: z.mac({delimiter:"-"})', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'mac', 'x-macDelimiter': '-' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'mac', 'x-macDelimiter': '-' })).toBe(
         'z.mac({delimiter:"-"})',
       )
     })
@@ -11047,7 +10977,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-jwtAlg: HS256', () => {
     const Jwt = z.jwt({ alg: 'HS256' })
     it.concurrent('codegen: z.jwt({alg:"HS256"})', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'jwt', 'x-jwtAlg': 'HS256' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'jwt', 'x-jwtAlg': 'HS256' })).toBe(
         'z.jwt({alg:"HS256"})',
       )
     })
@@ -11076,7 +11006,7 @@ describe('zodToOpenAPI', () => {
           format: 'hash',
           'x-hashAlg': 'sha256',
           'x-hashEnc': 'hex',
-        } as Schema),
+        }),
       ).toBe('z.hash("sha256",{enc:"hex"})')
     })
     it.concurrent('runtime: 64-char hex PASSES', () => {
@@ -11101,7 +11031,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-hashAlg: sha1 (no enc → default hex)', () => {
     const HashSha1 = z.hash('sha1')
     it.concurrent('codegen: z.hash("sha1")', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'hash', 'x-hashAlg': 'sha1' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'hash', 'x-hashAlg': 'sha1' })).toBe(
         'z.hash("sha1")',
       )
     })
@@ -11131,7 +11061,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-trim: trim whitespace', () => {
     const Trim = z.string().trim()
     it.concurrent('codegen: z.string().trim()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-trim': true } as Schema)).toBe('z.string().trim()')
+      expect(zodToOpenAPI({ type: 'string', 'x-trim': true })).toBe('z.string().trim()')
     })
     it.concurrent('runtime: "  hi  " → "hi"', () => {
       const valid = Trim.safeParse('  hi  ')
@@ -11143,7 +11073,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-toLowerCase: transform to lowercase', () => {
     const Lower = z.string().toLowerCase()
     it.concurrent('codegen: z.string().toLowerCase()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-toLowerCase': true } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-toLowerCase': true })).toBe(
         'z.string().toLowerCase()',
       )
     })
@@ -11157,7 +11087,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-toUpperCase: transform to uppercase', () => {
     const Upper = z.string().toUpperCase()
     it.concurrent('codegen: z.string().toUpperCase()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-toUpperCase': true } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-toUpperCase': true })).toBe(
         'z.string().toUpperCase()',
       )
     })
@@ -11171,7 +11101,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-normalize: NFC Unicode normalization', () => {
     const Nfc = z.string().normalize('NFC')
     it.concurrent('codegen: z.string().normalize("NFC")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-normalize': 'NFC' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-normalize': 'NFC' })).toBe(
         'z.string().normalize("NFC")',
       )
     })
@@ -11188,7 +11118,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-normalize: NFKC normalization', () => {
     const Nfkc = z.string().normalize('NFKC')
     it.concurrent('codegen: z.string().normalize("NFKC")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-normalize': 'NFKC' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-normalize': 'NFKC' })).toBe(
         'z.string().normalize("NFKC")',
       )
     })
@@ -11202,9 +11132,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-lowercase: validate lowercase only', () => {
     const LowerCheck = z.string().lowercase()
     it.concurrent('codegen: z.string().lowercase()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-lowercase': true } as Schema)).toBe(
-        'z.string().lowercase()',
-      )
+      expect(zodToOpenAPI({ type: 'string', 'x-lowercase': true })).toBe('z.string().lowercase()')
     })
     it.concurrent('runtime: "abc" PASSES', () => {
       expect(LowerCheck.safeParse('abc').success).toBe(true)
@@ -11230,9 +11158,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-uppercase: validate uppercase only', () => {
     const UpperCheck = z.string().uppercase()
     it.concurrent('codegen: z.string().uppercase()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-uppercase': true } as Schema)).toBe(
-        'z.string().uppercase()',
-      )
+      expect(zodToOpenAPI({ type: 'string', 'x-uppercase': true })).toBe('z.string().uppercase()')
     })
     it.concurrent('runtime: "ABC" PASSES', () => {
       expect(UpperCheck.safeParse('ABC').success).toBe(true)
@@ -11258,7 +11184,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-coerce: z.coerce.string()', () => {
     const CS = z.coerce.string()
     it.concurrent('codegen: z.coerce.string()', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-coerce': true } as Schema)).toBe('z.coerce.string()')
+      expect(zodToOpenAPI({ type: 'string', 'x-coerce': true })).toBe('z.coerce.string()')
     })
     it.concurrent('runtime: 123 → "123"', () => {
       const valid = CS.safeParse(123)
@@ -11270,7 +11196,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-coerce: z.coerce.number()', () => {
     const CN = z.coerce.number()
     it.concurrent('codegen: z.coerce.number()', () => {
-      expect(zodToOpenAPI({ type: 'number', 'x-coerce': true } as Schema)).toBe('z.coerce.number()')
+      expect(zodToOpenAPI({ type: 'number', 'x-coerce': true })).toBe('z.coerce.number()')
     })
     it.concurrent('runtime: "42" → 42', () => {
       const valid = CN.safeParse('42')
@@ -11297,9 +11223,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-coerce: z.coerce.boolean()', () => {
     const CB = z.coerce.boolean()
     it.concurrent('codegen: z.coerce.boolean()', () => {
-      expect(zodToOpenAPI({ type: 'boolean', 'x-coerce': true } as Schema)).toBe(
-        'z.coerce.boolean()',
-      )
+      expect(zodToOpenAPI({ type: 'boolean', 'x-coerce': true })).toBe('z.coerce.boolean()')
     })
     it.concurrent('runtime: "truthy" → true', () => {
       const valid = CB.safeParse('truthy')
@@ -11315,9 +11239,7 @@ describe('zodToOpenAPI', () => {
 
   describe('x-stringbool: z.stringbool()', () => {
     it.concurrent('codegen: x-stringbool=true → z.stringbool()', () => {
-      expect(zodToOpenAPI({ type: 'boolean', 'x-stringbool': true } as Schema)).toBe(
-        'z.stringbool()',
-      )
+      expect(zodToOpenAPI({ type: 'boolean', 'x-stringbool': true })).toBe('z.stringbool()')
     })
 
     it.concurrent('codegen: x-stringbool with truthy/falsy → z.stringbool({...})', () => {
@@ -11325,7 +11247,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'boolean',
           'x-stringbool': { truthy: ['yes', 'on'], falsy: ['no', 'off'] },
-        } as Schema),
+        }),
       ).toBe('z.stringbool({"truthy":["yes","on"],"falsy":["no","off"]})')
     })
 
@@ -11334,7 +11256,7 @@ describe('zodToOpenAPI', () => {
         zodToOpenAPI({
           type: 'boolean',
           'x-stringbool': { case: 'sensitive' },
-        } as Schema),
+        }),
       ).toBe('z.stringbool({"case":"sensitive"})')
     })
 
@@ -11344,7 +11266,7 @@ describe('zodToOpenAPI', () => {
           type: 'boolean',
           'x-stringbool': true,
           'x-error-message': 'must be bool-ish',
-        } as Schema),
+        }),
       ).toBe('z.stringbool({error:"must be bool-ish"})')
     })
 
@@ -11354,7 +11276,7 @@ describe('zodToOpenAPI', () => {
           type: 'boolean',
           'x-stringbool': { truthy: ['yes'] },
           'x-error-message': 'bad bool',
-        } as Schema),
+        }),
       ).toBe('z.stringbool({"truthy":["yes"],error:"bad bool"})')
     })
 
@@ -11364,7 +11286,7 @@ describe('zodToOpenAPI', () => {
           type: 'boolean',
           'x-coerce': true,
           'x-stringbool': true,
-        } as Schema),
+        }),
       ).toThrow(/mutually exclusive/)
     })
 
@@ -11388,7 +11310,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { truthy: ['yes'] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"truthy":["yes"]})')
       })
       it.concurrent('codegen: falsy only', () => {
@@ -11396,7 +11318,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { falsy: ['no'] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"falsy":["no"]})')
       })
       it.concurrent('codegen: case=insensitive only', () => {
@@ -11404,7 +11326,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { case: 'insensitive' },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"case":"insensitive"})')
       })
       it.concurrent('codegen: all three options (truthy + falsy + case=sensitive)', () => {
@@ -11416,7 +11338,7 @@ describe('zodToOpenAPI', () => {
               falsy: ['N', 'no', '0'],
               case: 'sensitive',
             },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"truthy":["Y","yes","1"],"falsy":["N","no","0"],"case":"sensitive"})')
       })
       it.concurrent('codegen: empty options object → z.stringbool() (no empty options arg emitted)', () => {
@@ -11424,7 +11346,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': {},
-          } as Schema),
+          }),
         ).toBe('z.stringbool()')
       })
       it.concurrent('codegen: empty truthy array preserved', () => {
@@ -11432,7 +11354,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { truthy: [] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"truthy":[]})')
       })
       it.concurrent('codegen: empty falsy array preserved', () => {
@@ -11440,7 +11362,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { falsy: [] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"falsy":[]})')
       })
       it.concurrent('codegen: unicode strings in truthy/falsy', () => {
@@ -11448,7 +11370,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { truthy: ['はい', 'oui'], falsy: ['いいえ', 'non'] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"truthy":["はい","oui"],"falsy":["いいえ","non"]})')
       })
       it.concurrent('codegen: special chars (quotes, backslash) JSON-encoded', () => {
@@ -11456,7 +11378,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'boolean',
             'x-stringbool': { truthy: ['a"b', 'c\\d'] },
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"truthy":["a\\"b","c\\\\d"]})')
       })
     })
@@ -11468,7 +11390,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-required-message': 'Required',
-          } as Schema),
+          }),
         ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"Required":undefined})')
       })
       it.concurrent('codegen: x-stringbool=true + both messages → required+type fn', () => {
@@ -11478,7 +11400,7 @@ describe('zodToOpenAPI', () => {
             'x-stringbool': true,
             'x-error-message': 'Bad',
             'x-required-message': 'Need',
-          } as Schema),
+          }),
         ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"Need":"Bad"})')
       })
       it.concurrent('codegen: x-stringbool with options + both messages → merged arg', () => {
@@ -11488,7 +11410,7 @@ describe('zodToOpenAPI', () => {
             'x-stringbool': { truthy: ['yes'], falsy: ['no'] },
             'x-error-message': 'Bad',
             'x-required-message': 'Need',
-          } as Schema),
+          }),
         ).toBe(
           'z.stringbool({"truthy":["yes"],"falsy":["no"],error:(issue)=>issue.input===undefined?"Need":"Bad"})',
         )
@@ -11499,7 +11421,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': { case: 'sensitive' },
             'x-error-message': 'strict',
-          } as Schema),
+          }),
         ).toBe('z.stringbool({"case":"sensitive",error:"strict"})')
       })
       it.concurrent('codegen: empty x-stringbool object + x-error-message → no leading comma in arg', () => {
@@ -11508,7 +11430,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': {},
             'x-error-message': 'bad',
-          } as Schema),
+          }),
         ).toBe('z.stringbool({error:"bad"})')
       })
       it.concurrent('codegen: empty x-stringbool object + x-required-message → no leading comma in arg', () => {
@@ -11517,7 +11439,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': {},
             'x-required-message': 'need',
-          } as Schema),
+          }),
         ).toBe('z.stringbool({error:(issue)=>issue.input===undefined?"need":undefined})')
       })
     })
@@ -11529,7 +11451,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             default: true,
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().default(true)')
       })
       it.concurrent('codegen: x-stringbool=true + nullable=true → .nullable()', () => {
@@ -11538,7 +11460,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             nullable: true,
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().nullable()')
       })
       it.concurrent('codegen: x-stringbool=true + type=[boolean,null] → .nullable()', () => {
@@ -11546,7 +11468,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: ['boolean', 'null'],
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().nullable()')
       })
       it.concurrent('codegen: x-stringbool=true + nullable + default → nullable().default()', () => {
@@ -11556,7 +11478,7 @@ describe('zodToOpenAPI', () => {
             nullable: true,
             default: false,
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().nullable().default(false)')
       })
       it.concurrent('codegen: x-stringbool=true + x-brand → .brand<"Flag">()', () => {
@@ -11565,7 +11487,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-brand': 'Flag',
-          } as Schema),
+          }),
         ).toBe('z.stringbool().brand<"Flag">()')
       })
       it.concurrent('codegen: x-stringbool=true + x-catch=false → .catch(false)', () => {
@@ -11574,7 +11496,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-catch': false,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().catch(false)')
       })
       it.concurrent('codegen: x-stringbool=true + x-prefault=true → .prefault(true)', () => {
@@ -11583,7 +11505,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-prefault': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().prefault(true)')
       })
       it.concurrent('codegen: x-stringbool=true + x-readonly=true → .readonly()', () => {
@@ -11592,7 +11514,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-readonly': true,
-          } as Schema),
+          }),
         ).toBe('z.stringbool().readonly()')
       })
       it.concurrent('codegen: x-stringbool=true + x-refine appends verbatim', () => {
@@ -11601,7 +11523,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-refine': '.refine((v)=>v===true)',
-          } as Schema),
+          }),
         ).toBe('z.stringbool().refine((v)=>v===true)')
       })
     })
@@ -11613,7 +11535,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-preprocess': 'PRE',
-          } as Schema),
+          }),
         ).toBe('PRE')
       })
       it.concurrent('codegen: x-transform wins over x-stringbool', () => {
@@ -11622,7 +11544,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-transform': 'TRANSFORM',
-          } as Schema),
+          }),
         ).toBe('TRANSFORM')
       })
       it.concurrent('codegen: x-pipe wins over x-stringbool', () => {
@@ -11631,7 +11553,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-pipe': 'PIPE',
-          } as Schema),
+          }),
         ).toBe('PIPE')
       })
       it.concurrent('codegen: x-codec wins over x-stringbool', () => {
@@ -11640,7 +11562,7 @@ describe('zodToOpenAPI', () => {
             type: 'boolean',
             'x-stringbool': true,
             'x-codec': 'CODEC',
-          } as Schema),
+          }),
         ).toBe('CODEC')
       })
     })
@@ -11651,7 +11573,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'string',
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.string()')
       })
       it.concurrent('codegen: x-stringbool on type=number → plain z.number()', () => {
@@ -11659,7 +11581,7 @@ describe('zodToOpenAPI', () => {
           zodToOpenAPI({
             type: 'number',
             'x-stringbool': true,
-          } as Schema),
+          }),
         ).toBe('z.number()')
       })
     })
@@ -11802,7 +11724,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-coerce: z.coerce.date() for date format', () => {
     const CD = z.coerce.date()
     it.concurrent('codegen: z.coerce.date()', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'date', 'x-coerce': true } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', format: 'date', 'x-coerce': true })).toBe(
         'z.coerce.date()',
       )
     })
@@ -11830,7 +11752,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-includes: substring presence', () => {
     const Inc = z.string().includes('foo')
     it.concurrent('codegen: z.string().includes("foo")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-includes': 'foo' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-includes': 'foo' })).toBe(
         'z.string().includes("foo")',
       )
     })
@@ -11858,7 +11780,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-startsWith: prefix check', () => {
     const Sw = z.string().startsWith('http')
     it.concurrent('codegen: z.string().startsWith("http")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-startsWith': 'http' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-startsWith': 'http' })).toBe(
         'z.string().startsWith("http")',
       )
     })
@@ -11886,7 +11808,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-endsWith: suffix check', () => {
     const Ew = z.string().endsWith('.com')
     it.concurrent('codegen: z.string().endsWith(".com")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-endsWith': '.com' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-endsWith': '.com' })).toBe(
         'z.string().endsWith(".com")',
       )
     })
@@ -11920,7 +11842,7 @@ describe('zodToOpenAPI', () => {
           format: 'email',
           'x-trim': true,
           'x-toLowerCase': true,
-        } as Schema),
+        }),
       ).toBe('z.string().trim().toLowerCase().pipe(z.email())')
     })
     it.concurrent('runtime: "  Foo@Example.com  " → "foo@example.com"', () => {
@@ -11937,7 +11859,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-prefault: input default', () => {
     const Pf = z.string().prefault('def')
     it.concurrent('codegen: z.string().prefault("def")', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-prefault': 'def' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'string', 'x-prefault': 'def' })).toBe(
         'z.string().prefault("def")',
       )
     })
@@ -11971,7 +11893,7 @@ describe('zodToOpenAPI', () => {
           properties: { a: { type: 'string' } },
           required: ['a'],
           'x-readonly': true,
-        } as Schema),
+        }),
       ).toBe('z.object({a:z.string()}).readonly().openapi({"required":["a"]})')
     })
     it.concurrent('runtime: {a:"x"} PASSES (frozen)', () => {
@@ -12001,9 +11923,7 @@ describe('zodToOpenAPI', () => {
       encode: (date: Date) => date.toISOString(),
     })
     it.concurrent('codegen: z.codec(z.iso.date(),z.date(),{decode,encode})', () => {
-      expect(zodToOpenAPI({ type: 'string', format: 'date', 'x-codec': 'date' } as Schema)).toBe(
-        'date',
-      )
+      expect(zodToOpenAPI({ type: 'string', format: 'date', 'x-codec': 'date' })).toBe('date')
     })
     it.concurrent('runtime: "2024-01-02" → Date instance PASSES', () => {
       const valid = Codec.safeParse('2024-01-02')
@@ -12039,7 +11959,7 @@ describe('zodToOpenAPI', () => {
           type: 'string',
           format: 'date-time',
           'x-codec': 'date',
-        } as Schema),
+        }),
       ).toBe('date')
     })
     it.concurrent('runtime: "2024-01-02T03:04:05Z" PASSES', () => {
@@ -12055,7 +11975,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: bigint', () => {
     const Bi = z.bigint()
     it.concurrent('codegen: z.bigint()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' } as Schema)).toBe('z.bigint()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' })).toBe('z.bigint()')
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(Bi.safeParse(BigInt(1)).success).toBe(true)
@@ -12079,7 +11999,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: int64', () => {
     const I64 = z.int64()
     it.concurrent('codegen: z.int64()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'int64' } as Schema)).toBe('z.int64()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(I64.safeParse(BigInt(1)).success).toBe(true)
@@ -12103,7 +12023,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 number format: float32', () => {
     const F32 = z.float32()
     it.concurrent('codegen: z.float32()', () => {
-      expect(zodToOpenAPI({ type: 'number', format: 'float32' } as Schema)).toBe('z.float32()')
+      expect(zodToOpenAPI({ type: 'number', format: 'float32' })).toBe('z.float32()')
     })
     it.concurrent('runtime: 1.5 PASSES', () => {
       expect(F32.safeParse(1.5).success).toBe(true)
@@ -12127,7 +12047,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 number format: float64', () => {
     const F64 = z.float64()
     it.concurrent('codegen: z.float64()', () => {
-      expect(zodToOpenAPI({ type: 'number', format: 'float64' } as Schema)).toBe('z.float64()')
+      expect(zodToOpenAPI({ type: 'number', format: 'float64' })).toBe('z.float64()')
     })
     it.concurrent('runtime: 1.5 PASSES', () => {
       expect(F64.safeParse(1.5).success).toBe(true)
@@ -12161,7 +12081,7 @@ describe('zodToOpenAPI', () => {
           for (const issue of valid.error.issues)
             ctx.addIssue({ ...issue, path: [i, ...issue.path] })
       }
-      for (let i = Prefix.length; i < arr.length; i++)
+      for (let i = Prefix.length; i < arr.length; i += 1)
         ctx.addIssue({ code: 'custom', path: [i], message: 'Unevaluated item at index ' + i })
     })
     it.concurrent('codegen: superRefine with prefix + length cap', () => {
@@ -12207,7 +12127,7 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('codegen: superRefine with prefix only', () => {
-      expect(zodToOpenAPI({ type: 'array', prefixItems: [{ type: 'string' }] } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'array', prefixItems: [{ type: 'string' }] })).toBe(
         'z.array(z.unknown()).superRefine((arr,ctx)=>{const Prefix=[z.string()];for(const [i,Schema] of Prefix.slice(0,arr.length).entries()){const result=Schema.safeParse(arr[i]);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[i,...issue.path]})}}}})',
       )
     })
@@ -12250,7 +12170,7 @@ describe('zodToOpenAPI', () => {
           type: 'array',
           items: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
           uniqueItems: true,
-        } as Schema),
+        }),
       ).toBe(
         'z.array(z.object({id:z.string()}).openapi({"required":["id"]})).superRefine((items,ctx)=>{const seen=new Map();for(const [i,val] of items.entries()){const key=JSON.stringify(val);if(seen.has(key))ctx.addIssue({code:"custom",path:[i]});else seen.set(key,i)}})',
       )
@@ -12280,9 +12200,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 object: additionalProperties Schema → z.record', () => {
     const Rec = z.record(z.string(), z.number())
     it.concurrent('codegen: z.record(z.string(),z.number())', () => {
-      expect(
-        zodToOpenAPI({ type: 'object', additionalProperties: { type: 'number' } } as Schema),
-      ).toBe('z.record(z.string(),z.number())')
+      expect(zodToOpenAPI({ type: 'object', additionalProperties: { type: 'number' } })).toBe(
+        'z.record(z.string(),z.number())',
+      )
     })
     it.concurrent('runtime: {a:1,b:2} PASSES', () => {
       expect(Rec.safeParse({ a: 1, b: 2 }).success).toBe(true)
@@ -12311,7 +12231,7 @@ describe('zodToOpenAPI', () => {
           type: 'object',
           properties: { a: { type: 'string' } },
           additionalProperties: true,
-        } as Schema),
+        }),
       ).toBe('z.looseObject({a:z.string().exactOptional()})')
     })
     it.concurrent('runtime: {a:"x", extra:1} PASSES (extras kept)', () => {
@@ -12329,7 +12249,7 @@ describe('zodToOpenAPI', () => {
           type: 'object',
           properties: { a: { type: 'string' } },
           additionalProperties: false,
-        } as Schema),
+        }),
       ).toBe('z.strictObject({a:z.string().exactOptional()})')
     })
     it.concurrent('runtime: {a:"x"} PASSES', () => {
@@ -12354,9 +12274,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 object: plain z.object strips unknown keys', () => {
     const Plain = z.object({ a: z.string().exactOptional() })
     it.concurrent('codegen: z.object({a:z.string().exactOptional()})', () => {
-      expect(
-        zodToOpenAPI({ type: 'object', properties: { a: { type: 'string' } } } as Schema),
-      ).toBe('z.object({a:z.string().exactOptional()})')
+      expect(zodToOpenAPI({ type: 'object', properties: { a: { type: 'string' } } })).toBe(
+        'z.object({a:z.string().exactOptional()})',
+      )
     })
     it.concurrent('runtime: {a:"x", extra:1} → {a:"x"} (stripped)', () => {
       const valid = Plain.safeParse({ a: 'x', extra: 1 })
@@ -12368,14 +12288,14 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 object: dependentSchemas (name present → enforces shape)', () => {
     const Dep = z.object({ name: z.string().exactOptional() }).superRefine((o, ctx) => {
       if (!Object.hasOwn(o, 'name')) return
-      const Schema = z.unknown().superRefine((val, ctx) => {
+      const Schema = z.unknown().superRefine((val, innerCtx) => {
         if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
           if (!Object.hasOwn(val, 'age'))
-            ctx.addIssue({ code: 'custom', message: 'missing required: age' })
+            innerCtx.addIssue({ code: 'custom', message: 'missing required: age' })
           if (Object.hasOwn(val, 'age')) {
-            const Schema = z.int()
-            if (!Schema.safeParse(Reflect.get(val, 'age')).success)
-              ctx.addIssue({ code: 'custom', message: 'invalid property' })
+            const AgeSchema = z.int()
+            if (!AgeSchema.safeParse(Reflect.get(val, 'age')).success)
+              innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
           }
         }
       })
@@ -12391,7 +12311,7 @@ describe('zodToOpenAPI', () => {
           dependentSchemas: {
             name: { properties: { age: { type: 'integer' } }, required: ['age'] },
           },
-        } as Schema),
+        }),
       ).toBe(
         'z.object({name:z.string().exactOptional()}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"name")){return}const Schema=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(!Object.hasOwn(val,"age")){ctx.addIssue({code:\'custom\'})};if(Object.hasOwn(val,"age")){const Schema=z.int();if(!Schema.safeParse(Reflect.get(val,"age")).success){ctx.addIssue({code:\'custom\'})}}}}).openapi({"required":["age"]});const result=Schema.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})',
       )
@@ -12418,32 +12338,32 @@ describe('zodToOpenAPI', () => {
     const IfThen = z
       .object({ country: z.string(), postalCode: z.string().exactOptional() })
       .superRefine((o, ctx) => {
-        const If = z.unknown().superRefine((val, ctx) => {
+        const If = z.unknown().superRefine((val, innerCtx) => {
           if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
             if (Object.hasOwn(val, 'country')) {
               const Schema = z.literal('JP')
               if (!Schema.safeParse(Reflect.get(val, 'country')).success)
-                ctx.addIssue({ code: 'custom', message: 'invalid property' })
+                innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
             }
           }
         })
         const ifOk = If.safeParse(o).success
         const Branch = ifOk
-          ? z.unknown().superRefine((val, ctx) => {
+          ? z.unknown().superRefine((val, innerCtx) => {
               if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
                 if (Object.hasOwn(val, 'postalCode')) {
                   const Schema = z.string().regex(/^\d{3}-\d{4}$/)
                   if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success)
-                    ctx.addIssue({ code: 'custom', message: 'invalid property' })
+                    innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
                 }
               }
             })
-          : z.unknown().superRefine((val, ctx) => {
+          : z.unknown().superRefine((val, innerCtx) => {
               if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
                 if (Object.hasOwn(val, 'postalCode')) {
                   const Schema = z.string().min(1)
                   if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success)
-                    ctx.addIssue({ code: 'custom', message: 'invalid property' })
+                    innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
                 }
               }
             })
@@ -12464,7 +12384,7 @@ describe('zodToOpenAPI', () => {
             properties: { postalCode: { type: 'string', pattern: '^\\d{3}-\\d{4}$' } },
           },
           else: { properties: { postalCode: { type: 'string', minLength: 1 } } },
-        } as Schema),
+        }),
       ).toBe(
         'z.object({country:z.string(),postalCode:z.string().exactOptional()}).superRefine((o,ctx)=>{const If=z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"country")){const Schema=z.literal("JP");if(!Schema.safeParse(Reflect.get(val,"country")).success){ctx.addIssue({code:\'custom\'})}}}});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"postalCode")){const Schema=z.string().regex(/^\\d{3}-\\d{4}$/);if(!Schema.safeParse(Reflect.get(val,"postalCode")).success){ctx.addIssue({code:\'custom\'})}}}}):z.unknown().superRefine((val,ctx)=>{if(typeof val===\'object\'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"postalCode")){const Schema=z.string().min(1);if(!Schema.safeParse(Reflect.get(val,"postalCode")).success){ctx.addIssue({code:\'custom\'})}}}});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}).openapi({"required":["country"]})',
       )
@@ -12510,7 +12430,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 nullable + default (type:["string","null"])', () => {
     const ND = z.string().nullable().default('x')
     it.concurrent('codegen: z.string().nullable().default("x")', () => {
-      expect(zodToOpenAPI({ type: ['string', 'null'], default: 'x' } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: ['string', 'null'], default: 'x' })).toBe(
         'z.string().nullable().default("x")',
       )
     })
@@ -12535,7 +12455,7 @@ describe('zodToOpenAPI', () => {
           default: 'd',
           nullable: true,
           'x-error-message': 'NG',
-        } as Schema),
+        }),
       ).toBe('z.string({error:"NG"}).nullable().default("d")')
     })
     it.concurrent('runtime: undefined → "d"', () => {
@@ -12562,7 +12482,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 enum + x-coerce: number enum (coerce ignored on enum codegen)', () => {
     const Enum = z.union([z.literal(1), z.literal(2), z.literal(3)])
     it.concurrent('codegen: z.union([z.literal(1),z.literal(2),z.literal(3)])', () => {
-      expect(zodToOpenAPI({ type: 'number', enum: [1, 2, 3], 'x-coerce': true } as Schema)).toBe(
+      expect(zodToOpenAPI({ type: 'number', enum: [1, 2, 3], 'x-coerce': true })).toBe(
         'z.union([z.literal(1),z.literal(2),z.literal(3)])',
       )
     })
@@ -12622,7 +12542,7 @@ describe('zodToOpenAPI', () => {
             required: ['id'],
           },
           minItems: 1,
-        } as Schema),
+        }),
       ).toBe('z.array(z.object({id:z.string().min(1)}).openapi({"required":["id"]})).min(1)')
     })
     it.concurrent('runtime: [{id:"a"}] PASSES', () => {

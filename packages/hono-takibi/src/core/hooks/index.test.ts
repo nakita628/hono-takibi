@@ -521,7 +521,7 @@ export function usePostUsers<TError = unknown>(options?: {
                 get: { operationId: 'getRoot', responses: { '200': { description: 'OK' } } },
               },
             },
-          } as OpenAPI,
+          },
           out,
           '../client',
           'swr',

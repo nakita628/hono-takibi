@@ -15,6 +15,7 @@ export const coercionApp = new OpenAPIHono({
         422,
       )
     }
+    return undefined
   },
 })
   .openapi(getCoerceIdRoute, (c) => {

@@ -35,17 +35,17 @@ const MAX_SCHEMA_DEPTH = 50
 function toSlug(text: string) {
   const str = typeof text === 'string' ? text : String(text ?? '')
   return str
-    .replace(/[A-Z]/g, (c) => c.toLowerCase())
-    .replace(/[^a-z0-9\u3000-\u9fff\uff00-\uffef -]/g, '')
-    .replace(/\s+/g, '-')
+    .replaceAll(/[A-Z]/g, (c) => c.toLowerCase())
+    .replaceAll(/[^a-z0-9\u3000-\u9fff\uff00-\uffef -]/g, '')
+    .replaceAll(/\s+/g, '-')
 }
 
 function toTitleSlug(title: string) {
   const str = typeof title === 'string' ? title : String(title ?? '')
   return str
     .toLowerCase()
-    .replace(/[^a-z0-9 -]/g, '')
-    .replace(/\s+/g, '-')
+    .replaceAll(/[^a-z0-9 -]/g, '')
+    .replaceAll(/\s+/g, '-')
 }
 
 function lookupComponentSection(
@@ -582,7 +582,7 @@ function flattenBodyParams(
           ...flattenBodyParams(
             propSchema,
             components,
-            nextPrefix.replace(/»/g, '» '),
+            nextPrefix.replaceAll('»', '» '),
             visited,
             depth + 1,
           ),
@@ -599,7 +599,7 @@ function flattenBodyParams(
             ...flattenBodyParams(
               innerResolved,
               components,
-              deepPrefix.replace(/»/g, '» '),
+              deepPrefix.replaceAll('»', '» '),
               visited,
               depth + 1,
             ),
@@ -760,7 +760,7 @@ function flattenResponseSchemaFields(
         description: propSchema.description ?? 'none',
       }
       const nextPrefix = prefix ? `${prefix}»` : '»'
-      const nestedPrefix = nextPrefix.replace(/»/g, '» ').trimEnd()
+      const nestedPrefix = nextPrefix.replaceAll('»', '» ').trimEnd()
       if (propSchema.type === 'object' && propSchema.properties) {
         return [
           row,

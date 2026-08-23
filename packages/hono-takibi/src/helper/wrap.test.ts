@@ -970,7 +970,7 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
       wrap('z.object({})', {
         type: 'object',
         $defs: { Foo: { type: 'array', items: true } },
-      } as Schema),
+      }),
     ).toBe('z.object({}).openapi({"$defs":{"Foo":{"type":"array"}}})')
   })
 

@@ -104,11 +104,11 @@ function makeStubHandlerCode(routeId: string) {
 
 function sanitizeHandlerSegment(segment: string) {
   return segment
-    .replace(/\{([^}]+)\}/g, '$1')
-    .replace(/[^0-9A-Za-z._-]/g, '_')
-    .replace(/^[._-]+|[._-]+$/g, '')
-    .replace(/__+/g, '_')
-    .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+    .replaceAll(/\{([^}]+)\}/g, '$1')
+    .replaceAll(/[^0-9A-Za-z._-]/g, '_')
+    .replaceAll(/^[._-]+|[._-]+$/g, '')
+    .replaceAll(/__+/g, '_')
+    .replaceAll(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
 }
 
 /**
@@ -335,7 +335,7 @@ function makeInlineStubFileContent(
   importFrom: string,
 ) {
   const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
-  const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
+  const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${importRoutes}`
   const chain = handler.contents.join('\n')
@@ -354,11 +354,11 @@ function makeInlineMockFileContent(
   schemas: { readonly [k: string]: Schema },
 ) {
   const exportName = `${path.basename(handler.fileName, '.ts')}Handler`
-  const routeImports = Array.from(new Set(handler.routeNames)).join(', ')
+  const routeImports = [...new Set(handler.routeNames)].join(', ')
   const importRoutes = routeImports ? `import { ${routeImports} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import { OpenAPIHono } from '@hono/zod-openapi'\n${fakerImport}${importRoutes}`
-  const mockFunctions = Array.from(handler.usedRefs)
+  const mockFunctions = [...handler.usedRefs]
     .filter((refName) => schemas[refName])
     .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
     .join('\n\n')
@@ -447,7 +447,7 @@ function makeMergedHandlers<
       handlerMap.set(handler.fileName, {
         ...handler,
         contents: [...existing.contents, ...handler.contents],
-        routeNames: Array.from(new Set([...existing.routeNames, ...handler.routeNames])),
+        routeNames: [...new Set([...existing.routeNames, ...handler.routeNames])],
         needsFaker: existing.needsFaker || handler.needsFaker,
         usedRefs: new Set([...existing.usedRefs, ...handler.usedRefs]),
       })
@@ -456,7 +456,7 @@ function makeMergedHandlers<
     }
   }
 
-  return Array.from(handlerMap.values())
+  return [...handlerMap.values()]
 }
 
 function makeStubFileContent(
@@ -466,7 +466,7 @@ function makeStubFileContent(
   },
   importFrom: string,
 ) {
-  const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
+  const routeTypes = [...new Set(handler.routeNames)].join(', ')
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${importRouteTypes}`
   return `${importStatements}\n\n${handler.contents.join('\n\n')}`
@@ -482,11 +482,11 @@ function makeMockFileContent(
   importFrom: string,
   schemas: { readonly [k: string]: Schema },
 ) {
-  const routeTypes = Array.from(new Set(handler.routeNames)).join(', ')
+  const routeTypes = [...new Set(handler.routeNames)].join(', ')
   const importRouteTypes = routeTypes ? `import type { ${routeTypes} } from '${importFrom}';` : ''
   const fakerImport = handler.needsFaker ? "import { faker } from '@faker-js/faker'\n" : ''
   const importStatements = `import type { RouteHandler } from '@hono/zod-openapi'\n${fakerImport}${importRouteTypes}`
-  const mockFunctions = Array.from(handler.usedRefs)
+  const mockFunctions = [...handler.usedRefs]
     .filter((refName) => schemas[refName])
     .map((refName) => makeMockFunction(refName, schemas[refName], schemas))
     .join('\n\n')

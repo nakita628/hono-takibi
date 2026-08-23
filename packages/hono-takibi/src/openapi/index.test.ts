@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
@@ -61,8 +62,8 @@ describe('parseOpenAPI', () => {
 })
 
 // TypeSpec test
-// Files are created in packages/hono-takibi/ to resolve TypeSpec libraries from node_modules
-const TSP_TEST_DIR = 'packages/hono-takibi'
+// Files are created in the package root to resolve TypeSpec libraries from node_modules
+const TSP_TEST_DIR = path.resolve(import.meta.dirname, '../..')
 const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp`
 const TSP_TEST_SUBDIR = `${TSP_TEST_DIR}/tmp`
 
@@ -121,9 +122,6 @@ model Error {
 `
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
     const result = await parseOpenAPI(TSP_TEST_FILE)
-    if (!result.ok) {
-      console.error('TypeSpec error:', result.error)
-    }
     expect(result.ok).toBe(true)
   })
 

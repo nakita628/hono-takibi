@@ -10,7 +10,7 @@ import {
 } from '../guard/index.js'
 
 function makeEscaped(s: string) {
-  return s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+  return s.replaceAll('\\', '\\\\').replaceAll("'", "\\'")
 }
 
 function refParamName(refLike: unknown) {
@@ -71,7 +71,7 @@ export function formatPath(p: string, hasBasePath?: boolean) {
   }
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
   if (p !== '/' && p.endsWith('/')) segs.push('index')
-  const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
+  const honoSegs = segs.map((seg) => seg.replaceAll(/\{([^}]+)\}/g, ':$1'))
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
   const runtimeParts = honoSegs.map((seg) =>
@@ -117,9 +117,8 @@ function refRequestBodyName(refLike: unknown) {
 
 function pickAllBodyInfoFromContent(content: unknown) {
   if (!isRecord(content)) return undefined
-  const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
-  const isFormContentType = (ct: string): boolean =>
-    formContentTypes.includes(ct.split(';')[0].trim())
+  const formContentTypes = new Set(['multipart/form-data', 'application/x-www-form-urlencoded'])
+  const isFormContentType = (ct: string): boolean => formContentTypes.has(ct.split(';')[0].trim())
   const validEntries = Object.entries(content).filter(
     ([_, mediaObj]) =>
       isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),

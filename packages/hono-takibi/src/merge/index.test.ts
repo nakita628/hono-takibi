@@ -1150,9 +1150,9 @@ describe('Users', () => {
 
       const result = mergeTestFile(existing, generated)
       // Should not duplicate
-      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) || []).length
+      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) ?? []).length
       expect(getCount).toBe(1)
-      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) || []).length
+      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) ?? []).length
       expect(postCount).toBe(1)
     })
 
@@ -4942,12 +4942,6 @@ export const api = new OpenAPIHono()
       const twice = mergeAppFile(once, generated)
       expect(twice).toBe(once)
     })
-
-    // NOTE: mergeTestFile is currently NOT idempotent — a single blank line
-    // between describe blocks is collapsed on the second pass. Tracked in
-    // takibi-lab/library/hono-takibi/2026/05/21.md as P1. Restore this test
-    // after the fix:
-    //   it('mergeTestFile is idempotent: merge(merge(e, g), g) === merge(e, g)', ...)
 
     it('mergeBarrelFile is idempotent (generated fully supersedes existing)', () => {
       const existing = "export * from './old'\n"

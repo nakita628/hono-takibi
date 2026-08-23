@@ -6,7 +6,7 @@ export function makeModuleSpec(
   fromFile: string,
   target: { readonly output: string; readonly split?: boolean },
 ) {
-  const rel = path.relative(path.dirname(fromFile), target.output).replace(/\\/g, '/')
+  const rel = path.relative(path.dirname(fromFile), target.output).replaceAll('\\', '/')
   const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
   return stripped === '' ? '.' : stripped.startsWith('.') ? stripped : `./${stripped}`
 }

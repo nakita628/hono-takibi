@@ -23,25 +23,25 @@ const recurse = zodToOpenAPI
 describe('helper/zod', () => {
   describe('hasTypelessConstraint', () => {
     it('returns false for empty schema', () => {
-      expect(hasTypelessConstraint({} as Schema)).toBe(false)
+      expect(hasTypelessConstraint({})).toBe(false)
     })
     it('returns false for schema with only `type`', () => {
-      expect(hasTypelessConstraint({ type: 'string' } as Schema)).toBe(false)
+      expect(hasTypelessConstraint({ type: 'string' })).toBe(false)
     })
     it('returns true for schema with `required`', () => {
-      expect(hasTypelessConstraint({ required: ['x'] } as Schema)).toBe(true)
+      expect(hasTypelessConstraint({ required: ['x'] })).toBe(true)
     })
     it('returns true for schema with `if`', () => {
-      expect(hasTypelessConstraint({ if: { type: 'object' } } as Schema)).toBe(true)
+      expect(hasTypelessConstraint({ if: { type: 'object' } })).toBe(true)
     })
     it('returns true for schema with `contains`', () => {
-      expect(hasTypelessConstraint({ contains: { type: 'string' } } as Schema)).toBe(true)
+      expect(hasTypelessConstraint({ contains: { type: 'string' } })).toBe(true)
     })
   })
 
   describe('emitTypelessRefine', () => {
     it('returns z.any() for empty schema (blocks.length === 0 branch)', () => {
-      expect(emitTypelessRefine({} as Schema, recurse)).toBe('z.any()')
+      expect(emitTypelessRefine({}, recurse)).toBe('z.any()')
     })
 
     it('emits additionalProperties: false guard (typeless)', () => {
@@ -50,7 +50,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             additionalProperties: false,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -64,7 +64,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             additionalProperties: { type: 'number' },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -77,7 +77,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             patternProperties: { '^x_': { type: 'string' } },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -90,7 +90,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             dependentRequired: { a: ['b', 'c'] },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -103,7 +103,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             dependentSchemas: { a: { properties: { b: { type: 'string' } } } },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -118,7 +118,7 @@ describe('helper/zod', () => {
             contains: { type: 'string' },
             minContains: 1,
             maxContains: 3,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -134,7 +134,7 @@ describe('helper/zod', () => {
           {
             contains: { type: 'string' },
             minContains: 2,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -150,7 +150,7 @@ describe('helper/zod', () => {
               { type: 'object', properties: { a: { type: 'string' } } },
               { type: 'object', properties: { b: { type: 'number' } } },
             ],
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -163,7 +163,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             anyOf: [{ type: 'string' }, { type: 'number' }],
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -176,7 +176,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             oneOf: [{ type: 'string' }, { type: 'number' }],
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -189,7 +189,7 @@ describe('helper/zod', () => {
         emitTypelessRefine(
           {
             not: { type: 'string' },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -221,7 +221,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             'x-error-message': 'fallback',
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -245,7 +245,7 @@ describe('helper/zod', () => {
             then: { type: 'object', required: ['x'] },
             else: { type: 'object', required: ['y'] },
             'x-error-message': 'err',
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -262,7 +262,7 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             // biome-ignore lint/suspicious/noExplicitAny: testing non-string slot value
             'x-properties-message': true as unknown as string,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -271,9 +271,7 @@ describe('helper/zod', () => {
     })
 
     it('emits typeless string constraints (minLength/maxLength/pattern)', () => {
-      expect(
-        emitTypelessRefine({ minLength: 3, maxLength: 10, pattern: '^x' } as Schema, recurse),
-      ).toBe(
+      expect(emitTypelessRefine({ minLength: 3, maxLength: 10, pattern: '^x' }, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(typeof val==='string'){if([...val].length<3){ctx.addIssue({code:'custom'})};if([...val].length>10){ctx.addIssue({code:'custom'})};if(!new RegExp("^x").test(val)){ctx.addIssue({code:'custom'})}}})`,
       )
     })
@@ -287,7 +285,7 @@ describe('helper/zod', () => {
             exclusiveMinimum: 0,
             exclusiveMaximum: 100,
             multipleOf: 5,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -296,9 +294,7 @@ describe('helper/zod', () => {
     })
 
     it('emits typeless array constraints (minItems/maxItems/uniqueItems)', () => {
-      expect(
-        emitTypelessRefine({ minItems: 1, maxItems: 5, uniqueItems: true } as Schema, recurse),
-      ).toBe(
+      expect(emitTypelessRefine({ minItems: 1, maxItems: 5, uniqueItems: true }, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<1){ctx.addIssue({code:'custom'})};if(val.length>5){ctx.addIssue({code:'custom'})};{const seen=new Set();for(const item of val){const key=JSON.stringify(item);if(seen.has(key)){ctx.addIssue({code:'custom'});break}seen.add(key)}}}})`,
       )
     })
@@ -311,7 +307,7 @@ describe('helper/zod', () => {
             maxProperties: 5,
             propertyNames: { pattern: '^x' },
             patternProperties: { '^x_': { type: 'string' } },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -320,19 +316,19 @@ describe('helper/zod', () => {
     })
 
     it('emits typeless dependentRequired check', () => {
-      expect(emitTypelessRefine({ dependentRequired: { a: ['b', 'c'] } } as Schema, recurse)).toBe(
+      expect(emitTypelessRefine({ dependentRequired: { a: ['b', 'c'] } }, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(typeof val==='object'&&val!==null&&!Array.isArray(val)){if(Object.hasOwn(val,"a")){if(!(Object.hasOwn(val,"b")&&Object.hasOwn(val,"c"))){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
 
     it('emits typeless const check (any-type)', () => {
-      expect(emitTypelessRefine({ const: 'fixed' } as Schema, recurse)).toBe(
+      expect(emitTypelessRefine({ const: 'fixed' }, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(JSON.stringify("fixed")!==JSON.stringify(val)){ctx.addIssue({code:'custom'})}})`,
       )
     })
 
     it('emits typeless enum check (any-type)', () => {
-      expect(emitTypelessRefine({ enum: ['a', 'b', 'c'] } as Schema, recurse)).toBe(
+      expect(emitTypelessRefine({ enum: ['a', 'b', 'c'] }, recurse)).toBe(
         `z.unknown().superRefine((val,ctx)=>{if(!["a","b","c"].some((e)=>JSON.stringify(e)===JSON.stringify(val))){ctx.addIssue({code:'custom'})}})`,
       )
     })
@@ -353,7 +349,7 @@ describe('helper/zod', () => {
               properties: { y: { type: 'integer' } },
               required: ['y'],
             },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -364,16 +360,12 @@ describe('helper/zod', () => {
 
   describe('makeUnevaluatedProperties', () => {
     it('returns empty string when unevaluatedProperties is undefined', () => {
-      expect(makeUnevaluatedProperties({ type: 'object' } as Schema, 'err', recurse)).toBe('')
+      expect(makeUnevaluatedProperties({ type: 'object' }, 'err', recurse)).toBe('')
     })
 
     it('returns empty string when unevaluatedProperties is true', () => {
       expect(
-        makeUnevaluatedProperties(
-          { type: 'object', unevaluatedProperties: true } as Schema,
-          'err',
-          recurse,
-        ),
+        makeUnevaluatedProperties({ type: 'object', unevaluatedProperties: true }, 'err', recurse),
       ).toBe('')
     })
 
@@ -383,7 +375,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -398,7 +390,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: { type: 'number' },
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -415,7 +407,7 @@ describe('helper/zod', () => {
             patternProperties: { '^x_': { type: 'string' } },
             allOf: [{ properties: { b: { type: 'string' } } }],
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -435,7 +427,7 @@ describe('helper/zod', () => {
             oneOf: [{ type: 'object', properties: { d: { type: 'string' } } }],
             dependentSchemas: { e: { type: 'object', properties: { f: { type: 'string' } } } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -454,7 +446,7 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             anyOf: [{ type: 'object' }],
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -474,7 +466,7 @@ describe('helper/zod', () => {
             then: { type: 'object', properties: { b: { type: 'string' } } },
             else: { type: 'object', properties: { c: { type: 'string' } } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
         ),
@@ -490,7 +482,7 @@ describe('helper/zod', () => {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
             'x-unevaluatedProperties-message': 'unevaluated',
-          } as Schema,
+          },
           'err',
           recurse,
           'override',
@@ -506,7 +498,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           'err',
           recurse,
           'override',
@@ -520,10 +512,7 @@ describe('helper/zod', () => {
   describe('makeUnevaluatedPropertiesCheck (typeless wrapper)', () => {
     it('returns empty string when unevaluatedProperties is undefined', () => {
       expect(
-        makeUnevaluatedPropertiesCheck(
-          { properties: { a: { type: 'string' } } } as Schema,
-          recurse,
-        ),
+        makeUnevaluatedPropertiesCheck({ properties: { a: { type: 'string' } } }, recurse),
       ).toBe('')
     })
 
@@ -533,7 +522,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: true,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe('')
@@ -545,7 +534,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -559,7 +548,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: { type: 'number' },
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -583,7 +572,7 @@ describe('helper/zod', () => {
             dependentSchemas: { e: { type: 'object', properties: { f: { type: 'string' } } } },
             unevaluatedProperties: false,
             'x-unevaluatedProperties-message': 'unevaluated',
-          } as Schema,
+          },
           recurse,
         ),
       ).toBe(
@@ -597,7 +586,7 @@ describe('helper/zod', () => {
           {
             properties: { a: { type: 'string' } },
             unevaluatedProperties: false,
-          } as Schema,
+          },
           recurse,
           'override',
         ),
@@ -610,26 +599,21 @@ describe('helper/zod', () => {
 
 describe('emitTypelessRefine array constraints', () => {
   it('emits contains/minContains count guard', () => {
-    expect(
-      emitTypelessRefine({ contains: { type: 'string' }, minContains: 1 } as Schema, recurse),
-    ).toBe(
+    expect(emitTypelessRefine({ contains: { type: 'string' }, minContains: 1 }, recurse)).toBe(
       `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){{const m=val.filter((i)=>z.string().safeParse(i).success).length;if(m<1){ctx.addIssue({code:'custom'})}}}})`,
     )
   })
 
   it('emits prefixItems positional guard plus trailing items guard', () => {
     expect(
-      emitTypelessRefine(
-        { prefixItems: [{ type: 'string' }], items: { type: 'number' } } as Schema,
-        recurse,
-      ),
+      emitTypelessRefine({ prefixItems: [{ type: 'string' }], items: { type: 'number' } }, recurse),
     ).toBe(
       `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length>0){const Schema=z.string();if(!Schema.safeParse(val[0]).success){ctx.addIssue({code:'custom'})}};{const Schema=z.number();for(let i=1;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})`,
     )
   })
 
   it('emits minItems guard plus full-array items guard (no prefix)', () => {
-    expect(emitTypelessRefine({ items: { type: 'string' }, minItems: 2 } as Schema, recurse)).toBe(
+    expect(emitTypelessRefine({ items: { type: 'string' }, minItems: 2 }, recurse)).toBe(
       `z.unknown().superRefine((val,ctx)=>{if(Array.isArray(val)){if(val.length<2){ctx.addIssue({code:'custom'})};{const Schema=z.string();for(let i=0;i<val.length;i++){if(!Schema.safeParse(val[i]).success){ctx.addIssue({code:'custom'})}}}}})`,
     )
   })
