@@ -1,6 +1,7 @@
+import { isPathItem } from '../../../../guard/index.js'
 import { makeConst } from '../../../../helper/code.js'
 import { makePathItem } from '../../../../helper/openapi.js'
-import type { Components, PathItem } from '../../../../openapi/index.js'
+import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 
 export function pathItemsCode(
@@ -8,16 +9,10 @@ export function pathItemsCode(
   exportPathItems: boolean,
   readonly?: boolean,
 ): string {
-  const pathItemsEntries = (
-    components: Components,
-    exportPathItems: boolean,
-    readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
+  const pathItemsEntries = (): readonly { readonly name: string; readonly code: string }[] => {
     const { pathItems } = components
     if (!pathItems) return []
     const asConst = readonly ? ' as const' : ''
-    const isPathItem = (v: unknown): v is PathItem =>
-      typeof v === 'object' && v !== null && !('$ref' in v)
     return Object.entries(pathItems).flatMap(([k, pathItemOrRef]) =>
       isPathItem(pathItemOrRef)
         ? [
@@ -29,7 +24,7 @@ export function pathItemsCode(
         : [],
     )
   }
-  return pathItemsEntries(components, exportPathItems, readonly)
+  return pathItemsEntries()
     .map((e) => e.code)
     .join('\n\n')
 }

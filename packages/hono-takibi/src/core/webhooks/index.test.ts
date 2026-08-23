@@ -15,7 +15,7 @@ afterEach(() => {
 })
 
 describe('webhooks', () => {
-  const mockOpenAPI: OpenAPI = {
+  const mockOpenAPI = {
     openapi: '3.1.0',
     info: { title: 'Test API', version: '1.0.0' },
     paths: {},
@@ -75,7 +75,7 @@ describe('webhooks', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   it('returns error when output is missing', async () => {
     const result = await webhooks(mockOpenAPI, undefined)
@@ -184,7 +184,7 @@ export * from './userCreatedPost'
     it('generates webhook without import statement', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const simpleWebhook: OpenAPI = {
+      const simpleWebhook = {
         openapi: '3.1.0',
         info: { title: 'Test', version: '1.0.0' },
         paths: {},
@@ -198,7 +198,7 @@ export * from './userCreatedPost'
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await webhooks(simpleWebhook, { output: out })
       expect(result).toStrictEqual({
         ok: true,
@@ -274,7 +274,7 @@ export * from './userCreatedPost'
   })
 
   describe('multi-method per webhook', () => {
-    const multiMethodOpenAPI: OpenAPI = {
+    const multiMethodOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       paths: {},
@@ -284,7 +284,7 @@ export * from './userCreatedPost'
           get: { operationId: 'evGet', responses: { '200': { description: 'OK' } } },
         },
       },
-    }
+    } as OpenAPI
 
     it('split: each method becomes its own file, barrel lists them sorted', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-multimethod-'))
@@ -305,7 +305,7 @@ export * from './userCreatedPost'
     it('resolves a webhook operation-level parameter $ref (same output as path-level placement)', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-ref-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const refOpenapi: OpenAPI = {
+      const refOpenapi = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {},
@@ -328,7 +328,7 @@ export * from './userCreatedPost'
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await webhooks(refOpenapi, { output: out })
       expect(result).toStrictEqual({
         ok: true,
@@ -350,7 +350,7 @@ export const pingPostWebhook = {
     it('resolves a webhook path-level parameter $ref to an existing component parameter', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-ref-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const refOpenapi: OpenAPI = {
+      const refOpenapi = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {},
@@ -373,7 +373,7 @@ export const pingPostWebhook = {
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await webhooks(refOpenapi, { output: out })
       expect(result).toStrictEqual({
         ok: true,
@@ -397,7 +397,7 @@ export const pingPostWebhook = {
     it('emits tags, summary, description, externalDocs, deprecated, security, servers, callbacks', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-rich-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const richOpenapi: OpenAPI = {
+      const richOpenapi = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {},
@@ -423,7 +423,7 @@ export const pingPostWebhook = {
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await webhooks(richOpenapi, { output: out })
       expect(result).toStrictEqual({
         ok: true,
@@ -459,7 +459,7 @@ export const pingPostWebhook = {
           info: { title: 'T', version: '1.0.0' },
           paths: {},
           webhooks: {},
-        } as OpenAPI,
+        },
         { output: out },
       )
       expect(result).toStrictEqual({ ok: true, value: 'No webhooks found' })

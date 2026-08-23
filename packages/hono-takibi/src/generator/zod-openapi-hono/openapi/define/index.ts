@@ -1,3 +1,4 @@
+import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
@@ -18,8 +19,13 @@ import { methodPath } from '../../../../utils/index.js'
 export function defineEntries(
   openapi: OpenAPI,
   readonly?: boolean,
-): readonly { readonly name: string; readonly path: string; readonly code: string }[] {
-  const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
+): readonly {
+  readonly name: string
+  readonly path: string
+  readonly tags?: readonly string[]
+  readonly code: string
+}[] {
+  const makeEntry = (path: string, method: string, operation: Operation) => {
     // Properties follow `openapi/index.ts` `Operation` declaration order (method/path are
     // createRoute-specific and lead; request merges parameters + requestBody).
     const properties = [
@@ -50,13 +56,10 @@ export function defineEntries(
     return {
       name: entryName,
       path,
+      ...(operation.tags ? { tags: operation.tags } : {}),
       code: `export const ${entryName}Route=defineOpenAPIRoute({route:createRoute({${properties}}${asConst}),handler:async(c)=>{},addRoute:true})`,
     }
   }
-  const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-    ref.startsWith('#/components/parameters/')
-  const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
-    ref.startsWith('#/components/pathItems/')
   const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
     if ('name' in parameter && 'in' in parameter) return parameter
     const ref = '$ref' in parameter ? parameter.$ref : undefined
@@ -77,7 +80,7 @@ export function defineEntries(
     return pathItem
   }
   return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
-    if (!pathItem) return [] as const
+    if (!isPathItemEntry(pathItem)) return [] as const
     const resolved = resolvePathItem(pathItem)
     return (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const).flatMap(
       (method) => {
@@ -90,12 +93,7 @@ export function defineEntries(
           .map(resolveParameter)
           .filter((p) => p !== undefined)
         return [
-          makeEntry(
-            path,
-            method,
-            parameters.length > 0 ? { ...operation, parameters } : operation,
-            readonly,
-          ),
+          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
         ]
       },
     )

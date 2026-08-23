@@ -1,5 +1,6 @@
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error, escapeRegexLiteral } from '../../../utils/index.js'
+// oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
 const FORMAT_STRING: { readonly [k: string]: string } = {
@@ -48,17 +49,12 @@ const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
 }
 
 /**
- * Returns the inner `error:"..."` (or `error:(issue)=>...`) string without
- * surrounding braces, so it can be merged into a format options object.
- */
-const errorInner = (message: string): string => error(message).slice(1, -1)
-
-/**
  * Builds format-specific option entries (excluding `error`) for Zod v4 format
  * constructors like `z.email({ pattern })`, `z.iso.datetime({ precision })`.
  * Returns an empty array when no options apply.
  */
 function makeFormatOptions(schema: Schema): readonly string[] {
+  // oxlint-disable-next-line typescript/switch-exhaustiveness-check -- the default branch covers every other format
   switch (schema.format) {
     case 'email': {
       // x-emailRegex wins over x-emailPattern when both are set.
@@ -122,7 +118,7 @@ export function string(
   const baseErrorArg = baseError(errorMessage, coerce ? undefined : requiredMessage)
 
   // Hash: z.hash(algo, { enc }) — algo is a required positional arg. The hash
-  // branch passes x-error-message via errorInner below; the format-specific slot
+  // branch merges x-error-message into its options object below; the format-specific slot
   // is reserved for the standard validation-format constructors (email/uuid/url/...).
   const hashBase = (() => {
     if (schema.format !== 'hash') return undefined
@@ -131,7 +127,8 @@ export function string(
     const enc = schema['x-hashEnc']
     const opts = [
       enc ? `enc:${JSON.stringify(enc)}` : undefined,
-      errorMessage ? errorInner(errorMessage) : undefined,
+      // `error(...)` returns `{error:...}`; strip the braces to merge it into the options object
+      errorMessage ? error(errorMessage).slice(1, -1) : undefined,
     ].filter((v) => v !== undefined)
     const optsStr = opts.length > 0 ? `,{${opts.join(',')}}` : ''
     return `z.hash(${JSON.stringify(algo)}${optsStr})`
@@ -169,7 +166,7 @@ export function string(
       // Zod issues instead of uncaught exceptions.
       const mt = mediaType ? mediaType.toLowerCase() : ''
       const isBinary = /^(image|audio|video)\//.test(mt) || mt === 'application/octet-stream'
-      const isJson = mt.length > 0 && /json/.test(mt)
+      const isJson = mt.length > 0 && mt.includes('json')
       // Binary MIME types decode base64 directly to Uint8Array — UTF-8
       // decoding would corrupt the bytes.
       if (isBinary) {

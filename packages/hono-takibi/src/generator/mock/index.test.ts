@@ -10,7 +10,7 @@ async function format(spec: OpenAPI, basePath: string) {
   return result.value
 }
 
-const minimalOpenAPI: OpenAPI = {
+const minimalOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -30,7 +30,7 @@ const minimalOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 const minimalExpected = (appInit: string) =>
   `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
@@ -88,7 +88,7 @@ describe('makeMock', () => {
 
   describe('namespace-qualified schema names', () => {
     it('sanitizes dotted schema names in mock function definitions', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Dotted Mock API', version: '1.0.0' },
         paths: {
@@ -119,7 +119,7 @@ describe('makeMock', () => {
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -157,7 +157,7 @@ export default app
 
   describe('multi-route', () => {
     it('chains .openapi() calls for each route', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -198,7 +198,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -252,7 +252,7 @@ export default app
 
   describe('bearer auth with 401 response', () => {
     it('generates Authorization header check', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         components: {
@@ -281,7 +281,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -322,7 +322,7 @@ export default app
 
   describe('204 No Content response', () => {
     it('returns null body with 204 status', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -333,7 +333,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -360,7 +360,7 @@ export default app
 
   describe('apiKey/cookie auth with 401', () => {
     it('emits getCookie import and cookie check', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: {
@@ -389,7 +389,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -431,7 +431,7 @@ export default app
 
   describe('apiKey/query auth with 401', () => {
     it('emits c.req.query check', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: {
@@ -460,7 +460,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -501,7 +501,7 @@ export default app
 
   describe('apiKey/header auth with 401', () => {
     it('emits c.req.header check with custom header name', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: {
@@ -530,7 +530,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -571,7 +571,7 @@ export default app
 
   describe('basic auth with 401', () => {
     it('emits Authorization header check', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: { securitySchemes: { basicAuth: { type: 'http', scheme: 'basic' } } },
@@ -598,7 +598,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -639,7 +639,7 @@ export default app
 
   describe('oauth2 with 401', () => {
     it('emits Authorization header check', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: { securitySchemes: { oauth: { type: 'oauth2', flows: {} } } },
@@ -666,7 +666,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -707,7 +707,7 @@ export default app
 
   describe('security defined but no 401 response', () => {
     it('omits auth check entirely (has401 = false)', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } },
@@ -733,7 +733,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -770,7 +770,7 @@ export default app
 
   describe('text/plain response', () => {
     it('emits c.text() handler', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -786,7 +786,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -813,7 +813,7 @@ export default app
 
   describe('self-referencing circular schema', () => {
     it('emits ": any" return type on mock function', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -842,7 +842,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -884,7 +884,7 @@ export default app
 
   describe('requestBody with non-JSON content only', () => {
     it('passes through non-JSON content unchanged', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -896,7 +896,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -924,7 +924,7 @@ export default app
 
   describe('pathItem-level parameters (non-method key)', () => {
     it('keeps pathItem-level parameters in the filtered spec', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -933,7 +933,7 @@ export default app
             get: { operationId: 'gx', responses: { '200': { description: 'OK' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1038,7 +1038,7 @@ export default app
 
   describe('global security applies when operation security is undefined', () => {
     it('uses openapi.security as fallback when operation has none', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         security: [{ bearer: [] }],
@@ -1061,7 +1061,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1102,7 +1102,7 @@ export default app
 
   describe('mutual circular reference', () => {
     it('marks both Parent and Child as circular and emits both mock functions with any return', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1138,7 +1138,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1193,7 +1193,7 @@ export default app
 
   describe('x-brand schema', () => {
     it('casts mock body to z.infer<typeof Schema>', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1212,7 +1212,7 @@ export default app
           },
         },
         components: { schemas: { UserId: { type: 'string', 'x-brand': 'UserId' } } },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1247,7 +1247,7 @@ export default app
 
   describe('success response resolution', () => {
     it('emits c.json for a default-only response with json content', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -1267,7 +1267,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1305,7 +1305,7 @@ export default app
     })
 
     it('emits c.text for a 2XX-only response with text content', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -1321,7 +1321,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1346,7 +1346,7 @@ export default app
     })
 
     it('emits c.body(null, 200) for a default response without content', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -1354,7 +1354,7 @@ export default app
             post: { operationId: 'noop', responses: { default: { description: 'ok' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1379,7 +1379,7 @@ export default app
     })
 
     it('emits c.body(null, 201) for a 201 response without content', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -1387,7 +1387,7 @@ export default app
             post: { operationId: 'create', responses: { '201': { description: 'created' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1412,7 +1412,7 @@ export default app
     })
 
     it('prefers an explicit 200 over default when both exist', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -1440,7 +1440,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1484,7 +1484,7 @@ export default app
 
   describe('allOf-wrapped scalar / enum and branded-scalar casing', () => {
     it('delegates an allOf-wrapped enum (no spread), casts a camelCase brand to its PascalCase const, and drops the unused base model', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1517,7 +1517,7 @@ export default app
             AuthUser: { type: 'object', properties: { token: { type: 'string' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1567,7 +1567,7 @@ export default app
 
   describe('response example', () => {
     it('returns the authored media example verbatim, cast to the success schema', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1597,7 +1597,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1632,7 +1632,7 @@ export default app
     })
 
     it('prefers the first entry of examples (plural) over faker', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1665,7 +1665,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1708,7 +1708,7 @@ export default app
     })
 
     it('resolves an examples $ref against components.examples', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1739,7 +1739,7 @@ export default app
           },
           examples: { UserExample: { summary: 'User', value: { id: 1, name: 'Alice' } } },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1778,7 +1778,7 @@ export default app
     })
 
     it('returns an inline-schema example verbatim without a cast', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1799,7 +1799,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1834,7 +1834,7 @@ export default app
     })
 
     it('prefers a response example over faker on an x-pagination operation', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1865,7 +1865,7 @@ export default app
             Post: { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -1922,7 +1922,7 @@ export default app
 
   describe('x-pagination list handler', () => {
     it('returns a plain faker array without page/rows slicing (orval-aligned)', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'T', version: '1.0.0' },
         paths: {
@@ -1952,7 +1952,7 @@ export default app
             Post: { type: 'object', required: ['id'], properties: { id: { type: 'integer' } } },
           },
         },
-      }
+      } as OpenAPI
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
@@ -2149,7 +2149,7 @@ export default app
   })
 
   describe('useExamples', () => {
-    const exampleOpenAPI: OpenAPI = {
+    const exampleOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Example API', version: '1.0.0' },
       paths: {
@@ -2170,7 +2170,7 @@ export default app
           },
         },
       },
-    }
+    } as OpenAPI
 
     it('returns the spec example verbatim by default', async () => {
       const result = await fmt(makeMock(exampleOpenAPI, '/'))
@@ -2255,7 +2255,7 @@ export default app
 
   describe('int64 / bigint response (BigInt JSON serialization)', () => {
     it('emits a BigInt toJSON hook for an inline int64 response', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -2279,7 +2279,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await fmt(makeMock(spec, '/'))
       if (!result.ok) throw new Error(result.error)
       expect(result.value)
@@ -2323,7 +2323,7 @@ export default app
     })
 
     it('emits a BigInt toJSON hook when only a component mock returns a bigint', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         components: {
@@ -2350,7 +2350,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await fmt(makeMock(spec, '/'))
       if (!result.ok) throw new Error(result.error)
       expect(result.value)
@@ -2399,7 +2399,7 @@ export default app
   })
   describe('404 sentinel guard (contract with the test generator)', () => {
     it('answers 404 for the non-existent sentinel when the route declares a 404', async () => {
-      const spec: OpenAPI = {
+      const spec = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {
@@ -2443,7 +2443,7 @@ export default app
             },
           },
         },
-      }
+      } as OpenAPI
       const result = await fmt(makeMock(spec, '/'))
       if (!result.ok) throw new Error(result.error)
       expect(result.value)

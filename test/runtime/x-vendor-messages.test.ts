@@ -519,49 +519,65 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // ─────────────────────────────────────────────────────────
   describe('enum acceptance', () => {
     it('accepts each valid string enum value', async () => {
-      for (const role of ['admin', 'editor', 'viewer']) {
-        const res = await app.request('/form', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: 'taro',
-            code: 'ABC123',
-            slug: 'hello-world',
-            age: 25,
-            score: 1.5,
-            count: 10,
-            active: true,
-            tags: ['dev'],
-            pin: [1, 2, 3, 4],
-            role,
-            priority: 1,
-            quota: 5,
-          }),
-        })
+      const responses = await Promise.all(
+        ['admin', 'editor', 'viewer'].map((role) =>
+          // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+          // element a thenable for `Promise.all` (typescript/await-thenable).
+          Promise.resolve(
+            app.request('/form', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role,
+                priority: 1,
+                quota: 5,
+              }),
+            }),
+          ),
+        ),
+      )
+      for (const res of responses) {
         expect(res.status).toBe(200)
       }
     })
 
     it('accepts each valid integer enum value', async () => {
-      for (const priority of [1, 2, 3]) {
-        const res = await app.request('/form', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: 'taro',
-            code: 'ABC123',
-            slug: 'hello-world',
-            age: 25,
-            score: 1.5,
-            count: 10,
-            active: true,
-            tags: ['dev'],
-            pin: [1, 2, 3, 4],
-            role: 'admin',
-            priority,
-            quota: 5,
-          }),
-        })
+      const responses = await Promise.all(
+        [1, 2, 3].map((priority) =>
+          // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+          // element a thenable for `Promise.all` (typescript/await-thenable).
+          Promise.resolve(
+            app.request('/form', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: 'taro',
+                code: 'ABC123',
+                slug: 'hello-world',
+                age: 25,
+                score: 1.5,
+                count: 10,
+                active: true,
+                tags: ['dev'],
+                pin: [1, 2, 3, 4],
+                role: 'admin',
+                priority,
+                quota: 5,
+              }),
+            }),
+          ),
+        ),
+      )
+      for (const res of responses) {
         expect(res.status).toBe(200)
       }
     })
@@ -887,14 +903,12 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // distinct from x-contains-message. v3.0 silent-bug fix.
   // ─────────────────────────────────────────────────────────
   describe('x-minContains-message / x-maxContains-message', () => {
-    const item = (kind: string) => ({ kind })
-
     it('x-minContains-message fires when fewer than 2 premium items', async () => {
       const res = await app.request('/basket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: [item('premium'), item('basic'), item('basic')],
+          items: [{ kind: 'premium' }, { kind: 'basic' }, { kind: 'basic' }],
         }),
       })
       const body = (await res.json()) as { errors: { pointer: string; detail: string }[] }
@@ -909,12 +923,12 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: [
-            item('premium'),
-            item('premium'),
-            item('premium'),
-            item('premium'),
-            item('premium'),
-            item('premium'),
+            { kind: 'premium' },
+            { kind: 'premium' },
+            { kind: 'premium' },
+            { kind: 'premium' },
+            { kind: 'premium' },
+            { kind: 'premium' },
           ],
         }),
       })
@@ -929,7 +943,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          items: [item('premium'), item('premium'), item('basic')],
+          items: [{ kind: 'premium' }, { kind: 'premium' }, { kind: 'basic' }],
         }),
       })
       expect(res.status).toBe(200)
@@ -1029,27 +1043,28 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // (verifies .openapi({writeOnly: true}) survives into the OpenAPI document)
   // ─────────────────────────────────────────────────────────
   describe('writeOnly OAS metadata propagation', () => {
-    const getDoc = () =>
-      app.getOpenAPI31Document({
+    it('writeOnly: true survives into generated OpenAPI document', () => {
+      const doc = app.getOpenAPI31Document({
         openapi: '3.1.0',
         info: { title: 'x-vendor-messages', version: '1.0.0' },
       })
-    const getWriteOnlyComponent = () => {
-      const doc = getDoc()
       const schemas = doc.components?.schemas as
         | { WriteOnly?: { properties?: Record<string, { writeOnly?: boolean }> } }
         | undefined
-      return schemas?.WriteOnly
-    }
-
-    it('writeOnly: true survives into generated OpenAPI document', () => {
-      const writeOnly = getWriteOnlyComponent()
+      const writeOnly = schemas?.WriteOnly
       expect(writeOnly).toBeDefined()
       expect(writeOnly?.properties?.password?.writeOnly).toBe(true)
     })
 
     it('non-writeOnly properties do NOT carry the flag', () => {
-      const writeOnly = getWriteOnlyComponent()
+      const doc = app.getOpenAPI31Document({
+        openapi: '3.1.0',
+        info: { title: 'x-vendor-messages', version: '1.0.0' },
+      })
+      const schemas = doc.components?.schemas as
+        | { WriteOnly?: { properties?: Record<string, { writeOnly?: boolean }> } }
+        | undefined
+      const writeOnly = schemas?.WriteOnly
       expect(writeOnly?.properties?.name?.writeOnly).toBeUndefined()
     })
 

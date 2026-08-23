@@ -1,6 +1,6 @@
-import path from 'node:path'
+import { basename } from 'node:path'
 
-import { isHttpMethod } from '../../../guard/index.js'
+import { isHttpMethod, isOperation } from '../../../guard/index.js'
 import { makeHandlerFileName } from '../../../helper/handler.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
@@ -15,6 +15,8 @@ import { methodPath } from '../../../utils/index.js'
  * @param routeImport - Optional route module specifier override.
  * @param routeHandler - When false (default), handlers import app and register routes inline.
  *   When true, generates `app.openapi()` pattern with RouteHandler type exports.
+ * @param inlineHandlerFileNames - Inline mode only: the handler files to mount, when the
+ *   caller has resolved them against the files already on disk.
  * @returns The generated application code as a string.
  *
  * @example
@@ -32,8 +34,9 @@ export function app(
   routeHandler = false,
   define = false,
   handlerModuleOverride?: string,
+  inlineHandlerFileNames?: readonly string[],
 ) {
-  const getRouteMaps = (openapi: OpenAPI) => {
+  const getRouteMaps = () => {
     const paths = openapi.paths
     return Object.entries(paths).flatMap(([path, pathItem]) => {
       return Object.entries(pathItem).flatMap(([method]) => {
@@ -46,11 +49,11 @@ export function app(
       })
     })
   }
-  const routeMappings = getRouteMaps(openapi)
+  const routeMappings = getRouteMaps()
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
-    ? path.basename(output.replace(/\/index\.ts$/, ''))
-    : path.basename(output, '.ts')
+    ? basename(output.replace(/\/index\.ts$/, ''))
+    : basename(output, '.ts')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
     basePath !== '/'
@@ -72,10 +75,18 @@ export function app(
     return [importSection, appInit, apiInit, 'export default app'].filter(Boolean).join('\n\n')
   }
   if (!routeHandler) {
-    const handlerFileNames = [
-      ...new Set(Object.keys(openapi.paths).map((path) => makeHandlerFileName(path))),
+    const handlerFileNames = inlineHandlerFileNames ?? [
+      ...new Set(
+        Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
+          Object.entries(pathItem).flatMap(([method, operation]) =>
+            isHttpMethod(method) && isOperation(operation)
+              ? [makeHandlerFileName(path, operation.tags)]
+              : [],
+          ),
+        ),
+      ),
     ]
-    const handlerExportNames = handlerFileNames.map((fn) => `${path.basename(fn, '.ts')}Handler`)
+    const handlerExportNames = handlerFileNames.map((fn) => `${basename(fn, '.ts')}Handler`)
     const handlerModule =
       handlerModuleOverride ?? (aliasPrefix ? `${aliasPrefix}/handlers` : './handlers')
     const handlerImport =

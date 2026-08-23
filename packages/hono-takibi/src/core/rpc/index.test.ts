@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vite-plus/test'
 import type { OpenAPI } from '../../openapi/index.js'
 import { rpc } from './index.js'
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.1.0',
   info: {
     title: 'HonoTakibi - test-only sample',
@@ -418,7 +418,7 @@ const openapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('rpc', () => {
   it('should generate the correct import code', async () => {
@@ -665,7 +665,7 @@ export async function putUsersId(
 })
 
 /** Test OpenAPI spec focused on isOptional (required: true/false) */
-const openapiIsOptional: OpenAPI = {
+const openapiIsOptional = {
   openapi: '3.1.0',
   info: {
     title: 'isOptional Test API',
@@ -836,7 +836,7 @@ const openapiIsOptional: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('rpc (isOptional tests)', () => {
   it('should correctly handle required: true vs required: false for parameters', async () => {
@@ -981,7 +981,7 @@ export * from './getAllOptional'
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const simpleOpenAPI: OpenAPI = {
+      const simpleOpenAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -992,7 +992,7 @@ export * from './getAllOptional'
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(simpleOpenAPI, out, '../api', false, 'authClient')
 
@@ -1017,7 +1017,7 @@ export async function getUsers(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-split-'))
     try {
       const out = path.join(dir, 'rpc')
-      const simpleOpenAPI: OpenAPI = {
+      const simpleOpenAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1028,7 +1028,7 @@ export async function getUsers(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(simpleOpenAPI, out, '../api', true, 'adminClient')
 
@@ -1055,7 +1055,7 @@ describe('rpc (parseResponse: true)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const simpleOpenAPI: OpenAPI = {
+      const simpleOpenAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1066,7 +1066,7 @@ describe('rpc (parseResponse: true)', () => {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(simpleOpenAPI, out, '../client', false, 'client', true)
 
@@ -1092,7 +1092,7 @@ export async function getHealth(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-args-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPIWithArgs: OpenAPI = {
+      const openAPIWithArgs = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1111,7 +1111,7 @@ export async function getHealth(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPIWithArgs, out, '../client', false, 'client', true)
 
@@ -1140,7 +1140,7 @@ export async function getUsersId(
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-split-'))
     try {
       const out = path.join(dir, 'rpc')
-      const simpleOpenAPI: OpenAPI = {
+      const simpleOpenAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1151,7 +1151,7 @@ export async function getUsersId(
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(simpleOpenAPI, out, '../client', true, 'client', true)
 
@@ -1175,7 +1175,7 @@ export async function getHealth(options?: ClientRequestOptions) {
 })
 
 describe('rpc (trailing slash)', () => {
-  const trailingSlashOpenAPI: OpenAPI = {
+  const trailingSlashOpenAPI = {
     openapi: '3.1.0',
     info: { title: 'Trailing Slash Test', version: '1.0.0' },
     paths: {
@@ -1206,7 +1206,7 @@ describe('rpc (trailing slash)', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   it('should generate .index accessor for trailing-slash paths', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-'))
@@ -1317,7 +1317,7 @@ describe('rpc (docs: true)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-summary-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1328,7 +1328,7 @@ describe('rpc (docs: true)', () => {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
       if (!result.ok) throw new Error(result.error)
@@ -1355,7 +1355,7 @@ export async function getHealth(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-both-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1367,7 +1367,7 @@ export async function getHealth(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
       if (!result.ok) throw new Error(result.error)
@@ -1397,7 +1397,7 @@ export async function getUsers(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-desc-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1408,7 +1408,7 @@ export async function getUsers(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
       if (!result.ok) throw new Error(result.error)
@@ -1435,7 +1435,7 @@ export async function getPing(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-none-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1445,7 +1445,7 @@ export async function getPing(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
       if (!result.ok) throw new Error(result.error)
@@ -1467,7 +1467,7 @@ export async function getSilent(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-false-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1479,7 +1479,7 @@ export async function getSilent(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client')
       if (!result.ok) throw new Error(result.error)
@@ -1501,7 +1501,7 @@ export async function getHealth(options?: ClientRequestOptions) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-parseResponse-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1514,7 +1514,7 @@ export async function getHealth(options?: ClientRequestOptions) {
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', false, 'client', true, undefined, true)
       if (!result.ok) throw new Error(result.error)
@@ -1547,7 +1547,7 @@ export async function getUsersId(
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-split-'))
     try {
       const out = path.join(dir, 'rpc')
-      const openAPI: OpenAPI = {
+      const openAPI = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -1558,7 +1558,7 @@ export async function getUsersId(
             },
           },
         },
-      }
+      } as OpenAPI
 
       const result = await rpc(openAPI, out, '../client', true, 'client', false, undefined, true)
       if (!result.ok) throw new Error(result.error)

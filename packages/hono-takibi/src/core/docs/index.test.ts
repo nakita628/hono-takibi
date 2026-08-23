@@ -17,7 +17,7 @@ describe('docs', () => {
   it('should generate markdown docs', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-docs-'))
     const output = path.join(tmpDir, 'docs.md')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -30,7 +30,7 @@ describe('docs', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await docs(openAPI, output)
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -46,11 +46,11 @@ describe('docs', () => {
     const blockingFile = path.join(tmpDir, 'block')
     fs.writeFileSync(blockingFile, 'x')
     const output = path.join(blockingFile, 'docs.md')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
-    }
+    } as OpenAPI
     const result = await docs(openAPI, output)
     expect(result).toStrictEqual({
       ok: false,

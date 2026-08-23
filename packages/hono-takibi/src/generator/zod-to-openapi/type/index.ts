@@ -1,4 +1,4 @@
-import { makeTypeString } from '../../../helper/index.js'
+import { makeTypeString } from '../../../helper/type.js'
 import type { Schema } from '../../../openapi/index.js'
 
 /**

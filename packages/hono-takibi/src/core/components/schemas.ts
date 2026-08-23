@@ -7,6 +7,7 @@ import type { Components } from '../../openapi/index.js'
 import { makeBarrel, renderNamedImport, uncapitalize } from '../../utils/index.js'
 
 export async function schemas(
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   schemas: Components['schemas'],
   output: string,
   split: boolean,

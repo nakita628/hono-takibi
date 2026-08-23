@@ -8,7 +8,7 @@ import type { OpenAPI } from '../../openapi/index.js'
 import { template } from '../template/index.js'
 import { takibi } from './index.js'
 
-const openapi: OpenAPI = {
+const openapi = {
   openapi: '3.1.0',
   info: { title: 'HonoTakibi', version: 'v1' },
   tags: [{ name: 'Hono' }, { name: 'HonoX' }, { name: 'ZodOpenAPIHono' }],
@@ -77,7 +77,7 @@ const openapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 const componentsOptions = {
   exportSchemasTypes: true,
@@ -97,11 +97,11 @@ const componentsOptions = {
   exportMediaTypesTypes: false,
 } as const
 
-const runTakibi = async (openapi: OpenAPI, output: `${string}.ts`) =>
-  takibi(openapi, output, { ...componentsOptions })
+const runTakibi = async (doc: OpenAPI, output: `${string}.ts`) =>
+  takibi(doc, output, { ...componentsOptions })
 
 const runTakibiWithTemplate = async (
-  openapi: OpenAPI,
+  doc: OpenAPI,
   output: `${string}.ts`,
   opts: {
     template?: boolean
@@ -112,11 +112,11 @@ const runTakibiWithTemplate = async (
     routeHandler?: boolean
   } = {},
 ) => {
-  const result = await runTakibi(openapi, output)
+  const result = await runTakibi(doc, output)
   if (!result.ok) return result
   if (opts.template) {
     return template(
-      openapi,
+      doc,
       output,
       opts.test ?? false,
       opts.basePath ?? '/',
@@ -259,8 +259,8 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.test.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
         value: '🔥 Generated code and template files written',
@@ -287,7 +287,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
         value: '🔥 Generated code and template files written',
@@ -320,8 +320,8 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.test.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -372,7 +372,7 @@ export default app
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -404,7 +404,7 @@ export default app
 })
 
 // Simple OpenAPI for strict tests
-const simpleOpenapi: OpenAPI = {
+const simpleOpenapi = {
   openapi: '3.1.0',
   info: { title: 'Test', version: 'v1' },
   paths: {
@@ -427,7 +427,7 @@ const simpleOpenapi: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('basePath behavior', () => {
   it('basePath not specified: generates app without .basePath()', async () => {
@@ -1678,7 +1678,7 @@ describe('Test', () => {
 })
 
 describe('takibi error paths', () => {
-  const componentsOptions = {
+  const errorPathOptions = {
     exportSchemas: false,
     exportSchemasTypes: false,
     exportResponses: false,
@@ -1702,11 +1702,7 @@ describe('takibi error paths', () => {
     // wrapper should surface that failure as `{ ok: false, error: <string> }`
     // rather than throwing, so any caller can fall through to its own
     // error handling.
-    const result = await takibi(
-      openapi,
-      '/dev/null/cannot-create/here.ts' as `${string}.ts`,
-      componentsOptions,
-    )
+    const result = await takibi(openapi, '/dev/null/cannot-create/here.ts', errorPathOptions)
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(typeof result.error).toBe('string')
@@ -1733,7 +1729,7 @@ describe('takibi error paths', () => {
       const result = await takibi(
         malformed,
         path.join(dir, 'out.ts') as `${string}.ts`,
-        componentsOptions,
+        errorPathOptions,
       )
       // Either the codegen throws (caught → error string), or it produces
       // empty/odd-but-valid output. Both are acceptable, but if it failed,

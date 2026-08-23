@@ -15,7 +15,7 @@ describe('CLI and config options test with string matching', { timeout: 30000 },
   })
 
   it('--help returns help text', { timeout: 10000 }, () => {
-    const result = execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')} --help`, {
+    const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} --help`, {
       encoding: 'utf-8',
     })
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
@@ -26,7 +26,7 @@ Options:
   })
 
   it('-h returns help text', () => {
-    const result = execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')} -h`, {
+    const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} -h`, {
       encoding: 'utf-8',
     })
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
@@ -71,7 +71,7 @@ Options:
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'schema.json', output: 'output.ts', exportSchemas: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -125,7 +125,7 @@ export const getItemsRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'schema.json', output: 'output.ts', exportSchemasTypes: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -175,7 +175,7 @@ export const getItemsRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'param.json', output: 'output.ts', exportParameters: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -224,7 +224,7 @@ export const getItemsIdRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'param.json', output: 'output.ts', exportParametersTypes: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -273,7 +273,7 @@ export const getItemsIdRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'security.json', output: 'output.ts', exportSecuritySchemes: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -322,7 +322,7 @@ export const getSecureRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'requestbody.json', output: 'output.ts', exportRequestBodies: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -373,7 +373,7 @@ export const postUsersRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'response.json', output: 'output.ts', exportResponses: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -424,7 +424,7 @@ export const getUsersRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'header.json', output: 'output.ts', exportHeaders: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -474,7 +474,7 @@ export const getUsersRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'header.json', output: 'output.ts', exportHeadersTypes: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -531,7 +531,7 @@ export const getUsersRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'example.json', output: 'output.ts', exportExamples: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -587,7 +587,7 @@ export const getUsersRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'link.json', output: 'output.ts', exportLinks: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -654,7 +654,7 @@ export const getUsersIdRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'callback.json', output: 'output.ts', exportCallbacks: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -756,7 +756,7 @@ export const postSubscribeRoute = createRoute({
       'tmp-cli-test/hono-takibi.config.ts',
       `export default { input: 'all-options.json', output: 'output.ts', exportSchemas: true, exportSchemasTypes: true, exportParameters: true, exportParametersTypes: true, exportSecuritySchemes: true, exportRequestBodies: true, exportResponses: true, exportHeaders: true, exportHeadersTypes: true, exportExamples: true, exportLinks: true, exportCallbacks: true }`,
     )
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve('tmp-cli-test'),
     })
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
@@ -826,7 +826,7 @@ export const postItemsIdRoute = createRoute({
   it('error on missing input file', () => {
     expect(() => {
       execSync(
-        `node ${path.resolve('packages/hono-takibi/dist/cli.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
+        `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
         { encoding: 'utf-8' },
       )
     }).toThrow(/ENOENT: no such file or directory/)
@@ -841,7 +841,7 @@ export const postItemsIdRoute = createRoute({
     fs.writeFileSync('tmp-cli-test/simple.json', JSON.stringify(simpleOpenAPI))
     expect(() => {
       execSync(
-        `node ${path.resolve('packages/hono-takibi/dist/cli.js')} tmp-cli-test/simple.json`,
+        `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/simple.json`,
         {
           encoding: 'utf-8',
         },
@@ -898,7 +898,7 @@ describe('config template mode tests', { timeout: 30000 }, () => {
       `export default { input: 'openapi.json', output: 'src/routes.ts', template: {} }`,
     )
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -969,7 +969,7 @@ export const usersHandler = app.openapi(getUsersRoute, (c) => {})
       `export default { input: 'openapi.json', output: 'src/routes.ts', template: { test: true } }`,
     )
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1019,7 +1019,7 @@ describe('Items', () => {
       `export default { input: 'openapi.json', output: 'src/routes.ts', template: {} }`,
     )
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1089,7 +1089,7 @@ describe('hono-takibi.config.ts split generation tests', { timeout: 30000 }, () 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1166,7 +1166,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1205,7 +1205,7 @@ export type Item = z.infer<typeof ItemSchema>
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1262,7 +1262,7 @@ export const getTestRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1322,7 +1322,7 @@ export const getPostsRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1385,7 +1385,7 @@ export const getCommentsRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1443,7 +1443,7 @@ export const getProductsRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1504,7 +1504,7 @@ export const getItemsItemIdRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1568,7 +1568,7 @@ export const getOrdersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1630,7 +1630,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1696,7 +1696,7 @@ export const getSecureRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1769,7 +1769,7 @@ export const postUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1858,7 +1858,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -1967,7 +1967,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2071,7 +2071,7 @@ export const getUsersRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2165,7 +2165,7 @@ export const getMessagesRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2249,7 +2249,7 @@ export const getUsersIdRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2385,7 +2385,7 @@ export const postSubscribeRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2458,7 +2458,7 @@ export const postSubscribeRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2529,7 +2529,7 @@ export const getSimpleRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2620,7 +2620,7 @@ post:
 `
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2722,9 +2722,12 @@ export const postUsersRoute = createRoute({
 
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI, null, 2))
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')} openapi.json -o routes.ts`, {
-      cwd: path.resolve(testDir),
-    })
+    execSync(
+      `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} openapi.json -o routes.ts`,
+      {
+        cwd: path.resolve(testDir),
+      },
+    )
 
     const result = fs.readFileSync(path.join(testDir, 'routes.ts'), 'utf-8')
 
@@ -2815,7 +2818,7 @@ export const paymentReceivedPostWebhook = {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2878,7 +2881,7 @@ export const XmlContentMediaTypeSchema = z.object({ root: z.string().exactOption
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -2937,7 +2940,7 @@ export const getDataRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -3020,7 +3023,7 @@ export const getDataRoute = createRoute({
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -3081,7 +3084,7 @@ export const UserCreatedCallback = {
     fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
     fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
 
-    execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+    execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
       cwd: path.resolve(testDir),
     })
 
@@ -3129,7 +3132,7 @@ export const JsonUserMediaTypeSchema = UserSchema
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'schema.json', output: 'output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
@@ -3154,7 +3157,7 @@ export const getItemsRoute = createRoute({
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'schema.json', format: { semi: true, singleQuote: false }, output: 'output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
@@ -3179,7 +3182,7 @@ export const getItemsRoute = createRoute({
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'schema.json', format: { semi: true, singleQuote: true }, output: 'output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
@@ -3204,7 +3207,7 @@ export const getItemsRoute = createRoute({
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'schema.json', format: { tabWidth: 4, singleQuote: true, semi: false }, output: 'output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
@@ -3229,7 +3232,7 @@ export const getItemsRoute = createRoute({
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'schema.json', format: { useTabs: true, singleQuote: true, semi: false }, output: 'output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
@@ -3322,7 +3325,7 @@ export const getItemsRoute = createRoute({
       }
       fs.writeFileSync(`${testDir}/brand.json`, JSON.stringify(brandSchema))
       execSync(
-        `node ${path.resolve('packages/hono-takibi/dist/cli.js')} brand.json -o brand-output.ts`,
+        `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} brand.json -o brand-output.ts`,
         { cwd: path.resolve(testDir) },
       )
       const result = fs.readFileSync(`${testDir}/brand-output.ts`, { encoding: 'utf-8' })
@@ -3410,7 +3413,7 @@ export const postUsersRoute = createRoute({
         `${testDir}/hono-takibi.config.ts`,
         `export default { input: 'brand-config.json', output: 'brand-config-output.ts', exportSchemas: true }`,
       )
-      execSync(`node ${path.resolve('packages/hono-takibi/dist/cli.js')}`, {
+      execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')}`, {
         cwd: path.resolve(testDir),
       })
       const result = fs.readFileSync(`${testDir}/brand-config-output.ts`, { encoding: 'utf-8' })

@@ -37,7 +37,7 @@ describe('routeCode', () => {
           },
         },
       },
-    })
+    } as OpenAPI)
     const expected = `export const getHonoRoute=createRoute({method:"get",path:"/hono",tags:["Hono"],summary:"Hono",description:"Hono",responses:{200:{description:"OK",content:{'application/json':{schema:z.object({message:z.string().openapi({"example":"Hono"})}).openapi({"required":["message"]})}}}}})`
     expect(result).toBe(expected)
   })
@@ -69,7 +69,7 @@ describe('routeCode', () => {
           },
         },
       },
-    })
+    } as OpenAPI)
     const expected = `export const getUsersIdRoute=createRoute({method:"get",path:"/users/{id}",operationId:"getUser",responses:{200:{description:"OK"}}})
 
 export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operationId:"updateUser",responses:{200:{description:"OK"}}})`
@@ -99,7 +99,7 @@ export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operat
           },
         },
       },
-    })
+    } as OpenAPI)
     const expected = `export const getUsersIdRoute=createRoute({method:"get",path:"/users/{id}",operationId:"getUser",responses:{200:{description:"OK"}}})`
     expect(result).toBe(expected)
   })
@@ -116,7 +116,7 @@ export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operat
             'x-internal': true,
             'x-rate-limit': '100/min',
             responses: { '200': { description: 'OK' } },
-          } as OpenAPI['paths'][string]['get'],
+          } as OpenAPI['paths']['get'],
         },
       },
     } as OpenAPI)
@@ -178,7 +178,7 @@ export const putUsersIdRoute=createRoute({method:"put",path:"/users/{id}",operat
           delete: { operationId: 'cd', responses: { '204': { description: 'No Content' } } },
         },
       },
-    })
+    } as OpenAPI)
     expect(result).toBe(
       [
         `export const getRRoute=createRoute({method:"get",path:"/r",operationId:"cg",responses:{200:{description:"OK"}}})`,

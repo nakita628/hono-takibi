@@ -1,6 +1,47 @@
 import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
+
+function hasNotProperty(v: unknown): v is { not: unknown } {
+  return typeof v === 'object' && v !== null && 'not' in v
+}
+function isExamplesInput(v: unknown): v is {
+  readonly [k: string]:
+    | {
+        readonly summary?: string
+        readonly description?: string
+        readonly defaultValue?: unknown
+        readonly serializedValue?: string
+        readonly externalValue?: string
+        readonly value?: unknown
+      }
+    | {
+        readonly $ref?:
+          | `#/components/schemas/${string}`
+          | `#/components/parameters/${string}`
+          | `#/components/securitySchemes/${string}`
+          | `#/components/requestBodies/${string}`
+          | `#/components/responses/${string}`
+          | `#/components/headers/${string}`
+          | `#/components/examples/${string}`
+          | `#/components/links/${string}`
+          | `#/components/callbacks/${string}`
+          | `#/components/pathItems/${string}`
+          | `#/components/mediaTypes/${string}`
+        readonly summary?: string
+        readonly description?: string
+      }
+} {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.values(v).every(
+      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
+    )
+  )
+}
 
 export function wrap(
   zod: string,
@@ -22,43 +63,6 @@ export function wrap(
     'min_items',
     'max_items',
   ])
-  const hasNotProperty = (v: unknown): v is { not: unknown } =>
-    typeof v === 'object' && v !== null && 'not' in v
-  const isExamplesInput = (
-    v: unknown,
-  ): v is {
-    readonly [k: string]:
-      | {
-          readonly summary?: string
-          readonly description?: string
-          readonly defaultValue?: unknown
-          readonly serializedValue?: string
-          readonly externalValue?: string
-          readonly value?: unknown
-        }
-      | {
-          readonly $ref?:
-            | `#/components/schemas/${string}`
-            | `#/components/parameters/${string}`
-            | `#/components/securitySchemes/${string}`
-            | `#/components/requestBodies/${string}`
-            | `#/components/responses/${string}`
-            | `#/components/headers/${string}`
-            | `#/components/examples/${string}`
-            | `#/components/links/${string}`
-            | `#/components/callbacks/${string}`
-            | `#/components/pathItems/${string}`
-            | `#/components/mediaTypes/${string}`
-          readonly summary?: string
-          readonly description?: string
-        }
-  } =>
-    typeof v === 'object' &&
-    v !== null &&
-    !Array.isArray(v) &&
-    Object.values(v).every(
-      (entry) => typeof entry === 'object' && entry !== null && !Array.isArray(entry),
-    )
   const filterUnsupportedProps = (obj: unknown): unknown => {
     if (obj === null || typeof obj !== 'object') {
       return obj
@@ -304,9 +308,11 @@ export function wrap(
   const serializeMedia = (mediaObj: unknown): string => {
     if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
     const { examples: mediaExamples, ...mediaRest } = mediaObj
-    const restEntries = Object.entries(mediaRest).map(
-      ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
-    )
+    // `JSON.stringify(undefined)` yields the value `undefined`, which would be
+    // interpolated into the emitted code as the literal text `undefined`.
+    const restEntries = Object.entries(mediaRest)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
     const examplesEntry = isExamplesInput(mediaExamples)
       ? `"examples":${makeExamples(mediaExamples)}`
       : undefined
@@ -320,15 +326,19 @@ export function wrap(
     return `{${entries.join(',')}}`
   }
   const serializeParam = (param: Parameter): string => {
-    const entries = Object.entries(param).map(([key, value]) => {
-      if (key === 'examples' && isExamplesInput(value)) {
-        return `"examples":${makeExamples(value)}`
-      }
-      if (key === 'content' && isRecord(value)) {
-        return `"content":${serializeContent(value)}`
-      }
-      return `${JSON.stringify(key)}:${JSON.stringify(value)}`
-    })
+    // Same guard as `serializeMedia`: skip keys whose value is `undefined` so the
+    // emitted object never contains a bare `undefined`.
+    const entries = Object.entries(param)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => {
+        if (key === 'examples' && isExamplesInput(value)) {
+          return `"examples":${makeExamples(value)}`
+        }
+        if (key === 'content' && isRecord(value)) {
+          return `"content":${serializeContent(value)}`
+        }
+        return `${JSON.stringify(key)}:${JSON.stringify(value)}`
+      })
     return `{${entries.join(',')}}`
   }
   // `z.file()` (OpenAPI `format: binary`) is opaque to @hono/zod-openapi's

@@ -1,5 +1,13 @@
+// oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
-import { isOperation, isParameter, isRecord, isRefObject } from '../guard/index.js'
+import {
+  isMedia,
+  isOperation,
+  isParameter,
+  isRecord,
+  isRefObject,
+  isResponses,
+} from '../guard/index.js'
 import type {
   Callbacks,
   Content,
@@ -39,18 +47,18 @@ export function makeRef($ref: string) {
     { prefix: '#/components/pathItems/', suffix: 'PathItem' },
     { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
   ]
-  const toVariableName = (name: string, suffix: string) =>
-    toIdentifierPascalCase(ensureSuffix(name, suffix))
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
-    const parentSchema = toVariableName(decodeURIComponent(propertiesMatch[1]), 'Schema')
+    const parentSchema = toIdentifierPascalCase(
+      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
+    )
     return `z.lazy(()=>${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodeURIComponent(rawRef)
   const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
-  return toVariableName(decodedRef, match?.suffix ?? 'Schema')
+  return toIdentifierPascalCase(ensureSuffix(decodedRef, match?.suffix ?? 'Schema'))
 }
 
 export function makeExamples(examples: {
@@ -85,6 +93,7 @@ export function makeExamples(examples: {
       if ('$ref' in example && example.$ref) {
         return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const result = [
         example.summary !== undefined ? `summary:${JSON.stringify(example.summary)}` : undefined,
         example.description !== undefined
@@ -115,11 +124,9 @@ export function makeOperationResponses(
   responses: Operation['responses'] | { readonly [k: string]: unknown },
   readonly?: boolean,
 ) {
-  const isResponse = (v: unknown): v is Responses =>
-    typeof v === 'object' && v !== null && !Array.isArray(v)
   const result = Object.entries(responses)
     .map(([statusCode, res]) => {
-      if (!isResponse(res)) return undefined
+      if (!isResponses(res)) return undefined
       return `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly)}`
     })
     .filter((v) => v !== undefined)
@@ -144,7 +151,7 @@ export function makeResponses(responses: Responses, readonly?: boolean) {
   const result = [
     responses.summary ? `summary:${JSON.stringify(responses.summary)}` : undefined,
     // OpenAPI 3.0 §Response Object: description is REQUIRED
-    `description:${JSON.stringify(responses.description || '')}`,
+    `description:${JSON.stringify(responses.description ?? '')}`,
     // Keys follow `openapi/index.ts` `Responses` declaration order: content before headers.
     responses.content
       ? `content:{${makeContent(responses.content, readonly).join(',')}}`
@@ -242,6 +249,7 @@ export function makeOperationCallbacks(
       }
       const summary = callbackRef.summary
       const description = callbackRef.description
+      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
       const result = [
         typeof summary === 'string' ? `summary:${JSON.stringify(summary)}` : undefined,
         typeof description === 'string' ? `description:${JSON.stringify(description)}` : undefined,
@@ -319,7 +327,6 @@ export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
   readonly?: boolean,
 ) {
-  const isMedia = (v: unknown): v is Media => isRecord(v) && 'schema' in v
   return Object.freeze(
     Object.entries(content)
       .map(([contentType, mediaOrRef]) => {
@@ -384,6 +391,7 @@ export function makeMedia(media: Media, readonly?: boolean) {
 export function makeEncoding(encoding: Encoding, readonly?: boolean): string {
   const nestedEncoding = encoding.encoding
     ? Object.entries(encoding.encoding)
+        // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
         .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
         .join(',')
     : undefined
@@ -434,6 +442,7 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
   return content[firstKey]?.schema
 }
 
+/* oxlint-disable no-param-reassign -- the reduce accumulator is a fresh object owned by this call */
 export function makeParameters(
   parameters: readonly (Parameter | Reference)[],
   readonly?: boolean,
@@ -467,29 +476,30 @@ export function makeParameters(
       ? baseSchema
       : isStringWire && schema.type === 'boolean'
         ? baseSchema
-            .replace(/\bz\.boolean\(/g, 'z.stringbool(')
-            .replace(/\.default\("true"\)/g, '.default(true)')
-            .replace(/\.default\("false"\)/g, '.default(false)')
+            .replaceAll(/\bz\.boolean\(/g, 'z.stringbool(')
+            .replaceAll('.default("true")', '.default(true)')
+            .replaceAll('.default("false")', '.default(false)')
         : isStringWire && schema.type === 'date'
           ? `z.coerce.${baseSchema.replace('z.', '')}`
           : isStringWire && (schema.type === 'object' || schema.type === 'array')
             ? baseSchema
-                .replace(
+                .replaceAll(
                   /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
                   (_: string, type: string, constraints: string) =>
                     type === 'int'
                       ? `z.coerce.number().int()${constraints}`
                       : `z.coerce.number().pipe(z.${type}()${constraints})`,
                 )
-                .replace(/z\.bigint\(\)/g, 'z.coerce.bigint()')
-                .replace(/z\.number\(\)/g, 'z.coerce.number()')
-                .replace(/z\.boolean\(\)/g, 'z.stringbool()')
-                .replace(/z\.date\(\)/g, 'z.coerce.date()')
+                .replaceAll('z.bigint()', 'z.coerce.bigint()')
+                .replaceAll('z.number()', 'z.coerce.number()')
+                .replaceAll('z.boolean()', 'z.stringbool()')
+                .replaceAll('z.date()', 'z.coerce.date()')
             : baseSchema
     acc[param.in][makeSafeKey(param.name)] = z
     return acc
   }, {})
 }
+/* oxlint-enable no-param-reassign */
 
 export function makeRequestParams(
   parameters: readonly (Parameter | Reference)[],

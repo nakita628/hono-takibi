@@ -4,6 +4,7 @@ import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
   isMediaWithSchema,
+  isOpenAPIPaths,
   isOperation,
   isParameter,
   isParameterArray,
@@ -14,6 +15,7 @@ import {
 import type {
   Components,
   OpenAPI,
+  OpenAPIPaths,
   Operation,
   Parameter,
   Reference,
@@ -36,6 +38,7 @@ const DEEP_READONLY_TYPE =
  * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
  * @returns Result with success message or error
  */
+// oxlint-disable-next-line no-shadow -- `type` is also a natural local name for a type string
 export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
@@ -48,7 +51,8 @@ export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: 
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {
-  const { paths, components } = openAPI
+  const { components } = openAPI
+  const paths: OpenAPIPaths = isOpenAPIPaths(openAPI.paths) ? openAPI.paths : {}
   const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
     const honoPath = makeHonoPath(openApiPath)
     const pathLevelParams = isParameterArray(pathItem.parameters) ? pathItem.parameters : []
@@ -71,7 +75,7 @@ function makeHonoSchemaType(openAPI: OpenAPI) {
 }
 
 function makeHonoPath(openApiPath: string) {
-  return openApiPath.replace(/\{([^}]+)\}/g, ':$1')
+  return openApiPath.replaceAll(/\{([^}]+)\}/g, ':$1')
 }
 
 function makeMethodType(
@@ -134,7 +138,7 @@ function makeInputType(
 }
 
 function makePathParams(openApiPath: string): readonly string[] {
-  return Array.from(openApiPath.matchAll(/\{([^}]+)\}/g)).map((m) => m[1])
+  return [...openApiPath.matchAll(/\{([^}]+)\}/g)].map((m) => m[1])
 }
 
 function makeParamPart(params: readonly Parameter[], components: Components | undefined) {
@@ -313,13 +317,15 @@ function makeSchemaTypeString(
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum
       .map((v) =>
-        typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : String(v),
+        typeof v === 'string'
+          ? `'${v.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
+          : String(v),
       )
       .join('|')
   }
   if (schema.const !== undefined) {
     if (typeof schema.const === 'string') {
-      return `'${schema.const.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+      return `'${schema.const.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
     }
     if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
       return String(schema.const)
@@ -355,6 +361,7 @@ const PRIMITIVE_TYPE_MAP: { readonly [k: string]: string } = {
 
 function makeSingleTypeString(
   schema: Schema,
+  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
   type: string,
   components: Components | undefined,
   visited: Set<string>,
@@ -400,7 +407,8 @@ function makeAllOfTypeString(
     return result
   }, new Map<string, { type: string; required: boolean }>())
   if (mergedProps.size === 0) return '{}'
-  const propertyStrings = Array.from(mergedProps.entries()).map(([key, { type, required }]) => {
+  // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
+  const propertyStrings = [...mergedProps.entries()].map(([key, { type, required }]) => {
     const safeKey = makeSafeKey(key)
     return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`
   })

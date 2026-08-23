@@ -1,6 +1,7 @@
 import { makeUnevaluatedProperties } from '../../../helper/zod.js'
 import type { Schema } from '../../../openapi/index.js'
 import { error, makeSafeKey } from '../../../utils/index.js'
+// oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { zodToOpenAPI } from '../index.js'
 
 export function object(schema: Schema, options?: { readonly?: boolean }) {

@@ -135,10 +135,10 @@ export default defineConfig({
 This generates:
 
 - `src/index.ts` - App entry point with route registrations
-- `src/handlers/*.ts` - Handler stubs for each resource
+- `src/handlers/*.ts` - Handler stubs, one file per tag (the first `tags` entry of each operation, lower camel case; the first path segment when an operation has no tag)
 - `src/handlers/*.test.ts` - Test files with `@faker-js/faker` mock data (imports from `vitest`, `vite-plus/test`, or `bun:test`)
 
-Re-running after updating your OpenAPI spec is safe — your hand-written handler logic and test customizations are preserved. Only new routes are added as stubs.
+Re-running after updating your OpenAPI spec is safe — your hand-written handler logic and test customizations are preserved. Only new routes are added as stubs. The generator never deletes a file under `handlers/` and never re-stubs a handler that already exists in that directory: a handler you moved into another file (e.g. split by concern) is regenerated in place, files that hold no `*RouteHandler` export / `.openapi(xxxRoute)` registration / `*Route` export stay untouched, and their `export * from` lines in `handlers/index.ts` are kept. When a route leaves the spec, its handler declaration and route import are removed from whichever file holds them, but the file itself — and anything hand-written in it — remains; delete it by hand once nothing else is in it. Only top-level files in `handlers/` are scanned, not subdirectories.
 
 ### Handler Generation Modes
 
@@ -169,6 +169,8 @@ export const api = app.route('/', healthHandler)
 
 export default app
 ```
+
+If you split routes into hand-written files in this mode, name each sub-router export `<fileBasename>Handler` (e.g. `export const sharesHandler = ...` in `shares.ts`) — that is the name the generator merges into and the app mounts.
 
 #### `routeHandler: true`
 

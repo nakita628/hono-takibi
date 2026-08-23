@@ -33,6 +33,7 @@ const app = new OpenAPIHono({
         422,
       )
     }
+    return undefined
   },
 })
 

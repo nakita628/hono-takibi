@@ -25,7 +25,7 @@ export async function parseOpenAPI(input: string) {
       const program = await compile(NodeHost, path.resolve(input), {
         noEmit: true,
       })
-      if (program.diagnostics.length) {
+      if (program.diagnostics.length > 0) {
         // Extract error messages from diagnostics (avoid circular reference in JSON.stringify)
         const errors = program.diagnostics.map((d) => d.message).join('\n')
         return {
@@ -34,9 +34,10 @@ export async function parseOpenAPI(input: string) {
         } as const
       }
       const [record] = await getOpenAPI3(program)
+      // The emitter returns a self-contained document (every `$ref` is `#/...`),
+      // so there is nothing for `bundle()` to resolve here.
       const tsp = 'document' in record ? record.document : record.versions[0].document
-      const openAPI = (await SwaggerParser.bundle(JSON.parse(JSON.stringify(tsp)))) as OpenAPI
-      return { ok: true, value: openAPI } as const
+      return { ok: true, value: tsp as OpenAPI } as const
     }
     // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
     // The parser validates the spec at runtime but does not express this guarantee in its type definition,
@@ -48,9 +49,7 @@ export async function parseOpenAPI(input: string) {
   }
 }
 
-type BaseOpenAPI = Awaited<ReturnType<typeof SwaggerParser.bundle>>
-
-export type OpenAPI = BaseOpenAPI & {
+export type OpenAPI = {
   readonly openapi?: string
   readonly $self?: string
   readonly info?: {
@@ -87,8 +86,6 @@ export type OpenAPI = BaseOpenAPI & {
     readonly kind?: string
   }[]
   readonly externalDocs?: ExternalDocs
-} & {
-  paths: OpenAPIPaths
 }
 
 export type Components = {
@@ -153,20 +150,26 @@ export type Components = {
   }
 }
 
-type OAuthFlow = {
-  readonly implicit?: {
-    readonly authorizationUrl: string
-    readonly deviceAuthorizationUrl: string
-    readonly tokenUrl: string
-    readonly refreshUrl: string
-    readonly scopes: {
-      readonly [k: string]: string
-    }
+type OAuthFlowDetail = {
+  readonly authorizationUrl?: string
+  readonly deviceAuthorizationUrl?: string
+  readonly tokenUrl?: string
+  readonly refreshUrl?: string
+  readonly scopes: {
+    readonly [k: string]: string
   }
 }
 
+type OAuthFlow = {
+  readonly implicit?: OAuthFlowDetail
+  readonly password?: OAuthFlowDetail
+  readonly clientCredentials?: OAuthFlowDetail
+  readonly authorizationCode?: OAuthFlowDetail
+  readonly deviceAuthorization?: OAuthFlowDetail
+}
+
 export type OpenAPIPaths = {
-  readonly [P in keyof NonNullable<BaseOpenAPI['paths']>]: PathItem
+  readonly [k: string]: PathItem
 }
 
 export type Type =
@@ -348,11 +351,7 @@ export type Operation = {
     readonly [k: string]: Responses
   }
   readonly callbacks?: {
-    readonly [k: string]: {
-      readonly $ref?: string
-      readonly summary?: string
-      readonly description?: string
-    }
+    readonly [k: string]: Callbacks | Reference
   }
   readonly deprecated?: boolean
   readonly security?: readonly { readonly [scheme: string]: readonly string[] }[]

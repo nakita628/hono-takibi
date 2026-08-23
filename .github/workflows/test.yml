@@ -20,13 +20,13 @@ jobs:
           node-version: '22'
           cache: true
 
-      # Not `vp install`: it left the test/ workspace importer without node_modules
-      # on CI (missing .bin shims and deps at vitest globalSetup). A full pnpm
-      # install links every workspace importer.
-      - run: corepack enable && pnpm install --frozen-lockfile
+      - run: vp install --frozen-lockfile
 
-      - run: vp run hono-takibi#build
+      # test/ drives the packaged CLI from dist, so the library is built first.
+      - run: vp run --filter ./packages/hono-takibi build
 
-      - run: vp test --coverage
+      - run: vp run --filter ./packages/hono-takibi test
 
-      - run: vp check
+      - run: vp run --filter ./test test
+
+      - run: vp run check

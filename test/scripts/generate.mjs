@@ -9,6 +9,7 @@ const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 // shims can be missing when a stale node_modules cache is restored in CI.
 const cli = path.resolve(testRoot, '..', 'packages', 'hono-takibi', 'dist', 'cli.js')
 if (!existsSync(cli)) {
+  // oxlint-disable-next-line no-console -- CLI script reports the missing build to the operator
   console.error(`missing ${cli} — build the CLI first: vp run hono-takibi#build`)
   process.exit(1)
 }
@@ -23,7 +24,9 @@ const generateCase = (name) =>
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
     child.stderr.on('data', (chunk) => chunks.push(chunk))
-    child.on('error', (error) => resolve({ name, ok: false, output: error.message }))
+    child.on('error', (error) => {
+      resolve({ name, ok: false, output: error.message })
+    })
     child.on('close', (status) => {
       const ok = status === 0
       // Scaffold templates emit empty handler stubs that intentionally fail tsc until
@@ -47,6 +50,7 @@ await Promise.all(
     while (queue.length > 0) {
       const name = queue.shift()
       if (name) {
+        // oxlint-disable-next-line no-await-in-loop -- each worker drains the queue sequentially to bound concurrency
         results.push(await generateCase(name))
       }
     }
@@ -55,10 +59,13 @@ await Promise.all(
 
 const failed = results.filter((result) => !result.ok)
 for (const result of failed) {
+  // oxlint-disable-next-line no-console -- CLI script surfaces per-case generator output
   console.error(`--- ${result.name} ---\n${result.output}`)
 }
 if (failed.length > 0) {
+  // oxlint-disable-next-line no-console -- CLI script reports the failure summary
   console.error(`generate failed: ${failed.map((result) => result.name).join(', ')}`)
   process.exit(1)
 }
+// oxlint-disable-next-line no-console -- CLI script reports progress
 console.log(`generated ${cases.length} cases: ${cases.join(', ')}`)

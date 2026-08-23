@@ -21,8 +21,11 @@ const typecheckCase = (name) =>
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
     child.stderr.on('data', (chunk) => chunks.push(chunk))
-    child.on('error', (error) => resolve({ name, ok: false, output: error.message }))
+    child.on('error', (error) => {
+      resolve({ name, ok: false, output: error.message })
+    })
     child.on('close', (status) => {
+      // oxlint-disable-next-line no-console -- CLI script reports per-case progress
       console.log(`typecheck: ${name} ${status === 0 ? 'ok' : 'FAILED'}`)
       resolve({ name, ok: status === 0, output: Buffer.concat(chunks).toString() })
     })
@@ -45,21 +48,26 @@ await Promise.all(
     while (queue.length > 0) {
       const name = queue.shift()
       if (name) {
+        // oxlint-disable-next-line no-await-in-loop -- each worker drains the queue sequentially to bound concurrency
         results.push(await typecheckCase(name))
       }
     }
   }),
 )
 for (const name of cases.filter((caseName) => heavyCases.has(caseName))) {
+  // oxlint-disable-next-line no-await-in-loop -- heavy cases must run one at a time to stay within memory
   results.push(await typecheckCase(name))
 }
 
 const failed = results.filter((result) => !result.ok)
 for (const result of failed) {
+  // oxlint-disable-next-line no-console -- CLI script surfaces per-case tsc output
   console.error(`--- ${result.name} ---\n${result.output}`)
 }
 if (failed.length > 0) {
+  // oxlint-disable-next-line no-console -- CLI script reports the failure summary
   console.error(`typecheck failed: ${failed.map((result) => result.name).join(', ')}`)
   process.exit(1)
 }
+// oxlint-disable-next-line no-console -- CLI script reports progress
 console.log(`typecheck passed for ${cases.length} cases`)

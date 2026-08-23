@@ -17,7 +17,7 @@ describe('mock', () => {
   it('should generate mock server code', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mock-'))
     const output = path.join(tmpDir, 'mock.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -46,7 +46,7 @@ describe('mock', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await mock(openAPI, output, '/')
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -58,7 +58,7 @@ describe('mock', () => {
   it('forwards the readonly option to the generator', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-mock-readonly-'))
     const output = path.join(tmpDir, 'mock.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -84,7 +84,7 @@ describe('mock', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await mock(openAPI, output, '/', { readonly: true })
     expect(result.ok).toBe(true)
     if (result.ok) {

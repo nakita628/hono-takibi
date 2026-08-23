@@ -12,5 +12,5 @@
     "declaration": true,
     "exactOptionalPropertyTypes": true
   },
-  "exclude": ["**/src/**/*.test.ts", "tsdown.config.ts", "dist"]
+  "exclude": ["**/src/**/*.test.ts", "vite.config.ts", "dist"]
 }

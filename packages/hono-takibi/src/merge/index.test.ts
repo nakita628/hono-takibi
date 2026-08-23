@@ -1150,9 +1150,9 @@ describe('Users', () => {
 
       const result = mergeTestFile(existing, generated)
       // Should not duplicate
-      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) || []).length
+      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) ?? []).length
       expect(getCount).toBe(1)
-      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) || []).length
+      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) ?? []).length
       expect(postCount).toBe(1)
     })
 
@@ -2213,11 +2213,172 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
 `
 
       const result = mergeHandlerFile(existing, generated)
-      expect(result).toBe(`import * as routes, { getUserRoute } from './routes'
+      expect(result).toBe(`import type { getUserRoute } from './routes'
+import * as routes from './routes'
 import type { RouteHandler } from '@hono/zod-openapi'
 
 export const getUserRouteHandler: RouteHandler<typeof routes.getUserRoute> = async (c) => {}
 `)
+    })
+
+    it('preserves named-import aliases and keeps same-name bindings from different modules', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { env as workerEnv } from 'cloudflare:workers'
+import { getBooksRouteHandler } from '@/api/handlers'
+import { getBooksRoute } from '@/api/routes'
+import { env as appEnv } from '@/data/env'
+import * as BookService from '@/api/services'
+import * as ReviewService from '@/api/services'
+
+export const app = new OpenAPIHono().basePath('/api')
+
+export const api = app.openapi(getBooksRoute, getBooksRouteHandler)
+
+export const debug = { workerEnv, appEnv, BookService, ReviewService }
+`
+
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getBooksBookIdReviewsRoute, getBooksRoute } from '@/api/routes'
+import { getBooksBookIdReviewsRouteHandler, getBooksRouteHandler } from '@/api/handlers'
+
+const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getBooksRoute, getBooksRouteHandler)
+  .openapi(getBooksBookIdReviewsRoute, getBooksBookIdReviewsRouteHandler)
+
+export default app
+`
+
+      expect(mergeAppFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { env as workerEnv } from 'cloudflare:workers'
+import { getBooksBookIdReviewsRouteHandler, getBooksRouteHandler } from '@/api/handlers'
+import { getBooksBookIdReviewsRoute, getBooksRoute } from '@/api/routes'
+import { env as appEnv } from '@/data/env'
+import * as BookService from '@/api/services'
+import * as ReviewService from '@/api/services'
+
+export const app = new OpenAPIHono().basePath('/api')
+
+export const api = app
+  .openapi(getBooksRoute, getBooksRouteHandler)
+  .openapi(getBooksBookIdReviewsRoute, getBooksBookIdReviewsRouteHandler)
+
+export const debug = { workerEnv, appEnv, BookService, ReviewService }
+`)
+    })
+
+    it('keeps an aliased import alongside the same name imported unaliased', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+import { env, env as rawEnv } from '../env'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ env, rawEnv }, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+import { env, env as rawEnv } from '../env'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ env, rawEnv }, 200)
+}
+`)
+    })
+
+    it('keeps a default import together with a namespace import of the same module', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+import db, * as schema from '../db'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ db, schema }, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      expect(mergeHandlerFile(existing, generated)).toBe(existing)
+    })
+
+    it('keeps a type-only namespace import type-only next to a value named import', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type * as Routes from '../routes'
+import { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof Routes.getUserRoute> = async (c) => {
+  return c.json({ path: getUserRoute.path }, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import type { RouteHandler } from '@hono/zod-openapi'
+import { getUserRoute } from '../routes'
+import type * as Routes from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof Routes.getUserRoute> = async (c) => {
+  return c.json({ path: getUserRoute.path }, 200)
+}
+`)
+    })
+
+    it('keeps hand-written *Handler exports that are not route handlers', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const authHandler = (token: string) => token.length > 0
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({ ok: authHandler('x') }, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      expect(mergeHandlerFile(existing, generated)).toBe(existing)
+    })
+
+    it('keeps side-effect imports', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+import 'dotenv/config'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  return c.json({}, 200)
+}
+`
+
+      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUserRoute } from '../routes'
+
+export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
+`
+
+      expect(mergeHandlerFile(existing, generated)).toBe(existing)
     })
 
     it('handles type-only imports merging with value imports', () => {
@@ -2293,7 +2454,7 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
   })
 
   describe('mergeBarrelFile', () => {
-    it('syncs with generated (removes deleted handler exports)', () => {
+    it('keeps existing exports the generator did not produce (hand-written modules)', () => {
       const existing = `export * from './users'
 export * from './pets'
 `
@@ -2302,8 +2463,34 @@ export * from './pets'
 `
 
       const result = mergeBarrelFile(existing, generated)
-      expect(result).toBe(`export * from './users'
+      expect(result).toBe(existing)
+    })
+
+    it('appends generated exports missing from existing while preserving order and comments', () => {
+      const existing = `// hand-written modules
+export * from './legacy'
+`
+
+      const generated = `export * from './books'
+export * from './reviews'
+`
+
+      const result = mergeBarrelFile(existing, generated)
+      expect(result).toBe(`// hand-written modules
+export * from './legacy'
+export * from './books'
+export * from './reviews'
 `)
+    })
+
+    it('treats extension-suffixed specifiers as the same module', () => {
+      const existing = `export * from './users.js'
+`
+
+      const generated = `export * from './users'
+`
+
+      expect(mergeBarrelFile(existing, generated)).toBe(existing)
     })
 
     it('adds new exports from generated', () => {
@@ -3761,16 +3948,17 @@ describe('GET /users', () => {
 `)
     })
 
-    it('mergeBarrelFile drops existing user comments (generated is source of truth)', () => {
-      // Documented behavior: barrel file is fully replaced by generated content.
-      // User comments outside generated exports are not preserved.
+    it('mergeBarrelFile keeps existing user comments and exports, appending new ones', () => {
       const existing = `// Custom user comment about the barrel
 export * from './user'
 export * from './post'`
       const generated = `export * from './user'
 export * from './comment'`
-      expect(mergeBarrelFile(existing, generated)).toBe(`export * from './user'
-export * from './comment'`)
+      expect(mergeBarrelFile(existing, generated)).toBe(`// Custom user comment about the barrel
+export * from './user'
+export * from './post'
+export * from './comment'
+`)
     })
 
     it('mergeAppFile ignores user comments between app and .openapi() (no chain prefix injection)', () => {
@@ -4754,12 +4942,6 @@ export const api = new OpenAPIHono()
       const twice = mergeAppFile(once, generated)
       expect(twice).toBe(once)
     })
-
-    // NOTE: mergeTestFile is currently NOT idempotent — a single blank line
-    // between describe blocks is collapsed on the second pass. Tracked in
-    // takibi-lab/library/hono-takibi/2026/05/21.md as P1. Restore this test
-    // after the fix:
-    //   it('mergeTestFile is idempotent: merge(merge(e, g), g) === merge(e, g)', ...)
 
     it('mergeBarrelFile is idempotent (generated fully supersedes existing)', () => {
       const existing = "export * from './old'\n"

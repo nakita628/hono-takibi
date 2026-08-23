@@ -120,7 +120,7 @@ export function makeTypeDefinitions(
       ),
     ),
   )
-  const additionalTypeDefs = Array.from(referencedTypes)
+  const additionalTypeDefs = [...referencedTypes]
     .filter((refType) => !generatedTypeNames.has(refType))
     .flatMap((refType) => {
       const schemaName = refType.replace(/Type$/, '')

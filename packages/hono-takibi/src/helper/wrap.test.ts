@@ -293,6 +293,34 @@ describe('wrap', () => {
     expect(result).toBe(expected)
   })
 
+  it('omits parameter keys whose value is undefined', () => {
+    const testParameter: Parameter = {
+      name: 'number',
+      in: 'query',
+      required: true,
+      description: undefined,
+      schema: { type: 'string' },
+    }
+    const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+    expect(result).toBe(
+      'z.string().openapi({param:{"name":"number","in":"query","required":true,"schema":{"type":"string"}}})',
+    )
+  })
+
+  it('omits media-type keys whose value is undefined', () => {
+    const testParameter: Parameter = {
+      name: 'filter',
+      in: 'query',
+      content: {
+        'application/json': { schema: { type: 'string' }, example: undefined },
+      },
+    }
+    const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+    expect(result).toBe(
+      'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}}}})',
+    )
+  })
+
   it('should handle Unicode characters in parameter examples', () => {
     const testParameter: Parameter = {
       name: 'filter',
@@ -970,7 +998,7 @@ describe('filterUnsupportedProps (required coercion + nested boolean schemas)', 
       wrap('z.object({})', {
         type: 'object',
         $defs: { Foo: { type: 'array', items: true } },
-      } as Schema),
+      }),
     ).toBe('z.object({}).openapi({"$defs":{"Foo":{"type":"array"}}})')
   })
 

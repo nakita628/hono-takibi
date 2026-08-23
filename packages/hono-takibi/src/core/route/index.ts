@@ -1,6 +1,7 @@
-import path from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 import { emit } from '../../emit/index.js'
+import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
 import { makeImports } from '../../helper/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
@@ -23,11 +24,8 @@ export async function route(
 ) {
   if (!routes?.output) return { ok: false, error: 'routes.output is required' } as const
   const { output, split = false } = routes
-  const routeEntries = (
-    openapi: OpenAPI,
-    readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
-    const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
+  const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
+    const makeEntry = (path: string, method: string, operation: Operation) => {
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(path)}`,
@@ -60,22 +58,18 @@ export async function route(
         code: `export const ${entryName}Route=createRoute({${properties}}${asConst})`,
       }
     }
-    const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-      ref.startsWith('#/components/parameters/')
-    const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
-      ref.startsWith('#/components/pathItems/')
     const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
       if ('name' in parameter && 'in' in parameter) return parameter
       const ref = '$ref' in parameter ? parameter.$ref : undefined
       if (!ref || !isParameterRef(ref)) return undefined
-      const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+      const resolved = openAPI.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
       if (!resolved) return undefined
       return { ...resolved, $ref: ref } as const
     }
     const resolvePathItem = (pathItem: PathItem): PathItem => {
       if (pathItem.$ref && isPathItemRef(pathItem.$ref)) {
         const name = pathItem.$ref.slice(pathItem.$ref.lastIndexOf('/') + 1)
-        const resolved = openapi.components?.pathItems?.[name]
+        const resolved = openAPI.components?.pathItems?.[name]
         if (resolved) {
           const { $ref: _, ...siblings } = pathItem
           return { ...resolved, ...siblings } as const
@@ -83,8 +77,8 @@ export async function route(
       }
       return pathItem
     }
-    return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
-      if (!pathItem) return [] as const
+    return Object.entries(openAPI.paths).flatMap(([path, pathItem]) => {
+      if (!isPathItemEntry(pathItem)) return [] as const
       const resolved = resolvePathItem(pathItem)
       return (
         ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
@@ -98,29 +92,24 @@ export async function route(
           .map(resolveParameter)
           .filter((p) => p !== undefined)
         return [
-          makeEntry(
-            path,
-            method,
-            parameters.length > 0 ? { ...operation, parameters } : operation,
-            readonly,
-          ),
+          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
         ]
       })
     })
   }
-  const entries = routeEntries(openAPI, readonly)
+  const entries = routeEntries()
   if (!split || entries.length === 0) {
     const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)
-    const result = await emit(code, path.dirname(output), output)
+    const result = await emit(code, dirname(output), output)
     if (!result.ok) return result
     return { ok: true, value: `Generated route code written to ${output}` } as const
   }
-  const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
+  const outDir = join(dirname(output), basename(output, '.ts'))
   const results = await Promise.all([
     ...entries.map(async ({ name, code }) => {
       const filePath = `${outDir}/${name}.ts`
       const withImports = makeImports(code, filePath, components)
-      const result = await emit(withImports, path.dirname(filePath), filePath)
+      const result = await emit(withImports, dirname(filePath), filePath)
       return result.ok ? { ok: true as const, value: filePath } : result
     }),
     emit(

@@ -1,8 +1,11 @@
 import type {
+  Callbacks,
+  Header,
   Media,
   OpenAPIPaths,
   Operation,
   Parameter,
+  PathItem,
   Reference,
   RequestBody,
   Responses,
@@ -51,6 +54,14 @@ export function isRefObject(v: unknown): v is { readonly $ref: string } {
 
 export function isStringRef(v: object): v is { readonly $ref: string } {
   return '$ref' in v && typeof v.$ref === 'string'
+}
+
+export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
+  return ref.startsWith('#/components/parameters/')
+}
+
+export function isPathItemRef(ref: string): ref is `#/components/pathItems/${string}` {
+  return ref.startsWith('#/components/pathItems/')
 }
 
 export function isParameterObject(v: unknown): v is {
@@ -114,7 +125,17 @@ export function isSchemaProperty(v: unknown): v is { readonly schema?: unknown }
   return typeof v === 'object' && v !== null && !Array.isArray(v) && 'schema' in v
 }
 
-export function isSchemaArray(v: Schema | readonly Schema[]): v is readonly Schema[] {
+/**
+ * JSON Schema 2020-12 §10.3.1.2: `items` may be a single schema, a tuple of
+ * schemas, or a boolean schema. Narrows the union to the single-schema form.
+ */
+export function isSingleSchema(items: Schema | readonly Schema[] | boolean): items is Schema {
+  return typeof items === 'object' && !Array.isArray(items)
+}
+
+export function isSchemaArray(
+  v: Schema | readonly Schema[] | boolean | undefined,
+): v is readonly Schema[] {
   return Array.isArray(v)
 }
 
@@ -133,8 +154,29 @@ export function isMediaWithSchema(v: unknown): v is { readonly schema: Schema } 
   return typeof v === 'object' && v !== null && 'schema' in v
 }
 
-export function isMedia(v: Media | Reference): v is Media {
-  return typeof v === 'object' && v !== null && 'schema' in v
+export function isMedia(v: unknown): v is Media {
+  return isRecord(v) && 'schema' in v
+}
+
+export function isCallbacks(v: unknown): v is Callbacks {
+  return typeof v === 'object' && v !== null && !('$ref' in v)
+}
+
+/**
+ * Narrows a `paths` entry to a Path Item Object. Unlike `isPathItem` this keeps
+ * `$ref` path items (OpenAPI 3.2 §4.8.9 allows `$ref` on a Path Item Object);
+ * callers resolve them against `components.pathItems`.
+ */
+export function isPathItemEntry(v: unknown): v is PathItem {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+export function isPathItem(v: unknown): v is PathItem {
+  return typeof v === 'object' && v !== null && !('$ref' in v)
+}
+
+export function isHeader(v: unknown): v is Header {
+  return typeof v === 'object' && v !== null && !('$ref' in v)
 }
 
 export function isRequestBody(v: unknown): v is RequestBody {

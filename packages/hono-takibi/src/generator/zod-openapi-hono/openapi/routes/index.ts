@@ -1,13 +1,11 @@
+import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
 import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
 
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
-  const routeEntries = (
-    openapi: OpenAPI,
-    readonly?: boolean,
-  ): readonly { readonly name: string; readonly code: string }[] => {
-    const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
+  const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
+    const makeEntry = (path: string, method: string, operation: Operation) => {
       const request = makeRequest(operation.parameters, operation.requestBody, readonly)
       const properties = [
         `method:${JSON.stringify(method)}`,
@@ -39,10 +37,6 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
         code: `export const ${entryName}Route=createRoute({${properties}}${asConst})`,
       }
     }
-    const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-      ref.startsWith('#/components/parameters/')
-    const isPathItemRef = (ref: string): ref is `#/components/pathItems/${string}` =>
-      ref.startsWith('#/components/pathItems/')
     const resolveParameter = (parameter: Parameter | { readonly $ref?: string }) => {
       if ('name' in parameter && 'in' in parameter) return parameter
       const ref = '$ref' in parameter ? parameter.$ref : undefined
@@ -63,7 +57,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
       return pathItem
     }
     return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
-      if (!pathItem) return [] as const
+      if (!isPathItemEntry(pathItem)) return [] as const
       const resolved = resolvePathItem(pathItem)
       return (
         ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
@@ -77,17 +71,12 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
           .map(resolveParameter)
           .filter((p) => p !== undefined)
         return [
-          makeEntry(
-            path,
-            method,
-            parameters.length > 0 ? { ...operation, parameters } : operation,
-            readonly,
-          ),
+          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
         ]
       })
     })
   }
-  return routeEntries(openapi, readonly)
+  return routeEntries()
     .map((e) => e.code)
     .join('\n\n')
 }

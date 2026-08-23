@@ -7,7 +7,7 @@ import { makeDocs } from './index.js'
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const minimalOpenAPI: OpenAPI = {
+const minimalOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -27,14 +27,14 @@ const minimalOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const openAPIWithServers: OpenAPI = {
+const openAPIWithServers = {
   ...minimalOpenAPI,
-  servers: [{ url: 'https://petstore3.swagger.io/api/v3' }] as any,
-}
+  servers: [{ url: 'https://petstore3.swagger.io/api/v3' }],
+} as OpenAPI
 
-const postOpenAPI: OpenAPI = {
+const postOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -72,9 +72,9 @@ const postOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const postOpenAPIWithExample: OpenAPI = {
+const postOpenAPIWithExample = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -101,7 +101,7 @@ const postOpenAPIWithExample: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 // ---------------------------------------------------------------------------
 // Expected: hono GET /health
@@ -478,7 +478,7 @@ This operation does not require authentication
 // Fixtures: curl path parameters
 // ---------------------------------------------------------------------------
 
-const pathParamGetOpenAPI: OpenAPI = {
+const pathParamGetOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -502,9 +502,9 @@ const pathParamGetOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const putOpenAPI: OpenAPI = {
+const putOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -546,9 +546,9 @@ const putOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const nestedBodyOpenAPI: OpenAPI = {
+const nestedBodyOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -576,9 +576,9 @@ const nestedBodyOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
-const noResponseGetOpenAPI: OpenAPI = {
+const noResponseGetOpenAPI = {
   openapi: '3.1.0',
   info: { title: 'Test API', version: '1.0.0' },
   paths: {
@@ -591,7 +591,7 @@ const noResponseGetOpenAPI: OpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 // ---------------------------------------------------------------------------
 // Expected: curl GET /tasks/{taskId} (path parameter URL quoting)
@@ -978,7 +978,7 @@ describe('makeDocs', () => {
   // -------------------------------------------------------------------------
 
   describe('$ref schemas', () => {
-    const refOpenAPI: OpenAPI = {
+    const refOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Ref API', version: '1.0.0' },
       components: {
@@ -1010,7 +1010,7 @@ describe('makeDocs', () => {
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="ref-api">Ref API v1.0.0</h1>
 
@@ -1091,7 +1091,7 @@ This operation does not require authentication
   })
 
   describe('allOf composition', () => {
-    const allOfOpenAPI: OpenAPI = {
+    const allOfOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'AllOf API', version: '1.0.0' },
       components: {
@@ -1120,7 +1120,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="allof-api">AllOf API v1.0.0</h1>
 
@@ -1207,7 +1207,7 @@ This operation does not require authentication
   })
 
   describe('oneOf schema', () => {
-    const oneOfOpenAPI: OpenAPI = {
+    const oneOfOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'OneOf API', version: '1.0.0' },
       paths: {
@@ -1235,7 +1235,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="oneof-api">OneOf API v1.0.0</h1>
 
@@ -1286,7 +1286,7 @@ This operation does not require authentication
   })
 
   describe('anyOf schema', () => {
-    const anyOfOpenAPI: OpenAPI = {
+    const anyOfOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'AnyOf API', version: '1.0.0' },
       paths: {
@@ -1311,7 +1311,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="anyof-api">AnyOf API v1.0.0</h1>
 
@@ -1362,7 +1362,7 @@ This operation does not require authentication
   })
 
   describe('array responses', () => {
-    const arrayResponseOpenAPI: OpenAPI = {
+    const arrayResponseOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Array API', version: '1.0.0' },
       paths: {
@@ -1391,7 +1391,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="array-api">Array API v1.0.0</h1>
 
@@ -1455,7 +1455,7 @@ This operation does not require authentication
   })
 
   describe('bearer authentication', () => {
-    const bearerAuthOpenAPI: OpenAPI = {
+    const bearerAuthOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Auth API', version: '1.0.0' },
       components: {
@@ -1481,7 +1481,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="auth-api">Auth API v1.0.0</h1>
 
@@ -1545,7 +1545,7 @@ bearerAuth
   })
 
   describe('apiKey authentication', () => {
-    const apiKeyAuthOpenAPI: OpenAPI = {
+    const apiKeyAuthOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'ApiKey API', version: '1.0.0' },
       components: {
@@ -1562,7 +1562,7 @@ bearerAuth
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="apikey-api">ApiKey API v1.0.0</h1>
 
@@ -1608,7 +1608,7 @@ apiKey
   })
 
   describe('tags', () => {
-    const taggedOpenAPI: OpenAPI = {
+    const taggedOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Tagged API', version: '1.0.0' },
       tags: [
@@ -1631,7 +1631,7 @@ apiKey
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="tagged-api">Tagged API v1.0.0</h1>
 
@@ -1702,7 +1702,7 @@ This operation does not require authentication
   })
 
   describe('info section', () => {
-    const fullInfoOpenAPI: OpenAPI = {
+    const fullInfoOpenAPI = {
       openapi: '3.1.0',
       info: {
         title: 'Full Info API',
@@ -1712,7 +1712,7 @@ This operation does not require authentication
         license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
       },
       paths: {},
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="full-info-api">Full Info API v2.0.0</h1>
 
@@ -1730,7 +1730,7 @@ License: <a href="https://opensource.org/licenses/MIT">MIT</a>
   })
 
   describe('circular self-reference', () => {
-    const circularOpenAPI: OpenAPI = {
+    const circularOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Circular API', version: '1.0.0' },
       components: {
@@ -1759,7 +1759,7 @@ License: <a href="https://opensource.org/licenses/MIT">MIT</a>
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="circular-api">Circular API v1.0.0</h1>
 
@@ -1843,7 +1843,7 @@ This operation does not require authentication
   })
 
   describe('mutual circular reference', () => {
-    const mutualCircularOpenAPI: OpenAPI = {
+    const mutualCircularOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Mutual API', version: '1.0.0' },
       components: {
@@ -1881,7 +1881,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="mutual-api">Mutual API v1.0.0</h1>
 
@@ -2014,7 +2014,7 @@ This operation does not require authentication
   })
 
   describe('schema type formats', () => {
-    const formatsOpenAPI: OpenAPI = {
+    const formatsOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Formats API', version: '1.0.0' },
       paths: {
@@ -2044,7 +2044,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="formats-api">Formats API v1.0.0</h1>
 
@@ -2113,7 +2113,7 @@ This operation does not require authentication
   })
 
   describe('nested body with $ref', () => {
-    const nestedRefBodyOpenAPI: OpenAPI = {
+    const nestedRefBodyOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'NestedRef API', version: '1.0.0' },
       components: {
@@ -2145,7 +2145,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="nestedref-api">NestedRef API v1.0.0</h1>
 
@@ -2238,7 +2238,7 @@ This operation does not require authentication
   })
 
   describe('enum query parameter', () => {
-    const enumQueryOpenAPI: OpenAPI = {
+    const enumQueryOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Enum API', version: '1.0.0' },
       paths: {
@@ -2256,7 +2256,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="enum-api">Enum API v1.0.0</h1>
 
@@ -2310,7 +2310,7 @@ This operation does not require authentication
   })
 
   describe('enum response', () => {
-    const enumResponseOpenAPI: OpenAPI = {
+    const enumResponseOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'EnumResp API', version: '1.0.0' },
       paths: {
@@ -2333,7 +2333,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="enumresp-api">EnumResp API v1.0.0</h1>
 
@@ -2392,7 +2392,7 @@ This operation does not require authentication
   })
 
   describe('multiple methods on same path', () => {
-    const multiMethodOpenAPI: OpenAPI = {
+    const multiMethodOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Multi API', version: '1.0.0' },
       paths: {
@@ -2414,7 +2414,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="multi-api">Multi API v1.0.0</h1>
 
@@ -2498,7 +2498,7 @@ This operation does not require authentication
   })
 
   describe('operation description', () => {
-    const descOpenAPI: OpenAPI = {
+    const descOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Desc API', version: '1.0.0' },
       paths: {
@@ -2511,7 +2511,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="desc-api">Desc API v1.0.0</h1>
 
@@ -2553,7 +2553,7 @@ This operation does not require authentication
   })
 
   describe('required fields', () => {
-    const requiredOpenAPI: OpenAPI = {
+    const requiredOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Required API', version: '1.0.0' },
       paths: {
@@ -2581,7 +2581,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="required-api">Required API v1.0.0</h1>
 
@@ -2644,11 +2644,11 @@ This operation does not require authentication
   })
 
   describe('empty paths', () => {
-    const emptyOpenAPI: OpenAPI = {
+    const emptyOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Empty API', version: '0.1.0' },
       paths: {},
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="empty-api">Empty API v0.1.0</h1>
 
@@ -2661,7 +2661,7 @@ This operation does not require authentication
   })
 
   describe('media example', () => {
-    const mediaExampleOpenAPI: OpenAPI = {
+    const mediaExampleOpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Example API', version: '1.0.0' },
       paths: {
@@ -2682,7 +2682,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
 
     const expected = `<h1 id="example-api">Example API v1.0.0</h1>
 
@@ -2741,7 +2741,7 @@ This operation does not require authentication
   })
 
   describe('comprehensive auth + info + servers', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: {
         title: 'Multi Auth API',
@@ -2786,7 +2786,7 @@ This operation does not require authentication
       paths: {
         '/ping': { get: { operationId: 'ping', responses: { '200': { description: 'OK' } } } },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="multi-auth-api">Multi Auth API v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -2860,7 +2860,7 @@ oauth ( Scopes: read write )
   })
 
   describe('curl mode with multiple auth + multi-content + multiple responses', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'CurlAuth', version: '1.0.0' },
       components: {
@@ -2912,7 +2912,7 @@ oauth ( Scopes: read write )
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="curlauth">CurlAuth v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3005,7 +3005,7 @@ bearer, basic, apikey, apikeyQ, oauth
   })
 
   describe('schemas section with various formats and enums', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Schemas', version: '1.0.0' },
       paths: {},
@@ -3031,7 +3031,7 @@ bearer, basic, apikey, apikeyQ, oauth
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="schemas">Schemas v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3096,7 +3096,7 @@ bearer, basic, apikey, apikeyQ, oauth
   })
 
   describe('oneOf inline response schema', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Comp', version: '1.0.0' },
       paths: {
@@ -3121,7 +3121,7 @@ bearer, basic, apikey, apikeyQ, oauth
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="comp">Comp v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3171,7 +3171,7 @@ This operation does not require authentication
   })
 
   describe('path-level $ref parameters merged with operation-level $ref parameters', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'PathParams', version: '1.0.0' },
       paths: {
@@ -3190,7 +3190,7 @@ This operation does not require authentication
           Lang: { name: 'lang', in: 'query', schema: { type: 'string', enum: ['en', 'ja'] } },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="pathparams">PathParams v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3236,7 +3236,7 @@ This operation does not require authentication
   })
 
   describe('tag groups with description', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Tagged', version: '1.0.0' },
       tags: [
@@ -3255,7 +3255,7 @@ This operation does not require authentication
           get: { tags: ['Posts'], operationId: 'lp', responses: { '200': { description: 'OK' } } },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="tagged">Tagged v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3325,7 +3325,7 @@ This operation does not require authentication
   })
 
   describe('$ref schema with named array response', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'RefEx', version: '1.0.0' },
       paths: {
@@ -3349,7 +3349,7 @@ This operation does not require authentication
       components: {
         schemas: { Item: { type: 'object', properties: { name: { type: 'string' } } } },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="refex">RefEx v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3431,7 +3431,7 @@ This operation does not require authentication
   })
 
   describe('allOf composition with multiple object parts', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'AllOfNest', version: '1.0.0' },
       paths: {
@@ -3456,7 +3456,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="allofnest">AllOfNest v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3507,7 +3507,7 @@ This operation does not require authentication
   })
 
   describe('anyOf request body with required: true', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'AnyOfBody', version: '1.0.0' },
       paths: {
@@ -3531,7 +3531,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="anyofbody">AnyOfBody v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3588,7 +3588,7 @@ This operation does not require authentication
   })
 
   describe('info contact only (no license)', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: {
         title: 'ContactOnly',
@@ -3596,7 +3596,7 @@ This operation does not require authentication
         contact: { name: 'C', email: 'c@example.com' },
       },
       paths: {},
-    }
+    } as OpenAPI
     const expected = `<h1 id="contactonly">ContactOnly v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3610,11 +3610,11 @@ Email: <a href="mailto:c@example.com">C</a>${' '}
   })
 
   describe('license without url (no contact)', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'LicNoUrl', version: '1.0.0', license: { name: 'Apache-2.0' } },
       paths: {},
-    }
+    } as OpenAPI
     const expected = `<h1 id="licnourl">LicNoUrl v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3628,7 +3628,7 @@ License: Apache-2.0
   })
 
   describe('nested body params chained through $ref', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'NB', version: '1.0.0' },
       paths: {
@@ -3661,7 +3661,7 @@ License: Apache-2.0
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="nb">NB v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3777,7 +3777,7 @@ This operation does not require authentication
   })
 
   describe('response schema with array of $ref objects', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'AR', version: '1.0.0' },
       paths: {
@@ -3813,7 +3813,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="ar">AR v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3905,7 +3905,7 @@ This operation does not require authentication
   })
 
   describe('$ref response from components.responses', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'RR', version: '1.0.0' },
       paths: {
@@ -3928,7 +3928,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="rr">RR v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -3985,7 +3985,7 @@ This operation does not require authentication
   })
 
   describe('form-urlencoded body with parameter description', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'FB', version: '1.0.0' },
       paths: {
@@ -4006,7 +4006,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="fb">FB v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4052,7 +4052,7 @@ This operation does not require authentication
   })
 
   describe('multiple named examples (uses the first by key)', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'NE', version: '1.0.0' },
       paths: {
@@ -4076,7 +4076,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="ne">NE v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4298,7 +4298,7 @@ This operation does not require authentication
   })
 
   describe('curl with single basic auth', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: { securitySchemes: { basicAuth: { type: 'http', scheme: 'basic' } } },
@@ -4311,7 +4311,7 @@ This operation does not require authentication
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4353,7 +4353,7 @@ basicAuth
   })
 
   describe('curl with single apiKey/header auth', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: {
@@ -4368,7 +4368,7 @@ basicAuth
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4411,7 +4411,7 @@ ak
   })
 
   describe('curl with single oauth2 auth', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'T', version: '1.0.0' },
       components: { securitySchemes: { o2: { type: 'oauth2', flows: {} } } },
@@ -4424,7 +4424,7 @@ ak
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="t">T v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4466,7 +4466,7 @@ o2
   })
 
   describe('kitchen-sink fixture exercising many branches at once', () => {
-    const spec: OpenAPI = {
+    const spec = {
       openapi: '3.1.0',
       info: { title: 'Kitchen', version: '1.0.0', description: 'A kitchen sink API.' },
       paths: {
@@ -4540,7 +4540,7 @@ o2
           },
         },
       },
-    }
+    } as OpenAPI
     const expected = `<h1 id="kitchen">Kitchen v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
@@ -4693,7 +4693,7 @@ This operation does not require authentication
 })
 
 describe('HTML escaping of free-form spec values', () => {
-  const spec: OpenAPI = {
+  const spec = {
     openapi: '3.1.0',
     info: {
       title: 'Acme <Search> & Co',
@@ -4712,7 +4712,7 @@ describe('HTML escaping of free-form spec values', () => {
         },
       },
     },
-  }
+  } as OpenAPI
 
   it('escapes & < > in title, server url, contact, license, and tag headings', () => {
     const lines = makeDocs(spec).split('\n')

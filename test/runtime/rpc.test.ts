@@ -57,6 +57,7 @@ describe('generated rpc with parseResponse', () => {
   })
 
   it('resolves with undefined on 204 No Content', async () => {
+    // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts the generated client resolves to undefined on 204
     expect(await deleteUsersId({ param: { id: '1' } })).toBeUndefined()
   })
 })

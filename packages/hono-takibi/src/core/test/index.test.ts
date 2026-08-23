@@ -17,7 +17,7 @@ describe('test', () => {
   it('should generate test file', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-gen-'))
     const output = path.join(tmpDir, 'index.test.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -30,7 +30,7 @@ describe('test', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await testGen(openAPI, output, '..')
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -58,7 +58,7 @@ describe('custom-marker', () => {
 })
 `,
     )
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -71,7 +71,7 @@ describe('custom-marker', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await testGen(openAPI, output, '..')
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(output, 'utf-8')
@@ -83,7 +83,7 @@ describe('custom-marker', () => {
     // A directory at the output path makes readFile fail with a non-ENOENT error.
     const output = path.join(tmpDir, 'index.test.ts')
     fs.mkdirSync(output)
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -96,7 +96,7 @@ describe('custom-marker', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await testGen(openAPI, output, '..')
     expect(result.ok).toBe(false)
     if (!result.ok) {
@@ -109,7 +109,7 @@ describe('custom-marker', () => {
     // A file occupying the parent path makes mkdir fail.
     fs.writeFileSync(path.join(tmpDir, 'blocker'), '')
     const output = path.join(tmpDir, 'blocker', 'index.test.ts')
-    const openAPI: OpenAPI = {
+    const openAPI = {
       openapi: '3.1.0',
       info: { title: 'Test API', version: '1.0.0' },
       paths: {
@@ -122,7 +122,7 @@ describe('custom-marker', () => {
           },
         },
       },
-    }
+    } as OpenAPI
     const result = await testGen(openAPI, output, '..')
     expect(result.ok).toBe(false)
     if (!result.ok) {

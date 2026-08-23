@@ -6,7 +6,7 @@ export function makeModuleSpec(
   fromFile: string,
   target: { readonly output: string; readonly split?: boolean },
 ) {
-  const rel = path.relative(path.dirname(fromFile), target.output).replace(/\\/g, '/')
+  const rel = path.relative(path.dirname(fromFile), target.output).replaceAll('\\', '/')
   const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
   return stripped === '' ? '.' : stripped.startsWith('.') ? stripped : `./${stripped}`
 }
@@ -63,12 +63,13 @@ const SCAN = new RegExp(
   'g',
 )
 
-const classifyRef = (name: string): string | undefined =>
-  COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
+function classifyRef(name: string): string | undefined {
+  return COMPONENT_SUFFIXES.reduce<readonly [string, string] | undefined>(
     (best, entry) =>
       name.endsWith(entry[1]) && (!best || entry[1].length > best[1].length) ? entry : best,
     undefined,
   )?.[0]
+}
 
 export function makeImports(
   code: string,

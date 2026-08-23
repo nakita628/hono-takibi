@@ -35,7 +35,7 @@ export function normalizeTypes(
 export function methodPath(method: string, path: string) {
   const hasTrailingSlash = path !== '/' && path.endsWith('/')
   const apiPath = path
-    .replace(/[^A-Za-z0-9]/g, ' ')
+    .replaceAll(/[^A-Za-z0-9]/g, ' ')
     .trim()
     .split(/\s+/)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
@@ -55,7 +55,7 @@ export function requestParamsArray(parameters: {
 }) {
   return Object.freeze(
     Object.entries(parameters)
-      .filter(([, obj]) => obj && Object.keys(obj).length)
+      .filter(([, obj]) => obj && Object.keys(obj).length > 0)
       .map(([section, obj]) => {
         const name =
           section === 'path'
@@ -96,11 +96,11 @@ export function requestParamsArray(parameters: {
 export function makeSafeKey(key: string) {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) return key
   const escaped = key
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')
+    .replaceAll('	', '\\t')
   return `'${escaped}'`
 }
 
@@ -124,7 +124,7 @@ export function makeSafeKey(key: string) {
  * ```
  */
 export function escapeRegexLiteral(source: string) {
-  return source.replace(/(?<!\\)\//g, '\\/')
+  return source.replaceAll(/(?<!\\)\//g, '\\/')
 }
 
 /**
@@ -150,10 +150,10 @@ export function escapeRegexLiteral(source: string) {
  */
 export function escapeHtml(source: string) {
   return source
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
 }
 
 /**
@@ -174,20 +174,23 @@ export function escapeHtml(source: string) {
  * ```
  */
 export function toIdentifierPascalCase(text: string) {
-  const hasNonAscii = Array.from(text).some((c) => c.charCodeAt(0) > 127)
+  // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
+  const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
   const result = text
-    .replace(/[^A-Za-z0-9_$]/g, '_')
-    .replace(/_+/g, '_')
-    .replace(/^_+|_+$/g, '')
+    .replaceAll(/[^A-Za-z0-9_$]/g, '_')
+    .replaceAll(/_+/g, '_')
+    .replaceAll(/^_+|_+$/g, '')
     .replace(/^([0-9])/, '_$1')
-    .replace(/_+([a-zA-Z])/g, (_, c) => c.toUpperCase())
-    .replace(/^([a-z])/, (_, c) => c.toUpperCase())
+    .replaceAll(/_+([a-zA-Z])/g, (_: string, c: string) => c.toUpperCase())
+    .replace(/^([a-z])/, (_: string, c: string) => c.toUpperCase())
   if (!result || /^_+$/.test(result)) {
-    const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
+    const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `Unnamed${String(hash)}`
   }
   if (hasNonAscii) {
-    const hash = Array.from(text).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
+    const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `${result}${String(hash)}`
   }
   return result
@@ -198,7 +201,7 @@ export function toIdentifierPascalCase(text: string) {
  * Returns an empty string when there are no names to import.
  */
 export function renderNamedImport(names: readonly string[], spec: string) {
-  const unique = Array.from(new Set(names))
+  const unique = [...new Set(names)]
   return unique.length > 0 ? `import{${unique.join(',')}}from'${spec}'` : ''
 }
 
@@ -214,6 +217,14 @@ export function renderNamedImport(names: readonly string[], spec: string) {
  */
 export function uncapitalize(text: string) {
   return text.charAt(0).toLowerCase() + text.slice(1)
+}
+
+/**
+ * Lower-cases the leading word of a PascalCase identifier, keeping an acronym whole:
+ * `Users` → `users`, `APIKeys` → `apiKeys`, `ZodOpenAPIHono` → `zodOpenAPIHono`.
+ */
+export function uncapitalizeWord(text: string) {
+  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/, (m) => m.toLowerCase())
 }
 
 /**
@@ -403,13 +414,13 @@ export function cyclicNodes(deps: ReadonlyMap<string, readonly string[]>) {
     open(root)
     const frames = [{ node: root, depIndex: 0 }]
     while (frames.length > 0) {
-      const frame = frames[frames.length - 1]
+      const frame = frames.at(-1)
       if (frame === undefined) return
       const dep = (deps.get(frame.node) ?? [])[frame.depIndex]
       if (dep === undefined) {
         close(frame.node)
         frames.length -= 1
-        const parent = frames[frames.length - 1]
+        const parent = frames.at(-1)
         if (parent) {
           lowLinks.set(
             parent.node,

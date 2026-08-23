@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { emit } from '../../emit/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
@@ -30,8 +30,9 @@ function makeJsDoc(
   if (description) sections.push(description.split('\n'))
   sections.push([`${method.toUpperCase()} ${path}`])
   const body = sections
-    .map((lines, i) => (i === 0 ? lines : ['', ...lines]))
-    .flat()
+    .map((lines) => lines.join('\n'))
+    .join('\n\n')
+    .split('\n')
     .map((line) => (line ? ` * ${line}` : ' *'))
     .join('\n')
   return `/**\n${body}\n */\n`
@@ -142,24 +143,24 @@ export async function rpc(
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
     const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
-    const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
-    const emitResult = await emit(code, path.dirname(output), output)
+    const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
+    const emitResult = await emit(code, dirname(output), output)
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return { ok: true, value: `Generated rpc code written to ${output}` } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const exportLines = Array.from(
-    new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
-  )
+  const exportLines = [
+    ...new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
+  ]
   const index = `${exportLines.join('\n')}\n`
   const results = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
       const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
       const fileSrc = `${header}${code}\n`
-      const filePath = path.join(outDir, `${funcName}.ts`)
-      return emit(fileSrc, path.dirname(filePath), filePath)
+      const filePath = join(outDir, `${funcName}.ts`)
+      return emit(fileSrc, dirname(filePath), filePath)
     }),
-    emit(index, path.dirname(indexPath), indexPath),
+    emit(index, dirname(indexPath), indexPath),
   ])
   const e = results.find((result) => !result.ok)
   if (e) return e

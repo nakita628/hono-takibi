@@ -57,18 +57,6 @@ function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?:
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
 }
 
-function makeQueryOptionsGetterName(pathStr: string) {
-  return `get${capitalize(methodPath('', pathStr))}QueryOptions`
-}
-
-function makeInfiniteQueryOptionsGetterName(pathStr: string) {
-  return `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
-}
-
-function makeMutationOptionsGetterName(method: string, pathStr: string) {
-  return `get${capitalize(methodPath(method, pathStr))}MutationOptions`
-}
-
 // Structured key pattern: ['prefix','/full/path',args?] enables both per-prefix
 // and per-endpoint invalidation.
 // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
@@ -811,7 +799,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
+  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/g, ':$1')
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -912,7 +900,7 @@ function makeHookCode(
     const queryHookName = makeHookName('', pathStr, config.hookPrefix)
     const pathFuncName = methodPath('', pathStr)
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
-    const optionsGetterName = makeQueryOptionsGetterName(pathStr)
+    const optionsGetterName = `get${capitalize(methodPath('', pathStr))}QueryOptions`
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
@@ -941,7 +929,7 @@ function makeHookCode(
     // Generate infinite query key getter (only when infinite query hooks are enabled
     // AND endpoint declares `x-pagination: true`)
     const infiniteKeyGetterName = makeInfiniteQueryKeyGetterName(method, pathStr)
-    const infiniteOptionsGetterName = makeInfiniteQueryOptionsGetterName(pathStr)
+    const infiniteOptionsGetterName = `get${capitalize(methodPath('', pathStr))}InfiniteQueryOptions`
     const { infiniteQueryFn, useInfiniteQueryOptionsType } = config
     const hasInfinite = !!(infiniteQueryFn && useInfiniteQueryOptionsType) && hasPagination
     const infiniteKeyGetterCode = hasInfinite
@@ -1056,7 +1044,7 @@ function makeHookCode(
     } as const
   }
   // Mutation: emit factory + hook
-  const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
+  const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions`
   const optionsGetterCode = makeMutationOptionsGetterCode(
     optionsGetterName,
     hasArgs,
@@ -1335,19 +1323,19 @@ export async function makeQueryHooks(
       hasQueryWithArgs,
       hasInfiniteQuery,
     )
-    const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
+    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
     const emitResult = await emit(code, path.dirname(output), output)
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return {
       ok: true,
-      value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${output}`,
+      value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`,
     } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const keysCode = prefixKeyCodes.length ? `${prefixKeyCodes.join('\n\n')}\n` : ''
-  const exportLines = Array.from(
-    new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
-  )
+  const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
+  const exportLines = [
+    ...new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
+  ]
   const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
   const index = `${indexLines.join('\n')}\n`
   const results = await Promise.all([
@@ -1374,6 +1362,6 @@ export async function makeQueryHooks(
   if (e) return e
   return {
     ok: true,
-    value: `Generated ${config.frameworkName.toLowerCase().replace(/ /g, '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
+    value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
   } as const
 }

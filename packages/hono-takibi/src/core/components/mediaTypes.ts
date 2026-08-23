@@ -14,6 +14,7 @@ import {
 } from '../../utils/index.js'
 
 export async function mediaTypes(
+  // oxlint-disable-next-line no-shadow -- the parameter is the section this function emits
   mediaTypes: Components['mediaTypes'],
   output: string,
   split: boolean,

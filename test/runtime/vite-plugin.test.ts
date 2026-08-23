@@ -29,6 +29,11 @@ it('the vite plugin generates from the .tsp input when the dev server starts', a
     server: { middlewareMode: true },
     plugins: [honoTakibiVite()],
   })
-  await vi.waitFor(() => expect(existsSync(routesFile)).toBe(true), { timeout: 30_000 })
+  await vi.waitFor(
+    () => {
+      expect(existsSync(routesFile)).toBe(true)
+    },
+    { timeout: 30_000 },
+  )
   await server.close()
 }, 60_000)

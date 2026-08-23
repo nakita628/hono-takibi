@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check": "vp check",
+    "fix": "vp check --fix",
+    "test": "vp test",
     "generate": "node scripts/generate.mjs",
     "typecheck": "node scripts/typecheck.mjs"
   },
@@ -29,7 +32,6 @@
     "swr": "^2.4.1",
     "typescript": "^5.9.3",
     "vite": "^7.1.4",
-    "vite-plus": "^0.2.6",
     "vue": "^3.5.27",
     "zod": "^4.3.6"
   }

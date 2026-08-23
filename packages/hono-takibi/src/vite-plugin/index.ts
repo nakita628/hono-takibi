@@ -1,3 +1,4 @@
+// oxlint-disable no-console -- the plugin reports generation progress to the Vite terminal
 import crypto from 'node:crypto'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
@@ -168,6 +169,17 @@ function sameOutputSnapshot(
  * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages and whether any output file changed
  */
+async function cleanupSplitOutput(absOutput: string): Promise<void> {
+  const stat = await fsp.stat(absOutput).catch(() => null)
+  if (!stat?.isDirectory()) return
+  const entries = await fsp.readdir(absOutput, { withFileTypes: true }).catch(() => [])
+  await Promise.all(
+    entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
+      .map((entry) => fsp.unlink(path.join(absOutput, entry.name)).catch(() => undefined)),
+  )
+}
+
 async function runAllGenerationTasks(config: Config) {
   if (config.format) setFormatOptions(config.format)
   const openAPIResult = await parseOpenAPI(config.input)
@@ -175,17 +187,6 @@ async function runAllGenerationTasks(config: Config) {
     return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`], changed: false }
   }
   const openAPI = openAPIResult.value
-
-  const cleanupSplitOutput = async (absOutput: string): Promise<void> => {
-    const stat = await fsp.stat(absOutput).catch(() => null)
-    if (!stat?.isDirectory()) return
-    const entries = await fsp.readdir(absOutput, { withFileTypes: true }).catch(() => [])
-    await Promise.all(
-      entries
-        .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
-        .map((entry) => fsp.unlink(path.join(absOutput, entry.name)).catch(() => undefined)),
-    )
-  }
 
   const jobs = makeJob(openAPI, config)
   const outputPaths = jobs.map((job) => path.resolve(process.cwd(), job.output))
@@ -313,9 +314,9 @@ export function honoTakibiVite(): any {
   // Serializes generation runs: a config-change run bypasses the debounce and
   // could otherwise interleave its cleanup with another run's writes.
   const enqueueRun = (task: () => Promise<void>) => {
-    const queued = pluginState.runQueue
-      .then(task)
-      .catch((error) => console.error('❌ run error:', error))
+    const queued = pluginState.runQueue.then(task).catch((error: unknown) => {
+      console.error('❌ run error:', error)
+    })
     pluginState.runQueue = queued
     return queued
   }
@@ -374,7 +375,7 @@ export function honoTakibiVite(): any {
         void enqueueRun(() => handleConfigurationChange(context.server))
         return []
       }
-      return
+      return undefined
     },
     async buildStart() {
       // Dev-only: handled by configureServer
@@ -417,7 +418,9 @@ export function honoTakibiVite(): any {
           }
         })
         await enqueueRun(() => runGenerationAndReload(server))
-      })().catch((e) => console.error('❌ watch error:', e))
+      })().catch((e: unknown) => {
+        console.error('❌ watch error:', e)
+      })
     },
   }
   return vitePlugin

@@ -26,7 +26,7 @@ const minimalGetOpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 const minimalPostOpenAPI = {
   openapi: '3.0.0' as const,
@@ -39,7 +39,7 @@ const minimalPostOpenAPI = {
       },
     },
   },
-}
+} as OpenAPI
 
 describe('Query Hook Generation Shared Module', () => {
   describe('makeQueryHooks - error cases', () => {
@@ -62,7 +62,7 @@ describe('Query Hook Generation Shared Module', () => {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
           paths: null as unknown as OpenAPI['paths'],
-        } as unknown as OpenAPI,
+        },
         '/tmp/test.ts',
         './client',
         defaultConfig,
@@ -79,7 +79,7 @@ describe('Query Hook Generation Shared Module', () => {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
           paths: 'invalid' as unknown as OpenAPI['paths'],
-        } as unknown as OpenAPI,
+        },
         '/tmp/test.ts',
         './client',
         defaultConfig,
@@ -96,7 +96,7 @@ describe('Query Hook Generation Shared Module', () => {
           openapi: '3.0.0',
           info: { title: 'Test', version: '1.0.0' },
           paths: [] as unknown as OpenAPI['paths'],
-        } as unknown as OpenAPI,
+        },
         '/tmp/test.ts',
         './client',
         defaultConfig,
