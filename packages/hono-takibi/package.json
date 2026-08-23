@@ -57,8 +57,7 @@
     "build": "vp pack",
     "check": "vp check",
     "fix": "vp check --fix",
-    "test": "vp test",
-    "coverage": "vp test --coverage"
+    "test": "vp test"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
