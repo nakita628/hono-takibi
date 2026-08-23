@@ -308,6 +308,8 @@ export function wrap(
   const serializeMedia = (mediaObj: unknown): string => {
     if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
     const { examples: mediaExamples, ...mediaRest } = mediaObj
+    // `JSON.stringify(undefined)` yields the value `undefined`, which would be
+    // interpolated into the emitted code as the literal text `undefined`.
     const restEntries = Object.entries(mediaRest)
       .filter(([, v]) => v !== undefined)
       .map(([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`)
@@ -324,6 +326,8 @@ export function wrap(
     return `{${entries.join(',')}}`
   }
   const serializeParam = (param: Parameter): string => {
+    // Same guard as `serializeMedia`: skip keys whose value is `undefined` so the
+    // emitted object never contains a bare `undefined`.
     const entries = Object.entries(param)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => {

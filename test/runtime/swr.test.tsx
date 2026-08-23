@@ -31,7 +31,9 @@ afterEach(() => {
 describe('generated useSWR hooks', () => {
   it('resolves with parsed data on 200', async () => {
     const { result } = renderHook(() => useGetUsers(), { wrapper: makeWrapper() })
-    await waitFor(() => expect(result.current.data).toBeDefined())
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined()
+    })
     expect(result.current.data).toStrictEqual([
       { id: '1', name: 'Alice' },
       { id: '2', name: 'Bob' },
@@ -43,7 +45,9 @@ describe('generated useSWR hooks', () => {
     const { result } = renderHook(() => useGetUsersId({ param: { id: '999' }, header: {} }), {
       wrapper: makeWrapper(),
     })
-    await waitFor(() => expect(result.current.error).toBeDefined())
+    await waitFor(() => {
+      expect(result.current.error).toBeDefined()
+    })
     expect(result.current.error).toBeInstanceOf(DetailedError)
     expect((result.current.error as DetailedError).statusCode).toBe(404)
     expect(result.current.data).toBeUndefined()
@@ -67,7 +71,9 @@ describe('SWR key behavior', () => {
       wrapper: makeWrapper(),
     })
     expect(result.current.swrKey).toStrictEqual(['custom', 'users'])
-    await waitFor(() => expect(result.current.data).toBeDefined())
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined()
+    })
   })
 
   it('a header-only difference serializes to the same cache key', () => {
@@ -84,7 +90,9 @@ describe('SWR key behavior', () => {
       () => useGetUsersId({ param: { id: '1' }, header: { 'x-trace': 'a' } }),
       { wrapper: makeWrapper(cache) },
     )
-    await waitFor(() => expect(first.result.current.data).toBeDefined())
+    await waitFor(() => {
+      expect(first.result.current.data).toBeDefined()
+    })
 
     const second = renderHook(
       () => useGetUsersId({ param: { id: '1' }, header: { 'x-trace': 'b' } }),
@@ -97,7 +105,9 @@ describe('SWR key behavior', () => {
       { wrapper: makeWrapper(cache) },
     )
     expect(distinct.result.current.data).toBeUndefined()
-    await waitFor(() => expect(distinct.result.current.data).toBeDefined())
+    await waitFor(() => {
+      expect(distinct.result.current.data).toBeDefined()
+    })
   })
 })
 
@@ -106,7 +116,9 @@ describe('generated useSWRMutation hooks', () => {
     const { result } = renderHook(() => usePostUsers(), { wrapper: makeWrapper() })
     const created = await result.current.trigger({ json: { name: 'Charlie' } })
     expect(created).toStrictEqual({ id: '99', name: 'Charlie' })
-    await waitFor(() => expect(result.current.data).toStrictEqual({ id: '99', name: 'Charlie' }))
+    await waitFor(() => {
+      expect(result.current.data).toStrictEqual({ id: '99', name: 'Charlie' })
+    })
   })
 
   it('trigger rejects with DetailedError on 400', async () => {
@@ -119,11 +131,14 @@ describe('generated useSWRMutation hooks', () => {
     )
     expect(captured).toBeInstanceOf(DetailedError)
     expect((captured as DetailedError).statusCode).toBe(400)
-    await waitFor(() => expect(result.current.error).toBeInstanceOf(DetailedError))
+    await waitFor(() => {
+      expect(result.current.error).toBeInstanceOf(DetailedError)
+    })
   })
 
   it('trigger resolves with undefined on 204 No Content', async () => {
     const { result } = renderHook(() => useDeleteUsersId(), { wrapper: makeWrapper() })
+    // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts the generated client resolves to undefined on 204
     expect(await result.current.trigger({ param: { id: '1' } })).toBeUndefined()
   })
 })
@@ -142,11 +157,15 @@ describe('generated useSWRInfinite hooks', () => {
         ),
       { wrapper: makeWrapper() },
     )
-    await waitFor(() => expect(result.current.data).toBeDefined())
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined()
+    })
     expect(result.current.data).toStrictEqual([{ items: ['a', 'b'], nextPage: 1 }])
 
     void result.current.setSize(2)
-    await waitFor(() => expect(result.current.data).toHaveLength(2))
+    await waitFor(() => {
+      expect(result.current.data).toHaveLength(2)
+    })
     expect(result.current.data).toStrictEqual([
       { items: ['a', 'b'], nextPage: 1 },
       { items: ['c', 'd'], nextPage: 2 },

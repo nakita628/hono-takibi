@@ -143,7 +143,7 @@ export async function rpc(
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
     const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
-    const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
+    const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
     const emitResult = await emit(code, dirname(output), output)
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return { ok: true, value: `Generated rpc code written to ${output}` } as const

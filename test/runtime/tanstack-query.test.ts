@@ -161,6 +161,7 @@ describe('generated mutationOptions', () => {
 
   it('mutationFn resolves with undefined on 204 No Content', async () => {
     const opts = getDeleteUsersIdMutationOptions()
+    // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts the generated client resolves to undefined on 204
     const result = await opts.mutationFn?.(
       { param: { id: '1' } },
       {} as Parameters<NonNullable<typeof opts.mutationFn>>[1],
@@ -180,6 +181,8 @@ describe('fetch cancellation', () => {
     await new Promise((resolve) => setTimeout(resolve, 10))
     await queryClient.cancelQueries({ queryKey: opts.queryKey })
     expect(await pending).toBeInstanceOf(Error)
-    await vi.waitFor(() => expect(abortLog).toStrictEqual([true]))
+    await vi.waitFor(() => {
+      expect(abortLog).toStrictEqual([true])
+    })
   })
 })

@@ -25,7 +25,7 @@ export async function parseOpenAPI(input: string) {
       const program = await compile(NodeHost, path.resolve(input), {
         noEmit: true,
       })
-      if (program.diagnostics.length) {
+      if (program.diagnostics.length > 0) {
         // Extract error messages from diagnostics (avoid circular reference in JSON.stringify)
         const errors = program.diagnostics.map((d) => d.message).join('\n')
         return {

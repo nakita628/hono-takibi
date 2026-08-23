@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite-plus'
 
+// oxlint-disable-next-line import/no-default-export -- Vite resolves the config through its default export
 export default defineConfig({
   pack: {
     entry: {
@@ -83,6 +84,55 @@ export default defineConfig({
       'import/no-cycle': 'error',
       'import/no-self-import': 'error',
       'import/no-duplicates': 'error',
+      'typescript/require-array-sort-compare': 'error',
+      // Hardening beyond the defaults: rules below were verified to hold across
+      // `src` before being turned on, so any new violation is a real regression.
+      'no-eval': 'error',
+      'no-new-func': 'error',
+      'no-implied-eval': 'error',
+      'no-return-assign': 'error',
+      'no-constant-binary-expression': 'error',
+      'no-else-return': 'error',
+      'no-lonely-if': 'error',
+      'prefer-object-spread': 'error',
+      'symbol-description': 'error',
+      'typescript/no-deprecated': 'error',
+      'typescript/no-base-to-string': 'error',
+      'typescript/restrict-template-expressions': 'error',
+      'typescript/restrict-plus-operands': 'error',
+      'typescript/no-redundant-type-constituents': 'error',
+      'typescript/no-duplicate-type-constituents': 'error',
+      'typescript/no-unnecessary-template-expression': 'error',
+      'typescript/no-unnecessary-boolean-literal-compare': 'error',
+      'typescript/no-unnecessary-type-parameters': 'error',
+      'typescript/no-confusing-void-expression': 'error',
+      'typescript/no-for-in-array': 'error',
+      'typescript/no-implied-eval': 'error',
+      'typescript/no-unsafe-enum-comparison': 'error',
+      'typescript/no-unsafe-unary-minus': 'error',
+      'typescript/only-throw-error': 'error',
+      'typescript/prefer-promise-reject-errors': 'error',
+      'typescript/prefer-reduce-type-parameter': 'error',
+      'typescript/prefer-includes': 'error',
+      'typescript/prefer-string-starts-ends-with': 'error',
+      'typescript/prefer-optional-chain': 'error',
+      'typescript/use-unknown-in-catch-callback-variable': 'error',
+      'typescript/unbound-method': 'error',
+      'typescript/return-await': 'error',
+      'unicorn/no-await-expression-member': 'error',
+      'unicorn/no-useless-spread': 'error',
+      'unicorn/prefer-node-protocol': 'error',
+      'unicorn/prefer-set-has': 'error',
+      'unicorn/prefer-string-slice': 'error',
+      'unicorn/prefer-at': 'error',
+      'unicorn/explicit-length-check': 'error',
+      'unicorn/throw-new-error': 'error',
+      'import/no-default-export': 'error',
+      'import/no-mutable-exports': 'error',
+      'import/no-absolute-path': 'error',
+      'import/no-empty-named-blocks': 'error',
+      'import/no-named-as-default-member': 'error',
+      'import/first': 'error',
     },
     // Architecture rules for src: each directory may import only the siblings listed in its
     // message. Regexes match relative specifiers only, so external packages such as
@@ -296,12 +346,9 @@ export default defineConfig({
       },
     ],
   },
+  // Style (printWidth / quotes / semicolons / import sorting) is inherited from the root
+  // vite.config.ts; only the paths this workspace skips are declared here.
   fmt: {
     ignorePatterns: ['**/node_modules/**', '**/dist/**', 'out/**', 'tmp/**', 'tmp-*/**'],
-    printWidth: 100,
-    singleQuote: true,
-    semi: false,
-    sortPackageJson: true,
-    experimentalSortImports: {},
   },
 })

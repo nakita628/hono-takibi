@@ -607,7 +607,9 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
     if (watcherCallback) await watcherCallback('change', '/some/other/place/file.yaml')
     await new Promise((resolve) => setTimeout(resolve, 250))
 
@@ -630,7 +632,9 @@ describe('honoTakibiVite', () => {
     await reloaded
 
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
     const txtPath = path.resolve(process.cwd(), 'note.txt')
     if (watcherCallback) await watcherCallback('change', txtPath)
     await new Promise((resolve) => setTimeout(resolve, 250))
@@ -676,7 +680,9 @@ describe('honoTakibiVite', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const { server } = createMockViteDevServer(configuration)
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
@@ -803,9 +809,9 @@ describe('honoTakibiVite', () => {
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await vi.waitFor(() => {
-      expect(logSpy.mock.calls.some(([msg]) => /takibi internal failure/.test(String(msg)))).toBe(
-        true,
-      )
+      expect(
+        logSpy.mock.calls.some(([msg]) => String(msg).includes('takibi internal failure')),
+      ).toBe(true)
     })
     logSpy.mockRestore()
   })
@@ -834,7 +840,9 @@ describe('honoTakibiVite', () => {
     const configuration = { input: 'openapi.yaml' }
     const { server } = createMockViteDevServer(configuration)
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
@@ -874,7 +882,9 @@ describe('honoTakibiVite', () => {
     )
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
@@ -1087,7 +1097,9 @@ describe('honoTakibiVite', () => {
     const core = await import('../core/index.js')
     const callsAfterInitialRun = vi.mocked(core.takibi).mock.calls.length
     const sendSpy = vi.fn<(payload: { type: string }) => void>()
-    server.ws.send = (payload) => sendSpy(payload)
+    server.ws.send = (payload) => {
+      sendSpy(payload)
+    }
     // Input bytes change (hash short-circuit does not engage) but the parsed
     // document is identical, so the regenerated output is byte-identical and
     // the real writeFile leaves the file untouched.

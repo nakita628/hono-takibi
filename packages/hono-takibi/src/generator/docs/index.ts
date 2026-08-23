@@ -498,7 +498,7 @@ function makeCodeSampleCurl(
   const cmdParts = [
     `curl ${url} \\`,
     ...remaining.slice(0, -1).map((r) => `${r} \\`),
-    remaining[remaining.length - 1],
+    remaining.at(-1),
   ]
   return ['> Code samples', '', '```bash', cmdParts.join('\n'), '```']
 }

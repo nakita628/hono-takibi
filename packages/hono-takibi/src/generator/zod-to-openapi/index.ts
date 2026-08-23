@@ -60,7 +60,7 @@ export function zodToOpenAPI(
             },
           ]
         : schema.allOf
-    if (!effectiveAllOf.length) return wrap('z.any()', schema, meta, options)
+    if (effectiveAllOf.length === 0) return wrap('z.any()', schema, meta, options)
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||

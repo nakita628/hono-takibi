@@ -314,9 +314,9 @@ export function honoTakibiVite(): any {
   // Serializes generation runs: a config-change run bypasses the debounce and
   // could otherwise interleave its cleanup with another run's writes.
   const enqueueRun = (task: () => Promise<void>) => {
-    const queued = pluginState.runQueue
-      .then(task)
-      .catch((error) => console.error('❌ run error:', error))
+    const queued = pluginState.runQueue.then(task).catch((error: unknown) => {
+      console.error('❌ run error:', error)
+    })
     pluginState.runQueue = queued
     return queued
   }
@@ -418,7 +418,9 @@ export function honoTakibiVite(): any {
           }
         })
         await enqueueRun(() => runGenerationAndReload(server))
-      })().catch((e) => console.error('❌ watch error:', e))
+      })().catch((e: unknown) => {
+        console.error('❌ watch error:', e)
+      })
     },
   }
   return vitePlugin

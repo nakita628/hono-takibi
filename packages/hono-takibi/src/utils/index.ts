@@ -55,7 +55,7 @@ export function requestParamsArray(parameters: {
 }) {
   return Object.freeze(
     Object.entries(parameters)
-      .filter(([, obj]) => obj && Object.keys(obj).length)
+      .filter(([, obj]) => obj && Object.keys(obj).length > 0)
       .map(([section, obj]) => {
         const name =
           section === 'path'
@@ -414,13 +414,13 @@ export function cyclicNodes(deps: ReadonlyMap<string, readonly string[]>) {
     open(root)
     const frames = [{ node: root, depIndex: 0 }]
     while (frames.length > 0) {
-      const frame = frames[frames.length - 1]
+      const frame = frames.at(-1)
       if (frame === undefined) return
       const dep = (deps.get(frame.node) ?? [])[frame.depIndex]
       if (dep === undefined) {
         close(frame.node)
         frames.length -= 1
-        const parent = frames[frames.length - 1]
+        const parent = frames.at(-1)
         if (parent) {
           lowLinks.set(
             parent.node,

@@ -24,7 +24,9 @@ const generateCase = (name) =>
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
     child.stderr.on('data', (chunk) => chunks.push(chunk))
-    child.on('error', (error) => resolve({ name, ok: false, output: error.message }))
+    child.on('error', (error) => {
+      resolve({ name, ok: false, output: error.message })
+    })
     child.on('close', (status) => {
       const ok = status === 0
       // Scaffold templates emit empty handler stubs that intentionally fail tsc until

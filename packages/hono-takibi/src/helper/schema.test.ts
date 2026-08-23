@@ -575,7 +575,8 @@ describe('makeTypeDefinitions', () => {
     const infos = makeSchemaInfos(schemas, ['Parent'], analysis)
 
     // Force needsTypeDef for Parent so makeTypeDefinitions processes it
-    const forcedInfos = infos.map((info) => Object.assign({}, info, { needsTypeDef: true }))
+    // oxlint-disable-next-line oxc/no-map-spread -- copies the fixture rather than mutating it
+    const forcedInfos = infos.map((info) => ({ ...info, needsTypeDef: true }))
     const typeDefs = makeTypeDefinitions(forcedInfos, schemas, analysis.cyclicGroupPascal)
 
     // Parent type should reference ChildType, which triggers additional type def

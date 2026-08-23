@@ -521,6 +521,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     it('accepts each valid string enum value', async () => {
       const responses = await Promise.all(
         ['admin', 'editor', 'viewer'].map((role) =>
+          // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+          // element a thenable for `Promise.all` (typescript/await-thenable).
           Promise.resolve(
             app.request('/form', {
               method: 'POST',
@@ -551,6 +553,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     it('accepts each valid integer enum value', async () => {
       const responses = await Promise.all(
         [1, 2, 3].map((priority) =>
+          // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+          // element a thenable for `Promise.all` (typescript/await-thenable).
           Promise.resolve(
             app.request('/form', {
               method: 'POST',

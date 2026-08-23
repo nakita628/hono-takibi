@@ -17,7 +17,7 @@ function parseSnippet(code: string) {
  */
 function getBodyStart(file: SourceFile) {
   const decls = file.getImportDeclarations()
-  return decls.length > 0 ? decls[decls.length - 1].getEnd() : 0
+  return decls.at(-1)?.getEnd() ?? 0
 }
 
 /**
@@ -518,7 +518,7 @@ function formatImportLine(
  */
 function extractChainPrefix(apiStmtText: string) {
   const initMatch = apiStmtText.match(/=\s*app\b/)
-  if (!initMatch || initMatch.index === undefined) return ''
+  if (initMatch?.index === undefined) return ''
   const afterApp = apiStmtText.slice(initMatch.index + initMatch[0].length)
   const routeMatch = afterApp.match(/\.(?:openapiRoutes|openapi|route)\s*\(/)
   if (!routeMatch || routeMatch.index === undefined || routeMatch.index === 0) return ''
@@ -576,7 +576,7 @@ function mergeInlineHandler(existingText: string, generatedText: string) {
   if (generatedCalls.size === 0) return generatedText
   const existingCalls = extractOpenApiCalls(existingText)
   const firstCallMatch = generatedText.match(/\.openapi\s*\(/)
-  if (!firstCallMatch || firstCallMatch.index === undefined) return generatedText
+  if (firstCallMatch?.index === undefined) return generatedText
   const prefix = generatedText.slice(0, firstCallMatch.index).trimEnd()
   const mergedCalls = [...generatedCalls.entries()].map(
     ([routeName, genCall]) => existingCalls.get(routeName) ?? genCall,

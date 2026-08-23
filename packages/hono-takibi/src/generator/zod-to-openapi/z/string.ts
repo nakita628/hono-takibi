@@ -166,7 +166,7 @@ export function string(
       // Zod issues instead of uncaught exceptions.
       const mt = mediaType ? mediaType.toLowerCase() : ''
       const isBinary = /^(image|audio|video)\//.test(mt) || mt === 'application/octet-stream'
-      const isJson = mt.length > 0 && /json/.test(mt)
+      const isJson = mt.length > 0 && mt.includes('json')
       // Binary MIME types decode base64 directly to Uint8Array — UTF-8
       // decoding would corrupt the bytes.
       if (isBinary) {

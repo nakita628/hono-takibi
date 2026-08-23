@@ -1323,7 +1323,7 @@ export async function makeQueryHooks(
       hasQueryWithArgs,
       hasInfiniteQuery,
     )
-    const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
+    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
     const emitResult = await emit(code, path.dirname(output), output)
     if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
     return {
@@ -1332,7 +1332,7 @@ export async function makeQueryHooks(
     } as const
   }
   const { outDir, indexPath } = resolveSplitOutDir(output)
-  const keysCode = prefixKeyCodes.length ? `${prefixKeyCodes.join('\n\n')}\n` : ''
+  const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
   const exportLines = [
     ...new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
   ]

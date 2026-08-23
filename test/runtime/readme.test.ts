@@ -1176,6 +1176,8 @@ describe('Enums — thick coverage', () => {
   it('accepts all enum members', async () => {
     const roleResponses = await Promise.all(
       ['admin', 'editor', 'viewer'].map((role) =>
+        // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+        // element a thenable for `Promise.all` (typescript/await-thenable).
         Promise.resolve(
           app.request('/enums', {
             method: 'POST',
@@ -1190,6 +1192,8 @@ describe('Enums — thick coverage', () => {
     }
     const priorityResponses = await Promise.all(
       [1, 2, 3].map((priority) =>
+        // `app.request()` is typed `Response | Promise<Response>`; wrapping keeps every
+        // element a thenable for `Promise.all` (typescript/await-thenable).
         Promise.resolve(
           app.request('/enums', {
             method: 'POST',

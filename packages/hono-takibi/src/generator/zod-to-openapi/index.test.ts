@@ -2497,6 +2497,7 @@ describe('zodToOpenAPI', () => {
 
       it.concurrent('string format: cuid → z.cuid() (accepts a cuid / rejects "not-cuid")', () => {
         expect(zodToOpenAPI({ type: 'string', format: 'cuid' })).toBe('z.cuid()')
+        // oxlint-disable-next-line typescript/no-deprecated -- asserts the emitter's own `z.cuid()` output still parses
         const runtime = z.cuid()
         expect(runtime.safeParse('cjld2cjxh0000qzrmn831i7rn').success).toBe(true)
         const result = runtime.safeParse('not-cuid')
@@ -7104,6 +7105,8 @@ describe('zodToOpenAPI', () => {
             const regex = new RegExp('^S_')
             const Schema = z.string()
             for (const [k, val] of Object.entries(o)) {
+              // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
+              // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
               if (!regex.test(k)) continue
               const valid = Schema.safeParse(val)
               if (!valid.success)
@@ -7928,6 +7931,7 @@ describe('zodToOpenAPI', () => {
         const regex = /^S:/
         const Inner = z.string()
         for (const [k, val] of Object.entries(o)) {
+          // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
           if (!regex.test(k)) continue
           const valid = Inner.safeParse(val)
           if (!valid.success)
@@ -7939,6 +7943,7 @@ describe('zodToOpenAPI', () => {
         const regex = /^I:/
         const Inner = z.int()
         for (const [k, val] of Object.entries(o)) {
+          // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
           if (!regex.test(k)) continue
           const valid = Inner.safeParse(val)
           if (!valid.success)
