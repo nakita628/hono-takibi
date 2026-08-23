@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
-    "check": "vp run --filter ./packages/hono-takibi check && vp run --filter ./test check",
-    "fix": "vp run --filter ./packages/hono-takibi check --fix && vp run --filter ./test check --fix",
+    "check": "vp run -r check",
+    "fix": "vp run -r check --fix",
     "test": "vp run --filter ./packages/hono-takibi test && vp run --filter ./test test"
   },
   "packageManager": "pnpm@11.22.0",
