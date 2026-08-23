@@ -10,7 +10,7 @@ import {
 } from '../../guard/index.js'
 import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
-import { cyclicNodes } from '../../utils/index.js'
+import { cyclicNodes, methodPath } from '../../utils/index.js'
 
 function collectSchemaRefs(
   schema: Schema,
@@ -401,15 +401,21 @@ export function makeHandlerTestContext(spec: OpenAPI) {
 export function makeHandlerTestCode(
   spec: OpenAPI,
   handlerPath: string,
-  _routeNames: readonly string[],
+  routeNames: readonly string[],
   importFrom: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   context: ReturnType<typeof makeHandlerTestContext> = makeHandlerTestContext(spec),
 ) {
   const handlerFileName = path.basename(handlerPath, '.ts')
-  const relevantCases = context.testCases.filter(
-    (testCase) => getPathFirstSegment(testCase.path) === handlerFileName,
+  // Handler files are grouped by tag (or by an existing hand-written split), so the routes
+  // they hold are the only reliable link; the path-segment match is a fallback for callers
+  // that pass no route names.
+  const routeNameSet = new Set(routeNames)
+  const relevantCases = context.testCases.filter((testCase) =>
+    routeNames.length > 0
+      ? routeNameSet.has(`${methodPath(testCase.method.toLowerCase(), testCase.path)}Route`)
+      : getPathFirstSegment(testCase.path) === handlerFileName,
   )
   if (relevantCases.length === 0) return ''
   const usedSchemaNames = new Set(relevantCases.flatMap((testCase) => testCase.usedSchemaRefs))

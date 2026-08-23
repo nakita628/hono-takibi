@@ -18,6 +18,7 @@ import {
   statusCodeToNumber,
   toIdentifierPascalCase,
   uncapitalize,
+  uncapitalizeWord,
   zodToOpenAPISchema,
 } from './index.js'
 
@@ -264,6 +265,21 @@ describe('utils', () => {
       ['', ''],
     ])(`uncapitalize('%s') -> '%s'`, (input, expected) => {
       expect(uncapitalize(input)).toBe(expected)
+    })
+  })
+
+  describe('uncapitalizeWord', () => {
+    it.concurrent.each([
+      ['users', 'users'],
+      ['Users', 'users'],
+      ['TEST', 'test'],
+      ['APIKeys', 'apiKeys'],
+      ['ZodOpenAPIHono', 'zodOpenAPIHono'],
+      ['HonoX', 'honoX'],
+      ['API2', 'api2'],
+      ['', ''],
+    ])(`uncapitalizeWord('%s') -> '%s'`, (input, expected) => {
+      expect(uncapitalizeWord(input)).toBe(expected)
     })
   })
   // makeBarrel

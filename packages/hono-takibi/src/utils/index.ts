@@ -217,6 +217,14 @@ export function uncapitalize(text: string) {
 }
 
 /**
+ * Lower-cases the leading word of a PascalCase identifier, keeping an acronym whole:
+ * `Users` → `users`, `APIKeys` → `apiKeys`, `ZodOpenAPIHono` → `zodOpenAPIHono`.
+ */
+export function uncapitalizeWord(text: string) {
+  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/, (m) => m.toLowerCase())
+}
+
+/**
  * Converts the first character of a string to uppercase.
  *
  * @example

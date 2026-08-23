@@ -259,8 +259,8 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.test.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
         value: '🔥 Generated code and template files written',
@@ -287,7 +287,7 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
       expect(result).toStrictEqual({
         ok: true,
         value: '🔥 Generated code and template files written',
@@ -320,8 +320,8 @@ describe('templateCode (sandbox)', () => {
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.test.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.test.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.test.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.test.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -372,7 +372,7 @@ export default app
       expect(fs.existsSync(path.join(srcDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'hono.ts'))).toBe(true)
       expect(fs.existsSync(path.join(srcDir, 'handlers', 'honoX.ts'))).toBe(true)
-      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenapiHono.ts'))).toBe(true)
+      expect(fs.existsSync(path.join(srcDir, 'handlers', 'zodOpenAPIHono.ts'))).toBe(true)
 
       const appCode = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
       expect(appCode).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'

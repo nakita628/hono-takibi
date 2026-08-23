@@ -1662,9 +1662,44 @@ describe('makeHandlerTestCode - $ref path parameter mock functions', () => {
         },
       },
     }
-    const result = makeHandlerTestCode(spec, 'handlers/users.ts', ['getUserRoute'], '../app')
+    const result = makeHandlerTestCode(spec, 'handlers/users.ts', ['getUsersUserIdRoute'], '../app')
     expect(result).toBe(
       "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\nfunction mockUserId() {\n  return faker.string.uuid()\n}\n\ndescribe('Users',()=>{describe('GET /users/{userId}',()=>{it('should return 200',async()=>{const userId=mockUserId()\nconst res=await app.request(`/users/${userId}`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
+    )
+  })
+
+  it('selects test cases by route name when the handler file is tag-named', () => {
+    const spec: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Tag Grouped API', version: '1.0.0' },
+      paths: {
+        '/books': {
+          get: {
+            operationId: 'readBooks',
+            tags: ['books'],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+        '/books/{bookId}/reviews': {
+          get: {
+            operationId: 'readReviews',
+            tags: ['reviews'],
+            parameters: [
+              { name: 'bookId', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    }
+    const result = makeHandlerTestCode(
+      spec,
+      'handlers/reviews.ts',
+      ['getBooksBookIdReviewsRoute'],
+      '../app',
+    )
+    expect(result).toBe(
+      "import{describe,it,expect}from'vitest'\nimport{faker}from'@faker-js/faker'\nimport app from'../app'\n\ndescribe('Reviews',()=>{describe('GET /books/{bookId}/reviews',()=>{it('should return 200',async()=>{const bookId=faker.string.alpha({ length: { min: 5, max: 20 } })\nconst res=await app.request(`/books/${bookId}/reviews`,{method:'GET'})\nexpect(res.status).toBe(200)})})\n})\n",
     )
   })
 

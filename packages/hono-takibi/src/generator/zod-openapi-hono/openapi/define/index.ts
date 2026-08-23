@@ -18,7 +18,12 @@ import { methodPath } from '../../../../utils/index.js'
 export function defineEntries(
   openapi: OpenAPI,
   readonly?: boolean,
-): readonly { readonly name: string; readonly path: string; readonly code: string }[] {
+): readonly {
+  readonly name: string
+  readonly path: string
+  readonly tags?: readonly string[]
+  readonly code: string
+}[] {
   const makeEntry = (path: string, method: string, operation: Operation, readonly?: boolean) => {
     // Properties follow `openapi/index.ts` `Operation` declaration order (method/path are
     // createRoute-specific and lead; request merges parameters + requestBody).
@@ -50,6 +55,7 @@ export function defineEntries(
     return {
       name: entryName,
       path,
+      ...(operation.tags ? { tags: operation.tags } : {}),
       code: `export const ${entryName}Route=defineOpenAPIRoute({route:createRoute({${properties}}${asConst}),handler:async(c)=>{},addRoute:true})`,
     }
   }

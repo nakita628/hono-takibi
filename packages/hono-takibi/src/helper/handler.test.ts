@@ -3,7 +3,12 @@ import fs from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../openapi/index.js'
-import { makeHandlerFileName, mockZodOpenAPIHonoHandler, zodOpenAPIHonoHandler } from './handler.js'
+import {
+  defineOpenAPIRouteHandler,
+  makeHandlerFileName,
+  mockZodOpenAPIHonoHandler,
+  zodOpenAPIHonoHandler,
+} from './handler.js'
 
 /* ─────────────────────────────── makeHandlerFileName ─────────────────────────────── */
 
@@ -224,6 +229,37 @@ describe('makeHandlerFileName', () => {
   })
 })
 
+describe('makeHandlerFileName (tags)', () => {
+  it('uses the first tag over the path segment', () => {
+    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews'])).toBe('reviews.ts')
+  })
+
+  it('falls back to the path segment when tags are empty', () => {
+    expect(makeHandlerFileName('/books', [])).toBe('books.ts')
+  })
+
+  it('sanitizes tag names like path segments and lower-cases the first letter', () => {
+    expect(makeHandlerFileName('/books', ['Pet Store'])).toBe('petStore.ts')
+    expect(makeHandlerFileName('/zod-openapi-hono', ['ZodOpenAPIHono'])).toBe('zodOpenAPIHono.ts')
+  })
+
+  it('falls back to the path segment when the tag sanitizes to nothing', () => {
+    expect(makeHandlerFileName('/books', ['!!!'])).toBe('books.ts')
+  })
+
+  it('uses __root when neither tag nor path yields a name', () => {
+    expect(makeHandlerFileName('/', ['!!!'])).toBe('__root.ts')
+  })
+
+  it('uses only the first tag', () => {
+    expect(makeHandlerFileName('/books/{bookId}/reviews', ['reviews', 'books'])).toBe('reviews.ts')
+  })
+
+  it('keeps a leading acronym whole when lower-casing', () => {
+    expect(makeHandlerFileName('/api-keys', ['APIKeys'])).toBe('apiKeys.ts')
+  })
+})
+
 /* ─────────────────────────────── zodOpenAPIHonoHandler (stub) ─────────────────────────── */
 
 describe('zodOpenAPIHonoHandler', () => {
@@ -367,8 +403,7 @@ describe('zodOpenAPIHonoHandler', () => {
     expect(fs.existsSync(`${testDir}/src/handlers/users.ts`)).toBe(true)
   })
 
-  it('removes stale handler files on re-generation', async () => {
-    // First generation with /users and /posts
+  it('never deletes handler files when a route leaves the spec', async () => {
     const firstOpenAPI: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -383,9 +418,8 @@ describe('zodOpenAPIHonoHandler', () => {
     } as OpenAPI
 
     await zodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`)
-    expect(fs.existsSync(`${testDir}/handlers/posts.ts`)).toBe(true)
+    const postsContent = fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf-8')
 
-    // Second generation without /posts
     const secondOpenAPI: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -397,9 +431,485 @@ describe('zodOpenAPIHonoHandler', () => {
     } as OpenAPI
 
     await zodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`)
-    // posts.ts should be removed as stale
-    expect(fs.existsSync(`${testDir}/handlers/posts.ts`)).toBe(false)
-    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+    // The sub-router loses its registration and its route import; the file stays.
+    expect(postsContent).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getPostsRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const postsHandler = app.openapi(getPostsRoute, (c) => {})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\n\nconst app = new OpenAPIHono()\n\nexport const postsHandler = app\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './users'\nexport * from './posts'\n`,
+    )
+  })
+
+  it('removes a dropped route from a routeHandler file but keeps the file and its other routes', async () => {
+    const firstOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/posts': {
+          get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
+          post: { operationId: 'createPost', responses: { 201: { description: 'Created' } } },
+        },
+      },
+    } as OpenAPI
+    await zodOpenAPIHonoHandler(
+      firstOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+    fs.writeFileSync(
+      `${testDir}/handlers/posts.ts`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getPostsRoute, postPostsRoute } from '../routes'\n\nexport const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {\n  return c.json([], 200)\n}\n\nexport const postPostsRouteHandler: RouteHandler<typeof postPostsRoute> = async (c) => {}\n`,
+    )
+
+    const secondOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/posts': {
+          get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+    const result = await zodOpenAPIHonoHandler(
+      secondOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getPostsRoute } from '../routes'\n\nexport const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {\n  return c.json([], 200)\n}\n`,
+    )
+  })
+
+  it('strips the last route from a routeHandler file but never deletes the file', async () => {
+    const firstOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+        '/posts': {
+          get: { operationId: 'getPosts', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+    await zodOpenAPIHonoHandler(
+      firstOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+    fs.writeFileSync(
+      `${testDir}/handlers/posts.ts`,
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getPostsRoute } from '../routes'\n\nconst PAGE_SIZE = 20\n\nexport const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {\n  return c.json({ pageSize: PAGE_SIZE }, 200)\n}\n`,
+    )
+
+    const secondOpenAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+    const result = await zodOpenAPIHonoHandler(
+      secondOpenAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    // Hand-written code outside the handler survives; the stale route import is dropped so
+    // the file keeps type-checking once `getPostsRoute` disappears from the routes module.
+    expect(fs.readFileSync(`${testDir}/handlers/posts.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\n\nconst PAGE_SIZE = 20\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './users'\nexport * from './posts'\n`,
+    )
+  })
+
+  it('keeps hand-written non-route handlers in a file it regenerates', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/documents/{documentId}/shares': {
+          get: {
+            operationId: 'listDocumentShares',
+            tags: ['documents'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    const shares = `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdSharesRoute } from '../routes'\n\nexport const authHandler = 'HAND WRITTEN'\n\nexport const getDocumentsDocumentIdSharesRouteHandler: RouteHandler<\n  typeof getDocumentsDocumentIdSharesRoute\n> = async (c) => {\n  return c.json([], 200)\n}\n`
+    fs.writeFileSync(`${testDir}/handlers/shares.ts`, shares)
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/shares.ts`, 'utf-8')).toBe(shares)
+    expect(fs.existsSync(`${testDir}/handlers/documents.ts`)).toBe(false)
+  })
+
+  it('inline mode keeps an implemented sub-router in place when a tag would rename its file', async () => {
+    const untagged: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+    await zodOpenAPIHonoHandler(untagged, `${testDir}/routes.ts`)
+    const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getUsersRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const usersHandler = app.openapi(getUsersRoute, async (c) => {\n  return c.json([{ id: '1', name: 'Jane' }], 200)\n})\n`
+    fs.writeFileSync(`${testDir}/handlers/users.ts`, implemented)
+
+    const tagged: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            tags: ['User Management'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    const result = await zodOpenAPIHonoHandler(tagged, `${testDir}/routes.ts`)
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.existsSync(`${testDir}/handlers/userManagement.ts`)).toBe(false)
+    expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(implemented)
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './users'\n`,
+    )
+  })
+
+  const probeDir = fs.mkdtempSync('tmp-case-probe-')
+  fs.writeFileSync(`${probeDir}/A.ts`, '')
+  const caseInsensitiveFs = fs.existsSync(`${probeDir}/a.ts`)
+  fs.rmSync(probeDir, { recursive: true, force: true })
+
+  it.skipIf(caseInsensitiveFs)(
+    'prefers the exact file name over a case-insensitive match',
+    async () => {
+      const openAPI: OpenAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              operationId: 'getUsers',
+              tags: ['users'],
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+        },
+      } as OpenAPI
+      fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+      fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const legacy = 1\n`)
+      fs.writeFileSync(`${testDir}/handlers/users.ts`, `export const current = 1\n`)
+
+      const result = await zodOpenAPIHonoHandler(
+        openAPI,
+        `${testDir}/routes.ts`,
+        false,
+        undefined,
+        undefined,
+        true,
+      )
+
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+      expect(fs.readFileSync(`${testDir}/handlers/Users.ts`, 'utf-8')).toBe(
+        `export const legacy = 1\n`,
+      )
+      expect(fs.readFileSync(`${testDir}/handlers/users.ts`, 'utf-8')).toBe(
+        `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute } from '../routes'\n\nexport const current = 1\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}\n`,
+      )
+    },
+  )
+
+  it('uses the first file (sorted) when a handler is exported from two files', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: { operationId: 'getUsers', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    fs.writeFileSync(`${testDir}/handlers/a.ts`, `export const getUsersRouteHandler = 'A'\n`)
+    fs.writeFileSync(`${testDir}/handlers/b.ts`, `export const getUsersRouteHandler = 'B'\n`)
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/a.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute } from '../routes'\n\nexport const getUsersRouteHandler = 'A'\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/b.ts`, 'utf-8')).toBe(
+      `export const getUsersRouteHandler = 'B'\n`,
+    )
+    expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(false)
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(`export * from './a'\n`)
+  })
+
+  it('keeps hand-written handlers split by concern in place instead of re-stubbing them', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/documents/{documentId}': {
+          get: {
+            operationId: 'readDocument',
+            tags: ['documents'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/documents/{documentId}/shares': {
+          get: {
+            operationId: 'listDocumentShares',
+            tags: ['documents'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    fs.writeFileSync(
+      `${testDir}/handlers/documents.ts`,
+      `export const getDocumentsDocumentIdRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    fs.writeFileSync(
+      `${testDir}/handlers/shares.ts`,
+      `export const getDocumentsDocumentIdSharesRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    fs.writeFileSync(
+      `${testDir}/handlers/index.ts`,
+      `export * from './documents'\nexport * from './shares'\n`,
+    )
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/documents.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdRoute } from '../routes'\n\nexport const getDocumentsDocumentIdRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/shares.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdSharesRoute } from '../routes'\n\nexport const getDocumentsDocumentIdSharesRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './documents'\nexport * from './shares'\n`,
+    )
+  })
+
+  it('leaves files with no route handlers untouched and keeps their barrel export', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/books': {
+          get: {
+            operationId: 'readBooks',
+            tags: ['books'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    const legacy = `// Hand-written handler for a route that is intentionally not in the spec.\nexport const legacyRedirectHandler = 'REAL IMPLEMENTATION'\n`
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    fs.writeFileSync(`${testDir}/handlers/legacy.ts`, legacy)
+    fs.writeFileSync(`${testDir}/handlers/index.ts`, `export * from './legacy'\n`)
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/legacy.ts`, 'utf-8')).toBe(legacy)
+    expect(fs.readFileSync(`${testDir}/handlers/books.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './legacy'\nexport * from './books'\n`,
+    )
+  })
+
+  it('groups routeHandler files by tag, falling back to the path segment', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/books': {
+          get: {
+            operationId: 'readBooks',
+            tags: ['books'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/books/{bookId}/reviews': {
+          get: {
+            operationId: 'readReviews',
+            tags: ['reviews'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/health': {
+          get: { operationId: 'health', responses: { 200: { description: 'OK' } } },
+        },
+      },
+    } as OpenAPI
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/books.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksRoute } from '../routes'\n\nexport const getBooksRouteHandler: RouteHandler<typeof getBooksRoute> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/reviews.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getBooksBookIdReviewsRoute } from '../routes'\n\nexport const getBooksBookIdReviewsRouteHandler: RouteHandler<\n  typeof getBooksBookIdReviewsRoute\n> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/health.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getHealthRoute } from '../routes'\n\nexport const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './books'\nexport * from './reviews'\nexport * from './health'\n`,
+    )
+  })
+
+  it('reuses an existing file whose name differs only by case', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            operationId: 'getUsers',
+            tags: ['users'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    fs.writeFileSync(`${testDir}/handlers/Users.ts`, `export const helper = 1\n`)
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readdirSync(`${testDir}/handlers`).sort()).toStrictEqual(['Users.ts', 'index.ts'])
+    expect(fs.readFileSync(`${testDir}/handlers/Users.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getUsersRoute } from '../routes'\n\nexport const helper = 1\n\nexport const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './Users'\n`,
+    )
+  })
+
+  it('generates tag-named test files covering only the routes in that file', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/books': {
+          get: {
+            operationId: 'readBooks',
+            tags: ['books'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/books/{bookId}/reviews': {
+          get: {
+            operationId: 'readReviews',
+            tags: ['reviews'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+
+    const result = await zodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      true,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/reviews.test.ts`, 'utf-8')).toBe(
+      `import { describe, it, expect } from 'vitest'\nimport app from '..'\n\ndescribe('Reviews', () => {\n  describe('GET /books/{bookId}/reviews', () => {\n    it('should return 200', async () => {\n      const res = await app.request(\`/books/{bookId}/reviews\`, { method: 'GET' })\n      expect(res.status).toBe(200)\n    })\n  })\n})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/books.test.ts`, 'utf-8')).toBe(
+      `import { describe, it, expect } from 'vitest'\nimport app from '..'\n\ndescribe('Books', () => {\n  describe('GET /books', () => {\n    it('should return 200', async () => {\n      const res = await app.request(\`/books\`, { method: 'GET' })\n      expect(res.status).toBe(200)\n    })\n  })\n})\n`,
+    )
   })
 
   it('generates handler for root path', async () => {
@@ -660,7 +1170,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
     )
   })
 
-  it('removes stale files on re-generation', async () => {
+  it('never deletes handler files when a route leaves the spec', async () => {
     const firstOpenAPI: OpenAPI = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -675,7 +1185,7 @@ describe('mockZodOpenAPIHonoHandler', () => {
     } as OpenAPI
 
     await mockZodOpenAPIHonoHandler(firstOpenAPI, `${testDir}/routes.ts`, false)
-    expect(fs.existsSync(`${testDir}/handlers/legacy.ts`)).toBe(true)
+    const legacyContent = fs.readFileSync(`${testDir}/handlers/legacy.ts`, 'utf-8')
 
     const secondOpenAPI: OpenAPI = {
       openapi: '3.1.0',
@@ -688,8 +1198,62 @@ describe('mockZodOpenAPIHonoHandler', () => {
     } as OpenAPI
 
     await mockZodOpenAPIHonoHandler(secondOpenAPI, `${testDir}/routes.ts`, false)
-    expect(fs.existsSync(`${testDir}/handlers/legacy.ts`)).toBe(false)
+    expect(legacyContent).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\nimport { getLegacyRoute } from '../routes'\n\nconst app = new OpenAPIHono()\n\nexport const legacyHandler = app.openapi(getLegacyRoute, async (_c) => {\n  return new Response(null, { status: 204 })\n})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/legacy.ts`, 'utf-8')).toBe(
+      `import { OpenAPIHono } from '@hono/zod-openapi'\n\nconst app = new OpenAPIHono()\n\nexport const legacyHandler = app\n`,
+    )
     expect(fs.existsSync(`${testDir}/handlers/users.ts`)).toBe(true)
+  })
+
+  it('keeps hand-written routeHandler implementations in their own files (mock mode)', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/documents/{documentId}': {
+          get: {
+            operationId: 'readDocument',
+            tags: ['documents'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/documents/{documentId}/shares': {
+          get: {
+            operationId: 'listDocumentShares',
+            tags: ['documents'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/handlers`, { recursive: true })
+    fs.writeFileSync(
+      `${testDir}/handlers/shares.ts`,
+      `export const getDocumentsDocumentIdSharesRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    fs.writeFileSync(`${testDir}/handlers/index.ts`, `export * from './shares'\n`)
+
+    const result = await mockZodOpenAPIHonoHandler(
+      openAPI,
+      `${testDir}/routes.ts`,
+      false,
+      undefined,
+      undefined,
+      true,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/handlers/shares.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdSharesRoute } from '../routes'\n\nexport const getDocumentsDocumentIdSharesRouteHandler = 'REAL IMPLEMENTATION'\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/documents.ts`, 'utf-8')).toBe(
+      `import type { RouteHandler } from '@hono/zod-openapi'\nimport type { getDocumentsDocumentIdRoute } from '../routes'\n\nexport const getDocumentsDocumentIdRouteHandler: RouteHandler<\n  typeof getDocumentsDocumentIdRoute\n> = async (_c) => {\n  return new Response(null, { status: 204 })\n}\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/handlers/index.ts`, 'utf-8')).toBe(
+      `export * from './shares'\nexport * from './documents'\n`,
+    )
   })
 
   it('preserves existing handler content on re-generation (merge)', async () => {
@@ -752,5 +1316,66 @@ describe('mockZodOpenAPIHonoHandler', () => {
     // (helper/handler.ts:545) and for test (helper/handler.ts:568).
     const second = await mockZodOpenAPIHonoHandler(openAPI, `${testDir}/routes.ts`, true)
     expect(second).toStrictEqual({ ok: true, value: undefined })
+  })
+})
+
+/* ─────────────────────────────── defineOpenAPIRouteHandler ───────────────────────────── */
+
+describe('defineOpenAPIRouteHandler', () => {
+  const testDir = 'tmp-define-handler-test'
+
+  beforeEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+    fs.mkdirSync(testDir, { recursive: true })
+  })
+
+  afterEach(() => {
+    fs.rmSync(testDir, { recursive: true, force: true })
+  })
+
+  it('keeps a hand-written route file in place and groups new routes by tag', async () => {
+    const openAPI: OpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/books': {
+          get: {
+            operationId: 'readBooks',
+            tags: ['books'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+        '/books/{bookId}/reviews': {
+          get: {
+            operationId: 'readReviews',
+            tags: ['reviews'],
+            responses: { 200: { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    fs.mkdirSync(`${testDir}/routes`, { recursive: true })
+    fs.writeFileSync(
+      `${testDir}/routes/reviews.ts`,
+      `export const getBooksBookIdReviewsRoute = 'REAL IMPLEMENTATION'\n`,
+    )
+    fs.writeFileSync(`${testDir}/routes/index.ts`, `export * from './reviews'\n`)
+
+    const result = await defineOpenAPIRouteHandler(
+      openAPI,
+      `${testDir}/index.ts`,
+      `${testDir}/components/index.ts`,
+    )
+
+    expect(result).toStrictEqual({ ok: true, value: undefined })
+    expect(fs.readFileSync(`${testDir}/routes/reviews.ts`, 'utf-8')).toBe(
+      `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'\n\nexport const getBooksBookIdReviewsRoute = 'REAL IMPLEMENTATION'\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/routes/books.ts`, 'utf-8')).toBe(
+      `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'\n\nexport const getBooksRoute = defineOpenAPIRoute({\n  route: createRoute({\n    method: 'get',\n    path: '/books',\n    tags: ['books'],\n    operationId: 'readBooks',\n    responses: { 200: { description: 'OK' } },\n  }),\n  handler: async (c) => {},\n  addRoute: true,\n})\n`,
+    )
+    expect(fs.readFileSync(`${testDir}/routes/index.ts`, 'utf-8')).toBe(
+      `export * from './reviews'\nexport * from './books'\n`,
+    )
   })
 })

@@ -639,7 +639,7 @@ export * from './tags'
       )
     })
 
-    it('removes a route deleted from the spec and cleans up its stale handler file', async () => {
+    it('removes a route deleted from the spec but never deletes its handler file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-remove-'))
       const cfg = parseConfig({
         input: 'openapi.yaml',
@@ -651,7 +651,8 @@ export * from './tags'
         Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
-      expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'health.ts'))).toBe(true)
+      const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
+      const healthContent = fs.readFileSync(healthPath, 'utf-8')
       // Spec drops the health resource.
       const withoutHealth = {
         ...openAPI,
@@ -659,10 +660,16 @@ export * from './tags'
       } as unknown as OpenAPI
       for (const r of await run(withoutHealth)) if (!r.ok) throw new Error(r.error)
 
-      expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'health.ts'))).toBe(false)
+      // The route declaration goes, the file stays for the user to remove.
+      expect(healthContent.includes('export const getHealthRoute')).toBe(true)
+      expect(fs.readFileSync(healthPath, 'utf-8')).toBe(
+        `import { createRoute, defineOpenAPIRoute } from '@hono/zod-openapi'
+`,
+      )
       expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
       expect(fs.readFileSync(path.join(tmpDir, 'src', 'routes', 'index.ts'), 'utf-8')).toBe(
         `export * from './users'
+export * from './health'
 `,
       )
       expect(fs.readFileSync(path.join(tmpDir, 'src', 'index.ts'), 'utf-8')).toBe(

@@ -69,12 +69,29 @@ function collectHandlerMap(file: SourceFile) {
 }
 
 /**
+ * Lists the names of exported `const` declarations whose name ends with `suffix`.
+ */
+export function collectExportedNames(code: string, suffix: string) {
+  return [...collectExportedConsts(parseSnippet(code), suffix).keys()]
+}
+
+/**
+ * Lists the route names registered through `.openapi(xxxRoute, …)` calls in an inline
+ * handler file.
+ */
+export function collectInlineRouteNames(code: string) {
+  return [...extractOpenApiCalls(code).keys()]
+}
+
+/**
  * Merges generated handler code with existing handler code.
  *
  * Merge rules:
  * - Handlers in both: keep existing (user implementation wins, comments preserved)
  * - Handlers only in generated: add (new endpoints)
- * - Handlers only in existing (RouteHandler): delete (route removed from OpenAPI)
+ * - `*RouteHandler` exports only in existing: delete (route removed from OpenAPI). Inline
+ *   sub-router exports (`xxxHandler`) are deleted the same way only when the generated file is
+ *   itself an inline handler file; any other `*Handler` export is the user's and is kept
  * - Non-handler code (helpers, constants, comments): keep existing
  * - Imports: sync with generated (remove deleted route imports, add new ones, keep user imports)
  *
@@ -95,9 +112,14 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
   const existingHandlers = collectHandlerMap(existingFile)
   const generatedHandlers = collectHandlerMap(generatedFile)
 
-  // Delete operations: handlers in existing but not in generated
+  // Delete operations: codegen-owned handlers in existing but not in generated
+  const generatedHasInline = [...generatedHandlers.keys()].some(isInlineHandlerName)
   const deleteOps = [...existingHandlers.entries()]
-    .filter(([name]) => !generatedHandlers.has(name))
+    .filter(
+      ([name]) =>
+        !generatedHandlers.has(name) &&
+        (name.endsWith('RouteHandler') || (generatedHasInline && isInlineHandlerName(name))),
+    )
     .map(([, stmt]): readonly [number, number, string] => [stmt.getFullStart(), stmt.getEnd(), ''])
 
   // Chain-merge operations: inline handlers in both — merge .openapi() calls
@@ -281,9 +303,7 @@ function mergeImports(
     dropStaleAutoNames,
   )
   const importMap = mergeImportEntries([...filteredExisting, ...generatedImports])
-  return [...importMap.entries()]
-    .map(([spec, info]) => formatImportLine(spec, info))
-    .filter((line): line is string => line !== undefined)
+  return [...importMap.entries()].flatMap(([spec, info]) => formatImportLine(spec, info))
 }
 
 function parseImportDeclarations(file: SourceFile) {
@@ -294,8 +314,13 @@ function parseImportDeclarations(file: SourceFile) {
     namespaceImport: d.getNamespaceImport()?.getText(),
     namedImports: d.getNamedImports().map((n) => ({
       name: n.getName(),
+      alias: n.getAliasNode()?.getText(),
       isTypeOnly: n.isTypeOnly(),
     })),
+    isSideEffectOnly:
+      d.getDefaultImport() === undefined &&
+      d.getNamespaceImport() === undefined &&
+      d.getNamedImports().length === 0,
   }))
 }
 
@@ -338,7 +363,12 @@ function filterExistingImports(
     readonly isTypeOnlyImport: boolean
     readonly defaultImport: string | undefined
     readonly namespaceImport: string | undefined
-    readonly namedImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+    readonly namedImports: readonly {
+      readonly name: string
+      readonly alias: string | undefined
+      readonly isTypeOnly: boolean
+    }[]
+    readonly isSideEffectOnly: boolean
   }[],
   index: {
     readonly autoNameModules: ReadonlyMap<string, string>
@@ -367,8 +397,10 @@ function filterExistingImports(
 }
 
 /**
- * Combines parsed import entries by module specifier. Named imports are unioned and
- * type-only flags are AND-merged (type-only only when type-only in every occurrence).
+ * Combines parsed import entries by module specifier. Named imports are keyed by their local
+ * binding (alias when present) so `{ env as workerEnv }` and `{ env as appEnv }` coexist, and
+ * every namespace import of the same module is kept. Type-only flags are AND-merged
+ * (type-only only when type-only in every occurrence).
  */
 function mergeImportEntries(
   entries: readonly {
@@ -376,39 +408,62 @@ function mergeImportEntries(
     readonly isTypeOnlyImport: boolean
     readonly defaultImport: string | undefined
     readonly namespaceImport: string | undefined
-    readonly namedImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+    readonly namedImports: readonly {
+      readonly name: string
+      readonly alias: string | undefined
+      readonly isTypeOnly: boolean
+    }[]
+    readonly isSideEffectOnly: boolean
   }[],
 ) {
   const map = new Map<
     string,
     {
-      namedImports: Map<string, boolean>
-      isTypeOnlyImport: boolean
+      namedImports: Map<string, { readonly name: string; readonly isTypeOnly: boolean }>
+      namespaceImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+      // Type-only flag of the default/named line; undefined until an entry contributes to it.
+      isTypeOnlyImport: boolean | undefined
+      hasSideEffectOnly: boolean
       defaultImport?: string
-      namespaceImport?: string
     }
   >()
   for (const entry of entries) {
     const prev = map.get(entry.moduleSpecifier)
     const namedImports = new Map(prev?.namedImports ?? [])
     for (const named of entry.namedImports) {
-      const prevTypeOnly = namedImports.get(named.name)
-      namedImports.set(
-        named.name,
-        prevTypeOnly === undefined ? named.isTypeOnly : prevTypeOnly && named.isTypeOnly,
-      )
+      const local = named.alias ?? named.name
+      const prevNamed = namedImports.get(local)
+      namedImports.set(local, {
+        name: named.name,
+        isTypeOnly:
+          prevNamed === undefined ? named.isTypeOnly : prevNamed.isTypeOnly && named.isTypeOnly,
+      })
     }
+    const prevNamespaces = prev?.namespaceImports ?? []
+    const namespaceImports =
+      entry.namespaceImport === undefined
+        ? prevNamespaces
+        : prevNamespaces.some((ns) => ns.name === entry.namespaceImport)
+          ? prevNamespaces.map((ns) =>
+              ns.name === entry.namespaceImport
+                ? { name: ns.name, isTypeOnly: ns.isTypeOnly && entry.isTypeOnlyImport }
+                : ns,
+            )
+          : [...prevNamespaces, { name: entry.namespaceImport, isTypeOnly: entry.isTypeOnlyImport }]
+    const contributesToNamedLine =
+      entry.namedImports.length > 0 || entry.defaultImport !== undefined
     map.set(entry.moduleSpecifier, {
       namedImports,
-      isTypeOnlyImport: prev
-        ? prev.isTypeOnlyImport && entry.isTypeOnlyImport
-        : entry.isTypeOnlyImport,
+      namespaceImports,
+      isTypeOnlyImport: contributesToNamedLine
+        ? prev?.isTypeOnlyImport === undefined
+          ? entry.isTypeOnlyImport
+          : prev.isTypeOnlyImport && entry.isTypeOnlyImport
+        : prev?.isTypeOnlyImport,
+      hasSideEffectOnly: (prev?.hasSideEffectOnly ?? false) || entry.isSideEffectOnly,
       ...(entry.defaultImport !== undefined && { defaultImport: entry.defaultImport }),
       ...(prev?.defaultImport !== undefined &&
         entry.defaultImport === undefined && { defaultImport: prev.defaultImport }),
-      ...(entry.namespaceImport !== undefined && { namespaceImport: entry.namespaceImport }),
-      ...(prev?.namespaceImport !== undefined &&
-        entry.namespaceImport === undefined && { namespaceImport: prev.namespaceImport }),
     })
   }
   return map
@@ -417,29 +472,42 @@ function mergeImportEntries(
 function formatImportLine(
   moduleSpecifier: string,
   info: {
-    namedImports: Map<string, boolean>
-    isTypeOnlyImport: boolean
+    namedImports: Map<string, { readonly name: string; readonly isTypeOnly: boolean }>
+    namespaceImports: readonly { readonly name: string; readonly isTypeOnly: boolean }[]
+    isTypeOnlyImport: boolean | undefined
+    hasSideEffectOnly: boolean
     defaultImport?: string
-    namespaceImport?: string
   },
 ) {
+  const lineTypeOnly = info.isTypeOnlyImport ?? false
+  const prefix = lineTypeOnly ? 'import type' : 'import'
+  const from = `from '${moduleSpecifier}'`
   const namedPart =
     info.namedImports.size > 0
       ? `{ ${[...info.namedImports.entries()]
           .toSorted(([a], [b]) => a.localeCompare(b))
-          .map(([name, isTypeOnly]) =>
-            isTypeOnly && !info.isTypeOnlyImport ? `type ${name}` : name,
-          )
+          .map(([local, { name, isTypeOnly }]) => {
+            const binding = local === name ? name : `${name} as ${local}`
+            return isTypeOnly && !lineTypeOnly ? `type ${binding}` : binding
+          })
           .join(', ')} }`
       : undefined
-  const parts = [
-    info.defaultImport,
-    info.namespaceImport ? `* as ${info.namespaceImport}` : undefined,
-    namedPart,
-  ].filter((p): p is string => p !== undefined)
-  if (parts.length === 0) return undefined
-  const prefix = info.isTypeOnlyImport ? 'import type' : 'import'
-  return `${prefix} ${parts.join(', ')} from '${moduleSpecifier}'`
+  const namespaceLines = info.namespaceImports.map(
+    (ns) => `${ns.isTypeOnly ? 'import type' : 'import'} * as ${ns.name} ${from}`,
+  )
+  if (namedPart !== undefined) {
+    const bindings = [info.defaultImport, namedPart].filter((p): p is string => p !== undefined)
+    return [`${prefix} ${bindings.join(', ')} ${from}`, ...namespaceLines]
+  }
+  if (info.namespaceImports.length > 0) {
+    return info.namespaceImports.map((ns, i) =>
+      i === 0 && info.defaultImport !== undefined
+        ? `${prefix} ${info.defaultImport}, * as ${ns.name} ${from}`
+        : `${ns.isTypeOnly ? 'import type' : 'import'} * as ${ns.name} ${from}`,
+    )
+  }
+  if (info.defaultImport !== undefined) return [`${prefix} ${info.defaultImport} ${from}`]
+  return info.hasSideEffectOnly ? [`import '${moduleSpecifier}'`] : []
 }
 
 /**
@@ -661,17 +729,36 @@ function insertNewRouteDescribes(body: string, newBlocks: readonly string[]) {
 }
 
 /**
- * Syncs barrel file (index.ts) with the generated version.
+ * Merges the barrel file (index.ts) with the generated version.
  *
- * The generated file is the source of truth (reflects current OpenAPI spec).
- * Exports for deleted handler files are removed.
+ * Every existing export is kept — the barrel may re-export hand-written modules the
+ * generator knows nothing about — and `export * from` lines for newly generated
+ * handler files are appended.
  *
- * @param _existingCode - The current barrel file content (unused, kept for API compatibility).
+ * @param existingCode - The current barrel file content.
  * @param generatedCode - The newly generated barrel file content.
- * @returns The synced barrel file content.
+ * @returns The merged barrel file content.
  */
-export function mergeBarrelFile(_existingCode: string, generatedCode: string) {
-  return generatedCode
+export function mergeBarrelFile(existingCode: string, generatedCode: string) {
+  const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
+  const normalizeSpecifier = (spec: string) => spec.replace(/\.(?:js|ts)$/, '')
+  const existingModules = new Set(
+    existingFile
+      .getExportDeclarations()
+      .map((d) => d.getModuleSpecifierValue())
+      .filter((spec): spec is string => spec !== undefined)
+      .map(normalizeSpecifier),
+  )
+  const missingExports = generatedFile
+    .getExportDeclarations()
+    .filter((d) => {
+      const spec = d.getModuleSpecifierValue()
+      return spec !== undefined && !existingModules.has(normalizeSpecifier(spec))
+    })
+    .map((d) => d.getText())
+  if (missingExports.length === 0) return existingCode
+  const base = existingCode.trimEnd()
+  return `${base ? `${base}\n` : ''}${missingExports.join('\n')}\n`
 }
 
 /**

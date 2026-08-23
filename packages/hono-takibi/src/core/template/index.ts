@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fmt } from '../../format/index.js'
 import { readFile, writeFile } from '../../fsp/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
-import { zodOpenAPIHonoHandler } from '../../helper/handler.js'
+import { resolveInlineHandlerFileNames, zodOpenAPIHonoHandler } from '../../helper/handler.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
@@ -20,21 +20,39 @@ export async function template(
   const isIndexFile = output.endsWith('/index.ts')
   const dir = isIndexFile ? path.dirname(path.dirname(output)) : path.dirname(output)
   const target = path.join(dir, 'index.ts')
-  const [appFmtResult, stubHandlersResult] = await Promise.all([
-    fmt(app(openAPI, output, basePath, pathAlias, routeImport, routeHandler, false)),
-    zodOpenAPIHonoHandler(
+  const stubHandlersResult = await zodOpenAPIHonoHandler(
+    openAPI,
+    output,
+    test,
+    pathAlias,
+    routeImport,
+    routeHandler,
+    basePath,
+    testFramework,
+  )
+  if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error } as const
+  // Inline sub-routers are mounted by file name, so the app entry must follow the files the
+  // handlers actually landed in (hand-written splits included), read back after writing.
+  const inlineFilesResult = routeHandler
+    ? undefined
+    : await resolveInlineHandlerFileNames(openAPI, output, pathAlias, routeImport)
+  if (inlineFilesResult && !inlineFilesResult.ok) {
+    return { ok: false, error: inlineFilesResult.error } as const
+  }
+  const appFmtResult = await fmt(
+    app(
       openAPI,
       output,
-      test,
+      basePath,
       pathAlias,
       routeImport,
       routeHandler,
-      basePath,
-      testFramework,
+      false,
+      undefined,
+      inlineFilesResult?.ok ? inlineFilesResult.value : undefined,
     ),
-  ])
+  )
   if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error } as const
-  if (!stubHandlersResult.ok) return { ok: false, error: stubHandlersResult.error } as const
   const existingResult = await readFile(target)
   if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
   const merged =
