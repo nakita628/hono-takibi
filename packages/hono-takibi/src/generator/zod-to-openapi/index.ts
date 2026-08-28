@@ -1,4 +1,9 @@
-import { isRefOnly, isSchemaArray, isSingleSchema } from '../../guard/index.js'
+import {
+  isDiscriminableBranch,
+  isRefOnly,
+  isSchemaArray,
+  isSingleSchema,
+} from '../../guard/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
@@ -182,35 +187,15 @@ export function zodToOpenAPI(
     // So `z.xor` (exactly one) is the baseline, and `z.discriminatedUnion` (route
     // by key, then validate that one branch) is allowed only where the two agree:
     // when each branch requires the discriminating property pinned to literals
-    // that no other branch shares, at most one branch can ever match.
-    //
-    // It must also be provably emittable. Zod reads the discriminator off
-    // `_zod.propValues`, which only a bare `z.object(...)` head carries; an
-    // intersection (`allOf`), a union, a `z.record` (object `additionalProperties`),
-    // `.nullable()` and `.default()` all report nothing. Zod builds that map
-    // lazily, so a bad branch throws on the FIRST PARSE — a 500, not a 422 —
-    // which is why anything unrecognised falls back to `z.xor`.
+    // that no other branch shares, at most one branch can ever match. Zod builds
+    // its `propValues` map lazily, so a branch it cannot route throws on the FIRST
+    // PARSE — a 500, not a 422 — which is why `isDiscriminableBranch` fails closed.
     const literalsPerBranch = branches.map((branch) => {
       if (discriminator === undefined || branch === undefined) return undefined
-      if (branch.allOf || branch.anyOf || branch.oneOf || branch.not) return undefined
-      if (branch.type !== 'object' || typeof branch.additionalProperties === 'object') {
-        return undefined
-      }
-      if (branch.nullable === true || branch.default !== undefined) return undefined
-      if (!Array.isArray(branch.required) || !branch.required.includes(discriminator)) {
-        return undefined
-      }
+      if (!isDiscriminableBranch(branch, discriminator)) return undefined
       const property = branch.properties?.[discriminator]
       if (property === undefined || typeof property === 'boolean') return undefined
-      if (typeof property.const === 'string') return [property.const]
-      if (
-        Array.isArray(property.enum) &&
-        property.enum.length > 0 &&
-        property.enum.every((v) => typeof v === 'string')
-      ) {
-        return property.enum
-      }
-      return undefined
+      return typeof property.const === 'string' ? [property.const] : (property.enum ?? [])
     })
     const literals = literalsPerBranch.flatMap((values) => values ?? [])
     const isDiscriminated =

@@ -1,6 +1,7 @@
 import { ts } from 'ts-morph'
 
 import { zodToOpenAPI } from '../generator/zod-to-openapi/index.js'
+import { isDiscriminableBranch, isRefOnly } from '../guard/index.js'
 import type { Schema } from '../openapi/index.js'
 import { cyclicNodes, ensureSuffix, toIdentifierPascalCase } from '../utils/index.js'
 
@@ -39,6 +40,28 @@ function findCyclicSchemas(names: readonly string[], deps: ReadonlyMap<string, r
     ]),
   )
   return cyclicNodes(nameDeps)
+}
+
+// A branch of a `z.discriminatedUnion` has to stay discriminable at the type level.
+// A recursive branch is declared as `z.ZodType<XType>`, which erases `_zod.propValues`,
+// so it also needs the `$ZodTypeDiscriminable` half of its annotation to stay a member.
+function findDiscriminatedBranches(
+  schemas: { readonly [k: string]: Schema },
+  schemaNames: readonly string[],
+) {
+  return new Set(
+    schemaNames.flatMap((n) => {
+      const schema = schemas[n]
+      const discriminator = schema?.discriminator?.propertyName
+      if (discriminator === undefined || schema?.oneOf === undefined) return []
+      return schema.oneOf.flatMap((branch) => {
+        if (!(isRefOnly(branch) && branch.$ref?.startsWith('#/components/schemas/'))) return []
+        const name = decodeURIComponent(branch.$ref.slice('#/components/schemas/'.length))
+        const target = schemas[name]
+        return target && isDiscriminableBranch(target, discriminator) ? [name] : []
+      })
+    }),
+  )
 }
 
 export function analyzeCircularSchemas(
@@ -99,6 +122,7 @@ export function analyzeCircularSchemas(
     cyclicSchemas,
     extendedCyclicSchemas,
     cyclicGroupPascal: new Set([...extendedCyclicSchemas].map(toIdentifierPascalCase)),
+    discriminatedBranches: findDiscriminatedBranches(schemas, schemaNames),
     varNameToName,
   } as const
 }

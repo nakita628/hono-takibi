@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import {
   isContentBody,
+  isDiscriminableBranch,
   isHttpMethod,
   isMedia,
   isMediaWithSchema,
@@ -675,5 +676,71 @@ describe('isOAuthFlowValue', () => {
 
   it.concurrent('returns false for undefined', () => {
     expect(isOAuthFlowValue(undefined)).toBe(false)
+  })
+})
+
+describe('isDiscriminableBranch', () => {
+  it.concurrent('should accept a bare object head that pins the discriminator to a const', () => {
+    expect(
+      isDiscriminableBranch(
+        {
+          type: 'object',
+          properties: { kind: { type: 'string', const: 'circle' }, r: { type: 'number' } },
+          required: ['kind'],
+        },
+        'kind',
+      ),
+    ).toBe(true)
+  })
+
+  it.concurrent('should accept an all-string enum on the discriminator', () => {
+    expect(
+      isDiscriminableBranch(
+        {
+          type: 'object',
+          properties: { kind: { type: 'string', enum: ['circle', 'ellipse'] } },
+          required: ['kind'],
+        },
+        'kind',
+      ),
+    ).toBe(true)
+  })
+
+  it.concurrent('should reject a branch that does not require the discriminator', () => {
+    expect(
+      isDiscriminableBranch(
+        { type: 'object', properties: { kind: { type: 'string', const: 'circle' } } },
+        'kind',
+      ),
+    ).toBe(false)
+  })
+
+  it.concurrent('should reject a branch whose discriminator is not pinned to a literal', () => {
+    expect(
+      isDiscriminableBranch(
+        { type: 'object', properties: { kind: { type: 'string' } }, required: ['kind'] },
+        'kind',
+      ),
+    ).toBe(false)
+  })
+
+  it.concurrent('should reject composed, record, nullable and defaulted heads', () => {
+    const properties = { kind: { type: 'string', const: 'circle' } } as const
+    const required = ['kind'] as const
+    expect(
+      isDiscriminableBranch({ allOf: [{ type: 'object', properties, required }] }, 'kind'),
+    ).toBe(false)
+    expect(
+      isDiscriminableBranch(
+        { type: 'object', properties, required, additionalProperties: { type: 'string' } },
+        'kind',
+      ),
+    ).toBe(false)
+    expect(
+      isDiscriminableBranch({ type: 'object', properties, required, nullable: true }, 'kind'),
+    ).toBe(false)
+    expect(
+      isDiscriminableBranch({ type: 'object', properties, required, default: {} }, 'kind'),
+    ).toBe(false)
   })
 })

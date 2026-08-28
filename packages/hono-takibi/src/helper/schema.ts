@@ -16,6 +16,7 @@ export function makeSchemaInfo(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },
 ) {
@@ -34,6 +35,7 @@ export function makeSchemaInfo(
     variableName,
     needsLazy,
     needsTypeDef,
+    isDiscriminatedBranch: analysis.discriminatedBranches.has(schemaName),
   } as const
 }
 
@@ -46,6 +48,7 @@ export function makeSchemaInfos(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },
 ) {
@@ -61,6 +64,7 @@ export function makeSchemaCode(
     readonly variableName: string
     readonly needsLazy: boolean
     readonly needsTypeDef: boolean
+    readonly isDiscriminatedBranch: boolean
   },
   options: {
     readonly exportKeyword: string
@@ -69,7 +73,12 @@ export function makeSchemaCode(
   },
 ) {
   const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
-  const returnType = info.needsTypeDef ? `:z.ZodType<${info.safeSchemaName}Type>` : ''
+  // `z.ZodType<T>` erases `_zod.propValues`, which is how `z.discriminatedUnion`
+  // routes; a branch that needs the annotation has to declare it back.
+  const discriminable = info.isDiscriminatedBranch ? '&z.core.$ZodTypeDiscriminable' : ''
+  const returnType = info.needsTypeDef
+    ? `:z.ZodType<${info.safeSchemaName}Type>${discriminable}`
+    : ''
   const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}.openapi('${info.safeSchemaName}')`
   const zodInferCode = options.exportType
     ? `\n\nexport type ${info.safeSchemaName}=z.infer<typeof ${info.variableName}>`
@@ -150,6 +159,7 @@ export function makeSplitSchemaFile(
     readonly cyclicSchemas: ReadonlySet<string>
     readonly extendedCyclicSchemas: ReadonlySet<string>
     readonly cyclicGroupPascal: ReadonlySet<string>
+    readonly discriminatedBranches: ReadonlySet<string>
     readonly varNameToName: ReadonlyMap<string, string>
   },
   exportType: boolean,
