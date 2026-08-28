@@ -13,6 +13,15 @@ import {
   resolveSplitOutDir,
 } from './rpc.js'
 
+// Solid Query types its option objects as `Accessor<...>` (a thunk), because `createQuery`
+// takes the whole options object as a thunk. The user-facing `options.query` slot needs the
+// *unwrapped* object: spreading an accessor copies a function's (empty) own properties, so the
+// caller's options are silently dropped at runtime and TError never reaches the result.
+// `ReturnType<...>` is the same unwrapping Solid itself uses to declare `queryOptions()`.
+function wrapOptionsType(optionsType: string, unwrapAccessor?: boolean) {
+  return unwrapAccessor ? `ReturnType<${optionsType}>` : optionsType
+}
+
 function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)
   return `${prefix}${capitalize(funcName)}`
@@ -302,7 +311,9 @@ function makeSWRQueryHookCode(
   const fetcherCall = hasArgs
     ? `parseResponse(${runtimeAccess}(args,clientOptions))`
     : `parseResponse(${runtimeAccess}(undefined,clientOptions))`
-  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
+  // `useSWR` cannot infer Error from the config alone and falls back to `any` (unlike the
+  // mutation/infinite variants). Pass the type arguments so TError reaches the returned `error`.
+  return `export function ${hookName}${tErrorGeneric}(${argsSig}${optionsSig}){const{swr:swrOptions,options:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const swrKey=enabled!==false?(customKey??${keyCall}):null;return{swrKey,...${queryFn}<${responseType},TError>(swrKey,async()=>${fetcherCall},restSwrOptions)}}`
 }
 
 /**
@@ -376,13 +387,17 @@ function makeQueryHookCode(
     readonly isVueQuery?: boolean
     readonly useQueryOptionsType: string
     readonly errorType?: string
+    readonly unwrapOptionsAccessor?: boolean
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
   // TData first so callers can override `select`'s output type without naming TError:
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
   const generics = `<TData=${responseType},TError=${errorType}>`
-  const queryOptionsType = `${config.useQueryOptionsType}<${responseType},TError,TData>`
+  const queryOptionsType = wrapOptionsType(
+    `${config.useQueryOptionsType}<${responseType},TError,TData>`,
+    config.unwrapOptionsAccessor,
+  )
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
@@ -455,6 +470,7 @@ function makeInfiniteQueryHookCode(
     readonly isVueQuery?: boolean
     readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly errorType?: string
+    readonly unwrapOptionsAccessor?: boolean
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
@@ -465,7 +481,10 @@ function makeInfiniteQueryHookCode(
   const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
-  const queryOptionsType = `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`
+  const queryOptionsType = wrapOptionsType(
+    `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`,
+    config.unwrapOptionsAccessor,
+  )
   const optionsType = useHelper
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
     : `{query:${queryOptionsType};options?:ClientRequestOptions}`
@@ -624,6 +643,7 @@ function makeMutationHookCode(
     readonly useMutationOptionsType: string
     readonly errorType?: string
     readonly hasMutationOptionsHelper?: boolean
+    readonly unwrapOptionsAccessor?: boolean
   },
   hasNoContent: boolean,
 ) {
@@ -632,7 +652,10 @@ function makeMutationHookCode(
   const tErrorGeneric = `<TError=${errorType},TOnMutateResult=unknown>`
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-  const mutationOptionsType = `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>`
+  const mutationOptionsType = wrapOptionsType(
+    `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>`,
+    config.unwrapOptionsAccessor,
+  )
   const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
   // Only forward the type parameters to the factory when it actually accepts them
   // (i.e. wraps with `mutationOptions<...>` helper). Otherwise the factory has no generics.
@@ -671,6 +694,7 @@ function makeHookCode(
     readonly useSuspenseInfiniteQueryOptionsType?: string
     readonly errorType?: string
     readonly immutableQueryFn?: string
+    readonly unwrapOptionsAccessor?: boolean
   },
   clientName: string,
 ) {
@@ -858,7 +882,6 @@ function makeHookCode(
           },
         )
       : null
-    // Generate suspense query hook
     const suspenseHookName = `${config.hookPrefix}Suspense${capitalize(pathFuncName)}`
     const suspenseHookCode =
       config.suspenseQueryFn && config.useSuspenseQueryOptionsType
@@ -875,10 +898,10 @@ function makeHookCode(
               ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.isVueQuery ? { isVueQuery: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
+              ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
             },
           )
         : null
-    // Generate infinite query hook
     const infiniteHookName = `${config.hookPrefix}Infinite${capitalize(pathFuncName)}`
     const infiniteHookCode = hasInfinite
       ? makeInfiniteQueryHookCode(
@@ -898,6 +921,7 @@ function makeHookCode(
               ? { hasInfiniteQueryOptionsHelper: true }
               : {}),
             ...(config.errorType ? { errorType: config.errorType } : {}),
+            ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
           },
         )
       : null
@@ -921,6 +945,7 @@ function makeHookCode(
                 ? { hasInfiniteQueryOptionsHelper: true }
                 : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
+              ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
             },
           )
         : null
@@ -1079,7 +1104,6 @@ function makeHeader(
   hasQueryWithArgs = false,
   hasInfiniteQuery = false,
 ): string {
-  // SWR has different import structure
   if (config.isSWR) {
     return makeSWRHeader(
       importPath,

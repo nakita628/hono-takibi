@@ -67,6 +67,19 @@ describe('generated useSWR hooks', () => {
     ])
   })
 
+  it('TError reaches the returned error, not just the config callbacks', async () => {
+    const { result } = renderHook(
+      () => useGetUsersId<DetailedError>({ param: { id: '999' }, header: {} }),
+      { wrapper: makeWrapper() },
+    )
+    await waitFor(() => {
+      expect(result.current.error).toBeDefined()
+    })
+    // `error` is typed by TError: reading a DetailedError field needs no cast.
+    const statusCode: number | undefined = result.current.error?.statusCode
+    expect(statusCode).toBe(404)
+  })
+
   it('surfaces a 404 as DetailedError in the error state', async () => {
     const { result } = renderHook(() => useGetUsersId({ param: { id: '999' }, header: {} }), {
       wrapper: makeWrapper(),

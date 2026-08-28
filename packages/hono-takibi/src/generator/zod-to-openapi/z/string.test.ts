@@ -85,12 +85,12 @@ describe('string', () => {
 
   describe('x-length-message (Zod .length() chainable)', () => {
     it.concurrent.each<[Schema, string]>([
-      // 単独指定で .length() を生成
+      // alone → emits .length()
       [
         { type: 'string', minLength: 5, maxLength: 5, 'x-length-message': '5文字' },
         'z.string().length(5,{error:"5文字"})',
       ],
-      // 固定長確定時 x-length-message が x-minLength-message / x-maxLength-message より優先
+      // fixed length wins: x-length-message overrides x-minLength-message / x-maxLength-message
       [
         {
           type: 'string',
@@ -701,13 +701,10 @@ describe('string', () => {
     })
   })
 
-  // contentSchema (base64+JSON decode transform 失敗) の message
-  // 経路を Zod default 委譲化。`x-error-message` 指定時のみ message 上書き、
-  // 未指定時は message field を完全省略し Zod default に委ねる。SyntaxError
-  // 文言 (e.message) は両ケースとも `params.cause` に逃がしてデバッグ用に保全。
+  // The contentSchema decode failure (base64 + JSON) delegates its message to the Zod default:
+  // `x-error-message` overrides it, otherwise the message field is omitted entirely. The
+  // SyntaxError text (e.message) is kept in `params.cause` for debugging in both cases.
   describe('v0.13.0 contentSchema base64-json: x-error-message 上書き + params.cause 保全', () => {
-    // ケース A: `x-error-message` 指定時は `message:"<指定値>"` で上書き、
-    //          かつ SyntaxError 文言は params.cause に保全。
     it.concurrent('A: x-error-message 指定時はメッセージを上書き', () => {
       const out = string({
         type: 'string',
@@ -721,9 +718,6 @@ describe('string', () => {
       )
     })
 
-    // ケース B: `x-error-message` 未指定時は message field を完全省略し
-    //          Zod default (`'Invalid input'`, `z.config({locales})` で i18n)
-    //          に委譲。`params.cause` は常に保全。
     it.concurrent('B: x-error-message 未指定時は message 省略 + params.cause 保全', () => {
       const out = string({
         type: 'string',
@@ -736,18 +730,9 @@ describe('string', () => {
       )
     })
 
-    // ケース C: ランタイム動作確認 — 生成コードと同等の Zod schema を TS で
-    //          手動構築し、`x-error-message: 'M'` 指定時の上書きが Zod ランタイム
-    //          上で実際に `issue.message === 'M'` を生むことを検証する。
-    //          (index.test.ts の `v3.2 sample #7` と同じ「手動 mirror」パターン。
-    //          `new Function` / `eval` を避けるため typescript-eslint
-    //          `no-implied-eval` 警告を増やさない設計。)
+    // Runtime check: the equivalent Zod schema is mirrored by hand in TS rather than evaluated
+    // from the generated string, so no `new Function` / `eval` is introduced here.
     it.concurrent('C: ランタイム: x-error-message="M" 指定時、不正 base64 で issue.message === "M"', () => {
-      // codegen 出力が `message:"M"` 文字列を含むこと自体は ケース A の
-      // `toBe` 完全一致で既に検証済み。ここでは生成コードと等価な Zod schema を
-      // TS で手動構築 (index.test.ts `v3.2 sample #7` と同じ pattern) し、
-      // Zod ランタイム上で `x-error-message` の上書きが `issue.message` に
-      // 反映されることを完全一致で確認する。
       const schema = z
         .base64()
         .transform((val, ctx) => {
@@ -756,7 +741,7 @@ describe('string', () => {
               typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
             return JSON.parse(s)
           } catch (e) {
-            // codegen は message="M" + params.cause を併用
+            // codegen emits message="M" alongside params.cause
             ctx.addIssue({
               code: 'custom',
               message: 'M',
@@ -766,7 +751,7 @@ describe('string', () => {
           }
         })
         .pipe(z.object({ x: z.string().exactOptional() }))
-      // 不正な base64-json (有効 base64 だが非 JSON) → catch ブロックに入る。
+      // Valid base64 but not JSON → enters the catch block.
       const invalidB64Json = Buffer.from('not-json', 'utf8').toString('base64')
       const result = schema.safeParse(invalidB64Json)
       expect(result.success).toBe(false)

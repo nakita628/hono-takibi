@@ -181,7 +181,7 @@ paths:
 components:
   schemas:
     # ──────────────────────────────────────────────────────────
-    # README: ## Custom Validation Error Messages (主要 example)
+    # README: ## Custom Validation Error Messages (primary example)
     # ──────────────────────────────────────────────────────────
     Messages:
       type: object
@@ -391,13 +391,13 @@ components:
       x-brand: Cat
 
     # ──────────────────────────────────────────────────────────
-    # Numeric: 全 message extension の組み合わせ
+    # Numeric: every message extension combined
     # ──────────────────────────────────────────────────────────
     Numeric:
       type: object
       required: [age, ratio, price, quantity, exact]
       properties:
-        # inclusive min/max + 別メッセージ
+        # inclusive min/max with separate messages
         age:
           type: integer
           minimum: 0
@@ -416,7 +416,7 @@ components:
           type: number
           multipleOf: 0.5
           x-multipleOf-message: 'price must be a multiple of 0.5'
-        # required + type 分離
+        # required and type kept separate
         quantity:
           type: integer
           x-required-message: 'quantity is required'
@@ -428,7 +428,7 @@ components:
           x-const-message: 'exact must be 42'
 
     # ──────────────────────────────────────────────────────────
-    # Array: 全 message extension の組み合わせ
+    # Array: every message extension combined
     # ──────────────────────────────────────────────────────────
     ArrayEdge:
       type: object
@@ -450,7 +450,7 @@ components:
             type: integer
           uniqueItems: true
           x-uniqueItems-message: 'unique must contain distinct integers'
-        # contains/minContains/maxContains 全部
+        # contains/minContains/maxContains, all of them
         basket:
           type: array
           items:
@@ -473,7 +473,7 @@ components:
           x-maxContains-message: 'basket must contain at most 3 premium'
 
     # ──────────────────────────────────────────────────────────
-    # Object: 全 message extension の組み合わせ
+    # Object: every message extension combined
     # ──────────────────────────────────────────────────────────
     ObjectEdge:
       type: object

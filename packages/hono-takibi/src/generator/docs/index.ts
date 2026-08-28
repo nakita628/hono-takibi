@@ -219,7 +219,6 @@ function makeExampleFromSchema(
     return []
   }
 
-  // allOf / oneOf / anyOf
   if (schema.allOf?.length) {
     const merged: { [k: string]: unknown } = {}
     for (const sub of schema.allOf) {

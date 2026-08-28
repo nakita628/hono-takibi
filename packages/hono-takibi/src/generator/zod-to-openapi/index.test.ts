@@ -4900,7 +4900,7 @@ describe('zodToOpenAPI', () => {
           expect(generated).toBe('z.string().catch("fallback").brand<"Tag">()')
           // runtime skipped: TS-only brand<> generic carries no runtime constraint
         })
-        // ----- v2.4: x-refine / x-superRefine -----
+        // ----- x-refine / x-superRefine -----
         it.concurrent('string: x-refine (single) → .refine(fn,{message})', () => {
           expect(
             zodToOpenAPI({
@@ -4978,7 +4978,7 @@ describe('zodToOpenAPI', () => {
             expect(result.error.issues).toStrictEqual([{ code: 'custom', message: 'no', path: [] }])
           }
         })
-        // ----- v2.4: x-codec for date -----
+        // ----- x-codec for date -----
         it.concurrent('string: format=date-time + x-codec=date → z.codec(...)', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -5036,7 +5036,7 @@ describe('zodToOpenAPI', () => {
             }),
           ).toBe('PIPE')
         })
-        // ----- v2.5: x-required-message / x-error-message / x-const-message -----
+        // ----- x-required-message / x-error-message / x-const-message -----
         it.concurrent('string: x-error-message + x-required-message → custom error fn', () => {
           expect(
             zodToOpenAPI({
@@ -5108,7 +5108,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.5: contains -----
+        // ----- contains -----
         it.concurrent('array: contains const=5 (default minContains=1)', () => {
           expect(
             zodToOpenAPI({
@@ -5180,7 +5180,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.5: x-uniqueItems-message -----
+        // ----- x-uniqueItems-message -----
         it.concurrent('array: uniqueItems + x-uniqueItems-message → superRefine with custom message', () => {
           expect(
             zodToOpenAPI({
@@ -5210,7 +5210,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.5: x-additionalProperties-message -----
+        // ----- x-additionalProperties-message -----
         it.concurrent('object: additionalProperties=false + x-additionalProperties-message → strictObject(...,error)', () => {
           const generated = zodToOpenAPI({
             type: 'object',
@@ -5247,7 +5247,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.6: contentEncoding base64 (no media type) -----
+        // ----- contentEncoding base64 (no media type) -----
         it.concurrent('string: contentEncoding=base64 → z.base64().transform(...)', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -5258,7 +5258,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: depends on env atob/Buffer; codegen-only verification
         })
-        // ----- v2.6 / v3.1 fix #7: base64 + JSON + contentSchema -----
+        // ----- base64 + JSON + contentSchema -----
         it.concurrent('string: base64 + application/json + contentSchema(object) → transform + pipe(z.object(...))', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -5275,7 +5275,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: env dependency on atob/Buffer
         })
-        // ----- v2.6: dependentSchemas -----
+        // ----- dependentSchemas -----
         it.concurrent('object: dependentSchemas → superRefine with closure-captured Schema', () => {
           const generated = zodToOpenAPI({
             type: 'object',
@@ -5292,7 +5292,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
-        // ----- v2.6/v3.0: if / then / else -----
+        // ----- if / then / else -----
         /* eslint-disable unicorn/no-thenable -- testing JSON Schema then keyword */
         // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then-else
         it.concurrent('object: if/then/else (type-less) → superRefine closure-captured branch', () => {
@@ -5308,7 +5308,7 @@ describe('zodToOpenAPI', () => {
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
         /* eslint-enable unicorn/no-thenable */
-        // ----- v3.0: unevaluatedProperties: false -----
+        // ----- unevaluatedProperties: false -----
         it.concurrent('object: unevaluatedProperties=false → looseObject + superRefine annotation track', () => {
           expect(
             zodToOpenAPI({
@@ -5338,7 +5338,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.6: unevaluatedItems: false -----
+        // ----- unevaluatedItems: false -----
         it.concurrent('array: prefixItems + unevaluatedItems=false → length-cap inside superRefine', () => {
           expect(
             zodToOpenAPI({
@@ -5369,7 +5369,7 @@ describe('zodToOpenAPI', () => {
             ])
           }
         })
-        // ----- v2.7: JSON Schema 2020-12 Core meta keywords pass-through -----
+        // ----- JSON Schema 2020-12 Core meta keywords pass-through -----
         it.concurrent('string: $schema pass-through → .openapi({$schema})', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -5415,7 +5415,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
-        // ----- v2.7 fix: $defs pass-through -----
+        // ----- $defs pass-through -----
         it.concurrent('string: $defs pass-through', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -5608,7 +5608,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: generated code uses .openapi(...) (zod-openapi extension), not callable on bare z
         })
-        // ----- v2.8: contentEncoding fallback cases -----
+        // ----- contentEncoding fallback cases -----
         it.concurrent('string: contentEncoding=8bit → z.string() (fallback)', () => {
           expect(zodToOpenAPI({ type: 'string', contentEncoding: '8bit' })).toBe('z.string()')
           const runtime = z.string()
@@ -5673,7 +5673,7 @@ describe('zodToOpenAPI', () => {
           )
           // runtime skipped: env dependency on atob/Buffer
         })
-        // ----- v3.1 fix #5: binary MIME → Uint8Array -----
+        // ----- binary MIME → Uint8Array -----
         it.concurrent('string: base64 + image/png → Uint8Array.from(atob(...))', () => {
           const generated = zodToOpenAPI({
             type: 'string',
@@ -9140,11 +9140,8 @@ describe('zodToOpenAPI', () => {
   })
 
   // ────────────────────────────────────────────────────────────────────
-  // 日本語: allOf / anyOf / oneOf — 仕様準拠の振る舞い説明
-  //
-  // 直前の英語版 v3.2 セクションと対応する日本語版。codegen は文字列完全一致で
-  // 固定し、ランタイムは各 it 内で個別に等価 Zod スキーマを宣言して safeParse
-  // で検証する。
+  // Japanese-language mirror of the preceding allOf / anyOf / oneOf section. Codegen is pinned
+  // by exact string match; each runtime case declares an equivalent Zod schema and safeParses it.
   // ────────────────────────────────────────────────────────────────────
 
   describe('v3.2 allOf — すべてのサブデータモデル条件を同時に満たす必要がある (JSON Schema §10.2.1.1)', () => {
@@ -9287,7 +9284,7 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('実行時: 複数のサブスキーマを同時に満たす入力も受理される (oneOf との違い)', () => {
-      // {type:"integer"} と {type:"number"} は両方 7 を受理するが、anyOf では成立する。
+      // {type:"integer"} and {type:"number"} both accept 7, which anyOf allows.
       const Overlap = z.union([z.int(), z.number()])
       expect(Overlap.safeParse(7).success).toBe(true)
     })
@@ -9395,9 +9392,8 @@ describe('zodToOpenAPI', () => {
       }
     })
     it.concurrent('実行時 (xor): 2つ以上のブランチに一致する入力は弾かれる — 「ちょうど1つ」の核心', () => {
-      // {type:"integer"} と {type:"number"} は両方とも 7 を受理する。
-      // oneOf なので「2つ一致」は不正となり、弾かれなければならない。
-      // anyOf であれば通っていた — これが anyOf と oneOf の本質的な違い。
+      // {type:"integer"} and {type:"number"} both accept 7. Under oneOf, matching two branches is
+      // invalid and must be rejected; anyOf would have accepted it. That is the essential difference.
       const Overlap = z.xor([z.int(), z.number()])
       const result = Overlap.safeParse(7)
       expect(result.success).toBe(false)
@@ -9420,7 +9416,7 @@ describe('zodToOpenAPI', () => {
       ])
       expect(OneOfDiscriminated.safeParse({ kind: 'a', foo: 'hello' }).success).toBe(true)
       expect(OneOfDiscriminated.safeParse({ kind: 'b', bar: 123 }).success).toBe(true)
-      // discriminator 値がどのブランチにも該当しない → 弾かれる。
+      // The discriminator value matches no branch → rejected.
       const r1 = OneOfDiscriminated.safeParse({ kind: 'c' })
       expect(r1.success).toBe(false)
       if (!r1.success) {
@@ -9436,7 +9432,7 @@ describe('zodToOpenAPI', () => {
           },
         ])
       }
-      // discriminator で選ばれたブランチの形状と矛盾 → 弾かれる。
+      // Conflicts with the shape of the branch the discriminator selected → rejected.
       const r2 = OneOfDiscriminated.safeParse({ kind: 'a', bar: 123 })
       expect(r2.success).toBe(false)
       if (!r2.success) {
@@ -9957,7 +9953,7 @@ describe('zodToOpenAPI', () => {
   })
 
   // ────────────────────────────────────────────────────────────────────
-  // 日本語メッセージ — broad coverage of x-*-message slots in 日本語
+  // Japanese messages — broad coverage of x-*-message slots
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 日本語: x-error-message on string base', () => {
     const JpStringSchema = z.string({ error: '文字列で入力してください' })
@@ -10369,7 +10365,7 @@ describe('zodToOpenAPI', () => {
   })
 
   // ────────────────────────────────────────────────────────────────────
-  // 日本語 x-*-message broad coverage (numeric / array / object slots)
+  // Japanese x-*-message broad coverage (numeric / array / object slots)
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 日本語: x-multipleOf-message', () => {
     const JpMultipleOf = z.number().multipleOf(0.5, { error: '0.5の倍数で入力してください' })

@@ -40,7 +40,7 @@ export default defineConfig({
     },
     // Strict by design: exceptions live next to the code as `oxlint-disable-next-line` with a
     // reason, never as `'off'` here. Everything under test/ is test code or its harness, so the
-    // CLAUDE.md-sanctioned cast/`any` allowances (型安全 #1) apply to the whole project.
+    // CLAUDE.md-sanctioned cast/`any` allowances (type safety #1) apply to the whole project.
     rules: {
       'typescript/consistent-type-assertions': 'off',
       'typescript/no-unsafe-type-assertion': 'off',

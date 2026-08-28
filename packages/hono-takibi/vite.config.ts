@@ -302,7 +302,7 @@ export default defineConfig({
         },
       },
       {
-        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md 型安全 #1).
+        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
         files: ['src/openapi/index.ts'],
         rules: {
           'typescript/consistent-type-assertions': 'off',
@@ -311,14 +311,14 @@ export default defineConfig({
       },
       {
         // honoTakibiVite(): any is intentional — avoids forcing Vite/Rollup type
-        // installs on consumers (CLAUDE.md 型安全 #2).
+        // installs on consumers (CLAUDE.md type safety #2).
         files: ['src/vite-plugin/index.ts'],
         rules: {
           'typescript/no-explicit-any': 'off',
         },
       },
       {
-        // Test files may cast and use `any` (CLAUDE.md 型安全 #1); the type-safety rules that
+        // Test files may cast and use `any` (CLAUDE.md type safety #1); the type-safety rules that
         // exist only to police those casts are scoped off here, nothing else is.
         files: ['**/*.test.ts', '**/*.spec.ts'],
         plugins: ['vitest'],

@@ -61,12 +61,18 @@ const HOOK_CONFIGS = {
     queryFn: 'createQuery',
     mutationFn: 'createMutation',
     useThunk: true,
-    useQueryOptionsType: 'CreateQueryOptions',
+    // `Create*Options` is `Accessor<...>` in Solid, and `createQuery` has no catch-all
+    // overload — only the Undefined/Defined initialData pair. Naming the Undefined variant
+    // (whose `initialData` is pinned to `undefined`) is what makes the spread resolve.
+    useQueryOptionsType: 'UndefinedInitialDataOptions',
     useMutationOptionsType: 'CreateMutationOptions',
     hasQueryOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
-    useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
+    useInfiniteQueryOptionsType: 'UndefinedInitialDataInfiniteOptions',
     hasInfiniteQueryOptionsHelper: true,
+    // Solid aliases every options type to `Accessor<...>`, so the user-facing
+    // `options.query` / `options.mutation` slot must be the unwrapped object type.
+    unwrapOptionsAccessor: true,
   },
   'vue-query': {
     packageName: '@tanstack/vue-query',

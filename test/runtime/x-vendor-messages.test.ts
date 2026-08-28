@@ -213,8 +213,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // v3.0: 1 keyword = 1 message (split from previous shared umbrellas)
-  // x-minLength-message (string), x-minItems-message (array), x-minimum-message (numeric)
+  // 1 keyword = 1 message: x-minLength-message (string), x-minItems-message (array),
+  // x-minimum-message (numeric)
   // ─────────────────────────────────────────────────────────
   describe('x-minLength-message / x-minItems-message / x-minimum-message', () => {
     it('x-minLength-message: rejects short username (string)', async () => {
@@ -703,8 +703,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // x-dependentRequired-message
   // ─────────────────────────────────────────────────────────
   describe('x-dependentRequired-message', () => {
-    // v3.1: dependentRequired emits per-dep issues with `path:[d]` so the
-    // JSON pointer locates the missing key (was `/` in earlier versions).
+    // dependentRequired emits per-dep issues with `path:[d]` so the JSON pointer locates the
+    // missing key.
     it('rejects token without tokenLabel', async () => {
       const res = await app.request('/form', {
         method: 'POST',
@@ -784,9 +784,8 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   // validation failed (e.g. wrong format for the dep-gated key itself).
   // ─────────────────────────────────────────────────────────
   describe('x-dependentSchemas-message', () => {
-    // v3.1: dependentRequired now reports `/billing_zip` (the missing dep)
-    // rather than `/` — per-dep issue at path:[d]. x-dependentRequired-message
-    // still overrides the default text.
+    // dependentRequired reports `/billing_zip` (the missing dep) via a per-dep issue at
+    // path:[d]. x-dependentRequired-message still overrides the default text.
     it('rejects credit_card without billing_zip via x-dependentRequired-message', async () => {
       const res = await app.request('/payment', {
         method: 'POST',
@@ -899,8 +898,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // x-minContains-message / x-maxContains-message —
-  // distinct from x-contains-message. v3.0 silent-bug fix.
+  // x-minContains-message / x-maxContains-message — distinct from x-contains-message.
   // ─────────────────────────────────────────────────────────
   describe('x-minContains-message / x-maxContains-message', () => {
     it('x-minContains-message fires when fewer than 2 premium items', async () => {
@@ -950,11 +948,6 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
   })
 
-  // ─────────────────────────────────────────────────────────
-  // v3.5 (2026-05-14): contains / minContains / maxContains の x-* 未指定時は
-  // message を完全に省略し、Zod の built-in default ('Invalid input') に委ねる。
-  // 動的な matched カウント表示は廃止 (loid/yuri/yusukebe 合議)。
-  // ─────────────────────────────────────────────────────────
   describe('contains default messages (no x-* slot) — falls back to Zod default', () => {
     it('accepts a fully valid body', async () => {
       const res = await app.request('/contains-default', {
@@ -1039,7 +1032,7 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
   })
 
   // ─────────────────────────────────────────────────────────
-  // v3.2: writeOnly OAS YAML propagation snapshot
+  // writeOnly OAS YAML propagation snapshot
   // (verifies .openapi({writeOnly: true}) survives into the OpenAPI document)
   // ─────────────────────────────────────────────────────────
   describe('writeOnly OAS metadata propagation', () => {
@@ -1078,10 +1071,6 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
     })
   })
 
-  // ─────────────────────────────────────────────────────────
-  // Coverage backfill — runtime tests for x-*-message extensions
-  // that were previously codegen-only (yuri-検問 batch).
-  // ─────────────────────────────────────────────────────────
   describe('coverage backfill (Misc)', () => {
     it('x-enum-message: rejects color not in enum', async () => {
       const res = await app.request('/misc', {
@@ -1239,11 +1228,10 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       expect(src.includes('namespaced must have at most 3 properties')).toBe(true)
     })
 
-    // v3.1: patternProperties uses superRefine + closure-captured Schema and
-    // propagates the path with the matched KEY appended (was `/prefixed` in
-    // earlier versions; now `/prefixed/x_one` — the actual offender). The
-    // x-patternProperties-message OVERRIDES the inner issue's message while
-    // keeping the precise path/code intact.
+    // patternProperties uses superRefine + a closure-captured Schema and propagates the path with
+    // the matched KEY appended (`/prefixed/x_one` — the actual offender). The
+    // x-patternProperties-message OVERRIDES the inner issue's message while keeping the precise
+    // path/code intact.
     it('x-patternProperties-message: rejects wrong-typed x_ key (path includes key)', async () => {
       const res = await app.request('/misc', {
         method: 'POST',

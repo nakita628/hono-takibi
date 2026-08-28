@@ -4,6 +4,8 @@
     "../../__generated__/tanstack-query/**/*",
     "../../hosts/users-app.ts",
     "../../hosts/users-client.ts",
-    "../../runtime/tanstack-query.test.ts"
+    "../../runtime/tanstack-query.test.ts",
+    "../../types/tanstack-query.ts",
+    "../../types/assert.ts"
   ]
 }
