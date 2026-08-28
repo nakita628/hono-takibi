@@ -10,7 +10,7 @@
     "test": "vp run --filter ./packages/hono-takibi test && vp run --filter ./test test"
   },
   "devDependencies": {
-    "vite-plus": "0.2.9"
+    "vite-plus": "0.3.0"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.24.0"
 }

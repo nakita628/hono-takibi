@@ -8,7 +8,15 @@ import { fileURLToPath } from 'node:url'
 const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Resolve tsc as a file and run it with node instead of the .bin shim:
 // shims can be missing when a stale node_modules cache is restored in CI.
-const tsc = createRequire(path.join(testRoot, 'package.json')).resolve('typescript/lib/tsc.js')
+// TypeScript 7 drops `./lib/tsc.js` from its `exports` map, so resolve the manifest
+// (which stays exported) and join the path rather than resolving the entry directly.
+const tsc = path.join(
+  path.dirname(
+    createRequire(path.join(testRoot, 'package.json')).resolve('typescript/package.json'),
+  ),
+  'lib',
+  'tsc.js',
+)
 const cases = readdirSync(path.join(testRoot, 'cases')).sort()
 
 const typecheckCase = (name) =>

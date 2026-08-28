@@ -1,7 +1,7 @@
 // Verifies the generated TanStack Query helpers (cases/tanstack-query) against the
 // users host app: queryOptions / infiniteQueryOptions / mutationOptions behavior,
 // query-key identity (asserted through cache effects), and fetch cancellation.
-import { QueryClient } from '@tanstack/react-query'
+import { MutationObserver, QueryClient } from '@tanstack/react-query'
 import { DetailedError } from 'hono/client'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
@@ -34,7 +34,7 @@ afterEach(() => {
 describe('generated queryOptions', () => {
   it('queryFn resolves with parsed data on 200', async () => {
     const queryClient = makeClient()
-    expect(await queryClient.fetchQuery(getUsersQueryOptions())).toStrictEqual([
+    expect(await queryClient.query(getUsersQueryOptions())).toStrictEqual([
       { id: '1', name: 'Alice' },
       { id: '2', name: 'Bob' },
     ])
@@ -43,7 +43,7 @@ describe('generated queryOptions', () => {
   it('queryFn rejects with DetailedError on 404 and the error reaches the cache', async () => {
     const queryClient = makeClient()
     const opts = getUsersIdQueryOptions({ param: { id: '999' }, header: {} })
-    const captured = await queryClient.fetchQuery(opts).then(
+    const captured = await queryClient.query(opts).then(
       () => null,
       (e: unknown) => e,
     )
@@ -61,9 +61,9 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
     const listOpts = getUsersQueryOptions()
     const singleOpts = getUsersIdQueryOptions({ param: { id: '1' }, header: {} })
     const itemsOpts = getItemsQueryOptions({ query: { page: '0' } })
-    await queryClient.fetchQuery(listOpts)
-    await queryClient.fetchQuery(singleOpts)
-    await queryClient.fetchQuery(itemsOpts)
+    await queryClient.query(listOpts)
+    await queryClient.query(singleOpts)
+    await queryClient.query(itemsOpts)
 
     await queryClient.invalidateQueries({ queryKey: getUsersKey(), refetchType: 'none' })
 
@@ -74,10 +74,10 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
 
   it('a header-only difference hits the same cache entry', async () => {
     const queryClient = makeClient()
-    await queryClient.fetchQuery(
+    await queryClient.query(
       getUsersIdQueryOptions({ param: { id: '1' }, header: { 'x-trace': 'a' } }),
     )
-    await queryClient.fetchQuery(
+    await queryClient.query(
       getUsersIdQueryOptions({ param: { id: '1' }, header: { 'x-trace': 'b' } }),
     )
     expect(queryClient.getQueryCache().getAll()).toHaveLength(1)
@@ -87,8 +87,8 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
     const queryClient = makeClient()
     const first = getUsersIdQueryOptions({ param: { id: '1' }, header: {} })
     const second = getUsersIdQueryOptions({ param: { id: '2' }, header: {} })
-    await queryClient.fetchQuery(first)
-    await queryClient.fetchQuery(second)
+    await queryClient.query(first)
+    await queryClient.query(second)
     expect(queryClient.getQueryCache().getAll()).toHaveLength(2)
     expect(queryClient.getQueryData(first.queryKey)).toStrictEqual({ id: '1', name: 'Alice' })
     expect(queryClient.getQueryData(second.queryKey)).toStrictEqual({ id: '2', name: 'Bob' })
@@ -96,8 +96,8 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
 
   it('infinite and non-infinite queries for the same endpoint are cached independently', async () => {
     const queryClient = makeClient()
-    await queryClient.fetchQuery(getItemsQueryOptions({ query: { page: '0' } }))
-    await queryClient.fetchInfiniteQuery(
+    await queryClient.query(getItemsQueryOptions({ query: { page: '0' } }))
+    await queryClient.infiniteQuery(
       getItemsInfiniteQueryOptions(
         { query: { page: '0' } },
         {
@@ -114,7 +114,7 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
 describe('generated infiniteQueryOptions', () => {
   it('pages accumulate through getNextPageParam and getRequestArgs', async () => {
     const queryClient = makeClient()
-    const data = await queryClient.fetchInfiniteQuery({
+    const data = await queryClient.infiniteQuery({
       ...getItemsInfiniteQueryOptions(
         { query: { page: '0' } },
         {
@@ -131,6 +131,27 @@ describe('generated infiniteQueryOptions', () => {
       { items: ['e'] },
     ])
     expect(data.pageParams).toStrictEqual([0, 1, 2])
+  })
+
+  it('getNextPageParam receives allPageParams typed as TPageParam[]', async () => {
+    const queryClient = makeClient()
+    const seen: number[][] = []
+    await queryClient.infiniteQuery({
+      ...getItemsInfiniteQueryOptions(
+        { query: { page: '0' } },
+        {
+          initialPageParam: 0,
+          getNextPageParam: (lastPage, _allPages, _lastPageParam, allPageParams) => {
+            const params: number[] = [...allPageParams]
+            seen.push(params)
+            return lastPage.nextPage
+          },
+          getRequestArgs: (_args, pageParam) => ({ query: { page: String(pageParam) } }),
+        },
+      ),
+      pages: 3,
+    })
+    expect(seen).toStrictEqual([[0], [0, 1]])
   })
 })
 
@@ -159,6 +180,32 @@ describe('generated mutationOptions', () => {
     expect((captured as DetailedError).statusCode).toBe(400)
   })
 
+  it("onMutate's return value reaches onError/onSettled typed as TOnMutateResult", async () => {
+    const queryClient = makeClient()
+    const rolledBack: (readonly string[])[] = []
+    const settled: (readonly string[])[] = []
+    const observer = new MutationObserver(queryClient, {
+      ...getPostUsersMutationOptions<DetailedError, { readonly previous: readonly string[] }>(),
+      onMutate() {
+        return { previous: ['Alice'] as readonly string[] }
+      },
+      onError(_error, _variables, onMutateResult) {
+        const previous: readonly string[] | undefined = onMutateResult?.previous
+        if (previous !== undefined) rolledBack.push(previous)
+      },
+      onSettled(_data, _error, _variables, onMutateResult) {
+        const previous: readonly string[] | undefined = onMutateResult?.previous
+        if (previous !== undefined) settled.push(previous)
+      },
+    })
+    await observer.mutate({ json: { name: '' } }).then(
+      () => null,
+      () => null,
+    )
+    expect(rolledBack).toStrictEqual([['Alice']])
+    expect(settled).toStrictEqual([['Alice']])
+  })
+
   it('mutationFn resolves with undefined on 204 No Content', async () => {
     const opts = getDeleteUsersIdMutationOptions()
     // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts the generated client resolves to undefined on 204
@@ -174,7 +221,7 @@ describe('fetch cancellation', () => {
   it('queryFn forwards the abort signal to the underlying request', async () => {
     const queryClient = makeClient()
     const opts = getSlowQueryOptions()
-    const pending = queryClient.fetchQuery(opts).then(
+    const pending = queryClient.query(opts).then(
       () => null,
       (e: unknown) => e,
     )

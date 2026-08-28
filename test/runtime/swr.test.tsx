@@ -41,6 +41,32 @@ describe('generated useSWR hooks', () => {
     expect(result.current.error).toBeUndefined()
   })
 
+  it('SWRConfiguration is typed by the response, so fallbackData and onSuccess are not any', async () => {
+    const seen: { readonly id: string; readonly name: string }[][] = []
+    const { result } = renderHook(
+      () =>
+        useGetUsers({
+          swr: {
+            fallbackData: [{ id: '0', name: 'Fallback' }],
+            onSuccess(data) {
+              seen.push([...data])
+            },
+          },
+        }),
+      { wrapper: makeWrapper() },
+    )
+    expect(result.current.data).toStrictEqual([{ id: '0', name: 'Fallback' }])
+    await waitFor(() => {
+      expect(seen.length).toBe(1)
+    })
+    expect(seen).toStrictEqual([
+      [
+        { id: '1', name: 'Alice' },
+        { id: '2', name: 'Bob' },
+      ],
+    ])
+  })
+
   it('surfaces a 404 as DetailedError in the error state', async () => {
     const { result } = renderHook(() => useGetUsersId({ param: { id: '999' }, header: {} }), {
       wrapper: makeWrapper(),
