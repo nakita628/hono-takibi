@@ -6172,6 +6172,7 @@ describe('solid-query hooks', () => {
   createMutation,
   queryOptions,
   infiniteQueryOptions,
+  mutationOptions,
 } from '@tanstack/solid-query'
 import type {
   UndefinedInitialDataOptions,
@@ -6390,13 +6391,20 @@ export function createInfiniteUsers<
   })
 }
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
 export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
@@ -6414,7 +6422,7 @@ export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions) }
   })
 }
 `
@@ -6674,19 +6682,27 @@ export function createInfiniteUsers<
 
         // Mutation-only file: thunk createMutation, plain-object factory (hasMutationOptionsHelper falsy)
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
-        expect(postUsers).toBe(`import { createMutation } from '@tanstack/solid-query'
+        expect(postUsers)
+          .toBe(`import { createMutation, mutationOptions } from '@tanstack/solid-query'
 import type { CreateMutationOptions } from '@tanstack/solid-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
 export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
@@ -6704,7 +6720,7 @@ export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
+    return { ...mutation, ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions) }
   })
 }
 `)
@@ -6767,7 +6783,7 @@ describe('vue-query hooks', () => {
         }
 
         const code = fs.readFileSync(out, 'utf-8')
-        const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+        const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -7001,13 +7017,20 @@ export function useInfiniteUsers<
   })
 }
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
 export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -7020,7 +7043,10 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
 
@@ -7300,19 +7326,26 @@ export function useInfiniteUsers<
 
         // Check POST hook file (mutation)
         const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
-        const usePostUsersExpected = `import { useMutation } from '@tanstack/vue-query'
+        const usePostUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
 export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -7325,7 +7358,10 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(usePostUsers).toBe(usePostUsersExpected)
@@ -7526,7 +7562,7 @@ export function useInfiniteUsers<
         }
 
         const code = fs.readFileSync(out, 'utf-8')
-        const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+        const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -7635,13 +7671,20 @@ export function useInfinitePing<
   })
 }
 
-export function getPostPingMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostPingMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+    TError,
+    void,
+    TOnMutateResult
+  >({
     mutationKey: ['ping', '/ping', 'POST'] as const,
     async mutationFn() {
       return parseResponse(client.ping.$post(undefined, options))
     },
-  }
+  })
 }
 
 export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -7654,7 +7697,10 @@ export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostPingMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(code).toBe(expected)
@@ -7856,7 +7902,7 @@ export function useInfiniteHonoX<
         }
 
         const code = fs.readFileSync(out, 'utf-8')
-        const expected = `import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/vue-query'
+        const expected = `import { useQuery, useInfiniteQuery, useMutation, mutationOptions } from '@tanstack/vue-query'
 import type {
   UseQueryOptions,
   QueryFunctionContext,
@@ -8000,13 +8046,25 @@ export function useInfiniteUsersId<
   })
 }
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$delete']>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
-  }
+  })
 }
 
 export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8024,7 +8082,10 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getDeleteUsersIdMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(code).toBe(expected)
@@ -8251,19 +8312,26 @@ export function useInfiniteUsers<
 
         // Check POST /users mutation file (no query imports, no MaybeRefOrGetter/toValue)
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
-        const postUsersExpected = `import { useMutation } from '@tanstack/vue-query'
+        const postUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users', 'POST'] as const,
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
 export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8276,7 +8344,10 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPostUsersMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(postUsers).toBe(postUsersExpected)
@@ -8426,19 +8497,28 @@ export function useInfiniteUsersId<
 
         // Check PUT /users/{id} mutation file (path param, no query imports)
         const putUsersId = fs.readFileSync(path.join(dir, 'hooks', 'putUsersId.ts'), 'utf-8')
-        const putUsersIdExpected = `import { useMutation } from '@tanstack/vue-query'
+        const putUsersIdExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$put']>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
-  }
+  })
 }
 
 export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8453,26 +8533,41 @@ export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(optio
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(putUsersId).toBe(putUsersIdExpected)
 
         // Check DELETE /users/{id} mutation file (204 with |undefined)
         const deleteUsersId = fs.readFileSync(path.join(dir, 'hooks', 'deleteUsersId.ts'), 'utf-8')
-        const deleteUsersIdExpected = `import { useMutation } from '@tanstack/vue-query'
+        const deleteUsersIdExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$delete']>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users/:id', 'DELETE'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
-  }
+  })
 }
 
 export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8490,7 +8585,10 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getDeleteUsersIdMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(deleteUsersId).toBe(deleteUsersIdExpected)
@@ -8566,7 +8664,7 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
         }
 
         const code = fs.readFileSync(out, 'utf-8')
-        const expected = `import { useMutation } from '@tanstack/vue-query'
+        const expected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -8576,13 +8674,22 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
-export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$put']>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users/:id', 'PUT'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
-  }
+  })
 }
 
 export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8597,16 +8704,28 @@ export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(optio
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPutUsersIdMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 
-export function getPatchUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
+export function getPatchUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$patch']>,
+    TOnMutateResult
+  >({
     mutationKey: ['users', '/users/:id', 'PATCH'] as const,
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
       return parseResponse(client.users[':id'].$patch(args, options))
     },
-  }
+  })
 }
 
 export function usePatchUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
@@ -8621,7 +8740,10 @@ export function usePatchUsersId<TError = unknown, TOnMutateResult = unknown>(opt
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({ ...mutationOptions, ...getPatchUsersIdMutationOptions(clientOptions) })
+  return useMutation({
+    ...mutationOptions,
+    ...getPatchUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
+  })
 }
 `
         expect(code).toBe(expected)

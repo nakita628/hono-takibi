@@ -52,9 +52,8 @@ const HOOK_CONFIGS = {
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
   },
   'solid-query': {
-    // Solid Query v5: `createQuery` accepts an Accessor (= () => T) for options,
-    // matching Svelte v5's thunk pattern. Helpers (queryOptions/etc.) take plain
-    // objects but the hook itself wraps them in a thunk.
+    // Solid Query v5: `createQuery` takes the whole options object as an Accessor (= () => T),
+    // and every `Create*Options` alias is itself `Accessor<...>` — see `unwrapOptionsAccessor`.
     packageName: '@tanstack/solid-query',
     frameworkName: 'Solid Query',
     hookPrefix: 'create',
@@ -67,6 +66,7 @@ const HOOK_CONFIGS = {
     useQueryOptionsType: 'UndefinedInitialDataOptions',
     useMutationOptionsType: 'CreateMutationOptions',
     hasQueryOptionsHelper: true,
+    hasMutationOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
     useInfiniteQueryOptionsType: 'UndefinedInitialDataInfiniteOptions',
     hasInfiniteQueryOptionsHelper: true,
@@ -82,6 +82,7 @@ const HOOK_CONFIGS = {
     mutationFn: 'useMutation',
     useQueryOptionsType: 'UseQueryOptions',
     useMutationOptionsType: 'UseMutationOptions',
+    hasMutationOptionsHelper: true,
     isVueQuery: true,
     infiniteQueryFn: 'useInfiniteQuery',
     useInfiniteQueryOptionsType: 'UseInfiniteQueryOptions',
@@ -89,9 +90,10 @@ const HOOK_CONFIGS = {
     // which TS cannot narrow from a generic `TPageParam` parameter — generation fails to typecheck.
     // Falling back to a plain `{queryKey, queryFn}` factory: users supply pagination via
     // `options.query.initialPageParam` / `getNextPageParam` at the hook site instead.
-    // hasInfiniteQueryOptionsHelper omitted (defaults false).
+    // hasQueryOptionsHelper / hasInfiniteQueryOptionsHelper omitted (default false); re-checked
+    // against 5.102.8 and both still fail with TS2769, so this is not stale.
     //
-    // Vue Query (5.100.x) also does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
+    // Vue Query (5.102.x) also does not export `useSuspenseQuery` / `useSuspenseInfiniteQuery` —
     // suspense in Vue is handled at the component level via <Suspense>, not separate hooks.
   },
   'svelte-query': {

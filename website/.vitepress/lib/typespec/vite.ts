@@ -19,7 +19,10 @@ const typespecImports = Object.fromEntries(
       readFileSync(new URL(`../../../node_modules/${name}/package.json`, import.meta.url), 'utf8'),
     )
     const subpaths = Object.keys(pkg.exports ?? {}).filter(
-      (key) => key !== '.' && key !== './testing' && key !== './internals',
+      (key) =>
+        key !== '.' &&
+        key !== './testing' &&
+        (!key.startsWith('./internals') || key === './internals/prettier-formatter'),
     )
     return [
       [name, `/${TYPESPEC_BUNDLES_DIR}/${name}/index.js`] as const,
