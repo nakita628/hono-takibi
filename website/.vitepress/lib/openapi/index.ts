@@ -1,3 +1,4 @@
+import type * as ZodOpenAPIHono from 'hono-takibi/zod-openapi-hono'
 import { load } from 'js-yaml'
 
 import { compileTypeSpec, loadTypeSpecContext } from '../typespec'
@@ -8,7 +9,7 @@ export function isMode(value: unknown): value is (typeof MODES)[number] {
   return MODES.some((mode) => mode === value)
 }
 
-type OpenAPI = Parameters<(typeof import('hono-takibi/zod-openapi-hono'))['zodOpenAPIHono']>[0]
+type OpenAPI = Parameters<(typeof ZodOpenAPIHono)['zodOpenAPIHono']>[0]
 
 function isOpenAPIDocument(value: unknown): value is { readonly [key: string]: unknown } {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -40,9 +41,10 @@ async function bundleDocument(document: { readonly [key: string]: unknown }) {
     // @apidevtools/swagger-parser.
     const globalScope: { Buffer?: { isBuffer: (value: unknown) => boolean } } = globalThis
     globalScope.Buffer ??= { isBuffer: () => false }
-    const bundled = await SwaggerParser.bundle(JSON.parse(JSON.stringify(document)), {
-      resolve: { external: false },
-    })
+    const bundled = await SwaggerParser.bundle(
+      document as Awaited<ReturnType<typeof SwaggerParser.bundle>>,
+      { resolve: { external: false } },
+    )
     return { ok: true, value: bundled } as const
   } catch (e) {
     const message = e instanceof Error ? (e.message.split('\n')[0] ?? e.message) : String(e)
@@ -75,7 +77,7 @@ async function formatCode(code: string) {
 export async function generate(
   source: string,
   mode: (typeof MODES)[number],
-  options: Parameters<(typeof import('hono-takibi/zod-openapi-hono'))['zodOpenAPIHono']>[1],
+  options: Parameters<(typeof ZodOpenAPIHono)['zodOpenAPIHono']>[1],
 ) {
   try {
     const parsed = await parseDocument(source, mode)
@@ -90,7 +92,7 @@ export async function generate(
       return bundled
     }
     const { zodOpenAPIHono } = await import('hono-takibi/zod-openapi-hono')
-    return formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
+    return await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
   }

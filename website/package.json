@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check": "vp check",
+    "fix": "vp check --fix",
     "dev": "vitepress dev --host",
     "build": "NODE_OPTIONS=--max-old-space-size=2560 vitepress build",
     "preview": "vitepress preview",

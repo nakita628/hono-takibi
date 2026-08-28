@@ -1,5 +1,6 @@
 import type { MonacoEditor } from '@guolao/vue-monaco-editor'
-import type { CompilerHost, ServerHost } from '@typespec/compiler'
+import type * as TypeSpecCompiler from '@typespec/compiler'
+import type * as TypeSpecOpenAPI3 from '@typespec/openapi3'
 import type { editor, languages, Position } from 'monaco-editor'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 
@@ -60,8 +61,8 @@ async function createTypeSpecContext() {
       jsModules.set(`/node_modules/${name}/${path}`, jsModule)
     }
   }
-  const compiler: typeof import('@typespec/compiler') = await importBundled('@typespec/compiler')
-  const openapi3: typeof import('@typespec/openapi3') = await importBundled('@typespec/openapi3')
+  const compiler: typeof TypeSpecCompiler = await importBundled('@typespec/compiler')
+  const openapi3: typeof TypeSpecOpenAPI3 = await importBundled('@typespec/openapi3')
   return { compiler, openapi3, assets: { files, jsModules } }
 }
 
@@ -86,7 +87,7 @@ function parentDirsOf(path: string) {
 function createVirtualHost(
   assets: TypeSpecContext['assets'],
   compiler: TypeSpecContext['compiler'],
-): CompilerHost {
+): TypeSpecCompiler.CompilerHost {
   const allPaths = [...assets.files.keys(), ...assets.jsModules.keys()]
   const directories = new Set(allPaths.flatMap(parentDirsOf))
 
@@ -273,7 +274,7 @@ export async function initTypeSpecMonaco(monaco: MonacoEditor, context: TypeSpec
         ? context.compiler.createSourceFile(mainModel()?.getValue() ?? '', path)
         : base.readFile(path),
   }
-  const serverHost: ServerHost = {
+  const serverHost: TypeSpecCompiler.ServerHost = {
     compilerHost,
     getOpenDocumentByURL(url) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url))
@@ -285,7 +286,7 @@ export async function initTypeSpecMonaco(monaco: MonacoEditor, context: TypeSpec
     sendDiagnostics({ uri, diagnostics }) {
       if (uri !== MAIN_URI) return
       const model = mainModel()
-      if (!model || model.getLanguageId() !== 'typespec') return
+      if (model?.getLanguageId() !== 'typespec') return
       const severityMap: { readonly [k: number]: number } = {
         1: monaco.MarkerSeverity.Error,
         2: monaco.MarkerSeverity.Warning,
@@ -313,6 +314,7 @@ export async function initTypeSpecMonaco(monaco: MonacoEditor, context: TypeSpec
     capabilities: {},
     processId: 1,
     workspaceFolders: [],
+    // oxlint-disable-next-line typescript/no-deprecated -- the TypeSpec server still reads rootUri; keep the initialize params the upstream playground sends
     rootUri: 'inmemory://',
   })
   server.initialized({})

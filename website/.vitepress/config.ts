@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
 import tailwindcss from '@tailwindcss/vite'
-
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 

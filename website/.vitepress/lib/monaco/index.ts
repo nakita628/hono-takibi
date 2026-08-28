@@ -133,6 +133,10 @@ export function configureTypeScriptDefaults(monaco: MonacoEditor) {
   })
 }
 
+function fetchWithTimeout(url: string) {
+  return fetch(url, { signal: AbortSignal.timeout(8000) })
+}
+
 async function getBundledDts(
   module: { readonly spec: string; readonly alias: string },
   augmentBody = '',
@@ -150,10 +154,6 @@ async function getBundledDts(
     return `${pkg}${subpath}`
   }
 
-  function fetchWithTimeout(url: string) {
-    return fetch(url, { signal: AbortSignal.timeout(8000) })
-  }
-
   async function walkDts(
     rootUrl: string,
     visited: ReadonlyMap<string, string>,
@@ -161,7 +161,7 @@ async function getBundledDts(
     if (visited.has(rootUrl)) return visited
     const res = await fetchWithTimeout(rootUrl)
     const dts = res.ok ? await res.text() : ''
-    const dtsImports = Array.from(dts.matchAll(/from\s+["']([^"']+)["']/g))
+    const dtsImports = [...dts.matchAll(/from\s+["']([^"']+)["']/g)]
       .map((match) => match[1] ?? '')
       .filter((p) => /\.d\.[mc]?ts$/.test(p))
     const resolvedUrls = dtsImports.map((p) => new URL(p, rootUrl).toString())
@@ -183,7 +183,7 @@ async function getBundledDts(
   if (!indexDtsUrl) return ''
   const files = await walkDts(indexDtsUrl, new Map())
   const indexModulePath = normalizeModulePath(indexDtsUrl)
-  const declarations = Array.from(files.entries())
+  const declarations = [...files.entries()]
     .filter(([url]) => {
       const path = normalizeModulePath(url)
       return !excludeModulePrefixes.some(
@@ -193,7 +193,7 @@ async function getBundledDts(
     .map(([url, dts]) => `declare module "${normalizeModulePath(url)}"{${dts}}`)
     .join('\n')
   const augmentTargetUrl = augmentTargetMarker
-    ? Array.from(files.entries()).find(([_url, dts]) => dts.includes(augmentTargetMarker))?.[0]
+    ? [...files.entries()].find(([_url, dts]) => dts.includes(augmentTargetMarker))?.[0]
     : undefined
   const augmentTarget = augmentTargetUrl ? normalizeModulePath(augmentTargetUrl) : indexModulePath
   const augment = augmentBody ? `declare module "${augmentTarget}"{${augmentBody}}` : ''

@@ -216,7 +216,8 @@ const outputOptions = { ...editorOptions, readOnly: true }
           v-if="error"
           class="pg-error max-h-[30%] overflow-auto border-b border-(--vp-c-divider) px-3 py-2 font-(family-name:--vp-font-family-mono) text-[12px] leading-[normal] whitespace-pre-wrap"
           :class="errorIsHint ? 'pg-hint text-(--vp-c-text-2)' : 'text-(--vp-c-danger-1)'"
-        >{{ error }}</div>
+          >{{ error }}</div
+        >
         <VueMonacoEditor
           :value="output"
           language="typescript"
