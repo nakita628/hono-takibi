@@ -56,6 +56,12 @@ export function isStringRef(v: object): v is { readonly $ref: string } {
   return '$ref' in v && typeof v.$ref === 'string'
 }
 
+// A branch that is nothing but a `$ref` can be emitted as the bare identifier;
+// any sibling keyword means the reference has to be wrapped instead.
+export function isRefOnly(s: Schema) {
+  return s.$ref !== undefined && Object.keys(s).length === 1
+}
+
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
   return ref.startsWith('#/components/parameters/')
 }

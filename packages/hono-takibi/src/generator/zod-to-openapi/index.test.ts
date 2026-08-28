@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vite-plus/test'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { z } from 'zod'
 
 import type { Schema } from '../../openapi/index.js'
@@ -445,14 +445,171 @@ describe('zodToOpenAPI', () => {
         }
       })
 
-      it.concurrent('codegen: $ref branches + discriminator → falls back to z.xor (since $ref may resolve to ZodIntersection)', () => {
-        // $ref schemas might use allOf (ZodIntersection), so use z.xor instead of discriminatedUnion.
+      it('warns when oneOf branches all accept {} so no payload can match exactly one', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        expect(
+          zodToOpenAPI({
+            oneOf: [
+              { type: 'object', properties: { goal: { type: 'number' } } },
+              { type: 'object', properties: { limit: { type: 'number' } } },
+            ],
+          }),
+        ).toBe(
+          'z.xor([z.object({goal:z.number().exactOptional()}),z.object({limit:z.number().exactOptional()})])',
+        )
+        expect(warn).toHaveBeenCalledTimes(1)
+        expect(warn.mock.calls[0]?.[0]).toBe(
+          'oneOf rejects every payload: 2 branches accept {}, so no input matches exactly one. Add a discriminator (a required literal property per branch plus `discriminator`), or use anyOf if the branches are meant to overlap.',
+        )
+        warn.mockRestore()
+      })
+
+      it('does not warn when the branches require a discriminating property', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        zodToOpenAPI({
+          oneOf: [
+            {
+              type: 'object',
+              properties: { kind: { enum: ['a'] }, goal: { type: 'number' } },
+              required: ['kind'],
+            },
+            {
+              type: 'object',
+              properties: { kind: { enum: ['b'] }, limit: { type: 'number' } },
+              required: ['kind'],
+            },
+          ],
+        })
+        expect(warn).not.toHaveBeenCalled()
+        warn.mockRestore()
+      })
+
+      it.concurrent('codegen: $ref branches + discriminator, no component map → falls back to z.xor', () => {
+        // Without `schemas` a $ref is opaque and might resolve to an allOf
+        // (ZodIntersection), which makes z.discriminatedUnion throw on first parse.
         expect(
           zodToOpenAPI({
             oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
             discriminator: { propertyName: 'type' },
           }),
         ).toBe(`z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`)
+      })
+
+      it.concurrent('codegen: $ref branches resolving to plain objects with distinct literals → z.discriminatedUnion', () => {
+        // OpenAPI 3.2 §4.25: `discriminator` MUST NOT change the validation
+        // outcome; distinct literals make the branches mutually exclusive, so
+        // `exactly one` (oneOf) and `the routed one` (discriminatedUnion) agree.
+        expect(
+          zodToOpenAPI(
+            {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'type' },
+            },
+            undefined,
+            {
+              schemas: {
+                A: {
+                  type: 'object',
+                  properties: { type: { enum: ['a'] }, value: { type: 'string' } },
+                  required: ['type'],
+                },
+                B: {
+                  type: 'object',
+                  properties: { type: { enum: ['b'] }, count: { type: 'number' } },
+                  required: ['type'],
+                },
+              },
+            },
+          ),
+        ).toBe(
+          `z.discriminatedUnion('type',[ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`,
+        )
+      })
+
+      it.concurrent('codegen: $ref branch resolving to an allOf → falls back to z.xor', () => {
+        expect(
+          zodToOpenAPI(
+            {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'type' },
+            },
+            undefined,
+            {
+              schemas: {
+                A: {
+                  type: 'object',
+                  properties: { type: { enum: ['a'] } },
+                  required: ['type'],
+                },
+                B: { allOf: [{ $ref: '#/components/schemas/A' }, { type: 'object' }] },
+              },
+            },
+          ),
+        ).toBe(`z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`)
+      })
+
+      it.concurrent('codegen: $ref branch that does not pin the discriminator → falls back to z.xor', () => {
+        expect(
+          zodToOpenAPI(
+            {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'type' },
+            },
+            undefined,
+            {
+              schemas: {
+                A: {
+                  type: 'object',
+                  properties: { type: { enum: ['a'] } },
+                  required: ['type'],
+                },
+                B: { type: 'object', properties: { other: { type: 'string' } } },
+              },
+            },
+          ),
+        ).toBe(`z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`)
+      })
+
+      it.concurrent('codegen: $ref branches sharing a discriminator value → falls back to z.xor', () => {
+        // Duplicate values make z.discriminatedUnion throw at construction, and
+        // oneOf would reject a payload both branches accept anyway.
+        expect(
+          zodToOpenAPI(
+            {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'type' },
+            },
+            undefined,
+            {
+              schemas: {
+                A: {
+                  type: 'object',
+                  properties: { type: { enum: ['same'] }, a: { type: 'string' } },
+                  required: ['type'],
+                },
+                B: {
+                  type: 'object',
+                  properties: { type: { enum: ['same'] }, b: { type: 'string' } },
+                  required: ['type'],
+                },
+              },
+            },
+          ),
+        ).toBe(`z.xor([ASchema,BSchema]).openapi({"discriminator":{"propertyName":"type"}})`)
+      })
+
+      it.concurrent('runtime: discriminatedUnion over $ref branches agrees with xor and reports the offending field', () => {
+        const A = z.object({ type: z.literal('a'), value: z.string().optional() })
+        const B = z.object({ type: z.literal('b'), count: z.number().optional() })
+        const DU = z.discriminatedUnion('type', [A, B])
+        const XOR = z.xor([A, B])
+        expect(DU.safeParse({ type: 'b', count: 1 }).success).toBe(
+          XOR.safeParse({ type: 'b', count: 1 }).success,
+        )
+        expect(DU.safeParse({ type: 'nope' }).success).toBe(XOR.safeParse({ type: 'nope' }).success)
+        const failed = DU.safeParse({ type: 'b', count: 'x' })
+        expect(failed.success).toBe(false)
+        expect(failed.error?.issues.map((i) => i.path.join('.'))).toStrictEqual(['count'])
       })
 
       it.concurrent('codegen: x-oneOf-message on discriminatedUnion attaches error option', () => {
