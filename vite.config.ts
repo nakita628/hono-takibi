@@ -6,8 +6,7 @@ export default defineConfig({
   // declare what is specific to them.
   //
   // Do not add `fmt.ignorePatterns` here: it is inherited too, and a root-relative pattern
-  // such as `packages/**` makes the workspaces' own `vp check` exclude every file. Scope for
-  // the repository-root files is set by the paths in the root `check` / `fix` scripts.
+  // such as `packages/**` makes the workspaces' own `vp check` exclude every file.
   fmt: {
     printWidth: 100,
     singleQuote: true,
