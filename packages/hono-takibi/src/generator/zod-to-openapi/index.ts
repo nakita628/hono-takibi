@@ -1,4 +1,9 @@
-import { isSchemaArray, isSingleSchema } from '../../guard/index.js'
+import {
+  isDiscriminableBranch,
+  isRefOnly,
+  isSchemaArray,
+  isSingleSchema,
+} from '../../guard/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
@@ -13,10 +18,6 @@ import { baseError, error, normalizeTypes } from '../../utils/index.js'
 // oxlint-disable-next-line import/no-cycle -- the schema emitter and its per-type emitters recurse into each other
 import { _enum, integer, number, object, string } from './z/index.js'
 
-function isRefOnly(s: Schema) {
-  return s.$ref !== undefined && Object.keys(s).length === 1
-}
-
 export function zodToOpenAPI(
   schema: Schema | boolean,
   meta?: {
@@ -30,6 +31,8 @@ export function zodToOpenAPI(
     readonly?: boolean
     /** @internal Consumed by `wrap` for `.exactOptional()`; stripped before recursing. */
     isOptional?: boolean
+    /** Component schema map, used to resolve `$ref` branches of a discriminated `oneOf`. */
+    schemas?: { readonly [k: string]: Schema }
   },
 ): string {
   const readonly = options?.readonly
@@ -162,18 +165,70 @@ export function zodToOpenAPI(
   }
   if (schema.oneOf !== undefined) {
     if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta, options)
-    // ZodIntersection (allOf) incompatible with discriminatedUnion → fall back to xor.
-    const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
     const oneOfSchemas = schema.oneOf.map((s) =>
       isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, undefined, childOptions),
     )
     const discriminator = schema.discriminator?.propertyName
     const oneOfMessage = schema['x-oneOf-message'] ?? schema['x-error-message']
     const oneOfErrorArg = oneOfMessage ? `,${error(oneOfMessage)}` : ''
-    const z =
-      discriminator && !hasRefOrAllOf
-        ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
-        : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
+    // `oneOf` members are usually `$ref`s, and the component map is the only way
+    // to see what they point at. One hop is enough: a chain lands on another
+    // `$ref` and fails the object test below, which is the safe answer anyway.
+    // `undefined` marks "cannot tell", so every check below fails closed.
+    const branches = schema.oneOf.map((s) =>
+      s.$ref === undefined
+        ? s
+        : isRefOnly(s) && s.$ref.startsWith('#/components/schemas/')
+          ? options?.schemas?.[decodeURIComponent(s.$ref.slice('#/components/schemas/'.length))]
+          : undefined,
+    )
+    // OpenAPI 3.2 §4.25: `discriminator` "MUST NOT change the validation outcome
+    // of the schema" — it only makes deserialization cheaper and errors better.
+    // So `z.xor` (exactly one) is the baseline, and `z.discriminatedUnion` (route
+    // by key, then validate that one branch) is allowed only where the two agree:
+    // when each branch requires the discriminating property pinned to literals
+    // that no other branch shares, at most one branch can ever match. Zod builds
+    // its `propValues` map lazily, so a branch it cannot route throws on the FIRST
+    // PARSE — a 500, not a 422 — which is why `isDiscriminableBranch` fails closed.
+    const literalsPerBranch = branches.map((branch) => {
+      if (discriminator === undefined || branch === undefined) return undefined
+      if (!isDiscriminableBranch(branch, discriminator)) return undefined
+      const property = branch.properties?.[discriminator]
+      if (property === undefined || typeof property === 'boolean') return undefined
+      return typeof property.const === 'string' ? [property.const] : (property.enum ?? [])
+    })
+    const literals = literalsPerBranch.flatMap((values) => values ?? [])
+    const isDiscriminated =
+      discriminator !== undefined &&
+      branches.length >= 2 &&
+      literalsPerBranch.every((values) => values !== undefined) &&
+      new Set(literals).size === literals.length
+    // Two branches that both accept `{}` are indistinguishable, so no payload can
+    // ever match exactly one and the emitted validator rejects 100% of traffic.
+    // That is faithful to the document, which is why the code still ships — but
+    // silently generating a dead route is worse than saying so.
+    const alwaysMatching = branches.filter(
+      (branch) =>
+        branch !== undefined &&
+        branch.allOf === undefined &&
+        branch.anyOf === undefined &&
+        branch.oneOf === undefined &&
+        branch.not === undefined &&
+        branch['x-refine'] === undefined &&
+        branch['x-superRefine'] === undefined &&
+        branch.type === 'object' &&
+        !(Array.isArray(branch.required) && branch.required.length > 0) &&
+        !(typeof branch.minProperties === 'number' && branch.minProperties > 0),
+    )
+    if (!isDiscriminated && alwaysMatching.length >= 2) {
+      // oxlint-disable-next-line no-console -- the emitted validator would reject every payload
+      console.warn(
+        `oneOf rejects every payload: ${alwaysMatching.length} branches accept {}, so no input matches exactly one. Add a discriminator (a required literal property per branch plus \`discriminator\`), or use anyOf if the branches are meant to overlap.`,
+      )
+    }
+    const z = isDiscriminated
+      ? `z.discriminatedUnion('${discriminator}',[${oneOfSchemas.join(',')}]${oneOfErrorArg})`
+      : `z.xor([${oneOfSchemas.join(',')}]${oneOfErrorArg})`
     return wrap(z, schema, meta, options)
   }
   if (schema.not !== undefined) {

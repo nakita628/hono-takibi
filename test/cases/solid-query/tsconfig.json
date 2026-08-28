@@ -3,6 +3,8 @@
   "include": [
     "../../__generated__/solid-query/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts"
+    "../../hosts/users-client.ts",
+    "../../types/solid-query.ts",
+    "../../types/assert.ts"
   ]
 }

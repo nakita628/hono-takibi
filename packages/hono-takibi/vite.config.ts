@@ -44,28 +44,22 @@ export default defineConfig({
     },
     // Strict by design: exceptions live next to the code as `oxlint-disable-next-line` with a
     // reason, never as `'off'` here.
+    //
+    // Rules in the correctness / suspicious / perf categories are already errors via
+    // `categories` above and are not restated; this list only adds rules from the
+    // pedantic / style / restriction / nursery categories, which no category enables.
     rules: {
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
       'no-param-reassign': ['error', { props: true }],
-      'no-shadow': 'error',
-      'no-underscore-dangle': 'error',
       'no-console': 'error',
       'no-plusplus': 'error',
-      'no-await-in-loop': 'error',
-      'no-unused-vars': 'error',
       'typescript/no-explicit-any': 'error',
       'typescript/no-non-null-assertion': 'error',
       'typescript/consistent-type-imports': 'error',
       'typescript/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
-      'typescript/no-unsafe-type-assertion': 'error',
-      'typescript/no-unnecessary-type-assertion': 'error',
-      'typescript/no-unnecessary-type-arguments': 'error',
-      'typescript/no-floating-promises': 'error',
-      'typescript/await-thenable': 'error',
       'typescript/no-misused-promises': 'error',
-      'typescript/consistent-return': 'error',
       'typescript/require-await': 'error',
       'typescript/prefer-readonly': 'error',
       'typescript/prefer-nullish-coalescing': 'error',
@@ -75,41 +69,23 @@ export default defineConfig({
       'typescript/no-unsafe-member-access': 'error',
       'typescript/no-unsafe-call': 'error',
       'typescript/no-unsafe-return': 'error',
-      'unicorn/consistent-function-scoping': 'error',
       'unicorn/no-array-for-each': 'error',
-      'unicorn/no-array-sort': 'error',
       'unicorn/prefer-array-some': 'error',
       'unicorn/prefer-spread': 'error',
       'unicorn/prefer-string-replace-all': 'error',
       'import/no-cycle': 'error',
-      'import/no-self-import': 'error',
       'import/no-duplicates': 'error',
-      'typescript/require-array-sort-compare': 'error',
       // Hardening beyond the defaults: rules below were verified to hold across
       // `src` before being turned on, so any new violation is a real regression.
-      'no-eval': 'error',
       'no-new-func': 'error',
-      'no-implied-eval': 'error',
       'no-return-assign': 'error',
-      'no-constant-binary-expression': 'error',
       'no-else-return': 'error',
       'no-lonely-if': 'error',
       'prefer-object-spread': 'error',
       'symbol-description': 'error',
       'typescript/no-deprecated': 'error',
-      'typescript/no-base-to-string': 'error',
-      'typescript/restrict-template-expressions': 'error',
       'typescript/restrict-plus-operands': 'error',
-      'typescript/no-redundant-type-constituents': 'error',
-      'typescript/no-duplicate-type-constituents': 'error',
-      'typescript/no-unnecessary-template-expression': 'error',
-      'typescript/no-unnecessary-boolean-literal-compare': 'error',
-      'typescript/no-unnecessary-type-parameters': 'error',
       'typescript/no-confusing-void-expression': 'error',
-      'typescript/no-for-in-array': 'error',
-      'typescript/no-implied-eval': 'error',
-      'typescript/no-unsafe-enum-comparison': 'error',
-      'typescript/no-unsafe-unary-minus': 'error',
       'typescript/only-throw-error': 'error',
       'typescript/prefer-promise-reject-errors': 'error',
       'typescript/prefer-reduce-type-parameter': 'error',
@@ -117,21 +93,15 @@ export default defineConfig({
       'typescript/prefer-string-starts-ends-with': 'error',
       'typescript/prefer-optional-chain': 'error',
       'typescript/use-unknown-in-catch-callback-variable': 'error',
-      'typescript/unbound-method': 'error',
       'typescript/return-await': 'error',
       'unicorn/no-await-expression-member': 'error',
-      'unicorn/no-useless-spread': 'error',
       'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-set-has': 'error',
       'unicorn/prefer-string-slice': 'error',
       'unicorn/prefer-at': 'error',
       'unicorn/explicit-length-check': 'error',
       'unicorn/throw-new-error': 'error',
       'import/no-default-export': 'error',
       'import/no-mutable-exports': 'error',
-      'import/no-absolute-path': 'error',
-      'import/no-empty-named-blocks': 'error',
-      'import/no-named-as-default-member': 'error',
       'import/first': 'error',
     },
     // Architecture rules for src: each directory may import only the siblings listed in its
@@ -302,7 +272,7 @@ export default defineConfig({
         },
       },
       {
-        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md 型安全 #1).
+        // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
         files: ['src/openapi/index.ts'],
         rules: {
           'typescript/consistent-type-assertions': 'off',
@@ -311,14 +281,14 @@ export default defineConfig({
       },
       {
         // honoTakibiVite(): any is intentional — avoids forcing Vite/Rollup type
-        // installs on consumers (CLAUDE.md 型安全 #2).
+        // installs on consumers (CLAUDE.md type safety #2).
         files: ['src/vite-plugin/index.ts'],
         rules: {
           'typescript/no-explicit-any': 'off',
         },
       },
       {
-        // Test files may cast and use `any` (CLAUDE.md 型安全 #1); the type-safety rules that
+        // Test files may cast and use `any` (CLAUDE.md type safety #1); the type-safety rules that
         // exist only to police those casts are scoped off here, nothing else is.
         files: ['**/*.test.ts', '**/*.spec.ts'],
         plugins: ['vitest'],
@@ -335,13 +305,10 @@ export default defineConfig({
           // Test files sit outside tsconfig.json, so type-aware lint sees the default lib,
           // which predates `toSorted`; `.sort()` on fresh arrays stays allowed here.
           'unicorn/no-array-sort': 'off',
+          // The other vitest rules this suite relies on (no-focused-tests, expect-expect, ...)
+          // sit in the correctness / suspicious categories, so enabling the plugin is enough.
           // The suite asserts inside try/catch and conditionals throughout (~600 sites).
           'vitest/no-conditional-expect': 'off',
-          'vitest/no-focused-tests': 'error',
-          'vitest/no-disabled-tests': 'error',
-          'vitest/no-commented-out-tests': 'error',
-          'vitest/expect-expect': 'error',
-          'vitest/require-mock-type-parameters': 'error',
         },
       },
     ],

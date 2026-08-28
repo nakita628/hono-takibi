@@ -5,152 +5,388 @@ import { pathToFileURL } from 'node:url'
 import { type FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
-const DirectoryOutputSchema = z.string().regex(/^(?!.*\.ts$).+/, {
-  error: 'split mode requires directory, not .ts file',
+const DirectoryOutputSchema = z
+  .string()
+  .regex(/^(?!.*\.ts$).+/, {
+    error: 'split mode requires directory, not .ts file',
+  })
+  .meta({
+    title: 'Output directory',
+    description: 'Directory that receives one file per generated entry. Never a `.ts` file path.',
+    examples: ['./src/routes', './src/schemas'],
+  })
+
+const FileOutputSchema = z
+  .string()
+  .transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`))
+  .meta({
+    title: 'Output file',
+    description:
+      'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+    examples: ['./src/routes.ts', './src/routes'],
+  })
+
+const ImportSchema = z.string().meta({
+  title: 'Import specifier',
+  description: 'Module specifier the generated files use to import from `output`.',
+  examples: ['@packages/routes', '../lib', '.'],
 })
 
-const FileOutputSchema = z.string().transform((v) => (v.endsWith('.ts') ? v : `${v}/index.ts`))
+const ClientSchema = z
+  .string()
+  .default('client')
+  .meta({
+    title: 'Client export name',
+    description: 'Named export to import from `import` as the Hono client instance.',
+    examples: ['client', 'apiClient'],
+  })
+
+const TestFrameworkSchema = z
+  .enum(['vitest', 'vite-plus', 'bun'])
+  .default('vitest')
+  .exactOptional()
+  .meta({
+    title: 'Test framework',
+    description: 'Framework whose import specifier the generated test files use.',
+    examples: ['vitest', 'vite-plus', 'bun'],
+  })
 
 const OutputSchema = z
   .discriminatedUnion('split', [
     z
       .object({
-        split: z.literal(true),
+        split: z.literal(true).meta({ description: 'Write one file per entry into `output`.' }),
         output: DirectoryOutputSchema,
-        import: z.string().exactOptional(),
+        import: ImportSchema.exactOptional(),
       })
       .readonly(),
     z
       .object({
-        split: z.literal(false).optional().default(false),
+        split: z
+          .literal(false)
+          .optional()
+          .default(false)
+          .meta({ description: 'Write every entry into a single file (default).' }),
         output: FileOutputSchema,
-        import: z.string().exactOptional(),
+        import: ImportSchema.exactOptional(),
       })
       .readonly(),
   ])
   .exactOptional()
+  .meta({
+    title: 'Generated output target',
+    description:
+      'Where one group of generated code is written. `split` picks directory mode or single-file mode.',
+    examples: [
+      { output: './src/routes.ts' },
+      { output: './src/routes', split: true, import: '@packages/routes' },
+    ],
+  })
 
 const ExportTypesOutputSchema = z
   .discriminatedUnion('split', [
     z
       .object({
-        split: z.literal(true),
+        split: z.literal(true).meta({ description: 'Write one file per entry into `output`.' }),
         output: DirectoryOutputSchema,
-        import: z.string().exactOptional(),
-        exportTypes: z.boolean().default(false),
+        import: ImportSchema.exactOptional(),
+        exportTypes: z.boolean().default(false).meta({
+          description: 'Also export the TypeScript type inferred from each generated schema.',
+        }),
       })
       .readonly(),
     z
       .object({
-        split: z.literal(false).optional().default(false),
+        split: z
+          .literal(false)
+          .optional()
+          .default(false)
+          .meta({ description: 'Write every entry into a single file (default).' }),
         output: FileOutputSchema,
-        import: z.string().exactOptional(),
-        exportTypes: z.boolean().default(false),
+        import: ImportSchema.exactOptional(),
+        exportTypes: z.boolean().default(false).meta({
+          description: 'Also export the TypeScript type inferred from each generated schema.',
+        }),
       })
       .readonly(),
   ])
   .exactOptional()
+  .meta({
+    title: 'Generated output target with type exports',
+    description:
+      'Same as a generated output target, plus `exportTypes` for the component sections that carry inferable types (schemas, parameters, headers, mediaTypes).',
+    examples: [
+      { output: './src/schemas.ts', exportTypes: true },
+      { output: './src/schemas', split: true, import: '../schemas', exportTypes: true },
+    ],
+  })
 
 const HooksSchema = z
   .discriminatedUnion('split', [
     z
       .object({
-        split: z.literal(true),
+        split: z.literal(true).meta({ description: 'Write one file per operation into `output`.' }),
         output: DirectoryOutputSchema,
-        import: z.string(),
-        client: z.string().default('client'),
+        import: ImportSchema,
+        client: ClientSchema,
       })
       .readonly(),
     z
       .object({
-        split: z.literal(false).optional().default(false),
+        split: z
+          .literal(false)
+          .optional()
+          .default(false)
+          .meta({ description: 'Write every hook into a single file (default).' }),
         output: FileOutputSchema,
-        import: z.string(),
-        client: z.string().default('client'),
+        import: ImportSchema,
+        client: ClientSchema,
       })
       .readonly(),
   ])
   .exactOptional()
+  .meta({
+    title: 'Client hooks target',
+    description:
+      'Data-fetching hooks generated on top of the Hono client. `import` is required because every hook imports the client.',
+    examples: [
+      { output: './src/swr.ts', import: '../lib' },
+      { output: './src/swr', split: true, import: '../lib', client: 'client' },
+    ],
+  })
 
 const RpcSchema = z
   .discriminatedUnion('split', [
     z
       .object({
-        split: z.literal(true),
+        split: z.literal(true).meta({ description: 'Write one file per operation into `output`.' }),
         output: DirectoryOutputSchema,
-        import: z.string(),
-        client: z.string().default('client'),
-        parseResponse: z.boolean().default(false),
-        docs: z.boolean().default(false),
+        import: ImportSchema,
+        client: ClientSchema,
+        parseResponse: z.boolean().default(false).meta({
+          description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
+        }),
+        docs: z.boolean().default(false).meta({
+          description: 'Emit the operation summary and description as JSDoc.',
+        }),
       })
       .readonly(),
     z
       .object({
-        split: z.literal(false).optional().default(false),
+        split: z
+          .literal(false)
+          .optional()
+          .default(false)
+          .meta({ description: 'Write every wrapper into a single file (default).' }),
         output: FileOutputSchema,
-        import: z.string(),
-        client: z.string().default('client'),
-        parseResponse: z.boolean().default(false),
-        docs: z.boolean().default(false),
+        import: ImportSchema,
+        client: ClientSchema,
+        parseResponse: z.boolean().default(false).meta({
+          description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
+        }),
+        docs: z.boolean().default(false).meta({
+          description: 'Emit the operation summary and description as JSDoc.',
+        }),
       })
       .readonly(),
   ])
   .exactOptional()
+  .meta({
+    title: 'RPC wrappers target',
+    description: 'Typed function wrappers around the Hono RPC client, one per operation.',
+    examples: [
+      { output: './src/rpc.ts', import: '../lib' },
+      { output: './src/rpc', split: true, import: '../lib', parseResponse: true, docs: true },
+    ],
+  })
 
 const ConfigSchema = z
   .object({
-    input: z.templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
-      error: 'must be .yaml | .json | .tsp',
-    }),
+    input: z
+      .templateLiteral([z.string().min(1), z.enum(['.yaml', '.json', '.tsp'])], {
+        error: 'must be .yaml | .json | .tsp',
+      })
+      .meta({
+        title: 'Input document',
+        description: 'OpenAPI or TypeSpec entry document that every generator reads.',
+        examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],
+      }),
     output: z
       .templateLiteral([z.string().min(1), z.enum(['.ts'])], { error: 'must be .ts file' })
-      .exactOptional(),
-    basePath: z.string().default('/'),
-    readonly: z.boolean().exactOptional(),
-    format: z.custom<FormatConfig>(() => true).exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Single-file output',
+        description:
+          'Routes and schemas in one file. Mutually exclusive with `routes`. With `template.define` this is the app entry instead and must be an `index.ts` path.',
+        examples: ['./src/routes.ts', './src/index.ts'],
+      }),
+    basePath: z
+      .string()
+      .default('/')
+      .meta({
+        title: 'Base path',
+        description: 'Base path the generated Hono app is mounted on.',
+        examples: ['/', '/api', '/api/v1'],
+      }),
+    readonly: z.boolean().exactOptional().meta({
+      description: 'Emit `readonly` modifiers on the generated TypeScript types.',
+    }),
+    format: z
+      .custom<FormatConfig>(() => true)
+      .exactOptional()
+      .meta({
+        title: 'Formatter options',
+        description:
+          'oxfmt `FormatConfig` applied to every generated file. Defaults to printWidth 100, single quotes, no semicolons.',
+        examples: [{ printWidth: 80, semi: true }],
+      }),
     template: z
       .discriminatedUnion('define', [
         z
           .object({
-            define: z.literal(true),
-            test: z.boolean().default(false),
-            pathAlias: z.string().exactOptional(),
-            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+            define: z.literal(true).meta({
+              description:
+                'Emit `defineOpenAPIRoute({ route, handler })` entries. Derives `routes/` next to the app entry, so it cannot be combined with `routes` or per-type component outputs.',
+            }),
+            test: z
+              .boolean()
+              .default(false)
+              .meta({ description: 'Also scaffold a test file per handler.' }),
+            pathAlias: z
+              .string()
+              .exactOptional()
+              .meta({
+                title: 'Path alias',
+                description:
+                  'Import prefix used by the scaffolded files instead of relative paths.',
+                examples: ['@/', '~/'],
+              }),
+            testFramework: TestFrameworkSchema,
           })
           .readonly(),
         z
           .object({
-            define: z.literal(false).optional().default(false),
-            routeHandler: z.boolean().default(false),
-            test: z.boolean().default(false),
-            pathAlias: z.string().exactOptional(),
-            testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+            define: z
+              .literal(false)
+              .optional()
+              .default(false)
+              .meta({ description: 'Scaffold app and handler files (default).' }),
+            routeHandler: z.boolean().default(false).meta({
+              description:
+                'Emit the `app.openapi()` pattern with `RouteHandler` type exports. When false, handlers import the app and register routes inline.',
+            }),
+            test: z
+              .boolean()
+              .default(false)
+              .meta({ description: 'Also scaffold a test file per handler.' }),
+            pathAlias: z
+              .string()
+              .exactOptional()
+              .meta({
+                title: 'Path alias',
+                description:
+                  'Import prefix used by the scaffolded files instead of relative paths.',
+                examples: ['@/', '~/'],
+              }),
+            testFramework: TestFrameworkSchema,
           })
           .readonly(),
       ])
-      .exactOptional(),
-    exportSchemas: z.boolean().default(false),
-    exportSchemasTypes: z.boolean().default(false),
-    exportResponses: z.boolean().default(false),
-    exportParameters: z.boolean().default(false),
-    exportParametersTypes: z.boolean().default(false),
-    exportExamples: z.boolean().default(false),
-    exportRequestBodies: z.boolean().default(false),
-    exportHeaders: z.boolean().default(false),
-    exportHeadersTypes: z.boolean().default(false),
-    exportSecuritySchemes: z.boolean().default(false),
-    exportLinks: z.boolean().default(false),
-    exportCallbacks: z.boolean().default(false),
-    exportPathItems: z.boolean().default(false),
-    exportMediaTypes: z.boolean().default(false),
-    exportMediaTypesTypes: z.boolean().default(false),
-    routes: OutputSchema,
-    webhooks: OutputSchema,
+      .exactOptional()
+      .meta({
+        title: 'App scaffold',
+        description: 'Scaffolds the Hono app, handler stubs, and optional tests around the routes.',
+        examples: [
+          { test: true, routeHandler: true, pathAlias: '@/' },
+          { define: true, test: true },
+        ],
+      }),
+    exportSchemas: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.schemas` from the generated code.' }),
+    exportSchemasTypes: z.boolean().default(false).meta({
+      description: 'Also export the TypeScript type inferred from each `components.schemas` entry.',
+    }),
+    exportResponses: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.responses` from the generated code.' }),
+    exportParameters: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.parameters` from the generated code.' }),
+    exportParametersTypes: z.boolean().default(false).meta({
+      description:
+        'Also export the TypeScript type inferred from each `components.parameters` entry.',
+    }),
+    exportExamples: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.examples` from the generated code.' }),
+    exportRequestBodies: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.requestBodies` from the generated code.' }),
+    exportHeaders: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.headers` from the generated code.' }),
+    exportHeadersTypes: z.boolean().default(false).meta({
+      description: 'Also export the TypeScript type inferred from each `components.headers` entry.',
+    }),
+    exportSecuritySchemes: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.securitySchemes` from the generated code.' }),
+    exportLinks: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.links` from the generated code.' }),
+    exportCallbacks: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.callbacks` from the generated code.' }),
+    exportPathItems: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.pathItems` from the generated code.' }),
+    exportMediaTypes: z
+      .boolean()
+      .default(false)
+      .meta({ description: 'Re-export `components.mediaTypes` from the generated code.' }),
+    exportMediaTypesTypes: z.boolean().default(false).meta({
+      description:
+        'Also export the TypeScript type inferred from each `components.mediaTypes` entry.',
+    }),
+    routes: OutputSchema.meta({
+      title: 'Routes output',
+      description:
+        'Destination for the `createRoute(...)` definitions built from `paths`. Mutually exclusive with `output` and with `template.define`.',
+      examples: [
+        { output: './src/routes.ts' },
+        { output: './src/routes', split: true, import: '@packages/routes' },
+      ],
+    }),
+    webhooks: OutputSchema.meta({
+      title: 'Webhooks output',
+      description: 'Destination for the route definitions built from `webhooks`.',
+      examples: [
+        { output: './src/webhooks.ts' },
+        { output: './src/webhooks', split: true, import: '@packages/webhooks' },
+      ],
+    }),
     components: z
       .object({
         output: z
           .templateLiteral([z.string().min(1), z.enum(['.ts'])], { error: 'must be .ts file' })
-          .exactOptional(),
+          .exactOptional()
+          .meta({
+            title: 'Single-file components output',
+            description:
+              'Every component section in one file. Mutually exclusive with the per-type fields below.',
+            examples: ['./src/components/index.ts'],
+          }),
         schemas: ExportTypesOutputSchema,
         responses: OutputSchema,
         parameters: ExportTypesOutputSchema,
@@ -189,42 +425,113 @@ const ConfigSchema = z
             'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
         },
       )
-      .exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Components output',
+        description:
+          'Destination for `components`. Either `output` for one file, or per-type fields that each get their own target.',
+        examples: [
+          { output: './src/components/index.ts' },
+          {
+            schemas: {
+              output: './src/schemas',
+              split: true,
+              import: '../schemas',
+              exportTypes: true,
+            },
+            responses: { output: './src/responses', split: true, import: '../responses' },
+          },
+        ],
+      }),
     type: z
       .object({
-        readonly: z.boolean().exactOptional(),
-        output: z.templateLiteral([z.string().min(1), z.enum(['.ts'])], {
-          error: 'must be .ts file',
+        readonly: z.boolean().exactOptional().meta({
+          description: 'Emit `readonly` modifiers on the declared types.',
         }),
+        output: z
+          .templateLiteral([z.string().min(1), z.enum(['.ts'])], {
+            error: 'must be .ts file',
+          })
+          .meta({
+            title: 'Types output file',
+            examples: ['./src/types.ts'],
+          }),
       })
       .readonly()
-      .exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Standalone types output',
+        description:
+          'Plain TypeScript declarations for every operation and component, independent of the Zod schemas.',
+        examples: [{ output: './src/types.ts', readonly: true }],
+      }),
     rpc: RpcSchema,
-    swr: HooksSchema,
-    'tanstack-query': HooksSchema,
-    'preact-query': HooksSchema,
-    'solid-query': HooksSchema,
-    'vue-query': HooksSchema,
-    'svelte-query': HooksSchema,
-    'angular-query': HooksSchema,
+    swr: HooksSchema.meta({
+      title: 'SWR hooks output',
+      description: 'Generates `useSWR` / `useSWRMutation` hooks per operation.',
+      examples: [{ output: './src/swr', split: true, import: '../lib' }],
+    }),
+    'tanstack-query': HooksSchema.meta({
+      title: 'TanStack Query hooks output',
+      description: 'Generates `@tanstack/react-query` hooks per operation.',
+      examples: [{ output: './src/tanstack-query', split: true, import: '../lib' }],
+    }),
+    'preact-query': HooksSchema.meta({
+      title: 'Preact Query hooks output',
+      description: 'Generates `@tanstack/preact-query` hooks per operation.',
+      examples: [{ output: './src/preact-query', split: true, import: '../lib' }],
+    }),
+    'solid-query': HooksSchema.meta({
+      title: 'Solid Query hooks output',
+      description: 'Generates `@tanstack/solid-query` hooks per operation.',
+      examples: [{ output: './src/solid-query', split: true, import: '../lib' }],
+    }),
+    'vue-query': HooksSchema.meta({
+      title: 'Vue Query hooks output',
+      description: 'Generates `@tanstack/vue-query` hooks per operation.',
+      examples: [{ output: './src/vue-query', split: true, import: '../lib' }],
+    }),
+    'svelte-query': HooksSchema.meta({
+      title: 'Svelte Query hooks output',
+      description: 'Generates `@tanstack/svelte-query` hooks per operation.',
+      examples: [{ output: './src/svelte-query', split: true, import: '../lib' }],
+    }),
+    'angular-query': HooksSchema.meta({
+      title: 'Angular Query hooks output',
+      description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
+      examples: [{ output: './src/angular-query', split: true, import: '../lib' }],
+    }),
     test: z
       .object({
         output: FileOutputSchema,
-        import: z.string(),
-        testFramework: z.enum(['vitest', 'vite-plus', 'bun']).default('vitest').exactOptional(),
+        import: ImportSchema,
+        testFramework: TestFrameworkSchema,
       })
       .readonly()
-      .exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Route tests output',
+        description: 'Generates a request-level test per operation against the generated app.',
+        examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
+      }),
     mock: z
       .object({
         output: FileOutputSchema,
-        useExamples: z.boolean().exactOptional(),
+        useExamples: z.boolean().exactOptional().meta({
+          description:
+            'Prefer the `example` / `examples` declared in the document over faker-generated values.',
+        }),
         locale: z
           .string()
           .regex(/^[A-Za-z_]{1,40}$/, {
             error: "Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
           })
-          .exactOptional(),
+          .exactOptional()
+          .meta({
+            title: 'Faker locale',
+            description: 'faker.js locale used for the generated values.',
+            examples: ['en', 'ja', 'zh_CN'],
+          }),
         delay: z
           .union([
             z.number().int().nonnegative().max(60000),
@@ -239,9 +546,33 @@ const ConfigSchema = z
                 message: 'delay.min must be <= delay.max. Swap the values or remove one.',
               }),
           ])
-          .exactOptional(),
-        arrayMin: z.number().int().nonnegative().max(1000).exactOptional(),
-        arrayMax: z.number().int().nonnegative().max(1000).exactOptional(),
+          .exactOptional()
+          .meta({
+            title: 'Response delay',
+            description:
+              'Artificial latency in milliseconds: a fixed number, a `{ min, max }` range sampled per request, or `false` for none. Capped at 60000.',
+            examples: [false, 300, { min: 100, max: 800 }],
+          }),
+        arrayMin: z
+          .number()
+          .int()
+          .nonnegative()
+          .max(1000)
+          .exactOptional()
+          .meta({
+            description: 'Lower bound on the length of generated arrays. Must be <= `arrayMax`.',
+            examples: [1],
+          }),
+        arrayMax: z
+          .number()
+          .int()
+          .nonnegative()
+          .max(1000)
+          .exactOptional()
+          .meta({
+            description: 'Upper bound on the length of generated arrays.',
+            examples: [10],
+          }),
       })
       .readonly()
       .refine(
@@ -250,31 +581,80 @@ const ConfigSchema = z
           message: 'arrayMin must be <= arrayMax. Swap the values or remove one.',
         },
       )
-      .exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Mock server output',
+        description:
+          'Generates handlers that answer with faker.js data shaped by each response schema.',
+        examples: [
+          { output: './src/mock.ts' },
+          {
+            output: './src/mock.ts',
+            useExamples: true,
+            locale: 'ja',
+            delay: { min: 100, max: 800 },
+            arrayMin: 1,
+            arrayMax: 10,
+          },
+        ],
+      }),
     docs: z
       .discriminatedUnion('curl', [
         z
           .object({
-            output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
-              error: 'must be .md file',
+            output: z
+              .templateLiteral([z.string().min(1), z.enum(['.md'])], {
+                error: 'must be .md file',
+              })
+              .meta({ title: 'Docs output file', examples: ['./docs/api.md'] }),
+            curl: z.literal(true).meta({
+              description: 'Write `curl` commands against `baseUrl`, which then becomes required.',
             }),
-            curl: z.literal(true),
-            baseUrl: z.string({ error: 'baseUrl is required when curl is true' }),
+            baseUrl: z.string({ error: 'baseUrl is required when curl is true' }).meta({
+              description: 'Server the generated `curl` commands target.',
+              examples: ['http://localhost:3000'],
+            }),
             entry: z.never({ error: 'entry cannot be specified when curl is true' }).optional(),
           })
           .readonly(),
         z
           .object({
-            output: z.templateLiteral([z.string().min(1), z.enum(['.md'])], {
-              error: 'must be .md file',
-            }),
-            curl: z.literal(false).default(false).optional(),
-            entry: z.string().exactOptional(),
-            baseUrl: z.string().exactOptional(),
+            output: z
+              .templateLiteral([z.string().min(1), z.enum(['.md'])], {
+                error: 'must be .md file',
+              })
+              .meta({ title: 'Docs output file', examples: ['./docs/api.md'] }),
+            curl: z
+              .literal(false)
+              .default(false)
+              .optional()
+              .meta({ description: 'Write Hono request examples instead of `curl` (default).' }),
+            entry: z
+              .string()
+              .exactOptional()
+              .meta({
+                description: 'App entry the Hono request examples import.',
+                examples: ['src/index.ts'],
+              }),
+            baseUrl: z
+              .string()
+              .exactOptional()
+              .meta({
+                description: 'Server shown in the examples.',
+                examples: ['http://localhost:3000'],
+              }),
           })
           .readonly(),
       ])
-      .exactOptional(),
+      .exactOptional()
+      .meta({
+        title: 'Markdown docs output',
+        description: 'Generates a Markdown reference with one request example per operation.',
+        examples: [
+          { output: './docs/api.md', entry: 'src/index.ts' },
+          { output: './docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
+        ],
+      }),
   })
   .readonly()
   .refine((v) => !(v.output && v.routes), {
@@ -346,6 +726,21 @@ const ConfigSchema = z
         'with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
     },
   )
+  .meta({
+    title: 'hono-takibi config',
+    description:
+      'Everything `hono-takibi` generates from one OpenAPI or TypeSpec document. Only `input` is required; each remaining field opts one generator in.',
+    examples: [
+      { input: 'openapi.yaml', output: './src/routes.ts' },
+      {
+        input: 'openapi.yaml',
+        basePath: '/api',
+        routes: { output: './src/routes', split: true, import: '@packages/routes' },
+        components: { output: './src/components/index.ts' },
+        template: { test: true },
+      },
+    ],
+  })
 
 export function parseConfig(config: unknown) {
   const result = ConfigSchema.safeParse(config)

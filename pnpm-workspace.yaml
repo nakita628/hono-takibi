@@ -8,3 +8,26 @@ allowBuilds:
   sharp: true
   vue-demi: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@tanstack/angular-query-experimental@5.102.8'
+  - '@tanstack/preact-query@5.102.8'
+  - '@tanstack/query-core@5.102.8'
+  - '@tanstack/query-devtools@5.102.8'
+  - '@tanstack/react-query@5.102.8'
+  - '@tanstack/solid-query@5.102.8'
+  - '@tanstack/svelte-query@6.1.48'
+  - '@tanstack/vue-query@5.102.8'
+  - '@testing-library/react@16.3.3'
+  - '@vue/compiler-core@3.5.42'
+  - '@vue/compiler-dom@3.5.42'
+  - '@vue/compiler-sfc@3.5.42'
+  - '@vue/compiler-ssr@3.5.42'
+  - '@vue/reactivity@3.5.42'
+  - '@vue/runtime-core@3.5.42'
+  - '@vue/runtime-dom@3.5.42'
+  - '@vue/server-renderer@3.5.42'
+  - '@vue/shared@3.5.42'
+  - happy-dom@20.11.12
+  - miniflare@5.20260826.0-alpha
+  - vue@3.5.42
+  - wrangler@4.127.0

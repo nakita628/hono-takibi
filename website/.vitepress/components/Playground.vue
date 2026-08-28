@@ -168,21 +168,37 @@ const outputOptions = { ...editorOptions, readOnly: true }
 </script>
 
 <template>
-  <div class="pg">
-    <div class="pg-toolbar">
-      <select v-model="sampleName" class="pg-select">
+  <div class="flex h-[calc(100dvh-var(--vp-nav-height))] flex-col">
+    <div
+      class="flex flex-wrap items-center gap-3 border-b border-(--vp-c-divider) px-3 py-2 text-[13px]"
+    >
+      <select
+        v-model="sampleName"
+        class="pg-select rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg) px-2 py-1 text-(--vp-c-text-1)"
+      >
         <option v-for="s in SAMPLES" :key="s.name" :value="s.name">{{ s.name }}</option>
       </select>
-      <span class="pg-spacer" />
-      <button class="pg-button" type="button" @click="share">
+      <span class="flex-1" />
+      <button
+        class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"
+        type="button"
+        @click="share"
+      >
         {{ shared ? 'Copied URL!' : 'Share' }}
       </button>
-      <button class="pg-button" type="button" @click="copy">
+      <button
+        class="pg-button rounded-md border border-(--vp-c-divider) bg-(--vp-c-bg-soft) px-3 py-1 text-(--vp-c-text-1) hover:border-(--vp-c-brand-1) hover:text-(--vp-c-brand-1)"
+        type="button"
+        @click="copy"
+      >
         {{ copied ? 'Copied!' : 'Copy' }}
       </button>
     </div>
-    <div v-if="monacoReady" class="pg-split">
-      <div class="pg-pane">
+    <div
+      v-if="monacoReady"
+      class="grid min-h-0 flex-1 grid-cols-[1fr_1fr] narrow:grid-cols-[1fr] narrow:grid-rows-[1fr_1fr]"
+    >
+      <div class="pg-pane flex min-h-0 min-w-0 flex-col">
         <VueMonacoEditor
           v-model:value="input"
           :language="activeSample.language"
@@ -192,8 +208,16 @@ const outputOptions = { ...editorOptions, readOnly: true }
           @before-mount="setupMonaco"
         />
       </div>
-      <div class="pg-pane" :class="{ 'pg-stale': outputStale }">
-        <div v-if="error" class="pg-error" :class="{ 'pg-hint': errorIsHint }">{{ error }}</div>
+      <div
+        class="pg-pane flex min-h-0 min-w-0 flex-col border-l border-(--vp-c-divider) narrow:border-t narrow:border-l-0"
+        :class="{ 'pg-stale opacity-55': outputStale }"
+      >
+        <div
+          v-if="error"
+          class="pg-error max-h-[30%] overflow-auto border-b border-(--vp-c-divider) px-3 py-2 font-(family-name:--vp-font-family-mono) text-[12px] leading-[normal] whitespace-pre-wrap"
+          :class="errorIsHint ? 'pg-hint text-(--vp-c-text-2)' : 'text-(--vp-c-danger-1)'"
+          >{{ error }}</div
+        >
         <VueMonacoEditor
           :value="output"
           language="typescript"
@@ -206,81 +230,3 @@ const outputOptions = { ...editorOptions, readOnly: true }
     </div>
   </div>
 </template>
-
-<style scoped>
-.pg {
-  display: flex;
-  flex-direction: column;
-  height: calc(100dvh - var(--vp-nav-height));
-}
-.pg-toolbar {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--vp-c-divider);
-  font-size: 13px;
-}
-.pg-select {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 6px;
-  background: var(--vp-c-bg);
-  color: var(--vp-c-text-1);
-}
-.pg-spacer {
-  flex: 1;
-}
-.pg-button {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 6px;
-  background: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
-}
-.pg-button:hover {
-  border-color: var(--vp-c-brand-1);
-  color: var(--vp-c-brand-1);
-}
-.pg-split {
-  flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-.pg-pane {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-}
-.pg-pane + .pg-pane {
-  border-left: 1px solid var(--vp-c-divider);
-}
-.pg-stale {
-  opacity: 0.55;
-}
-.pg-error {
-  padding: 0.5rem 0.75rem;
-  color: var(--vp-c-danger-1);
-  white-space: pre-wrap;
-  font: 12px var(--vp-font-family-mono);
-  border-bottom: 1px solid var(--vp-c-divider);
-  max-height: 30%;
-  overflow: auto;
-}
-.pg-hint {
-  color: var(--vp-c-text-2);
-}
-@media (max-width: 768px) {
-  .pg-split {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-  }
-  .pg-pane + .pg-pane {
-    border-left: none;
-    border-top: 1px solid var(--vp-c-divider);
-  }
-}
-</style>

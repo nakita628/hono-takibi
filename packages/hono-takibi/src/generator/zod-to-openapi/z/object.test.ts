@@ -270,7 +270,6 @@ describe('object', () => {
           type: 'object',
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // propertyNames + patternProperties with separate messages
@@ -301,7 +300,6 @@ describe('object', () => {
           type: 'object',
           propertyNames: { enum: ['a', 'b'] },
         },
-        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b"];for(const k of Object.keys(o)){if(!allowed.includes(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // record path: no message
@@ -311,7 +309,6 @@ describe('object', () => {
           additionalProperties: { type: 'string' },
           propertyNames: { pattern: '^[a-z]+$' },
         },
-        // slot 未指定時は message field を完全省略し Zod default に委譲
         'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k]})}}})',
       ],
       // record path: propertyNames + patternProperties with separate messages

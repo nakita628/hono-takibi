@@ -56,6 +56,35 @@ export function isStringRef(v: object): v is { readonly $ref: string } {
   return '$ref' in v && typeof v.$ref === 'string'
 }
 
+// A branch that is nothing but a `$ref` can be emitted as the bare identifier;
+// any sibling keyword means the reference has to be wrapped instead.
+export function isRefOnly(s: Schema) {
+  return s.$ref !== undefined && Object.keys(s).length === 1
+}
+
+/**
+ * OpenAPI 3.2 §4.25: `discriminator` "MUST NOT change the validation outcome of the
+ * schema". A branch can therefore be routed by key only when the key alone already
+ * decides it: a bare object head that requires the discriminating property and pins it
+ * to string literals. Zod reads that key off `_zod.propValues`, which only a plain
+ * `z.object(...)` carries — an intersection, a union, a record, `.nullable()` and
+ * `.default()` all report nothing — so every other shape fails closed.
+ */
+export function isDiscriminableBranch(branch: Schema, discriminator: string) {
+  if (branch.allOf || branch.anyOf || branch.oneOf || branch.not) return false
+  if (branch.type !== 'object' || typeof branch.additionalProperties === 'object') return false
+  if (branch.nullable === true || branch.default !== undefined) return false
+  if (!(Array.isArray(branch.required) && branch.required.includes(discriminator))) return false
+  const property = branch.properties?.[discriminator]
+  if (property === undefined || typeof property === 'boolean') return false
+  if (typeof property.const === 'string') return true
+  return (
+    Array.isArray(property.enum) &&
+    property.enum.length > 0 &&
+    property.enum.every((v) => typeof v === 'string')
+  )
+}
+
 export function isParameterRef(ref: string): ref is `#/components/parameters/${string}` {
   return ref.startsWith('#/components/parameters/')
 }

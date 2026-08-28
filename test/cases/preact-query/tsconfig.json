@@ -3,6 +3,8 @@
   "include": [
     "../../__generated__/preact-query/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts"
+    "../../hosts/users-client.ts",
+    "../../types/preact-query.ts",
+    "../../types/assert.ts"
   ]
 }

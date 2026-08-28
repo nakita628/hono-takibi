@@ -120,8 +120,7 @@ function pickAllBodyInfoFromContent(content: unknown) {
   const formContentTypes = new Set(['multipart/form-data', 'application/x-www-form-urlencoded'])
   const isFormContentType = (ct: string): boolean => formContentTypes.has(ct.split(';')[0].trim())
   const validEntries = Object.entries(content).filter(
-    ([_, mediaObj]) =>
-      isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
+    ([, mediaObj]) => isRecord(mediaObj) && isSchemaProperty(mediaObj) && isRecord(mediaObj.schema),
   )
   const formInfos = validEntries
     .filter(([contentType]) => isFormContentType(contentType))

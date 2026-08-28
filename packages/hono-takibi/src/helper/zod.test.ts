@@ -11,14 +11,10 @@ import {
 
 const recurse = zodToOpenAPI
 
-// helper/zod.ts は zodToOpenAPI から呼び出される非公開ヘルパ群を
-// 直接ユニットテストする。zod-to-openapi/index.test.ts が typeless 経路の
-// 「組み合わせ」を完全一致で固定するのに対し、本ファイルは
-// **helper/zod.ts 単独で未カバーだったブランチ** を最小再現で網羅する。
-//
-// 期待値はすべて実出力を確認した上で toBe で固定。Zod の挙動に依存する
-// runtime 試験は zod-to-openapi/index.test.ts 側に集約してあるため、
-// 本ファイルは emit 結果 (= 生成コード文字列) の構造保証のみを行う。
+// Unit tests for the internal helpers that zodToOpenAPI calls. Where
+// zod-to-openapi/index.test.ts pins the *combinations* along the typeless path, this file covers
+// the branches of helper/zod.ts alone with minimal reproductions. Runtime behaviour that depends
+// on Zod lives in zod-to-openapi/index.test.ts, so this file only asserts the emitted string.
 
 describe('helper/zod', () => {
   describe('hasTypelessConstraint', () => {
@@ -127,8 +123,8 @@ describe('helper/zod', () => {
     })
 
     it('emits contains with explicit minContains only (lowerBoundMessage ← x-minContains-message)', () => {
-      // schema.minContains が指定されているので lowerBoundMessage は x-minContains-message を使う。
-      // 未指定だと containsMessage (x-contains-message) を使う。
+      // With schema.minContains set, lowerBoundMessage uses x-minContains-message;
+      // without it, containsMessage (x-contains-message) is used instead.
       expect(
         emitTypelessRefine(
           {
@@ -213,9 +209,8 @@ describe('helper/zod', () => {
     })
 
     it('falls back to x-error-message when keyword-specific slot is absent (root-level)', () => {
-      // messageFor は個別 slot が undefined のとき x-error-message を fallback として返す。
-      // 個別 properties slot 未指定 + x-error-message 指定 → property check の message に
-      // x-error-message が出る。
+      // messageFor falls back to x-error-message when the keyword-specific slot is undefined, so
+      // the property check carries x-error-message here.
       expect(
         emitTypelessRefine(
           {
@@ -230,13 +225,10 @@ describe('helper/zod', () => {
     })
 
     it('then/else fallback chain: x-error-message reaches then/else via x-if-message', () => {
-      // messageFor の `key === 'then' || key === 'else'` ガードは
-      // **直接** の x-error-message fallback を抑制する。が、`thenMessage / elseMessage` は
-      // `messageFor(s, 'then') ?? ifMessage` のチェーンで、ifMessage 自体は messageFor(s, 'if')
-      // 経由で x-error-message に fallback する。
-      // → 結果として x-then-message / x-else-message / x-if-message いずれも
-      //   未指定で x-error-message のみ指定された場合、then/else 両分岐で
-      //   x-error-message が message として発火する。
+      // The `key === 'then' || key === 'else'` guard in messageFor suppresses the *direct*
+      // x-error-message fallback, but thenMessage/elseMessage chain through
+      // `messageFor(s, 'then') ?? ifMessage`, and ifMessage itself falls back via
+      // messageFor(s, 'if'). So with only x-error-message set, both branches still carry it.
       expect(
         emitTypelessRefine(
           {
@@ -254,8 +246,8 @@ describe('helper/zod', () => {
     })
 
     it('pickMessage ignores non-string slot values (boolean) and falls through to undefined', () => {
-      // x-properties-message に boolean を渡しても message は省略される。
-      // pickMessage の `typeof value !== 'string'` 分岐をカバー。
+      // A boolean x-properties-message is dropped, covering pickMessage's
+      // `typeof value !== 'string'` branch.
       expect(
         emitTypelessRefine(
           {
@@ -420,9 +412,9 @@ describe('helper/zod', () => {
       expect(
         makeUnevaluatedProperties(
           {
-            // type: 'object' を明示しないと anyOf/oneOf/if の sub-schema は typeless 経路で
-            // z.unknown().superRefine(...) に展開される。本テストは object 経路で安定させたい
-            // ので type を付与し、conditionalBranchStmt と dependentSchemas の合流を確認する。
+            // Without an explicit type: 'object', anyOf/oneOf/if sub-schemas expand along the
+            // typeless path into z.unknown().superRefine(...). The type keeps this case on the
+            // object path so conditionalBranchStmt and dependentSchemas can be checked together.
             anyOf: [{ type: 'object', properties: { c: { type: 'string' } } }],
             oneOf: [{ type: 'object', properties: { d: { type: 'string' } } }],
             dependentSchemas: { e: { type: 'object', properties: { f: { type: 'string' } } } },
@@ -437,9 +429,9 @@ describe('helper/zod', () => {
     })
 
     it('skips anyOf branch when sub has neither properties nor patternProperties (early return)', () => {
-      // conditionalBranchStmt の `!sub.properties && !sub.patternProperties` 早期 return 分岐。
-      // `type: 'object'` だけ持つ anyOf sub は evaluated key を提供しないので skip され、
-      // evalStmts には evaluator が積まれない (= 既知 key だけが許される)。
+      // conditionalBranchStmt's `!sub.properties && !sub.patternProperties` early return: an anyOf
+      // sub with only `type: 'object'` contributes no evaluated keys, so it is skipped and no
+      // evaluator is pushed onto evalStmts (only the known keys are allowed).
       expect(
         makeUnevaluatedProperties(
           {
@@ -456,8 +448,8 @@ describe('helper/zod', () => {
     })
 
     it('emits if/then/else conditional branches into evaluated key set', () => {
-      // type:'object' を明示しないと if subschema は typeless 経路で展開されるので、
-      // ifZod の安定化のため if のみ type 指定。then/else も同様。
+      // Without an explicit type:'object' the if subschema expands along the typeless path, so the
+      // type is set to keep ifZod stable. Same for then/else.
       expect(
         makeUnevaluatedProperties(
           {

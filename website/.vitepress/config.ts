@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
@@ -21,7 +22,7 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [groupIconVitePlugin(), typespecBundle()],
+    plugins: [groupIconVitePlugin(), tailwindcss(), typespecBundle()],
     resolve: {
       alias: [
         // @typespec/compiler imports 'prettier/plugins/yaml.js' (extension-suffixed);

@@ -15,11 +15,15 @@ import { TYPESPEC_BUNDLES_DIR, TYPESPEC_LIBRARIES } from './index'
 // export of every bundled library.
 const typespecImports = Object.fromEntries(
   TYPESPEC_LIBRARIES.flatMap((name) => {
+    // oxlint-disable-next-line typescript/no-unsafe-assignment -- JSON.parse is typed any; the annotation narrows it and `?? {}` guards the only key read
     const pkg: { readonly exports?: { readonly [key: string]: unknown } } = JSON.parse(
       readFileSync(new URL(`../../../node_modules/${name}/package.json`, import.meta.url), 'utf8'),
     )
     const subpaths = Object.keys(pkg.exports ?? {}).filter(
-      (key) => key !== '.' && key !== './testing' && key !== './internals',
+      (key) =>
+        key !== '.' &&
+        key !== './testing' &&
+        (!key.startsWith('./internals') || key === './internals/prettier-formatter'),
     )
     return [
       [name, `/${TYPESPEC_BUNDLES_DIR}/${name}/index.js`] as const,

@@ -117,6 +117,53 @@ describe('makeSchemaCode', () => {
     )
   })
 
+  it.concurrent('should keep a recursive discriminated-union branch discriminable in its annotation', () => {
+    const recursiveSchemas = {
+      Expression: {
+        oneOf: [
+          { $ref: '#/components/schemas/LiteralExpr' },
+          { $ref: '#/components/schemas/UnaryExpr' },
+        ],
+        discriminator: { propertyName: 'type', mapping: {} },
+      },
+      LiteralExpr: {
+        type: 'object',
+        properties: { type: { type: 'string', const: 'literal' }, value: { type: 'string' } },
+        required: ['type', 'value'],
+      },
+      UnaryExpr: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', const: 'unary' },
+          operand: { $ref: '#/components/schemas/Expression' },
+        },
+        required: ['type', 'operand'],
+      },
+    } as const
+    const names = ['Expression', 'LiteralExpr', 'UnaryExpr']
+    const analysis = analyzeCircularSchemas(recursiveSchemas, names)
+    const options = { exportKeyword: 'export ', exportType: false } as const
+
+    expect(
+      makeSchemaCode(makeSchemaInfo('UnaryExpr', recursiveSchemas.UnaryExpr, analysis), options),
+    ).toBe(
+      'export const UnaryExprSchema:z.ZodType<UnaryExprType>&z.core.$ZodTypeDiscriminable=z.lazy(()=>z.object({type:z.literal("unary"),operand:ExpressionSchema}).openapi({"required":["type","operand"]})).openapi(\'UnaryExpr\')',
+    )
+    expect(
+      makeSchemaCode(
+        makeSchemaInfo('LiteralExpr', recursiveSchemas.LiteralExpr, analysis),
+        options,
+      ),
+    ).toBe(
+      'export const LiteralExprSchema:z.ZodType<LiteralExprType>&z.core.$ZodTypeDiscriminable=z.object({type:z.literal("literal"),value:z.string()}).openapi({"required":["type","value"]}).openapi(\'LiteralExpr\')',
+    )
+    expect(
+      makeSchemaCode(makeSchemaInfo('Expression', recursiveSchemas.Expression, analysis), options),
+    ).toBe(
+      'export const ExpressionSchema:z.ZodType<ExpressionType>=z.lazy(()=>z.discriminatedUnion(\'type\',[LiteralExprSchema,UnaryExprSchema]).openapi({"discriminator":{"propertyName":"type","mapping":{}}})).openapi(\'Expression\')',
+    )
+  })
+
   it.concurrent('should generate schema code with readonly and type export', () => {
     const analysis = analyzeCircularSchemas(schemas, ['User'], true)
     const info = makeSchemaInfo('User', schemas.User, analysis)

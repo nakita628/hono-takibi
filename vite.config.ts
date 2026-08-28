@@ -6,12 +6,15 @@ export default defineConfig({
   // declare what is specific to them.
   //
   // Do not add `fmt.ignorePatterns` here: it is inherited too, and a root-relative pattern
-  // such as `packages/**` makes the workspaces' own `vp check` exclude every file. Scope for
-  // the repository-root files is set by the paths in the root `check` / `fix` scripts.
+  // such as `packages/**` makes the workspaces' own `vp check` exclude every file.
   fmt: {
     printWidth: 100,
     singleQuote: true,
     semi: false,
+    // The default "css" sensitivity cannot see Tailwind's whitespace utilities, so it would
+    // rewrap the whitespace-pre-wrap error pane in website's Playground.vue and change its
+    // rendering. Must live here: workspace-level fmt options are not picked up.
+    htmlWhitespaceSensitivity: 'strict',
     sortPackageJson: true,
     experimentalSortImports: {},
   },

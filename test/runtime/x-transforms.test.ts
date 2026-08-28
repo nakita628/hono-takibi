@@ -693,9 +693,8 @@ describe('v2.6: contentEncoding / dependentSchemas / if-then-else', () => {
     expect(res.status).toBe(422)
   })
 
-  // Review-driven negative tests (loid B / yusukebe 1 / yuri 2.4):
-  // Verify that if/then/else actually rejects missing required keys, not just
-  // the .openapi({required:[...]}) metadata pass-through.
+  // Negative tests: if/then/else must actually reject missing required keys, not merely pass
+  // through the .openapi({required:[...]}) metadata.
 
   it('if-then: rejects when then-required key is missing (semantic verification)', async () => {
     // kind=premium triggers then which requires "feature"

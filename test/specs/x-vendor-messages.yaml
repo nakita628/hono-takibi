@@ -483,7 +483,7 @@ components:
     # Coverage backfill — runtime tests for x-*-message extensions that were
     # previously only covered by codegen unit tests. Each property exercises
     # one extension under a runtime POST + JSON safeParse + issue.message
-    # toStrictEqual assertion (yuri-検問 batch).
+    # toStrictEqual assertion.
     Misc:
       type: object
       required: [color, kind, tags, sized, namespaced, prefixed, payload]

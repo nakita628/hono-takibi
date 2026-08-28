@@ -338,12 +338,12 @@ components:
       additionalProperties: false
       x-additionalProperties-message: '未知のフィールドは許可されません'
       properties:
-        # x-required-message: required と type で別メッセージ
+        # x-required-message: separate messages for required and type
         name:
           type: string
           x-required-message: '名前は必須です'
           x-error-message: '名前は文字列である必要があります'
-        # contains: 配列に最低1個の "important" タグ
+        # contains: at least one "important" tag in the array
         tags:
           type: array
           items:
@@ -369,7 +369,7 @@ components:
         # if/then/else
         feature:
           type: string
-        # dependentSchemas: kind="premium" のとき feature 必須
+        # dependentSchemas: feature is required when kind="premium"
         # contentEncoding + contentMediaType + contentSchema
         settings:
           type: string

@@ -5,6 +5,7 @@ import { h } from 'vue'
 import Playground from '../components/Playground.vue'
 
 import 'virtual:group-icons.css'
+import './tailwind.css'
 import './custom.css'
 
 export default {

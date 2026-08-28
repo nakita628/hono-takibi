@@ -1,8 +1,38 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "extends": [
+    "config:best-practices",
+    ":separateMultipleMajorReleases",
+    "security:openssf-scorecard"
+  ],
   "timezone": "Asia/Tokyo",
   "schedule": ["* * * * 6"],
-  "automerge": true,
-  "platformAutomerge": false
+  "dependencyDashboardAutoclose": true,
+  "osvVulnerabilityAlerts": true,
+  "platformAutomerge": false,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["* * * * 6"]
+  },
+  "packageRules": [
+    {
+      "matchDatasources": ["npm", "github-actions"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchUpdateTypes": ["pin", "pinDigest"],
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["digest"],
+      "automerge": false
+    }
+  ]
 }

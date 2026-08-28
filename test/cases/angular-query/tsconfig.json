@@ -3,6 +3,8 @@
   "include": [
     "../../__generated__/angular-query/**/*",
     "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts"
+    "../../hosts/users-client.ts",
+    "../../types/angular-query.ts",
+    "../../types/assert.ts"
   ]
 }

@@ -1,0 +1,25 @@
+// vue-query: the hook's generics must reach the caller, not degrade to `any` or the library default.
+import { usePostUsers, useUsers } from '../__generated__/vue-query/hooks'
+import { assertType, type NotAny } from './assert'
+
+type ApiError = { readonly code: number }
+type Rollback = { readonly prev: readonly string[] }
+
+export function assertions() {
+  const query = useUsers<{ id: string; name: string }[], ApiError>()
+  assertType<NotAny<typeof query.data>>(true)
+  assertType<NotAny<typeof query.error>>(true)
+
+  const mutation = usePostUsers<ApiError, Rollback>({
+    mutation: {
+      onMutate: () => ({ prev: [] as readonly string[] }),
+      // TOnMutateResult must survive to onError, otherwise `result` is `unknown`.
+      onError: (_error, _variables, result) => result?.prev,
+    },
+  })
+  assertType<NotAny<typeof mutation.error>>(true)
+  // TError must be the caller's type, not the library default (`Error`).
+  const mutationError: ApiError | null = mutation.error.value
+  const rows: { id: string; name: string }[] | undefined = query.data.value
+  return { query, mutation, mutationError, rows }
+}

@@ -1,0 +1,14 @@
+/* No preflight: the VitePress default theme provides its own base styles */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Dot-directories are excluded from automatic source detection */
+@source '../components';
+
+/* Apply hover styles on all devices, not only hover-capable ones */
+@custom-variant hover (&:hover);
+
+/* Inclusive bound: max-[768px] compiles to `width < 768px` */
+@custom-variant narrow (@media (max-width: 768px));

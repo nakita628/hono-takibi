@@ -4,13 +4,13 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "deps": "mkdir -p /tmp/pnpm-store && pnpm config set store-dir /tmp/pnpm-store &&rm -rf node_modules && rm -rf pnpm-lock.yaml && rm -rf ~/.pnpm-store && pnpm store prune && pnpm install --no-prefer-frozen-lockfile",
-    "check": "vp fmt --check '*.json' '*.yaml' '*.yml' '*.md' .github '!apps/**' '!packages/**' '!test/**' '!website/**' --no-error-on-unmatched-pattern && vp run -r check",
-    "fix": "vp fmt '*.json' '*.yaml' '*.yml' '*.md' .github '!apps/**' '!packages/**' '!test/**' '!website/**' --no-error-on-unmatched-pattern && vp run -r check --fix",
-    "test": "vp run --filter ./packages/hono-takibi test && vp run --filter ./test test"
+    "deps": "rm -rf node_modules pnpm-lock.yaml && pnpm install",
+    "check": "vp fmt --check && vp run -r check",
+    "fix": "vp fmt && vp run -r check --fix",
+    "test": "vp run --filter ./packages/hono-takibi --filter ./test test"
   },
   "devDependencies": {
-    "vite-plus": "0.2.9"
+    "vite-plus": "0.3.0"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.24.0"
 }
