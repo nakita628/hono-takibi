@@ -126,12 +126,14 @@ describe('requestBodies', () => {
       const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)
       const emittedNames = new Set(
         [
-          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/g),
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/gu),
         ].map((m) => m[1]),
       )
       const generatedNames = new Set(
         [
-          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/g),
+          ...generated.matchAll(
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)RequestBody\s*=/gu,
+          ),
         ].map((m) => m[1]),
       )
       expect(emittedNames).toStrictEqual(generatedNames)

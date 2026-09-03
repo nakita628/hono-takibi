@@ -43,6 +43,13 @@ bunx hono-takibi
 
 :::
 
+To run a config file that lives somewhere else, pass `--config`. Paths inside it still
+resolve against the current directory:
+
+```sh
+npx hono-takibi --config config/api.config.ts
+```
+
 ## Full Configuration
 
 ::: code-group

@@ -5,6 +5,9 @@ packages:
   - website
 allowBuilds:
   esbuild: true
+  # Optional native accelerator pulled in through effect -> msgpackr; the JS
+  # fallback is what hono-takibi uses, so its build script stays off.
+  msgpackr-extract: false
   sharp: true
   vue-demi: true
   workerd: true

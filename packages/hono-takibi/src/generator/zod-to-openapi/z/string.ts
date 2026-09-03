@@ -165,7 +165,7 @@ export function string(
       // JSON.parse with a guarded try/catch so syntax errors surface as
       // Zod issues instead of uncaught exceptions.
       const mt = mediaType ? mediaType.toLowerCase() : ''
-      const isBinary = /^(image|audio|video)\//.test(mt) || mt === 'application/octet-stream'
+      const isBinary = /^(image|audio|video)\//u.test(mt) || mt === 'application/octet-stream'
       const isJson = mt.length > 0 && mt.includes('json')
       // Binary MIME types decode base64 directly to Uint8Array — UTF-8
       // decoding would corrupt the bytes.
@@ -224,7 +224,7 @@ export function string(
     const baseInner = includeBaseError ? baseErrorArg.slice(1, -1) : ''
     const allOpts = baseInner ? [...fmtOpts, baseInner] : [...fmtOpts]
     if (allOpts.length > 0) {
-      return `z.${format.replace(/\(\)$/, `({${allOpts.join(',')}})`)}`
+      return `z.${format.replace(/\(\)$/u, `({${allOpts.join(',')}})`)}`
     }
     return `z.${format}`
   }
@@ -255,7 +255,7 @@ export function string(
   // `baseErrorArg`, but Zod scopes that to invalid-type errors only — `.min/.max/...`
   // need an explicit fallback to honor the contract in openapi/index.ts.
   const patternMessage = schema['x-pattern-message'] ?? errorMessage
-  const hasUnicodeProperty = schema.pattern && /\\[pP]\{/.test(schema.pattern)
+  const hasUnicodeProperty = schema.pattern && /\\[pP]\{/u.test(schema.pattern)
   const patternMessagePart = patternMessage ? `,${error(patternMessage)}` : ''
   const pattern = schema.pattern
     ? `.regex(/${escapeRegexLiteral(schema.pattern)}/${hasUnicodeProperty ? 'u' : ''}${patternMessagePart})`

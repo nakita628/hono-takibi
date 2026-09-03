@@ -52,6 +52,9 @@ bunx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
 
 :::
 
+Run `hono-takibi --help` for the full flag list, including `--config` for a config file
+outside the current directory and `--completions` for a shell completion script.
+
 ### Example
 
 input:

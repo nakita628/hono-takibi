@@ -31,10 +31,10 @@ import {
 } from '../utils/index.js'
 
 export function makeRef($ref: string) {
-  const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
+  const COMPONENT_SUFFIX_MAP: readonly {
     readonly prefix: string
     readonly suffix: string
-  }> = [
+  }[] = [
     { prefix: '#/components/schemas/', suffix: 'Schema' },
     { prefix: '#/components/parameters/', suffix: 'ParamsSchema' },
     { prefix: '#/components/headers/', suffix: 'HeaderSchema' },
@@ -47,7 +47,7 @@ export function makeRef($ref: string) {
     { prefix: '#/components/pathItems/', suffix: 'PathItem' },
     { prefix: '#/components/mediaTypes/', suffix: 'MediaTypeSchema' },
   ]
-  const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
+  const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/u)
   if (propertiesMatch) {
     const parentSchema = toIdentifierPascalCase(
       ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
@@ -127,7 +127,7 @@ export function makeOperationResponses(
   const result = Object.entries(responses)
     .map(([statusCode, res]) => {
       if (!isResponses(res)) return undefined
-      return `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly)}`
+      return `${/^\d+$/u.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res, readonly)}`
     })
     .filter((v) => v !== undefined)
     .join(',')
@@ -198,7 +198,7 @@ export function makeHeadersAndReferences(headers: Header | Reference, readonly?:
       ? `explode:${JSON.stringify(headers.explode)}`
       : undefined,
     'schema' in headers && headers.schema
-      ? `schema:${zodToOpenAPI(headers.schema, { headers: headers }, readonly === true ? { readonly: true } : undefined)}`
+      ? `schema:${zodToOpenAPI(headers.schema, { headers }, readonly === true ? { readonly: true } : undefined)}`
       : undefined,
     'content' in headers && headers.content
       ? `content:${makeContent(headers.content, readonly).join(',')}`
@@ -331,7 +331,7 @@ export function makeContent(
     Object.entries(content)
       .map(([contentType, mediaOrRef]) => {
         // RFC 6838 + RFC 7231 §3.1.1.1; fall back to JSON.stringify otherwise.
-        const key = /^[A-Za-z0-9!#$&^_+\-./*;= ]+$/.test(contentType)
+        const key = /^[A-Za-z0-9!#$&^_+\-./*;= ]+$/u.test(contentType)
           ? `'${contentType}'`
           : JSON.stringify(contentType)
         if (isRefObject(mediaOrRef)) {
@@ -476,7 +476,7 @@ export function makeParameters(
       ? baseSchema
       : isStringWire && schema.type === 'boolean'
         ? baseSchema
-            .replaceAll(/\bz\.boolean\(/g, 'z.stringbool(')
+            .replaceAll(/\bz\.boolean\(/gu, 'z.stringbool(')
             .replaceAll('.default("true")', '.default(true)')
             .replaceAll('.default("false")', '.default(false)')
         : isStringWire && schema.type === 'date'
@@ -484,7 +484,7 @@ export function makeParameters(
           : isStringWire && (schema.type === 'object' || schema.type === 'array')
             ? baseSchema
                 .replaceAll(
-                  /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                  /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
                   (_: string, type: string, constraints: string) =>
                     type === 'int'
                       ? `z.coerce.number().int()${constraints}`

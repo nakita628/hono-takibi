@@ -108,12 +108,12 @@ describe('schemas', () => {
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = schemasCode({ schemas: sampleSchemas }, true, false)
       const emittedNames = new Set(
-        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/g)].map(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu)].map(
           (m) => m[1],
         ),
       )
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/g)].map(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu)].map(
           (m) => m[1],
         ),
       )
@@ -131,14 +131,14 @@ describe('schemas', () => {
       for (const f of files) {
         const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
         for (const m of src.matchAll(
-          /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/g,
+          /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu,
         )) {
           if (m[1] !== undefined) emittedNames.add(m[1])
         }
       }
       const generated = schemasCode({ schemas: sampleSchemas }, true, false)
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/g)].map(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Schema\s*=/gu)].map(
           (m) => m[1],
         ),
       )

@@ -27,8 +27,8 @@ export function linksCode(components: Components, exportLinks: boolean, readonly
   if (!links) return ''
   const asConst = readonly ? ' as const' : ''
   return Object.entries(links)
-    .map(([k, link]) => {
-      return `${makeConst(exportLinks, k, 'Link')}${makeLinkOrReference(link)}${asConst}`
-    })
+    .map(
+      ([k, link]) => `${makeConst(exportLinks, k, 'Link')}${makeLinkOrReference(link)}${asConst}`,
+    )
     .join('\n\n')
 }

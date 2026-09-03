@@ -28,7 +28,7 @@ import {
 import { componentsCode } from '../zod-openapi-hono/openapi/components/index.js'
 import { routeCode } from '../zod-openapi-hono/openapi/routes/index.js'
 
-function collectRefs(schema: Schema, refs: Set<string> = new Set()) {
+function collectRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').at(-1)
     if (refName) refs.add(refName)
@@ -65,7 +65,7 @@ function collectRefs(schema: Schema, refs: Set<string> = new Set()) {
 function collectAllDependencies(
   refName: string,
   schemas: { readonly [k: string]: Schema },
-  visited: Set<string> = new Set(),
+  visited = new Set<string>(),
 ) {
   if (visited.has(refName)) return visited
   visited.add(refName)
@@ -241,8 +241,9 @@ function filterToJsonContentTypes(openapi: OpenAPI) {
     Object.entries(openapi.paths).map(([path, pathItem]) => {
       const filteredPathItem = Object.fromEntries(
         Object.entries(pathItem).map(([k, v]) => {
-          if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(k))
+          if (!['get', 'post', 'put', 'delete', 'patch', 'options', 'head', 'trace'].includes(k)) {
             return [k, v] as const
+          }
           if (!hasRequestBodyContent(v)) return [k, v] as const
           const jsonContent = v.requestBody.content['application/json']
           if (!jsonContent) return [k, v] as const

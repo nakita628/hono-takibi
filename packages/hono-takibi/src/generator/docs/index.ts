@@ -39,17 +39,17 @@ const MAX_SCHEMA_DEPTH = 50
 function toSlug(text: string) {
   const str = typeof text === 'string' ? text : String(text ?? '')
   return str
-    .replaceAll(/[A-Z]/g, (c) => c.toLowerCase())
-    .replaceAll(/[^a-z0-9\u3000-\u9fff\uff00-\uffef -]/g, '')
-    .replaceAll(/\s+/g, '-')
+    .replaceAll(/[A-Z]/gu, (c) => c.toLowerCase())
+    .replaceAll(/[^a-z0-9\u3000-\u9FFF\uFF00-\uFFEF -]/gu, '')
+    .replaceAll(/\s+/gu, '-')
 }
 
 function toTitleSlug(title: string) {
   const str = typeof title === 'string' ? title : String(title ?? '')
   return str
     .toLowerCase()
-    .replaceAll(/[^a-z0-9 -]/g, '')
-    .replaceAll(/\s+/g, '-')
+    .replaceAll(/[^a-z0-9 -]/gu, '')
+    .replaceAll(/\s+/gu, '-')
 }
 
 function lookupComponentSection(
@@ -187,7 +187,7 @@ function makeDefaultValue(schema: Schema): unknown {
 function makeExampleFromSchema(
   schema: Schema,
   components: Components | undefined,
-  visited: Set<string> = new Set(),
+  visited = new Set<string>(),
   depth = 0,
 ): unknown {
   if (depth > MAX_SCHEMA_DEPTH) return {}
@@ -454,9 +454,12 @@ function makeCodeSample(
   const fullPath = `${basePathPrefix}${pathStr}`
   const body = makeCodeSampleBody(operation, components)
 
-  const cmdParts = ['hono request \\', `  -X ${method.toUpperCase()} \\`, `  -P ${fullPath} \\`]
-
-  cmdParts.push(...headers.map((h) => `${h} \\`))
+  const cmdParts = [
+    'hono request \\',
+    `  -X ${method.toUpperCase()} \\`,
+    `  -P ${fullPath} \\`,
+    ...headers.map((h) => `${h} \\`),
+  ]
 
   if (body) {
     cmdParts.push(`  -d '${indentJsonBody(body)}' \\`)
@@ -555,7 +558,7 @@ function flattenBodyParams(
   schema: Schema,
   components: Components | undefined,
   prefix: string,
-  visited: Set<string> = new Set(),
+  visited = new Set<string>(),
   depth = 0,
 ): readonly { name: string; in_: string; type: string; required: boolean; description: string }[] {
   if (depth > MAX_SCHEMA_DEPTH) return []
@@ -571,7 +574,7 @@ function flattenBodyParams(
   }
 
   if (schema.type === 'object' && schema.properties) {
-    const requiredSet = new Set(schema.required ?? [])
+    const requiredSet = new Set(schema.required)
     // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : `» ${key}`
@@ -737,7 +740,7 @@ function flattenResponseSchemaFields(
   schema: Schema,
   components: Components | undefined,
   prefix: string,
-  visited: Set<string> = new Set(),
+  visited = new Set<string>(),
   depth = 0,
 ): readonly {
   name: string
@@ -758,7 +761,7 @@ function flattenResponseSchemaFields(
     return []
   }
   if (schema.type === 'object' && schema.properties) {
-    const requiredSet = new Set(schema.required ?? [])
+    const requiredSet = new Set(schema.required)
     // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : key
@@ -957,7 +960,7 @@ function flattenSchemaProperties(
   schema: Schema,
   components: Components | undefined,
   prefix: string,
-  visited: Set<string> = new Set(),
+  visited = new Set<string>(),
   depth = 0,
 ) {
   if (depth > MAX_SCHEMA_DEPTH) return [] as const
@@ -971,8 +974,7 @@ function flattenSchemaProperties(
     return [] as const
   }
   if (schema.type === 'object' && schema.properties) {
-    const requiredSet = new Set(schema.required ?? [])
-    // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each row plus its nested rows
+    const requiredSet = new Set(schema.required)
     return Object.entries(schema.properties).flatMap(([key, propSchema]) => {
       const fullName = prefix ? `${prefix} ${key}` : key
       return [
@@ -1135,12 +1137,12 @@ export function makeDocs(
   const fullTitle = version ? `${title} v${version}` : title
   const titleSlug = toTitleSlug(title)
   const securitySchemes = openAPI.components?.securitySchemes
-  const lines: string[] = []
-  lines.push(`<h1 id="${titleSlug}">${escapeHtml(fullTitle)}</h1>`, '')
-  lines.push(
+  const lines: string[] = [
+    `<h1 id="${titleSlug}">${escapeHtml(fullTitle)}</h1>`,
+    '',
     '> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.',
     '',
-  )
+  ]
   if (openAPI.info?.description) {
     lines.push(openAPI.info.description.trimEnd(), '')
   }
@@ -1206,8 +1208,7 @@ export function makeDocs(
               openAPI.components,
               entry,
             )
-      lines.push(...codeSampleLines, '')
-      lines.push(`\`${method.toUpperCase()} ${pathStr}\``, '')
+      lines.push(...codeSampleLines, '', `\`${method.toUpperCase()} ${pathStr}\``, '')
       if (operation.description) {
         lines.push(operation.description, '')
       }

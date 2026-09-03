@@ -1,4 +1,5 @@
-import { type FormatConfig, format } from 'oxfmt'
+import { format } from 'oxfmt'
+import type { FormatConfig } from 'oxfmt'
 
 const defaultConfig = {
   printWidth: 100,

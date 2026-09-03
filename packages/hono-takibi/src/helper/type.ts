@@ -41,7 +41,7 @@ export function makeTypeString(
 }
 
 function makeRefTypeString(ref: string, selfTypeName: string) {
-  const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+  const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
     if (parentName === selfTypeName) {
@@ -146,7 +146,7 @@ function makeArrayTypeString(
     return `${prefix}unknown[]`
   }
   if (items.$ref) {
-    const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
+    const propertiesMatch = items.$ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//u)
     if (propertiesMatch) {
       const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
       if (parentName === selfTypeName) {
@@ -187,7 +187,7 @@ function makeObjectTypeString(
   const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
     const propType = makeTypeString(propSchema, selfTypeName, cyclicGroup, readonly)
     const isRequired = requiredSet.has(key)
-    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/u.test(key) ? key : `'${key}'`
     return `${readonlyPrefix}${safeKey}${isRequired ? '' : '?'}:${propType}`
   })
   return `{${propertyStrings.join(';')}}`

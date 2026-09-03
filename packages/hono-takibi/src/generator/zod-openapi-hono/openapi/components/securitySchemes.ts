@@ -30,8 +30,9 @@ export function securitySchemesCode(
   if (!securitySchemes) return ''
   const asConst = readonly ? ' as const' : ''
   return Object.keys(securitySchemes)
-    .map((k) => {
-      return `${makeConst(exportSecuritySchemes, k, 'SecurityScheme')}${JSON.stringify(securitySchemes[k])}${asConst}`
-    })
+    .map(
+      (k) =>
+        `${makeConst(exportSecuritySchemes, k, 'SecurityScheme')}${JSON.stringify(securitySchemes[k])}${asConst}`,
+    )
     .join('\n\n')
 }

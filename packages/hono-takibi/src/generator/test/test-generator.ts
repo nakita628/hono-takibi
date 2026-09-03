@@ -230,14 +230,17 @@ function makeAuthHeader(sec: {
   switch (sec.type) {
     case 'bearer':
     case 'oauth2':
+      // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
       return "'Authorization':`Bearer ${faker.string.alphanumeric(32)}`"
     case 'basic':
+      // oxlint-disable-next-line no-template-curly-in-string -- the placeholder belongs to the emitted template literal
       return "'Authorization':`Basic ${btoa(`${faker.internet.username()}:${faker.internet.password()}`)}`"
     case 'apiKey':
       if (sec.in === 'header') return `${quoteSingle(sec.name)}:faker.string.alphanumeric(32)`
       // RFC 6265: `Cookie: <name>=<value>`. apiKey-in-query is appended upstream.
-      if (sec.in === 'cookie')
+      if (sec.in === 'cookie') {
         return `'Cookie':\`${escapeTemplateLiteral(sec.name)}=\${faker.string.alphanumeric(32)}\``
+      }
   }
   return ''
 }
@@ -349,7 +352,7 @@ const TEST_IMPORT_SOURCE: Record<'vitest' | 'vite-plus' | 'bun', string> = {
 
 export function makeTestFile(
   spec: OpenAPI,
-  appImportPath: string = './app',
+  appImportPath = './app',
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
@@ -382,13 +385,13 @@ export function makeTestFile(
 }
 
 function getPathFirstSegment(path: string) {
-  const rawSegment = path.replace(/^\/+/, '').split('/')[0] ?? ''
+  const rawSegment = path.replace(/^\/+/u, '').split('/')[0] ?? ''
   const sanitized = rawSegment
-    .replaceAll(/\{([^}]+)\}/g, '$1')
-    .replaceAll(/[^0-9A-Za-z._-]/g, '_')
-    .replaceAll(/^[._-]+|[._-]+$/g, '')
-    .replaceAll(/__+/g, '_')
-    .replaceAll(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+    .replaceAll(/\{([^}]+)\}/gu, '$1')
+    .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
+    .replaceAll(/^[._-]+|[._-]+$/gu, '')
+    .replaceAll(/__+/gu, '_')
+    .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
   return sanitized === '' ? '__root' : sanitized
 }
 

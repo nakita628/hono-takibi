@@ -78,14 +78,14 @@ function isWatchedInputFile(filePath: string): boolean {
 async function listWatchedInputFiles(directory: string): Promise<readonly string[]> {
   const entries = await fsp.readdir(directory, { withFileTypes: true }).catch(() => [])
   const nested = await Promise.all(
-    entries.map((entry) => {
+    entries.map(async (entry) => {
       const entryPath = path.join(directory, entry.name)
       if (entry.isDirectory()) {
         return entry.name === 'node_modules' || entry.name.startsWith('.')
-          ? Promise.resolve([])
+          ? []
           : listWatchedInputFiles(entryPath)
       }
-      return Promise.resolve(entry.isFile() && isWatchedInputFile(entryPath) ? [entryPath] : [])
+      return entry.isFile() && isWatchedInputFile(entryPath) ? [entryPath] : []
     }),
   )
   return nested.flat()
@@ -314,8 +314,8 @@ export function honoTakibiVite(): any {
   // Serializes generation runs: a config-change run bypasses the debounce and
   // could otherwise interleave its cleanup with another run's writes.
   const enqueueRun = (task: () => Promise<void>) => {
-    const queued = pluginState.runQueue.then(task).catch((error: unknown) => {
-      console.error('❌ run error:', error)
+    const queued = pluginState.runQueue.then(task).catch((e: unknown) => {
+      console.error('❌ run error:', e)
     })
     pluginState.runQueue = queued
     return queued
@@ -339,11 +339,11 @@ export function honoTakibiVite(): any {
             const fileStats = await fsp.stat(stalePath).catch(() => null)
             if (!fileStats) return null
             if (fileStats.isDirectory()) {
-              await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
+              await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => undefined)
               return stalePath
             }
             if (fileStats.isFile() && (stalePath.endsWith('.ts') || stalePath.endsWith('.md'))) {
-              await fsp.unlink(stalePath).catch(() => {})
+              await fsp.unlink(stalePath).catch(() => undefined)
               return stalePath
             }
             return null
@@ -397,10 +397,9 @@ export function honoTakibiVite(): any {
         server.watcher.add(absoluteConfigFilePath)
         // 200ms debounce: editors emit multiple fs events on save, and batch file changes
         // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
-        const debouncedRunGeneration = debounce(
-          200,
-          () => void enqueueRun(() => runIfInputsChanged(server)),
-        )
+        const debouncedRunGeneration = debounce(200, () => {
+          void enqueueRun(() => runIfInputsChanged(server))
+        })
 
         server.watcher.on('all', (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)

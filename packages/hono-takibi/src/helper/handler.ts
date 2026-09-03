@@ -24,7 +24,7 @@ import { methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { schemaToFaker } from './faker.js'
 
-function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
+function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop()
     if (refName) refs.add(refName)
@@ -106,11 +106,11 @@ function makeMockHandlerCode(
 
 function sanitizeHandlerSegment(segment: string) {
   return segment
-    .replaceAll(/\{([^}]+)\}/g, '$1')
-    .replaceAll(/[^0-9A-Za-z._-]/g, '_')
-    .replaceAll(/^[._-]+|[._-]+$/g, '')
-    .replaceAll(/__+/g, '_')
-    .replaceAll(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+    .replaceAll(/\{([^}]+)\}/gu, '$1')
+    .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
+    .replaceAll(/^[._-]+|[._-]+$/gu, '')
+    .replaceAll(/__+/gu, '_')
+    .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
 }
 
 /**
@@ -119,7 +119,7 @@ function sanitizeHandlerSegment(segment: string) {
  */
 export function makeHandlerFileName(path: string, tags?: readonly string[]): `${string}.ts` {
   const tagName = uncapitalizeWord(sanitizeHandlerSegment(tags?.[0] ?? ''))
-  const pathName = sanitizeHandlerSegment(path.replace(/^\/+/, '').split('/')[0] ?? '')
+  const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
   const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
   return `${name}.ts`
 }
@@ -219,11 +219,11 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   const baseDir = isDot
     ? '.'
     : isIndexFile
-      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
-      : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
+      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/u)?.[1] ?? '.')
+      : (output.match(/^(.*)\/[^/]+\.ts$/u)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeModuleName = isIndexFile
-    ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
+    ? (output.match(/([^/]+)\/index\.ts$/u)?.[1] ?? 'index')
     : output.endsWith('.ts')
       ? basename(output, '.ts')
       : 'index'
@@ -709,7 +709,7 @@ export async function defineOpenAPIRouteHandler(
   // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
   const componentsModulePath = componentsOutput.endsWith('/index.ts')
     ? dirname(componentsOutput)
-    : componentsOutput.replace(/\.ts$/, '')
+    : componentsOutput.replace(/\.ts$/u, '')
   const componentsImport = aliasPrefix
     ? `${aliasPrefix}/${relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
     : undefined

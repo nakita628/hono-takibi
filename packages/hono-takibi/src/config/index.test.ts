@@ -583,10 +583,11 @@ describe('parseConfig()', () => {
         routes: { output: 'src/routes' },
       })
       expect(result.ok).toBe(false)
-      if (!result.ok)
+      if (!result.ok) {
         expect(result.error).toBe(
           'Invalid config: output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
         )
+      }
     })
 
     it.concurrent('passes with output only', () => {
@@ -1108,7 +1109,7 @@ describe('parseConfig()', () => {
     })
   })
 
-  describe('mock option', () => {
+  describe('mock option shorthands', () => {
     it.concurrent('accepts mock with output', () => {
       const result = parseConfig({
         input: 'openapi.yaml',

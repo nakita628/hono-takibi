@@ -61,8 +61,10 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
+    "@effect/platform-node": "4.0.0-rc.112",
     "@typespec/compiler": "^1.15.0",
     "@typespec/openapi3": "^1.15.0",
+    "effect": "4.0.0-rc.112",
     "oxfmt": "^0.65.0",
     "ts-morph": "^28.0.0",
     "typescript": "^7.0.2",

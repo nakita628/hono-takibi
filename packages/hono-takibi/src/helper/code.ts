@@ -7,7 +7,7 @@ export function makeModuleSpec(
   target: { readonly output: string; readonly split?: boolean },
 ) {
   const rel = path.relative(path.dirname(fromFile), target.output).replaceAll('\\', '/')
-  const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
+  const stripped = rel.replace(/\.ts$/u, '').replace(/\/index$/u, '')
   return stripped === '' ? '.' : stripped.startsWith('.') ? stripped : `./${stripped}`
 }
 
@@ -30,7 +30,7 @@ export function makeExportConst(
 }
 
 const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
-const EXPORT_CONST_PATTERN = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)/g
+const EXPORT_CONST_PATTERN = /export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)/gu
 
 // OpenAPI 3.0/3.1/3.2 Components Object fields → identifier suffix used in generated code.
 // `classifyRef` picks the longest match so `*ParamsSchema` is parameters, not schemas.
@@ -51,6 +51,7 @@ const COMPONENT_SUFFIXES = [
 
 // String/comment alternatives consume their content whole so identifier-shape
 // tokens inside (e.g. `'userCreatedCallback'`) don't get captured.
+// oxlint-disable-next-line require-unicode-regexp -- scans emitted source as UTF-16 units
 const SCAN = new RegExp(
   [
     String.raw`"(?:\\.|[^"\\])*"`,

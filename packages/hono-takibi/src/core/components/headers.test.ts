@@ -95,13 +95,13 @@ describe('headers', () => {
       const generated = headersCode({ headers: sampleHeaders }, true, true)
       const emittedNames = new Set(
         [
-          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/g),
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/gu),
         ].map((m) => m[1]),
       )
       const generatedNames = new Set(
         [
           ...generated.matchAll(
-            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/g,
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)HeaderSchema\s*=/gu,
           ),
         ].map((m) => m[1]),
       )

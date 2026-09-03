@@ -226,14 +226,14 @@ export * from './userCreatedPost'
       const emitted = fs.readFileSync(out, 'utf-8')
       const generated = webhookCode(mockOpenAPI)
       const emittedNames = new Set(
-        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/g)].map(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu)].map(
           (m) => m[1],
         ),
       )
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/g)].map(
-          (m) => m[1],
-        ),
+        [
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu),
+        ].map((m) => m[1]),
       )
       expect(emittedNames).toStrictEqual(generatedNames)
     })
@@ -248,16 +248,16 @@ export * from './userCreatedPost'
       for (const f of files) {
         const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
         for (const m of src.matchAll(
-          /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/g,
+          /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu,
         )) {
           if (m[1] !== undefined) emittedNames.add(m[1])
         }
       }
       const generated = webhookCode(mockOpenAPI)
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/g)].map(
-          (m) => m[1],
-        ),
+        [
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Webhook\s*=/gu),
+        ].map((m) => m[1]),
       )
       expect(emittedNames).toStrictEqual(generatedNames)
     })

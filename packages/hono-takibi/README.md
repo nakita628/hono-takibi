@@ -42,6 +42,25 @@ export default defineConfig({
 npx hono-takibi
 ```
 
+### CLI Reference
+
+```
+hono-takibi [flags] [<input>]
+
+  <input>                    OpenAPI (.yaml, .json) or TypeSpec (.tsp) document
+  -o, --output <output.ts>   TypeScript file the generated routes are written to
+  -c, --config <file>        Config file to run (default: ./hono-takibi.config.ts)
+  -h, --help                 Show help
+  -v, --version              Show version
+      --completions <shell>  Print a bash / zsh / fish completion script
+```
+
+With an `<input>` the CLI writes a single routes file, and `-o` is required. With no
+`<input>` it runs the config file, which opts in the routes, components, webhooks,
+types, mock, docs, test and tanstack-query generators. Paths inside a config file
+resolve against the current directory, so `--config` names where the config lives, not
+where its outputs land.
+
 ### Example
 
 input:

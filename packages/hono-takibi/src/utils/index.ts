@@ -35,9 +35,9 @@ export function normalizeTypes(
 export function methodPath(method: string, path: string) {
   const hasTrailingSlash = path !== '/' && path.endsWith('/')
   const apiPath = path
-    .replaceAll(/[^A-Za-z0-9]/g, ' ')
+    .replaceAll(/[^A-Za-z0-9]/gu, ' ')
     .trim()
-    .split(/\s+/)
+    .split(/\s+/u)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
@@ -94,7 +94,7 @@ export function requestParamsArray(parameters: {
  * ```
  */
 export function makeSafeKey(key: string) {
-  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) return key
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)) return key
   const escaped = key
     .replaceAll('\\', '\\\\')
     .replaceAll("'", "\\'")
@@ -124,7 +124,7 @@ export function makeSafeKey(key: string) {
  * ```
  */
 export function escapeRegexLiteral(source: string) {
-  return source.replaceAll(/(?<!\\)\//g, '\\/')
+  return source.replaceAll(/(?<!\\)\//gu, '\\/')
 }
 
 /**
@@ -177,13 +177,13 @@ export function toIdentifierPascalCase(text: string) {
   // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
   const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
   const result = text
-    .replaceAll(/[^A-Za-z0-9_$]/g, '_')
-    .replaceAll(/_+/g, '_')
-    .replaceAll(/^_+|_+$/g, '')
-    .replace(/^([0-9])/, '_$1')
-    .replaceAll(/_+([a-zA-Z])/g, (_: string, c: string) => c.toUpperCase())
-    .replace(/^([a-z])/, (_: string, c: string) => c.toUpperCase())
-  if (!result || /^_+$/.test(result)) {
+    .replaceAll(/[^A-Za-z0-9_$]/gu, '_')
+    .replaceAll(/_+/gu, '_')
+    .replaceAll(/^_+|_+$/gu, '')
+    .replace(/^([0-9])/u, '_$1')
+    .replaceAll(/_+([a-zA-Z])/gu, (_: string, c: string) => c.toUpperCase())
+    .replace(/^([a-z])/u, (_: string, c: string) => c.toUpperCase())
+  if (!result || /^_+$/u.test(result)) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `Unnamed${String(hash)}`
@@ -224,7 +224,7 @@ export function uncapitalize(text: string) {
  * `Users` → `users`, `APIKeys` → `apiKeys`, `ZodOpenAPIHono` → `zodOpenAPIHono`.
  */
 export function uncapitalizeWord(text: string) {
-  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/, (m) => m.toLowerCase())
+  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/u, (m) => m.toLowerCase())
 }
 
 /**
@@ -294,7 +294,7 @@ export function zodToOpenAPISchema(
   const schemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
     : (`const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
-  const typeName = schemaName.replace(/Schema$/, '')
+  const typeName = schemaName.replace(/Schema$/u, '')
   const componentSchemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
     : (`const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
@@ -338,7 +338,7 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  * ```
  */
 export function error(message: string) {
-  if (/^\s*\(.*?\)\s*=>/.test(message)) {
+  if (/^\s*\(.*?\)\s*=>/u.test(message)) {
     return `{error:${message}}` as const
   }
   return `{error:${JSON.stringify(message)}}` as const

@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
-describe('CLI and config options test with string matching', { timeout: 30000 }, () => {
+describe('CLI and config options test with string matching', { timeout: 30_000 }, () => {
   beforeEach(() => {
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
     fs.mkdirSync('tmp-cli-test', { recursive: true })
@@ -14,26 +14,20 @@ describe('CLI and config options test with string matching', { timeout: 30000 },
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
   })
 
-  it('--help returns help text', { timeout: 10000 }, () => {
+  it('--help returns help text', { timeout: 10_000 }, () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} --help`, {
       encoding: 'utf-8',
     })
-    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
-
-Options:
-  -h, --help                  display help for command
-`)
+    expect(result).toContain('hono-takibi [flags] [<input>]')
+    expect(result).toContain('--output, -o')
+    expect(result).toContain('--config, -c')
   })
 
   it('-h returns help text', () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} -h`, {
       encoding: 'utf-8',
     })
-    expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
-
-Options:
-  -h, --help                  display help for command
-`)
+    expect(result).toContain('hono-takibi [flags] [<input>]')
   })
 
   it('config exportSchemas exports schema with export keyword', () => {
@@ -829,10 +823,12 @@ export const postItemsIdRoute = createRoute({
         `node ${path.resolve(import.meta.dirname, '../dist/cli.js')} tmp-cli-test/nonexistent.json -o tmp-cli-test/output.ts`,
         { encoding: 'utf-8' },
       )
-    }).toThrow(/ENOENT: no such file or directory/)
+      // `<input>` is validated before any generator runs, so a missing document
+      // is a parse-time error rather than a downstream ENOENT.
+    }).toThrow(/Path does not exist/u)
   })
 
-  it('error on missing output option', { timeout: 10000 }, () => {
+  it('error on missing output option', { timeout: 10_000 }, () => {
     const simpleOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Simple API', version: '1.0.0' },
@@ -846,11 +842,11 @@ export const postItemsIdRoute = createRoute({
           encoding: 'utf-8',
         },
       )
-    }).toThrow(/Usage: hono-takibi/)
+    }).toThrow(/<input> requires -o <output\.ts>/u)
   })
 })
 
-describe('config template mode tests', { timeout: 30000 }, () => {
+describe('config template mode tests', { timeout: 30_000 }, () => {
   const testDir = 'tmp-template-test'
 
   beforeEach(() => {
@@ -1036,7 +1032,7 @@ export const productsHandler = app
   })
 })
 
-describe('hono-takibi.config.ts split generation tests', { timeout: 30000 }, () => {
+describe('hono-takibi.config.ts split generation tests', { timeout: 30_000 }, () => {
   const testDir = 'tmp-config-test'
 
   beforeEach(() => {
@@ -1125,7 +1121,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('generates split routes and schemas with exportTypes', { timeout: 10000 }, () => {
+  it('generates split routes and schemas with exportTypes', { timeout: 10_000 }, () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Test API', version: '1.0.0' },

@@ -124,7 +124,7 @@ export function makeTypeDefinitions(
   )
   const referencedTypes = new Set(
     initialTypeDefs.flatMap((typeDef) =>
-      Array.from(typeDef.matchAll(/(\w+Type)\b/g), (match) => match[1]).filter(
+      Array.from(typeDef.matchAll(/(\w+Type)\b/gu), (match) => match[1]).filter(
         (t): t is string => t !== undefined,
       ),
     ),
@@ -132,7 +132,7 @@ export function makeTypeDefinitions(
   const additionalTypeDefs = [...referencedTypes]
     .filter((refType) => !generatedTypeNames.has(refType))
     .flatMap((refType) => {
-      const schemaName = refType.replace(/Type$/, '')
+      const schemaName = refType.replace(/Type$/u, '')
       const schema = schemas[schemaName]
       return schema ? [zodType(schema, schemaName, cyclicGroupPascal, readonly)] : []
     })
@@ -140,7 +140,7 @@ export function makeTypeDefinitions(
 }
 
 export function findSchemaRefs(code: string, selfName: string) {
-  const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
+  const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/gu
   const found = new Set<string>()
   for (const m of code.matchAll(re)) {
     const base = m[1] ?? ''

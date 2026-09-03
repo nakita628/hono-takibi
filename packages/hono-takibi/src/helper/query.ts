@@ -82,7 +82,7 @@ function makeQueryKeyGetterCode(
   hasHeader = false,
 ) {
   // First path segment, e.g. '/pet/findByStatus' → 'pet'
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   if (config.isVueQuery) {
     if (hasArgs) {
       return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
@@ -108,7 +108,7 @@ function makeInfiniteQueryKeyGetterCode(
   config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
   hasHeader = false,
 ) {
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
 
   if (config.isVueQuery) {
     if (hasArgs) {
@@ -258,7 +258,7 @@ function makeMutationOptionsGetterCode(
   },
 ) {
   const methodUpper = method.toUpperCase()
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
   const errorType = config.errorType ?? 'unknown'
   // TError/TOnMutateResult are only useful when wrapped by `mutationOptions<...>`.
@@ -552,7 +552,7 @@ function makePrefixKeyCode(prefix: string) {
 function makePrefixKeyCodes(paths: OpenAPIPaths): readonly string[] {
   const prefixes = new Set<string>()
   for (const p of Object.keys(paths)) {
-    const prefix = p.replace(/^\//, '').split('/')[0]
+    const prefix = p.replace(/^\//u, '').split('/')[0]
     if (prefix) prefixes.add(prefix)
   }
   return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
@@ -572,20 +572,26 @@ function makeSWRHeader(
   const lines: string[] = []
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
-    lines.push("import useSWR from'swr'")
-    lines.push("import useSWRImmutable from'swr/immutable'")
-    lines.push("import type{Key,SWRConfiguration}from'swr'")
+    lines.push(
+      "import useSWR from'swr'",
+      "import useSWRImmutable from'swr/immutable'",
+      "import type{Key,SWRConfiguration}from'swr'",
+    )
     if (hasInfiniteQuery) {
-      lines.push("import useSWRInfinite from'swr/infinite'")
-      lines.push("import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'")
+      lines.push(
+        "import useSWRInfinite from'swr/infinite'",
+        "import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'",
+      )
     }
   } else if (hasMutation) {
     // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
   }
   if (hasMutation) {
-    lines.push("import useSWRMutation from'swr/mutation'")
-    lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
+    lines.push(
+      "import useSWRMutation from'swr/mutation'",
+      "import type{SWRMutationConfiguration}from'swr/mutation'",
+    )
   }
   // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
   // `pagination.getRequestArgs` even when the operation itself takes no args, so the
@@ -595,9 +601,11 @@ function makeSWRHeader(
     'ClientRequestOptions',
     ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
   ]
-  lines.push(`import type{${honoTypeImports.join(',')}}from'hono/client'`)
-  lines.push("import{parseResponse}from'hono/client'")
-  lines.push(`import{${clientName}}from'${importPath}'`)
+  lines.push(
+    `import type{${honoTypeImports.join(',')}}from'hono/client'`,
+    "import{parseResponse}from'hono/client'",
+    `import{${clientName}}from'${importPath}'`,
+  )
   return `${lines.join('\n')}\n\n`
 }
 
@@ -719,7 +727,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/g, ':$1')
+  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/gu, ':$1')
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -797,7 +805,7 @@ function makeHookCode(
       } as const
     }
     // SWR mutation
-    const prefix = honoPath.replace(/^\//, '').split('/')[0]
+    const prefix = honoPath.replace(/^\//u, '').split('/')[0]
     const methodUpper = method.toUpperCase()
     const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
     const hookCode = makeSWRMutationHookCode(

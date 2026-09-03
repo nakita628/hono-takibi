@@ -38,21 +38,21 @@ export function app(
 ) {
   const getRouteMaps = () => {
     const paths = openapi.paths
-    return Object.entries(paths).flatMap(([path, pathItem]) => {
-      return Object.entries(pathItem).flatMap(([method]) => {
+    return Object.entries(paths).flatMap(([path, pathItem]) =>
+      Object.entries(pathItem).flatMap(([method]) => {
         if (!isHttpMethod(method)) return [] as const
         return {
           routeName: `${methodPath(method, path)}Route`,
           handlerName: `${methodPath(method, path)}RouteHandler`,
           path,
         } as const
-      })
-    })
+      }),
+    )
   }
   const routeMappings = getRouteMaps()
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
-    ? basename(output.replace(/\/index\.ts$/, ''))
+    ? basename(output.replace(/\/index\.ts$/u, ''))
     : basename(output, '.ts')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
@@ -115,10 +115,8 @@ export function app(
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]
     .filter(Boolean)
     .join('\n')
-  const apiInit =
-    'export const api=app' +
-    routeMappings
-      .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
-      .join('\n')
+  const apiInit = `export const api=app${routeMappings
+    .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
+    .join('\n')}`
   return [importSection, appInit, apiInit, 'export default app'].join('\n\n')
 }

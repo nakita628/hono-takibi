@@ -76,7 +76,7 @@ describe('parseOpenAPI TypeSpec', () => {
     fs.rmSync(TSP_TEST_FILE, { force: true })
     fs.rmSync(TSP_TEST_SUBDIR, { recursive: true, force: true })
   })
-  it('typeSpecToOpenAPI not Error', { timeout: 30000 }, async () => {
+  it('typeSpecToOpenAPI not Error', { timeout: 30_000 }, async () => {
     const tmpTsp = `import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
@@ -125,7 +125,7 @@ model Error {
     expect(result.ok).toBe(true)
   })
 
-  it('typeSpecToOpenAPI dir not Error', { timeout: 30000 }, async () => {
+  it('typeSpecToOpenAPI dir not Error', { timeout: 30_000 }, async () => {
     const tmpTsp = `import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
@@ -175,7 +175,7 @@ model Error {
     expect(result.ok).toBe(true)
   })
 
-  it('typeSpecToOpenAPI Error', { timeout: 10000 }, async () => {
+  it('typeSpecToOpenAPI Error', { timeout: 10_000 }, async () => {
     const tmpTsp = `import "@typespec`
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
     const result = await parseOpenAPI(TSP_TEST_FILE)

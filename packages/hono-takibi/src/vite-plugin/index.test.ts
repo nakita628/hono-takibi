@@ -38,7 +38,7 @@ const createDeferred = <T = void>() => {
   return { promise, resolve: deferredBox.resolve, reject: deferredBox.reject }
 }
 
-const fileExists = async (filePath: string) => !!(await fsp.stat(filePath).catch(() => null))
+const fileExists = async (filePath: string) => Boolean(await fsp.stat(filePath).catch(() => null))
 
 const createMockViteDevServer = (configuration: unknown) => {
   const reloadedDeferred = createDeferred()

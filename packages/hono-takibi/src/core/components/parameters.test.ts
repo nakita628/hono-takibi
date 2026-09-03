@@ -106,13 +106,13 @@ describe('parameters', () => {
       const generated = parametersCode({ parameters: sampleParams }, true, true)
       const emittedNames = new Set(
         [
-          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/g),
+          ...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/gu),
         ].map((m) => m[1]),
       )
       const generatedNames = new Set(
         [
           ...generated.matchAll(
-            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/g,
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)ParamsSchema\s*=/gu,
           ),
         ].map((m) => m[1]),
       )

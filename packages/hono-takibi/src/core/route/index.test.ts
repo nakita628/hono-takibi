@@ -299,14 +299,14 @@ export const getZodOpenapiHonoRoute = createRoute({
         const emitted = fs.readFileSync(out, 'utf-8')
         const generated = routeCode(openapi)
         const emittedNames = new Set(
-          [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
+          [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu)].map(
             (m) => m[1],
           ),
         )
         const generatedNames = new Set(
-          [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
-            (m) => m[1],
-          ),
+          [
+            ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu),
+          ].map((m) => m[1]),
         )
         expect(emittedNames).toStrictEqual(generatedNames)
       } finally {
@@ -325,16 +325,16 @@ export const getZodOpenapiHonoRoute = createRoute({
         for (const f of files) {
           const src = fs.readFileSync(path.join(outDir, f), 'utf-8')
           for (const m of src.matchAll(
-            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g,
+            /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu,
           )) {
             if (m[1] !== undefined) emittedNames.add(m[1])
           }
         }
         const generated = routeCode(openapi)
         const generatedNames = new Set(
-          [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/g)].map(
-            (m) => m[1],
-          ),
+          [
+            ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Route\s*=/gu),
+          ].map((m) => m[1]),
         )
         expect(emittedNames).toStrictEqual(generatedNames)
       } finally {

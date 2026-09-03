@@ -176,7 +176,7 @@ describe('fsp', () => {
       await fsp.writeFile(filePath, 'same content')
       const statBefore = await fsp.stat(filePath)
       // Small delay to ensure mtime would differ if written
-      await new Promise((r) => setTimeout(r, 50))
+      await new Promise((resolve) => setTimeout(resolve, 50))
       const result = await writeFile(filePath, 'same content')
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const statAfter = await fsp.stat(filePath)

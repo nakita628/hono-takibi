@@ -127,11 +127,11 @@ function numericFaker(
   range: { readonly min?: number; readonly max?: number; readonly multipleOf?: number },
 ) {
   if (schema.type === 'integer' && (schema.format === 'int64' || schema.format === 'bigint')) {
-    return `faker.number.bigInt({ min: ${range.min ?? 0}n, max: ${range.max ?? 9007199254740991}n })`
+    return `faker.number.bigInt({ min: ${range.min ?? 0}n, max: ${range.max ?? 9_007_199_254_740_991}n })`
   }
   if (schema.type === 'integer') {
-    const defaultMin = schema.format === 'int32' ? -2147483648 : 1
-    const defaultMax = schema.format === 'int32' ? 2147483647 : 1000
+    const defaultMin = schema.format === 'int32' ? -2_147_483_648 : 1
+    const defaultMax = schema.format === 'int32' ? 2_147_483_647 : 1000
     const parts = [
       `min: ${range.min ?? defaultMin}`,
       `max: ${range.max ?? defaultMax}`,
@@ -139,7 +139,7 @@ function numericFaker(
     ]
     return `faker.number.int({ ${parts.join(', ')} })`
   }
-  const defaultMax = schema.format === 'double' ? 1000000 : 1000
+  const defaultMax = schema.format === 'double' ? 1_000_000 : 1000
   const fractionDigits = schema.format === 'double' ? 4 : 2
   const parts =
     range.multipleOf !== undefined
@@ -228,7 +228,7 @@ export function schemaToFaker(
     properties: { readonly [k: string]: Schema },
     required: readonly string[] | undefined,
   ) => {
-    const requiredSet = new Set(required ?? ([] as const))
+    const requiredSet = new Set(required)
     return Object.entries(properties)
       .map(([k, v]) => {
         const value = schemaToFaker(v, k, options)

@@ -48,7 +48,7 @@ describe('examples', () => {
     })
   })
 
-  describe('non-split mode', () => {
+  describe('non-split mode, readonly', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')

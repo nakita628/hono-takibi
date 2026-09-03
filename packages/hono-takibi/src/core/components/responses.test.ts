@@ -120,13 +120,13 @@ describe('responses', () => {
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = responsesCode({ responses: sampleResponses }, true)
       const emittedNames = new Set(
-        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/g)].map(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/gu)].map(
           (m) => m[1],
         ),
       )
       const generatedNames = new Set(
         [
-          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/g),
+          ...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)Response\s*=/gu),
         ].map((m) => m[1]),
       )
       expect(emittedNames).toStrictEqual(generatedNames)

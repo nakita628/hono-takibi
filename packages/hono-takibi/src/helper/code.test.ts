@@ -804,7 +804,7 @@ export const X = { schema: UserSchema }`
       schemas: { output: '/src/components/schemas', split: true },
     })
     // Count occurrences of the import line
-    const importMatches = result.match(/import\{UserSchema\}/g) ?? []
+    const importMatches = result.match(/import\{UserSchema\}/gu) ?? []
     expect(importMatches.length).toBe(1)
   })
 

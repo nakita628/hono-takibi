@@ -98,7 +98,7 @@ export function zodToOpenAPI(
         // Per-issue.code dispatch required even without a custom message:
         // ctx.issues is a discriminated union, and spreading the un-narrowed
         // issue union is not assignable to it.
-        const isArrow = allOfMessage ? /^\s*\(.*?\)\s*=>/.test(allOfMessage) : false
+        const isArrow = allOfMessage ? /^\s*\(.*?\)\s*=>/u.test(allOfMessage) : false
         const msgExpr = allOfMessage
           ? isArrow
             ? `(${allOfMessage})(issue)`
@@ -275,7 +275,7 @@ export function zodToOpenAPI(
       if (isPureMultiType && Array.isArray(not.type)) {
         const predicates = not.type.map((t) => typePredicates[t]).filter((v) => v !== undefined)
         if (predicates.length > 0) {
-          const bodies = predicates.map((v) => `(${v.replace(/^\(val\) => /, '')})`)
+          const bodies = predicates.map((v) => `(${v.replace(/^\(val\) => /u, '')})`)
           const combined = `(val) => ${bodies.join(' && ')}`
           return wrap(`z.any().refine(${combined}${notErrorArg})`, schema, meta, options)
         }
@@ -353,8 +353,9 @@ export function zodToOpenAPI(
       options,
     )
   }
-  if (schema.properties !== undefined)
+  if (schema.properties !== undefined) {
     return wrap(object(schema, childOptions), schema, meta, options)
+  }
   const t = normalizeTypes(schema.type)
   if (t.includes('string')) return wrap(string(schema, childOptions), schema, meta, options)
   if (t.includes('number')) return wrap(number(schema, options), schema, meta, options)
@@ -574,20 +575,22 @@ export function zodToOpenAPI(
             options,
           )
     }
-    if (typeof schema.minItems === 'number')
+    if (typeof schema.minItems === 'number') {
       return wrap(
         `${z}.min(${schema.minItems}${minErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
         schema,
         meta,
         options,
       )
-    if (typeof schema.maxItems === 'number')
+    }
+    if (typeof schema.maxItems === 'number') {
       return wrap(
         `${z}.max(${schema.maxItems}${maxErrorArg})${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
         schema,
         meta,
         options,
       )
+    }
     return wrap(
       `${z}${uniqueChain}${containsChain}${unevaluatedItemsChain}${readonlyMod}`,
       schema,

@@ -2,12 +2,12 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { type FormatConfig } from 'oxfmt'
+import type { FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
 const DirectoryOutputSchema = z
   .string()
-  .regex(/^(?!.*\.ts$).+/, {
+  .regex(/^(?!.*\.ts$).+/u, {
     error: 'split mode requires directory, not .ts file',
   })
   .meta({
@@ -523,7 +523,7 @@ const ConfigSchema = z
         }),
         locale: z
           .string()
-          .regex(/^[A-Za-z_]{1,40}$/, {
+          .regex(/^[A-Za-z_]{1,40}$/u, {
             error: "Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
           })
           .exactOptional()
@@ -534,12 +534,12 @@ const ConfigSchema = z
           }),
         delay: z
           .union([
-            z.number().int().nonnegative().max(60000),
+            z.number().int().nonnegative().max(60_000),
             z.literal(false),
             z
               .object({
-                min: z.number().int().nonnegative().max(60000),
-                max: z.number().int().nonnegative().max(60000),
+                min: z.number().int().nonnegative().max(60_000),
+                max: z.number().int().nonnegative().max(60_000),
               })
               .readonly()
               .refine((v) => v.min <= v.max, {
@@ -706,7 +706,7 @@ const ConfigSchema = z
   .refine(
     (v) => {
       if (v.template?.define !== true || v.components?.output === undefined) return true
-      const componentsOutput = v.components.output.replace(/^\.\//, '')
+      const componentsOutput = v.components.output.replace(/^\.\//u, '')
       // `<anchor>/<module>` where module is a flat `.ts` file or a `<dir>/index.ts`
       // pair; the derived app entry is `<anchor>/index.ts`.
       const container = componentsOutput.endsWith('/index.ts')
@@ -715,7 +715,7 @@ const ConfigSchema = z
       const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
       const appEntry = (
         v.output ?? (anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`)
-      ).replace(/^\.\//, '')
+      ).replace(/^\.\//u, '')
       if (!appEntry.endsWith('index.ts')) return true
       const baseDir = appEntry === 'index.ts' ? '' : appEntry.slice(0, -'/index.ts'.length)
       const routesDir = baseDir === '' ? 'routes' : `${baseDir}/routes`
@@ -752,8 +752,8 @@ export function parseConfig(config: unknown) {
   return { ok: true, value: result.data } as const
 }
 
-export async function readConfig() {
-  const abs = resolve(process.cwd(), 'hono-takibi.config.ts')
+export async function readConfig(configPath?: string) {
+  const abs = resolve(process.cwd(), configPath ?? 'hono-takibi.config.ts')
   if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
   try {
     const mod: unknown = await import(pathToFileURL(abs).href)

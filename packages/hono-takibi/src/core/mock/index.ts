@@ -1,7 +1,8 @@
 import path from 'node:path'
 
 import { emit } from '../../emit/index.js'
-import { makeMock, type MockOptions } from '../../generator/mock/index.js'
+import { makeMock } from '../../generator/mock/index.js'
+import type { MockOptions } from '../../generator/mock/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 export async function mock(

@@ -338,12 +338,12 @@ describe('pathItems', () => {
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = pathItemsCode(components, true)
       const emittedNames = new Set(
-        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+        [...emitted.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu)].map(
           (m) => m[1],
         ),
       )
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu)].map(
           (m) => m[1],
         ),
       )
@@ -359,13 +359,15 @@ describe('pathItems', () => {
       const emittedNames = new Set<string>()
       for (const f of files) {
         const src = fs.readFileSync(path.join(output, f), 'utf-8')
-        for (const m of src.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)) {
+        for (const m of src.matchAll(
+          /(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu,
+        )) {
           if (m[1] !== undefined) emittedNames.add(m[1])
         }
       }
       const generated = pathItemsCode(components, true)
       const generatedNames = new Set(
-        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/g)].map(
+        [...generated.matchAll(/(?:export\s+)?const\s+([A-Za-z_$][A-Za-z0-9_$]*)PathItem/gu)].map(
           (m) => m[1],
         ),
       )
