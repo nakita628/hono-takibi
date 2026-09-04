@@ -30,6 +30,7 @@ import {
   webhooks,
 } from '../core/index.js'
 import { GenerateError } from '../error/index.js'
+import { readdir, unlink } from '../file/index.js'
 import type { FormatError } from '../format/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
@@ -87,6 +88,47 @@ function runType(openAPI: OpenAPI, output: string, readonly?: boolean) {
   return Effect.gen(function* () {
     return yield* type(openAPI, yield* typeScriptPath(output), readonly)
   })
+}
+
+/**
+ * Empties the generated `.ts` files out of one split output directory.
+ *
+ * A directory the first run has not created yet reads as empty, which is what `readdir`
+ * already answers.
+ */
+function cleanSplitDirectory(directory: string) {
+  return Effect.gen(function* () {
+    const names = yield* readdir(directory)
+    yield* Effect.all(
+      names
+        .filter((name) => name.endsWith('.ts'))
+        .map((name) => unlink(path.join(directory, name))),
+      { concurrency: 'unbounded' },
+    )
+  })
+}
+
+/**
+ * Empties every split output directory before the generators refill them.
+ *
+ * A split generator writes one file per entry plus a barrel beside them, and knows only
+ * what it writes — so an entry that leaves the document leaves its file behind, orphaned
+ * and still importing names the document no longer defines. Removing the section
+ * altogether is worse: the generator writes nothing at all and the whole previous
+ * directory, barrel included, survives as the answer to a document that no longer says it.
+ *
+ * A split directory is therefore the generator's, not a place to keep anything by hand.
+ * `remove` is only pointed at its direct `.ts` children, never at a subdirectory.
+ *
+ * This runs before any job writes, never per job as it goes: two jobs can be aimed at one
+ * directory, and a clean that lands after a sibling has filled it would take the fresh
+ * files with it.
+ */
+export function cleanSplitOutputs(directories: readonly string[]) {
+  return Effect.all(
+    [...new Set(directories)].map((directory) => cleanSplitDirectory(directory)),
+    { concurrency: 'unbounded' },
+  )
 }
 
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {

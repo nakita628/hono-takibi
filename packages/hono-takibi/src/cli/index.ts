@@ -109,7 +109,7 @@ function isInputDocument(changed: string) {
  */
 function runConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
-    const [{ readConfig }, { parseOpenAPI }, { FormatOptions }, { makeJob }] =
+    const [{ readConfig }, { parseOpenAPI }, { FormatOptions }, { cleanSplitOutputs, makeJob }] =
       yield* Effect.promise(() =>
         Promise.all([
           import('../config/index.js'),
@@ -119,8 +119,12 @@ function runConfigPass(configPath: string, reload: boolean) {
         ]),
       )
     const config = yield* readConfig(configPath, reload)
+    const jobs = makeJob(yield* parseOpenAPI(config.input), config)
+    // Every split directory is emptied first, so an entry the document no longer names
+    // does not survive as an orphaned file that still imports what it defined.
+    yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.all(
-      makeJob(yield* parseOpenAPI(config.input), config).map((job) => job.run(job.output)),
+      jobs.map((job) => job.run(job.output)),
       { concurrency: 'unbounded' },
     ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     return { config, report: messages.filter((message) => message !== '').join('\n') }

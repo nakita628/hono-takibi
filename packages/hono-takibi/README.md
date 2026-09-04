@@ -349,9 +349,15 @@ Some options are mutually exclusive: `output` ↔ `routes`, `template.define` �
 
 Every generator needs its own `output` path: two of them aimed at one file is rejected
 rather than resolved, because the generators run concurrently and one would silently
-overwrite the other. `basePath` must start with `/`, `client` must be a JavaScript
-identifier, and `import` must be a module specifier — each is spliced into the generated
-code verbatim, so the config is where a wrong value is caught.
+overwrite the other.
+
+A `split` output directory belongs to the generator: before each run its `.ts` files are
+removed, so an operation or schema that leaves the document does not survive as an
+orphaned file still importing what it defined. Keep hand-written code somewhere else.
+
+`basePath` must start with `/`, `client` must be a JavaScript identifier, and `import`
+must be a module specifier — each is spliced into the generated code verbatim, so the
+config is where a wrong value is caught.
 
 ```ts
 import { defineConfig } from 'hono-takibi'

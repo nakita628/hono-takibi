@@ -800,6 +800,74 @@ export default {}`,
     )
   })
 
+  // A split generator writes one file per entry and knows only what it writes, so nothing
+  // downstream can notice an entry that left the document. The orphan is not inert: it
+  // still imports the schema the document no longer defines.
+  it('removes split files for entries the document no longer names', async () => {
+    const dir = useTmpDir('cli-config-stale-split-')
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'Stale', version: '1.0.0' },
+      paths: {
+        '/items': { get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } } },
+        '/widgets': {
+          get: {
+            operationId: 'getWidgets',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Widget' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Widget: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+        },
+      },
+    }
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(spec))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        routes: { split: true, output: './src/routes', import: '../routes' },
+        components: { schemas: { split: true, output: './src/schemas', import: '../schemas' } },
+      }`,
+    )
+
+    const initial = await runCli([])
+    expect(initial.ok).toBe(true)
+    expect(fs.readdirSync(path.join(dir, 'src', 'routes')).sort()).toStrictEqual([
+      'getItems.ts',
+      'getWidgets.ts',
+      'index.ts',
+    ])
+
+    fs.writeFileSync(
+      path.join(dir, 'openapi.json'),
+      JSON.stringify({
+        ...spec,
+        paths: { '/items': spec.paths['/items'] },
+        components: { schemas: {} },
+      }),
+    )
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readdirSync(path.join(dir, 'src', 'routes')).sort()).toStrictEqual([
+      'getItems.ts',
+      'index.ts',
+    ])
+    // The whole section left the document, so the generator writes nothing — the previous
+    // directory, barrel included, has to go rather than stand as the current answer.
+    expect(fs.readdirSync(path.join(dir, 'src', 'schemas'))).toStrictEqual([])
+  })
+
   it('rejects a config that points two generators at one output path', async () => {
     const dir = useTmpDir('cli-config-collision-')
     const input = path.join(dir, 'openapi.json')

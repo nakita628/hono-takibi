@@ -10,7 +10,7 @@ import { fileSystemLayer } from '../file/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { makeJob } from '../shared/index.js'
+import { cleanSplitOutputs, makeJob } from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -226,23 +226,6 @@ function sameOutputSnapshot(
  * @param config - Parsed configuration object
  * @returns Promise resolving to object containing log messages and whether any output file changed
  */
-function cleanupSplitOutput(absOutput: string) {
-  return Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem
-    const info = yield* statOrNull(absOutput)
-    if (info?.type !== 'Directory') return
-    const entries = yield* readEntries(absOutput)
-    yield* Effect.all(
-      entries
-        .filter((entry) => entry.type === 'File' && entry.name.endsWith('.ts'))
-        .map((entry) =>
-          fs.remove(entry.path, { force: true }).pipe(Effect.orElseSucceed(() => undefined)),
-        ),
-      { concurrency: 'unbounded' },
-    )
-  })
-}
-
 /**
  * Runs one generation pass and reports a log line per job.
  *
@@ -260,11 +243,10 @@ function runAllGenerationTasks(config: Config) {
     const targets = jobs.map((job) => ({ job, absOutput: path.resolve(process.cwd(), job.output) }))
     const outputPaths = targets.map(({ absOutput }) => absOutput)
     const beforeSnapshot = yield* snapshotOutputs(outputPaths)
-    // Every split directory is emptied before any job writes, so a cleanup can no longer
-    // land on a file a sibling job has already produced.
-    yield* Effect.all(
-      targets.filter(({ job }) => job.split).map(({ absOutput }) => cleanupSplitOutput(absOutput)),
-      { concurrency: 'unbounded' },
+    // The same clean the CLI runs, so one config cannot leave two different directories
+    // behind depending on which entry point produced it.
+    yield* cleanSplitOutputs(
+      targets.filter(({ job }) => job.split).map(({ absOutput }) => absOutput),
     )
     // `Effect.result` per job is what keeps a failure from cancelling its siblings — a
     // dev server keeps running — so the array that comes back is one log line per job.

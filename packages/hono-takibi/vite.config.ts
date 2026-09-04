@@ -492,8 +492,11 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(cli|emit|file|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
-                  message: 'shared may only import config, core, format, openapi',
+                    '^(\\.\\./)+(cli|emit|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
+                  // `file` is already below `shared` through `core`, which imports it
+                  // directly; naming it here only forced `shared` to re-derive the two
+                  // filesystem calls it needs from the raw service.
+                  message: 'shared may only import config, core, file, format, openapi',
                 },
               ],
             },
