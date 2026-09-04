@@ -85,14 +85,10 @@ const commandLine = {
     Flag.withDescription('Rerun the config on every change to its documents or itself'),
     Flag.withDefault(false),
   ),
-}
+} as const
 
 /** Extensions a change has to carry to be worth regenerating for. */
 const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
-
-function isInputDocument(changed: string) {
-  return INPUT_EXTENSIONS.some((extension) => changed.endsWith(extension))
-}
 
 /**
  * One pass over a config file: read it, parse the document it names, and run every
@@ -130,11 +126,6 @@ function runConfigPass(configPath: string, reload: boolean) {
   })
 }
 
-/** Where the documents named by a config live, which is the directory worth watching. */
-function inputDirectoryOf(config: { readonly input: string }) {
-  return path.dirname(path.resolve(process.cwd(), config.input))
-}
-
 /**
  * A pass whose failure is printed rather than raised, so the watch loop survives it, and
  * which answers with the input directory the config now names.
@@ -150,7 +141,8 @@ function reportConfigPass(configPath: string, reload: boolean) {
       return undefined
     }
     yield* Console.log(result.success.report)
-    return inputDirectoryOf(result.success.config)
+    // Where the documents named by the config live, which is the directory worth watching.
+    return path.dirname(path.resolve(process.cwd(), result.success.config.input))
   })
 }
 
@@ -176,7 +168,11 @@ function watchRound(configPath: string, inputDirectory: string | undefined) {
         : Stream.merge(
             fs
               .watch(inputDirectory, { recursive: true })
-              .pipe(Stream.filter((event) => isInputDocument(event.path))),
+              .pipe(
+                Stream.filter((event) =>
+                  INPUT_EXTENSIONS.some((extension) => event.path.endsWith(extension)),
+                ),
+              ),
             configEvents,
           )
     yield* events.pipe(
