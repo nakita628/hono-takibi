@@ -42,14 +42,12 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
     const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
     const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
-      return { ok: false, error: 'Config must export default object' } as const
+      return Result.fail('Config must export default object')
     }
     const parsed = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
-    return Result.isSuccess(parsed)
-      ? ({ ok: true, value: parsed.success } as const)
-      : ({ ok: false, error: parsed.failure.message } as const)
+    return Result.mapError(parsed, (error) => error.message)
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : String(error) } as const
+    return Result.fail(error instanceof Error ? error.message : String(error))
   }
 }
 
@@ -339,8 +337,8 @@ export function honoTakibiVite(): any {
   }
   const handleConfigurationChange = async (server: ViteDevServer) => {
     const nextConfiguration = await readConfigurationWithHotReload(server)
-    if (!nextConfiguration.ok) {
-      console.error(`❌ config: ${nextConfiguration.error}`)
+    if (Result.isFailure(nextConfiguration)) {
+      console.error(`❌ config: ${nextConfiguration.failure}`)
       return
     }
     if (pluginState.current) {
@@ -368,13 +366,13 @@ export function honoTakibiVite(): any {
         )
         return cleanupResults.filter((result) => result !== null)
       }
-      const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
+      const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.success)
       for (const cleanedPath of cleanedPaths) {
         console.log(`✅ cleanup: ${cleanedPath}`)
       }
     }
     pluginState.previous = pluginState.current
-    pluginState.current = nextConfiguration.value
+    pluginState.current = nextConfiguration.success
     const inputDirectory = addInputGlobsToWatcher(
       server,
       path.resolve(process.cwd(), pluginState.current.input),
@@ -400,11 +398,11 @@ export function honoTakibiVite(): any {
     configureServer(server: ViteDevServer) {
       ;(async () => {
         const initialConfiguration = await readConfigurationWithHotReload(server)
-        if (!initialConfiguration.ok) {
-          console.error(`❌ config: ${initialConfiguration.error}`)
+        if (Result.isFailure(initialConfiguration)) {
+          console.error(`❌ config: ${initialConfiguration.failure}`)
           return
         }
-        pluginState.current = initialConfiguration.value
+        pluginState.current = initialConfiguration.success
         const inputDirectory = addInputGlobsToWatcher(
           server,
           path.resolve(process.cwd(), pluginState.current.input),

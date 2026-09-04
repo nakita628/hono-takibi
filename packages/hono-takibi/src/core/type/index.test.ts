@@ -38,8 +38,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       expect(fs.existsSync(out)).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -66,8 +65,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/users/:id': {\n      $get: { input: { param: { id: string } }; output: {}; outputFormat: string; status: 200 }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -96,8 +94,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/search': {\n      $get: {\n        input: { query: { q: string; limit?: number | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -126,8 +123,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: { cookie: { session_id?: string | undefined; user_id: string } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -155,8 +151,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: { header: { 'X-Request-Id': string } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -199,8 +194,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/users': {\n      $get: {\n        input: {}\n        output: { id?: string | undefined; name?: string | undefined }[]\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -240,8 +234,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out, true))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out, true))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "type DeepReadonly<T> = T extends (infer R)[]\n  ? readonly DeepReadonly<R>[]\n  : T extends object\n    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }\n    : T\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  DeepReadonly<{\n    '/users': {\n      $get: {\n        input: {}\n        output: { id?: string | undefined; name?: string | undefined }\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  }>,\n  '/'\n>\nexport default routes\n",
@@ -266,8 +259,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out, false))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out, false))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  { '/test': { $get: { input: {}; output: {}; outputFormat: string; status: 200 } } },\n  '/'\n>\nexport default routes\n",
@@ -312,8 +304,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/test': {\n      $get: {\n        input: {}\n        output: {\n          message?:\n            | \"Should have one of the required properties 'contours_minutes' or 'contours_meters'\"\n            | 'contours_minutes must be an integer between 1 and 60'\n            | undefined\n        }\n        outputFormat: 'json'\n        status: 422\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -364,8 +355,7 @@ describe('type', () => {
       const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
       try {
         const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-        const result = await runGenerator(type(openapi, out))
-        expect(result.ok).toBe(true)
+        await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
         const content = fs.readFileSync(out, 'utf-8')
         expect(content).toBe(
           "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/users/:userId': {\n      $get: {\n        input: { param: { userId: string } } & { query: { page?: number | undefined } } & {\n          header: { 'X-Request-ID': string }\n        } & { cookie: { session?: string | undefined } }\n        output: { id: string; name: string }\n        outputFormat: 'json'\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -404,8 +394,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out, true))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out, true))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "type DeepReadonly<T> = T extends (infer R)[]\n  ? readonly DeepReadonly<R>[]\n  : T extends object\n    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }\n    : T\ndeclare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  DeepReadonly<{\n    '/items': { $get: { input: {}; output: string[]; outputFormat: 'json'; status: 200 } }\n  }>,\n  '/'\n>\nexport default routes\n",
@@ -442,8 +431,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/items': {\n      $get: {\n        input: { query: { limit?: number | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -483,8 +471,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
         "declare const routes: import('@hono/zod-openapi').OpenAPIHono<\n  import('hono/types').Env,\n  {\n    '/upload': {\n      $post: {\n        input: { form: { file?: File | undefined; name?: string | undefined } }\n        output: {}\n        outputFormat: string\n        status: 200\n      }\n    }\n  },\n  '/'\n>\nexport default routes\n",
@@ -530,8 +517,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -568,8 +554,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -638,8 +623,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-statusall-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(spec, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(spec, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   import('hono/types').Env,
@@ -725,8 +709,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-mixed-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   import('hono/types').Env,
@@ -793,8 +776,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-tuple-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   import('hono/types').Env,
@@ -855,8 +837,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-addprops-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await runGenerator(type(openapi, out))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   import('hono/types').Env,

@@ -28,12 +28,9 @@ describe('makeExports', () => {
       ),
     )
 
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(
-        'Generated Schema code written to test-exports/schemas/*.ts (index.ts included)',
-      )
-    }
+    expect(result).toBe(
+      'Generated Schema code written to test-exports/schemas/*.ts (index.ts included)',
+    )
 
     expect(fs.existsSync(`${testDir}/schemas/user.ts`)).toBe(true)
     expect(fs.existsSync(`${testDir}/schemas/post.ts`)).toBe(true)
@@ -46,7 +43,7 @@ export * from './user'
   })
 
   it('should generate Example exports', async () => {
-    const result = await runGenerator(
+    await runGenerator(
       makeExports(
         {
           UserExample: { value: { id: 1, name: 'John' } },
@@ -56,13 +53,12 @@ export * from './user'
       ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/examples/userExample.ts`)).toBe(true)
     expect(fs.existsSync(`${testDir}/examples/index.ts`)).toBe(true)
   })
 
   it('should generate Link exports', async () => {
-    const result = await runGenerator(
+    await runGenerator(
       makeExports(
         {
           GetUserById: { operationId: 'getUserById' },
@@ -72,12 +68,11 @@ export * from './user'
       ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/links/getUserById.ts`)).toBe(true)
   })
 
   it('should generate Callback exports', async () => {
-    const result = await runGenerator(
+    await runGenerator(
       makeExports(
         {
           OnEvent: { '{$request.body#/callbackUrl}': { post: {} } },
@@ -87,14 +82,12 @@ export * from './user'
       ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/callbacks/onEvent.ts`)).toBe(true)
   })
 
   it('should handle empty value object', async () => {
-    const result = await runGenerator(makeExports({}, 'Schema', `${testDir}/empty`))
+    await runGenerator(makeExports({}, 'Schema', `${testDir}/empty`))
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/empty/index.ts`)).toBe(true)
 
     const indexContent = fs.readFileSync(`${testDir}/empty/index.ts`, 'utf-8')
@@ -102,7 +95,7 @@ export * from './user'
   })
 
   it('should sort exports alphabetically in index file', async () => {
-    const result = await runGenerator(
+    await runGenerator(
       makeExports(
         {
           Zebra: {},
@@ -114,8 +107,6 @@ export * from './user'
       ),
     )
 
-    expect(result.ok).toBe(true)
-
     const indexContent = fs.readFileSync(`${testDir}/sorted/index.ts`, 'utf-8')
     expect(indexContent).toBe(`export * from './apple'
 export * from './mango'
@@ -124,9 +115,8 @@ export * from './zebra'
   })
 
   it('should strip .ts extension from output path', async () => {
-    const result = await runGenerator(makeExports({ Test: {} }, 'Schema', `${testDir}/schemas.ts`))
+    await runGenerator(makeExports({ Test: {} }, 'Schema', `${testDir}/schemas.ts`))
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/schemas/test.ts`)).toBe(true)
   })
 
@@ -215,12 +205,7 @@ export * from './zebra'
       }),
     )
     for (const { suffix, dir, result } of results) {
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(
-          `Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`,
-        )
-      }
+      expect(result).toBe(`Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`)
     }
   })
 

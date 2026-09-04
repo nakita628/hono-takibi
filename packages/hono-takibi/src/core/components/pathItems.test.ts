@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
 import type { Components } from '../../openapi/index.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { pathItems } from './pathItems.js'
 
 let tmpDir: string
@@ -17,27 +17,27 @@ afterEach(() => {
 
 describe('pathItems', () => {
   it('returns error when pathItemsConfig is undefined', async () => {
-    const result = await runGenerator(pathItems({}, undefined))
-    expect(result).toStrictEqual({ ok: false, error: 'pathItems.output is required' })
+    const result = await runGeneratorError(pathItems({}, undefined))
+    expect(result.message).toBe('pathItems.output is required')
   })
 
   it('returns error when pathItemsConfig.output is missing', async () => {
-    const result = await runGenerator(pathItems({}, {} as { output: string }))
-    expect(result).toStrictEqual({ ok: false, error: 'pathItems.output is required' })
+    const result = await runGeneratorError(pathItems({}, {} as { output: string }))
+    expect(result.message).toBe('pathItems.output is required')
   })
 
   it('returns error when no pathItems in components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
-    const result = await runGenerator(pathItems({}, { output }))
-    expect(result).toStrictEqual({ ok: false, error: 'No pathItems found' })
+    const result = await runGeneratorError(pathItems({}, { output }))
+    expect(result.message).toBe('No pathItems found')
   })
 
   it('returns success message when pathItems is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
     const result = await runGenerator(pathItems({ pathItems: {} }, { output }))
-    expect(result).toStrictEqual({ ok: true, value: 'No pathItems found' })
+    expect(result).toStrictEqual('No pathItems found')
   })
 
   describe('non-split mode', () => {
@@ -67,10 +67,7 @@ describe('pathItems', () => {
           { output },
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated pathItems code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated pathItems code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -104,10 +101,7 @@ describe('pathItems', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated pathItems code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated pathItems code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
     })
   })
@@ -153,10 +147,9 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'postOperations.ts'))).toBe(true)
@@ -195,10 +188,9 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated PathItem code written to ${outDir}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(outDir, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(outDir, 'userOperations.ts'))).toBe(true)
     })
@@ -231,10 +223,9 @@ describe('pathItems', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'userOperations.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
@@ -268,10 +259,9 @@ describe('pathItems', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated PathItem code written to ${output}/*.ts (index.ts included)`,
+      )
     })
   })
 
@@ -289,7 +279,7 @@ describe('pathItems', () => {
           { output },
         ),
       )
-      expect(result).toStrictEqual({ ok: true, value: 'No pathItems found' })
+      expect(result).toStrictEqual('No pathItems found')
     })
   })
 
@@ -299,7 +289,7 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         pathItems(
           {
             pathItems: {
@@ -311,10 +301,7 @@ describe('pathItems', () => {
           { output },
         ),
       )
-      expect(result).toStrictEqual({
-        ok: false,
-        error: `AlreadyExists: FileSystem.makeDirectory (${blockingFile})`,
-      })
+      expect(result.message).toBe(`AlreadyExists: FileSystem.makeDirectory (${blockingFile})`)
     })
 
     it('propagates emit failure in split mode when output parent is a regular file', async () => {
@@ -322,7 +309,7 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const result = await runGenerator(
+      const error = await runGeneratorError(
         pathItems(
           {
             pathItems: {
@@ -337,7 +324,7 @@ describe('pathItems', () => {
           { output, split: true },
         ),
       )
-      expect(result.ok).toBe(false)
+      expect(error.message).toContain('FileSystem.makeDirectory')
     })
   })
 
@@ -352,8 +339,7 @@ describe('pathItems', () => {
     it('non-split: caller emit contains same const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await runGenerator(pathItems(components, { output }))
-      expect(result.ok).toBe(true)
+      await runGenerator(pathItems(components, { output }))
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = pathItemsCode(components, true)
       const emittedNames = new Set(
@@ -372,8 +358,7 @@ describe('pathItems', () => {
     it('split: union of per-file const names equals generator output const names', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await runGenerator(pathItems(components, { output, split: true }))
-      expect(result.ok).toBe(true)
+      await runGenerator(pathItems(components, { output, split: true }))
       const files = fs.readdirSync(output).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {

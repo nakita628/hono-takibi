@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { schemasCode } from '../../generator/zod-openapi-hono/openapi/components/schemas.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { schemas } from './schemas.js'
 
 let tmpDir: string
@@ -18,15 +18,15 @@ describe('schemas', () => {
   it('returns error when schemas is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
     const output = path.join(tmpDir, 'schemas.ts')
-    const result = await runGenerator(schemas(undefined, output, false, true))
-    expect(result).toStrictEqual({ ok: false, error: 'No schemas found' })
+    const result = await runGeneratorError(schemas(undefined, output, false, true))
+    expect(result.message).toBe('No schemas found')
   })
 
   it('returns success message when schemas is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-'))
     const output = path.join(tmpDir, 'schemas.ts')
     const result = await runGenerator(schemas({}, output, false, true))
-    expect(result).toStrictEqual({ ok: true, value: 'No schemas found' })
+    expect(result).toStrictEqual('No schemas found')
   })
 
   describe('non-split mode', () => {
@@ -50,10 +50,7 @@ describe('schemas', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated schema code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated schema code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -89,10 +86,9 @@ describe('schemas', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated schema code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated schema code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'user.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'post.ts'))).toBe(true)
@@ -108,8 +104,7 @@ describe('schemas', () => {
     it('non-split: caller emit contains same schema const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-contract-'))
       const output = path.join(tmpDir, 'schemas.ts')
-      const result = await runGenerator(schemas(sampleSchemas, output, false, false))
-      expect(result.ok).toBe(true)
+      await runGenerator(schemas(sampleSchemas, output, false, false))
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = schemasCode({ schemas: sampleSchemas }, true, false)
       const emittedNames = new Set(
@@ -129,8 +124,7 @@ describe('schemas', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-schemas-contract-'))
       const output = path.join(tmpDir, 'schemas.ts')
       const outDir = path.join(tmpDir, 'schemas')
-      const result = await runGenerator(schemas(sampleSchemas, output, true, false))
-      expect(result.ok).toBe(true)
+      await runGenerator(schemas(sampleSchemas, output, true, false))
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
       for (const f of files) {

@@ -1,4 +1,3 @@
-import type { FileSystem } from 'effect'
 import { Console, Effect, Option, Schema } from 'effect'
 import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
 
@@ -9,58 +8,20 @@ const USAGE = `Usage:
   hono-takibi <input.{yaml,json,tsp}> -o <output.ts>   generate a single routes file
   hono-takibi [--config <file>]                        run every generator the config opts into`
 
-/**
- * The document formats `parseOpenAPI` reads, kept as a template literal so a parsed
- * `<input>` reaches the generators already narrowed to what they accept.
- */
-const DocumentPathSchema = Schema.TemplateLiteral([
-  Schema.String,
-  Schema.Literals(['.yaml', '.json', '.tsp']),
-])
-
-/** Every generated module is TypeScript, so `--output` always names a `.ts` file. */
-const TypeScriptPathSchema = Schema.TemplateLiteral([Schema.String, '.ts'])
-
-// `Schema.is` derives the guard from the schema above, so the suffix list is written
-// once; `Schema.refine` is what carries the narrowed type through `withSchema` and
-// gives the rejection a sentence instead of "matching template literal parts".
+// `Schema.is` over a template literal is what carries the extension into the parsed
+// type, so the generators receive a `${string}.ts` without a cast; `Schema.refine` is
+// what replaces "matching template literal parts" with a sentence.
 const DocumentSchema = Schema.String.pipe(
-  Schema.refine(Schema.is(DocumentPathSchema), {
-    message: 'an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document',
-  }),
+  Schema.refine(
+    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
+    { message: 'an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document' },
+  ),
 )
 
 const TypeScriptFileSchema = Schema.String.pipe(
-  Schema.refine(Schema.is(TypeScriptPathSchema), {
+  Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])), {
     message: 'a TypeScript file path ending in .ts',
   }),
-)
-
-const inputArgument = Argument.file('input', { mustExist: true }).pipe(
-  Argument.withSchema(DocumentSchema),
-  Argument.withDescription('OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from'),
-  Argument.withMetavar('input.{yaml,json,tsp}'),
-  Argument.optional,
-)
-
-// `Flag.string`, not `Flag.file`: the file primitive rewrites its value to an
-// absolute path, and `--output` is echoed back in the "Generated code written to"
-// message, which should read as the path the caller typed.
-const outputFlag = Flag.string('output').pipe(
-  Flag.withAlias('o'),
-  Flag.withSchema(TypeScriptFileSchema),
-  Flag.withDescription('TypeScript file the generated routes are written to'),
-  Flag.withMetavar('output.ts'),
-  Flag.optional,
-)
-
-const configFlag = Flag.file('config', { mustExist: true }).pipe(
-  Flag.withAlias('c'),
-  Flag.withDescription(
-    `Config file to run (default: ./${DEFAULT_CONFIG_FILE}). Paths inside it resolve against the current directory.`,
-  ),
-  Flag.withMetavar('file'),
-  Flag.optional,
 )
 
 /**
@@ -100,9 +61,10 @@ function userError(message: string) {
  * generators. `--config` and `<input>` are mutually exclusive, and each of `<input>` /
  * `--output` is meaningless without the other.
  *
- * Every failure leaves through `UserError`, which `Command.run` renders and turns into a
- * non-zero exit. The `FileSystem` the generators write through comes from the
- * environment the caller provides.
+ * Everything past the guard clauses fails with something carrying a `message`, so the
+ * single `mapError` at the end is where all of it turns into rendered CLI output. The
+ * `FileSystem` the generators write through comes from the environment the caller
+ * provides.
  */
 export function honoTakibi(args: {
   readonly input: Option.Option<typeof DocumentSchema.Type>
@@ -134,17 +96,11 @@ export function honoTakibi(args: {
     // One-shot: no config file is consulted, even when one sits in the working directory.
     if (input !== undefined && output !== undefined) {
       const { takibi } = yield* Effect.promise(() => import('../core/index.js'))
-      const openAPI = yield* parseOpenAPI(input).pipe(
-        Effect.mapError((error) => userError(error.message)),
+      return yield* Console.log(
+        yield* takibi(yield* parseOpenAPI(input), output, ONE_SHOT_COMPONENTS),
       )
-      const message = yield* takibi(openAPI, output, ONE_SHOT_COMPONENTS).pipe(
-        Effect.mapError((error) => userError(error.message)),
-      )
-      return yield* Console.log(message)
     }
 
-    // Config mode. A config the caller never asked for is the "ran `hono-takibi` with
-    // nothing" case, the one place where a missing file is worth explaining.
     const [{ readConfig }, { FormatOptions }, { makeJob }] = yield* Effect.promise(() =>
       Promise.all([
         import('../config/index.js'),
@@ -153,28 +109,22 @@ export function honoTakibi(args: {
       ]),
     )
     const config = yield* readConfig(configPath ?? DEFAULT_CONFIG_FILE).pipe(
+      // A config the caller never asked for is the "ran `hono-takibi` with nothing"
+      // case, the one place where a missing file is worth explaining.
       Effect.mapError((error) =>
-        userError(configPath === undefined ? `${error.message}\n\n${USAGE}` : error.message),
+        configPath === undefined ? userError(`${error.message}\n\n${USAGE}`) : error,
       ),
     )
-    const openAPI = yield* parseOpenAPI(config.input).pipe(
-      Effect.mapError((error) => userError(error.message)),
-    )
-    // `makeJob` returns a union of job shapes, so the element type is spelled out here:
-    // without it `Effect.all` widens the requirement channel to `any` and the layer the
-    // caller provides stops discharging it.
     const messages = yield* Effect.all(
-      makeJob(openAPI, config).map(
-        (job): Effect.Effect<string, { readonly message: string }, FileSystem.FileSystem> =>
-          job.run(job.output),
-      ),
+      makeJob(yield* parseOpenAPI(config.input), config).map((job) => job.run(job.output)),
       { concurrency: 'unbounded' },
-    ).pipe(
-      Effect.provideService(FormatOptions, config.format ?? {}),
-      Effect.mapError((error) => userError(error.message)),
-    )
+    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
     return yield* Console.log(messages.filter((message) => message !== '').join('\n'))
-  })
+  }).pipe(
+    Effect.mapError((error) =>
+      error instanceof CliError.UserError ? error : userError(error.message),
+    ),
+  )
 }
 
 /**
@@ -185,7 +135,34 @@ export function honoTakibi(args: {
  */
 export const cli = Command.make(
   'hono-takibi',
-  { input: inputArgument, output: outputFlag, config: configFlag },
+  {
+    input: Argument.file('input', { mustExist: true }).pipe(
+      Argument.withSchema(DocumentSchema),
+      Argument.withDescription(
+        'OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from',
+      ),
+      Argument.withMetavar('input.{yaml,json,tsp}'),
+      Argument.optional,
+    ),
+    // `Flag.string`, not `Flag.file`: the file primitive rewrites its value to an
+    // absolute path, and `--output` is echoed back in the "Generated code written to"
+    // message, which should read as the path the caller typed.
+    output: Flag.string('output').pipe(
+      Flag.withAlias('o'),
+      Flag.withSchema(TypeScriptFileSchema),
+      Flag.withDescription('TypeScript file the generated routes are written to'),
+      Flag.withMetavar('output.ts'),
+      Flag.optional,
+    ),
+    config: Flag.file('config', { mustExist: true }).pipe(
+      Flag.withAlias('c'),
+      Flag.withDescription(
+        `Config file to run (default: ./${DEFAULT_CONFIG_FILE}). Paths inside it resolve against the current directory.`,
+      ),
+      Flag.withMetavar('file'),
+      Flag.optional,
+    ),
+  },
   honoTakibi,
 ).pipe(
   Command.withDescription(

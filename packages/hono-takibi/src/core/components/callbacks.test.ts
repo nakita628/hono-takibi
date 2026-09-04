@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { callbacksCode } from '../../generator/zod-openapi-hono/openapi/components/callbacks.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { callbacks } from './callbacks.js'
 
 let tmpDir: string
@@ -18,15 +18,15 @@ describe('callbacks', () => {
   it('returns error when callbacks is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
-    const result = await runGenerator(callbacks(undefined, output, false))
-    expect(result).toStrictEqual({ ok: false, error: 'No callbacks found' })
+    const result = await runGeneratorError(callbacks(undefined, output, false))
+    expect(result.message).toBe('No callbacks found')
   })
 
   it('returns success message when callbacks is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
     const result = await runGenerator(callbacks({}, output, false))
-    expect(result).toStrictEqual({ ok: true, value: 'No callbacks found' })
+    expect(result).toStrictEqual('No callbacks found')
   })
 
   describe('non-split mode', () => {
@@ -56,10 +56,7 @@ describe('callbacks', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated callbacks code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -93,10 +90,9 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated Callback code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated Callback code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'onEvent.ts'))).toBe(true)
     })
@@ -128,10 +124,9 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated Callback code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated Callback code written to ${output}/*.ts (index.ts included)`,
+      )
     })
   })
 
@@ -156,10 +151,7 @@ describe('callbacks', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated callbacks code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
       expect(fs.readFileSync(output, 'utf-8')).toBe(
         `export const OnEventCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n} as const\n`,
       )
@@ -170,16 +162,17 @@ describe('callbacks', () => {
     it('skips $ref entries in non-split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await runGenerator(
-        callbacks(
-          {
-            refOnly: { $ref: '#/components/callbacks/Shared' },
-          },
-          output,
-          false,
+      await expect(
+        runGenerator(
+          callbacks(
+            {
+              refOnly: { $ref: '#/components/callbacks/Shared' },
+            },
+            output,
+            false,
+          ),
         ),
-      )
-      expect(result.ok).toBe(true)
+      ).resolves.toBeDefined()
     })
   })
 
@@ -209,10 +202,7 @@ describe('callbacks', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated callbacks code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated callbacks code written to ${output}`)
       expect(fs.readFileSync(output, 'utf-8')).toBe(
         `export const OnPaymentCallback = {\n  '{$request.body#/callbackUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n\nexport const OnShipmentCallback = {\n  '{$request.body#/shipmentUrl}': { post: { responses: { 200: { description: 'OK' } } } },\n}\n`,
       )
@@ -230,8 +220,7 @@ describe('callbacks', () => {
           },
         },
       }
-      const result = await runGenerator(callbacks(sampleCallbacks, output, false))
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(callbacks(sampleCallbacks, output, false))).resolves.toBeDefined()
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = callbacksCode({ callbacks: sampleCallbacks }, true)
       const emittedNames = new Set(

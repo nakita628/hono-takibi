@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { template } from './index.js'
 
 let tmpDir: string
@@ -35,10 +35,7 @@ describe('template', () => {
     const result = await runGenerator(
       template(openAPI, output, false, '/', undefined, undefined, false),
     )
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe('🔥 Generated code and template files written')
-    }
+    expect(result).toBe('🔥 Generated code and template files written')
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
   })
@@ -60,10 +57,7 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    const result = await runGenerator(
-      template(openAPI, output, false, '/', undefined, undefined, false),
-    )
-    expect(result.ok).toBe(true)
+    await runGenerator(template(openAPI, output, false, '/', undefined, undefined, false))
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'health.ts'))).toBe(true)
@@ -102,10 +96,7 @@ export const api = new OpenAPIHono()
         },
       },
     } as OpenAPI
-    const result = await runGenerator(
-      template(openAPI, output, false, '/', undefined, undefined, false),
-    )
-    expect(result.ok).toBe(true)
+    await runGenerator(template(openAPI, output, false, '/', undefined, undefined, false))
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
@@ -151,10 +142,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    const result = await runGenerator(
-      template(openAPI, output, false, '/', '@/api', undefined, true),
-    )
-    expect(result.ok).toBe(true)
+    await runGenerator(template(openAPI, output, false, '/', '@/api', undefined, true))
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
 import { env as workerEnv } from 'cloudflare:workers'
@@ -187,10 +175,7 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    const first = await runGenerator(
-      template(untagged, output, false, '/', undefined, undefined, false),
-    )
-    expect(first.ok).toBe(true)
+    await runGenerator(template(untagged, output, false, '/', undefined, undefined, false))
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from '../routes'
 
@@ -215,10 +200,7 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
         },
       },
     } as OpenAPI
-    const second = await runGenerator(
-      template(tagged, output, false, '/', undefined, undefined, false),
-    )
-    expect(second.ok).toBe(true)
+    await runGenerator(template(tagged, output, false, '/', undefined, undefined, false))
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
     expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf-8')).toBe(implemented)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
@@ -253,12 +235,9 @@ export default app
         },
       },
     } as OpenAPI
-    const result = await runGenerator(
+    const result = await runGeneratorError(
       template(openAPI, output, false, '/', undefined, undefined, false),
     )
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error.length > 0).toBe(true)
-    }
+    expect(result.message.length > 0).toBe(true)
   })
 })

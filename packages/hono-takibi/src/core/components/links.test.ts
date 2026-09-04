@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { links } from './links.js'
 
 let tmpDir: string
@@ -17,15 +17,15 @@ describe('links', () => {
   it('returns error when links is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
-    const result = await runGenerator(links(undefined, output, false))
-    expect(result).toStrictEqual({ ok: false, error: 'No links found' })
+    const result = await runGeneratorError(links(undefined, output, false))
+    expect(result.message).toBe('No links found')
   })
 
   it('returns success message when links is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
     const result = await runGenerator(links({}, output, false))
-    expect(result).toStrictEqual({ ok: true, value: 'No links found' })
+    expect(result).toStrictEqual('No links found')
   })
 
   describe('non-split mode', () => {
@@ -44,10 +44,7 @@ describe('links', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated links code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated links code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -71,10 +68,7 @@ describe('links', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated links code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated links code written to ${output}`)
       expect(fs.readFileSync(output, 'utf-8')).toBe(
         `export const GetUserByIdLink = {\n  operationId: 'getUser',\n  parameters: { userId: '$response.body#/id' },\n} as const\n`,
       )
@@ -85,7 +79,7 @@ describe('links', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      const result = await runGenerator(
+      await runGenerator(
         links(
           {
             GetUserById: {
@@ -101,7 +95,6 @@ describe('links', () => {
           true,
         ),
       )
-      expect(result.ok).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'getUserById.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'getPostById.ts'))).toBe(true)
@@ -110,7 +103,7 @@ describe('links', () => {
     it('writes split files with readonly', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      const result = await runGenerator(
+      await runGenerator(
         links(
           {
             GetUserById: {
@@ -123,7 +116,6 @@ describe('links', () => {
           true,
         ),
       )
-      expect(result.ok).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
     })
   })

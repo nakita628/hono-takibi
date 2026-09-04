@@ -4202,7 +4202,7 @@ import { aRoute, aRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4223,7 +4223,7 @@ import { aRoute, aRouteHandler, bRoute, bRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4629,7 +4629,7 @@ import { aRoute, aRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4650,7 +4650,7 @@ import { aRoute, aRouteHandler, bRoute, bRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 

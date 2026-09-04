@@ -49,10 +49,7 @@ describe('mock', () => {
       },
     } as OpenAPI
     const result = await runGenerator(mock(openAPI, output, '/'))
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(`Generated mock server written to ${output}`)
-    }
+    expect(result).toBe(`Generated mock server written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
   })
 
@@ -87,10 +84,7 @@ describe('mock', () => {
       },
     } as OpenAPI
     const result = await runGenerator(mock(openAPI, output, '/', { readonly: true }))
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(`Generated mock server written to ${output}`)
-    }
+    expect(result).toBe(`Generated mock server written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
   })
 })

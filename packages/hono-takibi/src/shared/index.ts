@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import type { FileSystem, PlatformError } from 'effect'
 import { Effect } from 'effect'
 
 import type { Config } from '../config/index.js'
@@ -29,9 +30,30 @@ import {
   webhooks,
 } from '../core/index.js'
 import { GenerateError } from '../error/index.js'
+import type { FormatError } from '../format/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
-export function makeJob(openAPI: OpenAPI, config: Config) {
+/**
+ * One generator the config opted in, ready to run.
+ *
+ * Naming the shape here is what keeps the requirement channel from widening to `any`
+ * at the call site: the array below is a union of differently-typed entries, and
+ * `Effect.all` over that union would lose the `FileSystem` the caller has to provide.
+ */
+export type Job = {
+  readonly name: string
+  readonly output: string
+  readonly split: boolean
+  readonly run: (
+    output: string,
+  ) => Effect.Effect<
+    string,
+    FormatError | GenerateError | PlatformError.PlatformError,
+    FileSystem.FileSystem
+  >
+}
+
+export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
   // In define mode the app entry anchors routes/ and components/. When output is
   // omitted, the anchor is inferred from components.output (`<anchor>/<module>`,

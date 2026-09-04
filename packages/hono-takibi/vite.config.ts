@@ -470,8 +470,8 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(cli|emit|file|format|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
-                  message: 'shared may only import config, core, openapi',
+                    '^(\\.\\./)+(cli|emit|file|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
+                  message: 'shared may only import config, core, format, openapi',
                 },
               ],
             },

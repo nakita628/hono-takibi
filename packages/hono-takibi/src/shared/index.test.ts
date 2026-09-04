@@ -57,8 +57,7 @@ describe('makeJob define mode', () => {
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'src/components/index.ts' },
       { name: 'template', output: 'src/index.ts' },
@@ -73,8 +72,7 @@ describe('makeJob define mode', () => {
         components: { output: './server/components/index.ts' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: './server/components/index.ts' },
       { name: 'template', output: './server/index.ts' },
@@ -89,8 +87,7 @@ describe('makeJob define mode', () => {
         components: { output: 'server/components.ts' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'server/components.ts' },
       { name: 'template', output: 'server/index.ts' },
@@ -106,8 +103,7 @@ describe('makeJob define mode', () => {
         components: { output: 'shared/components.ts' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'shared/components.ts' },
       { name: 'template', output: 'src/index.ts' },
@@ -123,10 +119,8 @@ describe('makeJob define mode', () => {
         components: { output: `${tmpDir}/server/components/index.ts` },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -174,10 +168,8 @@ export const getUsersIdRoute = defineOpenAPIRoute({
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -252,10 +244,8 @@ export const UserSchema = z
         template: { define: true, pathAlias: '@/' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -282,11 +272,8 @@ import { UserSchema } from '@/components'`)
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
-
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     // route files live under routes/, not handlers/
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers'))).toBe(false)
@@ -320,12 +307,7 @@ import { UserSchema } from '../components'`)
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(
-      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
-    )) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -361,12 +343,7 @@ import { UserSchema } from '../components'`)
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(
-      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
-    )) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('components/index.ts')).toBe(`import { z } from '@hono/zod-openapi'
@@ -412,12 +389,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
         template: { define: true },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(
-      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
-    )) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src'))).toBe(false)
@@ -446,12 +418,7 @@ import { UserSchema } from '../components'`)
         components: { output: `${tmpDir}/shared/components.ts` },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(
-      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
-    )) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
 
     expect(fs.existsSync(path.join(tmpDir, 'shared', 'components.ts'))).toBe(true)
     // The derived components dir must not appear when the override is set.
@@ -476,12 +443,7 @@ import { UserSchema } from '../../shared/components'`)
         components: { output: `${tmpDir}/src/api/components/index.ts` },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(
-      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
-    )) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -502,11 +464,8 @@ import { UserSchema } from '@/api/components'`)
         template: { define: true, pathAlias: '@/' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts').split('\n')).toContain(
@@ -531,12 +490,11 @@ describe(
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human implements the handler.
       fs.writeFileSync(
         usersPath,
@@ -547,14 +505,14 @@ describe(
             "handler: async (c) => {\n    return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const afterRegen = fs.readFileSync(usersPath, 'utf-8')
       const trimmed = afterRegen.split('\n').map((l) => l.trim())
       expect(trimmed).toContain("return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)")
       expect(trimmed).not.toContain('handler: async (c) => {},')
       // Idempotent: a further regeneration changes nothing.
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       expect(fs.readFileSync(usersPath, 'utf-8')).toBe(afterRegen)
     })
 
@@ -567,12 +525,11 @@ describe(
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds a summary inside createRoute (the spec has none).
       fs.writeFileSync(
         usersPath,
@@ -583,7 +540,7 @@ describe(
             "operationId: 'getUser',\n    summary: 'Get a user',",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       expect(
         fs
@@ -602,12 +559,11 @@ describe(
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds a custom import (named like a route — must NOT be dropped), a helper, and a const.
       fs.writeFileSync(
         usersPath,
@@ -616,7 +572,7 @@ describe(
           'utf-8',
         )}\nconst PAGE_SIZE = 20\nfunction toDto(x: unknown) {\n  return x\n}\n`,
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const trimmed = fs
         .readFileSync(usersPath, 'utf-8')
@@ -637,12 +593,11 @@ describe(
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       fs.writeFileSync(
         usersPath,
         fs
@@ -660,7 +615,7 @@ describe(
           '/tags': { get: { operationId: 'listTags', responses: { 200: { description: 'ok' } } } },
         },
       } as unknown as OpenAPI
-      for (const r of await run(withTags)) if (!r.ok) throw new Error(r.error)
+      await run(withTags)
 
       // Existing edit kept.
       expect(
@@ -701,11 +656,10 @@ export * from './tags'
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
       const healthContent = fs.readFileSync(healthPath, 'utf-8')
       // Spec drops the health resource.
@@ -713,7 +667,7 @@ export * from './tags'
         ...openAPI,
         paths: { '/users/{id}': (openAPI.paths as Record<string, unknown>)['/users/{id}'] },
       } as unknown as OpenAPI
-      for (const r of await run(withoutHealth)) if (!r.ok) throw new Error(r.error)
+      await run(withoutHealth)
 
       // The route declaration goes, the file stays for the user to remove.
       expect(healthContent.includes('export const getHealthRoute')).toBe(true)
@@ -749,12 +703,11 @@ export default app
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const indexPath = path.join(tmpDir, 'src', 'index.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds middleware + basePath chain.
       fs.writeFileSync(
         indexPath,
@@ -778,7 +731,7 @@ export default app
           '/tags': { get: { operationId: 'listTags', responses: { 200: { description: 'ok' } } } },
         },
       } as unknown as OpenAPI
-      for (const r of await run(withTags)) if (!r.ok) throw new Error(r.error)
+      await run(withTags)
 
       const trimmed = fs
         .readFileSync(indexPath, 'utf-8')
@@ -803,12 +756,11 @@ export default app
           template: { define: true },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       expect(fs.existsSync(usersPath)).toBe(true)
       fs.writeFileSync(
         usersPath,
@@ -819,7 +771,7 @@ export default app
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       expect(
         fs
@@ -842,12 +794,11 @@ export default app
           template: { define: true, pathAlias: '@/' },
         }),
       )
-      if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       fs.writeFileSync(
         usersPath,
         fs
@@ -857,7 +808,7 @@ export default app
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const content = fs.readFileSync(usersPath, 'utf-8')
       const trimmed = content.split('\n').map((l) => l.trim())
@@ -879,11 +830,8 @@ describe('makeJob test request paths use the global basePath', () => {
         test: { output: `${tmpDir}/app.test.ts`, import: './app' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/api/health`')).toBe(true)
     expect(content.includes('app.request(`/health`')).toBe(false)
@@ -898,11 +846,8 @@ describe('makeJob test request paths use the global basePath', () => {
         test: { output: `${tmpDir}/app.test.ts`, import: './app' },
       }),
     )
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
-      if (!r.ok) throw new Error(r.error)
-    }
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/health`')).toBe(true)
   })

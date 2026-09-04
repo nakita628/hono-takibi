@@ -7,8 +7,7 @@ import { makeMock } from './index.js'
 
 async function format(spec: OpenAPI, basePath: string) {
   const result = await runGenerator(fmt(makeMock(spec, basePath)))
-  if (!result.ok) throw new Error(result.error)
-  return result.value
+  return result
 }
 
 const minimalOpenAPI = {
@@ -2013,8 +2012,7 @@ export default app
   describe('locale', () => {
     it('imports the localized faker entry when locale is set', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { locale: 'ja' })))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker/locale/ja'
 
@@ -2054,8 +2052,7 @@ export default app
   describe('delay', () => {
     it('emits a delay middleware when delay is a number', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { delay: 1000 })))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2100,8 +2097,7 @@ export default app
       const result = await runGenerator(
         fmt(makeMock(minimalOpenAPI, '/', { delay: { min: 100, max: 500 } })),
       )
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2145,9 +2141,7 @@ export default app
     it('omits the delay middleware when delay is false', async () => {
       const withFalse = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { delay: false })))
       const without = await runGenerator(fmt(makeMock(minimalOpenAPI, '/')))
-      if (!withFalse.ok) throw new Error(withFalse.error)
-      if (!without.ok) throw new Error(without.error)
-      expect(withFalse.value).toBe(without.value)
+      expect(withFalse).toBe(without)
     })
   })
 
@@ -2177,8 +2171,7 @@ export default app
 
     it('returns the spec example verbatim by default', async () => {
       const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/')))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2213,8 +2206,7 @@ export default app
 
     it('fakes the response instead of the example when useExamples is false', async () => {
       const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/', { useExamples: false })))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2284,8 +2276,7 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2355,8 +2346,7 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 
@@ -2448,8 +2438,7 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      if (!result.ok) throw new Error(result.error)
-      expect(result.value)
+      expect(result)
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 

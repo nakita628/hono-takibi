@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vite-plus/test'
 
-import { runGenerator } from '../testing/index.js'
+import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { defineConfig, parseConfig, readConfig } from './index.js'
 
 describe('readConfig', () => {
@@ -11,12 +11,9 @@ describe('readConfig', () => {
     const fakeCwd = `/tmp/hono-takibi-test-no-config-${Date.now()}`
     process.cwd = () => fakeCwd
     try {
-      const result = await runGenerator(readConfig())
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        const expectedPath = path.resolve(fakeCwd, 'hono-takibi.config.ts')
-        expect(result.error).toBe(`Config not found: ${expectedPath}`)
-      }
+      const result = await runGeneratorError(readConfig())
+      const expectedPath = path.resolve(fakeCwd, 'hono-takibi.config.ts')
+      expect(result.message).toBe(`Config not found: ${expectedPath}`)
     } finally {
       process.cwd = originalCwd
     }
@@ -27,11 +24,8 @@ describe('readConfig', () => {
     const fakeCwd = `/tmp/hono-takibi-test-filename-${Date.now()}`
     process.cwd = () => fakeCwd
     try {
-      const result = await runGenerator(readConfig())
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error.endsWith('hono-takibi.config.ts')).toBe(true)
-      }
+      const result = await runGeneratorError(readConfig())
+      expect(result.message.endsWith('hono-takibi.config.ts')).toBe(true)
     } finally {
       process.cwd = originalCwd
     }
@@ -48,11 +42,8 @@ describe('readConfig', () => {
     process.cwd = () => dir
     try {
       const result = await runGenerator(readConfig())
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.input).toBe('openapi.yaml')
-        expect(result.value.output).toBe('src/routes.ts')
-      }
+      expect(result.input).toBe('openapi.yaml')
+      expect(result.output).toBe('src/routes.ts')
     } finally {
       process.cwd = originalCwd
       fs.rmSync(dir, { recursive: true, force: true })
@@ -71,11 +62,8 @@ describe('readConfig', () => {
     const originalCwd = process.cwd.bind(process)
     process.cwd = () => dir
     try {
-      const result = await runGenerator(readConfig())
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Config must export default object')
-      }
+      const result = await runGeneratorError(readConfig())
+      expect(result.message).toBe('Config must export default object')
     } finally {
       process.cwd = originalCwd
       fs.rmSync(dir, { recursive: true, force: true })
@@ -95,14 +83,11 @@ describe('readConfig', () => {
     const originalCwd = process.cwd.bind(process)
     process.cwd = () => dir
     try {
-      const result = await runGenerator(readConfig())
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(typeof result.error).toBe('string')
-        expect(result.error.length).toBeGreaterThan(0)
-        // Should NOT be the missing-file message — the file exists.
-        expect(result.error.startsWith('Config not found')).toBe(false)
-      }
+      const result = await runGeneratorError(readConfig())
+      expect(typeof result.message).toBe('string')
+      expect(result.message.length).toBeGreaterThan(0)
+      // Should NOT be the missing-file message — the file exists.
+      expect(result.message.startsWith('Config not found')).toBe(false)
     } finally {
       process.cwd = originalCwd
       fs.rmSync(dir, { recursive: true, force: true })
@@ -119,10 +104,7 @@ describe('parseConfig()', () => {
           routes: { output: 'routes' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.output).toBe('routes/index.ts')
-      }
+      expect(result.routes?.output).toBe('routes/index.ts')
     })
 
     it.concurrent('normalizes routes.output when split is false', async () => {
@@ -132,10 +114,7 @@ describe('parseConfig()', () => {
           routes: { output: 'routes', split: false },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.output).toBe('routes/index.ts')
-      }
+      expect(result.routes?.output).toBe('routes/index.ts')
     })
 
     it.concurrent('keeps routes.output unchanged when already ends with .ts', async () => {
@@ -145,10 +124,7 @@ describe('parseConfig()', () => {
           routes: { output: 'routes/custom.ts' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.output).toBe('routes/custom.ts')
-      }
+      expect(result.routes?.output).toBe('routes/custom.ts')
     })
 
     it.concurrent('keeps routes.output as directory when split is true', async () => {
@@ -158,10 +134,7 @@ describe('parseConfig()', () => {
           routes: { output: 'routes', split: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.output).toBe('routes')
-      }
+      expect(result.routes?.output).toBe('routes')
     })
 
     it.concurrent('normalizes rpc.output when split is undefined', async () => {
@@ -171,10 +144,7 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.output).toBe('rpc/index.ts')
-      }
+      expect(result.rpc?.output).toBe('rpc/index.ts')
     })
 
     it.concurrent('normalizes rpc.output when split is false', async () => {
@@ -184,10 +154,7 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc', import: '../client', split: false },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.output).toBe('rpc/index.ts')
-      }
+      expect(result.rpc?.output).toBe('rpc/index.ts')
     })
 
     it.concurrent('keeps rpc.output as directory when split is true', async () => {
@@ -197,10 +164,7 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.output).toBe('rpc')
-      }
+      expect(result.rpc?.output).toBe('rpc')
     })
 
     it.concurrent('normalizes components.schemas.output when split is undefined', async () => {
@@ -212,10 +176,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components?.schemas?.output).toBe('schemas/index.ts')
-      }
+      expect(result.components?.schemas?.output).toBe('schemas/index.ts')
     })
 
     it.concurrent('normalizes components.parameters.output when split is false', async () => {
@@ -227,10 +188,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components?.parameters?.output).toBe('parameters/index.ts')
-      }
+      expect(result.components?.parameters?.output).toBe('parameters/index.ts')
     })
 
     it.concurrent('keeps components.schemas.output as directory when split is true', async () => {
@@ -242,10 +200,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components?.schemas?.output).toBe('schemas')
-      }
+      expect(result.components?.schemas?.output).toBe('schemas')
     })
 
     it.concurrent('normalizes multiple components at once', async () => {
@@ -260,13 +215,10 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components?.schemas?.output).toBe('schemas/index.ts')
-        expect(result.value.components?.parameters?.output).toBe('parameters/index.ts')
-        expect(result.value.components?.responses?.output).toBe('responses/index.ts')
-        expect(result.value.components?.headers?.output).toBe('headers')
-      }
+      expect(result.components?.schemas?.output).toBe('schemas/index.ts')
+      expect(result.components?.parameters?.output).toBe('parameters/index.ts')
+      expect(result.components?.responses?.output).toBe('responses/index.ts')
+      expect(result.components?.headers?.output).toBe('headers')
     })
   })
 
@@ -281,10 +233,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.readonly).toBe(true)
-      }
+      expect(result.readonly).toBe(true)
     })
 
     it.concurrent('accepts readonly: false', async () => {
@@ -297,10 +246,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.readonly).toBe(false)
-      }
+      expect(result.readonly).toBe(false)
     })
 
     it.concurrent('accepts undefined readonly (optional)', async () => {
@@ -312,10 +258,7 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.readonly).toBeUndefined()
-      }
+      expect(result.readonly).toBeUndefined()
     })
   })
 
@@ -334,15 +277,12 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.mock?.output).toBe('src/mock.ts')
-        expect(result.value.mock?.useExamples).toBe(false)
-        expect(result.value.mock?.locale).toBe('ja')
-        expect(result.value.mock?.delay).toBe(500)
-        expect(result.value.mock?.arrayMin).toBe(2)
-        expect(result.value.mock?.arrayMax).toBe(10)
-      }
+      expect(result.mock?.output).toBe('src/mock.ts')
+      expect(result.mock?.useExamples).toBe(false)
+      expect(result.mock?.locale).toBe('ja')
+      expect(result.mock?.delay).toBe(500)
+      expect(result.mock?.arrayMin).toBe(2)
+      expect(result.mock?.arrayMax).toBe(10)
     })
 
     it.concurrent('accepts delay as a { min, max } range', async () => {
@@ -352,25 +292,19 @@ describe('parseConfig()', () => {
           mock: { output: 'src/mock.ts', delay: { min: 100, max: 500 } },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.mock?.delay).toStrictEqual({ min: 100, max: 500 })
-      }
+      expect(result.mock?.delay).toStrictEqual({ min: 100, max: 500 })
     })
 
     it.concurrent('rejects a delay range with min greater than max', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           mock: { output: 'src/mock.ts', delay: { min: 500, max: 100 } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: mock.delay: delay.min must be <= delay.max. Swap the values or remove one.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: mock.delay: delay.min must be <= delay.max. Swap the values or remove one.',
+      )
     })
 
     it.concurrent('accepts delay: false', async () => {
@@ -380,50 +314,42 @@ describe('parseConfig()', () => {
           mock: { output: 'src/mock.ts', delay: false },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.mock?.delay).toBe(false)
-      }
+      expect(result.mock?.delay).toBe(false)
     })
 
     it.concurrent('accepts arrayMin equal to arrayMax', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          mock: { output: 'src/mock.ts', arrayMin: 5, arrayMax: 5 },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            mock: { output: 'src/mock.ts', arrayMin: 5, arrayMax: 5 },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('rejects arrayMin greater than arrayMax', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           mock: { output: 'src/mock.ts', arrayMin: 6, arrayMax: 5 },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: mock: arrayMin must be <= arrayMax. Swap the values or remove one.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: mock: arrayMin must be <= arrayMax. Swap the values or remove one.',
+      )
     })
 
     it.concurrent('rejects a locale that could break out of the import path', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           mock: { output: 'src/mock.ts', locale: '../../../etc/passwd' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          "Invalid config: mock.locale: Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
-        )
-      }
+      expect(result.message).toBe(
+        "Invalid config: mock.locale: Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
+      )
     })
   })
 
@@ -435,11 +361,8 @@ describe('parseConfig()', () => {
           routes: { output: 'src/routes.ts', import: '@packages/routes' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.import).toBe('@packages/routes')
-        expect(result.value.routes?.output).toBe('src/routes.ts')
-      }
+      expect(result.routes?.import).toBe('@packages/routes')
+      expect(result.routes?.output).toBe('src/routes.ts')
     })
 
     it.concurrent('preserves routes.import with split and pathAlias', async () => {
@@ -450,12 +373,9 @@ describe('parseConfig()', () => {
           routes: { output: 'src/routes', split: true, import: '@packages/routes' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.import).toBe('@packages/routes')
-        expect(result.value.routes?.output).toBe('src/routes')
-        expect(result.value.template?.pathAlias).toBe('@/')
-      }
+      expect(result.routes?.import).toBe('@packages/routes')
+      expect(result.routes?.output).toBe('src/routes')
+      expect(result.template?.pathAlias).toBe('@/')
     })
 
     it.concurrent('routes without import field works (backward compat)', async () => {
@@ -465,10 +385,7 @@ describe('parseConfig()', () => {
           routes: { output: 'src/routes.ts' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.routes?.import).toBeUndefined()
-      }
+      expect(result.routes?.import).toBeUndefined()
     })
 
     it.concurrent('preserves webhooks.import through parsing', async () => {
@@ -478,54 +395,42 @@ describe('parseConfig()', () => {
           webhooks: { output: 'src/webhooks.ts', import: '@packages/webhooks' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.webhooks?.import).toBe('@packages/webhooks')
-      }
+      expect(result.webhooks?.import).toBe('@packages/webhooks')
     })
   })
 
   describe('validation errors', () => {
     it.concurrent('fails when split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           routes: { output: 'routes/index.ts', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: routes.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: routes.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when rpc split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           rpc: { output: 'rpc/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: rpc.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: rpc.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when input is not .yaml, .json, or .tsp', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.txt' as `${string}.yaml`,
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: input: must be .yaml | .json | .tsp')
-      }
+      expect(result.message).toBe('Invalid config: input: must be .yaml | .json | .tsp')
     })
 
     it.concurrent('accepts rpc with custom client name', async () => {
@@ -535,23 +440,17 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc/index.ts', import: '../api', client: 'authClient' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.client).toBe('authClient')
-      }
+      expect(result.rpc?.client).toBe('authClient')
     })
 
     it.concurrent('fails when rpc client is not a string', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           rpc: { output: 'rpc/index.ts', import: '../client', client: 123 as unknown as string },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: rpc.client: Expected string | undefined')
-      }
+      expect(result.message).toBe('Invalid config: rpc.client: Expected string | undefined')
     })
   })
 
@@ -575,13 +474,10 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.format?.printWidth).toBe(80)
-        expect(result.value.format?.semi).toBe(true)
-        expect(result.value.format?.singleQuote).toBe(false)
-        expect(result.value.format?.arrowParens).toBe('avoid')
-      }
+      expect(result.format?.printWidth).toBe(80)
+      expect(result.format?.semi).toBe(true)
+      expect(result.format?.singleQuote).toBe(false)
+      expect(result.format?.arrowParens).toBe('avoid')
     })
 
     it.concurrent('accepts format with sort options', async () => {
@@ -602,20 +498,17 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(
-          typeof result.value.format?.sortImports === 'object'
-            ? result.value.format.sortImports.order
-            : undefined,
-        ).toBe('asc')
-        expect(result.value.format?.sortPackageJson).toBe(true)
-        expect(
-          typeof result.value.format?.sortTailwindcss === 'object'
-            ? result.value.format.sortTailwindcss.functions
-            : undefined,
-        ).toStrictEqual(['clsx', 'cva'])
-      }
+      expect(
+        typeof result.format?.sortImports === 'object'
+          ? result.format.sortImports.order
+          : undefined,
+      ).toBe('asc')
+      expect(result.format?.sortPackageJson).toBe(true)
+      expect(
+        typeof result.format?.sortTailwindcss === 'object'
+          ? result.format.sortTailwindcss.functions
+          : undefined,
+      ).toStrictEqual(['clsx', 'cva'])
     })
 
     it.concurrent('accepts config without format (optional)', async () => {
@@ -625,68 +518,66 @@ describe('parseConfig()', () => {
           output: 'routes.ts',
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.format).toBeUndefined()
-      }
+      expect(result.format).toBeUndefined()
     })
 
     it.concurrent('accepts any format value (delegated to oxfmt)', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          format: { unknownOption: true },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            format: { unknownOption: true },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
   })
 
   describe('output and routes mutual exclusivity', () => {
     it.concurrent('fails when both output and routes are specified', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'src/routes.ts',
           routes: { output: 'src/routes' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: output and routes are mutually exclusive. Use output for single-file mode, or routes for separate route output.',
+      )
     })
 
     it.concurrent('passes with output only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/routes.ts',
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: 'src/routes.ts',
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes with routes only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          routes: { output: 'src/routes.ts' },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            routes: { output: 'src/routes.ts' },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes with neither output nor routes', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          exportSchemas: true,
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            exportSchemas: true,
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
   })
 
@@ -699,10 +590,7 @@ describe('parseConfig()', () => {
           template: { define: true, routeHandler: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.template?.define).toBe(true)
-      }
+      expect(result.template?.define).toBe(true)
     })
 
     it.concurrent('passes when define is true and output is omitted', async () => {
@@ -712,80 +600,74 @@ describe('parseConfig()', () => {
           template: { define: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.output).toBe(undefined)
-        expect(result.value.template?.define).toBe(true)
-      }
+      expect(result.output).toBe(undefined)
+      expect(result.template?.define).toBe(true)
     })
 
     it.concurrent('fails when define is true and output is not an index.ts file', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: './src/routes.ts',
           template: { define: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, output is the app entry and must be an index.ts file (e.g. ./src/index.ts), or omitted to default to src/index.ts. Other names collide with the derived routes/ directory.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, output is the app entry and must be an index.ts file (e.g. ./src/index.ts), or omitted to default to src/index.ts. Other names collide with the derived routes/ directory.',
+      )
     })
 
     it.concurrent('passes when define is true and output is a relocated index.ts', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: './server/index.ts',
-          template: { define: true },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: './server/index.ts',
+            template: { define: true },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes when define is true and output is a bare index.ts', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'index.ts',
-          template: { define: true },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: 'index.ts',
+            template: { define: true },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('fails when define is true and a per-type component output is specified', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           template: { define: true },
           components: { schemas: { output: 'src/schemas', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, per-type component outputs (components.schemas, components.responses, ...) are not supported. Use components.output for a single components file.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, per-type component outputs (components.schemas, components.responses, ...) are not supported. Use components.output for a single components file.',
+      )
     })
 
     it.concurrent('passes when define is true and components.output is specified', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          template: { define: true },
-          components: { output: 'shared/components.ts' },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            template: { define: true },
+            components: { output: 'shared/components.ts' },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('fails when define is true and components.output hits the app entry', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: './src/index.ts',
@@ -793,121 +675,110 @@ describe('parseConfig()', () => {
           components: { output: 'src/index.ts' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+      )
     })
 
     it.concurrent('fails when define is true and components.output is inside the derived routes dir', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           template: { define: true },
           components: { output: './src/routes/index.ts' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+      )
     })
 
     it.concurrent('passes when define is true with both output and a non-colliding components.output', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/index.ts',
-          template: { define: true },
-          components: { output: 'shared/components.ts' },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: 'src/index.ts',
+            template: { define: true },
+            components: { output: 'shared/components.ts' },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes when define is true and only components.output anchors the layout', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          template: { define: true },
-          components: { output: './server/components/index.ts' },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            template: { define: true },
+            components: { output: './server/components/index.ts' },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('fails when the anchor derived from components.output puts components inside routes/', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           template: { define: true },
           components: { output: './server/routes/index.ts' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+      )
     })
 
     it.concurrent('fails when a bare components.output collides with the derived app entry', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           template: { define: true },
           components: { output: 'index.ts' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
+      )
     })
 
     it.concurrent('fails when define is true and routes is specified', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           routes: { output: 'src/routes.ts' },
           template: { define: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: template.define and routes are mutually exclusive. define derives routes/ next to the app entry (output, default src/index.ts).',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: template.define and routes are mutually exclusive. define derives routes/ next to the app entry (output, default src/index.ts).',
+      )
     })
 
     it.concurrent('passes with define only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/index.ts',
-          template: { define: true },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: 'src/index.ts',
+            template: { define: true },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes with routeHandler only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          output: 'src/index.ts',
-          template: { routeHandler: true },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            output: 'src/index.ts',
+            template: { routeHandler: true },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('ignores a removed template.output key in both variants', async () => {
@@ -918,10 +789,7 @@ describe('parseConfig()', () => {
           template: { define: true, output: 'src/controllers' },
         }),
       )
-      expect(defineResult.ok).toBe(true)
-      if (defineResult.ok) {
-        expect('output' in (defineResult.value.template ?? {})).toBe(false)
-      }
+      expect('output' in (defineResult.template ?? {})).toBe(false)
       const nonDefineResult = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
@@ -929,17 +797,14 @@ describe('parseConfig()', () => {
           template: { output: 'src/controllers' },
         }),
       )
-      expect(nonDefineResult.ok).toBe(true)
-      if (nonDefineResult.ok) {
-        expect(nonDefineResult.value.template?.define).toBe(false)
-        expect('output' in (nonDefineResult.value.template ?? {})).toBe(false)
-      }
+      expect(nonDefineResult.template?.define).toBe(false)
+      expect('output' in (nonDefineResult.template ?? {})).toBe(false)
     })
   })
 
   describe('components.output / per-type mutual exclusivity', () => {
     it.concurrent('fails when both output and a per-type component are specified', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: {
@@ -948,32 +813,31 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components: components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components: components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
+      )
     })
 
     it.concurrent('passes with components.output only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          components: { output: 'src/components/index.ts' },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            components: { output: 'src/components/index.ts' },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
 
     it.concurrent('passes with per-type components only', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          components: { schemas: { output: 'src/schemas' } },
-        }),
-      )
-      expect(result.ok).toBe(true)
+      await expect(
+        runGenerator(
+          parseConfig({
+            input: 'openapi.yaml',
+            components: { schemas: { output: 'src/schemas' } },
+          }),
+        ),
+      ).resolves.toBeDefined()
     })
   })
 
@@ -986,10 +850,7 @@ describe('parseConfig()', () => {
           output: 'src/routes.ts',
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.basePath).toBe('/api')
-      }
+      expect(result.basePath).toBe('/api')
     })
 
     it.concurrent('defaults basePath to "/" when omitted', async () => {
@@ -999,10 +860,7 @@ describe('parseConfig()', () => {
           output: 'src/routes.ts',
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.basePath).toBe('/')
-      }
+      expect(result.basePath).toBe('/')
     })
   })
 
@@ -1014,10 +872,7 @@ describe('parseConfig()', () => {
           test: { output: 'src/index.test.ts', import: './index', testFramework: 'bun' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.testFramework).toBe('bun')
-      }
+      expect(result.test?.testFramework).toBe('bun')
     })
 
     it.concurrent('accepts test.testFramework: vitest', async () => {
@@ -1027,10 +882,7 @@ describe('parseConfig()', () => {
           test: { output: 'src/index.test.ts', import: './index', testFramework: 'vitest' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.testFramework).toBe('vitest')
-      }
+      expect(result.test?.testFramework).toBe('vitest')
     })
 
     it.concurrent('test.testFramework defaults to vitest when omitted', async () => {
@@ -1040,10 +892,7 @@ describe('parseConfig()', () => {
           test: { output: 'src/index.test.ts', import: './index' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.testFramework).toBe('vitest')
-      }
+      expect(result.test?.testFramework).toBe('vitest')
     })
 
     it.concurrent('accepts template.testFramework: bun', async () => {
@@ -1054,10 +903,7 @@ describe('parseConfig()', () => {
           template: { test: true, testFramework: 'bun' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.template?.testFramework).toBe('bun')
-      }
+      expect(result.template?.testFramework).toBe('bun')
     })
 
     it.concurrent('template.testFramework defaults to vitest when omitted', async () => {
@@ -1068,62 +914,44 @@ describe('parseConfig()', () => {
           template: { test: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.template?.testFramework).toBe('vitest')
-      }
+      expect(result.template?.testFramework).toBe('vitest')
     })
   })
 
   describe('input accepts all supported extensions', () => {
     it.concurrent('accepts .json input', async () => {
       const result = await runGenerator(parseConfig({ input: 'openapi.json' }))
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.input).toBe('openapi.json')
-      }
+      expect(result.input).toBe('openapi.json')
     })
 
     it.concurrent('accepts .tsp input', async () => {
       const result = await runGenerator(parseConfig({ input: 'main.tsp' }))
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.input).toBe('main.tsp')
-      }
+      expect(result.input).toBe('main.tsp')
     })
   })
 
   describe('minimal config (input only)', () => {
     it.concurrent('accepts config with only input field', async () => {
       const result = await runGenerator(parseConfig({ input: 'openapi.yaml' }))
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.input).toBe('openapi.yaml')
-        expect(result.value.rpc).toBeUndefined()
-      }
+      expect(result.input).toBe('openapi.yaml')
+      expect(result.rpc).toBeUndefined()
     })
   })
 
   describe('parseConfig error formatting', () => {
     it.concurrent('includes path in error message when path is present', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           rpc: { output: 'rpc/index.ts', import: '../client', client: 123 },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: rpc.client: Expected string | undefined')
-      }
+      expect(result.message).toBe('Invalid config: rpc.client: Expected string | undefined')
     })
 
     it.concurrent('omits path prefix when path is empty', async () => {
-      const result = await runGenerator(parseConfig(null))
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: Expected object')
-      }
+      const result = await runGeneratorError(parseConfig(null))
+      expect(result.message).toBe('Invalid config: Expected object')
     })
   })
 
@@ -1135,10 +963,7 @@ describe('parseConfig()', () => {
           type: { output: 'types/index.ts' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.type?.output).toBe('types/index.ts')
-      }
+      expect(result.type?.output).toBe('types/index.ts')
     })
 
     it.concurrent('accepts type with readonly', async () => {
@@ -1148,23 +973,17 @@ describe('parseConfig()', () => {
           type: { output: 'types/index.ts', readonly: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.type?.readonly).toBe(true)
-      }
+      expect(result.type?.readonly).toBe(true)
     })
 
     it.concurrent('fails when type output is not .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           type: { output: 'types/index.js' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: type.output: must be .ts file')
-      }
+      expect(result.message).toBe('Invalid config: type.output: must be .ts file')
     })
   })
 
@@ -1176,10 +995,7 @@ describe('parseConfig()', () => {
           docs: { output: 'docs/api.md' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.docs?.output).toBe('docs/api.md')
-      }
+      expect(result.docs?.output).toBe('docs/api.md')
     })
 
     it.concurrent('accepts docs with entry', async () => {
@@ -1189,10 +1005,7 @@ describe('parseConfig()', () => {
           docs: { output: 'docs/api.md', entry: './src/index.ts' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.docs?.entry).toBe('./src/index.ts')
-      }
+      expect(result.docs?.entry).toBe('./src/index.ts')
     })
 
     it.concurrent('accepts docs with curl and baseUrl', async () => {
@@ -1202,28 +1015,22 @@ describe('parseConfig()', () => {
           docs: { output: 'docs/api.md', curl: true, baseUrl: 'https://api.example.com' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.docs?.curl).toBe(true)
-        expect(result.value.docs?.baseUrl).toBe('https://api.example.com')
-      }
+      expect(result.docs?.curl).toBe(true)
+      expect(result.docs?.baseUrl).toBe('https://api.example.com')
     })
 
     it.concurrent('fails when docs output is not .md', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           docs: { output: 'docs/api.txt' },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: docs.output: must be .md file')
-      }
+      expect(result.message).toBe('Invalid config: docs.output: must be .md file')
     })
 
     it.concurrent('fails when curl is true and entry is specified', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           docs: {
@@ -1234,27 +1041,21 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: docs.entry: entry cannot be specified when curl is true',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: docs.entry: entry cannot be specified when curl is true',
+      )
     })
 
     it.concurrent('fails when curl is true and baseUrl is missing', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           docs: { output: 'docs/api.md', curl: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: docs.baseUrl: baseUrl is required when curl is true',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: docs.baseUrl: baseUrl is required when curl is true',
+      )
     })
   })
 
@@ -1266,10 +1067,7 @@ describe('parseConfig()', () => {
           mock: { output: 'mock' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.mock?.output).toBe('mock/index.ts')
-      }
+      expect(result.mock?.output).toBe('mock/index.ts')
     })
 
     it.concurrent('keeps mock output when already .ts', async () => {
@@ -1279,10 +1077,7 @@ describe('parseConfig()', () => {
           mock: { output: 'mock/index.ts' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.mock?.output).toBe('mock/index.ts')
-      }
+      expect(result.mock?.output).toBe('mock/index.ts')
     })
   })
 
@@ -1294,10 +1089,7 @@ describe('parseConfig()', () => {
           swr: { output: 'swr', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.swr?.output).toBe('swr/index.ts')
-      }
+      expect(result.swr?.output).toBe('swr/index.ts')
     })
 
     it.concurrent('accepts swr with custom client', async () => {
@@ -1307,25 +1099,19 @@ describe('parseConfig()', () => {
           swr: { output: 'swr/index.ts', import: '../client', client: 'apiClient' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.swr?.client).toBe('apiClient')
-      }
+      expect(result.swr?.client).toBe('apiClient')
     })
 
     it.concurrent('fails when swr split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           swr: { output: 'swr/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: swr.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: swr.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts tanstack-query config', async () => {
@@ -1335,25 +1121,19 @@ describe('parseConfig()', () => {
           'tanstack-query': { output: 'tanstack', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['tanstack-query']?.output).toBe('tanstack/index.ts')
-      }
+      expect(result['tanstack-query']?.output).toBe('tanstack/index.ts')
     })
 
     it.concurrent('fails when tanstack-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'tanstack-query': { output: 'tanstack/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: tanstack-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: tanstack-query.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts svelte-query config', async () => {
@@ -1363,25 +1143,19 @@ describe('parseConfig()', () => {
           'svelte-query': { output: 'svelte', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['svelte-query']?.output).toBe('svelte/index.ts')
-      }
+      expect(result['svelte-query']?.output).toBe('svelte/index.ts')
     })
 
     it.concurrent('fails when svelte-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'svelte-query': { output: 'svelte/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: svelte-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: svelte-query.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts vue-query config', async () => {
@@ -1391,25 +1165,19 @@ describe('parseConfig()', () => {
           'vue-query': { output: 'vue', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['vue-query']?.output).toBe('vue/index.ts')
-      }
+      expect(result['vue-query']?.output).toBe('vue/index.ts')
     })
 
     it.concurrent('fails when vue-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'vue-query': { output: 'vue/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: vue-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: vue-query.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts preact-query config', async () => {
@@ -1419,25 +1187,19 @@ describe('parseConfig()', () => {
           'preact-query': { output: 'preact', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['preact-query']?.output).toBe('preact/index.ts')
-      }
+      expect(result['preact-query']?.output).toBe('preact/index.ts')
     })
 
     it.concurrent('fails when preact-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'preact-query': { output: 'preact/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: preact-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: preact-query.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts solid-query config', async () => {
@@ -1447,25 +1209,19 @@ describe('parseConfig()', () => {
           'solid-query': { output: 'solid', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['solid-query']?.output).toBe('solid/index.ts')
-      }
+      expect(result['solid-query']?.output).toBe('solid/index.ts')
     })
 
     it.concurrent('fails when solid-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'solid-query': { output: 'solid/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: solid-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: solid-query.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('accepts angular-query config', async () => {
@@ -1475,25 +1231,19 @@ describe('parseConfig()', () => {
           'angular-query': { output: 'angular', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value['angular-query']?.output).toBe('angular/index.ts')
-      }
+      expect(result['angular-query']?.output).toBe('angular/index.ts')
     })
 
     it.concurrent('fails when angular-query split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           'angular-query': { output: 'angular/index.ts', import: '../client', split: true },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: angular-query.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: angular-query.output: split mode requires directory, not .ts file',
+      )
     })
   })
 
@@ -1505,10 +1255,7 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc/index.ts', import: '../client', parseResponse: true },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.parseResponse).toBe(true)
-      }
+      expect(result.rpc?.parseResponse).toBe(true)
     })
 
     it.concurrent('parseResponse defaults to false when omitted', async () => {
@@ -1518,162 +1265,129 @@ describe('parseConfig()', () => {
           rpc: { output: 'rpc/index.ts', import: '../client' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.rpc?.parseResponse).toBe(false)
-      }
+      expect(result.rpc?.parseResponse).toBe(false)
     })
   })
 
   describe('output validation', () => {
     it.concurrent('fails when output is not .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           output: 'routes/index.js',
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid config: output: must be .ts file')
-      }
+      expect(result.message).toBe('Invalid config: output: must be .ts file')
     })
   })
 
   describe('components split validation', () => {
     it.concurrent('fails when schemas split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { schemas: { output: 'schemas/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.schemas.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.schemas.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when securitySchemes split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { securitySchemes: { output: 'schemes/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.securitySchemes.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.securitySchemes.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when requestBodies split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { requestBodies: { output: 'bodies/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.requestBodies.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.requestBodies.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when responses split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { responses: { output: 'responses/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.responses.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.responses.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when examples split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { examples: { output: 'examples/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.examples.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.examples.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when links split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { links: { output: 'links/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.links.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.links.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when callbacks split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { callbacks: { output: 'callbacks/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.callbacks.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.callbacks.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when pathItems split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { pathItems: { output: 'items/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.pathItems.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.pathItems.output: split mode requires directory, not .ts file',
+      )
     })
 
     it.concurrent('fails when mediaTypes split is true but output ends with .ts', async () => {
-      const result = await runGenerator(
+      const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
           components: { mediaTypes: { output: 'media/index.ts', split: true } },
         }),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe(
-          'Invalid config: components.mediaTypes.output: split mode requires directory, not .ts file',
-        )
-      }
+      expect(result.message).toBe(
+        'Invalid config: components.mediaTypes.output: split mode requires directory, not .ts file',
+      )
     })
   })
 
@@ -1698,22 +1412,19 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components).toStrictEqual({
-          schemas: { split: false, output: 'schemas/index.ts', exportTypes: false },
-          responses: { split: false, output: 'responses/index.ts' },
-          parameters: { split: false, output: 'parameters/index.ts', exportTypes: false },
-          examples: { split: false, output: 'examples/index.ts' },
-          requestBodies: { split: false, output: 'requestBodies/index.ts' },
-          headers: { split: false, output: 'headers/index.ts', exportTypes: false },
-          securitySchemes: { split: false, output: 'securitySchemes/index.ts' },
-          links: { split: false, output: 'links/index.ts' },
-          callbacks: { split: false, output: 'callbacks/index.ts' },
-          pathItems: { split: false, output: 'pathItems/index.ts' },
-          mediaTypes: { split: false, output: 'mediaTypes/index.ts', exportTypes: false },
-        })
-      }
+      expect(result.components).toStrictEqual({
+        schemas: { split: false, output: 'schemas/index.ts', exportTypes: false },
+        responses: { split: false, output: 'responses/index.ts' },
+        parameters: { split: false, output: 'parameters/index.ts', exportTypes: false },
+        examples: { split: false, output: 'examples/index.ts' },
+        requestBodies: { split: false, output: 'requestBodies/index.ts' },
+        headers: { split: false, output: 'headers/index.ts', exportTypes: false },
+        securitySchemes: { split: false, output: 'securitySchemes/index.ts' },
+        links: { split: false, output: 'links/index.ts' },
+        callbacks: { split: false, output: 'callbacks/index.ts' },
+        pathItems: { split: false, output: 'pathItems/index.ts' },
+        mediaTypes: { split: false, output: 'mediaTypes/index.ts', exportTypes: false },
+      })
     })
 
     it.concurrent('split=true: keeps every component output as directory and applies defaults', async () => {
@@ -1735,22 +1446,19 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components).toStrictEqual({
-          schemas: { split: true, output: 'schemas', exportTypes: false },
-          responses: { split: true, output: 'responses' },
-          parameters: { split: true, output: 'parameters', exportTypes: false },
-          examples: { split: true, output: 'examples' },
-          requestBodies: { split: true, output: 'requestBodies' },
-          headers: { split: true, output: 'headers', exportTypes: false },
-          securitySchemes: { split: true, output: 'securitySchemes' },
-          links: { split: true, output: 'links' },
-          callbacks: { split: true, output: 'callbacks' },
-          pathItems: { split: true, output: 'pathItems' },
-          mediaTypes: { split: true, output: 'mediaTypes', exportTypes: false },
-        })
-      }
+      expect(result.components).toStrictEqual({
+        schemas: { split: true, output: 'schemas', exportTypes: false },
+        responses: { split: true, output: 'responses' },
+        parameters: { split: true, output: 'parameters', exportTypes: false },
+        examples: { split: true, output: 'examples' },
+        requestBodies: { split: true, output: 'requestBodies' },
+        headers: { split: true, output: 'headers', exportTypes: false },
+        securitySchemes: { split: true, output: 'securitySchemes' },
+        links: { split: true, output: 'links' },
+        callbacks: { split: true, output: 'callbacks' },
+        pathItems: { split: true, output: 'pathItems' },
+        mediaTypes: { split: true, output: 'mediaTypes', exportTypes: false },
+      })
     })
 
     it.concurrent('preserves exportTypes: true and import on a split component', async () => {
@@ -1762,15 +1470,12 @@ describe('parseConfig()', () => {
           },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.components?.schemas).toStrictEqual({
-          split: true,
-          output: 'schemas',
-          import: '@/schemas',
-          exportTypes: true,
-        })
-      }
+      expect(result.components?.schemas).toStrictEqual({
+        split: true,
+        output: 'schemas',
+        import: '@/schemas',
+        exportTypes: true,
+      })
     })
   })
 
@@ -1782,10 +1487,7 @@ describe('parseConfig()', () => {
           test: { output: 'tests', import: './index' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.output).toBe('tests/index.ts')
-      }
+      expect(result.test?.output).toBe('tests/index.ts')
     })
 
     it.concurrent('keeps test output when already .ts', async () => {
@@ -1795,10 +1497,7 @@ describe('parseConfig()', () => {
           test: { output: 'tests/api.test.ts', import: './index' },
         }),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value.test?.output).toBe('tests/api.test.ts')
-      }
+      expect(result.test?.output).toBe('tests/api.test.ts')
     })
   })
 })

@@ -12,13 +12,6 @@ import type { FormatConfig } from 'oxfmt'
  * type on both sides — so `defineConfig` still rejects a wrong extension while you type —
  * and lets the message say which extensions are meant.
  */
-type InputPath = `${string}.yaml` | `${string}.json` | `${string}.tsp`
-
-const InputPathSchema = Schema.declare<InputPath>(
-  Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
-  { message: 'must be .yaml | .json | .tsp' },
-)
-
 const TsPathSchema = Schema.declare<`${string}.ts`>(
   Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])),
   { message: 'must be .ts file' },
@@ -74,6 +67,9 @@ const TestFrameworkSchema = Schema.Literals(['vitest', 'vite-plus', 'bun'])
     examples: ['vitest', 'vite-plus', 'bun'],
   })
 
+// Every output target is the same two-branch union: `split: true` writes a directory,
+// anything else writes one file. Only those two fields differ, so the rest is written
+// once and spread into both branches.
 const SplitTrue = Schema.Literal(true).annotate({
   description: 'Write one file per entry into `output`.',
 })
@@ -84,27 +80,19 @@ const SplitFalse = Schema.Literal(false)
     description: 'Write every entry into a single file (default).',
   })
 
-const ExportTypesSchema = Schema.Boolean.pipe(
-  Schema.withDecodingDefault(Effect.succeed(false)),
-).annotate({
-  description: 'Also export the TypeScript type inferred from each generated schema.',
-})
+/**
+ * `Schema.Union` resolves members in order and each member pins `split` to a literal, so
+ * a member is only reachable through its own discriminant — the failure reported is the
+ * one inside the matching branch, not a union-wide "no member matched".
+ */
+function splitUnion<Fields extends Schema.Struct.Fields>(shared: Fields) {
+  return Schema.Union([
+    Schema.Struct({ split: SplitTrue, output: DirectoryOutputSchema, ...shared }),
+    Schema.Struct({ split: SplitFalse, output: FileOutputSchema, ...shared }),
+  ])
+}
 
-// `Schema.Union` resolves members in order, and each member pins `split` to a literal, so
-// a member is only reachable through its own discriminant — the failure reported is the
-// one inside the matching branch, not a union-wide "no member matched".
-const OutputSchema = Schema.Union([
-  Schema.Struct({
-    split: SplitTrue,
-    output: DirectoryOutputSchema,
-    import: Schema.optionalKey(ImportSchema),
-  }),
-  Schema.Struct({
-    split: SplitFalse,
-    output: FileOutputSchema,
-    import: Schema.optionalKey(ImportSchema),
-  }),
-]).annotate({
+const OutputSchema = splitUnion({ import: Schema.optionalKey(ImportSchema) }).annotate({
   title: 'Generated output target',
   description:
     'Where one group of generated code is written. `split` picks directory mode or single-file mode.',
@@ -114,20 +102,12 @@ const OutputSchema = Schema.Union([
   ],
 })
 
-const ExportTypesOutputSchema = Schema.Union([
-  Schema.Struct({
-    split: SplitTrue,
-    output: DirectoryOutputSchema,
-    import: Schema.optionalKey(ImportSchema),
-    exportTypes: ExportTypesSchema,
+const ExportTypesOutputSchema = splitUnion({
+  import: Schema.optionalKey(ImportSchema),
+  exportTypes: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+    description: 'Also export the TypeScript type inferred from each generated schema.',
   }),
-  Schema.Struct({
-    split: SplitFalse,
-    output: FileOutputSchema,
-    import: Schema.optionalKey(ImportSchema),
-    exportTypes: ExportTypesSchema,
-  }),
-]).annotate({
+}).annotate({
   title: 'Generated output target with type exports',
   description:
     'Same as a generated output target, plus `exportTypes` for the component sections that carry inferable types (schemas, parameters, headers, mediaTypes).',
@@ -137,20 +117,7 @@ const ExportTypesOutputSchema = Schema.Union([
   ],
 })
 
-const HooksSchema = Schema.Union([
-  Schema.Struct({
-    split: SplitTrue,
-    output: DirectoryOutputSchema,
-    import: ImportSchema,
-    client: ClientSchema,
-  }),
-  Schema.Struct({
-    split: SplitFalse,
-    output: FileOutputSchema,
-    import: ImportSchema,
-    client: ClientSchema,
-  }),
-]).annotate({
+const HooksSchema = splitUnion({ import: ImportSchema, client: ClientSchema }).annotate({
   title: 'Client hooks target',
   description:
     'Data-fetching hooks generated on top of the Hono client. `import` is required because every hook imports the client.',
@@ -160,36 +127,16 @@ const HooksSchema = Schema.Union([
   ],
 })
 
-const ParseResponseSchema = Schema.Boolean.pipe(
-  Schema.withDecodingDefault(Effect.succeed(false)),
-).annotate({
-  description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
-})
-
-const RpcDocsSchema = Schema.Boolean.pipe(
-  Schema.withDecodingDefault(Effect.succeed(false)),
-).annotate({
-  description: 'Emit the operation summary and description as JSDoc.',
-})
-
-const RpcSchema = Schema.Union([
-  Schema.Struct({
-    split: SplitTrue,
-    output: DirectoryOutputSchema,
-    import: ImportSchema,
-    client: ClientSchema,
-    parseResponse: ParseResponseSchema,
-    docs: RpcDocsSchema,
+const RpcSchema = splitUnion({
+  import: ImportSchema,
+  client: ClientSchema,
+  parseResponse: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+    description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
   }),
-  Schema.Struct({
-    split: SplitFalse,
-    output: FileOutputSchema,
-    import: ImportSchema,
-    client: ClientSchema,
-    parseResponse: ParseResponseSchema,
-    docs: RpcDocsSchema,
+  docs: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+    description: 'Emit the operation summary and description as JSDoc.',
   }),
-]).annotate({
+}).annotate({
   title: 'RPC wrappers target',
   description: 'Typed function wrappers around the Hono RPC client, one per operation.',
   examples: [
@@ -212,19 +159,21 @@ const RpcSchema = Schema.Union([
   ],
 })
 
-const PathAliasSchema = Schema.optionalKey(
-  Schema.String.annotate({
-    title: 'Path alias',
-    description: 'Import prefix used by the scaffolded files instead of relative paths.',
-    examples: ['@/', '~/'],
+// `template` discriminates on `define` rather than `split`, but shares the same shape:
+// the scaffold options are common, only `define` and `routeHandler` differ.
+const scaffoldFields = {
+  test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+    description: 'Also scaffold a test file per handler.',
   }),
-)
-
-const ScaffoldTestSchema = Schema.Boolean.pipe(
-  Schema.withDecodingDefault(Effect.succeed(false)),
-).annotate({
-  description: 'Also scaffold a test file per handler.',
-})
+  pathAlias: Schema.optionalKey(
+    Schema.String.annotate({
+      title: 'Path alias',
+      description: 'Import prefix used by the scaffolded files instead of relative paths.',
+      examples: ['@/', '~/'],
+    }),
+  ),
+  testFramework: TestFrameworkSchema,
+}
 
 const TemplateSchema = Schema.Union([
   Schema.Struct({
@@ -232,23 +181,17 @@ const TemplateSchema = Schema.Union([
       description:
         'Emit `defineOpenAPIRoute({ route, handler })` entries. Derives `routes/` next to the app entry, so it cannot be combined with `routes` or per-type component outputs.',
     }),
-    test: ScaffoldTestSchema,
-    pathAlias: PathAliasSchema,
-    testFramework: TestFrameworkSchema,
+    ...scaffoldFields,
   }),
   Schema.Struct({
     define: Schema.Literal(false)
       .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
-      .annotate({
-        description: 'Scaffold app and handler files (default).',
-      }),
+      .annotate({ description: 'Scaffold app and handler files (default).' }),
     routeHandler: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
       description:
         'Emit the `app.openapi()` pattern with `RouteHandler` type exports. When false, handlers import the app and register routes inline.',
     }),
-    test: ScaffoldTestSchema,
-    pathAlias: PathAliasSchema,
-    testFramework: TestFrameworkSchema,
+    ...scaffoldFields,
   }),
 ]).annotate({
   title: 'App scaffold',
@@ -450,7 +393,10 @@ const DocsSchema = Schema.Union([
 })
 
 const ConfigSchema = Schema.Struct({
-  input: InputPathSchema.annotate({
+  input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
+    Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
+    { message: 'must be .yaml | .json | .tsp' },
+  ).annotate({
     title: 'Input document',
     description: 'OpenAPI or TypeSpec entry document that every generator reads.',
     examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],

@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { headers } from './headers.js'
 
 let tmpDir: string
@@ -18,15 +18,15 @@ describe('headers', () => {
   it('returns error when headers is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
     const output = path.join(tmpDir, 'headers.ts')
-    const result = await runGenerator(headers(undefined, output, false, true))
-    expect(result).toStrictEqual({ ok: false, error: 'No headers found' })
+    const result = await runGeneratorError(headers(undefined, output, false, true))
+    expect(result.message).toBe('No headers found')
   })
 
   it('returns success message when headers is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
     const output = path.join(tmpDir, 'headers.ts')
     const result = await runGenerator(headers({}, output, false, true))
-    expect(result).toStrictEqual({ ok: true, value: 'No headers found' })
+    expect(result).toStrictEqual('No headers found')
   })
 
   describe('non-split mode', () => {
@@ -46,10 +46,7 @@ describe('headers', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated headers code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated headers code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -77,10 +74,9 @@ describe('headers', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated headers code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated headers code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'x-Rate-Limit.ts'))).toBe(true)
     })
@@ -94,8 +90,7 @@ describe('headers', () => {
         XRateLimit: { schema: { type: 'integer' as const }, description: 'Rate limit' },
         XRequestId: { schema: { type: 'string' as const }, description: 'Request ID' },
       }
-      const result = await runGenerator(headers(sampleHeaders, output, false, true))
-      expect(result.ok).toBe(true)
+      await runGenerator(headers(sampleHeaders, output, false, true))
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = headersCode({ headers: sampleHeaders }, true, true)
       const emittedNames = new Set(

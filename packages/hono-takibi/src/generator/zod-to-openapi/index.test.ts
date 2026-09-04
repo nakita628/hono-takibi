@@ -11290,7 +11290,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "  hi  " → "hi"', () => {
       const valid = Trim.safeParse('  hi  ')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('hi')
+      if (valid) expect(valid.data).toBe('hi')
     })
   })
 
@@ -11304,7 +11304,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "AbC" → "abc"', () => {
       const valid = Lower.safeParse('AbC')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('abc')
+      if (valid) expect(valid.data).toBe('abc')
     })
   })
 
@@ -11318,7 +11318,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "AbC" → "ABC"', () => {
       const valid = Upper.safeParse('AbC')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('ABC')
+      if (valid) expect(valid.data).toBe('ABC')
     })
   })
 
@@ -11335,7 +11335,7 @@ describe('zodToOpenAPI', () => {
       const nfc = 'が'
       const valid = Nfc.safeParse(nfd)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(nfc)
+      if (valid) expect(valid.data).toBe(nfc)
     })
   })
 
@@ -11349,7 +11349,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: full-width digits → ASCII', () => {
       const valid = Nfkc.safeParse('１２３')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('123')
+      if (valid) expect(valid.data).toBe('123')
     })
   })
 
@@ -11413,7 +11413,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: 123 → "123"', () => {
       const valid = CS.safeParse(123)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('123')
+      if (valid) expect(valid.data).toBe('123')
     })
   })
 
@@ -11425,7 +11425,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "42" → 42', () => {
       const valid = CN.safeParse('42')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(42)
+      if (valid) expect(valid.data).toBe(42)
     })
     it.concurrent('runtime: "abc" → NaN FAILS', () => {
       const valid = CN.safeParse('abc')
@@ -11452,12 +11452,12 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "truthy" → true', () => {
       const valid = CB.safeParse('truthy')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(true)
+      if (valid) expect(valid.data).toBe(true)
     })
     it.concurrent('runtime: "" → false', () => {
       const valid = CB.safeParse('')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(false)
+      if (valid) expect(valid.data).toBe(false)
     })
   })
 
@@ -11518,14 +11518,14 @@ describe('zodToOpenAPI', () => {
       const S = z.stringbool({ truthy: ['yes'], falsy: ['no'] })
       const valid = S.safeParse('yes')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(true)
+      if (valid) expect(valid.data).toBe(true)
     })
 
     it.concurrent('runtime: "false" → false with default falsy', () => {
       const S = z.stringbool()
       const valid = S.safeParse('false')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(false)
+      if (valid) expect(valid.data).toBe(false)
     })
 
     describe('x-stringbool: codegen — single option', () => {
@@ -11815,62 +11815,62 @@ describe('zodToOpenAPI', () => {
       it.concurrent('runtime default: "true" → true', () => {
         const result = S.safeParse('true')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "1" → true', () => {
         const result = S.safeParse('1')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "yes" → true', () => {
         const result = S.safeParse('yes')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "on" → true', () => {
         const result = S.safeParse('on')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "y" → true', () => {
         const result = S.safeParse('y')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "enabled" → true', () => {
         const result = S.safeParse('enabled')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "0" → false', () => {
         const result = S.safeParse('0')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "no" → false', () => {
         const result = S.safeParse('no')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "off" → false', () => {
         const result = S.safeParse('off')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "disabled" → false', () => {
         const result = S.safeParse('disabled')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: case-insensitive "TRUE" → true', () => {
         const result = S.safeParse('TRUE')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: case-insensitive "Yes" → true', () => {
         const result = S.safeParse('Yes')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: unknown string fails', () => {
         const result = S.safeParse('maybe')
@@ -11887,12 +11887,12 @@ describe('zodToOpenAPI', () => {
       it.concurrent('runtime custom: "oui" → true', () => {
         const result = S.safeParse('oui')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime custom: "non" → false', () => {
         const result = S.safeParse('non')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime custom: default "true" no longer accepted', () => {
         const result = S.safeParse('true')
@@ -12072,7 +12072,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "  Foo@Example.com  " → "foo@example.com"', () => {
       const valid = Pipe.safeParse('  Foo@Example.com  ')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('foo@example.com')
+      if (valid) expect(valid.data).toBe('foo@example.com')
     })
   })
 
@@ -12090,7 +12090,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "def"', () => {
       const valid = Pf.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('def')
+      if (valid) expect(valid.data).toBe('def')
     })
     it.concurrent('runtime: 1 → invalid_type', () => {
       const valid = Pf.safeParse(1)
@@ -12123,7 +12123,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x"} PASSES (frozen)', () => {
       const valid = Fr.safeParse({ a: 'x' })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(Object.isFrozen(valid.data)).toBe(true)
+      if (valid) expect(Object.isFrozen(valid.data)).toBe(true)
     })
     it.concurrent('runtime: {a:1} FAILS', () => {
       const valid = Fr.safeParse({ a: 1 })
@@ -12466,7 +12466,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x", extra:1} PASSES (extras kept)', () => {
       const valid = Loose.safeParse({ a: 'x', extra: 1 })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toStrictEqual({ a: 'x', extra: 1 })
+      if (valid) expect(valid.data).toStrictEqual({ a: 'x', extra: 1 })
     })
   })
 
@@ -12510,7 +12510,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x", extra:1} → {a:"x"} (stripped)', () => {
       const valid = Plain.safeParse({ a: 'x', extra: 1 })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toStrictEqual({ a: 'x' })
+      if (valid) expect(valid.data).toStrictEqual({ a: 'x' })
     })
   })
 
@@ -12674,12 +12674,12 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "x"', () => {
       const valid = ND.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('x')
+      if (valid) expect(valid.data).toBe('x')
     })
     it.concurrent('runtime: null → null', () => {
       const valid = ND.safeParse(null)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(null)
+      if (valid) expect(valid.data).toBe(null)
     })
   })
 
@@ -12698,7 +12698,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "d"', () => {
       const valid = NDE.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('d')
+      if (valid) expect(valid.data).toBe('d')
     })
     it.concurrent('runtime: 1 (number) FAILS with custom message', () => {
       const valid = NDE.safeParse(1)

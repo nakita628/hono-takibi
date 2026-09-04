@@ -5,7 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { runGenerator } from '../../testing/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { requestBodies } from './requestBodies.js'
 
 let tmpDir: string
@@ -18,15 +18,15 @@ describe('requestBodies', () => {
   it('returns error when requestBodies is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
-    const result = await runGenerator(requestBodies(undefined, output, false))
-    expect(result).toStrictEqual({ ok: false, error: 'No requestBodies found' })
+    const result = await runGeneratorError(requestBodies(undefined, output, false))
+    expect(result.message).toBe('No requestBodies found')
   })
 
   it('returns success message when requestBodies is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
     const result = await runGenerator(requestBodies({}, output, false))
-    expect(result).toStrictEqual({ ok: true, value: 'No requestBodies found' })
+    expect(result).toStrictEqual('No requestBodies found')
   })
 
   describe('non-split mode', () => {
@@ -54,10 +54,7 @@ describe('requestBodies', () => {
           false,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated requestBodies code written to ${output}`,
-      })
+      expect(result).toStrictEqual(`Generated requestBodies code written to ${output}`)
       expect(fs.existsSync(output)).toBe(true)
       const content = fs.readFileSync(output, 'utf-8')
       expect(content.length > 0).toBe(true)
@@ -101,10 +98,9 @@ describe('requestBodies', () => {
           true,
         ),
       )
-      expect(result).toStrictEqual({
-        ok: true,
-        value: `Generated requestBodies code written to ${output}/*.ts (index.ts included)`,
-      })
+      expect(result).toStrictEqual(
+        `Generated requestBodies code written to ${output}/*.ts (index.ts included)`,
+      )
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'createUser.ts'))).toBe(true)
       expect(fs.existsSync(path.join(output, 'updateUser.ts'))).toBe(true)
@@ -125,8 +121,7 @@ describe('requestBodies', () => {
           content: { 'application/json': { schema: { type: 'object' as const } } },
         },
       }
-      const result = await runGenerator(requestBodies(sampleBodies, output, false))
-      expect(result.ok).toBe(true)
+      await runGenerator(requestBodies(sampleBodies, output, false))
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)
       const emittedNames = new Set(
