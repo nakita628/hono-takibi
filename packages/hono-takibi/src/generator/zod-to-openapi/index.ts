@@ -29,7 +29,7 @@ export function zodToOpenAPI(
     coerce?: boolean
     /** Append `.readonly()` to array/object schemas. */
     readonly?: boolean
-    /** @internal Consumed by `wrap` for `.exactOptional()`; stripped before recursing. */
+    /** Consumed by `wrap` for `.exactOptional()`; stripped before recursing. @internal */
     isOptional?: boolean
     /** Component schema map, used to resolve `$ref` branches of a discriminated `oneOf`. */
     schemas?: { readonly [k: string]: Schema }

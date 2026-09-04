@@ -39,7 +39,7 @@ export default defineConfig({
     env: { node: true, es2024: true },
     // Setting `plugins` replaces oxlint's default list — restate the defaults, then add
     // import / promise / node.
-    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node'],
+    plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node', 'jsdoc'],
     // The repository conventions a glob cannot express (Effect program shape, function
     // declarations, predicate naming); see lint/custom.js.
     jsPlugins: ['./lint/custom.js'],
@@ -71,6 +71,10 @@ export default defineConfig({
       'custom/no-effect-flatmap': 'error',
       'custom/function-declaration': 'error',
       'custom/predicate-is-name': 'error',
+      // `@internal` and friends are modifiers, so their text belongs to the description;
+      // `check-tag-names` is what catches a tag that is merely misspelled.
+      'jsdoc/empty-tags': 'error',
+      'jsdoc/check-tag-names': 'error',
       'custom/no-effect-run': 'error',
       'custom/effect-promise-import': 'error',
       'custom/type-pascal-case': 'error',
