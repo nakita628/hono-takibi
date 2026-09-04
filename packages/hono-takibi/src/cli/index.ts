@@ -134,9 +134,11 @@ export function honoTakibi(args: {
     // One-shot: no config file is consulted, even when one sits in the working directory.
     if (input !== undefined && output !== undefined) {
       const { takibi } = yield* Effect.promise(() => import('../core/index.js'))
-      const openAPI = yield* parseOpenAPI(input).pipe(Effect.mapError((e) => userError(e.message)))
+      const openAPI = yield* parseOpenAPI(input).pipe(
+        Effect.mapError((error) => userError(error.message)),
+      )
       const message = yield* takibi(openAPI, output, ONE_SHOT_COMPONENTS).pipe(
-        Effect.mapError((e) => userError(e.message)),
+        Effect.mapError((error) => userError(error.message)),
       )
       return yield* Console.log(message)
     }
@@ -151,12 +153,12 @@ export function honoTakibi(args: {
       ]),
     )
     const config = yield* readConfig(configPath ?? DEFAULT_CONFIG_FILE).pipe(
-      Effect.mapError((e) =>
-        userError(configPath === undefined ? `${e.message}\n\n${USAGE}` : e.message),
+      Effect.mapError((error) =>
+        userError(configPath === undefined ? `${error.message}\n\n${USAGE}` : error.message),
       ),
     )
     const openAPI = yield* parseOpenAPI(config.input).pipe(
-      Effect.mapError((e) => userError(e.message)),
+      Effect.mapError((error) => userError(error.message)),
     )
     // `makeJob` returns a union of job shapes, so the element type is spelled out here:
     // without it `Effect.all` widens the requirement channel to `any` and the layer the
@@ -169,7 +171,7 @@ export function honoTakibi(args: {
       { concurrency: 'unbounded' },
     ).pipe(
       Effect.provideService(FormatOptions, config.format ?? {}),
-      Effect.mapError((e) => userError(e.message)),
+      Effect.mapError((error) => userError(error.message)),
     )
     return yield* Console.log(messages.filter((message) => message !== '').join('\n'))
   })

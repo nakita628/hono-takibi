@@ -127,7 +127,7 @@ vi.mock('../core/index.js', () => ({
       return 'rpc'
     }),
   ),
-  // Writes through the real fsp writeFile with the received document embedded,
+  // Writes through the real file writeFile with the received document embedded,
   // so an identical document produces byte-identical output and no rewrite.
   takibi: vi.fn<
     (openAPI: unknown, output: string) => Effect.Effect<string, never, FileSystem.FileSystem>

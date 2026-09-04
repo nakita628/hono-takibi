@@ -2,8 +2,8 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
-import { fmt } from '../../format/index.js'
 import { readFile, writeFile } from '../../file/index.js'
+import { fmt } from '../../format/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { resolveInlineHandlerFileNames, zodOpenAPIHonoHandler } from '../../helper/handler.js'
 import { mergeAppFile } from '../../merge/index.js'

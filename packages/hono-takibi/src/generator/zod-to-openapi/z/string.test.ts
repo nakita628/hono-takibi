@@ -741,12 +741,12 @@ describe('string', () => {
             const s =
               typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
             return JSON.parse(s)
-          } catch (e) {
+          } catch (error) {
             // codegen emits message="M" alongside params.cause
             ctx.addIssue({
               code: 'custom',
               message: 'M',
-              params: { cause: e instanceof Error ? e.message : String(e) },
+              params: { cause: error instanceof Error ? error.message : String(error) },
             })
             return z.NEVER
           }

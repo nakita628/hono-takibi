@@ -329,7 +329,9 @@ export function zodToOpenAPI(
   }
   // Typeless enum with non-primitive values → typeless-refine (deep-equal).
   if (schema.enum !== undefined && schema.type === undefined) {
-    const hasNonPrimitive = schema.enum.some((e) => typeof e === 'object' && e !== null)
+    const hasNonPrimitive = schema.enum.some(
+      (member) => typeof member === 'object' && member !== null,
+    )
     if (hasNonPrimitive) {
       return wrap(
         emitTypelessRefine(schema, (s) => zodToOpenAPI(s, undefined, childOptions)),

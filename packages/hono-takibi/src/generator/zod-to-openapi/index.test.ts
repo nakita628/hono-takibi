@@ -8310,10 +8310,10 @@ describe('zodToOpenAPI', () => {
             const s =
               typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('utf8')
             return JSON.parse(s)
-          } catch (e) {
+          } catch (error) {
             ctx.addIssue({
               code: 'custom',
-              message: `invalid base64-json: ${e instanceof Error ? e.message : String(e)}`,
+              message: `invalid base64-json: ${error instanceof Error ? error.message : String(error)}`,
             })
             return z.NEVER
           }

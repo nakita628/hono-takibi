@@ -29,7 +29,8 @@ export class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
 export function parseOpenAPI(input: string) {
   return Effect.tryPromise({
     try: () => readOpenAPI(input),
-    catch: (e) => new OpenAPIError({ message: e instanceof Error ? e.message : String(e) }),
+    catch: (error) =>
+      new OpenAPIError({ message: error instanceof Error ? error.message : String(error) }),
   })
 }
 

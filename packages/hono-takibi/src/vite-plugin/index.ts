@@ -6,13 +6,12 @@ import path from 'node:path'
 import { Effect, Result } from 'effect'
 
 import { parseConfig } from '../config/index.js'
-import { FormatOptions } from '../format/index.js'
+import type { Config } from '../config/index.js'
 import { fileSystemLayer } from '../file/index.js'
+import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { makeJob } from '../shared/index.js'
-
-type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
 
 type ViteDevServer = {
   watcher: {
@@ -45,12 +44,12 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
       return { ok: false, error: 'Config must export default object' } as const
     }
-    const parsed = parseConfig(defaultExport)
-    return parsed.ok
-      ? ({ ok: true, value: parsed.value } as const)
-      : ({ ok: false, error: parsed.error } as const)
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
+    const parsed = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
+    return Result.isSuccess(parsed)
+      ? ({ ok: true, value: parsed.success } as const)
+      : ({ ok: false, error: parsed.failure.message } as const)
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : String(error) } as const
   }
 }
 
@@ -332,8 +331,8 @@ export function honoTakibiVite(): any {
   // Serializes generation runs: a config-change run bypasses the debounce and
   // could otherwise interleave its cleanup with another run's writes.
   const enqueueRun = (task: () => Promise<void>) => {
-    const queued = pluginState.runQueue.then(task).catch((e: unknown) => {
-      console.error('❌ run error:', e)
+    const queued = pluginState.runQueue.then(task).catch((error: unknown) => {
+      console.error('❌ run error:', error)
     })
     pluginState.runQueue = queued
     return queued
@@ -435,8 +434,8 @@ export function honoTakibiVite(): any {
           }
         })
         await enqueueRun(() => runGenerationAndReload(server))
-      })().catch((e: unknown) => {
-        console.error('❌ watch error:', e)
+      })().catch((error: unknown) => {
+        console.error('❌ watch error:', error)
       })
     },
   }

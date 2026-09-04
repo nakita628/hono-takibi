@@ -9,7 +9,7 @@ import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
 
-describe('fsp', () => {
+describe('file', () => {
   afterEach(async () => {
     if (fs.existsSync(TEST_DIR)) {
       await fsp.rm(TEST_DIR, { recursive: true })

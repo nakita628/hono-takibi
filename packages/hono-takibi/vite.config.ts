@@ -283,9 +283,9 @@ export default defineConfig({
       'unicorn/no-useless-promise-resolve-reject': 'error',
       'unicorn/prefer-structured-clone': 'error',
       'unicorn/prefer-optional-catch-binding': 'error',
-      // Every `catch` in this package binds `e`; the rule's own default is `error`, so
-      // the option is what pins the existing convention.
-      'unicorn/catch-error-name': ['error', { name: 'e' }],
+      // The rule's default name is `error`; restating it keeps a stray `e` from
+      // creeping back in.
+      'unicorn/catch-error-name': ['error', { name: 'error' }],
 
       // Code injection surfaces (`eval` itself is already `correctness`).
       'no-script-url': 'error',
@@ -352,7 +352,7 @@ export default defineConfig({
         files: [
           'src/utils/**',
           'src/format/**',
-          'src/fsp/**',
+          'src/file/**',
           'src/merge/**',
           'src/openapi/**',
           'src/config/**',
@@ -380,7 +380,7 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(cli|config|core|emit|format|fsp|generator|helper|merge|shared|utils|vite-plugin)(/.*)?$',
+                    '^(\\.\\./)+(cli|config|core|emit|file|format|generator|helper|merge|shared|utils|vite-plugin)(/.*)?$',
                   message: 'guard may only import openapi',
                 },
               ],
@@ -398,7 +398,7 @@ export default defineConfig({
                 {
                   regex:
                     '^(\\.\\./)+(cli|config|core|generator|guard|helper|merge|openapi|shared|utils|vite-plugin)(/.*)?$',
-                  message: 'emit may only import format, fsp',
+                  message: 'emit may only import format, file',
                 },
               ],
             },
@@ -414,7 +414,7 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(cli|config|core|emit|format|fsp|merge|shared|vite-plugin)(/.*)?$',
+                    '^(\\.\\./)+(cli|config|core|emit|file|format|merge|shared|vite-plugin)(/.*)?$',
                   message: 'generator may only import utils, guard, helper, openapi',
                 },
               ],
@@ -432,7 +432,7 @@ export default defineConfig({
                 {
                   regex: '^(\\.\\./)+(cli|config|core|shared|vite-plugin)(/.*)?$',
                   message:
-                    'helper may only import utils, guard, generator, openapi, emit, format, fsp, merge',
+                    'helper may only import utils, guard, generator, openapi, emit, format, file, merge',
                 },
                 {
                   regex: '^\\./index(\\.js)?$',
@@ -454,7 +454,7 @@ export default defineConfig({
                 {
                   regex: '^(\\.\\./)+(cli|config|shared|vite-plugin)(/.*)?$',
                   message:
-                    'core may only import utils, guard, helper, generator, openapi, emit, format, fsp, merge',
+                    'core may only import utils, guard, helper, generator, openapi, emit, format, file, merge',
                 },
               ],
             },
@@ -470,7 +470,7 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(cli|emit|format|fsp|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
+                    '^(\\.\\./)+(cli|emit|file|format|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
                   message: 'shared may only import config, core, openapi',
                 },
               ],
@@ -487,7 +487,7 @@ export default defineConfig({
               patterns: [
                 {
                   regex:
-                    '^(\\.\\./)+(emit|fsp|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
+                    '^(\\.\\./)+(emit|file|generator|guard|helper|merge|utils|vite-plugin)(/.*)?$',
                   message: 'cli may only import config, core, format, openapi, shared',
                 },
               ],
@@ -505,7 +505,7 @@ export default defineConfig({
                 {
                   regex: '^(\\.\\./)+(cli|core|emit|generator|helper|merge|utils)(/.*)?$',
                   message:
-                    'vite-plugin may only import config, format, fsp, guard, openapi, shared',
+                    'vite-plugin may only import config, file, format, guard, openapi, shared',
                 },
               ],
             },

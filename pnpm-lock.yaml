@@ -72,9 +72,6 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
-      zod:
-        specifier: ^4.4.3
-        version: 4.4.3
     devDependencies:
       '@faker-js/faker':
         specifier: ^10.6.0
@@ -112,6 +109,9 @@ importers:
       hono:
         specifier: ^4.13.5
         version: 4.13.5
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
 
   test:
     devDependencies:

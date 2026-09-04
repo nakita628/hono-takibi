@@ -104,7 +104,7 @@ export function webhooks(
     const entries = webhookEntries()
     if (entries.length === 0) return 'No webhooks found'
     if (!split) {
-      const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)
+      const code = makeImports(entries.map((entry) => entry.code).join('\n\n'), output, components)
       yield* emit(code, path.dirname(output), output)
       return `Generated webhooks code written to ${output}`
     }
@@ -116,7 +116,7 @@ export function webhooks(
           return emit(makeImports(code, filePath, components), path.dirname(filePath), filePath)
         }),
         emit(
-          makeBarrel(Object.fromEntries(entries.map((e) => [e.name, null]))),
+          makeBarrel(Object.fromEntries(entries.map((entry) => [entry.name, null]))),
           outDir,
           `${outDir}/index.ts`,
         ),

@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
-import type { parseConfig } from '../config/index.js'
+import type { Config } from '../config/index.js'
 import {
   callbacks,
   components,
@@ -31,10 +31,7 @@ import {
 import { GenerateError } from '../error/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
-export function makeJob(
-  openAPI: OpenAPI,
-  config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
-) {
+export function makeJob(openAPI: OpenAPI, config: Config) {
   const defineOn = config.template?.define === true
   // In define mode the app entry anchors routes/ and components/. When output is
   // omitted, the anchor is inferred from components.output (`<anchor>/<module>`,

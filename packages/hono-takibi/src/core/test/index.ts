@@ -2,8 +2,8 @@ import path from 'node:path'
 
 import { Effect } from 'effect'
 
-import { fmt } from '../../format/index.js'
 import { mkdir, readFile, writeFile } from '../../file/index.js'
+import { fmt } from '../../format/index.js'
 import { makeTestFile } from '../../generator/test/index.js'
 import { mergeTestFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'

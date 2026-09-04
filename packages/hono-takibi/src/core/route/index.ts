@@ -111,7 +111,7 @@ export function route(
     }
     const entries = routeEntries()
     if (!split || entries.length === 0) {
-      const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, components)
+      const code = makeImports(entries.map((entry) => entry.code).join('\n\n'), output, components)
       yield* emit(code, dirname(output), output)
       return `Generated route code written to ${output}`
     }
@@ -123,7 +123,7 @@ export function route(
           return emit(makeImports(code, filePath, components), dirname(filePath), filePath)
         }),
         emit(
-          makeBarrel(Object.fromEntries(entries.map((e) => [e.name, null]))),
+          makeBarrel(Object.fromEntries(entries.map((entry) => [entry.name, null]))),
           outDir,
           `${outDir}/index.ts`,
         ),

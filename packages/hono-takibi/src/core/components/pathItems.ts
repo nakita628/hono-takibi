@@ -59,7 +59,11 @@ export function pathItems(
     const entries = pathItemsEntries(true)
     if (entries.length === 0) return 'No pathItems found'
     if (!split) {
-      const code = makeImports(entries.map((e) => e.code).join('\n\n'), output, componentsConfig)
+      const code = makeImports(
+        entries.map((entry) => entry.code).join('\n\n'),
+        output,
+        componentsConfig,
+      )
       yield* emit(code, path.dirname(output), output)
       return `Generated pathItems code written to ${output}`
     }
@@ -75,7 +79,7 @@ export function pathItems(
           )
         }),
         emit(
-          makeBarrel(Object.fromEntries(entries.map((e) => [e.key, null]))),
+          makeBarrel(Object.fromEntries(entries.map((entry) => [entry.key, null]))),
           outDir,
           `${outDir}/index.ts`,
         ),
