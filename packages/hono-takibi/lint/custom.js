@@ -14,11 +14,29 @@
 //                              contextual type and is allowed)
 //   custom/predicate-is-name   a pure boolean predicate reads as a question: `is*`,
 //                              `has*` or `can*`
+//   custom/no-effect-run       `Effect.runPromise` and friends appear only where the program
+//                              meets a world that is not an Effect — the Vite plugin's hooks and
+//                              the test helpers. Everywhere else an Effect is a value that is
+//                              returned, so it stays composable and its requirements stay visible
+//   custom/effect-promise-import `Effect.promise` only wraps a dynamic `import()`. Anywhere else
+//                              it turns a rejection into a defect, which walks past `catch`,
+//                              `orElse` and `mapError` alike; `Effect.tryPromise` is the one that
+//                              puts the failure in the error channel
+//   custom/type-pascal-case    a `type` alias is PascalCase
 //
 // Tests are exempt from the structural rules: a test arranges and asserts imperatively when that
 // is the clearest way to spell the fixture out.
 const TEST_FILE = /\.test\.tsx?$/u
 const PREDICATE_PREFIX = /^(is|has|can)[A-Z]/u
+const PASCAL_CASE = /^[A-Z][A-Za-z0-9]*$/u
+const EFFECT_RUNNERS = new Set([
+  'runPromise',
+  'runPromiseExit',
+  'runSync',
+  'runSyncExit',
+  'runFork',
+  'runCallback',
+])
 const FUNCTION_TYPES = new Set([
   'FunctionDeclaration',
   'FunctionExpression',
@@ -40,6 +58,31 @@ function effectMember(node) {
     node.property.type === 'Identifier'
     ? node.property.name
     : null
+}
+
+/**
+ * Whether an expression is a dynamic `import()`, or a `Promise.all([...])` of them.
+ *
+ * Those are the promises that cannot reject for a reason the program could answer: the
+ * module is a sibling in the same bundle, so a failure is a broken install, not a case.
+ */
+function isDynamicImport(node) {
+  if (!node) return false
+  if (node.type === 'ImportExpression') return true
+  if (node.type !== 'CallExpression') return false
+  const isPromiseAll =
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object.type === 'Identifier' &&
+    node.callee.object.name === 'Promise' &&
+    node.callee.property.type === 'Identifier' &&
+    node.callee.property.name === 'all'
+  if (!isPromiseAll) return false
+  const [list] = node.arguments
+  return (
+    list?.type === 'ArrayExpression' &&
+    list.elements.length > 0 &&
+    list.elements.every(isDynamicImport)
+  )
 }
 
 function enclosingFunction(node) {
@@ -198,6 +241,55 @@ export default {
                 })
               }
             }
+          },
+        }
+      },
+    },
+    'no-effect-run': {
+      meta: { docs: { description: 'Effect runners appear only at a boundary' } },
+      create(context) {
+        if (isTestPath(filenameOf(context))) return {}
+        return {
+          MemberExpression(node) {
+            const name = effectMember(node)
+            if (name === null || !EFFECT_RUNNERS.has(name)) return
+            context.report({
+              node,
+              message: `\`Effect.${name}\` ends the program here. Return the Effect instead and let the caller run it — the only places that may run one are where an Effect meets something that is not one (the Vite plugin's hooks, the test helpers), and those are exempted by path.`,
+            })
+          },
+        }
+      },
+    },
+    'effect-promise-import': {
+      meta: { docs: { description: '`Effect.promise` only wraps a dynamic import' } },
+      create(context) {
+        if (isTestPath(filenameOf(context))) return {}
+        return {
+          CallExpression(node) {
+            if (effectMember(node.callee) !== 'promise') return
+            const [thunk] = node.arguments
+            const body = FUNCTION_TYPES.has(thunk?.type) ? thunk.body : null
+            if (isDynamicImport(body)) return
+            context.report({
+              node,
+              message:
+                '`Effect.promise` promises the promise cannot reject: a rejection becomes a defect, which `orElse`, `catch` and `mapError` all walk straight past. Only a dynamic `import()` of a bundled sibling is that safe. Use `Effect.tryPromise` so the failure lands in the error channel.',
+            })
+          },
+        }
+      },
+    },
+    'type-pascal-case': {
+      meta: { docs: { description: 'a type alias is PascalCase' } },
+      create(context) {
+        return {
+          TSTypeAliasDeclaration(node) {
+            if (!node.id || PASCAL_CASE.test(node.id.name)) return
+            context.report({
+              node: node.id,
+              message: `Name the type \`${node.id.name}\` in PascalCase, the way every other type here is written.`,
+            })
           },
         }
       },

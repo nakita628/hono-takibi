@@ -71,6 +71,9 @@ export default defineConfig({
       'custom/no-effect-flatmap': 'error',
       'custom/function-declaration': 'error',
       'custom/predicate-is-name': 'error',
+      'custom/no-effect-run': 'error',
+      'custom/effect-promise-import': 'error',
+      'custom/type-pascal-case': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
@@ -392,6 +395,13 @@ export default defineConfig({
             },
           ],
         },
+      },
+      {
+        // The two places an Effect meets something that is not one: the Vite plugin's
+        // hooks are Vite's own Promise/callback API, and the test helpers hand a result
+        // back to a test. Everywhere else an Effect is returned, not run.
+        files: ['src/vite-plugin/**', 'src/testing/**'],
+        rules: { 'custom/no-effect-run': 'off' },
       },
       {
         files: ['src/guard/**'],
