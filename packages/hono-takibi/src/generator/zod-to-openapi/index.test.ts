@@ -89,9 +89,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [z.string(), z.number(), z.boolean()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       expect(PrefixSchema.safeParse(['foo', 1, true]).success).toBe(true)
@@ -101,9 +103,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [z.string(), z.number(), z.boolean()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       expect(PrefixSchema.safeParse([]).success).toBe(true)
@@ -113,9 +117,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [z.string(), z.number(), z.boolean()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       expect(PrefixSchema.safeParse(['foo', 1, true, 'extra', 99]).success).toBe(true)
@@ -125,9 +131,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [z.string(), z.number(), z.boolean()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       const result = PrefixSchema.safeParse(['foo', 'not-a-number', true])
@@ -148,9 +156,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [z.string(), z.number(), z.boolean()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       const result = PrefixSchema.safeParse('not array')
@@ -183,9 +193,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [NameSchema, z.number()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       expect(PrefixSchema.safeParse(['foo', 42]).success).toBe(true)
@@ -197,9 +209,11 @@ describe('zodToOpenAPI', () => {
         const prefix = [NameSchema, z.number()]
         for (const [i, Schema] of prefix.slice(0, arr.length).entries()) {
           const valid = Schema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
       })
       const result = PrefixSchema.safeParse(['', 42])
@@ -2409,6 +2423,7 @@ describe('zodToOpenAPI', () => {
         expect(zodToOpenAPI({ type: 'string', pattern: '^\\w+$' })).toBe(
           'z.string().regex(/^\\w+$/)',
         )
+        // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
         const runtime = z.string().regex(/^\w+$/)
         expect(runtime.safeParse('abc').success).toBe(true)
         const result = runtime.safeParse('!@#')
@@ -4931,7 +4946,7 @@ describe('zodToOpenAPI', () => {
           const runtime = z
             .string()
             .refine((val) => val.length > 5, { message: 'Too short' })
-            .refine((val) => /^[a-z]/.test(val), { message: 'Lowercase start' })
+            .refine((val) => /^[a-z]/u.test(val), { message: 'Lowercase start' })
           expect(runtime.safeParse('hello!').success).toBe(true)
           const result = runtime.safeParse('Hello!')
           expect(result.success).toBe(false)
@@ -5122,11 +5137,12 @@ describe('zodToOpenAPI', () => {
           const runtime = z.array(z.number()).superRefine((arr, ctx) => {
             const Schema = z.literal(5)
             const matched = arr.filter((i) => Schema.safeParse(i).success).length
-            if (matched < 1)
+            if (matched < 1) {
               ctx.addIssue({
                 code: 'custom',
-                message: 'Expected at least 1 item matching contains schema, got ' + matched,
+                message: `Expected at least 1 item matching contains schema, got ${matched}`,
               })
+            }
           })
           expect(runtime.safeParse([1, 5]).success).toBe(true)
           const result = runtime.safeParse([1, 2])
@@ -5156,16 +5172,18 @@ describe('zodToOpenAPI', () => {
           const runtime = z.array(z.number()).superRefine((arr, ctx) => {
             const Schema = z.number().min(0)
             const matched = arr.filter((i) => Schema.safeParse(i).success).length
-            if (matched < 2)
+            if (matched < 2) {
               ctx.addIssue({
                 code: 'custom',
-                message: 'Expected at least 2 matching items, got ' + matched,
+                message: `Expected at least 2 matching items, got ${matched}`,
               })
-            if (matched > 5)
+            }
+            if (matched > 5) {
               ctx.addIssue({
                 code: 'custom',
-                message: 'Expected at most 5 matching items, got ' + matched,
+                message: `Expected at most 5 matching items, got ${matched}`,
               })
+            }
           })
           expect(runtime.safeParse([0, 1]).success).toBe(true)
           const result = runtime.safeParse([0])
@@ -5196,9 +5214,9 @@ describe('zodToOpenAPI', () => {
             const seen = new Map()
             for (const [i, val] of items.entries()) {
               const key = JSON.stringify(val)
-              if (seen.has(key))
+              if (seen.has(key)) {
                 ctx.addIssue({ code: 'custom', path: [i], message: 'Duplicates not allowed' })
-              else seen.set(key, i)
+              } else seen.set(key, i)
             }
           })
           expect(runtime.safeParse(['a', 'b']).success).toBe(true)
@@ -5325,8 +5343,9 @@ describe('zodToOpenAPI', () => {
               const e = new Set()
               for (const k of ['name']) e.add(k)
               for (const k of Object.keys(o)) {
-                if (!e.has(k))
-                  ctx.addIssue({ code: 'custom', path: [k], message: 'Unknown property: ' + k })
+                if (!e.has(k)) {
+                  ctx.addIssue({ code: 'custom', path: [k], message: `Unknown property: ${k}` })
+                }
               }
             })
           expect(runtime.safeParse({ name: 'foo' }).success).toBe(true)
@@ -5353,12 +5372,15 @@ describe('zodToOpenAPI', () => {
             const Prefix = [z.string(), z.number()]
             for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
               const valid = Schema.safeParse(arr[i])
-              if (!valid.success)
-                for (const issue of valid.error.issues)
+              if (!valid.success) {
+                for (const issue of valid.error.issues) {
                   ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+                }
+              }
             }
-            for (let i = Prefix.length; i < arr.length; i += 1)
-              ctx.addIssue({ code: 'custom', path: [i], message: 'Unevaluated item at index ' + i })
+            for (let i = Prefix.length; i < arr.length; i += 1) {
+              ctx.addIssue({ code: 'custom', path: [i], message: `Unevaluated item at index ${i}` })
+            }
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
           const result = runtime.safeParse(['a', 1, 'extra'])
@@ -5504,9 +5526,11 @@ describe('zodToOpenAPI', () => {
               for (const [k, val] of Object.entries(o)) {
                 if (e.has(k)) continue
                 const valid = Schema.safeParse(val)
-                if (!valid.success)
-                  for (const issue of valid.error.issues)
+                if (!valid.success) {
+                  for (const issue of valid.error.issues) {
                     ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+                  }
+                }
               }
             })
           expect(runtime.safeParse({ name: 'foo', extra: 'str' }).success).toBe(true)
@@ -5538,16 +5562,20 @@ describe('zodToOpenAPI', () => {
             const Prefix = [z.string()]
             for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
               const valid = Schema.safeParse(arr[i])
-              if (!valid.success)
-                for (const issue of valid.error.issues)
+              if (!valid.success) {
+                for (const issue of valid.error.issues) {
                   ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+                }
+              }
             }
             const Rest = z.number()
             for (const [i, val] of arr.slice(Prefix.length).entries()) {
               const valid = Rest.safeParse(val)
-              if (!valid.success)
-                for (const issue of valid.error.issues)
+              if (!valid.success) {
+                for (const issue of valid.error.issues) {
                   ctx.addIssue({ ...issue, path: [Prefix.length + i, ...issue.path] })
+                }
+              }
             }
           })
           expect(runtime.safeParse(['a', 1, 2]).success).toBe(true)
@@ -5581,7 +5609,6 @@ describe('zodToOpenAPI', () => {
         })
         // ----- if-then only (no else) -----
         // biome-ignore lint/suspicious/noThenProperty: testing JSON Schema if-then
-        // eslint-disable-next-line unicorn/no-thenable -- testing JSON Schema then keyword
         it.concurrent('object: if-then only (no else) → Branch undefined for false', () => {
           const generated = zodToOpenAPI({
             type: 'object',
@@ -6088,13 +6115,13 @@ describe('zodToOpenAPI', () => {
             const seen = new Map()
             for (const [i, val] of items.entries()) {
               const key = JSON.stringify(val)
-              if (seen.has(key))
+              if (seen.has(key)) {
                 ctx.addIssue({
                   code: 'custom',
                   path: [i],
-                  message: 'Duplicate of index ' + seen.get(key),
+                  message: `Duplicate of index ${seen.get(key)}`,
                 })
-              else seen.set(key, i)
+              } else seen.set(key, i)
             }
           })
           expect(runtime.safeParse(['a', 'b']).success).toBe(true)
@@ -6293,6 +6320,7 @@ describe('zodToOpenAPI', () => {
               'x-pattern-message': 'lowercase only',
             }),
           ).toBe('z.string().regex(/^[a-z]+$/,{error:"lowercase only"})')
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
           const runtime = z.string().regex(/^[a-z]+$/, { error: 'lowercase only' })
           expect(runtime.safeParse('abc').success).toBe(true)
           const result = runtime.safeParse('ABC')
@@ -7091,9 +7119,11 @@ describe('zodToOpenAPI', () => {
             const Prefix = [z.string(), z.number()]
             for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
               const valid = Schema.safeParse(arr[i])
-              if (!valid.success)
-                for (const issue of valid.error.issues)
+              if (!valid.success) {
+                for (const issue of valid.error.issues) {
                   ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+                }
+              }
             }
           })
           expect(runtime.safeParse(['a', 1]).success).toBe(true)
@@ -7233,10 +7263,12 @@ describe('zodToOpenAPI', () => {
             'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"lowercase keys"})}}})',
           )
           const runtime = z.looseObject({}).superRefine((o, ctx) => {
+            // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
             const regex = new RegExp('^[a-z]+$')
             for (const k of Object.keys(o)) {
-              if (!regex.test(k))
+              if (!regex.test(k)) {
                 ctx.addIssue({ code: 'custom', path: [k], message: 'lowercase keys' })
+              }
             }
           })
           expect(runtime.safeParse({ foo: 1 }).success).toBe(true)
@@ -7259,20 +7291,22 @@ describe('zodToOpenAPI', () => {
             'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ keys must be strings"})}}}})',
           )
           const runtime = z.looseObject({}).superRefine((o, ctx) => {
+            // oxlint-disable-next-line require-unicode-regexp, prefer-regex-literals -- mirrors the regex the generator emits
             const regex = new RegExp('^S_')
             const Schema = z.string()
             for (const [k, val] of Object.entries(o)) {
               // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
-              // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
               if (!regex.test(k)) continue
               const valid = Schema.safeParse(val)
-              if (!valid.success)
-                for (const issue of valid.error.issues)
+              if (!valid.success) {
+                for (const issue of valid.error.issues) {
                   ctx.addIssue({
                     ...issue,
                     path: [k, ...issue.path],
                     message: 'S_ keys must be strings',
                   })
+                }
+              }
             }
           })
           expect(runtime.safeParse({ S_foo: 'bar' }).success).toBe(true)
@@ -7603,9 +7637,11 @@ describe('zodToOpenAPI', () => {
           const Prefix = [z.string(), z.number()]
           for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
             const valid = Schema.safeParse(arr[i])
-            if (!valid.success)
-              for (const issue of valid.error.issues)
+            if (!valid.success) {
+              for (const issue of valid.error.issues) {
                 ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+              }
+            }
           }
         })
         .readonly()
@@ -7939,16 +7975,20 @@ describe('zodToOpenAPI', () => {
         const Prefix = [z.string(), z.boolean()]
         for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
           const valid = PrefixSchema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
         const Rest = z.int()
         for (const [i, val] of arr.slice(Prefix.length).entries()) {
           const valid = Rest.safeParse(val)
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [Prefix.length + i, ...issue.path] })
+            }
+          }
         }
       })
       expect(Schema.safeParse([]).success).toBe(true)
@@ -7961,16 +8001,20 @@ describe('zodToOpenAPI', () => {
         const Prefix = [z.string(), z.boolean()]
         for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
           const valid = PrefixSchema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
         const Rest = z.int()
         for (const [i, val] of arr.slice(Prefix.length).entries()) {
           const valid = Rest.safeParse(val)
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [Prefix.length + i, ...issue.path] })
+            }
+          }
         }
       })
       const valid = Schema.safeParse(['a', true, 'x'])
@@ -7988,16 +8032,20 @@ describe('zodToOpenAPI', () => {
         const Prefix = [z.string(), z.boolean()]
         for (const [i, PrefixSchema] of Prefix.slice(0, arr.length).entries()) {
           const valid = PrefixSchema.safeParse(arr[i])
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+            }
+          }
         }
         const Rest = z.int()
         for (const [i, val] of arr.slice(Prefix.length).entries()) {
           const valid = Rest.safeParse(val)
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [Prefix.length + i, ...issue.path] })
+            }
+          }
         }
       })
       const valid = Schema.safeParse([1, false])
@@ -8020,16 +8068,18 @@ describe('zodToOpenAPI', () => {
     const ContainsSchema = z.array(z.any()).superRefine((arr, ctx) => {
       const Inner = z.int()
       const matched = arr.filter((i) => Inner.safeParse(i).success).length
-      if (matched < 2)
+      if (matched < 2) {
         ctx.addIssue({
           code: 'custom',
           message: `Expected at least 2 matching items, got ${matched}`,
         })
-      if (matched > 3)
+      }
+      if (matched > 3) {
         ctx.addIssue({
           code: 'custom',
           message: `Expected at most 3 matching items, got ${matched}`,
         })
+      }
     })
 
     // ── codegen ──
@@ -8085,27 +8135,31 @@ describe('zodToOpenAPI', () => {
     const PatternPropsSchema = z
       .looseObject({})
       .superRefine((o, ctx) => {
-        const regex = /^S:/
+        const regex = /^S:/u
         const Inner = z.string()
         for (const [k, val] of Object.entries(o)) {
           // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
           if (!regex.test(k)) continue
           const valid = Inner.safeParse(val)
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+            }
+          }
         }
       })
       .superRefine((o, ctx) => {
-        const regex = /^I:/
+        const regex = /^I:/u
         const Inner = z.int()
         for (const [k, val] of Object.entries(o)) {
           // oxlint-disable-next-line typescript/prefer-string-starts-ends-with -- mirrors the emitted code verbatim
           if (!regex.test(k)) continue
           const valid = Inner.safeParse(val)
-          if (!valid.success)
-            for (const issue of valid.error.issues)
+          if (!valid.success) {
+            for (const issue of valid.error.issues) {
               ctx.addIssue({ ...issue, path: [k, ...issue.path] })
+            }
+          }
         }
       })
 
@@ -8256,10 +8310,10 @@ describe('zodToOpenAPI', () => {
             const s =
               typeof atob === 'function' ? atob(b64) : Buffer.from(b64, 'base64').toString('utf8')
             return JSON.parse(s)
-          } catch (e) {
+          } catch (error) {
             ctx.addIssue({
               code: 'custom',
-              message: `invalid base64-json: ${e instanceof Error ? e.message : String(e)}`,
+              message: `invalid base64-json: ${error instanceof Error ? error.message : String(error)}`,
             })
             return z.NEVER
           }
@@ -8347,13 +8401,13 @@ describe('zodToOpenAPI', () => {
       const seen = new Map<string, number>()
       for (const [i, val] of items.entries()) {
         const key = JSON.stringify(val)
-        if (seen.has(key))
+        if (seen.has(key)) {
           ctx.addIssue({
             code: 'custom',
             path: [i],
             message: `Duplicate of index ${seen.get(key)}`,
           })
-        else seen.set(key, i)
+        } else seen.set(key, i)
       }
     })
 
@@ -8387,14 +8441,15 @@ describe('zodToOpenAPI', () => {
 
   describe('v3.2 superRefine demo: propertyNames (per-violating-key path)', () => {
     const PropertyNamesSchema = z.looseObject({}).superRefine((o, ctx) => {
-      const regex = /^[a-z]+$/
+      const regex = /^[a-z]+$/u
       for (const k of Object.keys(o)) {
-        if (!regex.test(k))
+        if (!regex.test(k)) {
           ctx.addIssue({
             code: 'custom',
             path: [k],
             message: `Property name '${k}' does not match pattern ^[a-z]+$`,
           })
+        }
       }
     })
 
@@ -8726,6 +8781,7 @@ describe('zodToOpenAPI', () => {
       expect(
         z
           .string()
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
           .regex(/^[A-Z]{3}-\d{3}$/)
           .safeParse('ABC-123').success,
       ).toBe(true)
@@ -8734,6 +8790,7 @@ describe('zodToOpenAPI', () => {
       expect(
         z
           .string()
+          // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
           .regex(/^[A-Z]{3}-\d{3}$/)
           .safeParse('abc-123').success,
       ).toBe(false)
@@ -9605,6 +9662,7 @@ describe('zodToOpenAPI', () => {
           city: z.string(),
           zip: z
             .string()
+            // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
             .regex(/^\d{3}-\d{4}$/)
             .exactOptional(),
         })
@@ -9832,8 +9890,9 @@ describe('zodToOpenAPI', () => {
   // ────────────────────────────────────────────────────────────────────
   describe('v3.2 x-superRefine: single function with custom code+path', () => {
     const SuperRefineSingle = z.string().superRefine((val: string, ctx) => {
-      if (val.includes(' '))
+      if (val.includes(' ')) {
         ctx.addIssue({ code: 'custom', path: [], message: 'スペースは含められません' })
+      }
     })
 
     it.concurrent('codegen: emits .superRefine(fn)', () => {
@@ -9865,18 +9924,20 @@ describe('zodToOpenAPI', () => {
     const SuperRefineMulti = z
       .object({ password: z.string() })
       .superRefine((val: { password: string }, ctx) => {
-        if (val.password.length < 8)
+        if (val.password.length < 8) {
           ctx.addIssue({
             code: 'custom',
             path: ['password'],
             message: 'パスワードは8文字以上で必要です',
           })
-        if (!/[0-9]/.test(val.password))
+        }
+        if (!/[0-9]/u.test(val.password)) {
           ctx.addIssue({
             code: 'custom',
             path: ['password'],
             message: 'パスワードに数字を含めてください',
           })
+        }
       })
 
     it.concurrent('codegen: emits .superRefine with multi-addIssue body', () => {
@@ -9922,8 +9983,9 @@ describe('zodToOpenAPI', () => {
         if (val.length < 3) ctx.addIssue({ code: 'custom', path: [], message: '3文字以上必要です' })
       })
       .superRefine((val: string, ctx) => {
-        if (!/^[a-z]/.test(val))
+        if (!/^[a-z]/u.test(val)) {
           ctx.addIssue({ code: 'custom', path: [], message: '小文字で始めてください' })
+        }
       })
 
     it.concurrent('codegen: chains .superRefine().superRefine() in array order', () => {
@@ -9985,6 +10047,7 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 日本語: x-pattern-message overrides regex error', () => {
     const JpPatternSchema = z
       .string()
+      // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
       .regex(/^\d{3}-\d{4}$/, { error: '郵便番号は123-4567の形式で入力してください' })
 
     it.concurrent('codegen: z.string().regex(/.../, {error:"日本語"})', () => {
@@ -10260,12 +10323,13 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 x-superRefine: per-element issue with index path', () => {
     const SuperRefinePerElement = z.array(z.string()).superRefine((arr: string[], ctx) => {
       for (const [i, val] of arr.entries()) {
-        if (val.length === 0)
+        if (val.length === 0) {
           ctx.addIssue({
             code: 'custom',
             path: [i],
             message: `${i}番目の要素は空文字列にできません`,
           })
+        }
       }
     })
 
@@ -10460,13 +10524,13 @@ describe('zodToOpenAPI', () => {
       const seen = new Map<string, number>()
       for (const [i, val] of items.entries()) {
         const key = JSON.stringify(val)
-        if (seen.has(key))
+        if (seen.has(key)) {
           ctx.addIssue({
             code: 'custom',
             path: [i],
             message: '配列に重複する要素は許可されていません',
           })
-        else seen.set(key, i)
+        } else seen.set(key, i)
       }
     })
 
@@ -10611,12 +10675,13 @@ describe('zodToOpenAPI', () => {
     const JpContains = z.array(z.any()).superRefine((arr: unknown[], ctx) => {
       const Inner = z.int()
       const matched = arr.filter((i) => Inner.safeParse(i).success).length
-      if (matched < 1)
+      if (matched < 1) {
         ctx.addIssue({
           code: 'custom',
           path: [],
           message: '配列に整数を1つ以上含めてください',
         })
+      }
     })
 
     it.concurrent('codegen: contains with 日本語 x-contains-message override', () => {
@@ -10652,12 +10717,13 @@ describe('zodToOpenAPI', () => {
       })
       .superRefine((o: { creditCard?: string; cvv?: string }, ctx) => {
         if (Object.hasOwn(o, 'creditCard')) {
-          if (!Object.hasOwn(o, 'cvv'))
+          if (!Object.hasOwn(o, 'cvv')) {
             ctx.addIssue({
               code: 'custom',
               path: ['cvv'],
               message: 'creditCardを使う場合はcvvが必須です',
             })
+          }
         }
       })
 
@@ -10827,7 +10893,7 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-emailRegex: custom regex overrides preset', () => {
-    const regex = /^[a-z]+@example\.com$/
+    const regex = /^[a-z]+@example\.com$/u
     const EmailReg = z.email({ pattern: regex })
     it.concurrent('codegen: z.email({pattern:/^[a-z]+@example\\.com$/})', () => {
       expect(
@@ -11017,7 +11083,7 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-urlProtocol: https only', () => {
-    const UrlHttps = z.url({ protocol: /^https$/ })
+    const UrlHttps = z.url({ protocol: /^https$/u })
     it.concurrent('codegen: z.url({protocol:/^https$/})', () => {
       expect(zodToOpenAPI({ type: 'string', format: 'url', 'x-urlProtocol': '^https$' })).toBe(
         'z.url({protocol:/^https$/})',
@@ -11045,7 +11111,7 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('v3.2 x-urlHostname: limit hostname', () => {
-    const UrlHost = z.url({ hostname: /^example\.com$/ })
+    const UrlHost = z.url({ hostname: /^example\.com$/u })
     it.concurrent('codegen: z.url({hostname:/^example\\.com$/})', () => {
       expect(
         zodToOpenAPI({
@@ -11224,7 +11290,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "  hi  " → "hi"', () => {
       const valid = Trim.safeParse('  hi  ')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('hi')
+      if (valid) expect(valid.data).toBe('hi')
     })
   })
 
@@ -11238,7 +11304,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "AbC" → "abc"', () => {
       const valid = Lower.safeParse('AbC')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('abc')
+      if (valid) expect(valid.data).toBe('abc')
     })
   })
 
@@ -11252,7 +11318,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "AbC" → "ABC"', () => {
       const valid = Upper.safeParse('AbC')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('ABC')
+      if (valid) expect(valid.data).toBe('ABC')
     })
   })
 
@@ -11269,7 +11335,7 @@ describe('zodToOpenAPI', () => {
       const nfc = 'が'
       const valid = Nfc.safeParse(nfd)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(nfc)
+      if (valid) expect(valid.data).toBe(nfc)
     })
   })
 
@@ -11283,7 +11349,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: full-width digits → ASCII', () => {
       const valid = Nfkc.safeParse('１２３')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('123')
+      if (valid) expect(valid.data).toBe('123')
     })
   })
 
@@ -11347,7 +11413,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: 123 → "123"', () => {
       const valid = CS.safeParse(123)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('123')
+      if (valid) expect(valid.data).toBe('123')
     })
   })
 
@@ -11359,7 +11425,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "42" → 42', () => {
       const valid = CN.safeParse('42')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(42)
+      if (valid) expect(valid.data).toBe(42)
     })
     it.concurrent('runtime: "abc" → NaN FAILS', () => {
       const valid = CN.safeParse('abc')
@@ -11386,12 +11452,12 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "truthy" → true', () => {
       const valid = CB.safeParse('truthy')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(true)
+      if (valid) expect(valid.data).toBe(true)
     })
     it.concurrent('runtime: "" → false', () => {
       const valid = CB.safeParse('')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(false)
+      if (valid) expect(valid.data).toBe(false)
     })
   })
 
@@ -11445,21 +11511,21 @@ describe('zodToOpenAPI', () => {
           'x-coerce': true,
           'x-stringbool': true,
         }),
-      ).toThrow(/mutually exclusive/)
+      ).toThrow(/mutually exclusive/u)
     })
 
     it.concurrent('runtime: "yes" → true with custom truthy', () => {
       const S = z.stringbool({ truthy: ['yes'], falsy: ['no'] })
       const valid = S.safeParse('yes')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(true)
+      if (valid) expect(valid.data).toBe(true)
     })
 
     it.concurrent('runtime: "false" → false with default falsy', () => {
       const S = z.stringbool()
       const valid = S.safeParse('false')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(false)
+      if (valid) expect(valid.data).toBe(false)
     })
 
     describe('x-stringbool: codegen — single option', () => {
@@ -11749,62 +11815,62 @@ describe('zodToOpenAPI', () => {
       it.concurrent('runtime default: "true" → true', () => {
         const result = S.safeParse('true')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "1" → true', () => {
         const result = S.safeParse('1')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "yes" → true', () => {
         const result = S.safeParse('yes')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "on" → true', () => {
         const result = S.safeParse('on')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "y" → true', () => {
         const result = S.safeParse('y')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "enabled" → true', () => {
         const result = S.safeParse('enabled')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: "0" → false', () => {
         const result = S.safeParse('0')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "no" → false', () => {
         const result = S.safeParse('no')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "off" → false', () => {
         const result = S.safeParse('off')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: "disabled" → false', () => {
         const result = S.safeParse('disabled')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime default: case-insensitive "TRUE" → true', () => {
         const result = S.safeParse('TRUE')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: case-insensitive "Yes" → true', () => {
         const result = S.safeParse('Yes')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime default: unknown string fails', () => {
         const result = S.safeParse('maybe')
@@ -11821,12 +11887,12 @@ describe('zodToOpenAPI', () => {
       it.concurrent('runtime custom: "oui" → true', () => {
         const result = S.safeParse('oui')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(true)
+        if (result) expect(result.data).toBe(true)
       })
       it.concurrent('runtime custom: "non" → false', () => {
         const result = S.safeParse('non')
         expect(result.success).toBe(true)
-        if (result.success) expect(result.data).toBe(false)
+        if (result) expect(result.data).toBe(false)
       })
       it.concurrent('runtime custom: default "true" no longer accepted', () => {
         const result = S.safeParse('true')
@@ -12006,7 +12072,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: "  Foo@Example.com  " → "foo@example.com"', () => {
       const valid = Pipe.safeParse('  Foo@Example.com  ')
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('foo@example.com')
+      if (valid) expect(valid.data).toBe('foo@example.com')
     })
   })
 
@@ -12024,7 +12090,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "def"', () => {
       const valid = Pf.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('def')
+      if (valid) expect(valid.data).toBe('def')
     })
     it.concurrent('runtime: 1 → invalid_type', () => {
       const valid = Pf.safeParse(1)
@@ -12057,7 +12123,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x"} PASSES (frozen)', () => {
       const valid = Fr.safeParse({ a: 'x' })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(Object.isFrozen(valid.data)).toBe(true)
+      if (valid) expect(Object.isFrozen(valid.data)).toBe(true)
     })
     it.concurrent('runtime: {a:1} FAILS', () => {
       const valid = Fr.safeParse({ a: 1 })
@@ -12235,12 +12301,15 @@ describe('zodToOpenAPI', () => {
       const Prefix = [z.string(), z.number()]
       for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
         const valid = Schema.safeParse(arr[i])
-        if (!valid.success)
-          for (const issue of valid.error.issues)
+        if (!valid.success) {
+          for (const issue of valid.error.issues) {
             ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+          }
+        }
       }
-      for (let i = Prefix.length; i < arr.length; i += 1)
-        ctx.addIssue({ code: 'custom', path: [i], message: 'Unevaluated item at index ' + i })
+      for (let i = Prefix.length; i < arr.length; i += 1) {
+        ctx.addIssue({ code: 'custom', path: [i], message: `Unevaluated item at index ${i}` })
+      }
     })
     it.concurrent('codegen: superRefine with prefix + length cap', () => {
       expect(
@@ -12279,9 +12348,11 @@ describe('zodToOpenAPI', () => {
       const Prefix = [z.string()]
       for (const [i, Schema] of Prefix.slice(0, arr.length).entries()) {
         const valid = Schema.safeParse(arr[i])
-        if (!valid.success)
-          for (const issue of valid.error.issues)
+        if (!valid.success) {
+          for (const issue of valid.error.issues) {
             ctx.addIssue({ ...issue, path: [i, ...issue.path] })
+          }
+        }
       }
     })
     it.concurrent('codegen: superRefine with prefix only', () => {
@@ -12313,13 +12384,13 @@ describe('zodToOpenAPI', () => {
       const seen = new Map<string, number>()
       for (const [i, val] of items.entries()) {
         const key = JSON.stringify(val)
-        if (seen.has(key))
+        if (seen.has(key)) {
           ctx.addIssue({
             code: 'custom',
             path: [i],
-            message: 'Duplicate of index ' + seen.get(key),
+            message: `Duplicate of index ${seen.get(key)}`,
           })
-        else seen.set(key, i)
+        } else seen.set(key, i)
       }
     })
     it.concurrent('codegen: object array with uniqueItems superRefine', () => {
@@ -12395,7 +12466,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x", extra:1} PASSES (extras kept)', () => {
       const valid = Loose.safeParse({ a: 'x', extra: 1 })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toStrictEqual({ a: 'x', extra: 1 })
+      if (valid) expect(valid.data).toStrictEqual({ a: 'x', extra: 1 })
     })
   })
 
@@ -12439,7 +12510,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: {a:"x", extra:1} → {a:"x"} (stripped)', () => {
       const valid = Plain.safeParse({ a: 'x', extra: 1 })
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toStrictEqual({ a: 'x' })
+      if (valid) expect(valid.data).toStrictEqual({ a: 'x' })
     })
   })
 
@@ -12448,18 +12519,21 @@ describe('zodToOpenAPI', () => {
       if (!Object.hasOwn(o, 'name')) return
       const Schema = z.unknown().superRefine((val, innerCtx) => {
         if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
-          if (!Object.hasOwn(val, 'age'))
+          if (!Object.hasOwn(val, 'age')) {
             innerCtx.addIssue({ code: 'custom', message: 'missing required: age' })
+          }
           if (Object.hasOwn(val, 'age')) {
             const AgeSchema = z.int()
-            if (!AgeSchema.safeParse(Reflect.get(val, 'age')).success)
+            if (!AgeSchema.safeParse(Reflect.get(val, 'age')).success) {
               innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
+            }
           }
         }
       })
       const valid = Schema.safeParse(o)
-      if (!valid.success)
+      if (!valid.success) {
         for (const issue of valid.error.issues) ctx.addIssue({ ...issue, path: issue.path })
+      }
     })
     it.concurrent('codegen: object + dependentSchemas superRefine chain', () => {
       expect(
@@ -12500,8 +12574,9 @@ describe('zodToOpenAPI', () => {
           if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
             if (Object.hasOwn(val, 'country')) {
               const Schema = z.literal('JP')
-              if (!Schema.safeParse(Reflect.get(val, 'country')).success)
+              if (!Schema.safeParse(Reflect.get(val, 'country')).success) {
                 innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
+              }
             }
           }
         })
@@ -12510,9 +12585,11 @@ describe('zodToOpenAPI', () => {
           ? z.unknown().superRefine((val, innerCtx) => {
               if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
                 if (Object.hasOwn(val, 'postalCode')) {
+                  // oxlint-disable-next-line require-unicode-regexp -- mirrors the regex literal the generator emits
                   const Schema = z.string().regex(/^\d{3}-\d{4}$/)
-                  if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success)
+                  if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success) {
                     innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
+                  }
                 }
               }
             })
@@ -12520,15 +12597,17 @@ describe('zodToOpenAPI', () => {
               if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
                 if (Object.hasOwn(val, 'postalCode')) {
                   const Schema = z.string().min(1)
-                  if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success)
+                  if (!Schema.safeParse(Reflect.get(val, 'postalCode')).success) {
                     innerCtx.addIssue({ code: 'custom', message: 'invalid property' })
+                  }
                 }
               }
             })
         if (!Branch) return
         const valid = Branch.safeParse(o)
-        if (!valid.success)
+        if (!valid.success) {
           for (const issue of valid.error.issues) ctx.addIssue({ ...issue, path: issue.path })
+        }
       })
     it.concurrent('codegen: if/then/else superRefine emission', () => {
       expect(
@@ -12595,12 +12674,12 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "x"', () => {
       const valid = ND.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('x')
+      if (valid) expect(valid.data).toBe('x')
     })
     it.concurrent('runtime: null → null', () => {
       const valid = ND.safeParse(null)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe(null)
+      if (valid) expect(valid.data).toBe(null)
     })
   })
 
@@ -12619,7 +12698,7 @@ describe('zodToOpenAPI', () => {
     it.concurrent('runtime: undefined → "d"', () => {
       const valid = NDE.safeParse(undefined)
       expect(valid.success).toBe(true)
-      if (valid.success) expect(valid.data).toBe('d')
+      if (valid) expect(valid.data).toBe('d')
     })
     it.concurrent('runtime: 1 (number) FAILS with custom message', () => {
       const valid = NDE.safeParse(1)

@@ -654,7 +654,7 @@ describe('openapi helper', () => {
       const result = makeParameters([
         { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'number' } } },
       ])
-      const occurrences = (result.query.ids.match(/\.openapi\(/g) ?? []).length
+      const occurrences = (result.query.ids.match(/\.openapi\(/gu) ?? []).length
       expect(occurrences).toBe(1)
     })
 
@@ -669,7 +669,7 @@ describe('openapi helper', () => {
           },
         },
       ])
-      const occurrences = (result.query.filter.match(/\.openapi\(/g) ?? []).length
+      const occurrences = (result.query.filter.match(/\.openapi\(/gu) ?? []).length
       expect(occurrences).toBe(1)
     })
   })

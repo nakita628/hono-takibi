@@ -1,6 +1,9 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../emit/index.js'
+import { GenerateError } from '../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
@@ -82,7 +85,7 @@ function makeQueryKeyGetterCode(
   hasHeader = false,
 ) {
   // First path segment, e.g. '/pet/findByStatus' → 'pet'
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   if (config.isVueQuery) {
     if (hasArgs) {
       return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
@@ -108,7 +111,7 @@ function makeInfiniteQueryKeyGetterCode(
   config: { readonly frameworkName: string; readonly isVueQuery?: boolean },
   hasHeader = false,
 ) {
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
 
   if (config.isVueQuery) {
     if (hasArgs) {
@@ -258,7 +261,7 @@ function makeMutationOptionsGetterCode(
   },
 ) {
   const methodUpper = method.toUpperCase()
-  const prefix = honoPath.replace(/^\//, '').split('/')[0]
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
   const errorType = config.errorType ?? 'unknown'
   // TError/TOnMutateResult are only useful when wrapped by `mutationOptions<...>`.
@@ -552,7 +555,7 @@ function makePrefixKeyCode(prefix: string) {
 function makePrefixKeyCodes(paths: OpenAPIPaths): readonly string[] {
   const prefixes = new Set<string>()
   for (const p of Object.keys(paths)) {
-    const prefix = p.replace(/^\//, '').split('/')[0]
+    const prefix = p.replace(/^\//u, '').split('/')[0]
     if (prefix) prefixes.add(prefix)
   }
   return [...prefixes].toSorted().map((prefix) => makePrefixKeyCode(prefix))
@@ -572,20 +575,26 @@ function makeSWRHeader(
   const lines: string[] = []
   // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
-    lines.push("import useSWR from'swr'")
-    lines.push("import useSWRImmutable from'swr/immutable'")
-    lines.push("import type{Key,SWRConfiguration}from'swr'")
+    lines.push(
+      "import useSWR from'swr'",
+      "import useSWRImmutable from'swr/immutable'",
+      "import type{Key,SWRConfiguration}from'swr'",
+    )
     if (hasInfiniteQuery) {
-      lines.push("import useSWRInfinite from'swr/infinite'")
-      lines.push("import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'")
+      lines.push(
+        "import useSWRInfinite from'swr/infinite'",
+        "import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'",
+      )
     }
   } else if (hasMutation) {
     // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
   }
   if (hasMutation) {
-    lines.push("import useSWRMutation from'swr/mutation'")
-    lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
+    lines.push(
+      "import useSWRMutation from'swr/mutation'",
+      "import type{SWRMutationConfiguration}from'swr/mutation'",
+    )
   }
   // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
   // `pagination.getRequestArgs` even when the operation itself takes no args, so the
@@ -595,9 +604,11 @@ function makeSWRHeader(
     'ClientRequestOptions',
     ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
   ]
-  lines.push(`import type{${honoTypeImports.join(',')}}from'hono/client'`)
-  lines.push("import{parseResponse}from'hono/client'")
-  lines.push(`import{${clientName}}from'${importPath}'`)
+  lines.push(
+    `import type{${honoTypeImports.join(',')}}from'hono/client'`,
+    "import{parseResponse}from'hono/client'",
+    `import{${clientName}}from'${importPath}'`,
+  )
   return `${lines.join('\n')}\n\n`
 }
 
@@ -719,7 +730,7 @@ function makeHookCode(
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
-  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/g, ':$1')
+  const honoPath = pathStr.replaceAll(/\{([^}]+)\}/gu, ':$1')
   // SWR: simpler pattern without options getter
   if (config.isSWR) {
     if (isQuery) {
@@ -797,7 +808,7 @@ function makeHookCode(
       } as const
     }
     // SWR mutation
-    const prefix = honoPath.replace(/^\//, '').split('/')[0]
+    const prefix = honoPath.replace(/^\//u, '').split('/')[0]
     const methodUpper = method.toUpperCase()
     const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
     const hookCode = makeSWRMutationHookCode(
@@ -1180,16 +1191,8 @@ function makeHeader(
  *
  * - GET operations generate query hooks
  * - POST/PUT/DELETE/PATCH operations generate mutation hooks
- *
- * @param openAPI - Parsed OpenAPI specification
- * @param output - Output file path or directory
- * @param importPath - Import path for the Hono client
- * @param config - Framework configuration
- * @param split - Whether to split into multiple files (one per hook)
- * @param clientName - Name of the client export (default: 'client')
- * @returns Promise resolving to success message or error
  */
-export async function makeQueryHooks(
+export function makeQueryHooks(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
@@ -1219,73 +1222,71 @@ export async function makeQueryHooks(
   split?: boolean,
   clientName = 'client',
 ) {
-  const pathsMaybe = openAPI.paths
-  if (!isOpenAPIPaths(pathsMaybe)) {
-    return { ok: false, error: 'Invalid OpenAPI paths' } as const
-  }
-  const componentsParameters = openAPI.components?.parameters ?? {}
-  const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-  const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
-  const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
-  const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
-  if (!split) {
-    const prefixBody = prefixKeyCodes.join('\n\n')
-    const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
-    const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
-    const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
-    const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
-    const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
-    const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
-    const header = makeHeader(
-      importPath,
-      clientName,
-      hasQuery,
-      hasMutation,
-      hasAnyArgs,
-      config,
-      hasQueryWithArgs,
-      hasInfiniteQuery,
-    )
-    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
-    const emitResult = await emit(code, path.dirname(output), output)
-    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
-    return {
-      ok: true,
-      value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`,
-    } as const
-  }
-  const { outDir, indexPath } = resolveSplitOutDir(output)
-  const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
-  const exportLines = [
-    ...new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
-  ]
-  const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
-  const index = `${indexLines.join('\n')}\n`
-  const results = await Promise.all([
-    ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
-      const hasQueryWithArgs = isQuery && hasArgs
+  return Effect.gen(function* () {
+    const pathsMaybe = openAPI.paths
+    if (!isOpenAPIPaths(pathsMaybe)) {
+      return yield* new GenerateError({ message: 'Invalid OpenAPI paths' })
+    }
+    const componentsParameters = openAPI.components?.parameters ?? {}
+    const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
+    const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
+    const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
+    const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
+    const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
+    if (!split) {
+      const prefixBody = prefixKeyCodes.join('\n\n')
+      const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
+      const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
+      const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
+      const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
+      const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
+      const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
       const header = makeHeader(
         importPath,
         clientName,
-        isQuery,
-        !isQuery,
-        hasArgs,
+        hasQuery,
+        hasMutation,
+        hasAnyArgs,
         config,
         hasQueryWithArgs,
-        hasInfinite,
+        hasInfiniteQuery,
       )
-      const fileSrc = `${header}${code}\n`
-      const filePath = path.join(outDir, `${operationFileName}.ts`)
-      return emit(fileSrc, path.dirname(filePath), filePath)
-    }),
-    ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
-    emit(index, path.dirname(indexPath), indexPath),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return {
-    ok: true,
-    value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
-  } as const
+      const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
+      yield* emit(code, path.dirname(output), output)
+      return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`
+    }
+    const { outDir, indexPath } = resolveSplitOutDir(output)
+    const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
+    const exportLines = [
+      ...new Set(
+        hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`),
+      ),
+    ]
+    const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
+    const index = `${indexLines.join('\n')}\n`
+    yield* Effect.all(
+      [
+        ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
+          const hasQueryWithArgs = isQuery && hasArgs
+          const header = makeHeader(
+            importPath,
+            clientName,
+            isQuery,
+            !isQuery,
+            hasArgs,
+            config,
+            hasQueryWithArgs,
+            hasInfinite,
+          )
+          const fileSrc = `${header}${code}\n`
+          const filePath = path.join(outDir, `${operationFileName}.ts`)
+          return emit(fileSrc, path.dirname(filePath), filePath)
+        }),
+        ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
+        emit(index, path.dirname(indexPath), indexPath),
+      ],
+      { concurrency: 'unbounded' },
+    )
+    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`
+  })
 }

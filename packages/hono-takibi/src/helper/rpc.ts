@@ -16,7 +16,7 @@ function makeEscaped(s: string) {
 function refParamName(refLike: unknown) {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
-  const m = ref?.match(/^#\/components\/parameters\/(.+)$/)
+  const m = ref?.match(/^#\/components\/parameters\/(.+)$/u)
   return m ? m[1] : undefined
 }
 
@@ -69,9 +69,9 @@ export function formatPath(p: string, hasBasePath?: boolean) {
       hasBracket: false,
     } as const
   }
-  const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
+  const segs = p.replace(/^\/+/u, '').split('/').filter(Boolean)
   if (p !== '/' && p.endsWith('/')) segs.push('index')
-  const honoSegs = segs.map((seg) => seg.replaceAll(/\{([^}]+)\}/g, ':$1'))
+  const honoSegs = segs.map((seg) => seg.replaceAll(/\{([^}]+)\}/gu, ':$1'))
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
   const hasBracket = firstBracketIdx !== -1
   const runtimeParts = honoSegs.map((seg) =>
@@ -111,7 +111,7 @@ export function hasNoContentResponse(operation: {
 function refRequestBodyName(refLike: unknown) {
   const ref =
     typeof refLike === 'string' ? refLike : isRefObject(refLike) ? refLike.$ref : undefined
-  const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/)
+  const m = ref?.match(/^#\/components\/requestBodies\/(.+)$/u)
   return m ? m[1] : undefined
 }
 
@@ -148,8 +148,9 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
       if (isRecord(resolved) && isRecord(resolved.content)) {
         return pickAllBodyInfoFromContent(resolved.content)
       }
-      if (resolved !== undefined)
+      if (resolved !== undefined) {
         return { form: [], json: [{ contentType: 'application/json' }] } as const
+      }
       return undefined
     }
     return pickAllBodyInfoFromContent(requestBody.content)

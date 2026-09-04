@@ -1,7 +1,9 @@
 import { basename, dirname, relative } from 'node:path'
 
+import { Effect } from 'effect'
+
+import { mkdir, readdir, readFile, writeFile } from '../file/index.js'
 import { fmt } from '../format/index.js'
-import { mkdir, readdir, readFile, writeFile } from '../fsp/index.js'
 import { makeHandlerTestCode, makeHandlerTestContext } from '../generator/test/index.js'
 import { defineEntries } from '../generator/zod-openapi-hono/openapi/define/index.js'
 import {
@@ -24,7 +26,7 @@ import { methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { schemaToFaker } from './faker.js'
 
-function makeRefs(schema: Schema, refs: Set<string> = new Set()) {
+function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop()
     if (refName) refs.add(refName)
@@ -106,11 +108,11 @@ function makeMockHandlerCode(
 
 function sanitizeHandlerSegment(segment: string) {
   return segment
-    .replaceAll(/\{([^}]+)\}/g, '$1')
-    .replaceAll(/[^0-9A-Za-z._-]/g, '_')
-    .replaceAll(/^[._-]+|[._-]+$/g, '')
-    .replaceAll(/__+/g, '_')
-    .replaceAll(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
+    .replaceAll(/\{([^}]+)\}/gu, '$1')
+    .replaceAll(/[^0-9A-Za-z._-]/gu, '_')
+    .replaceAll(/^[._-]+|[._-]+$/gu, '')
+    .replaceAll(/__+/gu, '_')
+    .replaceAll(/[-._](\w)/gu, (_, c: string) => c.toUpperCase())
 }
 
 /**
@@ -119,7 +121,7 @@ function sanitizeHandlerSegment(segment: string) {
  */
 export function makeHandlerFileName(path: string, tags?: readonly string[]): `${string}.ts` {
   const tagName = uncapitalizeWord(sanitizeHandlerSegment(tags?.[0] ?? ''))
-  const pathName = sanitizeHandlerSegment(path.replace(/^\/+/, '').split('/')[0] ?? '')
+  const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
   const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
   return `${name}.ts`
 }
@@ -128,44 +130,47 @@ function isTsFileName(file: string): file is `${string}.ts` {
   return file.endsWith('.ts')
 }
 
+/** The names `collect` finds in one handler file, paired with the file they came from. */
+function collectFrom(
+  handlerPath: string,
+  fileName: `${string}.ts`,
+  collect: (code: string) => readonly string[],
+) {
+  return Effect.gen(function* () {
+    const code = yield* readFile(`${handlerPath}/${fileName}`)
+    return collect(code ?? '').map((name) => [name, fileName] as const)
+  })
+}
+
 /**
  * Scans the handler directory (non-recursively) for hand-written files. Returns the file
  * names and, for every codegen key `collect` finds in a file (exported handler / route names,
  * or routes registered on an inline sub-router), the file that already holds it — an existing
  * implementation is regenerated in place rather than re-stubbed under the expected file name.
  */
-async function scanExistingHandlerFiles(
+function scanExistingHandlerFiles(
   handlerPath: string,
   collect: (code: string) => readonly string[],
 ) {
-  const readdirResult = await readdir(handlerPath)
-  if (!readdirResult.ok && !readdirResult.notFound) {
-    return { ok: false, error: readdirResult.error } as const
-  }
-  const fileNames = (readdirResult.ok ? readdirResult.value : [])
-    .filter(isTsFileName)
-    .filter((file) => !file.endsWith('.test.ts') && !file.endsWith('.d.ts') && file !== 'index.ts')
-    .toSorted()
-  const reads = await Promise.all(
-    fileNames.map(async (fileName) => {
-      const readResult = await readFile(`${handlerPath}/${fileName}`)
-      if (!readResult.ok) return { ok: false, error: readResult.error } as const
-      return {
-        ok: true,
-        value: collect(readResult.value ?? '').map((name) => [name, fileName] as const),
-      } as const
-    }),
-  )
-  const failed = reads.find((result) => !result.ok)
-  if (failed && !failed.ok) return { ok: false, error: failed.error } as const
-  const locations = new Map<string, `${string}.ts`>()
-  for (const result of reads) {
-    if (!result.ok) continue
-    for (const [name, fileName] of result.value) {
-      if (!locations.has(name)) locations.set(name, fileName)
+  return Effect.gen(function* () {
+    const fileNames = (yield* readdir(handlerPath))
+      .filter(isTsFileName)
+      .filter(
+        (file) => !file.endsWith('.test.ts') && !file.endsWith('.d.ts') && file !== 'index.ts',
+      )
+      .toSorted()
+    const reads = yield* Effect.all(
+      fileNames.map((fileName) => collectFrom(handlerPath, fileName, collect)),
+      { concurrency: 'unbounded' },
+    )
+    const locations = new Map<string, `${string}.ts`>()
+    for (const found of reads) {
+      for (const [name, fileName] of found) {
+        if (!locations.has(name)) locations.set(name, fileName)
+      }
     }
-  }
-  return { ok: true, value: { fileNames, locations } } as const
+    return { fileNames, locations }
+  })
 }
 
 /**
@@ -219,11 +224,11 @@ function makePaths(output: string, pathAlias: string | undefined, routeImport?: 
   const baseDir = isDot
     ? '.'
     : isIndexFile
-      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/)?.[1] ?? '.')
-      : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
+      ? (output.match(/^(.*)\/[^/]+\/index\.ts$/u)?.[1] ?? '.')
+      : (output.match(/^(.*)\/[^/]+\.ts$/u)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
   const routeModuleName = isIndexFile
-    ? (output.match(/([^/]+)\/index\.ts$/)?.[1] ?? 'index')
+    ? (output.match(/([^/]+)\/index\.ts$/u)?.[1] ?? 'index')
     : output.endsWith('.ts')
       ? basename(output, '.ts')
       : 'index'
@@ -501,15 +506,93 @@ function makeBarrelContent(fileNames: readonly string[]): string {
   return fileNames.map((h) => `export * from './${basename(h, '.ts')}'`).join('\n')
 }
 
+/** oxfmt, keeping the source as-is when it will not parse what we just built. */
+function fmtOrKeep(source: string) {
+  return fmt(source).pipe(Effect.orElseSucceed(() => source))
+}
+
 /**
- * Generates empty stub handler files for a Hono app.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The output directory or file path for generated handlers.
- * @param test - Whether to generate corresponding test files.
- * @returns A `Result` indicating success or error with message.
+ * Writes one generated file: format it, merge it into whatever is already on disk,
+ * format the merge, write. `merge` is what decides how hand-written code survives, and
+ * a merge that oxfmt then rejects is still written — losing the edit would be worse.
  */
-export async function zodOpenAPIHonoHandler(
+function writeMerged(
+  filePath: string,
+  source: string,
+  merge: (existing: string, incoming: string) => string,
+) {
+  return Effect.gen(function* () {
+    const generated = yield* fmt(source)
+    const existing = yield* readFile(filePath)
+    const merged = existing !== null ? merge(existing, generated) : generated
+    yield* writeFile(filePath, yield* fmtOrKeep(merged))
+  })
+}
+
+/** As {@link writeMerged}, but generated test code that will not format is kept too. */
+function writeMergedTest(filePath: string, source: string) {
+  return Effect.gen(function* () {
+    const generated = yield* fmtOrKeep(source)
+    const existing = yield* readFile(filePath)
+    const merged = existing !== null ? mergeTestFile(existing, generated) : generated
+    yield* writeFile(filePath, yield* fmtOrKeep(merged))
+  })
+}
+
+/** Writes the `index.ts` that re-exports every handler file, keeping hand-added lines. */
+function writeBarrel(handlerPath: string, fileNames: readonly string[]) {
+  return Effect.gen(function* () {
+    const generated = yield* fmt(makeBarrelContent(fileNames))
+    const barrelPath = `${handlerPath}/index.ts`
+    const existing = yield* readFile(barrelPath)
+    yield* writeFile(
+      barrelPath,
+      existing !== null ? mergeBarrelFile(existing, generated) : generated,
+    )
+  })
+}
+
+/**
+ * Writes one handler file and, when the scaffold asks for tests, the test beside it.
+ *
+ * The three writers below differ only in how the file's contents are built and which merge
+ * keeps hand-written code; from there on they are the same, so they share this.
+ */
+function writeHandler(options: {
+  readonly openapi: OpenAPI
+  readonly handlerPath: string
+  readonly handler: {
+    readonly fileName: `${string}.ts`
+    readonly testFileName: `${string}.ts`
+    readonly routeNames: readonly string[]
+  }
+  readonly fileContent: string
+  readonly merge: (existing: string, incoming: string) => string
+  readonly testImportFrom: string
+  readonly basePath: string
+  readonly testFramework: 'vitest' | 'vite-plus' | 'bun'
+  readonly testContext: ReturnType<typeof makeHandlerTestContext> | undefined
+}) {
+  return Effect.gen(function* () {
+    const filePath = `${options.handlerPath}/${options.handler.fileName}`
+    yield* writeMerged(filePath, options.fileContent, options.merge)
+    if (options.testContext === undefined || options.handler.routeNames.length === 0) return
+    const testContent = makeHandlerTestCode(
+      options.openapi,
+      filePath,
+      [...options.handler.routeNames],
+      options.testImportFrom,
+      options.basePath,
+      options.testFramework,
+      options.testContext,
+    )
+    if (testContent) {
+      yield* writeMergedTest(`${options.handlerPath}/${options.handler.testFileName}`, testContent)
+    }
+  })
+}
+
+export function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test = false,
@@ -519,104 +602,61 @@ export async function zodOpenAPIHonoHandler(
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
-  const paths = openapi.paths
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
-  const existingResult = await scanExistingHandlerFiles(
-    handlerPath,
-    routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
-  )
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const existing = existingResult.value
-  const specHandlers = makeMergedHandlers(
-    Object.entries(paths).flatMap(([path, pathItem]) =>
-      Object.entries(pathItem)
-        .filter(
-          (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
-        )
-        .map(([method, operation]) =>
-          routeHandler
-            ? makeStubHandlerInfo(path, method, operation, existing)
-            : makeInlineStubHandlerInfo(path, method, operation, existing),
+  return Effect.gen(function* () {
+    const paths = openapi.paths
+    const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+    const existing = yield* scanExistingHandlerFiles(
+      handlerPath,
+      routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
+    )
+    const specHandlers = makeMergedHandlers(
+      Object.entries(paths).flatMap(([path, pathItem]) =>
+        Object.entries(pathItem)
+          .filter(
+            (entry): entry is [string, Operation] =>
+              isHttpMethod(entry[0]) && isOperation(entry[1]),
+          )
+          .map(([method, operation]) =>
+            routeHandler
+              ? makeStubHandlerInfo(path, method, operation, existing)
+              : makeInlineStubHandlerInfo(path, method, operation, existing),
+          ),
+      ),
+    )
+    const handlers = [
+      ...specHandlers,
+      ...makeOrphanHandlers(
+        existing,
+        specHandlers.map((h) => h.fileName),
+      ),
+    ]
+    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    yield* mkdir(handlerPath)
+    yield* Effect.all(
+      [
+        ...handlers.map((handler) =>
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: routeHandler
+              ? makeStubFileContent(handler, importFrom)
+              : makeInlineStubFileContent(handler, importFrom),
+            merge: mergeHandlerFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
+          }),
         ),
-    ),
-  )
-  const handlers = [
-    ...specHandlers,
-    ...makeOrphanHandlers(
-      existing,
-      specHandlers.map((h) => h.fileName),
-    ),
-  ]
-  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
-  const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  const results = await Promise.all([
-    ...handlers.map(async (handler) => {
-      const fileContent = routeHandler
-        ? makeStubFileContent(handler, importFrom)
-        : makeInlineStubFileContent(handler, importFrom)
-      const fmtResult = await fmt(fileContent)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const filePath = `${handlerPath}/${handler.fileName}`
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(filePath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const merged =
-        existingResult.value !== null
-          ? mergeHandlerFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const finalFmtResult = await fmt(merged)
-      const content = finalFmtResult.ok ? finalFmtResult.value : merged
-      const writeResult = await writeFile(filePath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (handlerTestContext && handler.routeNames.length > 0) {
-        const testContent = makeHandlerTestCode(
-          openapi,
-          `${handlerPath}/${handler.fileName}`,
-          [...handler.routeNames],
-          testImportFrom,
-          basePath,
-          testFramework,
-          handlerTestContext,
-        )
-        if (testContent) {
-          const testFmtResult = await fmt(testContent)
-          const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testFilePath = `${handlerPath}/${handler.testFileName}`
-          const existingTestResult = await readFile(testFilePath)
-          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
-          const mergedTestCode =
-            existingTestResult.value !== null
-              ? mergeTestFile(existingTestResult.value, testCode)
-              : testCode
-          // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-          const finalFmtResult = await fmt(mergedTestCode)
-          const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
-          const testWriteResult = await writeFile(testFilePath, finalTestCode)
-          if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
-        }
-      }
-      return { ok: true, value: undefined } as const
-    }),
-    (async () => {
-      const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const barrelPath = `${handlerPath}/index.ts`
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(barrelPath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const content =
-        existingResult.value !== null
-          ? mergeBarrelFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const writeResult = await writeFile(barrelPath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      return { ok: true, value: undefined } as const
-    })(),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return { ok: true, value: undefined } as const
+        writeBarrel(
+          handlerPath,
+          handlers.map((h) => h.fileName),
+        ),
+      ],
+      { concurrency: 'unbounded' },
+    )
+  })
 }
 
 /**
@@ -624,30 +664,30 @@ export async function zodOpenAPIHonoHandler(
  * each) the current spec's routes live in — existing registrations win over the tag/path
  * derived name — so the app entry can import and mount exactly those sub-routers.
  */
-export async function resolveInlineHandlerFileNames(
+export function resolveInlineHandlerFileNames(
   openapi: OpenAPI,
   output: string,
   pathAlias?: string,
   routeImport?: string,
 ) {
-  const { handlerPath } = makePaths(output, pathAlias, routeImport)
-  const existingResult = await scanExistingHandlerFiles(handlerPath, collectInlineRouteNames)
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const existing = existingResult.value
-  const fileNames = Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
-    Object.entries(pathItem)
-      .filter(
-        (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
-      )
-      .map(([method, operation]) =>
-        resolveHandlerFileName(
-          makeHandlerFileName(path, operation.tags),
-          `${methodPath(method, path)}Route`,
-          existing,
+  return Effect.gen(function* () {
+    const { handlerPath } = makePaths(output, pathAlias, routeImport)
+    const existing = yield* scanExistingHandlerFiles(handlerPath, collectInlineRouteNames)
+    const fileNames = Object.entries(openapi.paths).flatMap(([path, pathItem]) =>
+      Object.entries(pathItem)
+        .filter(
+          (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
+        )
+        .map(([method, operation]) =>
+          resolveHandlerFileName(
+            makeHandlerFileName(path, operation.tags),
+            `${methodPath(method, path)}Route`,
+            existing,
+          ),
         ),
-      ),
-  )
-  return { ok: true, value: [...new Set(fileNames)] } as const
+    )
+    return [...new Set(fileNames)]
+  })
 }
 
 /**
@@ -656,13 +696,8 @@ export async function resolveInlineHandlerFileNames(
  * Each file co-locates `createRoute(...)` with a stub handler inside
  * `defineOpenAPIRoute({ route, handler })`, so routes register via
  * `app.openapiRoutes([...])`. Component schemas are imported from `componentsOutput`.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The app entry file path (e.g. `./src/index.ts`).
- * @param componentsOutput - The components module path schemas are imported from.
- * @returns A `Result` indicating success or error with message.
  */
-export async function defineOpenAPIRouteHandler(
+export function defineOpenAPIRouteHandler(
   openapi: OpenAPI,
   output: string,
   componentsOutput: string,
@@ -672,151 +707,107 @@ export async function defineOpenAPIRouteHandler(
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
 ) {
-  const baseDir = dirname(output)
-  const handlerPath = baseDir === '.' ? 'routes' : `${baseDir}/routes`
-  const existingResult = await scanExistingHandlerFiles(handlerPath, (code) =>
-    collectExportedNames(code, 'Route'),
-  )
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const existing = existingResult.value
-  const specHandlers = defineEntries(openapi, readonly).reduce<
-    ReadonlyMap<
-      string,
-      {
-        readonly fileName: `${string}.ts`
-        readonly testFileName: `${string}.ts`
-        readonly contents: readonly string[]
-        readonly routeNames: readonly string[]
-      }
-    >
-  >((acc, entry) => {
-    const fileName = resolveHandlerFileName(
-      makeHandlerFileName(entry.path, entry.tags),
-      `${entry.name}Route`,
-      existing,
+  return Effect.gen(function* () {
+    const baseDir = dirname(output)
+    const handlerPath = baseDir === '.' ? 'routes' : `${baseDir}/routes`
+    const existing = yield* scanExistingHandlerFiles(handlerPath, (code) =>
+      collectExportedNames(code, 'Route'),
     )
-    const prev = acc.get(fileName)
-    return new Map(acc).set(fileName, {
-      fileName,
-      testFileName: makeTestFileName(fileName),
-      contents: [...(prev?.contents ?? []), entry.code],
-      routeNames: [...(prev?.routeNames ?? []), `${entry.name}Route`],
-    })
-  }, new Map())
-  const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
-  const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
-  // The alias maps to the app entry's directory; resolve the components module relative to it
-  // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
-  const componentsModulePath = componentsOutput.endsWith('/index.ts')
-    ? dirname(componentsOutput)
-    : componentsOutput.replace(/\.ts$/, '')
-  const componentsImport = aliasPrefix
-    ? `${aliasPrefix}/${relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
-    : undefined
-  const componentsMap = Object.fromEntries(
-    (
-      [
-        'schemas',
-        'responses',
-        'parameters',
-        'examples',
-        'requestBodies',
-        'headers',
-        'securitySchemes',
-        'links',
-        'callbacks',
-        'pathItems',
-        'mediaTypes',
-      ] as const
-    ).map((kind) => [
-      kind,
-      { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
-    ]),
-  )
-  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
-  const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  const handlerList = [
-    ...specHandlers.values(),
-    ...makeOrphanHandlers(existing, [...specHandlers.keys()]),
-  ]
-  const results = await Promise.all([
-    ...handlerList.map(async (handler) => {
-      const filePath = `${handlerPath}/${handler.fileName}`
-      const chain = handler.contents.join('\n\n')
-      const fileContent = makeImports(chain, filePath, componentsMap, false, ['defineOpenAPIRoute'])
-      const fmtResult = await fmt(fileContent)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(filePath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const merged =
-        existingResult.value !== null
-          ? mergeDefineFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const finalFmtResult = await fmt(merged)
-      const content = finalFmtResult.ok ? finalFmtResult.value : merged
-      const writeResult = await writeFile(filePath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (handlerTestContext && handler.routeNames.length > 0) {
-        const testContent = makeHandlerTestCode(
-          openapi,
-          `${handlerPath}/${handler.fileName}`,
-          [...handler.routeNames],
-          testImportFrom,
-          basePath,
-          testFramework,
-          handlerTestContext,
-        )
-        if (testContent) {
-          const testFmtResult = await fmt(testContent)
-          const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testFilePath = `${handlerPath}/${handler.testFileName}`
-          const existingTestResult = await readFile(testFilePath)
-          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
-          const mergedTestCode =
-            existingTestResult.value !== null
-              ? mergeTestFile(existingTestResult.value, testCode)
-              : testCode
-          const finalTestFmt = await fmt(mergedTestCode)
-          const finalTestCode = finalTestFmt.ok ? finalTestFmt.value : mergedTestCode
-          const testWriteResult = await writeFile(testFilePath, finalTestCode)
-          if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
+    const specHandlers = defineEntries(openapi, readonly).reduce<
+      ReadonlyMap<
+        string,
+        {
+          readonly fileName: `${string}.ts`
+          readonly testFileName: `${string}.ts`
+          readonly contents: readonly string[]
+          readonly routeNames: readonly string[]
         }
-      }
-      return { ok: true, value: undefined } as const
-    }),
-    (async () => {
-      const fmtResult = await fmt(makeBarrelContent(handlerList.map((h) => h.fileName)))
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const barrelPath = `${handlerPath}/index.ts`
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(barrelPath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const content =
-        existingResult.value !== null
-          ? mergeBarrelFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const writeResult = await writeFile(barrelPath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      return { ok: true, value: undefined } as const
-    })(),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return { ok: true, value: undefined } as const
+      >
+    >((acc, entry) => {
+      const fileName = resolveHandlerFileName(
+        makeHandlerFileName(entry.path, entry.tags),
+        `${entry.name}Route`,
+        existing,
+      )
+      const prev = acc.get(fileName)
+      return new Map(acc).set(fileName, {
+        fileName,
+        testFileName: makeTestFileName(fileName),
+        contents: [...(prev?.contents ?? []), entry.code],
+        routeNames: [...(prev?.routeNames ?? []), `${entry.name}Route`],
+      })
+    }, new Map())
+    const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+    const testImportFrom = aliasPrefix ?? makeModuleSpec(`${handlerPath}/handler.ts`, { output })
+    // The alias maps to the app entry's directory; resolve the components module relative to it
+    // so nested component dirs keep their path (e.g. `src/api/components` → `@/api/components`).
+    const componentsModulePath = componentsOutput.endsWith('/index.ts')
+      ? dirname(componentsOutput)
+      : componentsOutput.replace(/\.ts$/u, '')
+    const componentsImport = aliasPrefix
+      ? `${aliasPrefix}/${relative(baseDir, componentsModulePath).replaceAll('\\', '/')}`
+      : undefined
+    const componentsMap = Object.fromEntries(
+      (
+        [
+          'schemas',
+          'responses',
+          'parameters',
+          'examples',
+          'requestBodies',
+          'headers',
+          'securitySchemes',
+          'links',
+          'callbacks',
+          'pathItems',
+          'mediaTypes',
+        ] as const
+      ).map((kind) => [
+        kind,
+        { output: componentsOutput, ...(componentsImport ? { import: componentsImport } : {}) },
+      ]),
+    )
+    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    yield* mkdir(handlerPath)
+    const handlerList = [
+      ...specHandlers.values(),
+      ...makeOrphanHandlers(existing, [...specHandlers.keys()]),
+    ]
+    yield* Effect.all(
+      [
+        ...handlerList.map((handler) =>
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: makeImports(
+              handler.contents.join('\n\n'),
+              `${handlerPath}/${handler.fileName}`,
+              componentsMap,
+              false,
+              ['defineOpenAPIRoute'],
+            ),
+            merge: mergeDefineFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
+          }),
+        ),
+        writeBarrel(
+          handlerPath,
+          handlerList.map((h) => h.fileName),
+        ),
+      ],
+      { concurrency: 'unbounded' },
+    )
+  })
 }
 
 /**
  * Generates mock handler files with faker.js responses for a Hono app.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The output directory or file path for generated handlers.
- * @param test - Whether to generate corresponding test files.
- * @param pathAlias - Optional path alias prefix for import paths.
- * @returns A `Result` indicating success or error with message.
  */
-export async function mockZodOpenAPIHonoHandler(
+export function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
   test: boolean,
@@ -826,103 +817,60 @@ export async function mockZodOpenAPIHonoHandler(
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
-  const paths = openapi.paths
-  const schemas = openapi.components?.schemas ?? {}
-  const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
-  const existingResult = await scanExistingHandlerFiles(
-    handlerPath,
-    routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
-  )
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const existing = existingResult.value
-  const specHandlers = makeMergedHandlers(
-    Object.entries(paths).flatMap(([path, pathItem]) =>
-      Object.entries(pathItem)
-        .filter(
-          (entry): entry is [string, Operation] => isHttpMethod(entry[0]) && isOperation(entry[1]),
-        )
-        .map(([method, operation]) =>
-          routeHandler
-            ? makeMockHandlerInfo(path, method, operation, schemas, existing)
-            : makeInlineMockHandlerInfo(path, method, operation, schemas, existing),
+  return Effect.gen(function* () {
+    const paths = openapi.paths
+    const schemas = openapi.components?.schemas ?? {}
+    const { handlerPath, importFrom, testImportFrom } = makePaths(output, pathAlias, routeImport)
+    const existing = yield* scanExistingHandlerFiles(
+      handlerPath,
+      routeHandler ? (code) => collectExportedNames(code, 'RouteHandler') : collectInlineRouteNames,
+    )
+    const specHandlers = makeMergedHandlers(
+      Object.entries(paths).flatMap(([path, pathItem]) =>
+        Object.entries(pathItem)
+          .filter(
+            (entry): entry is [string, Operation] =>
+              isHttpMethod(entry[0]) && isOperation(entry[1]),
+          )
+          .map(([method, operation]) =>
+            routeHandler
+              ? makeMockHandlerInfo(path, method, operation, schemas, existing)
+              : makeInlineMockHandlerInfo(path, method, operation, schemas, existing),
+          ),
+      ),
+    )
+    const handlers = [
+      ...specHandlers,
+      ...makeOrphanHandlers(
+        existing,
+        specHandlers.map((h) => h.fileName),
+      ),
+    ]
+    const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
+    yield* mkdir(handlerPath)
+    yield* Effect.all(
+      [
+        ...handlers.map((handler) =>
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: routeHandler
+              ? makeMockFileContent(handler, importFrom, schemas)
+              : makeInlineMockFileContent(handler, importFrom, schemas),
+            merge: mergeHandlerFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
+          }),
         ),
-    ),
-  )
-  const handlers = [
-    ...specHandlers,
-    ...makeOrphanHandlers(
-      existing,
-      specHandlers.map((h) => h.fileName),
-    ),
-  ]
-  const handlerTestContext = test ? makeHandlerTestContext(openapi) : undefined
-  const mkdirResult = await mkdir(handlerPath)
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  const results = await Promise.all([
-    ...handlers.map(async (handler) => {
-      const fileContent = routeHandler
-        ? makeMockFileContent(handler, importFrom, schemas)
-        : makeInlineMockFileContent(handler, importFrom, schemas)
-      const fmtResult = await fmt(fileContent)
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const filePath = `${handlerPath}/${handler.fileName}`
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(filePath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const merged =
-        existingResult.value !== null
-          ? mergeHandlerFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const finalFmtResult = await fmt(merged)
-      const content = finalFmtResult.ok ? finalFmtResult.value : merged
-      const writeResult = await writeFile(filePath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      if (handlerTestContext && handler.routeNames.length > 0) {
-        const testContent = makeHandlerTestCode(
-          openapi,
-          `${handlerPath}/${handler.fileName}`,
-          [...handler.routeNames],
-          testImportFrom,
-          basePath,
-          testFramework,
-          handlerTestContext,
-        )
-        if (testContent) {
-          const testFmtResult = await fmt(testContent)
-          const testCode = testFmtResult.ok ? testFmtResult.value : testContent
-          const testFilePath = `${handlerPath}/${handler.testFileName}`
-          const existingTestResult = await readFile(testFilePath)
-          if (!existingTestResult.ok) return { ok: false, error: existingTestResult.error } as const
-          const mergedTestCode =
-            existingTestResult.value !== null
-              ? mergeTestFile(existingTestResult.value, testCode)
-              : testCode
-          // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-          const finalFmtResult = await fmt(mergedTestCode)
-          const finalTestCode = finalFmtResult.ok ? finalFmtResult.value : mergedTestCode
-          const testWriteResult = await writeFile(testFilePath, finalTestCode)
-          if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
-        }
-      }
-      return { ok: true, value: undefined } as const
-    }),
-    (async () => {
-      const fmtResult = await fmt(makeBarrelContent(handlers.map((h) => h.fileName)))
-      if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const barrelPath = `${handlerPath}/index.ts`
-      // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-      const existingResult = await readFile(barrelPath)
-      if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-      const content =
-        existingResult.value !== null
-          ? mergeBarrelFile(existingResult.value, fmtResult.value)
-          : fmtResult.value
-      const writeResult = await writeFile(barrelPath, content)
-      if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-      return { ok: true, value: undefined } as const
-    })(),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return { ok: true, value: undefined } as const
+        writeBarrel(
+          handlerPath,
+          handlers.map((h) => h.fileName),
+        ),
+      ],
+      { concurrency: 'unbounded' },
+    )
+  })
 }

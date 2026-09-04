@@ -167,7 +167,7 @@ function isLazySchema(statement: ts.Statement) {
   const declaration = statement.declarationList.declarations[0]
   if (!declaration?.initializer) return false
   const initText = declaration.initializer.getText()
-  return /^z\.lazy\s*\(/.test(initText)
+  return /^z\.lazy\s*\(/u.test(initText)
 }
 
 function getStatementReferences(

@@ -12,11 +12,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Converts OpenAPI schemas to Zod schemas with OpenAPI registration,
  * handling circular references and type definitions.
  *
- * @param components - The OpenAPI components object.
- * @param exportSchemas - Whether to export the Zod schema constants.
- * @param exportSchemasTypes - Whether to export the inferred Zod types.
- * @param readonly - Whether to add `.readonly()` modifier to schemas.
- * @returns A string of TypeScript code with schema definitions.
  *
  * @example
  * ```ts

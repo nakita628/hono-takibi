@@ -3,9 +3,12 @@ import fsp from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 
-import type { FormatConfig } from 'oxfmt'
+import type { FileSystem } from 'effect'
+import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
+import * as FormatModule from '../format/index.js'
+import * as OpenAPIModule from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'
 
 type ViteDevServer = {
@@ -38,7 +41,7 @@ const createDeferred = <T = void>() => {
   return { promise, resolve: deferredBox.resolve, reject: deferredBox.reject }
 }
 
-const fileExists = async (filePath: string) => !!(await fsp.stat(filePath).catch(() => null))
+const fileExists = async (filePath: string) => Boolean(await fsp.stat(filePath).catch(() => null))
 
 const createMockViteDevServer = (configuration: unknown) => {
   const reloadedDeferred = createDeferred()
@@ -68,131 +71,106 @@ const createMockViteDevServer = (configuration: unknown) => {
 }
 
 vi.mock('../core/index.js', () => ({
-  callbacks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'callbacks' }),
+  callbacks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('callbacks')),
+  docs: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('docs')),
+  examples: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('examples')),
+  headers: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('headers')),
+  links: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('links')),
+  mediaTypes: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('mediaTypes')),
+  mock: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('mock')),
+  parameters: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('parameters')),
+  pathItems: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('pathItems')),
+  requestBodies: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('requestBodies')),
+  responses: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('responses')),
+  schemas: vi.fn<(schemas: unknown, outputDir: string, split: boolean) => Effect.Effect<string>>(
+    (_schemas: unknown, outputDir: string, split: boolean) =>
+      Effect.promise(async () => {
+        if (split) {
+          await fsp.mkdir(outputDir, { recursive: true })
+          await fsp.writeFile(path.join(outputDir, 'Pet.ts'), '// Pet', 'utf8')
+          await fsp.writeFile(path.join(outputDir, 'User.ts'), '// User', 'utf8')
+          await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+        }
+        return 'schemas'
+      }),
   ),
-  docs: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'docs' }),
-  ),
-  examples: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'examples' }),
-  ),
-  headers: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'headers' }),
-  ),
-  links: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'links' }),
-  ),
-  mediaTypes: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'mediaTypes' }),
-  ),
-  mock: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'mock' }),
-  ),
-  parameters: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'parameters' }),
-  ),
-  pathItems: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'pathItems' }),
-  ),
-  requestBodies: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'requestBodies' }),
-  ),
-  responses: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'responses' }),
-  ),
-  schemas: vi.fn<
-    (schemas: unknown, outputDir: string, split: boolean) => Promise<{ ok: true; value: string }>
-  >(async (_schemas: unknown, outputDir: string, split: boolean) => {
-    if (split) {
-      await fsp.mkdir(outputDir, { recursive: true })
-      await fsp.writeFile(path.join(outputDir, 'Pet.ts'), '// Pet', 'utf8')
-      await fsp.writeFile(path.join(outputDir, 'User.ts'), '// User', 'utf8')
-      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
-    }
-    return { ok: true, value: 'schemas' }
-  }),
-  hooks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'hooks' }),
-  ),
-  securitySchemes: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'securitySchemes' }),
-  ),
+  hooks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('hooks')),
+  securitySchemes: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('securitySchemes')),
   route: vi.fn<
-    (
-      openAPI: unknown,
-      config: { output: string; split: boolean },
-    ) => Promise<{ ok: true; value: string }>
-  >(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
-    if (config.split) {
-      await fsp.mkdir(config.output, { recursive: true })
-      await fsp.writeFile(path.join(config.output, 'getPets.ts'), '// getPets', 'utf8')
-      await fsp.writeFile(path.join(config.output, 'postUsers.ts'), '// postUsers', 'utf8')
-      await fsp.writeFile(path.join(config.output, 'index.ts'), '// index', 'utf8')
-    }
-    return { ok: true, value: 'route' }
-  }),
+    (openAPI: unknown, config: { output: string; split: boolean }) => Effect.Effect<string>
+  >((_openAPI: unknown, config: { output: string; split: boolean }) =>
+    Effect.promise(async () => {
+      if (config.split) {
+        await fsp.mkdir(config.output, { recursive: true })
+        await fsp.writeFile(path.join(config.output, 'getPets.ts'), '// getPets', 'utf8')
+        await fsp.writeFile(path.join(config.output, 'postUsers.ts'), '// postUsers', 'utf8')
+        await fsp.writeFile(path.join(config.output, 'index.ts'), '// index', 'utf8')
+      }
+      return 'route'
+    }),
+  ),
   rpc: vi.fn<
     (
       openAPI: unknown,
       outputDir: string,
       importPath: string,
       split: boolean,
-    ) => Promise<{ ok: true; value: string }>
-  >(async (_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) => {
-    if (split) {
-      await fsp.mkdir(outputDir, { recursive: true })
-      await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
-      await fsp.writeFile(path.join(outputDir, 'postUsers.ts'), '// postUsers', 'utf8')
-      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
-    }
-    return { ok: true, value: 'rpc' }
-  }),
-  // Writes through the real fsp writeFile with the received document embedded,
+    ) => Effect.Effect<string>
+  >((_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) =>
+    Effect.promise(async () => {
+      if (split) {
+        await fsp.mkdir(outputDir, { recursive: true })
+        await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
+        await fsp.writeFile(path.join(outputDir, 'postUsers.ts'), '// postUsers', 'utf8')
+        await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+      }
+      return 'rpc'
+    }),
+  ),
+  // Writes through the real file writeFile with the received document embedded,
   // so an identical document produces byte-identical output and no rewrite.
-  takibi: vi.fn<(openAPI: unknown, output: string) => Promise<{ ok: true; value: string }>>(
-    async (openAPI: unknown, output: string) => {
-      const { writeFile } = await import('../fsp/index.js')
-      await fsp.mkdir(path.dirname(output), { recursive: true })
-      await writeFile(output, `// ${JSON.stringify(openAPI)}`)
-      return { ok: true, value: 'takibi' }
-    },
+  takibi: vi.fn<
+    (openAPI: unknown, output: string) => Effect.Effect<string, never, FileSystem.FileSystem>
+  >((openAPI: unknown, output: string) =>
+    Effect.gen(function* () {
+      const { writeFile } = yield* Effect.promise(() => import('../file/index.js'))
+      yield* Effect.promise(() => fsp.mkdir(path.dirname(output), { recursive: true }))
+      yield* writeFile(output, `// ${JSON.stringify(openAPI)}`).pipe(Effect.orDie)
+      return 'takibi'
+    }),
   ),
-  template: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'template' }),
-  ),
-  test: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'test' }),
-  ),
-  type: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'type' }),
-  ),
-  webhooks: vi.fn<() => Promise<{ ok: true; value: string }>>(() =>
-    Promise.resolve({ ok: true, value: 'webhooks' }),
-  ),
+  template: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('template')),
+  test: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('test')),
+  type: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('type')),
+  webhooks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('webhooks')),
 }))
 
-vi.mock('../openapi/index.js', () => ({
-  parseOpenAPI: vi.fn<() => Promise<{ ok: true; value: unknown }>>(() =>
-    Promise.resolve({
-      ok: true,
-      value: {
+vi.mock('../openapi/index.js', async () => {
+  const actual = await vi.importActual<typeof OpenAPIModule>('../openapi/index.js')
+  return {
+    OpenAPIError: actual.OpenAPIError,
+    parseOpenAPI: vi.fn<() => Effect.Effect<unknown>>(() =>
+      Effect.succeed({
         paths: {
           '/pets': { get: { responses: {} } },
           '/users': { post: { responses: {} } },
         },
         components: { schemas: { Pet: {}, User: {} } },
-      },
-    }),
-  ),
-}))
+      }),
+    ),
+  }
+})
 
-vi.mock('../format/index.js', () => ({
-  fmt: vi.fn<(source: string) => Promise<{ ok: true; value: string }>>((source: string) =>
-    Promise.resolve({ ok: true, value: source }),
-  ),
-  setFormatOptions: vi.fn<(config: FormatConfig) => void>(),
-}))
+vi.mock('../format/index.js', async () => {
+  const actual = await vi.importActual<typeof FormatModule>('../format/index.js')
+  return {
+    FormatError: actual.FormatError,
+    FormatOptions: actual.FormatOptions,
+    fmt: vi.fn<(source: string) => Effect.Effect<string>>((source: string) =>
+      Effect.succeed(source),
+    ),
+  }
+})
 const { route: routeMock } = await import('../core/index.js')
 
 const testState: { previousWorkingDirectory: string; sandboxDirectory: string } = {
@@ -441,9 +419,10 @@ describe('honoTakibiVite', () => {
 
     await changePlugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server: changeServer })
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
+    // Debounced, so the cleanup lands after the hook returns rather than during it.
+    await vi.waitFor(() => {
+      expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
+    })
   })
 
   it('watcher.add is called during configureServer', async () => {
@@ -661,7 +640,10 @@ describe('honoTakibiVite', () => {
     const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
     if (watcherCallback) await watcherCallback('change', configPath)
 
-    expect(logSpy).toHaveBeenCalledWith('config changed (watch)')
+    // Debounced, so the handler has not run at the moment the callback returns.
+    await vi.waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith('config changed')
+    })
     logSpy.mockRestore()
   })
 
@@ -670,7 +652,7 @@ describe('honoTakibiVite', () => {
   it('logs error and does not send full-reload when parseOpenAPI fails', async () => {
     const { parseOpenAPI } = await import('../openapi/index.js')
     vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
-      Promise.resolve({ ok: false, error: 'parse failure' }),
+      Effect.fail(new OpenAPIModule.OpenAPIError({ message: 'parse failure' })),
     )
 
     const configuration = {
@@ -796,8 +778,9 @@ describe('honoTakibiVite', () => {
 
   it('logs error when a generator returns failure result', async () => {
     const core = await import('../core/index.js')
+    // Any error in `takibi`'s channel will do; the plugin only reads `.message`.
     vi.mocked(core.takibi).mockImplementationOnce(() =>
-      Promise.resolve({ ok: false as const, error: 'takibi internal failure' }),
+      Effect.fail(new FormatModule.FormatError({ message: 'takibi internal failure' })),
     )
     const configuration = {
       input: 'openapi.yaml',
@@ -830,9 +813,10 @@ describe('honoTakibiVite', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
-    await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    })
     errorSpy.mockRestore()
   })
 
@@ -1022,10 +1006,11 @@ describe('honoTakibiVite', () => {
       return Promise.resolve({ default: configuration })
     }
     const gate = createDeferred()
-    vi.mocked(routeMock).mockImplementationOnce(async () => {
-      await gate.promise
-      return { ok: true, value: 'Generated route code written to out/route' } as const
-    })
+    vi.mocked(routeMock).mockImplementationOnce(() =>
+      Effect.promise(() => gate.promise).pipe(
+        Effect.as('Generated route code written to out/route'),
+      ),
+    )
 
     const callsAfterInitialRun = vi.mocked(routeMock).mock.calls.length
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0\ninfo:\n  title: changed', 'utf8')

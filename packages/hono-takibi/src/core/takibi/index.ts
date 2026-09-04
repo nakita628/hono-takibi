@@ -1,10 +1,12 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../../emit/index.js'
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
-export async function takibi(
+export function takibi(
   openAPI: OpenAPI,
   output: `${string}.ts`,
   componentsOptions: {
@@ -26,18 +28,8 @@ export async function takibi(
     readonly exportMediaTypesTypes: boolean
   },
 ) {
-  try {
-    const emitResult = await emit(
-      zodOpenAPIHono(openAPI, componentsOptions),
-      path.dirname(output),
-      output,
-    )
-    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
-    return {
-      ok: true,
-      value: `🔥 Generated code written to ${output}`,
-    } as const
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
-  }
+  return Effect.gen(function* () {
+    yield* emit(zodOpenAPIHono(openAPI, componentsOptions), path.dirname(output), output)
+    return `🔥 Generated code written to ${output}`
+  })
 }

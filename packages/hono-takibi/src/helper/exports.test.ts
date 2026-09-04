@@ -2,6 +2,7 @@ import fs from 'node:fs'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../testing/index.js'
 import { makeExports } from './exports.js'
 
 describe('makeExports', () => {
@@ -16,21 +17,20 @@ describe('makeExports', () => {
   })
 
   it('should generate Schema exports', async () => {
-    const result = await makeExports(
-      {
-        User: { type: 'object', properties: { id: { type: 'integer' } } },
-        Post: { type: 'object', properties: { title: { type: 'string' } } },
-      },
-      'Schema',
-      `${testDir}/schemas`,
+    const result = await runGenerator(
+      makeExports(
+        {
+          User: { type: 'object', properties: { id: { type: 'integer' } } },
+          Post: { type: 'object', properties: { title: { type: 'string' } } },
+        },
+        'Schema',
+        `${testDir}/schemas`,
+      ),
     )
 
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(
-        'Generated Schema code written to test-exports/schemas/*.ts (index.ts included)',
-      )
-    }
+    expect(result).toBe(
+      'Generated Schema code written to test-exports/schemas/*.ts (index.ts included)',
+    )
 
     expect(fs.existsSync(`${testDir}/schemas/user.ts`)).toBe(true)
     expect(fs.existsSync(`${testDir}/schemas/post.ts`)).toBe(true)
@@ -43,49 +43,51 @@ export * from './user'
   })
 
   it('should generate Example exports', async () => {
-    const result = await makeExports(
-      {
-        UserExample: { value: { id: 1, name: 'John' } },
-      },
-      'Example',
-      `${testDir}/examples`,
+    await runGenerator(
+      makeExports(
+        {
+          UserExample: { value: { id: 1, name: 'John' } },
+        },
+        'Example',
+        `${testDir}/examples`,
+      ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/examples/userExample.ts`)).toBe(true)
     expect(fs.existsSync(`${testDir}/examples/index.ts`)).toBe(true)
   })
 
   it('should generate Link exports', async () => {
-    const result = await makeExports(
-      {
-        GetUserById: { operationId: 'getUserById' },
-      },
-      'Link',
-      `${testDir}/links`,
+    await runGenerator(
+      makeExports(
+        {
+          GetUserById: { operationId: 'getUserById' },
+        },
+        'Link',
+        `${testDir}/links`,
+      ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/links/getUserById.ts`)).toBe(true)
   })
 
   it('should generate Callback exports', async () => {
-    const result = await makeExports(
-      {
-        OnEvent: { '{$request.body#/callbackUrl}': { post: {} } },
-      },
-      'Callback',
-      `${testDir}/callbacks`,
+    await runGenerator(
+      makeExports(
+        {
+          OnEvent: { '{$request.body#/callbackUrl}': { post: {} } },
+        },
+        'Callback',
+        `${testDir}/callbacks`,
+      ),
     )
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/callbacks/onEvent.ts`)).toBe(true)
   })
 
   it('should handle empty value object', async () => {
-    const result = await makeExports({}, 'Schema', `${testDir}/empty`)
+    await runGenerator(makeExports({}, 'Schema', `${testDir}/empty`))
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/empty/index.ts`)).toBe(true)
 
     const indexContent = fs.readFileSync(`${testDir}/empty/index.ts`, 'utf-8')
@@ -93,17 +95,17 @@ export * from './user'
   })
 
   it('should sort exports alphabetically in index file', async () => {
-    const result = await makeExports(
-      {
-        Zebra: {},
-        Apple: {},
-        Mango: {},
-      },
-      'Schema',
-      `${testDir}/sorted`,
+    await runGenerator(
+      makeExports(
+        {
+          Zebra: {},
+          Apple: {},
+          Mango: {},
+        },
+        'Schema',
+        `${testDir}/sorted`,
+      ),
     )
-
-    expect(result.ok).toBe(true)
 
     const indexContent = fs.readFileSync(`${testDir}/sorted/index.ts`, 'utf-8')
     expect(indexContent).toBe(`export * from './apple'
@@ -113,19 +115,20 @@ export * from './zebra'
   })
 
   it('should strip .ts extension from output path', async () => {
-    const result = await makeExports({ Test: {} }, 'Schema', `${testDir}/schemas.ts`)
+    await runGenerator(makeExports({ Test: {} }, 'Schema', `${testDir}/schemas.ts`))
 
-    expect(result.ok).toBe(true)
     expect(fs.existsSync(`${testDir}/schemas/test.ts`)).toBe(true)
   })
 
   it('should generate correct file content for Schema suffix', async () => {
-    await makeExports(
-      {
-        User: { type: 'object', properties: { id: { type: 'integer' } } },
-      },
-      'Schema',
-      `${testDir}/schemas`,
+    await runGenerator(
+      makeExports(
+        {
+          User: { type: 'object', properties: { id: { type: 'integer' } } },
+        },
+        'Schema',
+        `${testDir}/schemas`,
+      ),
     )
 
     const content = fs.readFileSync(`${testDir}/schemas/user.ts`, 'utf-8')
@@ -136,12 +139,14 @@ export * from './zebra'
   })
 
   it('should generate correct file content for Example suffix', async () => {
-    await makeExports(
-      {
-        Pet: { value: { name: 'Fido', type: 'dog' } },
-      },
-      'Example',
-      `${testDir}/examples`,
+    await runGenerator(
+      makeExports(
+        {
+          Pet: { value: { name: 'Fido', type: 'dog' } },
+        },
+        'Example',
+        `${testDir}/examples`,
+      ),
     )
 
     const content = fs.readFileSync(`${testDir}/examples/pet.ts`, 'utf-8')
@@ -149,13 +154,15 @@ export * from './zebra'
   })
 
   it('should generate correct file content with as const for readonly', async () => {
-    await makeExports(
-      {
-        Config: { timeout: 3000, retries: 3 },
-      },
-      'Example',
-      `${testDir}/examples`,
-      true,
+    await runGenerator(
+      makeExports(
+        {
+          Config: { timeout: 3000, retries: 3 },
+        },
+        'Example',
+        `${testDir}/examples`,
+        true,
+      ),
     )
 
     const content = fs.readFileSync(`${testDir}/examples/config.ts`, 'utf-8')
@@ -163,13 +170,15 @@ export * from './zebra'
   })
 
   it('should generate correct file content without as const when readonly is false', async () => {
-    await makeExports(
-      {
-        Item: { id: 1 },
-      },
-      'Response',
-      `${testDir}/responses`,
-      false,
+    await runGenerator(
+      makeExports(
+        {
+          Item: { id: 1 },
+        },
+        'Response',
+        `${testDir}/responses`,
+        false,
+      ),
     )
 
     const content = fs.readFileSync(`${testDir}/responses/item.ts`, 'utf-8')
@@ -192,26 +201,23 @@ export * from './zebra'
     const results = await Promise.all(
       suffixes.map(async (suffix) => {
         const dir = `${testDir}/${suffix.toLowerCase()}`
-        return { suffix, dir, result: await makeExports({ Test: {} }, suffix, dir) }
+        return { suffix, dir, result: await runGenerator(makeExports({ Test: {} }, suffix, dir)) }
       }),
     )
     for (const { suffix, dir, result } of results) {
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(
-          `Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`,
-        )
-      }
+      expect(result).toBe(`Generated ${suffix} code written to ${dir}/*.ts (index.ts included)`)
     }
   })
 
   it('should handle kebab-case key names correctly', async () => {
-    await makeExports(
-      {
-        'user-profile': { name: 'test' },
-      },
-      'Schema',
-      `${testDir}/schemas`,
+    await runGenerator(
+      makeExports(
+        {
+          'user-profile': { name: 'test' },
+        },
+        'Schema',
+        `${testDir}/schemas`,
+      ),
     )
 
     expect(fs.existsSync(`${testDir}/schemas/user-profile.ts`)).toBe(true)
@@ -220,12 +226,14 @@ export * from './zebra'
   })
 
   it('should handle null value in component object', async () => {
-    await makeExports(
-      {
-        Empty: null,
-      },
-      'Schema',
-      `${testDir}/schemas`,
+    await runGenerator(
+      makeExports(
+        {
+          Empty: null,
+        },
+        'Schema',
+        `${testDir}/schemas`,
+      ),
     )
 
     const content = fs.readFileSync(`${testDir}/schemas/empty.ts`, 'utf-8')
@@ -233,13 +241,15 @@ export * from './zebra'
   })
 
   it('should generate correct index for multiple files with various suffixes', async () => {
-    await makeExports(
-      {
-        Bearer: { type: 'http', scheme: 'bearer' },
-        ApiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
-      },
-      'SecurityScheme',
-      `${testDir}/security`,
+    await runGenerator(
+      makeExports(
+        {
+          Bearer: { type: 'http', scheme: 'bearer' },
+          ApiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header' },
+        },
+        'SecurityScheme',
+        `${testDir}/security`,
+      ),
     )
 
     const indexContent = fs.readFileSync(`${testDir}/security/index.ts`, 'utf-8')

@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { fmt } from '../../../format/index.js'
 import type { Schema } from '../../../openapi/index.js'
+import { runGenerator } from '../../../testing/index.js'
 import { string } from './string.js'
 
 describe('string', () => {
@@ -740,12 +741,12 @@ describe('string', () => {
             const s =
               typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
             return JSON.parse(s)
-          } catch (e) {
+          } catch (error) {
             // codegen emits message="M" alongside params.cause
             ctx.addIssue({
               code: 'custom',
               message: 'M',
-              params: { cause: e instanceof Error ? e.message : String(e) },
+              params: { cause: error instanceof Error ? error.message : String(error) },
             })
             return z.NEVER
           }
@@ -818,8 +819,7 @@ describe('string', () => {
       [{ type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' }],
       [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }],
     ])('fmt(string(%o)) is ok', async (input) => {
-      const result = await fmt(`export const X = ${string(input)}`)
-      expect(result.ok).toBe(true)
+      await expect(runGenerator(fmt(`export const X = ${string(input)}`))).resolves.toBeDefined()
     })
   })
 })

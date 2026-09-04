@@ -13,11 +13,13 @@
 - RPC client, mock server, TypeScript types
 - API reference docs with [hono-cli](https://github.com/honojs/cli) commands
 
+## Quick Start
+
+### Installation
+
 ```bash
 npm install -D hono-takibi
 ```
-
-## Quick Start
 
 ### CLI
 
@@ -41,6 +43,65 @@ export default defineConfig({
 ```bash
 npx hono-takibi
 ```
+
+### CLI Reference
+
+`hono-takibi --help`:
+
+```
+DESCRIPTION
+  Generate @hono/zod-openapi code from OpenAPI or TypeSpec
+
+USAGE
+  hono-takibi [flags] [<input>]
+
+ARGUMENTS
+  input input.{yaml,json,tsp} OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from (optional)
+
+FLAGS
+  --output, -o output.ts    TypeScript file the generated routes are written to
+  --config, -c file         Config file to run (default: ./hono-takibi.config.ts)
+  --watch, -w               Rerun the config on every change to its documents or itself
+
+GLOBAL FLAGS
+  --help, -h                                                          Show help information
+  --version, -v                                                       Show version information
+  --wizard                                                            Start wizard mode for a command
+  --completions <bash|zsh|fish|sh>                                    Print shell completion script (choices: bash, zsh, fish, sh)
+  --log-level <all|trace|debug|info|warn|warning|error|fatal|none>    Sets the minimum log level (choices: all, trace, debug, info, warn, warning, error, fatal, none)
+
+EXAMPLES
+  # Generate a single routes file
+  hono-takibi openapi.yaml -o src/routes.ts
+
+  # Run every generator declared in ./hono-takibi.config.ts
+  hono-takibi
+
+  # Run a config file from another location
+  hono-takibi --config config/api.config.ts
+
+  # Rerun on every change to the input documents or the config
+  hono-takibi --watch
+```
+
+With an `<input>` the CLI writes a single routes file, and `-o` is required. With no
+`<input>` it runs the config file, which opts in the routes, components, webhooks,
+types, mock, docs, test and tanstack-query generators. Paths inside a config file
+resolve against the current directory, so `--config` names where the config lives, not
+where its outputs land.
+
+### Watch mode
+
+```bash
+npx hono-takibi --watch
+```
+
+Reruns the config on every change to the input documents or to the config itself, and
+keeps watching when a run fails. Pairs with `template`: add an operation and its handler
+stub appears, while the code already written into the existing handlers stays put.
+
+The whole directory holding the input document is watched, so a TypeSpec entry that
+imports its siblings and an external `$ref` both trigger a rerun.
 
 ### Example
 
@@ -307,6 +368,11 @@ export default defineConfig({
 ## Full Config Reference
 
 Some options are mutually exclusive: `output` ↔ `routes`, `template.define` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
+
+Every generator needs its own `output` path, and a `split` directory belongs to the
+generator — its `.ts` files are removed before each run, so keep hand-written code
+elsewhere. `basePath`, `client` and `import` are checked here because they are spliced
+into the generated code verbatim.
 
 ```ts
 import { defineConfig } from 'hono-takibi'

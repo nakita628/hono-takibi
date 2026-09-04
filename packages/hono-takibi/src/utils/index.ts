@@ -1,8 +1,5 @@
 /**
  * Normalize a JSON Schema `type` value into an array of type strings.
- *
- * @param t - JSON Schema `type` as a single value or an array of values.
- * @returns A flat array of type strings.
  */
 export function normalizeTypes(
   t?:
@@ -25,9 +22,6 @@ export function normalizeTypes(
 /**
  * Generates a PascalCase route name from HTTP method and path.
  *
- * @param method - HTTP method (e.g., 'get', 'post').
- * @param path - URL path (e.g., '/users/{id}/posts').
- * @returns A route name string (e.g., 'getUsersIdPostsRoute').
  *
  * @example
  * methodPath('get', '/users/{id}/posts') // 'getUsersIdPosts'
@@ -35,9 +29,9 @@ export function normalizeTypes(
 export function methodPath(method: string, path: string) {
   const hasTrailingSlash = path !== '/' && path.endsWith('/')
   const apiPath = path
-    .replaceAll(/[^A-Za-z0-9]/g, ' ')
+    .replaceAll(/[^A-Za-z0-9]/gu, ' ')
     .trim()
-    .split(/\s+/)
+    .split(/\s+/u)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
     .join('')
   const suffix = hasTrailingSlash ? 'Index' : ''
@@ -46,9 +40,6 @@ export function methodPath(method: string, path: string) {
 
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
- *
- * @param parameters - An object containing `query`, `path`, and `header` parameters.
- * @returns An array of strings like `'query:z.object({...})'` or `'params:z.object({...})'`.
  */
 export function requestParamsArray(parameters: {
   readonly [k: string]: { readonly [k: string]: string }
@@ -80,8 +71,6 @@ export function requestParamsArray(parameters: {
  * Otherwise, wraps it in single quotes with proper escaping for
  * backslashes, single quotes, newlines, carriage returns, and tabs.
  *
- * @param key - The string to convert to a safe key.
- * @returns A safe key string with single quotes if needed.
  *
  * @example
  * ```ts
@@ -94,7 +83,7 @@ export function requestParamsArray(parameters: {
  * ```
  */
 export function makeSafeKey(key: string) {
-  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) return key
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)) return key
   const escaped = key
     .replaceAll('\\', '\\\\')
     .replaceAll("'", "\\'")
@@ -113,8 +102,6 @@ export function makeSafeKey(key: string) {
  * generated literal — an unescaped `/` would close it and let arbitrary code
  * follow. Slashes already escaped (`\/`) are left untouched.
  *
- * @param source - The raw regex body from the schema.
- * @returns The body with every unescaped `/` rewritten as `\/`.
  *
  * @example
  * ```ts
@@ -124,7 +111,7 @@ export function makeSafeKey(key: string) {
  * ```
  */
 export function escapeRegexLiteral(source: string) {
-  return source.replaceAll(/(?<!\\)\//g, '\\/')
+  return source.replaceAll(/(?<!\\)\//gu, '\\/')
 }
 
 /**
@@ -138,8 +125,6 @@ export function escapeRegexLiteral(source: string) {
  * untouched — it needs no escaping in text or double-quoted attributes, and
  * escaping it would needlessly churn output for values like `Bob's API`.
  *
- * @param source - The raw, untrusted spec string.
- * @returns The string with `& < > "` replaced by their HTML entities.
  *
  * @example
  * ```ts
@@ -162,8 +147,6 @@ export function escapeHtml(source: string) {
  * Handles special characters, numbers at the start, and non-ASCII characters
  * by sanitizing and transforming the input.
  *
- * @param text - The string to convert to a PascalCase identifier.
- * @returns A valid PascalCase TypeScript identifier.
  *
  * @example
  * ```ts
@@ -177,13 +160,13 @@ export function toIdentifierPascalCase(text: string) {
   // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
   const hasNonAscii = [...text].some((c) => c.charCodeAt(0) > 127)
   const result = text
-    .replaceAll(/[^A-Za-z0-9_$]/g, '_')
-    .replaceAll(/_+/g, '_')
-    .replaceAll(/^_+|_+$/g, '')
-    .replace(/^([0-9])/, '_$1')
-    .replaceAll(/_+([a-zA-Z])/g, (_: string, c: string) => c.toUpperCase())
-    .replace(/^([a-z])/, (_: string, c: string) => c.toUpperCase())
-  if (!result || /^_+$/.test(result)) {
+    .replaceAll(/[^A-Za-z0-9_$]/gu, '_')
+    .replaceAll(/_+/gu, '_')
+    .replaceAll(/^_+|_+$/gu, '')
+    .replace(/^([0-9])/u, '_$1')
+    .replaceAll(/_+([a-zA-Z])/gu, (_: string, c: string) => c.toUpperCase())
+    .replace(/^([a-z])/u, (_: string, c: string) => c.toUpperCase())
+  if (!result || /^_+$/u.test(result)) {
     // oxlint-disable-next-line typescript/no-misused-spread -- code-point iteration is intended
     const hash = [...text].reduce((acc, c) => acc + c.charCodeAt(0), 0)
     return `Unnamed${String(hash)}`
@@ -224,7 +207,7 @@ export function uncapitalize(text: string) {
  * `Users` → `users`, `APIKeys` → `apiKeys`, `ZodOpenAPIHono` → `zodOpenAPIHono`.
  */
 export function uncapitalizeWord(text: string) {
-  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/, (m) => m.toLowerCase())
+  return text.replace(/^[A-Z]+(?=[A-Z][a-z]|[^A-Za-z]|$)|^[A-Z]/u, (m) => m.toLowerCase())
 }
 
 /**
@@ -248,9 +231,6 @@ export function capitalize(text: string) {
  * the original name already ends with the suffix (e.g., an OpenAPI schema
  * named `UserSchema` must produce the variable `UserSchemaSchema`).
  *
- * @param text - The base string.
- * @param suffix - The suffix to append.
- * @returns The string with the suffix appended.
  *
  * @example
  * ```ts
@@ -266,13 +246,6 @@ export function ensureSuffix(text: string, suffix: string) {
 /**
  * Generates a Zod schema constant and optional inferred type alias.
  *
- * @param schemaName - The base name of the schema (used for variable and type names)
- * @param zodSchema - The Zod schema string to assign
- * @param exportSchema - Whether to `export` the Zod schema constant
- * @param exportType - Whether to `export` the inferred type alias
- * @param notComponentSchema - Whether to skip `.openapi()` suffix (for parameters/headers)
- * @param readonly - Whether to add `.readonly()` modifier to the schema
- * @returns The generated code string containing the schema and optional type alias
  *
  * @example
  * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
@@ -294,7 +267,7 @@ export function zodToOpenAPISchema(
   const schemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
     : (`const ${schemaName}=${zodSchema}${readonlyModifier}` as const)
-  const typeName = schemaName.replace(/Schema$/, '')
+  const typeName = schemaName.replace(/Schema$/u, '')
   const componentSchemaCode = exportSchema
     ? (`export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
     : (`const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${typeName}')` as const)
@@ -308,8 +281,6 @@ export function zodToOpenAPISchema(
 /**
  * Generates a barrel file content with sorted export statements.
  *
- * @param value - An object whose keys represent module names to export.
- * @returns A string containing sorted `export * from './moduleName'` statements.
  *
  * @example
  * ```ts
@@ -328,8 +299,6 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
 /**
  * Formats an error message argument using the Zod v4 unified `error` parameter.
  *
- * @param message - The error message string
- * @returns `{error:"message"}` formatted string
  *
  * @example
  * ```ts
@@ -338,7 +307,7 @@ export function makeBarrel(value: { readonly [k: string]: unknown }) {
  * ```
  */
 export function error(message: string) {
-  if (/^\s*\(.*?\)\s*=>/.test(message)) {
+  if (/^\s*\(.*?\)\s*=>/u.test(message)) {
     return `{error:${message}}` as const
   }
   return `{error:${JSON.stringify(message)}}` as const

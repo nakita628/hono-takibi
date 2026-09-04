@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../openapi/index.js'
+import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { makeQueryHooks } from './query.js'
 
 const defaultConfig = {
@@ -44,67 +45,63 @@ const minimalPostOpenAPI = {
 describe('Query Hook Generation Shared Module', () => {
   describe('makeQueryHooks - error cases', () => {
     it.concurrent('should return error when paths property is missing', async () => {
-      const result = await makeQueryHooks(
-        { openapi: '3.0.0', info: { title: 'Test', version: '1.0.0' } } as unknown as OpenAPI,
-        '/tmp/test.ts',
-        './client',
-        defaultConfig,
+      const result = await runGeneratorError(
+        makeQueryHooks(
+          { openapi: '3.0.0', info: { title: 'Test', version: '1.0.0' } } as unknown as OpenAPI,
+          '/tmp/test.ts',
+          './client',
+          defaultConfig,
+        ),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid OpenAPI paths')
-      }
+      expect(result.message).toBe('Invalid OpenAPI paths')
     })
 
     it.concurrent('should return error when paths is null', async () => {
-      const result = await makeQueryHooks(
-        {
-          openapi: '3.0.0',
-          info: { title: 'Test', version: '1.0.0' },
-          paths: null as unknown as OpenAPI['paths'],
-        },
-        '/tmp/test.ts',
-        './client',
-        defaultConfig,
+      const result = await runGeneratorError(
+        makeQueryHooks(
+          {
+            openapi: '3.0.0',
+            info: { title: 'Test', version: '1.0.0' },
+            paths: null as unknown as OpenAPI['paths'],
+          },
+          '/tmp/test.ts',
+          './client',
+          defaultConfig,
+        ),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid OpenAPI paths')
-      }
+      expect(result.message).toBe('Invalid OpenAPI paths')
     })
 
     it.concurrent('should return error when paths is a string', async () => {
-      const result = await makeQueryHooks(
-        {
-          openapi: '3.0.0',
-          info: { title: 'Test', version: '1.0.0' },
-          paths: 'invalid' as unknown as OpenAPI['paths'],
-        },
-        '/tmp/test.ts',
-        './client',
-        defaultConfig,
+      const result = await runGeneratorError(
+        makeQueryHooks(
+          {
+            openapi: '3.0.0',
+            info: { title: 'Test', version: '1.0.0' },
+            paths: 'invalid' as unknown as OpenAPI['paths'],
+          },
+          '/tmp/test.ts',
+          './client',
+          defaultConfig,
+        ),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid OpenAPI paths')
-      }
+      expect(result.message).toBe('Invalid OpenAPI paths')
     })
 
     it.concurrent('should return error when paths is an array', async () => {
-      const result = await makeQueryHooks(
-        {
-          openapi: '3.0.0',
-          info: { title: 'Test', version: '1.0.0' },
-          paths: [] as unknown as OpenAPI['paths'],
-        },
-        '/tmp/test.ts',
-        './client',
-        defaultConfig,
+      const result = await runGeneratorError(
+        makeQueryHooks(
+          {
+            openapi: '3.0.0',
+            info: { title: 'Test', version: '1.0.0' },
+            paths: [] as unknown as OpenAPI['paths'],
+          },
+          '/tmp/test.ts',
+          './client',
+          defaultConfig,
+        ),
       )
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error).toBe('Invalid OpenAPI paths')
-      }
+      expect(result.message).toBe('Invalid OpenAPI paths')
     })
   })
 
@@ -121,37 +118,28 @@ describe('Query Hook Generation Shared Module', () => {
 
     it('should generate ok: true with correct value message for GET endpoint', async () => {
       const output = `${testDir}/hooks.ts`
-      const result = await makeQueryHooks(minimalGetOpenAPI, output, './client', defaultConfig)
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(`Generated tanstack-query hooks written to ${output}`)
-      }
+      const result = await runGenerator(
+        makeQueryHooks(minimalGetOpenAPI, output, './client', defaultConfig),
+      )
+      expect(result).toBe(`Generated tanstack-query hooks written to ${output}`)
     })
 
     it('should generate ok: true with correct value message for POST endpoint (mutation)', async () => {
       const output = `${testDir}/hooks.ts`
-      const result = await makeQueryHooks(minimalPostOpenAPI, output, './client', defaultConfig)
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(`Generated tanstack-query hooks written to ${output}`)
-      }
+      const result = await runGenerator(
+        makeQueryHooks(minimalPostOpenAPI, output, './client', defaultConfig),
+      )
+      expect(result).toBe(`Generated tanstack-query hooks written to ${output}`)
     })
 
     it('should return split value message with index.ts included', async () => {
       const output = `${testDir}/hooks.ts`
-      const result = await makeQueryHooks(
-        minimalGetOpenAPI,
-        output,
-        './client',
-        defaultConfig,
-        true,
+      const result = await runGenerator(
+        makeQueryHooks(minimalGetOpenAPI, output, './client', defaultConfig, true),
       )
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(
-          `Generated tanstack-query hooks written to ${testDir}/*.ts (index.ts included)`,
-        )
-      }
+      expect(result).toBe(
+        `Generated tanstack-query hooks written to ${testDir}/*.ts (index.ts included)`,
+      )
     })
 
     it('should use custom frameworkName in value message', async () => {
@@ -160,11 +148,10 @@ describe('Query Hook Generation Shared Module', () => {
         ...defaultConfig,
         frameworkName: 'SWR',
       }
-      const result = await makeQueryHooks(minimalGetOpenAPI, output, './client', customConfig)
-      expect(result.ok).toBe(true)
-      if (result.ok) {
-        expect(result.value).toBe(`Generated swr hooks written to ${output}`)
-      }
+      const result = await runGenerator(
+        makeQueryHooks(minimalGetOpenAPI, output, './client', customConfig),
+      )
+      expect(result).toBe(`Generated swr hooks written to ${output}`)
     })
   })
 })

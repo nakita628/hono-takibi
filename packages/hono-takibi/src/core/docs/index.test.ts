@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { docs } from './index.js'
 
 let tmpDir: string
@@ -31,11 +32,8 @@ describe('docs', () => {
         },
       },
     } as OpenAPI
-    const result = await docs(openAPI, output)
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(`Generated docs written to ${output}`)
-    }
+    const result = await runGenerator(docs(openAPI, output))
+    expect(result).toBe(`Generated docs written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.length).toBeGreaterThan(0)
@@ -51,10 +49,7 @@ describe('docs', () => {
       info: { title: 'Test API', version: '1.0.0' },
       paths: {},
     } as OpenAPI
-    const result = await docs(openAPI, output)
-    expect(result).toStrictEqual({
-      ok: false,
-      error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
-    })
+    const result = await runGeneratorError(docs(openAPI, output))
+    expect(result.message).toBe(`AlreadyExists: FileSystem.makeDirectory (${blockingFile})`)
   })
 })

@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { components } from './output.js'
 
 let tmpDir: string
@@ -22,8 +23,8 @@ describe('components', () => {
       info: { title: 't', version: '1' },
       paths: {},
     } as unknown as OpenAPI
-    const result = await components(openAPI, output)
-    expect(result).toStrictEqual({ ok: true, value: 'No components found' })
+    const result = await runGenerator(components(openAPI, output))
+    expect(result).toStrictEqual('No components found')
   })
 
   it('writes all components into a single file', async () => {
@@ -43,11 +44,8 @@ describe('components', () => {
       },
       paths: {},
     } as unknown as OpenAPI
-    const result = await components(openAPI, output)
-    expect(result).toStrictEqual({
-      ok: true,
-      value: `Generated components code written to ${output}`,
-    })
+    const result = await runGenerator(components(openAPI, output))
+    expect(result).toStrictEqual(`Generated components code written to ${output}`)
     const content = fs.readFileSync(output, 'utf-8')
     expect(content).toBe(`import { z } from '@hono/zod-openapi'
 

@@ -739,20 +739,20 @@ export * from './user'
     })
 
     it('should return empty set for a 10000-node linear chain without stack overflow', () => {
-      const chainEntries: [string, string[]][] = Array.from({ length: 10000 }, (_, i) => [
+      const chainEntries: [string, string[]][] = Array.from({ length: 10_000 }, (_, i) => [
         `N${i}`,
-        i + 1 < 10000 ? [`N${i + 1}`] : [],
+        i + 1 < 10_000 ? [`N${i + 1}`] : [],
       ])
       expect(cyclicNodes(new Map(chainEntries))).toStrictEqual(new Set())
     })
 
     it('should detect all nodes of a 10000-node ring without stack overflow', () => {
-      const ringEntries: [string, string[]][] = Array.from({ length: 10000 }, (_, i) => [
+      const ringEntries: [string, string[]][] = Array.from({ length: 10_000 }, (_, i) => [
         `N${i}`,
-        [`N${(i + 1) % 10000}`],
+        [`N${(i + 1) % 10_000}`],
       ])
       expect(cyclicNodes(new Map(ringEntries))).toStrictEqual(
-        new Set(Array.from({ length: 10000 }, (_, i) => `N${i}`)),
+        new Set(Array.from({ length: 10_000 }, (_, i) => `N${i}`)),
       )
     })
   })

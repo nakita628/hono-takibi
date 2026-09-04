@@ -1,14 +1,10 @@
 #!/usr/bin/env node
+import * as NodeRuntime from '@effect/platform-node/NodeRuntime'
+import * as NodeServices from '@effect/platform-node/NodeServices'
+import { Effect } from 'effect'
+
 import { honoTakibi } from './cli/index.js'
 
-void honoTakibi().then((result) => {
-  if (result.ok) {
-    // oxlint-disable-next-line no-console -- CLI writes its result to stdout
-    console.log(result.value)
-    process.exit(0)
-  } else {
-    // oxlint-disable-next-line no-console -- CLI writes its error to stderr
-    console.error(result.error)
-    process.exit(1)
-  }
-})
+NodeRuntime.runMain(
+  honoTakibi(process.argv.slice(2), import.meta.url).pipe(Effect.provide(NodeServices.layer)),
+)

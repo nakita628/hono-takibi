@@ -1,6 +1,9 @@
 import path from 'node:path'
 
-import type { parseConfig } from '../config/index.js'
+import type { FileSystem, PlatformError } from 'effect'
+import { Effect, Schema } from 'effect'
+
+import type { Config } from '../config/index.js'
 import {
   callbacks,
   components,
@@ -26,32 +29,133 @@ import {
   type,
   webhooks,
 } from '../core/index.js'
+import { GenerateError } from '../error/index.js'
+import { readdir, unlink } from '../file/index.js'
+import type { FormatError } from '../format/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
-export function makeJob(
+/**
+ * One generator the config opted in, ready to run.
+ *
+ * Naming the shape here is what keeps the requirement channel from widening to `any`
+ * at the call site: the array below is a union of differently-typed entries, and
+ * `Effect.all` over that union would lose the `FileSystem` the caller has to provide.
+ */
+export type Job = {
+  readonly name: string
+  readonly output: string
+  readonly split: boolean
+  readonly run: (
+    output: string,
+  ) => Effect.Effect<
+    string,
+    FormatError | GenerateError | PlatformError.PlatformError,
+    FileSystem.FileSystem
+  >
+}
+
+// Built once and reused, the way `config` builds its own decoder: the schema is the
+// same for every job, and there is one call per job.
+const decodeTypeScriptPath = Schema.decodeUnknownEffect(
+  Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
+)
+
+/**
+ * Narrows a job's output path to the `${string}.ts` the TypeScript generators ask for.
+ *
+ * `config` normalises a directory into `<dir>/index.ts` and the split generators build
+ * their own paths, so what reaches a job is a plain string; this is where it is checked.
+ */
+function typeScriptPath(output: string) {
+  return decodeTypeScriptPath(output).pipe(
+    Effect.mapError(() => new GenerateError({ message: `Invalid output format: ${output}` })),
+  )
+}
+
+/** `takibi` against a job's output path, once that path is known to be TypeScript. */
+function runTakibi(
   openAPI: OpenAPI,
-  config: Extract<ReturnType<typeof parseConfig>, { ok: true }>['value'],
+  output: string,
+  componentsOptions: Parameters<typeof takibi>[2],
 ) {
-  const defineOn = config.template?.define === true
-  // In define mode the app entry anchors routes/ and components/. When output is
-  // omitted, the anchor is inferred from components.output (`<anchor>/<module>`,
-  // module being a flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`),
-  // else src/index.ts.
-  const componentsContainer = config.components?.output?.endsWith('/index.ts')
+  return Effect.gen(function* () {
+    return yield* takibi(openAPI, yield* typeScriptPath(output), componentsOptions)
+  })
+}
+
+/** `type` against a job's output path, once that path is known to be TypeScript. */
+function runType(openAPI: OpenAPI, output: string, readonly?: boolean) {
+  return Effect.gen(function* () {
+    return yield* type(openAPI, yield* typeScriptPath(output), readonly)
+  })
+}
+
+/**
+ * Empties the generated `.ts` files out of one split output directory.
+ *
+ * A directory the first run has not created yet reads as empty, which is what `readdir`
+ * already answers.
+ */
+function cleanSplitDirectory(directory: string) {
+  return Effect.gen(function* () {
+    const names = yield* readdir(directory)
+    yield* Effect.all(
+      names
+        .filter((name) => name.endsWith('.ts'))
+        .map((name) => unlink(path.join(directory, name))),
+      { concurrency: 'unbounded' },
+    )
+  })
+}
+
+/**
+ * Empties every split output directory before the generators refill them.
+ *
+ * A split generator writes one file per entry plus a barrel beside them, and knows only
+ * what it writes — so an entry that leaves the document leaves its file behind, orphaned
+ * and still importing names the document no longer defines. Removing the section
+ * altogether is worse: the generator writes nothing at all and the whole previous
+ * directory, barrel included, survives as the answer to a document that no longer says it.
+ *
+ * A split directory is therefore the generator's, not a place to keep anything by hand.
+ * `remove` is only pointed at its direct `.ts` children, never at a subdirectory.
+ *
+ * This runs before any job writes, never per job as it goes: two jobs can be aimed at one
+ * directory, and a clean that lands after a sibling has filled it would take the fresh
+ * files with it.
+ */
+export function cleanSplitOutputs(directories: readonly string[]) {
+  return Effect.all(
+    [...new Set(directories)].map((directory) => cleanSplitDirectory(directory)),
+    { concurrency: 'unbounded' },
+  )
+}
+
+/**
+ * Where the `template` scaffold writes its app entry.
+ *
+ * In define mode the entry anchors `routes/` and `components/`. When `output` is omitted
+ * the anchor is inferred from `components.output` (`<anchor>/<module>`, module being a
+ * flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`), else `src/index.ts`.
+ *
+ * Exported because the derivation is the only output path a caller cannot read straight
+ * off the config, and a caller that lists output paths has to agree with `makeJob` about
+ * this one or it will report a file the generators do in fact write.
+ */
+export function appEntryOutput(config: Config) {
+  if (config.output !== undefined) return config.output
+  if (config.template?.define !== true) return config.routes?.output
+  if (config.components?.output === undefined) return 'src/index.ts'
+  const container = config.components.output.endsWith('/index.ts')
     ? config.components.output.slice(0, -'/index.ts'.length)
-    : config.components?.output
-  const componentsAnchor = componentsContainer?.includes('/')
-    ? componentsContainer.slice(0, componentsContainer.lastIndexOf('/'))
-    : ''
-  const appOutput =
-    config.output ??
-    (defineOn
-      ? config.components?.output === undefined
-        ? 'src/index.ts'
-        : componentsAnchor === '' || componentsAnchor === '.'
-          ? 'index.ts'
-          : `${componentsAnchor}/index.ts`
-      : config.routes?.output)
+    : config.components.output
+  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
+  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
+}
+
+export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
+  const defineOn = config.template?.define === true
+  const appOutput = appEntryOutput(config)
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -90,26 +194,24 @@ export function makeJob(
           output: config.output,
           split: false,
           run: (output: string) =>
-            ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
-              ? takibi(openAPI, output, {
-                  ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
-                  exportSchemas: config.exportSchemas,
-                  exportSchemasTypes: config.exportSchemasTypes,
-                  exportResponses: config.exportResponses,
-                  exportParameters: config.exportParameters,
-                  exportParametersTypes: config.exportParametersTypes,
-                  exportExamples: config.exportExamples,
-                  exportRequestBodies: config.exportRequestBodies,
-                  exportHeaders: config.exportHeaders,
-                  exportHeadersTypes: config.exportHeadersTypes,
-                  exportSecuritySchemes: config.exportSecuritySchemes,
-                  exportLinks: config.exportLinks,
-                  exportCallbacks: config.exportCallbacks,
-                  exportPathItems: config.exportPathItems,
-                  exportMediaTypes: config.exportMediaTypes,
-                  exportMediaTypesTypes: config.exportMediaTypesTypes,
-                })
-              : Promise.resolve({ ok: false, error: `Invalid output format: ${output}` } as const),
+            runTakibi(openAPI, output, {
+              ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
+              exportSchemas: config.exportSchemas,
+              exportSchemasTypes: config.exportSchemasTypes,
+              exportResponses: config.exportResponses,
+              exportParameters: config.exportParameters,
+              exportParametersTypes: config.exportParametersTypes,
+              exportExamples: config.exportExamples,
+              exportRequestBodies: config.exportRequestBodies,
+              exportHeaders: config.exportHeaders,
+              exportHeadersTypes: config.exportHeadersTypes,
+              exportSecuritySchemes: config.exportSecuritySchemes,
+              exportLinks: config.exportLinks,
+              exportCallbacks: config.exportCallbacks,
+              exportPathItems: config.exportPathItems,
+              exportMediaTypes: config.exportMediaTypes,
+              exportMediaTypesTypes: config.exportMediaTypesTypes,
+            }),
         }
       : undefined,
     config.webhooks
@@ -316,10 +418,7 @@ export function makeJob(
           name: 'type',
           output: config.type.output,
           split: false,
-          run: (output: string) =>
-            ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
-              ? type(openAPI, output, config.type?.readonly)
-              : Promise.resolve({ ok: false, error: `Invalid output format: ${output}` } as const),
+          run: (output: string) => runType(openAPI, output, config.type?.readonly),
         }
       : undefined,
     config.rpc

@@ -8,16 +8,6 @@ import { methodPath } from '../../../utils/index.js'
 /**
  * Generates a Hono app with OpenAPI integration.
  *
- * @param openapi - The OpenAPI specification.
- * @param output - The output file name (e.g., 'user.ts').
- * @param basePath - Optional base path for the app.
- * @param pathAlias - Optional path alias prefix.
- * @param routeImport - Optional route module specifier override.
- * @param routeHandler - When false (default), handlers import app and register routes inline.
- *   When true, generates `app.openapi()` pattern with RouteHandler type exports.
- * @param inlineHandlerFileNames - Inline mode only: the handler files to mount, when the
- *   caller has resolved them against the files already on disk.
- * @returns The generated application code as a string.
  *
  * @example
  * ```ts
@@ -38,21 +28,21 @@ export function app(
 ) {
   const getRouteMaps = () => {
     const paths = openapi.paths
-    return Object.entries(paths).flatMap(([path, pathItem]) => {
-      return Object.entries(pathItem).flatMap(([method]) => {
+    return Object.entries(paths).flatMap(([path, pathItem]) =>
+      Object.entries(pathItem).flatMap(([method]) => {
         if (!isHttpMethod(method)) return [] as const
         return {
           routeName: `${methodPath(method, path)}Route`,
           handlerName: `${methodPath(method, path)}RouteHandler`,
           path,
         } as const
-      })
-    })
+      }),
+    )
   }
   const routeMappings = getRouteMaps()
   const isIndexFile = output.endsWith('/index.ts')
   const routeBasename = isIndexFile
-    ? basename(output.replace(/\/index\.ts$/, ''))
+    ? basename(output.replace(/\/index\.ts$/u, ''))
     : basename(output, '.ts')
   const aliasPrefix = pathAlias?.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
   const appInit =
@@ -115,10 +105,8 @@ export function app(
   const importSection = [`import{OpenAPIHono}from'@hono/zod-openapi'`, routesImport, handlerImport]
     .filter(Boolean)
     .join('\n')
-  const apiInit =
-    'export const api=app' +
-    routeMappings
-      .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
-      .join('\n')
+  const apiInit = `export const api=app${routeMappings
+    .map(({ routeName, handlerName }) => `.openapi(${routeName},${handlerName})`)
+    .join('\n')}`
   return [importSection, appInit, apiInit, 'export default app'].join('\n\n')
 }

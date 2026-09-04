@@ -51,7 +51,7 @@ export function wrap(
     headers?: Header
   },
   options?: {
-    /** @internal Triggers `.exactOptional()`; do not pass from external callers. */
+    /** Triggers `.exactOptional()`; do not pass from external callers. @internal */
     isOptional?: boolean
   },
 ) {

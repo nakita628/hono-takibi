@@ -7,10 +7,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Converts response definitions to JavaScript object constants
  * with content type mappings and schema references.
  *
- * @param components - The OpenAPI components object.
- * @param exportResponses - Whether to export the response constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with response definitions.
  *
  * @example
  * ```ts

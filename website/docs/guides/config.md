@@ -43,7 +43,46 @@ bunx hono-takibi
 
 :::
 
+To run a config file that lives somewhere else, pass `--config`. Paths inside it still
+resolve against the current directory:
+
+```sh
+npx hono-takibi --config config/api.config.ts
+```
+
+## Watch Mode
+
+`--watch` keeps the config running and regenerates on every change to the input documents
+or to the config file itself:
+
+```sh
+npx hono-takibi --watch
+```
+
+It pairs with [`template`](#full-configuration), where the generated handlers are merged
+rather than overwritten — add an operation to the document and its handler stub appears,
+while the code already written into the existing ones stays put.
+
+The whole directory holding the input document is watched, not just the file `input`
+names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger
+a rerun, and pointing `input` at another directory moves the watcher with it. A failing
+pass prints the error and keeps watching — including the first one, so a config that does
+not validate yet is something to fix in place rather than a reason to start over.
+`--watch` runs a config file, so it cannot be combined with `<input>` / `-o`.
+
 ## Full Configuration
+
+Every generator needs its own `output` path: two of them aimed at one file is rejected
+rather than resolved, because the generators run concurrently and one would silently
+overwrite the other.
+
+A `split` output directory belongs to the generator: before each run its `.ts` files are
+removed, so an operation or schema that leaves the document does not survive as an
+orphaned file still importing what it defined. Keep hand-written code somewhere else.
+
+`basePath` must start with `/`, `client` must be a JavaScript identifier, and `import`
+must be a module specifier — each is spliced into the generated code verbatim, so the
+config is where a wrong value is caught.
 
 ::: code-group
 

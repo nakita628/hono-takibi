@@ -32,7 +32,7 @@ export function isHttpMethod(
 }
 
 export function isValidIdent(str: string): boolean {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(str)
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/u.test(str)
 }
 
 export function isOpenAPIPaths(v: unknown): v is OpenAPIPaths {

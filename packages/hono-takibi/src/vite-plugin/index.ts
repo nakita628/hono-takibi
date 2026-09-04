@@ -1,15 +1,16 @@
 // oxlint-disable no-console -- the plugin reports generation progress to the Vite terminal
 import crypto from 'node:crypto'
-import fsp from 'node:fs/promises'
 import path from 'node:path'
 
+import { Effect, FileSystem, Option, Result } from 'effect'
+
 import { parseConfig } from '../config/index.js'
-import { setFormatOptions } from '../format/index.js'
+import type { Config } from '../config/index.js'
+import { fileSystemLayer } from '../file/index.js'
+import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { makeJob } from '../shared/index.js'
-
-type Config = Extract<ReturnType<typeof parseConfig>, { ok: true }>['value']
+import { appEntryOutput, cleanSplitOutputs, makeJob } from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -40,14 +41,12 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
     const loadedModule = await server.ssrLoadModule(`${absoluteConfigPath}?t=${String(Date.now())}`)
     const defaultExport = isRecord(loadedModule) ? Reflect.get(loadedModule, 'default') : undefined
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
-      return { ok: false, error: 'Config must export default object' } as const
+      return Result.fail('Config must export default object')
     }
-    const parsed = parseConfig(defaultExport)
-    return parsed.ok
-      ? ({ ok: true, value: parsed.value } as const)
-      : ({ ok: false, error: parsed.error } as const)
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
+    const parsed = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
+    return Result.mapError(parsed, (error) => error.message)
+  } catch (error) {
+    return Result.fail(error instanceof Error ? error.message : String(error))
   }
 }
 
@@ -56,10 +55,6 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
  *
  * Delays invocation until after the specified milliseconds have elapsed
  * since the last call. Uses WeakMap for cleanup.
- *
- * @param delayMilliseconds - Delay in milliseconds
- * @param callback - Function to debounce
- * @returns Debounced function
  */
 function debounce(delayMilliseconds: number, callback: () => void): () => void {
   const timerStorage = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
@@ -75,20 +70,64 @@ function isWatchedInputFile(filePath: string): boolean {
   return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
 }
 
-async function listWatchedInputFiles(directory: string): Promise<readonly string[]> {
-  const entries = await fsp.readdir(directory, { withFileTypes: true }).catch(() => [])
-  const nested = await Promise.all(
-    entries.map((entry) => {
-      const entryPath = path.join(directory, entry.name)
-      if (entry.isDirectory()) {
-        return entry.name === 'node_modules' || entry.name.startsWith('.')
-          ? Promise.resolve([])
-          : listWatchedInputFiles(entryPath)
-      }
-      return Promise.resolve(entry.isFile() && isWatchedInputFile(entryPath) ? [entryPath] : [])
-    }),
-  )
-  return nested.flat()
+/**
+ * `stat`, or `null` when the path cannot be read.
+ *
+ * Every filesystem question the plugin asks is advisory — it decides whether to skip a
+ * regeneration or clean a path up, never whether the build is valid. So a path it cannot
+ * see reads as absent, and a dev server keeps running. That is a wider net than
+ * `file/index.ts` casts for the generators, where only "not found" is absorbed.
+ */
+function statOrNull(target: string) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    return yield* fs.stat(target).pipe(Effect.orElseSucceed(() => null))
+  })
+}
+
+/**
+ * Directory entries with each one's kind.
+ *
+ * `FileSystem.readDirectory` answers with names only, so the `withFileTypes` the callers
+ * below want is a `stat` per entry.
+ */
+function readEntries(directory: string) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const names = yield* fs
+      .readDirectory(directory)
+      .pipe(Effect.orElseSucceed((): readonly string[] => []))
+    const paths = names.map((name) => path.join(directory, name))
+    const infos = yield* Effect.all(paths.map(statOrNull), { concurrency: 'unbounded' })
+    return names.map((name, index) => ({
+      name,
+      path: paths[index] ?? path.join(directory, name),
+      type: infos[index]?.type,
+    }))
+  })
+}
+
+function listWatchedInputFiles(
+  directory: string,
+): Effect.Effect<readonly string[], never, FileSystem.FileSystem> {
+  return Effect.gen(function* () {
+    const entries = yield* readEntries(directory)
+    const here = entries
+      .filter((entry) => entry.type === 'File' && isWatchedInputFile(entry.path))
+      .map((entry) => entry.path)
+    const nested = yield* Effect.all(
+      entries
+        .filter(
+          (entry) =>
+            entry.type === 'Directory' &&
+            entry.name !== 'node_modules' &&
+            !entry.name.startsWith('.'),
+        )
+        .map((entry) => listWatchedInputFiles(entry.path)),
+      { concurrency: 'unbounded' },
+    )
+    return [...here, ...nested.flat()]
+  })
 }
 
 /**
@@ -97,38 +136,48 @@ async function listWatchedInputFiles(directory: string): Promise<readonly string
  * Returns null when the set cannot be read reliably, so callers treat
  * "unknown" as "changed" and regenerate.
  */
-async function hashWatchedInputs(directory: string) {
-  const files = [...(await listWatchedInputFiles(directory))].toSorted()
-  if (files.length === 0) return null
-  const contents = await Promise.all(
-    files.map(async (file) => ({
-      file,
-      content: await fsp.readFile(file, 'utf-8').catch(() => null),
-    })),
-  )
-  if (contents.some((entry) => entry.content === null)) return null
-  const hash = crypto.createHash('sha256')
-  for (const entry of contents) {
-    hash.update(entry.file)
-    hash.update('\0')
-    hash.update(entry.content ?? '')
-    hash.update('\0')
-  }
-  return hash.digest('hex')
+function hashWatchedInputs(directory: string) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const files = [...(yield* listWatchedInputFiles(directory))].toSorted()
+    if (files.length === 0) return null
+    const contents = yield* Effect.all(
+      files.map((file) => fs.readFileString(file).pipe(Effect.orElseSucceed(() => null))),
+      { concurrency: 'unbounded' },
+    )
+    if (contents.some((content) => content === null)) return null
+    const hash = crypto.createHash('sha256')
+    for (const [index, file] of files.entries()) {
+      hash.update(file)
+      hash.update('\0')
+      hash.update(contents[index] ?? '')
+      hash.update('\0')
+    }
+    return hash.digest('hex')
+  })
 }
 
-async function listOutputFiles(
+function listOutputFiles(
   target: string,
-): Promise<readonly { readonly file: string; readonly mtimeMs: number }[]> {
-  const stats = await fsp.stat(target).catch(() => null)
-  if (!stats) return []
-  if (stats.isFile()) return [{ file: target, mtimeMs: stats.mtimeMs }]
-  if (!stats.isDirectory()) return []
-  const entries = await fsp.readdir(target, { withFileTypes: true }).catch(() => [])
-  const nested = await Promise.all(
-    entries.map((entry) => listOutputFiles(path.join(target, entry.name))),
-  )
-  return nested.flat()
+): Effect.Effect<
+  readonly { readonly file: string; readonly mtimeMs: number }[],
+  never,
+  FileSystem.FileSystem
+> {
+  return Effect.gen(function* () {
+    const info = yield* statOrNull(target)
+    if (info === null) return []
+    if (info.type === 'File') {
+      return [{ file: target, mtimeMs: Option.getOrElse(info.mtime, () => new Date(0)).getTime() }]
+    }
+    if (info.type !== 'Directory') return []
+    const entries = yield* readEntries(target)
+    const nested = yield* Effect.all(
+      entries.map((entry) => listOutputFiles(entry.path)),
+      { concurrency: 'unbounded' },
+    )
+    return nested.flat()
+  })
 }
 
 /**
@@ -138,19 +187,23 @@ async function listOutputFiles(
  * was not rewritten. For `.ts` outputs the sibling split directory
  * (`dir/name/` derived from `dir/name.ts`) is included as well.
  */
-async function snapshotOutputs(outputPaths: readonly string[]) {
-  const targets = [
-    ...new Set(
-      outputPaths.flatMap((outputPath) => [
-        outputPath,
-        ...(outputPath.endsWith('.ts')
-          ? [path.join(path.dirname(outputPath), path.basename(outputPath, '.ts'))]
-          : []),
-      ]),
-    ),
-  ]
-  const collected = await Promise.all(targets.map((target) => listOutputFiles(target)))
-  return new Map(collected.flat().map((entry) => [entry.file, entry.mtimeMs]))
+function snapshotOutputs(outputPaths: readonly string[]) {
+  return Effect.gen(function* () {
+    const targets = [
+      ...new Set(
+        outputPaths.flatMap((outputPath) => [
+          outputPath,
+          ...(outputPath.endsWith('.ts')
+            ? [path.join(path.dirname(outputPath), path.basename(outputPath, '.ts'))]
+            : []),
+        ]),
+      ),
+    ]
+    const collected = yield* Effect.all(targets.map(listOutputFiles), {
+      concurrency: 'unbounded',
+    })
+    return new Map(collected.flat().map((entry) => [entry.file, entry.mtimeMs]))
+  })
 }
 
 function sameOutputSnapshot(
@@ -164,45 +217,44 @@ function sameOutputSnapshot(
 }
 
 /**
- * Runs all code generation tasks in parallel based on the provided configuration.
+ * Runs one generation pass and reports a log line per job.
  *
- * @param config - Parsed configuration object
- * @returns Promise resolving to object containing log messages and whether any output file changed
+ * The generators are Effects; this is the plugin's boundary, so it provides the
+ * filesystem and the config's oxfmt options here and hands Vite plain values back.
+ * A job that fails logs and does not stop its siblings — a dev server keeps running.
  */
-async function cleanupSplitOutput(absOutput: string): Promise<void> {
-  const stat = await fsp.stat(absOutput).catch(() => null)
-  if (!stat?.isDirectory()) return
-  const entries = await fsp.readdir(absOutput, { withFileTypes: true }).catch(() => [])
-  await Promise.all(
-    entries
-      .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
-      .map((entry) => fsp.unlink(path.join(absOutput, entry.name)).catch(() => undefined)),
-  )
-}
-
-async function runAllGenerationTasks(config: Config) {
-  if (config.format) setFormatOptions(config.format)
-  const openAPIResult = await parseOpenAPI(config.input)
-  if (!openAPIResult.ok) {
-    return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`], changed: false }
-  }
-  const openAPI = openAPIResult.value
-
-  const jobs = makeJob(openAPI, config)
-  const outputPaths = jobs.map((job) => path.resolve(process.cwd(), job.output))
-  const beforeSnapshot = await snapshotOutputs(outputPaths)
-  const logs = await Promise.all(
-    jobs.map(async (job) => {
-      const absOutput = path.resolve(process.cwd(), job.output)
-      if (job.split) await cleanupSplitOutput(absOutput)
-      const result = await job.run(absOutput)
-      return result.ok
-        ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
-        : `❌ ${job.name}: ${result.error}`
-    }),
-  )
-  const afterSnapshot = await snapshotOutputs(outputPaths)
-  return { logs, changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot) }
+function runAllGenerationTasks(config: Config) {
+  return Effect.gen(function* () {
+    const openAPIResult = yield* Effect.result(parseOpenAPI(config.input))
+    if (Result.isFailure(openAPIResult)) {
+      return { logs: [`❌ parseOpenAPI: ${openAPIResult.failure.message}`], changed: false }
+    }
+    const jobs = makeJob(openAPIResult.success, config)
+    const targets = jobs.map((job) => ({ job, absOutput: path.resolve(process.cwd(), job.output) }))
+    const outputPaths = targets.map(({ absOutput }) => absOutput)
+    const beforeSnapshot = yield* snapshotOutputs(outputPaths)
+    // The same clean the CLI runs, so one config cannot leave two different directories
+    // behind depending on which entry point produced it.
+    yield* cleanSplitOutputs(
+      targets.filter(({ job }) => job.split).map(({ absOutput }) => absOutput),
+    )
+    // `Effect.result` per job is what keeps a failure from cancelling its siblings — a
+    // dev server keeps running — so the array that comes back is one log line per job.
+    const logs = yield* Effect.all(
+      targets.map(({ job, absOutput }) =>
+        Effect.result(job.run(absOutput)).pipe(
+          Effect.map((result) =>
+            Result.isSuccess(result)
+              ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
+              : `❌ ${job.name}: ${result.failure.message}`,
+          ),
+        ),
+      ),
+      { concurrency: 'unbounded' },
+    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
+    const afterSnapshot = yield* snapshotOutputs(outputPaths)
+    return { logs, changed: !sameOutputSnapshot(beforeSnapshot, afterSnapshot) }
+  })
 }
 
 /**
@@ -210,10 +262,6 @@ async function runAllGenerationTasks(config: Config) {
  *
  * Watches the input file and related files (.yaml, .json, .tsp) in the
  * same directory for changes.
- *
- * @param server - Vite dev server instance
- * @param absoluteInputPath - Absolute path to the input OpenAPI file
- * @returns The input directory path for use in change detection
  */
 function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string): string {
   const inputDirectory = path.dirname(absoluteInputPath)
@@ -227,16 +275,62 @@ function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string
   return inputDirectory
 }
 
-async function allOutputsExist(config: Config) {
-  const stats = await Promise.all(
-    extractOutputPaths(config).map((outputPath) => fsp.stat(outputPath).catch(() => null)),
-  )
-  return stats.every((stat) => stat !== null)
+function allOutputsExist(config: Config) {
+  return Effect.gen(function* () {
+    const infos = yield* Effect.all(extractOutputPaths(config).map(statOrNull), {
+      concurrency: 'unbounded',
+    })
+    return infos.every((info) => info !== null)
+  })
 }
 
+/**
+ * Removes what the previous config generated and the next one no longer names.
+ *
+ * A stale path is only removed when it is a directory or a generated file — a `.ts` or
+ * `.md` the plugin would have written. Anything else the config used to point at is left
+ * alone rather than deleted on a config edit.
+ */
+function cleanupStaleOutputs(previousConfiguration: Config, currentConfiguration: Config) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const currentPaths = new Set(extractOutputPaths(currentConfiguration))
+    const stalePaths = [...new Set(extractOutputPaths(previousConfiguration))].filter(
+      (stalePath) => !currentPaths.has(stalePath),
+    )
+    const infos = yield* Effect.all(stalePaths.map(statOrNull), { concurrency: 'unbounded' })
+    const removable = stalePaths.filter((stalePath, index) => {
+      const type = infos[index]?.type
+      return (
+        type === 'Directory' ||
+        (type === 'File' && (stalePath.endsWith('.ts') || stalePath.endsWith('.md')))
+      )
+    })
+    yield* Effect.all(
+      removable.map((stalePath) =>
+        fs
+          .remove(stalePath, { recursive: true, force: true })
+          .pipe(Effect.orElseSucceed(() => undefined)),
+      ),
+      { concurrency: 'unbounded' },
+    )
+    return removable
+  })
+}
+
+/**
+ * Every path this config declares an output at.
+ *
+ * Hand-listed rather than read off `makeJob`, which needs the parsed document these
+ * callers do not have. The two entries a caller cannot read straight off the config —
+ * `components.output` and the derived app entry — come from `shared` so they cannot
+ * disagree with what the generators actually write.
+ */
 function extractOutputPaths(config: Config): readonly string[] {
   return [
     config.output,
+    appEntryOutput(config),
+    config.components?.output,
     config.components?.schemas?.output,
     config.components?.parameters?.output,
     config.components?.headers?.output,
@@ -270,22 +364,23 @@ function extractOutputPaths(config: Config): readonly string[] {
 export function honoTakibiVite(): any {
   const pluginState: {
     current: Config | null
-    previous: Config | null
     inputDirectory: string | null
     lastInputHash: string | null
     runQueue: Promise<void>
   } = {
     current: null,
-    previous: null,
     inputDirectory: null,
     lastInputHash: null,
     runQueue: Promise.resolve(),
   }
   const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+  let pendingConfigurationServer: ViteDevServer | null = null
   const runGeneration = async () => {
     if (!pluginState.current) return false
     console.log('🔥 hono-takibi')
-    const { logs, changed } = await runAllGenerationTasks(pluginState.current)
+    const { logs, changed } = await Effect.runPromise(
+      runAllGenerationTasks(pluginState.current).pipe(Effect.provide(fileSystemLayer)),
+    )
     for (const logMessage of logs) {
       console.log(logMessage)
     }
@@ -299,12 +394,13 @@ export function honoTakibiVite(): any {
   // a generated file and touching the input still regenerates it.
   const runIfInputsChanged = async (server: ViteDevServer) => {
     if (!pluginState.inputDirectory || !pluginState.current) return
-    const inputHash = await hashWatchedInputs(pluginState.inputDirectory)
-    if (
-      inputHash !== null &&
-      inputHash === pluginState.lastInputHash &&
-      (await allOutputsExist(pluginState.current))
-    ) {
+    const { inputHash, outputsExist } = await Effect.runPromise(
+      Effect.all({
+        inputHash: hashWatchedInputs(pluginState.inputDirectory),
+        outputsExist: allOutputsExist(pluginState.current),
+      }).pipe(Effect.provide(fileSystemLayer)),
+    )
+    if (inputHash !== null && inputHash === pluginState.lastInputHash && outputsExist) {
       console.log('⏭️ input unchanged - skipped regeneration')
       return
     }
@@ -321,58 +417,55 @@ export function honoTakibiVite(): any {
     return queued
   }
   const handleConfigurationChange = async (server: ViteDevServer) => {
+    console.log('config changed')
     const nextConfiguration = await readConfigurationWithHotReload(server)
-    if (!nextConfiguration.ok) {
-      console.error(`❌ config: ${nextConfiguration.error}`)
+    if (Result.isFailure(nextConfiguration)) {
+      console.error(`❌ config: ${nextConfiguration.failure}`)
       return
     }
     if (pluginState.current) {
-      const cleanupStaleOutputs = async (
-        previousConfiguration: Config,
-        currentConfiguration: Config,
-      ) => {
-        const previousPaths = new Set(extractOutputPaths(previousConfiguration))
-        const currentPaths = new Set(extractOutputPaths(currentConfiguration))
-        const stalePaths = [...previousPaths].filter((stalePath) => !currentPaths.has(stalePath))
-        const cleanupResults = await Promise.all(
-          stalePaths.map(async (stalePath): Promise<string | null> => {
-            const fileStats = await fsp.stat(stalePath).catch(() => null)
-            if (!fileStats) return null
-            if (fileStats.isDirectory()) {
-              await fsp.rm(stalePath, { recursive: true, force: true }).catch(() => {})
-              return stalePath
-            }
-            if (fileStats.isFile() && (stalePath.endsWith('.ts') || stalePath.endsWith('.md'))) {
-              await fsp.unlink(stalePath).catch(() => {})
-              return stalePath
-            }
-            return null
-          }),
-        )
-        return cleanupResults.filter((result) => result !== null)
-      }
-      const cleanedPaths = await cleanupStaleOutputs(pluginState.current, nextConfiguration.value)
+      const cleanedPaths = await Effect.runPromise(
+        cleanupStaleOutputs(pluginState.current, nextConfiguration.success).pipe(
+          Effect.provide(fileSystemLayer),
+        ),
+      )
       for (const cleanedPath of cleanedPaths) {
         console.log(`✅ cleanup: ${cleanedPath}`)
       }
     }
-    pluginState.previous = pluginState.current
-    pluginState.current = nextConfiguration.value
+    pluginState.current = nextConfiguration.success
     const inputDirectory = addInputGlobsToWatcher(
       server,
       path.resolve(process.cwd(), pluginState.current.input),
     )
     pluginState.inputDirectory = inputDirectory
-    pluginState.lastInputHash = await hashWatchedInputs(inputDirectory)
+    pluginState.lastInputHash = await Effect.runPromise(
+      hashWatchedInputs(inputDirectory).pipe(Effect.provide(fileSystemLayer)),
+    )
     await runGenerationAndReload(server)
+  }
+  const debouncedConfigurationChange = debounce(200, () => {
+    const server = pendingConfigurationServer
+    if (server) void enqueueRun(() => handleConfigurationChange(server))
+  })
+  /**
+   * One entry point for a config edit, however it was noticed.
+   *
+   * Both hooks see the same save — Vite calls `handleHotUpdate` for the config module and
+   * the raw watcher reports the file too — so one edit used to arrive twice and run two
+   * full generation passes. Debounced for the same reason the input side is: an editor
+   * emits several events per save.
+   */
+  const queueConfigurationChange = (server: ViteDevServer) => {
+    pendingConfigurationServer = server
+    debouncedConfigurationChange()
   }
   const vitePlugin = {
     name: 'hono-takibi-vite',
     handleHotUpdate(context: { file: string; server: ViteDevServer }) {
       const absoluteFilePath = path.resolve(context.file)
       if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
-        console.log('config changed (hot-update)')
-        void enqueueRun(() => handleConfigurationChange(context.server))
+        queueConfigurationChange(context.server)
         return []
       }
       return undefined
@@ -383,30 +476,30 @@ export function honoTakibiVite(): any {
     configureServer(server: ViteDevServer) {
       ;(async () => {
         const initialConfiguration = await readConfigurationWithHotReload(server)
-        if (!initialConfiguration.ok) {
-          console.error(`❌ config: ${initialConfiguration.error}`)
+        if (Result.isFailure(initialConfiguration)) {
+          console.error(`❌ config: ${initialConfiguration.failure}`)
           return
         }
-        pluginState.current = initialConfiguration.value
+        pluginState.current = initialConfiguration.success
         const inputDirectory = addInputGlobsToWatcher(
           server,
           path.resolve(process.cwd(), pluginState.current.input),
         )
         pluginState.inputDirectory = inputDirectory
-        pluginState.lastInputHash = await hashWatchedInputs(inputDirectory)
+        pluginState.lastInputHash = await Effect.runPromise(
+          hashWatchedInputs(inputDirectory).pipe(Effect.provide(fileSystemLayer)),
+        )
         server.watcher.add(absoluteConfigFilePath)
         // 200ms debounce: editors emit multiple fs events on save, and batch file changes
         // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
-        const debouncedRunGeneration = debounce(
-          200,
-          () => void enqueueRun(() => runIfInputsChanged(server)),
-        )
+        const debouncedRunGeneration = debounce(200, () => {
+          void enqueueRun(() => runIfInputsChanged(server))
+        })
 
         server.watcher.on('all', (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)
           if (absoluteChangedPath === absoluteConfigFilePath) {
-            console.log('config changed (watch)')
-            void enqueueRun(() => handleConfigurationChange(server))
+            queueConfigurationChange(server)
             return
           }
           if (
@@ -418,8 +511,8 @@ export function honoTakibiVite(): any {
           }
         })
         await enqueueRun(() => runGenerationAndReload(server))
-      })().catch((e: unknown) => {
-        console.error('❌ watch error:', e)
+      })().catch((error: unknown) => {
+        console.error('❌ watch error:', error)
       })
     },
   }

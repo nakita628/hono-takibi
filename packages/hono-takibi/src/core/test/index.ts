@@ -1,34 +1,31 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
+import { mkdir, readFile, writeFile } from '../../file/index.js'
 import { fmt } from '../../format/index.js'
-import { mkdir, readFile, writeFile } from '../../fsp/index.js'
 import { makeTestFile } from '../../generator/test/index.js'
 import { mergeTestFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
-export async function test(
+export function test(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
   basePath = '/',
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
 ) {
-  const testCode = makeTestFile(openAPI, importPath, basePath, testFramework)
-  const [fmtResult, mkdirResult, existingResult] = await Promise.all([
-    fmt(testCode),
-    mkdir(path.dirname(output)),
-    readFile(output),
-  ])
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const merged =
-    existingResult.value !== null
-      ? mergeTestFile(existingResult.value, fmtResult.value)
-      : fmtResult.value
-  const finalFmtResult = await fmt(merged)
-  const content = finalFmtResult.ok ? finalFmtResult.value : merged
-  const writeResult = await writeFile(output, content)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-  return { ok: true, value: `Generated test file written to ${output}` } as const
+  return Effect.gen(function* () {
+    const testCode = makeTestFile(openAPI, importPath, basePath, testFramework)
+    const [formatted, , existing] = yield* Effect.all(
+      [fmt(testCode), mkdir(path.dirname(output)), readFile(output)],
+      { concurrency: 'unbounded' },
+    )
+    const merged = existing !== null ? mergeTestFile(existing, formatted) : formatted
+    // A merge can produce source oxfmt rejects; the unformatted merge is still the
+    // right file to write.
+    const content = yield* fmt(merged).pipe(Effect.orElseSucceed(() => merged))
+    yield* writeFile(output, content)
+    return `Generated test file written to ${output}`
+  })
 }

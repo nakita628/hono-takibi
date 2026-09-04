@@ -4,11 +4,6 @@ import type { Schema } from '../../../openapi/index.js'
 /**
  * Generates a TypeScript type definition from an OpenAPI schema.
  *
- * @param schema - The OpenAPI schema object.
- * @param typeName - The name for the generated type.
- * @param cyclicGroup - Optional set of type names in a cyclic dependency group.
- * @param readonly - Whether to generate readonly array types.
- * @returns A TypeScript type definition string.
  *
  * @example
  * ```ts

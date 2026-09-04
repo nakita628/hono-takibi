@@ -1150,9 +1150,9 @@ describe('Users', () => {
 
       const result = mergeTestFile(existing, generated)
       // Should not duplicate
-      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/g) ?? []).length
+      const getCount = (result.match(/describe\(\s*['"]GET \/users['"]/gu) ?? []).length
       expect(getCount).toBe(1)
-      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/g) ?? []).length
+      const postCount = (result.match(/describe\(\s*['"]POST \/users['"]/gu) ?? []).length
       expect(postCount).toBe(1)
     })
 
@@ -2444,9 +2444,9 @@ export const deleteUserRouteHandler: RouteHandler<typeof deleteUserRoute> = asyn
       const importLine = result.split('\n').find((line: string) => line.includes("from '../index'"))
       expect(importLine).toBeDefined()
       // Named imports should be alphabetically sorted
-      const names = importLine?.match(/\{([^}]+)\}/)?.[1]
+      const names = importLine?.match(/\{([^}]+)\}/u)?.[1]
       expect(names).toBeDefined()
-      const importNames = names?.split(',').map((n: string) => n.trim().replace(/^type\s+/, ''))
+      const importNames = names?.split(',').map((n: string) => n.trim().replace(/^type\s+/u, ''))
       expect(importNames).toBeDefined()
       const sorted = [...(importNames ?? [])].sort()
       expect(importNames).toStrictEqual(sorted)
@@ -4202,7 +4202,7 @@ import { aRoute, aRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4223,7 +4223,7 @@ import { aRoute, aRouteHandler, bRoute, bRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4629,7 +4629,7 @@ import { aRoute, aRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 
@@ -4650,7 +4650,7 @@ import { aRoute, aRouteHandler, bRoute, bRouteHandler } from './handlers'
 
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
-    if (!result.success) return c.json({ errors: result.error.errors }, 422)
+    if (!result) return c.json({ errors: result.error.errors }, 422)
   },
 })
 

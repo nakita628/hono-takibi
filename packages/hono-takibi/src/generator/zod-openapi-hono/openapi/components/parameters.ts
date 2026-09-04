@@ -8,12 +8,6 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 
 /**
  * Generates TypeScript code for OpenAPI component parameters.
- *
- * @param components - The OpenAPI components object.
- * @param exportParameters - Whether to export the Zod schema variables.
- * @param exportParametersTypes - Whether to export the inferred Zod types.
- * @param readonly - Whether to add `.readonly()` modifier to parameter schemas.
- * @returns A string of TypeScript code with parameter definitions.
  */
 export function parametersCode(
   components: Components,
@@ -46,13 +40,13 @@ export function parametersCode(
       const z = isPrimitiveNumeric
         ? baseSchema
         : isStringWire && schema?.type === 'boolean'
-          ? baseSchema.replaceAll(/\bz\.boolean\(/g, 'z.stringbool(')
+          ? baseSchema.replaceAll(/\bz\.boolean\(/gu, 'z.stringbool(')
           : isStringWire && schema?.type === 'date'
             ? `z.coerce.${baseSchema.replace('z.', '')}`
             : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
               ? baseSchema
                   .replaceAll(
-                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/g,
+                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
                     (_: string, type: string, constraints: string) =>
                       type === 'int'
                         ? `z.coerce.number().int()${constraints}`

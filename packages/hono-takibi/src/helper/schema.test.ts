@@ -218,7 +218,7 @@ describe('makeSplitSchemaFile', () => {
       const analysis = analyzeCircularSchemas(schemas, schemaNames)
       const result = makeSplitSchemaFile('Event', schemas.Event, schemas, analysis, true)
 
-      const typeDefMatch = result.match(/type EventType=\{[^}]+\}/)
+      const typeDefMatch = result.match(/type EventType=\{[^}]+\}/u)
       expect(typeDefMatch).not.toBeNull()
 
       const typeDef = typeDefMatch?.[0] ?? ''

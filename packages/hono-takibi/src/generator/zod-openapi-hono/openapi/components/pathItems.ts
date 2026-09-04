@@ -25,6 +25,6 @@ export function pathItemsCode(
     )
   }
   return pathItemsEntries()
-    .map((e) => e.code)
+    .map((entry) => entry.code)
     .join('\n\n')
 }

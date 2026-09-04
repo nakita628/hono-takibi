@@ -2,7 +2,9 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vite-plus/test'
+import * as NodeServices from '@effect/platform-node/NodeServices'
+import { Console, Effect, Exit } from 'effect'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { honoTakibi } from './index.js'
 
@@ -95,26 +97,154 @@ const openapi = {
   },
 }
 
-describe('honoTakibi', () => {
-  beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/cli.js', 'openapi.json', '-o', 'zod-openapi-hono.ts']
-    fs.writeFileSync('openapi.json', JSON.stringify(openapi))
+const brandOpenapi = {
+  openapi: '3.1.0',
+  info: { title: 'Brand Test', version: '1.0.0' },
+  paths: {
+    '/items': {
+      get: {
+        operationId: 'getItems',
+        responses: {
+          200: {
+            description: 'OK',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/Item' } } },
+          },
+        },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      ItemId: { type: 'string', format: 'uuid', 'x-brand': 'ItemId' },
+      Item: {
+        type: 'object',
+        required: ['id', 'name'],
+        properties: { id: { $ref: '#/components/schemas/ItemId' }, name: { type: 'string' } },
+      },
+    },
+  },
+}
+
+const minimalOpenapi = {
+  openapi: '3.1.0',
+  info: { title: 'Cfg', version: '1.0.0' },
+  paths: {
+    '/items': { get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } } },
+  },
+}
+
+// `honoTakibi` reads `--version` from the `package.json` one directory above its entry,
+// so the tests hand it the URL the real entry has: `src/index.ts`.
+const ENTRY_URL = new URL('../index.ts', import.meta.url).href
+const { version } = JSON.parse(
+  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
+) as { readonly version: string }
+
+// SGR escapes the CLI formatter emits when stdout is a TTY, stripped so the
+// assertions below compare plain text either way.
+const ANSI = new RegExp(`${String.fromCodePoint(27)}\\[[0-9;]*m`, 'gu')
+
+/**
+ * Runs the CLI exactly as `dist/cli.js` does — same command, same platform services —
+ * with the `Console` service swapped for a recorder. Help, errors and the success
+ * message all go through `Console`, so this captures everything a user would see.
+ */
+async function runCli(argv: readonly string[], entryUrl: string = ENTRY_URL) {
+  const stdout: string[] = []
+  const stderr: string[] = []
+  const recorder: Console.Console = Object.assign(Object.create(console), {
+    log: (...args: readonly unknown[]) => stdout.push(args.map(String).join(' ')),
+    error: (...args: readonly unknown[]) => stderr.push(args.map(String).join(' ')),
   })
-  afterAll(() => {
-    fs.rmSync('openapi.json', { force: true })
-    fs.rmSync('zod-openapi-hono.ts', { force: true })
+  const exit = await Effect.runPromiseExit(
+    honoTakibi(argv, entryUrl).pipe(
+      Effect.provideService(Console.Console, recorder),
+      Effect.provide(NodeServices.layer),
+    ),
+  )
+  return {
+    ok: Exit.isSuccess(exit),
+    stdout: stdout.join('\n').replaceAll(ANSI, ''),
+    stderr: stderr.join('\n').replaceAll(ANSI, ''),
+  }
+}
+
+const originalCwd = process.cwd()
+let tmpDir = ''
+
+/**
+ * Fresh temp directory, entered for the length of the test.
+ *
+ * `chdir` rather than a stubbed `process.cwd`: a generator resolves its output through
+ * the real working directory, so a config that names a relative output only lands in the
+ * temp directory if the process is actually in it.
+ */
+function useTmpDir(prefix: string) {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), prefix)))
+  tmpDir = dir
+  process.chdir(dir)
+  return dir
+}
+
+afterEach(() => {
+  process.chdir(originalCwd)
+  if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true })
+  tmpDir = ''
+})
+
+// The two modes are mutually exclusive and each flag is meaningless alone; these are the
+// ways a caller can describe neither mode. Driven through argv, so the guards are reached
+// the way a user reaches them — past `mustExist` and the extension schemas.
+describe('hono-takibi mode resolution', { timeout: 30_000 }, () => {
+  it('rejects <input> without -o', async () => {
+    const dir = useTmpDir('cli-mode-input-only-')
+    const input = path.join(dir, 'openapi.json')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+
+    const result = await runCli([input])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('<input> requires -o <output.ts>')
   })
 
-  it('honoTakibi generated', async () => {
-    const result = await honoTakibi()
+  it('rejects --config alongside the one-shot flags', async () => {
+    const dir = useTmpDir('cli-mode-config-and-input-')
+    const input = path.join(dir, 'openapi.json')
+    const config = path.join(dir, 'api.config.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(config, 'export default {}')
 
-    expect(result).toEqual({
-      ok: true,
-      value: '🔥 Generated code written to zod-openapi-hono.ts',
-    })
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts'), '--config', config])
 
-    const generatedCode = fs.readFileSync('zod-openapi-hono.ts', 'utf-8')
-    const expectedCode = `import { createRoute, z } from '@hono/zod-openapi'
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('--config cannot be combined')
+  })
+
+  it('rejects --config alongside -o alone', async () => {
+    const dir = useTmpDir('cli-mode-config-and-output-')
+    const config = path.join(dir, 'api.config.ts')
+    fs.writeFileSync(config, 'export default {}')
+
+    const result = await runCli(['-o', path.join(dir, 'out.ts'), '--config', config])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('--config cannot be combined')
+  })
+})
+
+describe('hono-takibi <input> -o <output>', { timeout: 30_000 }, () => {
+  it('generates the routes file and reports the path it wrote', async () => {
+    const dir = useTmpDir('cli-one-shot-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'zod-openapi-hono.ts')
+    fs.writeFileSync(input, JSON.stringify(openapi))
+
+    const result = await runCli([input, '-o', output])
+
+    expect(result.ok).toBe(true)
+    expect(result.stdout).toBe(`🔥 Generated code written to ${output}`)
+    expect(fs.readFileSync(output, 'utf-8'))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const getHonoRoute = createRoute({
   method: 'get',
@@ -175,184 +305,20 @@ export const getZodOpenapiHonoRoute = createRoute({
     },
   },
 })
-`
-    expect(generatedCode).toBe(expectedCode)
-  })
-})
-
-describe('honoTakibi --help', () => {
-  beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/cli.js', '--help']
-  })
-
-  it('honoTakibi help requested --help', async () => {
-    const result = await honoTakibi()
-
-    expect(result).toStrictEqual({
-      ok: true,
-      value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
-
-Options:
-  -h, --help                  display help for command`,
-    })
-  })
-})
-
-describe('honoTakibi -h', () => {
-  beforeAll(() => {
-    process.argv = ['*/*/bin/node', '*/dist/cli.js', '-h']
-  })
-
-  it('honoTakibi help requested -h', async () => {
-    const result = await honoTakibi()
-    expect(result).toStrictEqual({
-      ok: true,
-      value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <output.ts>
-
-Options:
-  -h, --help                  display help for command`,
-    })
-  })
-
-  describe('honoTakibi missing output', () => {
-    beforeAll(() => {
-      process.argv = ['node', 'dist/cli.js', 'openapi.yaml']
-    })
-
-    it('should fail if output is not specified', async () => {
-      const result = await honoTakibi()
-      expect(result.ok).toBe(false)
-    })
-  })
-
-  describe('honoTakibi no args', () => {
-    beforeAll(() => {
-      process.argv = ['node', 'dist/cli.js']
-    })
-
-    it('should fail when neither config nor positional args are supplied', async () => {
-      const result = await honoTakibi()
-      // No `hono-takibi.config.ts` in cwd + no positional input → parseCli
-      // rejects with the help text. (When cwd is the repo root the test
-      // runner does pick up the package's own config — here we accept either
-      // a clean parseCli failure or a downstream config-driven failure as
-      // long as `ok` is false.)
-      if (!result.ok) {
-        expect(typeof result.error).toBe('string')
-      }
-    })
-  })
-
-  describe('honoTakibi rejects unsupported input extension', () => {
-    beforeAll(() => {
-      process.argv = ['node', 'dist/cli.js', 'spec.txt', '-o', 'out.ts']
-    })
-
-    it('returns help text when input file is not .yaml/.json/.tsp', async () => {
-      const result = await honoTakibi()
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        // parseCli falls through to HELP_TEXT for any non-spec extension.
-        expect(result.error.includes('Usage: hono-takibi')).toBe(true)
-      }
-    })
-  })
-
-  describe('honoTakibi rejects unsupported output extension', () => {
-    beforeAll(() => {
-      process.argv = ['node', 'dist/cli.js', 'spec.yaml', '-o', 'out.js']
-    })
-
-    it('returns help text when output file is not .ts', async () => {
-      const result = await honoTakibi()
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(result.error.includes('Usage: hono-takibi')).toBe(true)
-      }
-    })
-  })
-
-  describe('honoTakibi propagates parseOpenAPI failure', () => {
-    beforeAll(() => {
-      // Pointing at a non-existent .yaml file forces parseOpenAPI to fail
-      // — the CLI's `openAPIResult.ok === false` branch should surface the
-      // error verbatim instead of throwing.
-      process.argv = ['node', 'dist/cli.js', 'this-file-does-not-exist.yaml', '-o', 'out.ts']
-    })
-
-    it('returns ok:false with the parser error string when input is missing', async () => {
-      const result = await honoTakibi()
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(typeof result.error).toBe('string')
-        // The error should NOT be the help text — it's a parser-level failure.
-        expect(result.error.includes('Usage: hono-takibi')).toBe(false)
-      }
-    })
-  })
-})
-
-describe('honoTakibi x-brand', () => {
-  beforeAll(() => {
-    process.argv = [
-      '*/*/bin/node',
-      '*/dist/cli.js',
-      'brand-test.json',
-      '-o',
-      'brand-test-output.ts',
-    ]
-    fs.writeFileSync(
-      'brand-test.json',
-      JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Brand Test', version: '1.0.0' },
-        paths: {
-          '/items': {
-            get: {
-              operationId: 'getItems',
-              responses: {
-                200: {
-                  description: 'OK',
-                  content: {
-                    'application/json': {
-                      schema: { $ref: '#/components/schemas/Item' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        components: {
-          schemas: {
-            ItemId: { type: 'string', format: 'uuid', 'x-brand': 'ItemId' },
-            Item: {
-              type: 'object',
-              required: ['id', 'name'],
-              properties: {
-                id: { $ref: '#/components/schemas/ItemId' },
-                name: { type: 'string' },
-              },
-            },
-          },
-        },
-      }),
-    )
-  })
-  afterAll(() => {
-    fs.rmSync('brand-test.json', { force: true })
-    fs.rmSync('brand-test-output.ts', { force: true })
+`)
   })
 
   it('generates branded types with .brand<"X">()', async () => {
-    const result = await honoTakibi()
-    expect(result).toEqual({
-      ok: true,
-      value: '🔥 Generated code written to brand-test-output.ts',
-    })
+    const dir = useTmpDir('cli-brand-')
+    const input = path.join(dir, 'brand-test.json')
+    const output = path.join(dir, 'brand-test-output.ts')
+    fs.writeFileSync(input, JSON.stringify(brandOpenapi))
 
-    const generatedCode = fs.readFileSync('brand-test-output.ts', 'utf-8')
-    expect(generatedCode).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+    const result = await runCli([input, '-o', output])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(output, 'utf-8'))
+      .toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 const ItemIdSchema = z.uuid().brand<'ItemId'>().openapi('ItemId')
 
@@ -371,62 +337,249 @@ export const getItemsRoute = createRoute({
 })
 `)
   })
+
+  it('surfaces a generator failure instead of throwing', async () => {
+    const dir = useTmpDir('cli-one-shot-fail-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'routes.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    // A directory occupying the output path forces the write to fail (EISDIR).
+    fs.mkdirSync(output)
+
+    const result = await runCli([input, '-o', output])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
+  })
 })
 
-// The config-driven branch (honoTakibi reads `hono-takibi.config.ts` from cwd
-// and fans out to the per-feature generators). Each case isolates cwd + argv to
-// a fresh tmp dir so the orchestration runs against real files, never the repo.
-describe('honoTakibi config-driven', () => {
-  const originalCwd = process.cwd.bind(process)
-  const originalArgv = process.argv
-  let tmpDir = ''
-
-  afterEach(() => {
-    process.cwd = originalCwd
-    process.argv = originalArgv
-    if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true })
-    tmpDir = ''
-  })
-
-  it('reads config from cwd and generates the single-file routes output', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-min-'))
-    const input = path.join(tmpDir, 'openapi.json')
-    const output = path.join(tmpDir, 'routes.ts')
+/**
+ * Two decisions in `cli/index.ts` that nothing else would notice being undone: they are
+ * about what the command does *not* do, so no output changes when they break.
+ */
+describe('hono-takibi invariants', () => {
+  // The comment above the one-shot branch says a config file is never consulted. Merging
+  // the two branches during a refactor would make this config win and write to `b.ts`.
+  it('ignores a config file sitting in the working directory in one-shot mode', async () => {
+    const dir = useTmpDir('cli-one-shot-ignores-config-')
+    const input = path.join(dir, 'openapi.json')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
     fs.writeFileSync(
-      input,
-      JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Cfg', version: '1.0.0' },
-        paths: {
-          '/items': {
-            get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } },
-          },
-        },
-      }),
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: ${JSON.stringify(input)}, output: './b.ts' }`,
     )
-    fs.writeFileSync(
-      path.join(tmpDir, 'hono-takibi.config.ts'),
-      `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
-    )
-    process.cwd = () => tmpDir
-    process.argv = ['node', 'cli']
 
-    const result = await honoTakibi()
+    const result = await runCli([input, '-o', path.join(dir, 'a.ts')])
 
     expect(result.ok).toBe(true)
-    expect(fs.existsSync(output)).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'a.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'b.ts'))).toBe(false)
+  })
+
+  /**
+   * The generator pipeline is loaded through `import()` inside the handler, so `--help`,
+   * `--version`, `--completions` and every rejected command line do not pay for the
+   * TypeSpec compiler, the OpenAPI parser and ts-morph. Measured at the time: `--help`
+   * takes ~190ms this way and ~1100ms with the imports hoisted to module scope.
+   *
+   * A refactor that tidies them into ordinary imports changes no behaviour and no output,
+   * which is exactly why it needs a test. Reading the source rather than timing anything
+   * keeps this from being a flaky benchmark.
+   */
+  it('loads the generators lazily, so the built-in flags stay fast', () => {
+    const source = fs.readFileSync(new URL('./index.ts', import.meta.url), 'utf-8')
+    const header = source.slice(0, source.indexOf('const commandLine'))
+
+    for (const heavy of ['../openapi/index.js', '../core/index.js', '../shared/index.js']) {
+      expect(header).not.toContain(`from '${heavy}'`)
+      expect(source).toContain(`import('${heavy}')`)
+    }
+  })
+})
+
+describe('hono-takibi argument validation', () => {
+  it('rejects an input whose extension is not .yaml/.json/.tsp', async () => {
+    const dir = useTmpDir('cli-bad-input-ext-')
+    const input = path.join(dir, 'spec.txt')
+    fs.writeFileSync(input, '{}')
+
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document')
+  })
+
+  it('rejects an input file that does not exist', async () => {
+    const dir = useTmpDir('cli-missing-input-')
+    const input = path.join(dir, 'this-file-does-not-exist.yaml')
+
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Path does not exist')
+  })
+
+  it('rejects an output whose extension is not .ts', async () => {
+    const dir = useTmpDir('cli-bad-output-ext-')
+    const input = path.join(dir, 'openapi.json')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+
+    const result = await runCli([input, '-o', 'out.js'])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('a TypeScript file path ending in .ts')
+  })
+
+  it('rejects an unknown flag', async () => {
+    useTmpDir('cli-unknown-flag-')
+
+    const result = await runCli(['--nope'])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('--nope')
+  })
+
+  it('explains that -o needs an input document', async () => {
+    useTmpDir('cli-output-only-')
+
+    const result = await runCli(['-o', 'out.ts'])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('-o <output.ts> requires an <input> document')
+  })
+})
+
+/**
+ * `--help` is the command's own account of itself, and three other things claim to say
+ * the same: the `USAGE` block the mode errors print, the CLI Reference in the README, and
+ * the examples. Nothing makes them agree, so each is checked against the rendered help
+ * rather than described a second time.
+ *
+ * The assertions name the lines this repository writes — the description, the argument,
+ * our three flags, the examples — and not the frame `effect/unstable/cli` draws around
+ * them: `GLOBAL FLAGS`, the column widths and the wording of `--help` itself belong to
+ * the library, and pinning those would fail on a dependency bump rather than on drift
+ * here.
+ */
+describe('hono-takibi --help', () => {
+  it('lists every flag the command defines, with its alias and description', async () => {
+    useTmpDir('cli-help-flags-')
+
+    const result = await runCli(['--help'])
+
+    const flags = result.stdout
+      .slice(result.stdout.indexOf('FLAGS\n'), result.stdout.indexOf('GLOBAL FLAGS'))
+      .split('\n')
+      .filter((line) => line.startsWith('  --'))
+      .map((line) => line.trim().replaceAll(/ {2,}/gu, '  '))
+
+    expect(flags).toStrictEqual([
+      '--output, -o output.ts  TypeScript file the generated routes are written to',
+      '--config, -c file  Config file to run (default: ./hono-takibi.config.ts)',
+      '--watch, -w  Rerun the config on every change to its documents or itself',
+    ])
+  })
+
+  it('is what the README prints as its CLI Reference', async () => {
+    useTmpDir('cli-help-readme-')
+    const readme = fs.readFileSync(new URL('../../README.md', import.meta.url), 'utf-8')
+    const marker = '`hono-takibi --help`:\n\n```\n'
+    const opening = readme.indexOf(marker)
+    expect(opening).toBeGreaterThan(-1)
+    const body = opening + marker.length
+    const block = readme.slice(body, readme.indexOf('\n```', body))
+
+    const result = await runCli(['--help'])
+
+    expect(result.stdout.trimEnd()).toBe(block)
+  })
+})
+
+describe('hono-takibi --version', () => {
+  it('prints the version from package.json', async () => {
+    useTmpDir('cli-version-')
+
+    const result = await runCli(['--version'])
+
+    expect(result.ok).toBe(true)
+    expect(result.stdout.trim()).toBe(`hono-takibi v${version}`)
+  })
+})
+
+/**
+ * The command describes itself in one place — the help `effect/unstable/cli` generates —
+ * and every failure that leaves the caller without a command to run asks for it by
+ * raising `ShowHelp`, whether the parser caught it or the handler did.
+ *
+ * The help goes to stdout and the error to stderr; only a terminal interleaves them.
+ */
+
+// The config-driven branch: with no positional input the CLI runs
+// `hono-takibi.config.ts` from the working directory and fans out to the
+// per-feature generators. Each case isolates cwd to a fresh tmp dir so the
+// orchestration runs against real files, never the repo.
+describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
+  it('reads config from cwd and generates the single-file routes output', async () => {
+    const dir = useTmpDir('cli-config-min-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'routes.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
     expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
   })
 
+  it('runs the config file named by --config', async () => {
+    const dir = useTmpDir('cli-config-explicit-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'routes.ts')
+    const config = path.join(dir, 'nested', 'api.config.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.mkdirSync(path.dirname(config))
+    fs.writeFileSync(
+      config,
+      `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
+    )
+
+    const result = await runCli(['--config', config])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
+  })
+
+  it('names the config it looked for when there is no input and no config file', async () => {
+    const dir = useTmpDir('cli-config-absent-')
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain(`Config not found: ${path.join(dir, 'hono-takibi.config.ts')}`)
+  })
+
+  it('rejects a --config file that does not exist', async () => {
+    const dir = useTmpDir('cli-config-missing-')
+
+    const result = await runCli(['--config', path.join(dir, 'nope.config.ts')])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Path does not exist')
+  })
+
   it('fans out to every generator named in the config and aggregates the results', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-rich-'))
-    const input = path.join(tmpDir, 'openapi.json')
-    const routes = path.join(tmpDir, 'routes.ts')
-    const types = path.join(tmpDir, 'types.ts')
-    const mockOut = path.join(tmpDir, 'mock.ts')
-    const docsOut = path.join(tmpDir, 'docs.md')
-    const testOut = path.join(tmpDir, 'routes.test.ts')
-    const queryOut = path.join(tmpDir, 'query.ts')
+    const dir = useTmpDir('cli-config-rich-')
+    const input = path.join(dir, 'openapi.json')
+    const routes = path.join(dir, 'routes.ts')
+    const types = path.join(dir, 'types.ts')
+    const mockOut = path.join(dir, 'mock.ts')
+    const docsOut = path.join(dir, 'docs.md')
+    const testOut = path.join(dir, 'routes.test.ts')
+    const queryOut = path.join(dir, 'query.ts')
     fs.writeFileSync(
       input,
       JSON.stringify({
@@ -456,7 +609,7 @@ describe('honoTakibi config-driven', () => {
       }),
     )
     fs.writeFileSync(
-      path.join(tmpDir, 'hono-takibi.config.ts'),
+      path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
@@ -468,10 +621,8 @@ describe('honoTakibi config-driven', () => {
         'tanstack-query': { output: ${JSON.stringify(queryOut)}, import: './client' },
       }`,
     )
-    process.cwd = () => tmpDir
-    process.argv = ['node', 'cli']
 
-    const result = await honoTakibi()
+    const result = await runCli([])
 
     expect(result.ok).toBe(true)
     expect(fs.existsSync(routes)).toBe(true)
@@ -481,17 +632,17 @@ describe('honoTakibi config-driven', () => {
     expect(fs.existsSync(testOut)).toBe(true)
     expect(fs.existsSync(queryOut)).toBe(true)
     // The `template` block in zod-openapi triggers the app/handler scaffold.
-    expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'index.ts'))).toBe(true)
   })
 
   it('generates split routes, webhooks and components from the advanced config', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-split-'))
-    const input = path.join(tmpDir, 'openapi.json')
-    const routesDir = path.join(tmpDir, 'routes')
-    const webhooksDir = path.join(tmpDir, 'webhooks')
-    const schemasDir = path.join(tmpDir, 'schemas')
-    const parametersDir = path.join(tmpDir, 'parameters')
-    const responsesDir = path.join(tmpDir, 'responses')
+    const dir = useTmpDir('cli-config-split-')
+    const input = path.join(dir, 'openapi.json')
+    const routesDir = path.join(dir, 'routes')
+    const webhooksDir = path.join(dir, 'webhooks')
+    const schemasDir = path.join(dir, 'schemas')
+    const parametersDir = path.join(dir, 'parameters')
+    const responsesDir = path.join(dir, 'responses')
     fs.writeFileSync(
       input,
       JSON.stringify({
@@ -540,7 +691,7 @@ describe('honoTakibi config-driven', () => {
       }),
     )
     fs.writeFileSync(
-      path.join(tmpDir, 'hono-takibi.config.ts'),
+      path.join(dir, 'hono-takibi.config.ts'),
       `export default {
         input: ${JSON.stringify(input)},
         basePath: '/',
@@ -553,10 +704,8 @@ describe('honoTakibi config-driven', () => {
         },
       }`,
     )
-    process.cwd = () => tmpDir
-    process.argv = ['node', 'cli']
 
-    const result = await honoTakibi()
+    const result = await runCli([])
 
     expect(result.ok).toBe(true)
     expect(fs.existsSync(routesDir) && fs.readdirSync(routesDir).length > 0).toBe(true)
@@ -565,36 +714,294 @@ describe('honoTakibi config-driven', () => {
   })
 
   it('returns the first generator failure when an output path is not writable', async () => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cli-config-fail-'))
-    const input = path.join(tmpDir, 'openapi.json')
-    const output = path.join(tmpDir, 'routes.ts')
-    fs.writeFileSync(
-      input,
-      JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Cfg', version: '1.0.0' },
-        paths: {
-          '/items': {
-            get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } },
-          },
-        },
-      }),
-    )
+    const dir = useTmpDir('cli-config-fail-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'routes.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
     // A directory occupying the output path forces writeFile to fail (EISDIR),
     // so the generator returns { ok: false } and the CLI must surface it.
     fs.mkdirSync(output)
     fs.writeFileSync(
-      path.join(tmpDir, 'hono-takibi.config.ts'),
+      path.join(dir, 'hono-takibi.config.ts'),
       `export default { input: ${JSON.stringify(input)}, output: ${JSON.stringify(output)} }`,
     )
-    process.cwd = () => tmpDir
-    process.argv = ['node', 'cli']
 
-    const result = await honoTakibi()
+    const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(typeof result.error).toBe('string')
+    expect(result.stderr).toContain('ERROR')
+  })
+
+  it('reports an invalid config without running any generator', async () => {
+    const dir = useTmpDir('cli-config-invalid-')
+    fs.writeFileSync(path.join(dir, 'hono-takibi.config.ts'), 'export default { input: 42 }')
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Invalid config')
+    // A config that is present and wrong already names the field that is wrong; the help
+    // the mode failures ask for would only bury it.
+    expect(result.stdout).toBe('')
+  })
+
+  it('resolves a relative --config, and the paths inside it, against the working directory', async () => {
+    const dir = useTmpDir('cli-config-relative-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.mkdirSync(path.join(dir, 'config'))
+    fs.writeFileSync(
+      path.join(dir, 'config', 'api.config.ts'),
+      // Relative to the working directory, not to the config file: `openapi.json` sits
+      // beside the config here but is named from the directory the CLI was run in.
+      `export default { input: './openapi.json', output: './src/routes.ts' }`,
+    )
+
+    const result = await runCli(['--config', 'config/api.config.ts'])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf-8')).toContain('getItemsRoute')
+  })
+
+  it('applies the config format block to what it writes', async () => {
+    const dir = useTmpDir('cli-config-format-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './routes.ts',
+        format: { semi: true, singleQuote: false },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8')).toContain(
+      'import { createRoute, z } from "@hono/zod-openapi";',
+    )
+  })
+
+  it('surfaces a config module that throws while loading', async () => {
+    const dir = useTmpDir('cli-config-throws-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `throw new Error('config blew up')
+export default {}`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('config blew up')
+  })
+
+  it('rejects a config module with no default export', async () => {
+    const dir = useTmpDir('cli-config-no-default-')
+    fs.writeFileSync(path.join(dir, 'hono-takibi.config.ts'), `export const config = {}`)
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Config must export default object')
+  })
+
+  it('surfaces a config whose input document is missing', async () => {
+    const dir = useTmpDir('cli-config-missing-input-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './nope.yaml', output: './routes.ts' }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
+    expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
+  })
+
+  // The schema rejects the values that would otherwise be spliced into generated code.
+  // What matters here is that the failure reaches the caller naming the config field,
+  // rather than as an oxfmt complaint about a file they never wrote.
+  it.each([
+    ['basePath', `basePath: 'api', output: './routes.ts'`, 'basePath: must start with'],
+    [
+      'rpc.client',
+      `rpc: { output: './rpc.ts', import: '../lib', client: '1bad' }`,
+      'rpc.client: must be a JavaScript identifier',
+    ],
+    [
+      'rpc.import',
+      `rpc: { output: './rpc.ts', import: '' }`,
+      'rpc.import: must be a module specifier',
+    ],
+  ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
+    const dir = useTmpDir('cli-config-field-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './openapi.json', ${body} }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain(expected)
+    expect(fs.readdirSync(dir).sort()).toStrictEqual(['hono-takibi.config.ts', 'openapi.json'])
+  })
+
+  it('generates rpc wrappers that import the configured client', async () => {
+    const dir = useTmpDir('cli-config-rpc-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        rpc: { output: './rpc.ts', import: '../lib', client: 'apiClient' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf-8')).toContain(
+      "import { apiClient } from '../lib'",
+    )
+  })
+
+  // A split generator writes one file per entry and knows only what it writes, so nothing
+  // downstream can notice an entry that left the document. The orphan is not inert: it
+  // still imports the schema the document no longer defines.
+  it('removes split files for entries the document no longer names', async () => {
+    const dir = useTmpDir('cli-config-stale-split-')
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'Stale', version: '1.0.0' },
+      paths: {
+        '/items': { get: { operationId: 'getItems', responses: { '200': { description: 'OK' } } } },
+        '/widgets': {
+          get: {
+            operationId: 'getWidgets',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/Widget' } },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Widget: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+        },
+      },
     }
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(spec))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        routes: { split: true, output: './src/routes', import: '../routes' },
+        components: { schemas: { split: true, output: './src/schemas', import: '../schemas' } },
+      }`,
+    )
+
+    const initial = await runCli([])
+    expect(initial.ok).toBe(true)
+    expect(fs.readdirSync(path.join(dir, 'src', 'routes')).sort()).toStrictEqual([
+      'getItems.ts',
+      'getWidgets.ts',
+      'index.ts',
+    ])
+
+    fs.writeFileSync(
+      path.join(dir, 'openapi.json'),
+      JSON.stringify({
+        ...spec,
+        paths: { '/items': spec.paths['/items'] },
+        components: { schemas: {} },
+      }),
+    )
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readdirSync(path.join(dir, 'src', 'routes')).sort()).toStrictEqual([
+      'getItems.ts',
+      'index.ts',
+    ])
+    // The whole section left the document, so the generator writes nothing — the previous
+    // directory, barrel included, has to go rather than stand as the current answer.
+    expect(fs.readdirSync(path.join(dir, 'src', 'schemas'))).toStrictEqual([])
+  })
+
+  it('rejects a config that points two generators at one output path', async () => {
+    const dir = useTmpDir('cli-config-collision-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'api.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: ${JSON.stringify(input)},
+        output: ${JSON.stringify(output)},
+        type: { output: ${JSON.stringify(output)} },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('type.output and output both write to')
+    expect(fs.existsSync(output)).toBe(false)
+  })
+})
+
+// The version is read before the command runs, so `Command.runWith` never sees this
+// failure. It still has to reach the caller as the `ERROR` block every other failure
+// prints, not as a runtime cause dump.
+describe('hono-takibi broken install', () => {
+  it('renders a package.json it cannot parse through the CLI formatter', async () => {
+    const dir = useTmpDir('cli-broken-manifest-')
+    fs.mkdirSync(path.join(dir, 'sub'))
+    fs.writeFileSync(path.join(dir, 'package.json'), 'not json')
+
+    const result = await runCli(
+      ['--help'],
+      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
+    )
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toContain('Cannot read the version from package.json')
+  })
+
+  it('reports a package.json with no version field', async () => {
+    const dir = useTmpDir('cli-versionless-manifest-')
+    fs.mkdirSync(path.join(dir, 'sub'))
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'x' }))
+
+    const result = await runCli(
+      ['--help'],
+      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
+    )
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Cannot read the version from package.json')
+  })
+})
+
+describe('hono-takibi one-shot failures', { timeout: 30_000 }, () => {
+  it('propagates a parse failure from the input document', async () => {
+    const dir = useTmpDir('cli-parse-failure-')
+    const input = path.join(dir, 'broken.json')
+    fs.writeFileSync(input, '{ not json')
+
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
   })
 })

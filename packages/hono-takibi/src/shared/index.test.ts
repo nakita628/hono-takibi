@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
+import { runGenerator } from '../testing/index.js'
 import { makeJob } from './index.js'
 
 const openAPI = {
@@ -49,56 +50,60 @@ afterEach(() => {
 })
 
 describe('makeJob define mode', () => {
-  it('defaults the app entry to src/index.ts when output is omitted', () => {
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+  it('defaults the app entry to src/index.ts when output is omitted', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'src/components/index.ts' },
       { name: 'template', output: 'src/index.ts' },
     ])
   })
 
-  it('derives the app entry from components.output when output is omitted', () => {
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      template: { define: true },
-      components: { output: './server/components/index.ts' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+  it('derives the app entry from components.output when output is omitted', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: './server/components/index.ts' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: './server/components/index.ts' },
       { name: 'template', output: './server/index.ts' },
     ])
   })
 
-  it('derives the app entry from a flat components.output file when output is omitted', () => {
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      template: { define: true },
-      components: { output: 'server/components.ts' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+  it('derives the app entry from a flat components.output file when output is omitted', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: 'server/components.ts' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'server/components.ts' },
       { name: 'template', output: 'server/index.ts' },
     ])
   })
 
-  it('prefers explicit output over the components.output anchor', () => {
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: 'src/index.ts',
-      template: { define: true },
-      components: { output: 'shared/components.ts' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
+  it('prefers explicit output over the components.output anchor', async () => {
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: 'src/index.ts',
+        template: { define: true },
+        components: { output: 'shared/components.ts' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
     expect(jobs.map((job) => ({ name: job.name, output: job.output }))).toStrictEqual([
       { name: 'components', output: 'shared/components.ts' },
       { name: 'template', output: 'src/index.ts' },
@@ -107,15 +112,15 @@ describe('makeJob define mode', () => {
 
   it('anchors generated files to the components.output directory when output is omitted', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-anchor-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      template: { define: true },
-      components: { output: `${tmpDir}/server/components/index.ts` },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        template: { define: true },
+        components: { output: `${tmpDir}/server/components/index.ts` },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -156,15 +161,15 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
   it('generates defineOpenAPIRoute handlers, openapiRoutes app, and components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -232,15 +237,15 @@ export const UserSchema = z
 
   it('routes imports through pathAlias when set', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-alias-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true, pathAlias: '@/' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true, pathAlias: '@/' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts')).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
@@ -260,16 +265,15 @@ import { UserSchema } from '@/components'`)
 
   it('emits route files to the derived routes dir next to output and imports from there', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-output-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
-    for (const r of results) if (!r.ok) throw new Error(r.error)
-
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     // route files live under routes/, not handlers/
     expect(fs.existsSync(path.join(tmpDir, 'src', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'handlers'))).toBe(false)
@@ -296,14 +300,14 @@ import { UserSchema } from '../components'`)
 
   it('derives routes/components as siblings of a nested output, not anchored to a shallower dir', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-nested-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/api/index.ts`,
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/api/index.ts`,
+        template: { define: true },
+      }),
+    )
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'routes', 'users.ts'))).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -331,15 +335,15 @@ import { UserSchema } from '../components'`)
 
   it('applies readonly to both components and route definitions', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-readonly-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      readonly: true,
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        readonly: true,
+        template: { define: true },
+      }),
+    )
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('components/index.ts')).toBe(`import { z } from '@hono/zod-openapi'
@@ -378,14 +382,14 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 
   it('relocates the whole cluster under server/ with identical relative imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-server-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/server/index.ts`,
-      template: { define: true },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/server/index.ts`,
+        template: { define: true },
+      }),
+    )
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src'))).toBe(false)
@@ -406,15 +410,15 @@ import { UserSchema } from '../components'`)
 
   it('sends components to components.output outside the cluster and rewires route imports', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-comp-out-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true },
-      components: { output: `${tmpDir}/shared/components.ts` },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true },
+        components: { output: `${tmpDir}/shared/components.ts` },
+      }),
+    )
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
 
     expect(fs.existsSync(path.join(tmpDir, 'shared', 'components.ts'))).toBe(true)
     // The derived components dir must not appear when the override is set.
@@ -431,15 +435,15 @@ import { UserSchema } from '../../shared/components'`)
 
   it('keeps the nested components.output path under a pathAlias (@/api/components)', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-comp-alias-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true, pathAlias: '@/' },
-      components: { output: `${tmpDir}/src/api/components/index.ts` },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true, pathAlias: '@/' },
+        components: { output: `${tmpDir}/src/api/components/index.ts` },
+      }),
+    )
+    await Promise.all(makeJob(openAPI, cfg).map((j) => runGenerator(j.run(j.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(fs.existsSync(path.join(tmpDir, 'src', 'api', 'components', 'index.ts'))).toBe(true)
@@ -453,15 +457,15 @@ import { UserSchema } from '@/api/components'`)
 
   it('imports the derived routes dir through a pathAlias (@/routes)', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'define-job-alias-routes-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      output: `${tmpDir}/src/index.ts`,
-      template: { define: true, pathAlias: '@/' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        output: `${tmpDir}/src/index.ts`,
+        template: { define: true, pathAlias: '@/' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
     expect(read('index.ts').split('\n')).toContain(
@@ -475,21 +479,22 @@ import { UserSchema } from '@/api/components'`)
 
 describe(
   'define mode regeneration round-trip (human edits coexist with codegen)',
-  { timeout: 30000 },
+  { timeout: 30_000 },
   () => {
     it('preserves an implemented handler across regeneration', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-handler-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human implements the handler.
       fs.writeFileSync(
         usersPath,
@@ -500,30 +505,31 @@ describe(
             "handler: async (c) => {\n    return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const afterRegen = fs.readFileSync(usersPath, 'utf-8')
       const trimmed = afterRegen.split('\n').map((l) => l.trim())
       expect(trimmed).toContain("return c.json({ id: c.req.param('id'), name: 'Jane' }, 200)")
       expect(trimmed).not.toContain('handler: async (c) => {},')
       // Idempotent: a further regeneration changes nothing.
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       expect(fs.readFileSync(usersPath, 'utf-8')).toBe(afterRegen)
     })
 
     it('preserves a hand-edited createRoute (not re-synced from spec)', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-route-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds a summary inside createRoute (the spec has none).
       fs.writeFileSync(
         usersPath,
@@ -534,7 +540,7 @@ describe(
             "operationId: 'getUser',\n    summary: 'Get a user',",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       expect(
         fs
@@ -546,17 +552,18 @@ describe(
 
     it('preserves user-added imports, helpers, and consts', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-helper-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds a custom import (named like a route — must NOT be dropped), a helper, and a const.
       fs.writeFileSync(
         usersPath,
@@ -565,7 +572,7 @@ describe(
           'utf-8',
         )}\nconst PAGE_SIZE = 20\nfunction toDto(x: unknown) {\n  return x\n}\n`,
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const trimmed = fs
         .readFileSync(usersPath, 'utf-8')
@@ -579,17 +586,18 @@ describe(
 
     it('adds a new route as a stub while keeping existing edits, and updates the app + barrel', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-add-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       fs.writeFileSync(
         usersPath,
         fs
@@ -607,7 +615,7 @@ describe(
           '/tags': { get: { operationId: 'listTags', responses: { 200: { description: 'ok' } } } },
         },
       } as unknown as OpenAPI
-      for (const r of await run(withTags)) if (!r.ok) throw new Error(r.error)
+      await run(withTags)
 
       // Existing edit kept.
       expect(
@@ -641,16 +649,17 @@ export * from './tags'
 
     it('removes a route deleted from the spec but never deletes its handler file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-remove-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
       const healthContent = fs.readFileSync(healthPath, 'utf-8')
       // Spec drops the health resource.
@@ -658,7 +667,7 @@ export * from './tags'
         ...openAPI,
         paths: { '/users/{id}': (openAPI.paths as Record<string, unknown>)['/users/{id}'] },
       } as unknown as OpenAPI
-      for (const r of await run(withoutHealth)) if (!r.ok) throw new Error(r.error)
+      await run(withoutHealth)
 
       // The route declaration goes, the file stays for the user to remove.
       expect(healthContent.includes('export const getHealthRoute')).toBe(true)
@@ -687,17 +696,18 @@ export default app
 
     it('preserves user middleware and basePath on the app entry while syncing routes', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-app-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const indexPath = path.join(tmpDir, 'src', 'index.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       // Human adds middleware + basePath chain.
       fs.writeFileSync(
         indexPath,
@@ -721,7 +731,7 @@ export default app
           '/tags': { get: { operationId: 'listTags', responses: { 200: { description: 'ok' } } } },
         },
       } as unknown as OpenAPI
-      for (const r of await run(withTags)) if (!r.ok) throw new Error(r.error)
+      await run(withTags)
 
       const trimmed = fs
         .readFileSync(indexPath, 'utf-8')
@@ -739,17 +749,18 @@ export default app
 
     it('coexists with human edits in the derived routes directory', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-out-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       expect(fs.existsSync(usersPath)).toBe(true)
       fs.writeFileSync(
         usersPath,
@@ -760,7 +771,7 @@ export default app
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       expect(
         fs
@@ -776,17 +787,18 @@ export default app
 
     it('coexists with a pathAlias without duplicating imports', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rt-alias-'))
-      const cfg = parseConfig({
-        input: 'openapi.yaml',
-        output: `${tmpDir}/src/index.ts`,
-        template: { define: true, pathAlias: '@/' },
-      })
-      if (!cfg.ok) throw new Error(cfg.error)
+      const cfg = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: `${tmpDir}/src/index.ts`,
+          template: { define: true, pathAlias: '@/' },
+        }),
+      )
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
       fs.writeFileSync(
         usersPath,
         fs
@@ -796,7 +808,7 @@ export default app
             "handler: async (c) => {\n    return c.json({ id: '1', name: 'Jane' }, 200)\n  },",
           ),
       )
-      for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
+      await run(openAPI)
 
       const content = fs.readFileSync(usersPath, 'utf-8')
       const trimmed = content.split('\n').map((l) => l.trim())
@@ -811,15 +823,15 @@ export default app
 describe('makeJob test request paths use the global basePath', () => {
   it('prefixes generated test request paths with the global basePath', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      basePath: '/api',
-      test: { output: `${tmpDir}/app.test.ts`, import: './app' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        basePath: '/api',
+        test: { output: `${tmpDir}/app.test.ts`, import: './app' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/api/health`')).toBe(true)
     expect(content.includes('app.request(`/health`')).toBe(false)
@@ -827,15 +839,15 @@ describe('makeJob test request paths use the global basePath', () => {
 
   it('does not prefix test request paths when the global basePath is "/"', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-basepath-root-'))
-    const cfg = parseConfig({
-      input: 'openapi.yaml',
-      basePath: '/',
-      test: { output: `${tmpDir}/app.test.ts`, import: './app' },
-    })
-    if (!cfg.ok) throw new Error(cfg.error)
-    const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output))))
-      if (!r.ok) throw new Error(r.error)
+    const cfg = await runGenerator(
+      parseConfig({
+        input: 'openapi.yaml',
+        basePath: '/',
+        test: { output: `${tmpDir}/app.test.ts`, import: './app' },
+      }),
+    )
+    const jobs = makeJob(openAPI, cfg)
+    await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/health`')).toBe(true)
   })

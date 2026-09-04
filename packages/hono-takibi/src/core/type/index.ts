@@ -1,5 +1,7 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
@@ -32,22 +34,16 @@ const DEEP_READONLY_TYPE =
 
 /**
  * Generates TypeScript type declarations from OpenAPI specification.
- *
- * @param openAPI - OpenAPI specification object
- * @param output - Output file path (must end with .ts)
- * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
- * @returns Result with success message or error
  */
-// oxlint-disable-next-line no-shadow -- `type` is also a natural local name for a type string
-export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
+export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
   const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
   const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
-  const emitResult = await emit(dts, path.dirname(output), output)
-  return emitResult.ok
-    ? ({ ok: true, value: `Generated type code written to ${output}` } as const)
-    : ({ ok: false, error: emitResult.error } as const)
+  return Effect.gen(function* () {
+    yield* emit(dts, path.dirname(output), output)
+    return `Generated type code written to ${output}`
+  })
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {
@@ -75,7 +71,7 @@ function makeHonoSchemaType(openAPI: OpenAPI) {
 }
 
 function makeHonoPath(openApiPath: string) {
-  return openApiPath.replaceAll(/\{([^}]+)\}/g, ':$1')
+  return openApiPath.replaceAll(/\{([^}]+)\}/gu, ':$1')
 }
 
 function makeMethodType(
@@ -138,7 +134,7 @@ function makeInputType(
 }
 
 function makePathParams(openApiPath: string): readonly string[] {
-  return [...openApiPath.matchAll(/\{([^}]+)\}/g)].map((m) => m[1])
+  return [...openApiPath.matchAll(/\{([^}]+)\}/gu)].map((m) => m[1])
 }
 
 function makeParamPart(params: readonly Parameter[], components: Components | undefined) {

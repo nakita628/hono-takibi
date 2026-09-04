@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { test as testGen } from './index.js'
 
 let tmpDir: string
@@ -31,11 +32,8 @@ describe('test', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
-    expect(result.ok).toBe(true)
-    if (result.ok) {
-      expect(result.value).toBe(`Generated test file written to ${output}`)
-    }
+    const result = await runGenerator(testGen(openAPI, output, '..'))
+    expect(result).toBe(`Generated test file written to ${output}`)
     expect(fs.existsSync(output)).toBe(true)
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.length).toBeGreaterThan(0)
@@ -72,8 +70,7 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
-    expect(result.ok).toBe(true)
+    await runGenerator(testGen(openAPI, output, '..'))
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
   })
@@ -97,11 +94,8 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error.length > 0).toBe(true)
-    }
+    const result = await runGeneratorError(testGen(openAPI, output, '..'))
+    expect(result.message.length > 0).toBe(true)
   })
 
   it('propagates the error when the output directory cannot be created', async () => {
@@ -123,10 +117,7 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error.length > 0).toBe(true)
-    }
+    const result = await runGeneratorError(testGen(openAPI, output, '..'))
+    expect(result.message.length > 0).toBe(true)
   })
 })

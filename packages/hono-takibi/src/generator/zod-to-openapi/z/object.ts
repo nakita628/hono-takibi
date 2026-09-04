@@ -158,7 +158,7 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
             .map((d) => {
               const fallback = dependentRequiredMessage ?? errorMessage
               const msg = fallback ?? `requires "${d}" when "${key}" present`
-              const msgExpr = /^\s*\(.*?\)\s*=>/.test(msg)
+              const msgExpr = /^\s*\(.*?\)\s*=>/u.test(msg)
                 ? `(${msg})({code:'custom',path:[${JSON.stringify(d)}],input:o})`
                 : JSON.stringify(msg)
               return `if(!Object.hasOwn(o,${JSON.stringify(d)})){ctx.addIssue({code:'custom',message:${msgExpr},path:[${JSON.stringify(d)}]})}`

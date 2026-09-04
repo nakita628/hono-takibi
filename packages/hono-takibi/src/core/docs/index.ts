@@ -1,10 +1,12 @@
 import path from 'node:path'
 
-import { mkdir, writeFile } from '../../fsp/index.js'
+import { Effect } from 'effect'
+
+import { mkdir, writeFile } from '../../file/index.js'
 import { makeDocs } from '../../generator/docs/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
-export async function docs(
+export function docs(
   openAPI: OpenAPI,
   output: string,
   entry = 'src/index.ts',
@@ -12,10 +14,10 @@ export async function docs(
   curl = false,
   baseUrl?: string,
 ) {
-  const markdown = makeDocs(openAPI, entry, basePath, curl, baseUrl)
-  const mkdirResult = await mkdir(path.dirname(output))
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  const writeResult = await writeFile(output, markdown)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-  return { ok: true, value: `Generated docs written to ${output}` } as const
+  return Effect.gen(function* () {
+    const markdown = makeDocs(openAPI, entry, basePath, curl, baseUrl)
+    yield* mkdir(path.dirname(output))
+    yield* writeFile(output, markdown)
+    return `Generated docs written to ${output}`
+  })
 }

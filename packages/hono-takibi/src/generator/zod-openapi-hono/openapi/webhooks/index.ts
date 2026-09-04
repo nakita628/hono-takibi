@@ -65,6 +65,6 @@ export function webhookCode(openapi: OpenAPI, readonly?: boolean): string {
     )
   }
   return webhookEntries()
-    .map((e) => e.code)
+    .map((entry) => entry.code)
     .join('\n\n')
 }
