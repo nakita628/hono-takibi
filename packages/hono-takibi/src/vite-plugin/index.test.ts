@@ -419,9 +419,10 @@ describe('honoTakibiVite', () => {
 
     await changePlugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server: changeServer })
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
+    // Debounced, so the cleanup lands after the hook returns rather than during it.
+    await vi.waitFor(() => {
+      expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
+    })
   })
 
   it('watcher.add is called during configureServer', async () => {
@@ -639,7 +640,10 @@ describe('honoTakibiVite', () => {
     const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
     if (watcherCallback) await watcherCallback('change', configPath)
 
-    expect(logSpy).toHaveBeenCalledWith('config changed (watch)')
+    // Debounced, so the handler has not run at the moment the callback returns.
+    await vi.waitFor(() => {
+      expect(logSpy).toHaveBeenCalledWith('config changed')
+    })
     logSpy.mockRestore()
   })
 
@@ -809,9 +813,10 @@ describe('honoTakibiVite', () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
-    await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    })
     errorSpy.mockRestore()
   })
 

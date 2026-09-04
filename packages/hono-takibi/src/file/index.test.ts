@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
@@ -7,7 +8,14 @@ import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
-const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
+// Not `process.cwd()`-relative: several suites `process.chdir` into a temp directory and
+// remove it recursively when they finish, and a path resolved from whatever the working
+// directory happened to be at import time can end up inside one of those — deleted out
+// from under a test that had just written into it.
+const TEST_DIR = path.join(
+  fs.mkdtempSync(path.join(os.tmpdir(), 'hono-takibi-file-')),
+  'test-tmp-dir',
+)
 
 describe('file', () => {
   afterEach(async () => {

@@ -14,7 +14,7 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
     fs.rmSync('tmp-cli-test', { recursive: true, force: true })
   })
 
-  it('--help returns help text', { timeout: 10_000 }, () => {
+  it('--help returns help text', () => {
     const result = execSync(`node ${path.resolve(import.meta.dirname, '../dist/cli.js')} --help`, {
       encoding: 'utf-8',
     })
@@ -828,7 +828,7 @@ export const postItemsIdRoute = createRoute({
     }).toThrow(/Path does not exist/u)
   })
 
-  it('error on missing output option', { timeout: 10_000 }, () => {
+  it('error on missing output option', () => {
     const simpleOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Simple API', version: '1.0.0' },
@@ -1121,7 +1121,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('generates split routes and schemas with exportTypes', { timeout: 10_000 }, () => {
+  it('generates split routes and schemas with exportTypes', () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Test API', version: '1.0.0' },

@@ -64,10 +64,11 @@ rather than overwritten — add an operation to the document and its handler stu
 while the code already written into the existing ones stays put.
 
 The whole directory holding the input document is watched, not just the file `input`
-names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger a
-rerun. A failing pass prints the error and keeps watching. `--watch` runs a config file,
-so it cannot be combined with `<input>` / `-o`; pointing `input` at a different directory
-takes effect on restart.
+names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger
+a rerun, and pointing `input` at another directory moves the watcher with it. A failing
+pass prints the error and keeps watching — including the first one, so a config that does
+not validate yet is something to fix in place rather than a reason to start over.
+`--watch` runs a config file, so it cannot be combined with `<input>` / `-o`.
 
 ## Full Configuration
 

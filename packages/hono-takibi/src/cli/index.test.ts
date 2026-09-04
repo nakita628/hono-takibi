@@ -353,6 +353,50 @@ export const getItemsRoute = createRoute({
   })
 })
 
+/**
+ * Two decisions in `cli/index.ts` that nothing else would notice being undone: they are
+ * about what the command does *not* do, so no output changes when they break.
+ */
+describe('hono-takibi invariants', () => {
+  // The comment above the one-shot branch says a config file is never consulted. Merging
+  // the two branches during a refactor would make this config win and write to `b.ts`.
+  it('ignores a config file sitting in the working directory in one-shot mode', async () => {
+    const dir = useTmpDir('cli-one-shot-ignores-config-')
+    const input = path.join(dir, 'openapi.json')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: ${JSON.stringify(input)}, output: './b.ts' }`,
+    )
+
+    const result = await runCli([input, '-o', path.join(dir, 'a.ts')])
+
+    expect(result.ok).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'a.ts'))).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'b.ts'))).toBe(false)
+  })
+
+  /**
+   * The generator pipeline is loaded through `import()` inside the handler, so `--help`,
+   * `--version`, `--completions` and every rejected command line do not pay for the
+   * TypeSpec compiler, the OpenAPI parser and ts-morph. Measured at the time: `--help`
+   * takes ~190ms this way and ~1100ms with the imports hoisted to module scope.
+   *
+   * A refactor that tidies them into ordinary imports changes no behaviour and no output,
+   * which is exactly why it needs a test. Reading the source rather than timing anything
+   * keeps this from being a flaky benchmark.
+   */
+  it('loads the generators lazily, so the built-in flags stay fast', () => {
+    const source = fs.readFileSync(new URL('./index.ts', import.meta.url), 'utf-8')
+    const header = source.slice(0, source.indexOf('const commandLine'))
+
+    for (const heavy of ['../openapi/index.js', '../core/index.js', '../shared/index.js']) {
+      expect(header).not.toContain(`from '${heavy}'`)
+      expect(source).toContain(`import('${heavy}')`)
+    }
+  })
+})
+
 describe('hono-takibi argument validation', () => {
   it('rejects an input whose extension is not .yaml/.json/.tsp', async () => {
     const dir = useTmpDir('cli-bad-input-ext-')
@@ -405,45 +449,70 @@ describe('hono-takibi argument validation', () => {
   })
 })
 
-describe('hono-takibi global flags', () => {
-  it('renders help for --help', async () => {
-    useTmpDir('cli-help-')
+/**
+ * `--help` is the command's own account of itself, and three other things claim to say
+ * the same: the `USAGE` block the mode errors print, the CLI Reference in the README, and
+ * the examples. Nothing makes them agree, so each is checked against the rendered help
+ * rather than described a second time.
+ *
+ * The assertions name the lines this repository writes — the description, the argument,
+ * our three flags, the examples — and not the frame `effect/unstable/cli` draws around
+ * them: `GLOBAL FLAGS`, the column widths and the wording of `--help` itself belong to
+ * the library, and pinning those would fail on a dependency bump rather than on drift
+ * here.
+ */
+describe('hono-takibi --help', () => {
+  it('lists every flag the command defines, with its alias and description', async () => {
+    useTmpDir('cli-help-flags-')
 
     const result = await runCli(['--help'])
 
-    expect(result.ok).toBe(true)
-    expect(result.stdout).toContain('hono-takibi [flags] [<input>]')
-    expect(result.stdout).toContain('--output, -o')
-    expect(result.stdout).toContain('--config, -c')
+    const flags = result.stdout
+      .slice(result.stdout.indexOf('FLAGS\n'), result.stdout.indexOf('GLOBAL FLAGS'))
+      .split('\n')
+      .filter((line) => line.startsWith('  --'))
+      .map((line) => line.trim().replaceAll(/ {2,}/gu, '  '))
+
+    expect(flags).toStrictEqual([
+      '--output, -o output.ts  TypeScript file the generated routes are written to',
+      '--config, -c file  Config file to run (default: ./hono-takibi.config.ts)',
+      '--watch, -w  Rerun the config on every change to its documents or itself',
+    ])
   })
 
-  it('renders help for -h', async () => {
-    useTmpDir('cli-help-short-')
+  it('is what the README prints as its CLI Reference', async () => {
+    useTmpDir('cli-help-readme-')
+    const readme = fs.readFileSync(new URL('../../README.md', import.meta.url), 'utf-8')
+    const marker = '`hono-takibi --help`:\n\n```\n'
+    const opening = readme.indexOf(marker)
+    expect(opening).toBeGreaterThan(-1)
+    const body = opening + marker.length
+    const block = readme.slice(body, readme.indexOf('\n```', body))
 
-    const result = await runCli(['-h'])
+    const result = await runCli(['--help'])
 
-    expect(result.ok).toBe(true)
-    expect(result.stdout).toContain('hono-takibi [flags] [<input>]')
+    expect(result.stdout.trimEnd()).toBe(block)
   })
+})
 
-  it('prints the version for --version', async () => {
+describe('hono-takibi --version', () => {
+  it('prints the version from package.json', async () => {
     useTmpDir('cli-version-')
 
     const result = await runCli(['--version'])
 
     expect(result.ok).toBe(true)
-    expect(result.stdout).toContain(`hono-takibi v${version}`)
-  })
-
-  it('prints a shell completion script for --completions', async () => {
-    useTmpDir('cli-completions-')
-
-    const result = await runCli(['--completions', 'zsh'])
-
-    expect(result.ok).toBe(true)
-    expect(result.stdout).toContain('#compdef hono-takibi')
+    expect(result.stdout.trim()).toBe(`hono-takibi v${version}`)
   })
 })
+
+/**
+ * The command describes itself in one place — the help `effect/unstable/cli` generates —
+ * and every failure that leaves the caller without a command to run asks for it by
+ * raising `ShowHelp`, whether the parser caught it or the handler did.
+ *
+ * The help goes to stdout and the error to stderr; only a terminal interleaves them.
+ */
 
 // The config-driven branch: with no positional input the CLI runs
 // `hono-takibi.config.ts` from the working directory and fans out to the
@@ -484,14 +553,13 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     expect(fs.readFileSync(output, 'utf-8').includes('getItemsRoute')).toBe(true)
   })
 
-  it('explains both usages when there is no input and no config file', async () => {
-    useTmpDir('cli-config-absent-')
+  it('names the config it looked for when there is no input and no config file', async () => {
+    const dir = useTmpDir('cli-config-absent-')
 
     const result = await runCli([])
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Config not found')
-    expect(result.stderr).toContain('hono-takibi <input.{yaml,json,tsp}> -o <output.ts>')
+    expect(result.stderr).toContain(`Config not found: ${path.join(dir, 'hono-takibi.config.ts')}`)
   })
 
   it('rejects a --config file that does not exist', async () => {
@@ -672,8 +740,9 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
 
     expect(result.ok).toBe(false)
     expect(result.stderr).toContain('Invalid config')
-    // The usage block answers "there is no config here", not "the config here is wrong".
-    expect(result.stderr).not.toContain('hono-takibi <input.{yaml,json,tsp}>')
+    // A config that is present and wrong already names the field that is wrong; the help
+    // the mode failures ask for would only bury it.
+    expect(result.stdout).toBe('')
   })
 
   it('resolves a relative --config, and the paths inside it, against the working directory', async () => {

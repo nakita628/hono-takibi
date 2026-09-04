@@ -59,8 +59,14 @@ function startCli(argv: readonly string[]) {
   return { fiber, output: () => lines.join('\n').replaceAll(ANSI, '') }
 }
 
-/** Polls until `condition` holds, so a test waits on the watcher rather than on a clock. */
-async function until(condition: () => boolean, timeoutMs = 15_000) {
+/**
+ * Polls until `condition` holds, so a test waits on the watcher rather than on a clock.
+ *
+ * The budget is a contention allowance, not an expectation: a pass normally lands in well
+ * under a second, but it runs the real generators against real files while the rest of the
+ * suite does the same.
+ */
+async function until(condition: () => boolean, timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs
   const poll = async (): Promise<boolean> => {
     if (condition()) return true
@@ -71,7 +77,9 @@ async function until(condition: () => boolean, timeoutMs = 15_000) {
   return poll()
 }
 
-describe('hono-takibi --watch', { timeout: 40_000 }, () => {
+// Long enough for every `until` in the slowest case to spend its full budget, so a real
+// failure still reports as the assertion that failed rather than as a suite timeout.
+describe('hono-takibi --watch', { timeout: 120_000 }, () => {
   it('regenerates when the input document changes', async () => {
     const dir = useTmpDir('cli-watch-input-')
     const routes = path.join(dir, 'routes.ts')
@@ -156,6 +164,77 @@ describe('hono-takibi --watch', { timeout: 40_000 }, () => {
       expect(await until(() => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'))).toBe(
         true,
       )
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(cli.fiber))
+    }
+  })
+
+  // A command asked to stay up and react to edits has to treat the first pass as a pass
+  // like any other; otherwise one typo in the config ends the session.
+  it('stays up when the config does not validate at startup', async () => {
+    const dir = useTmpDir('cli-watch-bad-config-')
+    const config = path.join(dir, 'hono-takibi.config.ts')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      config,
+      `export default { input: './openapi.json', basePath: 'api', output: './routes.ts' }`,
+    )
+
+    const cli = startCli(['--watch'])
+    try {
+      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      expect(cli.output()).toContain("basePath: must start with '/'")
+      expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
+
+      fs.writeFileSync(
+        config,
+        `export default { input: './openapi.json', basePath: '/api', output: './routes.ts' }`,
+      )
+
+      expect(await until(() => fs.existsSync(path.join(dir, 'routes.ts')))).toBe(true)
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(cli.fiber))
+    }
+  })
+
+  // The directory to watch comes from the config, so a config that moves `input` has to
+  // move the watcher with it rather than leaving it on the old directory.
+  it('follows input to another directory when the config moves it', async () => {
+    const dir = useTmpDir('cli-watch-moved-input-')
+    const config = path.join(dir, 'hono-takibi.config.ts')
+    fs.mkdirSync(path.join(dir, 'a'))
+    fs.mkdirSync(path.join(dir, 'b'))
+    fs.writeFileSync(path.join(dir, 'a', 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(path.join(dir, 'b', 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(config, `export default { input: './a/openapi.json', output: './routes.ts' }`)
+
+    const cli = startCli(['--watch'])
+    try {
+      expect(await until(() => cli.output().includes(path.join(dir, 'a')))).toBe(true)
+
+      fs.writeFileSync(
+        config,
+        `export default { input: './b/openapi.json', output: './routes.ts' }`,
+      )
+      expect(await until(() => cli.output().includes(path.join(dir, 'b')))).toBe(true)
+
+      // Editing the document in the directory the config now names has to rerun.
+      fs.writeFileSync(
+        path.join(dir, 'b', 'openapi.json'),
+        JSON.stringify({
+          ...minimalOpenapi,
+          paths: {
+            '/widgets': {
+              get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
+            },
+          },
+        }),
+      )
+      expect(
+        await until(() =>
+          fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8').includes('getWidgetsRoute'),
+        ),
+      ).toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }

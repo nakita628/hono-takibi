@@ -10,7 +10,7 @@ import { fileSystemLayer } from '../file/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { cleanSplitOutputs, makeJob } from '../shared/index.js'
+import { appEntryOutput, cleanSplitOutputs, makeJob } from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -332,9 +332,19 @@ function cleanupStaleOutputs(previousConfiguration: Config, currentConfiguration
   })
 }
 
+/**
+ * Every path this config declares an output at.
+ *
+ * Hand-listed rather than read off `makeJob`, which needs the parsed document these
+ * callers do not have. The two entries a caller cannot read straight off the config —
+ * `components.output` and the derived app entry — come from `shared` so they cannot
+ * disagree with what the generators actually write.
+ */
 function extractOutputPaths(config: Config): readonly string[] {
   return [
     config.output,
+    appEntryOutput(config),
+    config.components?.output,
     config.components?.schemas?.output,
     config.components?.parameters?.output,
     config.components?.headers?.output,
@@ -368,18 +378,17 @@ function extractOutputPaths(config: Config): readonly string[] {
 export function honoTakibiVite(): any {
   const pluginState: {
     current: Config | null
-    previous: Config | null
     inputDirectory: string | null
     lastInputHash: string | null
     runQueue: Promise<void>
   } = {
     current: null,
-    previous: null,
     inputDirectory: null,
     lastInputHash: null,
     runQueue: Promise.resolve(),
   }
   const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+  let pendingConfigurationServer: ViteDevServer | null = null
   const runGeneration = async () => {
     if (!pluginState.current) return false
     console.log('🔥 hono-takibi')
@@ -422,6 +431,7 @@ export function honoTakibiVite(): any {
     return queued
   }
   const handleConfigurationChange = async (server: ViteDevServer) => {
+    console.log('config changed')
     const nextConfiguration = await readConfigurationWithHotReload(server)
     if (Result.isFailure(nextConfiguration)) {
       console.error(`❌ config: ${nextConfiguration.failure}`)
@@ -437,7 +447,6 @@ export function honoTakibiVite(): any {
         console.log(`✅ cleanup: ${cleanedPath}`)
       }
     }
-    pluginState.previous = pluginState.current
     pluginState.current = nextConfiguration.success
     const inputDirectory = addInputGlobsToWatcher(
       server,
@@ -449,13 +458,28 @@ export function honoTakibiVite(): any {
     )
     await runGenerationAndReload(server)
   }
+  const debouncedConfigurationChange = debounce(200, () => {
+    const server = pendingConfigurationServer
+    if (server) void enqueueRun(() => handleConfigurationChange(server))
+  })
+  /**
+   * One entry point for a config edit, however it was noticed.
+   *
+   * Both hooks see the same save — Vite calls `handleHotUpdate` for the config module and
+   * the raw watcher reports the file too — so one edit used to arrive twice and run two
+   * full generation passes. Debounced for the same reason the input side is: an editor
+   * emits several events per save.
+   */
+  const queueConfigurationChange = (server: ViteDevServer) => {
+    pendingConfigurationServer = server
+    debouncedConfigurationChange()
+  }
   const vitePlugin = {
     name: 'hono-takibi-vite',
     handleHotUpdate(context: { file: string; server: ViteDevServer }) {
       const absoluteFilePath = path.resolve(context.file)
       if (absoluteFilePath === path.resolve(process.cwd(), 'hono-takibi.config.ts')) {
-        console.log('config changed (hot-update)')
-        void enqueueRun(() => handleConfigurationChange(context.server))
+        queueConfigurationChange(context.server)
         return []
       }
       return undefined
@@ -489,8 +513,7 @@ export function honoTakibiVite(): any {
         server.watcher.on('all', (_eventType, filePath) => {
           const absoluteChangedPath = path.resolve(filePath)
           if (absoluteChangedPath === absoluteConfigFilePath) {
-            console.log('config changed (watch)')
-            void enqueueRun(() => handleConfigurationChange(server))
+            queueConfigurationChange(server)
             return
           }
           if (

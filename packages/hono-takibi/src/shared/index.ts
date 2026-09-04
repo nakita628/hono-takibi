@@ -131,27 +131,31 @@ export function cleanSplitOutputs(directories: readonly string[]) {
   )
 }
 
+/**
+ * Where the `template` scaffold writes its app entry.
+ *
+ * In define mode the entry anchors `routes/` and `components/`. When `output` is omitted
+ * the anchor is inferred from `components.output` (`<anchor>/<module>`, module being a
+ * flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`), else `src/index.ts`.
+ *
+ * Exported because the derivation is the only output path a caller cannot read straight
+ * off the config, and a caller that lists output paths has to agree with `makeJob` about
+ * this one or it will report a file the generators do in fact write.
+ */
+export function appEntryOutput(config: Config) {
+  if (config.output !== undefined) return config.output
+  if (config.template?.define !== true) return config.routes?.output
+  if (config.components?.output === undefined) return 'src/index.ts'
+  const container = config.components.output.endsWith('/index.ts')
+    ? config.components.output.slice(0, -'/index.ts'.length)
+    : config.components.output
+  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
+  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
+}
+
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
-  // In define mode the app entry anchors routes/ and components/. When output is
-  // omitted, the anchor is inferred from components.output (`<anchor>/<module>`,
-  // module being a flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`),
-  // else src/index.ts.
-  const componentsContainer = config.components?.output?.endsWith('/index.ts')
-    ? config.components.output.slice(0, -'/index.ts'.length)
-    : config.components?.output
-  const componentsAnchor = componentsContainer?.includes('/')
-    ? componentsContainer.slice(0, componentsContainer.lastIndexOf('/'))
-    : ''
-  const appOutput =
-    config.output ??
-    (defineOn
-      ? config.components?.output === undefined
-        ? 'src/index.ts'
-        : componentsAnchor === '' || componentsAnchor === '.'
-          ? 'index.ts'
-          : `${componentsAnchor}/index.ts`
-      : config.routes?.output)
+  const appOutput = appEntryOutput(config)
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)

@@ -1,15 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Console, Effect, FileSystem, Option, Result, Runtime, Schema, Stream } from 'effect'
+import type { PlatformError } from 'effect'
+import { Console, Effect, FileSystem, Option, Ref, Result, Runtime, Schema, Stream } from 'effect'
 import { Argument, CliError, CliOutput, Command, Flag } from 'effect/unstable/cli'
+
+const COMMAND_NAME = 'hono-takibi'
 
 /** Config file `hono-takibi` picks up from the working directory when `--config` is omitted. */
 const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
-
-const USAGE = `Usage:
-  hono-takibi <input.{yaml,json,tsp}> -o <output.ts>   generate a single routes file
-  hono-takibi [--config <file>] [--watch]              run every generator the config opts into`
 
 // `Schema.refine` both rejects the value at runtime and narrows the parsed type, so a
 // wrong extension never reaches the generators and the ones it does reach arrive as
@@ -131,13 +130,27 @@ function runConfigPass(configPath: string, reload: boolean) {
   })
 }
 
-/** A pass whose failure is printed rather than raised, so the watch loop survives it. */
-function reportConfigPass(configPath: string) {
+/** Where the documents named by a config live, which is the directory worth watching. */
+function inputDirectoryOf(config: { readonly input: string }) {
+  return path.dirname(path.resolve(process.cwd(), config.input))
+}
+
+/**
+ * A pass whose failure is printed rather than raised, so the watch loop survives it, and
+ * which answers with the input directory the config now names.
+ *
+ * `undefined` means the pass did not get far enough to say — the config is missing, will
+ * not import, or does not validate. The loop keeps watching the config either way.
+ */
+function reportConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
-    const result = yield* Effect.result(runConfigPass(configPath, true))
-    return yield* Result.isSuccess(result)
-      ? Console.log(result.success.report)
-      : Console.error(`❌ ${result.failure.message}`)
+    const result = yield* Effect.result(runConfigPass(configPath, reload))
+    if (Result.isFailure(result)) {
+      yield* Console.error(`❌ ${result.failure.message}`)
+      return undefined
+    }
+    yield* Console.log(result.success.report)
+    return inputDirectoryOf(result.success.config)
   })
 }
 
@@ -157,21 +170,78 @@ function reportConfigPass(configPath: string) {
  * already reports twice. Generated files are `.ts` and `.md`, so a pass cannot trigger
  * the next one.
  */
-function watchConfig(configPath: string, inputDirectory: string) {
+/**
+ * Watches the config, and the input documents when a pass has said where they are, until
+ * the answer changes — then hands the new directory back so {@link watchConfig} restarts.
+ *
+ * `runForEachWhile` is what ends the round: a pass that reports a different directory
+ * returns `false`, and the directory it reported is in the `Ref` for the caller. The
+ * `Ref` is what carries a value out of a stream that otherwise only returns `void`.
+ */
+function watchRound(configPath: string, inputDirectory: string | undefined) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const configDirectory = path.dirname(configPath)
     const configFile = path.basename(configPath)
-    yield* Console.log(`\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`)
-    return yield* Stream.merge(
-      fs
-        .watch(inputDirectory, { recursive: true })
-        .pipe(Stream.filter((event) => isInputDocument(event.path))),
-      fs.watch(configDirectory).pipe(Stream.filter((event) => event.path === configFile)),
-    ).pipe(
+    const nextDirectory = yield* Ref.make<string | undefined>(inputDirectory)
+    const configEvents = fs
+      .watch(path.dirname(configPath))
+      .pipe(Stream.filter((event) => event.path === configFile))
+    const events =
+      inputDirectory === undefined
+        ? configEvents
+        : Stream.merge(
+            fs
+              .watch(inputDirectory, { recursive: true })
+              .pipe(Stream.filter((event) => isInputDocument(event.path))),
+            configEvents,
+          )
+    yield* events.pipe(
       Stream.debounce('200 millis'),
-      Stream.runForEach(() => reportConfigPass(configPath)),
+      // A pass that failed says nothing about where the documents are, so the round
+      // carries on watching what it was watching. Only a pass that succeeded and named a
+      // different directory ends the round.
+      Stream.runForEachWhile(() =>
+        reportConfigPass(configPath, true).pipe(
+          Effect.tap((directory) => Ref.set(nextDirectory, directory ?? inputDirectory)),
+          Effect.map((directory) => directory === undefined || directory === inputDirectory),
+        ),
+      ),
     )
+    return yield* Ref.get(nextDirectory)
+  })
+}
+
+/**
+ * Regenerates on every change to the input documents or the config, until interrupted.
+ *
+ * Two watchers, because two things can invalidate the output. The input document's
+ * directory is watched recursively — a TypeSpec entry imports its siblings and a `$ref`
+ * can point at one, so the file named by `input` is rarely the only one that matters. The
+ * config file is watched through its directory rather than directly, so an editor that
+ * saves by renaming does not take the watcher down with it.
+ *
+ * `WatchEvent.path` is relative to the directory it came from, which is why each stream
+ * is filtered before the merge rather than after.
+ *
+ * `debounce` collapses the burst an editor emits on save into one pass — a plain write
+ * already reports twice. Generated files are `.ts` and `.md`, so a pass cannot trigger
+ * the next one.
+ *
+ * `inputDirectory` is `undefined` until a pass has read a config far enough to name one;
+ * only the config is watched until then, which is what keeps a config that does not
+ * validate at startup from ending the command the caller asked to keep running.
+ */
+function watchConfig(
+  configPath: string,
+  inputDirectory: string | undefined,
+): Effect.Effect<void, PlatformError.PlatformError, FileSystem.FileSystem> {
+  return Effect.gen(function* () {
+    yield* Console.log(
+      inputDirectory === undefined
+        ? `\n👀 Watching ${configPath} — Ctrl-C to stop`
+        : `\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`,
+    )
+    return yield* watchConfig(configPath, yield* watchRound(configPath, inputDirectory))
   })
 }
 
@@ -195,26 +265,40 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
     const output = Option.getOrUndefined(args.output)
     const configPath = Option.getOrUndefined(args.config)
 
-    // Neither mode is described. `userMessage` is what the CLI formatter renders and
-    // `cause` is what a `--log-level` dump shows, so both carry the same sentence
-    // followed by the usage block.
+    // Neither mode is described. `ShowHelp` is how the runner is asked for the help it
+    // renders for a parse failure, so a failure caught here reads the same as one caught
+    // a layer earlier — and the command describes itself in exactly one place.
     if (configPath !== undefined && (input !== undefined || output !== undefined)) {
-      const message = `--config cannot be combined with <input> or --output. A config file already names its own input and outputs.\n\n${USAGE}`
-      return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
+      const message =
+        '--config cannot be combined with <input> or --output. A config file already names its own input and outputs.'
+      return yield* new CliError.ShowHelp({
+        commandPath: [COMMAND_NAME],
+        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
+      })
     }
     if (input !== undefined && output === undefined) {
-      const message = `<input> requires -o <output.ts>.\n\n${USAGE}`
-      return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
+      const message = '<input> requires -o <output.ts>.'
+      return yield* new CliError.ShowHelp({
+        commandPath: [COMMAND_NAME],
+        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
+      })
     }
     if (output !== undefined && input === undefined) {
-      const message = `-o <output.ts> requires an <input> document.\n\n${USAGE}`
-      return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
+      const message = '-o <output.ts> requires an <input> document.'
+      return yield* new CliError.ShowHelp({
+        commandPath: [COMMAND_NAME],
+        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
+      })
     }
     // One-shot writes one file from one document and is done; there is no second pass for
     // a change to trigger.
     if (args.watch && (input !== undefined || output !== undefined)) {
-      const message = `--watch runs a config file, so it cannot be combined with <input> or --output.\n\n${USAGE}`
-      return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
+      const message =
+        '--watch runs a config file, so it cannot be combined with <input> or --output.'
+      return yield* new CliError.ShowHelp({
+        commandPath: [COMMAND_NAME],
+        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
+      })
     }
 
     // One-shot: no config file is consulted, even when one sits in the working directory.
@@ -231,27 +315,33 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
     }
 
     const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
+    // Under `--watch` the first pass is a pass like any other: the caller asked for a
+    // command that stays up and reacts to edits, and a config that does not validate yet
+    // is the first edit to react to. Without it, one typo ends the session.
+    if (args.watch) {
+      return yield* watchConfig(resolvedConfig, yield* reportConfigPass(resolvedConfig, false))
+    }
     const first = yield* runConfigPass(resolvedConfig, false).pipe(
       // A config that is absent and was never asked for is the "ran `hono-takibi` with
       // nothing" case, the one place where the usage block is the answer. A config that
       // is present and wrong already names the field, and the usage block only buries it.
       Effect.mapError((error) =>
         configPath === undefined && error._tag === 'ConfigError' && error.notFound === true
-          ? new CliError.UserError({ cause: error, userMessage: `${error.message}\n\n${USAGE}` })
+          ? new CliError.ShowHelp({
+              commandPath: [COMMAND_NAME],
+              errors: [new CliError.UserError({ cause: error, userMessage: error.message })],
+            })
           : error,
       ),
     )
     yield* Console.log(first.report)
-    if (!args.watch) return undefined
-    // The directory comes from the config that just ran, so pointing `input` somewhere
-    // else is a change the running watcher cannot follow — restart it.
-    return yield* watchConfig(
-      resolvedConfig,
-      path.dirname(path.resolve(process.cwd(), first.config.input)),
-    )
+    return undefined
   }).pipe(
+    // A `CliError` is already something the runner knows how to render — `ShowHelp` in
+    // particular, which it answers with the generated help. Everything else is a
+    // generator or filesystem failure that only carries a sentence.
     Effect.mapError((error) =>
-      error instanceof CliError.UserError
+      CliError.isCliError(error)
         ? error
         : new CliError.UserError({ cause: error, userMessage: error.message }),
     ),
@@ -262,7 +352,7 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
  * The `hono-takibi` command: parsing, validation, `--help`, `--version` and shell
  * completions are owned by `effect/unstable/cli`, {@link generate} is the rest.
  */
-const cli = Command.make('hono-takibi', commandLine, generate).pipe(
+const cli = Command.make(COMMAND_NAME, commandLine, generate).pipe(
   Command.withDescription('Generate @hono/zod-openapi code from OpenAPI or TypeSpec'),
   Command.withExamples([
     {
