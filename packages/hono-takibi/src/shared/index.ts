@@ -53,6 +53,12 @@ export type Job = {
   >
 }
 
+// Built once and reused, the way `config` builds its own decoder: the schema is the
+// same for every job, and there is one call per job.
+const decodeTypeScriptPath = Schema.decodeUnknownEffect(
+  Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
+)
+
 /**
  * Narrows a job's output path to the `${string}.ts` the TypeScript generators ask for.
  *
@@ -60,9 +66,7 @@ export type Job = {
  * their own paths, so what reaches a job is a plain string; this is where it is checked.
  */
 function typeScriptPath(output: string) {
-  return Schema.decodeUnknownEffect(
-    Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
-  )(output).pipe(
+  return decodeTypeScriptPath(output).pipe(
     Effect.mapError(() => new GenerateError({ message: `Invalid output format: ${output}` })),
   )
 }

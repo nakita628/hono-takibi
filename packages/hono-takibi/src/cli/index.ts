@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 
-import { Console, Effect, FileSystem, Option, Schema } from 'effect'
-import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
+import { Console, Effect, FileSystem, Option, Runtime, Schema } from 'effect'
+import { Argument, CliError, CliOutput, Command, Flag } from 'effect/unstable/cli'
 
 /** Config file `hono-takibi` picks up from the working directory when `--config` is omitted. */
 const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
@@ -208,14 +208,27 @@ export function honoTakibi(argv: readonly string[], entryUrl: string) {
       Schema.Struct({ version: Schema.String }),
     )(manifest)
     return yield* Command.runWith(cli, { version })(argv)
-  }).pipe(
-    Effect.mapError((error) =>
-      CliError.isCliError(error)
-        ? error
-        : new CliError.UserError({
-            cause: error,
-            userMessage: `Cannot read the version from package.json: ${error.message}`,
-          }),
-    ),
-  )
+  }).pipe(Effect.catchIf((error) => !CliError.isCliError(error), reportBrokenInstall))
+}
+
+/**
+ * The version could not be read: the manifest beside the entry is missing, is not JSON,
+ * or carries no `version`. That is a broken install, not anything the caller typed.
+ *
+ * `Command.runWith` renders the errors raised inside the command, but this one is raised
+ * before it runs. So it is rendered here through the same formatter — the `ERROR` block
+ * every other failure prints — and marked as already reported, so `runMain` does not
+ * print it a second time in its own shape.
+ */
+function reportBrokenInstall(cause: { readonly message: string }) {
+  return Effect.gen(function* () {
+    const error = new CliError.UserError({
+      cause,
+      userMessage: `Cannot read the version from package.json: ${cause.message}`,
+    })
+    error[Runtime.errorReported] = false
+    const formatter = yield* CliOutput.Formatter
+    yield* Console.error(formatter.formatError(error))
+    return yield* error
+  })
 }

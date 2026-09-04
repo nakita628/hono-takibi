@@ -28,9 +28,15 @@ export const FormatOptions = Context.Reference<FormatConfig>('hono-takibi/Format
 export function fmt(input: string) {
   return Effect.gen(function* () {
     const config = yield* FormatOptions
-    const { code, errors } = yield* Effect.promise(() =>
-      format('<stdin>.ts', input, { ...defaultConfig, ...config }),
-    )
+    // `tryPromise`, not `promise`: oxfmt is a third-party formatter fed generated
+    // source, so a rejection belongs in the error channel. As a defect it would walk
+    // past the `orElseSucceed` that keeps a merged app file when the merge will not
+    // parse, and past the CLI's `mapError`.
+    const { code, errors } = yield* Effect.tryPromise({
+      try: () => format('<stdin>.ts', input, { ...defaultConfig, ...config }),
+      catch: (cause) =>
+        new FormatError({ message: cause instanceof Error ? cause.message : String(cause) }),
+    })
     if (errors.length > 0) {
       return yield* new FormatError({ message: errors.map((error) => error.message).join('\n') })
     }

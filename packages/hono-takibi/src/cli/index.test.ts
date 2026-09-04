@@ -149,7 +149,7 @@ const ANSI = new RegExp(`${String.fromCodePoint(27)}\\[[0-9;]*m`, 'gu')
  * with the `Console` service swapped for a recorder. Help, errors and the success
  * message all go through `Console`, so this captures everything a user would see.
  */
-async function runCli(argv: readonly string[]) {
+async function runCli(argv: readonly string[], entryUrl: string = ENTRY_URL) {
   const stdout: string[] = []
   const stderr: string[] = []
   const recorder: Console.Console = Object.assign(Object.create(console), {
@@ -157,7 +157,7 @@ async function runCli(argv: readonly string[]) {
     error: (...args: readonly unknown[]) => stderr.push(args.map(String).join(' ')),
   })
   const exit = await Effect.runPromiseExit(
-    honoTakibi(argv, ENTRY_URL).pipe(
+    honoTakibi(argv, entryUrl).pipe(
       Effect.provideService(Console.Console, recorder),
       Effect.provide(NodeServices.layer),
     ),
@@ -689,6 +689,40 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     expect(result.ok).toBe(false)
     expect(result.stderr).toContain('type.output and output both write to')
     expect(fs.existsSync(output)).toBe(false)
+  })
+})
+
+// The version is read before the command runs, so `Command.runWith` never sees this
+// failure. It still has to reach the caller as the `ERROR` block every other failure
+// prints, not as a runtime cause dump.
+describe('hono-takibi broken install', () => {
+  it('renders a package.json it cannot parse through the CLI formatter', async () => {
+    const dir = useTmpDir('cli-broken-manifest-')
+    fs.mkdirSync(path.join(dir, 'sub'))
+    fs.writeFileSync(path.join(dir, 'package.json'), 'not json')
+
+    const result = await runCli(
+      ['--help'],
+      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
+    )
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
+    expect(result.stderr).toContain('Cannot read the version from package.json')
+  })
+
+  it('reports a package.json with no version field', async () => {
+    const dir = useTmpDir('cli-versionless-manifest-')
+    fs.mkdirSync(path.join(dir, 'sub'))
+    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'x' }))
+
+    const result = await runCli(
+      ['--help'],
+      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
+    )
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Cannot read the version from package.json')
   })
 })
 
