@@ -8,10 +8,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Converts request body definitions to JavaScript object constants
  * with content type mappings and schema references.
  *
- * @param components - The OpenAPI components object.
- * @param exportRequestBodies - Whether to export the request body constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with request body definitions.
  *
  * @example
  * ```ts

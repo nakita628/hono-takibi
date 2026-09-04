@@ -8,10 +8,6 @@ import type { Components } from '../../../../openapi/index.js'
  *
  * Converts callback definitions to JavaScript object constants.
  *
- * @param components - The OpenAPI components object.
- * @param exportCallbacks - Whether to export the callback constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with callback definitions.
  *
  * @example
  * ```ts

@@ -55,10 +55,6 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
  *
  * Delays invocation until after the specified milliseconds have elapsed
  * since the last call. Uses WeakMap for cleanup.
- *
- * @param delayMilliseconds - Delay in milliseconds
- * @param callback - Function to debounce
- * @returns Debounced function
  */
 function debounce(delayMilliseconds: number, callback: () => void): () => void {
   const timerStorage = new WeakMap<() => void, ReturnType<typeof setTimeout>>()
@@ -221,12 +217,6 @@ function sameOutputSnapshot(
 }
 
 /**
- * Runs all code generation tasks in parallel based on the provided configuration.
- *
- * @param config - Parsed configuration object
- * @returns Promise resolving to object containing log messages and whether any output file changed
- */
-/**
  * Runs one generation pass and reports a log line per job.
  *
  * The generators are Effects; this is the plugin's boundary, so it provides the
@@ -272,10 +262,6 @@ function runAllGenerationTasks(config: Config) {
  *
  * Watches the input file and related files (.yaml, .json, .tsp) in the
  * same directory for changes.
- *
- * @param server - Vite dev server instance
- * @param absoluteInputPath - Absolute path to the input OpenAPI file
- * @returns The input directory path for use in change detection
  */
 function addInputGlobsToWatcher(server: ViteDevServer, absoluteInputPath: string): string {
   const inputDirectory = path.dirname(absoluteInputPath)

@@ -7,10 +7,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Converts security scheme definitions to JavaScript object constants
  * containing the raw security scheme configuration.
  *
- * @param components - The OpenAPI components object.
- * @param exportSecuritySchemes - Whether to export the security scheme constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with security scheme definitions.
  *
  * @example
  * ```ts

@@ -14,11 +14,6 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  * Handles both inline header definitions and $ref references,
  * converting them to Zod schema constants.
  *
- * @param components - The OpenAPI components object.
- * @param exportHeaders - Whether to export the Zod schema constants.
- * @param exportHeadersTypes - Whether to export the inferred Zod types.
- * @param readonly - Whether to add `.readonly()` modifier to header schemas.
- * @returns A string of TypeScript code with header definitions.
  *
  * @example
  * ```ts

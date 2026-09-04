@@ -12,14 +12,6 @@ import { compile, NodeHost } from '@typespec/compiler'
 import { getOpenAPI3 } from '@typespec/openapi3'
 import { Data, Effect } from 'effect'
 
-/**
- * Parses input into an OpenAPI document.
- *
- * Supports `.yaml`, `.json`, and `.tsp` (TypeSpec) inputs.
- *
- * @param input - Path to OpenAPI file (.yaml, .json) or TypeSpec file (.tsp)
- * @returns Result object with parsed OpenAPI or error message
- */
 /** The document could not be read, compiled or parsed into an OpenAPI object. */
 export class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string

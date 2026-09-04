@@ -1191,14 +1191,6 @@ function makeHeader(
  *
  * - GET operations generate query hooks
  * - POST/PUT/DELETE/PATCH operations generate mutation hooks
- *
- * @param openAPI - Parsed OpenAPI specification
- * @param output - Output file path or directory
- * @param importPath - Import path for the Hono client
- * @param config - Framework configuration
- * @param split - Whether to split into multiple files (one per hook)
- * @param clientName - Name of the client export (default: 'client')
- * @returns Promise resolving to success message or error
  */
 export function makeQueryHooks(
   openAPI: OpenAPI,

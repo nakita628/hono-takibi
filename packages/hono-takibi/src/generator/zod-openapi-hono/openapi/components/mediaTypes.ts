@@ -10,11 +10,6 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
 /**
  * Generates TypeScript code for OpenAPI component mediaTypes.
  *
- * @param components - The OpenAPI components object.
- * @param exportMediaTypes - Whether to export the mediaType constants.
- * @param exportMediaTypesTypes - Whether to export the inferred Zod types.
- * @param readonly - Whether to add `.readonly()` modifier to schemas.
- * @returns A string of TypeScript code with mediaType definitions.
  *
  * @example
  * ```ts

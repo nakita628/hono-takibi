@@ -10,11 +10,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Handles both inline examples and `$ref` references. When `$ref` is present,
  * sibling properties are ignored (per OpenAPI 3.0 spec) and a direct variable
  * reference is generated.
- *
- * @param components - OpenAPI components object
- * @param exportExamples - Whether to export the example constants
- * @param readonly - Whether to add `as const` assertion to example constants
- * @returns Generated TypeScript code string
  */
 export function examplesCode(components: Components, exportExamples: boolean, readonly?: boolean) {
   const { examples } = components

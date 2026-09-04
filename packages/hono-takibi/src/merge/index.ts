@@ -98,10 +98,6 @@ export function collectInlineRouteNames(code: string) {
  *
  * Uses AST for analysis only. The existing file's original text (including comments)
  * is preserved by slicing the source string, not by reconstructing from AST nodes.
- *
- * @param existingCode - The current file content (user-modified).
- * @param generatedCode - The newly generated file content.
- * @returns The merged source code.
  */
 export function mergeHandlerFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
@@ -161,10 +157,6 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
  * - Imports: sync with generated (remove deleted route imports, add new ones, keep user imports)
  *
  * Uses AST for analysis only; existing text (including comments) is preserved by slicing.
- *
- * @param existingCode - The current file content (user-modified).
- * @param generatedCode - The newly generated file content.
- * @returns The merged source code.
  */
 export function mergeDefineFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
@@ -195,10 +187,6 @@ export function mergeDefineFile(existingCode: string, generatedCode: string) {
  * - Everything else (middleware, comments, helpers): keep existing
  *
  * Uses AST for analysis only. The existing file's original text is preserved by slicing.
- *
- * @param existingCode - The current file content (user-modified).
- * @param generatedCode - The newly generated file content.
- * @returns The merged source code.
  */
 export function mergeAppFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
@@ -650,10 +638,6 @@ function extractRouteDescribeBlocks(file: SourceFile, code: string) {
  * - Imports: merge (add missing, keep user imports)
  *
  * A "route describe block" is identified by the pattern `describe('METHOD /path', ...)`.
- *
- * @param existingCode - The current test file content (user-modified).
- * @param generatedCode - The newly generated test file content.
- * @returns The merged test code.
  */
 export function mergeTestFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)
@@ -734,10 +718,6 @@ function insertNewRouteDescribes(body: string, newBlocks: readonly string[]) {
  * Every existing export is kept — the barrel may re-export hand-written modules the
  * generator knows nothing about — and `export * from` lines for newly generated
  * handler files are appended.
- *
- * @param existingCode - The current barrel file content.
- * @param generatedCode - The newly generated barrel file content.
- * @returns The merged barrel file content.
  */
 export function mergeBarrelFile(existingCode: string, generatedCode: string) {
   const { existingFile, generatedFile } = makeSourcePair(existingCode, generatedCode)

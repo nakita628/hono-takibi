@@ -34,11 +34,6 @@ const DEEP_READONLY_TYPE =
 
 /**
  * Generates TypeScript type declarations from OpenAPI specification.
- *
- * @param openAPI - OpenAPI specification object
- * @param output - Output file path (must end with .ts)
- * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
- * @returns Result with success message or error
  */
 export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)

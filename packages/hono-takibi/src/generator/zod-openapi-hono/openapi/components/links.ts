@@ -8,10 +8,6 @@ import type { Components } from '../../../../openapi/index.js'
  * Converts link definitions to JavaScript object constants
  * containing the link configuration for response linking.
  *
- * @param components - The OpenAPI components object.
- * @param exportLinks - Whether to export the link constants.
- * @param readonly - Whether to add `as const` assertion to the output.
- * @returns A string of TypeScript code with link definitions.
  *
  * @example
  * ```ts

@@ -155,22 +155,6 @@ function reportConfigPass(configPath: string, reload: boolean) {
 }
 
 /**
- * Regenerates on every change to the input documents or the config, until interrupted.
- *
- * Two watchers, because two things can invalidate the output. The input document's
- * directory is watched recursively — a TypeSpec entry imports its siblings and a `$ref`
- * can point at one, so the file named by `input` is rarely the only one that matters. The
- * config file is watched through its directory rather than directly, so an editor that
- * saves by renaming does not take the watcher down with it.
- *
- * `WatchEvent.path` is relative to the directory it came from, which is why each stream
- * is filtered before the merge rather than after.
- *
- * `debounce` collapses the burst an editor emits on save into one pass — a plain write
- * already reports twice. Generated files are `.ts` and `.md`, so a pass cannot trigger
- * the next one.
- */
-/**
  * Watches the config, and the input documents when a pass has said where they are, until
  * the answer changes — then hands the new directory back so {@link watchConfig} restarts.
  *

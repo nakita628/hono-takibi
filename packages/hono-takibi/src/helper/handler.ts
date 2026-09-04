@@ -130,12 +130,6 @@ function isTsFileName(file: string): file is `${string}.ts` {
   return file.endsWith('.ts')
 }
 
-/**
- * Scans the handler directory (non-recursively) for hand-written files. Returns the file
- * names and, for every codegen key `collect` finds in a file (exported handler / route names,
- * or routes registered on an inline sub-router), the file that already holds it — an existing
- * implementation is regenerated in place rather than re-stubbed under the expected file name.
- */
 /** The names `collect` finds in one handler file, paired with the file they came from. */
 function collectFrom(
   handlerPath: string,
@@ -148,6 +142,12 @@ function collectFrom(
   })
 }
 
+/**
+ * Scans the handler directory (non-recursively) for hand-written files. Returns the file
+ * names and, for every codegen key `collect` finds in a file (exported handler / route names,
+ * or routes registered on an inline sub-router), the file that already holds it — an existing
+ * implementation is regenerated in place rather than re-stubbed under the expected file name.
+ */
 function scanExistingHandlerFiles(
   handlerPath: string,
   collect: (code: string) => readonly string[],
@@ -506,14 +506,6 @@ function makeBarrelContent(fileNames: readonly string[]): string {
   return fileNames.map((h) => `export * from './${basename(h, '.ts')}'`).join('\n')
 }
 
-/**
- * Generates empty stub handler files for a Hono app.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The output directory or file path for generated handlers.
- * @param test - Whether to generate corresponding test files.
- * @returns A `Result` indicating success or error with message.
- */
 /** oxfmt, keeping the source as-is when it will not parse what we just built. */
 function fmtOrKeep(source: string) {
   return fmt(source).pipe(Effect.orElseSucceed(() => source))
@@ -704,11 +696,6 @@ export function resolveInlineHandlerFileNames(
  * Each file co-locates `createRoute(...)` with a stub handler inside
  * `defineOpenAPIRoute({ route, handler })`, so routes register via
  * `app.openapiRoutes([...])`. Component schemas are imported from `componentsOutput`.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The app entry file path (e.g. `./src/index.ts`).
- * @param componentsOutput - The components module path schemas are imported from.
- * @returns A `Result` indicating success or error with message.
  */
 export function defineOpenAPIRouteHandler(
   openapi: OpenAPI,
@@ -819,12 +806,6 @@ export function defineOpenAPIRouteHandler(
 
 /**
  * Generates mock handler files with faker.js responses for a Hono app.
- *
- * @param openapi - The OpenAPI specification object.
- * @param output - The output directory or file path for generated handlers.
- * @param test - Whether to generate corresponding test files.
- * @param pathAlias - Optional path alias prefix for import paths.
- * @returns A `Result` indicating success or error with message.
  */
 export function mockZodOpenAPIHonoHandler(
   openapi: OpenAPI,

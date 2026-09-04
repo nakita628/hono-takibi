@@ -114,16 +114,6 @@ function makeHeader(
 
 /**
  * Generates RPC client wrapper functions from OpenAPI specification.
- *
- * @param openAPI - Parsed OpenAPI specification
- * @param output - Output file path or directory
- * @param importPath - Import path for the Hono client
- * @param split - Whether to split into multiple files (one per operation)
- * @param clientName - Name of the client export (default: 'client')
- * @param useParseResponse - Whether to wrap calls with parseResponse
- * @param basePath - Base path for the app (e.g. '/api')
- * @param docs - When true, prepend operation summary/description as JSDoc
- * @returns Promise resolving to success message or error
  */
 export function rpc(
   openAPI: OpenAPI,

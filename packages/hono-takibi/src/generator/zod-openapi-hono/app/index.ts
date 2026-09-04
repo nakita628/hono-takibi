@@ -8,16 +8,6 @@ import { methodPath } from '../../../utils/index.js'
 /**
  * Generates a Hono app with OpenAPI integration.
  *
- * @param openapi - The OpenAPI specification.
- * @param output - The output file name (e.g., 'user.ts').
- * @param basePath - Optional base path for the app.
- * @param pathAlias - Optional path alias prefix.
- * @param routeImport - Optional route module specifier override.
- * @param routeHandler - When false (default), handlers import app and register routes inline.
- *   When true, generates `app.openapi()` pattern with RouteHandler type exports.
- * @param inlineHandlerFileNames - Inline mode only: the handler files to mount, when the
- *   caller has resolved them against the files already on disk.
- * @returns The generated application code as a string.
  *
  * @example
  * ```ts
