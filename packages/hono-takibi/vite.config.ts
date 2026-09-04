@@ -40,6 +40,9 @@ export default defineConfig({
     // Setting `plugins` replaces oxlint's default list — restate the defaults, then add
     // import / promise / node.
     plugins: ['typescript', 'unicorn', 'oxc', 'import', 'promise', 'node'],
+    // The repository conventions a glob cannot express (Effect program shape, function
+    // declarations, predicate naming); see lint/custom.js.
+    jsPlugins: ['./lint/custom.js'],
     options: {
       typeAware: true,
       typeCheck: true,
@@ -63,6 +66,11 @@ export default defineConfig({
     // `categories` above and are not restated; this list only adds rules from the
     // pedantic / style / restriction / nursery categories, which no category enables.
     rules: {
+      'custom/effect-gen-return': 'error',
+      'custom/no-effect-fn': 'error',
+      'custom/no-effect-flatmap': 'error',
+      'custom/function-declaration': 'error',
+      'custom/predicate-is-name': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
@@ -343,6 +351,20 @@ export default defineConfig({
       'import/no-named-as-default': 'error',
       'import/no-anonymous-default-export': 'error',
       'import/consistent-type-specifier-style': 'error',
+      // Dependency hygiene. (`import/no-extraneous-dependencies` would be the one that
+      // matters most here — a `devDependency` reaching `src` breaks the published package —
+      // but oxlint does not implement it yet; `vp pack` externalising an undeclared import
+      // is the current backstop.)
+      'import/no-self-import': 'error',
+      'import/no-absolute-path': 'error',
+      'import/no-empty-named-blocks': 'error',
+      // Naming: the identifiers a reader scans first.
+      'no-shadow-restricted-names': 'error',
+      'no-delete-var': 'error',
+      // `unicorn/filename-case` is deliberately absent: the component modules are named
+      // after the OpenAPI Components Object keys they emit (`mediaTypes.ts`, `pathItems.ts`,
+      // `requestBodies.ts`, `securitySchemes.ts`), which are also the config field names.
+      // Kebab-casing them would break a correspondence that is worth more than the rule.
     },
     // Architecture rules for src: each directory may import only the siblings listed in its
     // message. Regexes match relative specifiers only, so external packages such as
@@ -513,6 +535,20 @@ export default defineConfig({
         },
       },
       {
+        // The convention plugin is an oxlint JS plugin: it walks an untyped ESTree and its
+        // contract with oxlint is a default export.
+        files: ['lint/**'],
+        rules: {
+          'import/no-default-export': 'off',
+          'import/no-anonymous-default-export': 'off',
+          'typescript/no-unsafe-argument': 'off',
+          'typescript/no-unsafe-assignment': 'off',
+          'typescript/no-unsafe-call': 'off',
+          'typescript/no-unsafe-member-access': 'off',
+          'typescript/no-unsafe-return': 'off',
+        },
+      },
+      {
         // `as OpenAPI` is the single sanctioned cast (CLAUDE.md type safety #1).
         files: ['src/openapi/index.ts'],
         rules: {
@@ -534,6 +570,11 @@ export default defineConfig({
         files: ['**/*.test.ts', '**/*.spec.ts'],
         plugins: ['vitest'],
         rules: {
+          // A test arranges and asserts imperatively when that is the clearest way to
+          // spell a fixture out; the structural rules describe `src`, not the suite.
+          'custom/effect-gen-return': 'off',
+          'custom/function-declaration': 'off',
+          'custom/predicate-is-name': 'off',
           // `let` declared per suite and assigned in a hook is the shape of a fixture,
           // not an uninitialized binding waiting to bite.
           'init-declarations': 'off',

@@ -452,6 +452,101 @@ describe('parseConfig()', () => {
       )
       expect(result.message).toBe('Invalid config: rpc.client: Expected string | undefined')
     })
+
+    // `client` lands in `import { <client> } from '...'`; without this the failure
+    // surfaces as an oxfmt syntax error about the generated file.
+    it.concurrent('fails when rpc client is not a JavaScript identifier', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          rpc: { output: 'rpc.ts', import: '../client', client: '1bad' },
+        }),
+      )
+      expect(result.message).toBe('Invalid config: rpc.client: must be a JavaScript identifier')
+    })
+
+    it.concurrent('fails when an import specifier is empty', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          rpc: { output: 'rpc.ts', import: '' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: rpc.import: must be a module specifier, with no whitespace or quotes',
+      )
+    })
+
+    it.concurrent('fails when an import specifier carries a quote', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          swr: { output: 'swr.ts', import: "../lib'" },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: swr.import: must be a module specifier, with no whitespace or quotes',
+      )
+    })
+  })
+
+  // Every generator runs concurrently against its own output, so two of them aimed at
+  // one path means whichever finishes last wins — and both still report success.
+  describe('output path collisions', () => {
+    it.concurrent('fails when two generators declare the same output file', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: './src/api.ts',
+          type: { output: 'src/api.ts' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: type.output and output both write to src/api.ts. Give each generator its own output path.',
+      )
+    })
+
+    it.concurrent('fails when a directory output normalizes onto another output', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/api/index.ts',
+          mock: { output: 'src/api' },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: mock.output and output both write to src/api/index.ts. Give each generator its own output path.',
+      )
+    })
+
+    it.concurrent('fails when two component sections share a split directory', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          components: {
+            schemas: { output: './src/gen', split: true },
+            responses: { output: 'src/gen', split: true },
+          },
+        }),
+      )
+      expect(result.message).toBe(
+        'Invalid config: components.responses.output and components.schemas.output both write to src/gen. Give each generator its own output path.',
+      )
+    })
+
+    it.concurrent('accepts distinct outputs across every generator', async () => {
+      const result = await runGenerator(
+        parseConfig({
+          input: 'openapi.yaml',
+          output: 'src/routes.ts',
+          type: { output: 'src/types.ts' },
+          rpc: { output: 'src/rpc.ts', import: '../lib' },
+          mock: { output: 'src/mock.ts' },
+          docs: { output: 'docs/api.md' },
+        }),
+      )
+      expect(result.output).toBe('src/routes.ts')
+    })
   })
 
   describe('format option', () => {
@@ -861,6 +956,34 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.basePath).toBe('/')
+    })
+
+    // The value reaches the app as `new OpenAPIHono().basePath('<basePath>')`, so a
+    // missing slash mounts nothing and a quote ends the literal early.
+    it.concurrent('fails when basePath has no leading slash', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          basePath: 'api',
+          output: 'src/routes.ts',
+        }),
+      )
+      expect(result.message).toBe(
+        "Invalid config: basePath: must start with '/' and contain no whitespace or quotes",
+      )
+    })
+
+    it.concurrent('fails when basePath would close the generated string literal', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          basePath: "/a')\nconsole.log('pwned",
+          output: 'src/routes.ts',
+        }),
+      )
+      expect(result.message).toBe(
+        "Invalid config: basePath: must start with '/' and contain no whitespace or quotes",
+      )
     })
   })
 

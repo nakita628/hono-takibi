@@ -327,6 +327,12 @@ export default defineConfig({
 
 Some options are mutually exclusive: `output` ↔ `routes`, `template.define` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
+Every generator needs its own `output` path: two of them aimed at one file is rejected
+rather than resolved, because the generators run concurrently and one would silently
+overwrite the other. `basePath` must start with `/`, `client` must be a JavaScript
+identifier, and `import` must be a module specifier — each is spliced into the generated
+code verbatim, so the config is where a wrong value is caught.
+
 ```ts
 import { defineConfig } from 'hono-takibi'
 

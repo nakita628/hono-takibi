@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { posix, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
@@ -12,23 +12,15 @@ import type { FormatConfig } from 'oxfmt'
  * type on both sides — so `defineConfig` still rejects a wrong extension while you type —
  * and lets the message say which extensions are meant.
  */
-const TsPathSchema = Schema.declare<`${string}.ts`>(
+const TypeScriptPathSchema = Schema.declare<`${string}.ts`>(
   Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])),
   { message: 'must be .ts file' },
 )
 
-const MdPathSchema = Schema.declare<`${string}.md`>(
+const MarkdownPathSchema = Schema.declare<`${string}.md`>(
   Schema.is(Schema.TemplateLiteral([Schema.String, '.md'])),
   { message: 'must be .md file' },
 )
-
-const DirectoryOutputSchema = Schema.String.check(
-  Schema.isPattern(/^(?!.*\.ts$).+/u, { message: 'split mode requires directory, not .ts file' }),
-).annotate({
-  title: 'Output directory',
-  description: 'Directory that receives one file per generated entry. Never a `.ts` file path.',
-  examples: ['./src/routes', './src/schemas'],
-})
 
 const FileOutputSchema = Schema.String.pipe(
   Schema.decodeTo(
@@ -45,19 +37,40 @@ const FileOutputSchema = Schema.String.pipe(
   examples: ['./src/routes.ts', './src/routes'],
 })
 
-const ImportSchema = Schema.String.annotate({
+/**
+ * Anything below that is spliced into a generated `'...'` literal — a module
+ * specifier, a base path, a URL — has to survive the trip as one token.
+ *
+ * Neither the schema nor the generators quote what they interpolate, so a value
+ * carrying a quote, a backslash or a newline closes the literal early and the
+ * failure lands on oxfmt as a syntax error about the generated file. Rejecting the
+ * value here names the config field instead.
+ */
+const SAFE_IN_STRING_LITERAL = /^[^\s'"`\\]+$/u
+
+const ImportSchema = Schema.String.check(
+  Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+    message: 'must be a module specifier, with no whitespace or quotes',
+  }),
+).annotate({
   title: 'Import specifier',
   description: 'Module specifier the generated files use to import from `output`.',
   examples: ['@packages/routes', '../lib', '.'],
 })
 
-const ClientSchema = Schema.String.pipe(
-  Schema.withDecodingDefault(Effect.succeed('client')),
-).annotate({
-  title: 'Client export name',
-  description: 'Named export to import from `import` as the Hono client instance.',
-  examples: ['client', 'apiClient'],
-})
+// The name lands in `import { <client> } from '...'`, so anything that is not an
+// identifier reaches oxfmt as an unparseable import statement.
+const ClientSchema = Schema.String.check(
+  Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+    message: 'must be a JavaScript identifier',
+  }),
+)
+  .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+  .annotate({
+    title: 'Client export name',
+    description: 'Named export to import from `import` as the Hono client instance.',
+    examples: ['client', 'apiClient'],
+  })
 
 const TestFrameworkSchema = Schema.Literals(['vitest', 'vite-plus', 'bun'])
   .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
@@ -67,28 +80,40 @@ const TestFrameworkSchema = Schema.Literals(['vitest', 'vite-plus', 'bun'])
     examples: ['vitest', 'vite-plus', 'bun'],
   })
 
-// Every output target is the same two-branch union: `split: true` writes a directory,
-// anything else writes one file. Only those two fields differ, so the rest is written
-// once and spread into both branches.
-const SplitTrue = Schema.Literal(true).annotate({
-  description: 'Write one file per entry into `output`.',
-})
-
-const SplitFalse = Schema.Literal(false)
-  .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
-  .annotate({
-    description: 'Write every entry into a single file (default).',
-  })
-
 /**
+ * Every output target is the same two-branch union: `split: true` writes one file per
+ * entry into a directory, anything else writes a single file. Only those two fields
+ * differ, so the rest is written once and spread into both branches.
+ *
  * `Schema.Union` resolves members in order and each member pins `split` to a literal, so
  * a member is only reachable through its own discriminant — the failure reported is the
  * one inside the matching branch, not a union-wide "no member matched".
  */
 function splitUnion<Fields extends Schema.Struct.Fields>(shared: Fields) {
   return Schema.Union([
-    Schema.Struct({ split: SplitTrue, output: DirectoryOutputSchema, ...shared }),
-    Schema.Struct({ split: SplitFalse, output: FileOutputSchema, ...shared }),
+    Schema.Struct({
+      split: Schema.Literal(true).annotate({
+        description: 'Write one file per entry into `output`.',
+      }),
+      output: Schema.String.check(
+        Schema.isPattern(/^(?!.*\.ts$).+/u, {
+          message: 'split mode requires directory, not .ts file',
+        }),
+      ).annotate({
+        title: 'Output directory',
+        description:
+          'Directory that receives one file per generated entry. Never a `.ts` file path.',
+        examples: ['./src/routes', './src/schemas'],
+      }),
+      ...shared,
+    }),
+    Schema.Struct({
+      split: Schema.Literal(false)
+        .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
+        .annotate({ description: 'Write every entry into a single file (default).' }),
+      output: FileOutputSchema,
+      ...shared,
+    }),
   ])
 }
 
@@ -127,38 +152,6 @@ const HooksSchema = splitUnion({ import: ImportSchema, client: ClientSchema }).a
   ],
 })
 
-const RpcSchema = splitUnion({
-  import: ImportSchema,
-  client: ClientSchema,
-  parseResponse: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-    description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
-  }),
-  docs: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-    description: 'Emit the operation summary and description as JSDoc.',
-  }),
-}).annotate({
-  title: 'RPC wrappers target',
-  description: 'Typed function wrappers around the Hono RPC client, one per operation.',
-  examples: [
-    {
-      split: false,
-      output: './src/rpc.ts',
-      import: '../lib',
-      client: 'client',
-      parseResponse: false,
-      docs: false,
-    },
-    {
-      split: true,
-      output: './src/rpc',
-      import: '../lib',
-      client: 'client',
-      parseResponse: true,
-      docs: true,
-    },
-  ],
-})
-
 // `template` discriminates on `define` rather than `split`, but shares the same shape:
 // the scaffold options are common, only `define` and `routeHandler` differ.
 const scaffoldFields = {
@@ -166,7 +159,11 @@ const scaffoldFields = {
     description: 'Also scaffold a test file per handler.',
   }),
   pathAlias: Schema.optionalKey(
-    Schema.String.annotate({
+    Schema.String.check(
+      Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+        message: 'must be an import prefix, with no whitespace or quotes',
+      }),
+    ).annotate({
       title: 'Path alias',
       description: 'Import prefix used by the scaffolded files instead of relative paths.',
       examples: ['@/', '~/'],
@@ -174,33 +171,6 @@ const scaffoldFields = {
   ),
   testFramework: TestFrameworkSchema,
 }
-
-const TemplateSchema = Schema.Union([
-  Schema.Struct({
-    define: Schema.Literal(true).annotate({
-      description:
-        'Emit `defineOpenAPIRoute({ route, handler })` entries. Derives `routes/` next to the app entry, so it cannot be combined with `routes` or per-type component outputs.',
-    }),
-    ...scaffoldFields,
-  }),
-  Schema.Struct({
-    define: Schema.Literal(false)
-      .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
-      .annotate({ description: 'Scaffold app and handler files (default).' }),
-    routeHandler: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-      description:
-        'Emit the `app.openapi()` pattern with `RouteHandler` type exports. When false, handlers import the app and register routes inline.',
-    }),
-    ...scaffoldFields,
-  }),
-]).annotate({
-  title: 'App scaffold',
-  description: 'Scaffolds the Hono app, handler stubs, and optional tests around the routes.',
-  examples: [
-    { define: false, routeHandler: true, test: true, pathAlias: '@/', testFramework: 'vitest' },
-    { define: true, test: true, testFramework: 'vitest' },
-  ],
-})
 
 /** Component sections that each take their own output target. */
 const COMPONENT_KINDS = [
@@ -217,53 +187,16 @@ const COMPONENT_KINDS = [
   'mediaTypes',
 ] as const
 
-const ComponentsSchema = Schema.Struct({
-  output: Schema.optionalKey(
-    TsPathSchema.annotate({
-      title: 'Single-file components output',
-      description:
-        'Every component section in one file. Mutually exclusive with the per-type fields below.',
-      examples: ['./src/components/index.ts'],
-    }),
-  ),
-  schemas: Schema.optionalKey(ExportTypesOutputSchema),
-  responses: Schema.optionalKey(OutputSchema),
-  parameters: Schema.optionalKey(ExportTypesOutputSchema),
-  examples: Schema.optionalKey(OutputSchema),
-  requestBodies: Schema.optionalKey(OutputSchema),
-  headers: Schema.optionalKey(ExportTypesOutputSchema),
-  securitySchemes: Schema.optionalKey(OutputSchema),
-  links: Schema.optionalKey(OutputSchema),
-  callbacks: Schema.optionalKey(OutputSchema),
-  pathItems: Schema.optionalKey(OutputSchema),
-  mediaTypes: Schema.optionalKey(ExportTypesOutputSchema),
-})
-  .check(
-    Schema.makeFilter(
-      (v) => v.output === undefined || !COMPONENT_KINDS.some((k) => v[k] !== undefined),
-      {
-        message:
-          'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
-      },
-    ),
-  )
-  .annotate({
-    title: 'Components output',
-    description:
-      'Destination for `components`. Either `output` for one file, or per-type fields that each get their own target.',
-    examples: [
-      { output: './src/components/index.ts' },
-      {
-        schemas: {
-          output: './src/schemas',
-          split: true,
-          import: '../schemas',
-          exportTypes: true,
-        },
-        responses: { output: './src/responses', split: true, import: '../responses' },
-      },
-    ],
-  })
+/** Client-hook generators, each with its own output target. */
+const HOOK_KINDS = [
+  'swr',
+  'tanstack-query',
+  'preact-query',
+  'solid-query',
+  'vue-query',
+  'svelte-query',
+  'angular-query',
+] as const
 
 /** Milliseconds, bounded so a mock cannot be configured to hang a request. */
 const DelayMsSchema = Schema.Number.check(
@@ -278,120 +211,6 @@ const ArrayLengthSchema = Schema.Number.check(
   Schema.isLessThanOrEqualTo(1000),
 )
 
-const MockSchema = Schema.Struct({
-  output: FileOutputSchema,
-  useExamples: Schema.optionalKey(
-    Schema.Boolean.annotate({
-      description:
-        'Prefer the `example` / `examples` declared in the document over faker-generated values.',
-    }),
-  ),
-  locale: Schema.optionalKey(
-    Schema.String.check(
-      Schema.isPattern(/^[A-Za-z_]{1,40}$/u, {
-        message: "Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
-      }),
-    ).annotate({
-      title: 'Faker locale',
-      description: 'faker.js locale used for the generated values.',
-      examples: ['en', 'ja', 'zh_CN'],
-    }),
-  ),
-  delay: Schema.optionalKey(
-    Schema.Union([
-      DelayMsSchema,
-      Schema.Literal(false),
-      Schema.Struct({ min: DelayMsSchema, max: DelayMsSchema }).check(
-        Schema.makeFilter((v) => v.min <= v.max, {
-          message: 'delay.min must be <= delay.max. Swap the values or remove one.',
-        }),
-      ),
-    ]).annotate({
-      title: 'Response delay',
-      description:
-        'Artificial latency in milliseconds: a fixed number, a `{ min, max }` range sampled per request, or `false` for none. Capped at 60000.',
-      examples: [false, 300, { min: 100, max: 800 }],
-    }),
-  ),
-  arrayMin: Schema.optionalKey(
-    ArrayLengthSchema.annotate({
-      description: 'Lower bound on the length of generated arrays. Must be <= `arrayMax`.',
-      examples: [1],
-    }),
-  ),
-  arrayMax: Schema.optionalKey(
-    ArrayLengthSchema.annotate({
-      description: 'Upper bound on the length of generated arrays.',
-      examples: [10],
-    }),
-  ),
-})
-  .check(
-    Schema.makeFilter(
-      (v) => v.arrayMin === undefined || v.arrayMax === undefined || v.arrayMin <= v.arrayMax,
-      { message: 'arrayMin must be <= arrayMax. Swap the values or remove one.' },
-    ),
-  )
-  .annotate({
-    title: 'Mock server output',
-    description:
-      'Generates handlers that answer with faker.js data shaped by each response schema.',
-    examples: [
-      { output: './src/mock.ts' },
-      {
-        output: './src/mock.ts',
-        useExamples: true,
-        locale: 'ja',
-        delay: { min: 100, max: 800 },
-        arrayMin: 1,
-        arrayMax: 10,
-      },
-    ],
-  })
-
-const DocsSchema = Schema.Union([
-  Schema.Struct({
-    output: MdPathSchema.annotate({ title: 'Docs output file', examples: ['./docs/api.md'] }),
-    curl: Schema.Literal(true).annotate({
-      description: 'Write `curl` commands against `baseUrl`, which then becomes required.',
-    }),
-    baseUrl: Schema.String.annotate({
-      description: 'Server the generated `curl` commands target.',
-      examples: ['http://localhost:3000'],
-    }).pipe(Schema.annotateKey({ messageMissingKey: 'baseUrl is required when curl is true' })),
-    entry: Schema.optionalKey(
-      Schema.Never.annotate({ message: 'entry cannot be specified when curl is true' }),
-    ),
-  }),
-  Schema.Struct({
-    output: MdPathSchema.annotate({ title: 'Docs output file', examples: ['./docs/api.md'] }),
-    curl: Schema.Literal(false)
-      .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
-      .annotate({
-        description: 'Write Hono request examples instead of `curl` (default).',
-      }),
-    entry: Schema.optionalKey(
-      Schema.String.annotate({
-        description: 'App entry the Hono request examples import.',
-        examples: ['src/index.ts'],
-      }),
-    ),
-    baseUrl: Schema.optionalKey(
-      Schema.String.annotate({
-        description: 'Server shown in the examples.',
-        examples: ['http://localhost:3000'],
-      }),
-    ),
-  }),
-]).annotate({
-  title: 'Markdown docs output',
-  description: 'Generates a Markdown reference with one request example per operation.',
-  examples: [
-    { output: './docs/api.md', curl: false, entry: 'src/index.ts' },
-    { output: './docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
-  ],
-})
-
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
@@ -402,18 +221,26 @@ const ConfigSchema = Schema.Struct({
     examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],
   }),
   output: Schema.optionalKey(
-    TsPathSchema.annotate({
+    TypeScriptPathSchema.annotate({
       title: 'Single-file output',
       description:
         'Routes and schemas in one file. Mutually exclusive with `routes`. With `template.define` this is the app entry instead and must be an `index.ts` path.',
       examples: ['./src/routes.ts', './src/index.ts'],
     }),
   ),
-  basePath: Schema.String.pipe(Schema.withDecodingDefault(Effect.succeed('/'))).annotate({
-    title: 'Base path',
-    description: 'Base path the generated Hono app is mounted on.',
-    examples: ['/', '/api', '/api/v1'],
-  }),
+  // Emitted as `new OpenAPIHono().basePath('<basePath>')`, and Hono itself wants the
+  // leading slash — a value without one mounts nothing and reads as a working config.
+  basePath: Schema.String.check(
+    Schema.isPattern(/^\/[^\s'"`\\]*$/u, {
+      message: "must start with '/' and contain no whitespace or quotes",
+    }),
+  )
+    .pipe(Schema.withDecodingDefault(Effect.succeed('/')))
+    .annotate({
+      title: 'Base path',
+      description: 'Base path the generated Hono app is mounted on.',
+      examples: ['/', '/api', '/api/v1'],
+    }),
   readonly: Schema.optionalKey(
     Schema.Boolean.annotate({
       description: 'Emit `readonly` modifiers on the generated TypeScript types.',
@@ -427,7 +254,36 @@ const ConfigSchema = Schema.Struct({
       examples: [{ printWidth: 80, semi: true }],
     }),
   ),
-  template: Schema.optionalKey(TemplateSchema),
+  template: Schema.optionalKey(
+    Schema.Union([
+      Schema.Struct({
+        define: Schema.Literal(true).annotate({
+          description:
+            'Emit `defineOpenAPIRoute({ route, handler })` entries. Derives `routes/` next to the app entry, so it cannot be combined with `routes` or per-type component outputs.',
+        }),
+        ...scaffoldFields,
+      }),
+      Schema.Struct({
+        define: Schema.Literal(false)
+          .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
+          .annotate({ description: 'Scaffold app and handler files (default).' }),
+        routeHandler: Schema.Boolean.pipe(
+          Schema.withDecodingDefault(Effect.succeed(false)),
+        ).annotate({
+          description:
+            'Emit the `app.openapi()` pattern with `RouteHandler` type exports. When false, handlers import the app and register routes inline.',
+        }),
+        ...scaffoldFields,
+      }),
+    ]).annotate({
+      title: 'App scaffold',
+      description: 'Scaffolds the Hono app, handler stubs, and optional tests around the routes.',
+      examples: [
+        { define: false, routeHandler: true, test: true, pathAlias: '@/', testFramework: 'vitest' },
+        { define: true, test: true, testFramework: 'vitest' },
+      ],
+    }),
+  ),
   exportSchemas: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
     description: 'Re-export `components.schemas` from the generated code.',
   }),
@@ -512,7 +368,55 @@ const ConfigSchema = Schema.Struct({
       ],
     }),
   ),
-  components: Schema.optionalKey(ComponentsSchema),
+  components: Schema.optionalKey(
+    Schema.Struct({
+      output: Schema.optionalKey(
+        TypeScriptPathSchema.annotate({
+          title: 'Single-file components output',
+          description:
+            'Every component section in one file. Mutually exclusive with the per-type fields below.',
+          examples: ['./src/components/index.ts'],
+        }),
+      ),
+      schemas: Schema.optionalKey(ExportTypesOutputSchema),
+      responses: Schema.optionalKey(OutputSchema),
+      parameters: Schema.optionalKey(ExportTypesOutputSchema),
+      examples: Schema.optionalKey(OutputSchema),
+      requestBodies: Schema.optionalKey(OutputSchema),
+      headers: Schema.optionalKey(ExportTypesOutputSchema),
+      securitySchemes: Schema.optionalKey(OutputSchema),
+      links: Schema.optionalKey(OutputSchema),
+      callbacks: Schema.optionalKey(OutputSchema),
+      pathItems: Schema.optionalKey(OutputSchema),
+      mediaTypes: Schema.optionalKey(ExportTypesOutputSchema),
+    })
+      .check(
+        Schema.makeFilter(
+          (v) => v.output === undefined || !COMPONENT_KINDS.some((k) => v[k] !== undefined),
+          {
+            message:
+              'components.output is mutually exclusive with per-type component outputs (schemas, responses, ...). Use output for single-file mode, or per-type fields for split mode.',
+          },
+        ),
+      )
+      .annotate({
+        title: 'Components output',
+        description:
+          'Destination for `components`. Either `output` for one file, or per-type fields that each get their own target.',
+        examples: [
+          { output: './src/components/index.ts' },
+          {
+            schemas: {
+              split: true,
+              output: './src/schemas',
+              import: '../schemas',
+              exportTypes: true,
+            },
+            responses: { split: true, output: './src/responses', import: '../responses' },
+          },
+        ],
+      }),
+  ),
   type: Schema.optionalKey(
     Schema.Struct({
       readonly: Schema.optionalKey(
@@ -520,7 +424,7 @@ const ConfigSchema = Schema.Struct({
           description: 'Emit `readonly` modifiers on the declared types.',
         }),
       ),
-      output: TsPathSchema.annotate({
+      output: TypeScriptPathSchema.annotate({
         title: 'Types output file',
         examples: ['./src/types.ts'],
       }),
@@ -531,7 +435,41 @@ const ConfigSchema = Schema.Struct({
       examples: [{ output: './src/types.ts', readonly: true }],
     }),
   ),
-  rpc: Schema.optionalKey(RpcSchema),
+  rpc: Schema.optionalKey(
+    splitUnion({
+      import: ImportSchema,
+      client: ClientSchema,
+      parseResponse: Schema.Boolean.pipe(
+        Schema.withDecodingDefault(Effect.succeed(false)),
+      ).annotate({
+        description: 'Wrap each call in `parseResponse` so it resolves to the parsed body.',
+      }),
+      docs: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        description: 'Emit the operation summary and description as JSDoc.',
+      }),
+    }).annotate({
+      title: 'RPC wrappers target',
+      description: 'Typed function wrappers around the Hono RPC client, one per operation.',
+      examples: [
+        {
+          split: false,
+          output: './src/rpc.ts',
+          import: '../lib',
+          client: 'client',
+          parseResponse: false,
+          docs: false,
+        },
+        {
+          split: true,
+          output: './src/rpc',
+          import: '../lib',
+          client: 'client',
+          parseResponse: true,
+          docs: true,
+        },
+      ],
+    }),
+  ),
   swr: Schema.optionalKey(
     HooksSchema.annotate({
       title: 'SWR hooks output',
@@ -596,8 +534,138 @@ const ConfigSchema = Schema.Struct({
       examples: [{ output: './src/test.ts', import: '.', testFramework: 'vitest' }],
     }),
   ),
-  mock: Schema.optionalKey(MockSchema),
-  docs: Schema.optionalKey(DocsSchema),
+  mock: Schema.optionalKey(
+    Schema.Struct({
+      output: FileOutputSchema,
+      useExamples: Schema.optionalKey(
+        Schema.Boolean.annotate({
+          description:
+            'Prefer the `example` / `examples` declared in the document over faker-generated values.',
+        }),
+      ),
+      locale: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[A-Za-z_]{1,40}$/u, {
+            message: "Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
+          }),
+        ).annotate({
+          title: 'Faker locale',
+          description: 'faker.js locale used for the generated values.',
+          examples: ['en', 'ja', 'zh_CN'],
+        }),
+      ),
+      delay: Schema.optionalKey(
+        Schema.Union([
+          DelayMsSchema,
+          Schema.Literal(false),
+          Schema.Struct({ min: DelayMsSchema, max: DelayMsSchema }).check(
+            Schema.makeFilter((v) => v.min <= v.max, {
+              message: 'delay.min must be <= delay.max. Swap the values or remove one.',
+            }),
+          ),
+        ]).annotate({
+          title: 'Response delay',
+          description:
+            'Artificial latency in milliseconds: a fixed number, a `{ min, max }` range sampled per request, or `false` for none. Capped at 60000.',
+          examples: [false, 300, { min: 100, max: 800 }],
+        }),
+      ),
+      arrayMin: Schema.optionalKey(
+        ArrayLengthSchema.annotate({
+          description: 'Lower bound on the length of generated arrays. Must be <= `arrayMax`.',
+          examples: [1],
+        }),
+      ),
+      arrayMax: Schema.optionalKey(
+        ArrayLengthSchema.annotate({
+          description: 'Upper bound on the length of generated arrays.',
+          examples: [10],
+        }),
+      ),
+    })
+      .check(
+        Schema.makeFilter(
+          (v) => v.arrayMin === undefined || v.arrayMax === undefined || v.arrayMin <= v.arrayMax,
+          { message: 'arrayMin must be <= arrayMax. Swap the values or remove one.' },
+        ),
+      )
+      .annotate({
+        title: 'Mock server output',
+        description:
+          'Generates handlers that answer with faker.js data shaped by each response schema.',
+        examples: [
+          { output: './src/mock.ts' },
+          {
+            output: './src/mock.ts',
+            useExamples: true,
+            locale: 'ja',
+            delay: { min: 100, max: 800 },
+            arrayMin: 1,
+            arrayMax: 10,
+          },
+        ],
+      }),
+  ),
+  docs: Schema.optionalKey(
+    Schema.Union([
+      Schema.Struct({
+        output: MarkdownPathSchema.annotate({
+          title: 'Docs output file',
+          examples: ['./docs/api.md'],
+        }),
+        curl: Schema.Literal(true).annotate({
+          description: 'Write `curl` commands against `baseUrl`, which then becomes required.',
+        }),
+        baseUrl: Schema.String.check(
+          Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+            message: 'must be a URL, with no whitespace or quotes',
+          }),
+        )
+          .annotate({
+            description: 'Server the generated `curl` commands target.',
+            examples: ['http://localhost:3000'],
+          })
+          .pipe(Schema.annotateKey({ messageMissingKey: 'baseUrl is required when curl is true' })),
+        entry: Schema.optionalKey(
+          Schema.Never.annotate({ message: 'entry cannot be specified when curl is true' }),
+        ),
+      }),
+      Schema.Struct({
+        output: MarkdownPathSchema.annotate({
+          title: 'Docs output file',
+          examples: ['./docs/api.md'],
+        }),
+        curl: Schema.Literal(false)
+          .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
+          .annotate({
+            description: 'Write Hono request examples instead of `curl` (default).',
+          }),
+        entry: Schema.optionalKey(
+          Schema.String.annotate({
+            description: 'App entry the Hono request examples import.',
+            examples: ['src/index.ts'],
+          }),
+        ),
+        baseUrl: Schema.optionalKey(
+          Schema.String.check(
+            Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+              message: 'must be a URL, with no whitespace or quotes',
+            }),
+          ).annotate({
+            description: 'Server shown in the examples.',
+            examples: ['http://localhost:3000'],
+          }),
+        ),
+      }),
+    ]).annotate({
+      title: 'Markdown docs output',
+      description: 'Generates a Markdown reference with one request example per operation.',
+      examples: [
+        { output: './docs/api.md', curl: false, entry: 'src/index.ts' },
+        { output: './docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
+      ],
+    }),
+  ),
 })
   .check(
     Schema.makeFilter((v) => !(v.output && v.routes), {
@@ -655,6 +723,41 @@ const ConfigSchema = Schema.Struct({
           'with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
       },
     ),
+    // Two generators aimed at one path is silent data loss, not a merge: the CLI runs
+    // every job concurrently, so whichever finishes last is the file that survives and
+    // both still report success. Compared after decoding, where a directory `output`
+    // has already become `<dir>/index.ts` and `./a.ts` and `a.ts` are the same path.
+    Schema.makeFilter(
+      (v) => {
+        const declared: readonly (readonly [string, string | undefined])[] = [
+          ['output', v.output],
+          ['routes.output', v.routes?.output],
+          ['webhooks.output', v.webhooks?.output],
+          ['components.output', v.components?.output],
+          ...COMPONENT_KINDS.map(
+            (kind) => [`components.${kind}.output`, v.components?.[kind]?.output] as const,
+          ),
+          ['type.output', v.type?.output],
+          ['rpc.output', v.rpc?.output],
+          ...HOOK_KINDS.map((kind) => [`${kind}.output`, v[kind]?.output] as const),
+          ['test.output', v.test?.output],
+          ['mock.output', v.mock?.output],
+          ['docs.output', v.docs?.output],
+        ]
+        const seen = new Map<string, string>()
+        for (const [field, output] of declared) {
+          if (output === undefined) continue
+          const key = posix.normalize(output).replace(/\/+$/u, '')
+          const first = seen.get(key)
+          if (first !== undefined) {
+            return `${field} and ${first} both write to ${output}. Give each generator its own output path.`
+          }
+          seen.set(key, field)
+        }
+        return true
+      },
+      { message: 'every generator needs its own output path' },
+    ),
   )
   // No `examples` here: the annotation is typed against the parsed shape, and a root
   // example would have to spell out all sixteen defaulted `export*` flags — noise, not
@@ -671,6 +774,10 @@ export type Config = typeof ConfigSchema.Type
 /**
  * The config file is missing, is not a module with a default export, or does not validate.
  *
+ * `notFound` separates "there is no config here" from "the config here is wrong": only
+ * the first is the caller who ran `hono-takibi` with nothing and needs to be told what
+ * the command accepts. Everything else already names the field that is wrong.
+ *
  * `Schema.TaggedError` rather than `Data.TaggedError`: this is the error a schema decode
  * turns into, which is the shape the Schema guide models, and it makes the failure a
  * schema in its own right. The errors that never meet a schema (`FormatError`,
@@ -679,6 +786,7 @@ export type Config = typeof ConfigSchema.Type
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
   message: Schema.String,
+  notFound: Schema.optionalKey(Schema.Boolean),
 }) {}
 
 // Built once and reused at the edge, as the Schema guide prescribes, rather than
@@ -715,7 +823,9 @@ export function readConfig(configPath?: string) {
     const found = yield* fs
       .exists(abs)
       .pipe(Effect.catchTag('PlatformError', () => Effect.succeed(false)))
-    if (!found) return yield* new ConfigError({ message: `Config not found: ${abs}` })
+    if (!found) {
+      return yield* new ConfigError({ message: `Config not found: ${abs}`, notFound: true })
+    }
     const mod: unknown = yield* Effect.tryPromise({
       try: () => import(pathToFileURL(abs).href),
       catch: (error) =>

@@ -3,11 +3,10 @@ import os from 'node:os'
 import path from 'node:path'
 
 import * as NodeServices from '@effect/platform-node/NodeServices'
-import { Console, Effect, Exit, Option, Result } from 'effect'
+import { Console, Effect, Exit } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { fileSystemLayer } from '../file/index.js'
-import { honoTakibi, run } from './index.js'
+import { honoTakibi } from './index.js'
 
 const openapi = {
   openapi: '3.1.0',
@@ -134,6 +133,13 @@ const minimalOpenapi = {
   },
 }
 
+// `honoTakibi` reads `--version` from the `package.json` one directory above its entry,
+// so the tests hand it the URL the real entry has: `src/index.ts`.
+const ENTRY_URL = new URL('../index.ts', import.meta.url).href
+const { version } = JSON.parse(
+  fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
+) as { readonly version: string }
+
 // SGR escapes the CLI formatter emits when stdout is a TTY, stripped so the
 // assertions below compare plain text either way.
 const ANSI = new RegExp(`${String.fromCodePoint(27)}\\[[0-9;]*m`, 'gu')
@@ -151,7 +157,7 @@ async function runCli(argv: readonly string[]) {
     error: (...args: readonly unknown[]) => stderr.push(args.map(String).join(' ')),
   })
   const exit = await Effect.runPromiseExit(
-    run(argv, '0.0.0-test').pipe(
+    honoTakibi(argv, ENTRY_URL).pipe(
       Effect.provideService(Console.Console, recorder),
       Effect.provide(NodeServices.layer),
     ),
@@ -180,46 +186,43 @@ afterEach(() => {
   tmpDir = ''
 })
 
-/**
- * Calls `honoTakibi` the way the command does, with the filesystem the CLI provides,
- * and reports the outcome as a value so both channels can be asserted.
- */
-async function callHonoTakibi(input?: string, output?: string, config?: string) {
-  const outcome = await Effect.runPromise(
-    Effect.result(
-      honoTakibi({
-        input: Option.fromNullishOr(input as `${string}.yaml` | undefined),
-        output: Option.fromNullishOr(output as `${string}.ts` | undefined),
-        config: Option.fromNullishOr(config),
-      }).pipe(Effect.provide(fileSystemLayer)),
-    ),
-  )
-  return Result.isFailure(outcome) ? outcome.failure.message : ''
-}
-
 // The two modes are mutually exclusive and each flag is meaningless alone; these are the
-// four ways a caller can describe neither mode.
-describe('honoTakibi mode resolution', { timeout: 30_000 }, () => {
+// ways a caller can describe neither mode. Driven through argv, so the guards are reached
+// the way a user reaches them — past `mustExist` and the extension schemas.
+describe('hono-takibi mode resolution', { timeout: 30_000 }, () => {
   it('rejects <input> without -o', async () => {
-    expect(await callHonoTakibi('openapi.yaml')).toContain('<input> requires -o <output.ts>')
-  })
+    const dir = useTmpDir('cli-mode-input-only-')
+    const input = path.join(dir, 'openapi.json')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
 
-  it('rejects -o without <input>', async () => {
-    expect(await callHonoTakibi(undefined, 'routes.ts')).toContain(
-      '-o <output.ts> requires an <input> document',
-    )
+    const result = await runCli([input])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('<input> requires -o <output.ts>')
   })
 
   it('rejects --config alongside the one-shot flags', async () => {
-    expect(await callHonoTakibi('openapi.yaml', 'routes.ts', 'api.config.ts')).toContain(
-      '--config cannot be combined',
-    )
+    const dir = useTmpDir('cli-mode-config-and-input-')
+    const input = path.join(dir, 'openapi.json')
+    const config = path.join(dir, 'api.config.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(config, 'export default {}')
+
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts'), '--config', config])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('--config cannot be combined')
   })
 
   it('rejects --config alongside -o alone', async () => {
-    expect(await callHonoTakibi(undefined, 'routes.ts', 'api.config.ts')).toContain(
-      '--config cannot be combined',
-    )
+    const dir = useTmpDir('cli-mode-config-and-output-')
+    const config = path.join(dir, 'api.config.ts')
+    fs.writeFileSync(config, 'export default {}')
+
+    const result = await runCli(['-o', path.join(dir, 'out.ts'), '--config', config])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('--config cannot be combined')
   })
 })
 
@@ -423,7 +426,7 @@ describe('hono-takibi global flags', () => {
     const result = await runCli(['--version'])
 
     expect(result.ok).toBe(true)
-    expect(result.stdout).toContain('hono-takibi v0.0.0-test')
+    expect(result.stdout).toContain(`hono-takibi v${version}`)
   })
 
   it('prints a shell completion script for --completions', async () => {
@@ -663,17 +666,41 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
 
     expect(result.ok).toBe(false)
     expect(result.stderr).toContain('Invalid config')
+    // The usage block answers "there is no config here", not "the config here is wrong".
+    expect(result.stderr).not.toContain('hono-takibi <input.{yaml,json,tsp}>')
+  })
+
+  it('rejects a config that points two generators at one output path', async () => {
+    const dir = useTmpDir('cli-config-collision-')
+    const input = path.join(dir, 'openapi.json')
+    const output = path.join(dir, 'api.ts')
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: ${JSON.stringify(input)},
+        output: ${JSON.stringify(output)},
+        type: { output: ${JSON.stringify(output)} },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('type.output and output both write to')
+    expect(fs.existsSync(output)).toBe(false)
   })
 })
 
-describe('honoTakibi one-shot failures', { timeout: 30_000 }, () => {
+describe('hono-takibi one-shot failures', { timeout: 30_000 }, () => {
   it('propagates a parse failure from the input document', async () => {
-    const dir = useTmpDir('cli-execute-parse-')
+    const dir = useTmpDir('cli-parse-failure-')
     const input = path.join(dir, 'broken.json')
     fs.writeFileSync(input, '{ not json')
 
-    const message = await callHonoTakibi(input, path.join(dir, 'out.ts'))
+    const result = await runCli([input, '-o', path.join(dir, 'out.ts')])
 
-    expect(message).not.toBe('')
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
   })
 })

@@ -136,6 +136,18 @@ function isTsFileName(file: string): file is `${string}.ts` {
  * or routes registered on an inline sub-router), the file that already holds it — an existing
  * implementation is regenerated in place rather than re-stubbed under the expected file name.
  */
+/** The names `collect` finds in one handler file, paired with the file they came from. */
+function collectFrom(
+  handlerPath: string,
+  fileName: `${string}.ts`,
+  collect: (code: string) => readonly string[],
+) {
+  return Effect.gen(function* () {
+    const code = yield* readFile(`${handlerPath}/${fileName}`)
+    return collect(code ?? '').map((name) => [name, fileName] as const)
+  })
+}
+
 function scanExistingHandlerFiles(
   handlerPath: string,
   collect: (code: string) => readonly string[],
@@ -148,12 +160,7 @@ function scanExistingHandlerFiles(
       )
       .toSorted()
     const reads = yield* Effect.all(
-      fileNames.map((fileName) =>
-        Effect.gen(function* () {
-          const code = yield* readFile(`${handlerPath}/${fileName}`)
-          return collect(code ?? '').map((name) => [name, fileName] as const)
-        }),
-      ),
+      fileNames.map((fileName) => collectFrom(handlerPath, fileName, collect)),
       { concurrency: 'unbounded' },
     )
     const locations = new Map<string, `${string}.ts`>()
@@ -553,6 +560,46 @@ function writeBarrel(handlerPath: string, fileNames: readonly string[]) {
   })
 }
 
+/**
+ * Writes one handler file and, when the scaffold asks for tests, the test beside it.
+ *
+ * The three writers below differ only in how the file's contents are built and which merge
+ * keeps hand-written code; from there on they are the same, so they share this.
+ */
+function writeHandler(options: {
+  readonly openapi: OpenAPI
+  readonly handlerPath: string
+  readonly handler: {
+    readonly fileName: `${string}.ts`
+    readonly testFileName: `${string}.ts`
+    readonly routeNames: readonly string[]
+  }
+  readonly fileContent: string
+  readonly merge: (existing: string, incoming: string) => string
+  readonly testImportFrom: string
+  readonly basePath: string
+  readonly testFramework: 'vitest' | 'vite-plus' | 'bun'
+  readonly testContext: ReturnType<typeof makeHandlerTestContext> | undefined
+}) {
+  return Effect.gen(function* () {
+    const filePath = `${options.handlerPath}/${options.handler.fileName}`
+    yield* writeMerged(filePath, options.fileContent, options.merge)
+    if (options.testContext === undefined || options.handler.routeNames.length === 0) return
+    const testContent = makeHandlerTestCode(
+      options.openapi,
+      filePath,
+      [...options.handler.routeNames],
+      options.testImportFrom,
+      options.basePath,
+      options.testFramework,
+      options.testContext,
+    )
+    if (testContent) {
+      yield* writeMergedTest(`${options.handlerPath}/${options.handler.testFileName}`, testContent)
+    }
+  })
+}
+
 export function zodOpenAPIHonoHandler(
   openapi: OpenAPI,
   output: string,
@@ -596,25 +643,18 @@ export function zodOpenAPIHonoHandler(
     yield* Effect.all(
       [
         ...handlers.map((handler) =>
-          Effect.gen(function* () {
-            const fileContent = routeHandler
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: routeHandler
               ? makeStubFileContent(handler, importFrom)
-              : makeInlineStubFileContent(handler, importFrom)
-            yield* writeMerged(`${handlerPath}/${handler.fileName}`, fileContent, mergeHandlerFile)
-            if (handlerTestContext && handler.routeNames.length > 0) {
-              const testContent = makeHandlerTestCode(
-                openapi,
-                `${handlerPath}/${handler.fileName}`,
-                [...handler.routeNames],
-                testImportFrom,
-                basePath,
-                testFramework,
-                handlerTestContext,
-              )
-              if (testContent) {
-                yield* writeMergedTest(`${handlerPath}/${handler.testFileName}`, testContent)
-              }
-            }
+              : makeInlineStubFileContent(handler, importFrom),
+            merge: mergeHandlerFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
           }),
         ),
         writeBarrel(
@@ -749,27 +789,22 @@ export function defineOpenAPIRouteHandler(
     yield* Effect.all(
       [
         ...handlerList.map((handler) =>
-          Effect.gen(function* () {
-            const filePath = `${handlerPath}/${handler.fileName}`
-            const chain = handler.contents.join('\n\n')
-            const fileContent = makeImports(chain, filePath, componentsMap, false, [
-              'defineOpenAPIRoute',
-            ])
-            yield* writeMerged(filePath, fileContent, mergeDefineFile)
-            if (handlerTestContext && handler.routeNames.length > 0) {
-              const testContent = makeHandlerTestCode(
-                openapi,
-                `${handlerPath}/${handler.fileName}`,
-                [...handler.routeNames],
-                testImportFrom,
-                basePath,
-                testFramework,
-                handlerTestContext,
-              )
-              if (testContent) {
-                yield* writeMergedTest(`${handlerPath}/${handler.testFileName}`, testContent)
-              }
-            }
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: makeImports(
+              handler.contents.join('\n\n'),
+              `${handlerPath}/${handler.fileName}`,
+              componentsMap,
+              false,
+              ['defineOpenAPIRoute'],
+            ),
+            merge: mergeDefineFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
           }),
         ),
         writeBarrel(
@@ -835,25 +870,18 @@ export function mockZodOpenAPIHonoHandler(
     yield* Effect.all(
       [
         ...handlers.map((handler) =>
-          Effect.gen(function* () {
-            const fileContent = routeHandler
+          writeHandler({
+            openapi,
+            handlerPath,
+            handler,
+            fileContent: routeHandler
               ? makeMockFileContent(handler, importFrom, schemas)
-              : makeInlineMockFileContent(handler, importFrom, schemas)
-            yield* writeMerged(`${handlerPath}/${handler.fileName}`, fileContent, mergeHandlerFile)
-            if (handlerTestContext && handler.routeNames.length > 0) {
-              const testContent = makeHandlerTestCode(
-                openapi,
-                `${handlerPath}/${handler.fileName}`,
-                [...handler.routeNames],
-                testImportFrom,
-                basePath,
-                testFramework,
-                handlerTestContext,
-              )
-              if (testContent) {
-                yield* writeMergedTest(`${handlerPath}/${handler.testFileName}`, testContent)
-              }
-            }
+              : makeInlineMockFileContent(handler, importFrom, schemas),
+            merge: mergeHandlerFile,
+            testImportFrom,
+            basePath,
+            testFramework,
+            testContext: handlerTestContext,
           }),
         ),
         writeBarrel(

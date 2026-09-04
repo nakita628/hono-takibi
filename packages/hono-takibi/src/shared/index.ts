@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import type { FileSystem, PlatformError } from 'effect'
-import { Effect } from 'effect'
+import { Effect, Schema } from 'effect'
 
 import type { Config } from '../config/index.js'
 import {
@@ -51,6 +51,38 @@ export type Job = {
     FormatError | GenerateError | PlatformError.PlatformError,
     FileSystem.FileSystem
   >
+}
+
+/**
+ * Narrows a job's output path to the `${string}.ts` the TypeScript generators ask for.
+ *
+ * `config` normalises a directory into `<dir>/index.ts` and the split generators build
+ * their own paths, so what reaches a job is a plain string; this is where it is checked.
+ */
+function typeScriptPath(output: string) {
+  return Schema.decodeUnknownEffect(
+    Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
+  )(output).pipe(
+    Effect.mapError(() => new GenerateError({ message: `Invalid output format: ${output}` })),
+  )
+}
+
+/** `takibi` against a job's output path, once that path is known to be TypeScript. */
+function runTakibi(
+  openAPI: OpenAPI,
+  output: string,
+  componentsOptions: Parameters<typeof takibi>[2],
+) {
+  return Effect.gen(function* () {
+    return yield* takibi(openAPI, yield* typeScriptPath(output), componentsOptions)
+  })
+}
+
+/** `type` against a job's output path, once that path is known to be TypeScript. */
+function runType(openAPI: OpenAPI, output: string, readonly?: boolean) {
+  return Effect.gen(function* () {
+    return yield* type(openAPI, yield* typeScriptPath(output), readonly)
+  })
 }
 
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
@@ -112,26 +144,24 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
           output: config.output,
           split: false,
           run: (output: string) =>
-            ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
-              ? takibi(openAPI, output, {
-                  ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
-                  exportSchemas: config.exportSchemas,
-                  exportSchemasTypes: config.exportSchemasTypes,
-                  exportResponses: config.exportResponses,
-                  exportParameters: config.exportParameters,
-                  exportParametersTypes: config.exportParametersTypes,
-                  exportExamples: config.exportExamples,
-                  exportRequestBodies: config.exportRequestBodies,
-                  exportHeaders: config.exportHeaders,
-                  exportHeadersTypes: config.exportHeadersTypes,
-                  exportSecuritySchemes: config.exportSecuritySchemes,
-                  exportLinks: config.exportLinks,
-                  exportCallbacks: config.exportCallbacks,
-                  exportPathItems: config.exportPathItems,
-                  exportMediaTypes: config.exportMediaTypes,
-                  exportMediaTypesTypes: config.exportMediaTypesTypes,
-                })
-              : Effect.fail(new GenerateError({ message: `Invalid output format: ${output}` })),
+            runTakibi(openAPI, output, {
+              ...(config.readonly !== undefined ? { readonly: config.readonly } : {}),
+              exportSchemas: config.exportSchemas,
+              exportSchemasTypes: config.exportSchemasTypes,
+              exportResponses: config.exportResponses,
+              exportParameters: config.exportParameters,
+              exportParametersTypes: config.exportParametersTypes,
+              exportExamples: config.exportExamples,
+              exportRequestBodies: config.exportRequestBodies,
+              exportHeaders: config.exportHeaders,
+              exportHeadersTypes: config.exportHeadersTypes,
+              exportSecuritySchemes: config.exportSecuritySchemes,
+              exportLinks: config.exportLinks,
+              exportCallbacks: config.exportCallbacks,
+              exportPathItems: config.exportPathItems,
+              exportMediaTypes: config.exportMediaTypes,
+              exportMediaTypesTypes: config.exportMediaTypesTypes,
+            }),
         }
       : undefined,
     config.webhooks
@@ -338,10 +368,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
           name: 'type',
           output: config.type.output,
           split: false,
-          run: (output: string) =>
-            ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
-              ? type(openAPI, output, config.type?.readonly)
-              : Effect.fail(new GenerateError({ message: `Invalid output format: ${output}` })),
+          run: (output: string) => runType(openAPI, output, config.type?.readonly),
         }
       : undefined,
     config.rpc
