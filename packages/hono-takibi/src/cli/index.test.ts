@@ -169,19 +169,25 @@ async function runCli(argv: readonly string[], entryUrl: string = ENTRY_URL) {
   }
 }
 
-const originalCwd = process.cwd.bind(process)
+const originalCwd = process.cwd()
 let tmpDir = ''
 
-/** Fresh temp directory that stands in for `process.cwd()` until the test ends. */
+/**
+ * Fresh temp directory, entered for the length of the test.
+ *
+ * `chdir` rather than a stubbed `process.cwd`: a generator resolves its output through
+ * the real working directory, so a config that names a relative output only lands in the
+ * temp directory if the process is actually in it.
+ */
 function useTmpDir(prefix: string) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), prefix))
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), prefix)))
   tmpDir = dir
-  process.cwd = () => dir
+  process.chdir(dir)
   return dir
 }
 
 afterEach(() => {
-  process.cwd = originalCwd
+  process.chdir(originalCwd)
   if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true })
   tmpDir = ''
 })
@@ -668,6 +674,130 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
     expect(result.stderr).toContain('Invalid config')
     // The usage block answers "there is no config here", not "the config here is wrong".
     expect(result.stderr).not.toContain('hono-takibi <input.{yaml,json,tsp}>')
+  })
+
+  it('resolves a relative --config, and the paths inside it, against the working directory', async () => {
+    const dir = useTmpDir('cli-config-relative-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.mkdirSync(path.join(dir, 'config'))
+    fs.writeFileSync(
+      path.join(dir, 'config', 'api.config.ts'),
+      // Relative to the working directory, not to the config file: `openapi.json` sits
+      // beside the config here but is named from the directory the CLI was run in.
+      `export default { input: './openapi.json', output: './src/routes.ts' }`,
+    )
+
+    const result = await runCli(['--config', 'config/api.config.ts'])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'src', 'routes.ts'), 'utf-8')).toContain('getItemsRoute')
+  })
+
+  it('applies the config format block to what it writes', async () => {
+    const dir = useTmpDir('cli-config-format-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        output: './routes.ts',
+        format: { semi: true, singleQuote: false },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8')).toContain(
+      'import { createRoute, z } from "@hono/zod-openapi";',
+    )
+  })
+
+  it('surfaces a config module that throws while loading', async () => {
+    const dir = useTmpDir('cli-config-throws-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `throw new Error('config blew up')
+export default {}`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('config blew up')
+  })
+
+  it('rejects a config module with no default export', async () => {
+    const dir = useTmpDir('cli-config-no-default-')
+    fs.writeFileSync(path.join(dir, 'hono-takibi.config.ts'), `export const config = {}`)
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('Config must export default object')
+  })
+
+  it('surfaces a config whose input document is missing', async () => {
+    const dir = useTmpDir('cli-config-missing-input-')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './nope.yaml', output: './routes.ts' }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain('ERROR')
+    expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
+  })
+
+  // The schema rejects the values that would otherwise be spliced into generated code.
+  // What matters here is that the failure reaches the caller naming the config field,
+  // rather than as an oxfmt complaint about a file they never wrote.
+  it.each([
+    ['basePath', `basePath: 'api', output: './routes.ts'`, 'basePath: must start with'],
+    [
+      'rpc.client',
+      `rpc: { output: './rpc.ts', import: '../lib', client: '1bad' }`,
+      'rpc.client: must be a JavaScript identifier',
+    ],
+    [
+      'rpc.import',
+      `rpc: { output: './rpc.ts', import: '' }`,
+      'rpc.import: must be a module specifier',
+    ],
+  ])('rejects a config whose %s cannot be generated from', async (_field, body, expected) => {
+    const dir = useTmpDir('cli-config-field-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './openapi.json', ${body} }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(false)
+    expect(result.stderr).toContain(expected)
+    expect(fs.readdirSync(dir).sort()).toStrictEqual(['hono-takibi.config.ts', 'openapi.json'])
+  })
+
+  it('generates rpc wrappers that import the configured client', async () => {
+    const dir = useTmpDir('cli-config-rpc-')
+    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default {
+        input: './openapi.json',
+        rpc: { output: './rpc.ts', import: '../lib', client: 'apiClient' },
+      }`,
+    )
+
+    const result = await runCli([])
+
+    expect(result.ok).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'rpc.ts'), 'utf-8')).toContain(
+      "import { apiClient } from '../lib'",
+    )
   })
 
   it('rejects a config that points two generators at one output path', async () => {

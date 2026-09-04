@@ -1,6 +1,7 @@
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { Console, Effect, FileSystem, Option, Runtime, Schema } from 'effect'
+import { Console, Effect, FileSystem, Option, Result, Runtime, Schema, Stream } from 'effect'
 import { Argument, CliError, CliOutput, Command, Flag } from 'effect/unstable/cli'
 
 /** Config file `hono-takibi` picks up from the working directory when `--config` is omitted. */
@@ -8,7 +9,7 @@ const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
 
 const USAGE = `Usage:
   hono-takibi <input.{yaml,json,tsp}> -o <output.ts>   generate a single routes file
-  hono-takibi [--config <file>]                        run every generator the config opts into`
+  hono-takibi [--config <file>] [--watch]              run every generator the config opts into`
 
 // `Schema.refine` both rejects the value at runtime and narrows the parsed type, so a
 // wrong extension never reaches the generators and the ones it does reach arrive as
@@ -78,6 +79,96 @@ const commandLine = {
     Flag.withMetavar('file'),
     Flag.optional,
   ),
+  // `Flag.boolean` is still a required flag until it is given a default — without this,
+  // every invocation is rejected for not passing `--watch`.
+  watch: Flag.boolean('watch').pipe(
+    Flag.withAlias('w'),
+    Flag.withDescription('Rerun the config on every change to its documents or itself'),
+    Flag.withDefault(false),
+  ),
+}
+
+/** Extensions a change has to carry to be worth regenerating for. */
+const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
+
+function isInputDocument(changed: string) {
+  return INPUT_EXTENSIONS.some((extension) => changed.endsWith(extension))
+}
+
+/**
+ * One pass over a config file: read it, parse the document it names, and run every
+ * generator it opts into.
+ *
+ * `reload` is for the passes after the first, where the config file may have been edited
+ * since it was imported.
+ *
+ * The generator pipeline pulls in the OpenAPI parser, the TypeSpec compiler and ts-morph.
+ * `--help`, `--version`, `--completions` and every rejected command line must not pay for
+ * that, so it is loaded here rather than at module scope. After the first pass the loader
+ * answers from cache, so a watch tick pays nothing.
+ */
+function runConfigPass(configPath: string, reload: boolean) {
+  return Effect.gen(function* () {
+    const [{ readConfig }, { parseOpenAPI }, { FormatOptions }, { makeJob }] =
+      yield* Effect.promise(() =>
+        Promise.all([
+          import('../config/index.js'),
+          import('../openapi/index.js'),
+          import('../format/index.js'),
+          import('../shared/index.js'),
+        ]),
+      )
+    const config = yield* readConfig(configPath, reload)
+    const messages = yield* Effect.all(
+      makeJob(yield* parseOpenAPI(config.input), config).map((job) => job.run(job.output)),
+      { concurrency: 'unbounded' },
+    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
+    return { config, report: messages.filter((message) => message !== '').join('\n') }
+  })
+}
+
+/** A pass whose failure is printed rather than raised, so the watch loop survives it. */
+function reportConfigPass(configPath: string) {
+  return Effect.gen(function* () {
+    const result = yield* Effect.result(runConfigPass(configPath, true))
+    return yield* Result.isSuccess(result)
+      ? Console.log(result.success.report)
+      : Console.error(`❌ ${result.failure.message}`)
+  })
+}
+
+/**
+ * Regenerates on every change to the input documents or the config, until interrupted.
+ *
+ * Two watchers, because two things can invalidate the output. The input document's
+ * directory is watched recursively — a TypeSpec entry imports its siblings and a `$ref`
+ * can point at one, so the file named by `input` is rarely the only one that matters. The
+ * config file is watched through its directory rather than directly, so an editor that
+ * saves by renaming does not take the watcher down with it.
+ *
+ * `WatchEvent.path` is relative to the directory it came from, which is why each stream
+ * is filtered before the merge rather than after.
+ *
+ * `debounce` collapses the burst an editor emits on save into one pass — a plain write
+ * already reports twice. Generated files are `.ts` and `.md`, so a pass cannot trigger
+ * the next one.
+ */
+function watchConfig(configPath: string, inputDirectory: string) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const configDirectory = path.dirname(configPath)
+    const configFile = path.basename(configPath)
+    yield* Console.log(`\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`)
+    return yield* Stream.merge(
+      fs
+        .watch(inputDirectory, { recursive: true })
+        .pipe(Stream.filter((event) => isInputDocument(event.path))),
+      fs.watch(configDirectory).pipe(Stream.filter((event) => event.path === configFile)),
+    ).pipe(
+      Stream.debounce('200 millis'),
+      Stream.runForEach(() => reportConfigPass(configPath)),
+    )
+  })
 }
 
 /**
@@ -115,42 +206,45 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
       const message = `-o <output.ts> requires an <input> document.\n\n${USAGE}`
       return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
     }
+    // One-shot writes one file from one document and is done; there is no second pass for
+    // a change to trigger.
+    if (args.watch && (input !== undefined || output !== undefined)) {
+      const message = `--watch runs a config file, so it cannot be combined with <input> or --output.\n\n${USAGE}`
+      return yield* new CliError.UserError({ cause: new Error(message), userMessage: message })
+    }
 
+    // One-shot: no config file is consulted, even when one sits in the working directory.
     // The generator pipeline pulls in the OpenAPI parser, the TypeSpec compiler and
     // ts-morph. `--help`, `--version`, `--completions` and every rejected command line
     // above must not pay for that, so it is loaded here rather than at module scope.
-    const { parseOpenAPI } = yield* Effect.promise(() => import('../openapi/index.js'))
-
-    // One-shot: no config file is consulted, even when one sits in the working directory.
     if (input !== undefined && output !== undefined) {
-      const { takibi } = yield* Effect.promise(() => import('../core/index.js'))
+      const [{ parseOpenAPI }, { takibi }] = yield* Effect.promise(() =>
+        Promise.all([import('../openapi/index.js'), import('../core/index.js')]),
+      )
       return yield* Console.log(
         yield* takibi(yield* parseOpenAPI(input), output, ONE_SHOT_COMPONENTS),
       )
     }
 
-    const [{ readConfig }, { FormatOptions }, { makeJob }] = yield* Effect.promise(() =>
-      Promise.all([
-        import('../config/index.js'),
-        import('../format/index.js'),
-        import('../shared/index.js'),
-      ]),
-    )
-    const config = yield* readConfig(configPath ?? DEFAULT_CONFIG_FILE).pipe(
+    const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
+    const first = yield* runConfigPass(resolvedConfig, false).pipe(
       // A config that is absent and was never asked for is the "ran `hono-takibi` with
       // nothing" case, the one place where the usage block is the answer. A config that
       // is present and wrong already names the field, and the usage block only buries it.
       Effect.mapError((error) =>
-        configPath === undefined && error.notFound === true
+        configPath === undefined && error._tag === 'ConfigError' && error.notFound === true
           ? new CliError.UserError({ cause: error, userMessage: `${error.message}\n\n${USAGE}` })
           : error,
       ),
     )
-    const messages = yield* Effect.all(
-      makeJob(yield* parseOpenAPI(config.input), config).map((job) => job.run(job.output)),
-      { concurrency: 'unbounded' },
-    ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
-    return yield* Console.log(messages.filter((message) => message !== '').join('\n'))
+    yield* Console.log(first.report)
+    if (!args.watch) return undefined
+    // The directory comes from the config that just ran, so pointing `input` somewhere
+    // else is a change the running watcher cannot follow — restart it.
+    return yield* watchConfig(
+      resolvedConfig,
+      path.dirname(path.resolve(process.cwd(), first.config.input)),
+    )
   }).pipe(
     Effect.mapError((error) =>
       error instanceof CliError.UserError
@@ -178,6 +272,10 @@ const cli = Command.make('hono-takibi', commandLine, generate).pipe(
     {
       command: 'hono-takibi --config config/api.config.ts',
       description: 'Run a config file from another location',
+    },
+    {
+      command: 'hono-takibi --watch',
+      description: 'Rerun on every change to the input documents or the config',
     },
   ]),
 )

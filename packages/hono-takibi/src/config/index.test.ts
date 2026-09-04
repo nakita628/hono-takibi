@@ -70,6 +70,23 @@ describe('readConfig', () => {
     }
   })
 
+  it('rejects a config whose default export is undefined', async () => {
+    const fs = await import('node:fs')
+    const dir = fs.mkdtempSync('/tmp/hono-takibi-test-undefined-default-')
+    // `default` is present, so a shape check that only asks whether the key exists would
+    // let this through and hand `undefined` to the config schema.
+    fs.writeFileSync(path.join(dir, 'hono-takibi.config.ts'), `export default undefined`)
+    const originalCwd = process.cwd.bind(process)
+    process.cwd = () => dir
+    try {
+      const result = await runGeneratorError(readConfig())
+      expect(result.message).toBe('Config must export default object')
+    } finally {
+      process.cwd = originalCwd
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('catches a thrown ImportError and surfaces it as an error string', async () => {
     const fs = await import('node:fs')
     const dir = fs.mkdtempSync('/tmp/hono-takibi-test-throws-')

@@ -13,11 +13,13 @@
 - RPC client, mock server, TypeScript types
 - API reference docs with [hono-cli](https://github.com/honojs/cli) commands
 
+## Quick Start
+
+### Installation
+
 ```bash
 npm install -D hono-takibi
 ```
-
-## Quick Start
 
 ### CLI
 
@@ -50,6 +52,7 @@ hono-takibi [flags] [<input>]
   <input>                    OpenAPI (.yaml, .json) or TypeSpec (.tsp) document
   -o, --output <output.ts>   TypeScript file the generated routes are written to
   -c, --config <file>        Config file to run (default: ./hono-takibi.config.ts)
+  -w, --watch                Rerun the config on every change to its documents or itself
   -h, --help                 Show help
   -v, --version              Show version
       --completions <shell>  Print a bash / zsh / fish completion script
@@ -60,6 +63,23 @@ With an `<input>` the CLI writes a single routes file, and `-o` is required. Wit
 types, mock, docs, test and tanstack-query generators. Paths inside a config file
 resolve against the current directory, so `--config` names where the config lives, not
 where its outputs land.
+
+### Watch mode
+
+`--watch` keeps the config running and regenerates on every change to the input
+documents or to the config file itself. It pairs with `template`, where the generated
+handlers are merged rather than overwritten — add an operation to the document and its
+handler stub appears, while the code already written into the existing ones stays put.
+
+```bash
+npx hono-takibi --watch
+```
+
+The whole directory holding the input document is watched, not just the file `input`
+names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger
+a rerun. A failing pass prints the error and keeps watching. `--watch` runs a config
+file, so it cannot be combined with `<input>` / `-o`; pointing `input` at a different
+directory takes effect on restart.
 
 ### Example
 

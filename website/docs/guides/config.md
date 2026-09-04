@@ -50,6 +50,25 @@ resolve against the current directory:
 npx hono-takibi --config config/api.config.ts
 ```
 
+## Watch Mode
+
+`--watch` keeps the config running and regenerates on every change to the input documents
+or to the config file itself:
+
+```sh
+npx hono-takibi --watch
+```
+
+It pairs with [`template`](#full-configuration), where the generated handlers are merged
+rather than overwritten — add an operation to the document and its handler stub appears,
+while the code already written into the existing ones stays put.
+
+The whole directory holding the input document is watched, not just the file `input`
+names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger a
+rerun. A failing pass prints the error and keeps watching. `--watch` runs a config file,
+so it cannot be combined with `<input>` / `-o`; pointing `input` at a different directory
+takes effect on restart.
+
 ## Full Configuration
 
 Every generator needs its own `output` path: two of them aimed at one file is rejected

@@ -813,8 +813,19 @@ export function parseConfig(config: unknown) {
   )
 }
 
-/** Loads and validates a config file, resolved against the current directory. */
-export function readConfig(configPath?: string) {
+// A module specifier is imported once per process, so a watch pass that asked for the
+// same config file would get the copy from before the edit. The counter is what makes
+// each reload a specifier the loader has not seen.
+let reloadCount = 0
+
+/**
+ * Loads and validates a config file, resolved against the current directory.
+ *
+ * `reload` re-reads a config that has already been imported — what `--watch` needs after
+ * the file changes, and nothing else should ask for, since every reload leaves another
+ * copy of the module behind.
+ */
+export function readConfig(configPath?: string, reload = false) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const abs = resolve(process.cwd(), configPath ?? 'hono-takibi.config.ts')
@@ -826,11 +837,16 @@ export function readConfig(configPath?: string) {
     if (!found) {
       return yield* new ConfigError({ message: `Config not found: ${abs}`, notFound: true })
     }
+    const href = pathToFileURL(abs).href
+    const specifier = reload ? `${href}?reload=${String((reloadCount += 1))}` : href
     const mod: unknown = yield* Effect.tryPromise({
-      try: () => import(pathToFileURL(abs).href),
+      try: () => import(specifier),
       catch: (error) =>
         new ConfigError({ message: error instanceof Error ? error.message : String(error) }),
     })
+    // `'default' in mod` is what narrows `mod` for TypeScript, not a second runtime check
+    // — an absent key already reads as `undefined` below. `export default undefined`
+    // leaves the key present, which is why both halves are here.
     if (
       typeof mod !== 'object' ||
       mod === null ||
