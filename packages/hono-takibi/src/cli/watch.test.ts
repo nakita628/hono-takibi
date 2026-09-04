@@ -62,11 +62,16 @@ function startCli(argv: readonly string[]) {
 /**
  * Polls until `condition` holds, so a test waits on the watcher rather than on a clock.
  *
- * The budget is a contention allowance, not an expectation: a pass normally lands in well
- * under a second, but it runs the real generators against real files while the rest of the
- * suite does the same.
+ * The budget is a starvation allowance, not an expectation. Each of these tests waits on
+ * two real generation passes — oxfmt and ts-morph over real files — while eighty other
+ * test files do the same across eight workers. Alone the whole file finishes in three
+ * seconds; under the full suite a single pass has been measured at 38s. So the number is
+ * large on purpose, and the cost is only paid when the watcher is genuinely broken.
+ *
+ * Raising it is what worked; the alternative — running this file outside the parallel
+ * suite — is not something vite-plus exposes per file.
  */
-async function until(condition: () => boolean, timeoutMs = 30_000) {
+async function until(condition: () => boolean, timeoutMs = 90_000) {
   const deadline = Date.now() + timeoutMs
   const poll = async (): Promise<boolean> => {
     if (condition()) return true
@@ -79,41 +84,7 @@ async function until(condition: () => boolean, timeoutMs = 30_000) {
 
 // Long enough for every `until` in the slowest case to spend its full budget, so a real
 // failure still reports as the assertion that failed rather than as a suite timeout.
-describe('hono-takibi --watch', { timeout: 120_000 }, () => {
-  it('regenerates when the input document changes', async () => {
-    const dir = useTmpDir('cli-watch-input-')
-    const routes = path.join(dir, 'routes.ts')
-    fs.writeFileSync(path.join(dir, 'openapi.json'), JSON.stringify(minimalOpenapi))
-    fs.writeFileSync(
-      path.join(dir, 'hono-takibi.config.ts'),
-      `export default { input: './openapi.json', output: './routes.ts' }`,
-    )
-
-    const cli = startCli(['--watch'])
-    try {
-      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
-      expect(fs.readFileSync(routes, 'utf-8')).toContain('getItemsRoute')
-
-      fs.writeFileSync(
-        path.join(dir, 'openapi.json'),
-        JSON.stringify({
-          ...minimalOpenapi,
-          paths: {
-            '/widgets': {
-              get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
-            },
-          },
-        }),
-      )
-
-      expect(await until(() => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'))).toBe(
-        true,
-      )
-    } finally {
-      await Effect.runPromise(Fiber.interrupt(cli.fiber))
-    }
-  })
-
+describe('hono-takibi --watch', { timeout: 300_000 }, () => {
   it('picks up a change to the config file itself', async () => {
     const dir = useTmpDir('cli-watch-config-')
     const config = path.join(dir, 'hono-takibi.config.ts')
@@ -132,7 +103,8 @@ describe('hono-takibi --watch', { timeout: 120_000 }, () => {
     }
   })
 
-  // A watcher that exits on the first bad edit is worse than one that waits for the next.
+  // Also the plain "the document changed, so regenerate" case: the recovery write adds an
+  // operation and the assertion is that it reached the output.
   it('keeps watching after a failing pass', async () => {
     const dir = useTmpDir('cli-watch-recover-')
     const input = path.join(dir, 'openapi.json')
