@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { fmt } from '../../../format/index.js'
 import type { Schema } from '../../../openapi/index.js'
+import { runGenerator } from '../../../testing/index.js'
 import { string } from './string.js'
 
 describe('string', () => {
@@ -818,7 +819,7 @@ describe('string', () => {
       [{ type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' }],
       [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }],
     ])('fmt(string(%o)) is ok', async (input) => {
-      const result = await fmt(`export const X = ${string(input)}`)
+      const result = await runGenerator(fmt(`export const X = ${string(input)}`))
       expect(result.ok).toBe(true)
     })
   })

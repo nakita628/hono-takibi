@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
+import { runGenerator } from '../../testing/index.js'
 import { responses } from './responses.js'
 
 let tmpDir: string
@@ -17,14 +18,14 @@ describe('responses', () => {
   it('returns error when responses is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-'))
     const output = path.join(tmpDir, 'responses.ts')
-    const result = await responses(undefined, output, false)
+    const result = await runGenerator(responses(undefined, output, false))
     expect(result).toStrictEqual({ ok: false, error: 'No responses found' })
   })
 
   it('returns success message when responses is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-'))
     const output = path.join(tmpDir, 'responses.ts')
-    const result = await responses({}, output, false)
+    const result = await runGenerator(responses({}, output, false))
     expect(result).toStrictEqual({ ok: true, value: 'No responses found' })
   })
 
@@ -32,24 +33,26 @@ describe('responses', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-'))
       const output = path.join(tmpDir, 'responses.ts')
-      const result = await responses(
-        {
-          NotFound: {
-            description: 'Not found',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    message: { type: 'string' },
+      const result = await runGenerator(
+        responses(
+          {
+            NotFound: {
+              description: 'Not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: { type: 'string' },
+                    },
                   },
                 },
               },
             },
           },
-        },
-        output,
-        false,
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -65,37 +68,39 @@ describe('responses', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-responses-'))
       const output = path.join(tmpDir, 'responses')
-      const result = await responses(
-        {
-          NotFound: {
-            description: 'Not found',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    message: { type: 'string' },
+      const result = await runGenerator(
+        responses(
+          {
+            NotFound: {
+              description: 'Not found',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+            Unauthorized: {
+              description: 'Unauthorized',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      error: { type: 'string' },
+                    },
                   },
                 },
               },
             },
           },
-          Unauthorized: {
-            description: 'Unauthorized',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    error: { type: 'string' },
-                  },
-                },
-              },
-            },
-          },
-        },
-        output,
-        true,
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -115,7 +120,7 @@ describe('responses', () => {
         NotFound: { description: 'Not found' },
         Unauthorized: { description: 'Unauthorized' },
       }
-      const result = await responses(sampleResponses, output, false)
+      const result = await runGenerator(responses(sampleResponses, output, false))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = responsesCode({ responses: sampleResponses }, true)

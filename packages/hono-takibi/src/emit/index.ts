@@ -1,11 +1,12 @@
-import { fmt } from '../format/index.js'
-import { mkdir, writeFile } from '../fsp/index.js'
+import { Effect } from 'effect'
 
-export async function emit(code: string, dir: string, output: string) {
-  const [fmtResult, mkdirResult] = await Promise.all([fmt(code), mkdir(dir)])
-  if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-  if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error } as const
-  const writeResult = await writeFile(output, fmtResult.value)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-  return { ok: true, value: undefined } as const
+import { fmt } from '../format/index.js'
+import { mkdir, writeFile } from '../file/index.js'
+
+/** Formats generated source and writes it to `output`, creating `dir` on the way. */
+export function emit(code: string, dir: string, output: string) {
+  return Effect.gen(function* () {
+    const [formatted] = yield* Effect.all([fmt(code), mkdir(dir)], { concurrency: 'unbounded' })
+    yield* writeFile(output, formatted)
+  })
 }

@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { template } from './index.js'
 
 let tmpDir: string
@@ -31,7 +32,9 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    const result = await runGenerator(
+      template(openAPI, output, false, '/', undefined, undefined, false),
+    )
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe('🔥 Generated code and template files written')
@@ -57,7 +60,9 @@ describe('template', () => {
         },
       },
     } as OpenAPI
-    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    const result = await runGenerator(
+      template(openAPI, output, false, '/', undefined, undefined, false),
+    )
     expect(result.ok).toBe(true)
     // `server/index.ts` means "module server/", so the app entry and handlers land beside it.
     expect(fs.existsSync(path.join(tmpDir, 'index.ts'))).toBe(true)
@@ -97,7 +102,9 @@ export const api = new OpenAPIHono()
         },
       },
     } as OpenAPI
-    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    const result = await runGenerator(
+      template(openAPI, output, false, '/', undefined, undefined, false),
+    )
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
@@ -144,7 +151,9 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    const result = await template(openAPI, output, false, '/', '@/api', undefined, true)
+    const result = await runGenerator(
+      template(openAPI, output, false, '/', '@/api', undefined, true),
+    )
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')).toBe(
       `import { OpenAPIHono } from '@hono/zod-openapi'
@@ -178,7 +187,9 @@ export const debug = { workerEnv, appEnv, BookService, ReviewService }
         },
       },
     } as OpenAPI
-    const first = await template(untagged, output, false, '/', undefined, undefined, false)
+    const first = await runGenerator(
+      template(untagged, output, false, '/', undefined, undefined, false),
+    )
     expect(first.ok).toBe(true)
     const implemented = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from '../routes'
@@ -204,7 +215,9 @@ export const usersHandler = app.openapi(getUsersRoute, async (c) => {
         },
       },
     } as OpenAPI
-    const second = await template(tagged, output, false, '/', undefined, undefined, false)
+    const second = await runGenerator(
+      template(tagged, output, false, '/', undefined, undefined, false),
+    )
     expect(second.ok).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'handlers', 'userManagement.ts'))).toBe(false)
     expect(fs.readFileSync(path.join(tmpDir, 'handlers', 'users.ts'), 'utf-8')).toBe(implemented)
@@ -240,7 +253,9 @@ export default app
         },
       },
     } as OpenAPI
-    const result = await template(openAPI, output, false, '/', undefined, undefined, false)
+    const result = await runGenerator(
+      template(openAPI, output, false, '/', undefined, undefined, false),
+    )
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.length > 0).toBe(true)

@@ -1,5 +1,7 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../../emit/index.js'
 import {
   isHttpMethod,
@@ -38,15 +40,15 @@ const DEEP_READONLY_TYPE =
  * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
  * @returns Result with success message or error
  */
-export async function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
+export function type(openAPI: OpenAPI, output: `${string}.ts`, readonly?: boolean) {
   const schemaType = makeHonoSchemaType(openAPI)
   const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
   const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
   const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
-  const emitResult = await emit(dts, path.dirname(output), output)
-  return emitResult.ok
-    ? ({ ok: true, value: `Generated type code written to ${output}` } as const)
-    : ({ ok: false, error: emitResult.error } as const)
+  return Effect.gen(function* () {
+    yield* emit(dts, path.dirname(output), output)
+    return `Generated type code written to ${output}`
+  })
 }
 
 function makeHonoSchemaType(openAPI: OpenAPI) {

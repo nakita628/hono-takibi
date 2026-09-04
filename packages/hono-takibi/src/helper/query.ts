@@ -1,6 +1,9 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../emit/index.js'
+import { GenerateError } from '../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
@@ -1197,7 +1200,7 @@ function makeHeader(
  * @param clientName - Name of the client export (default: 'client')
  * @returns Promise resolving to success message or error
  */
-export async function makeQueryHooks(
+export function makeQueryHooks(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
@@ -1227,73 +1230,71 @@ export async function makeQueryHooks(
   split?: boolean,
   clientName = 'client',
 ) {
-  const pathsMaybe = openAPI.paths
-  if (!isOpenAPIPaths(pathsMaybe)) {
-    return { ok: false, error: 'Invalid OpenAPI paths' } as const
-  }
-  const componentsParameters = openAPI.components?.parameters ?? {}
-  const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-  const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
-  const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
-  const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
-  if (!split) {
-    const prefixBody = prefixKeyCodes.join('\n\n')
-    const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
-    const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
-    const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
-    const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
-    const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
-    const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
-    const header = makeHeader(
-      importPath,
-      clientName,
-      hasQuery,
-      hasMutation,
-      hasAnyArgs,
-      config,
-      hasQueryWithArgs,
-      hasInfiniteQuery,
-    )
-    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
-    const emitResult = await emit(code, path.dirname(output), output)
-    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
-    return {
-      ok: true,
-      value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`,
-    } as const
-  }
-  const { outDir, indexPath } = resolveSplitOutDir(output)
-  const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
-  const exportLines = [
-    ...new Set(hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`)),
-  ]
-  const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
-  const index = `${indexLines.join('\n')}\n`
-  const results = await Promise.all([
-    ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
-      const hasQueryWithArgs = isQuery && hasArgs
+  return Effect.gen(function* () {
+    const pathsMaybe = openAPI.paths
+    if (!isOpenAPIPaths(pathsMaybe)) {
+      return yield* new GenerateError({ message: 'Invalid OpenAPI paths' })
+    }
+    const componentsParameters = openAPI.components?.parameters ?? {}
+    const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
+    const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
+    const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
+    const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
+    const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
+    if (!split) {
+      const prefixBody = prefixKeyCodes.join('\n\n')
+      const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
+      const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
+      const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
+      const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
+      const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
+      const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
       const header = makeHeader(
         importPath,
         clientName,
-        isQuery,
-        !isQuery,
-        hasArgs,
+        hasQuery,
+        hasMutation,
+        hasAnyArgs,
         config,
         hasQueryWithArgs,
-        hasInfinite,
+        hasInfiniteQuery,
       )
-      const fileSrc = `${header}${code}\n`
-      const filePath = path.join(outDir, `${operationFileName}.ts`)
-      return emit(fileSrc, path.dirname(filePath), filePath)
-    }),
-    ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
-    emit(index, path.dirname(indexPath), indexPath),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return {
-    ok: true,
-    value: `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`,
-  } as const
+      const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
+      yield* emit(code, path.dirname(output), output)
+      return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`
+    }
+    const { outDir, indexPath } = resolveSplitOutDir(output)
+    const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
+    const exportLines = [
+      ...new Set(
+        hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`),
+      ),
+    ]
+    const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
+    const index = `${indexLines.join('\n')}\n`
+    yield* Effect.all(
+      [
+        ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
+          const hasQueryWithArgs = isQuery && hasArgs
+          const header = makeHeader(
+            importPath,
+            clientName,
+            isQuery,
+            !isQuery,
+            hasArgs,
+            config,
+            hasQueryWithArgs,
+            hasInfinite,
+          )
+          const fileSrc = `${header}${code}\n`
+          const filePath = path.join(outDir, `${operationFileName}.ts`)
+          return emit(fileSrc, path.dirname(filePath), filePath)
+        }),
+        ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
+        emit(index, path.dirname(indexPath), indexPath),
+      ],
+      { concurrency: 'unbounded' },
+    )
+    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`
+  })
 }

@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../testing/index.js'
 import { defineConfig, parseConfig, readConfig } from './index.js'
 
 describe('readConfig', () => {
@@ -10,7 +11,7 @@ describe('readConfig', () => {
     const fakeCwd = `/tmp/hono-takibi-test-no-config-${Date.now()}`
     process.cwd = () => fakeCwd
     try {
-      const result = await readConfig()
+      const result = await runGenerator(readConfig())
       expect(result.ok).toBe(false)
       if (!result.ok) {
         const expectedPath = path.resolve(fakeCwd, 'hono-takibi.config.ts')
@@ -26,7 +27,7 @@ describe('readConfig', () => {
     const fakeCwd = `/tmp/hono-takibi-test-filename-${Date.now()}`
     process.cwd = () => fakeCwd
     try {
-      const result = await readConfig()
+      const result = await runGenerator(readConfig())
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(result.error.endsWith('hono-takibi.config.ts')).toBe(true)
@@ -46,7 +47,7 @@ describe('readConfig', () => {
     const originalCwd = process.cwd.bind(process)
     process.cwd = () => dir
     try {
-      const result = await readConfig()
+      const result = await runGenerator(readConfig())
       expect(result.ok).toBe(true)
       if (result.ok) {
         expect(result.value.input).toBe('openapi.yaml')
@@ -70,7 +71,7 @@ describe('readConfig', () => {
     const originalCwd = process.cwd.bind(process)
     process.cwd = () => dir
     try {
-      const result = await readConfig()
+      const result = await runGenerator(readConfig())
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(result.error).toBe('Config must export default object')
@@ -94,7 +95,7 @@ describe('readConfig', () => {
     const originalCwd = process.cwd.bind(process)
     process.cwd = () => dir
     try {
-      const result = await readConfig()
+      const result = await runGenerator(readConfig())
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')

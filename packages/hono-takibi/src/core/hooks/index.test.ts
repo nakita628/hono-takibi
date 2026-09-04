@@ -5,6 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { hooks } from './index.js'
 
 describe('swr hooks', () => {
@@ -47,7 +48,9 @@ describe('swr hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -281,7 +284,9 @@ export function usePostUsers<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-split-'))
       try {
         const out = path.join(dir, 'swr', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'swr', { split: true })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'swr', { split: true }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -544,20 +549,22 @@ export function usePostUsers<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-no-prefix-'))
       try {
         const out = path.join(dir, 'swr', 'index.ts')
-        const result = await hooks(
-          {
-            openapi: '3.1.0',
-            info: { title: 'Test', version: '1.0.0' },
-            paths: {
-              '/': {
-                get: { operationId: 'getRoot', responses: { '200': { description: 'OK' } } },
+        const result = await runGenerator(
+          hooks(
+            {
+              openapi: '3.1.0',
+              info: { title: 'Test', version: '1.0.0' },
+              paths: {
+                '/': {
+                  get: { operationId: 'getRoot', responses: { '200': { description: 'OK' } } },
+                },
               },
-            },
-          } as OpenAPI,
-          out,
-          '../client',
-          'swr',
-          { split: true },
+            } as OpenAPI,
+            out,
+            '../client',
+            'swr',
+            { split: true },
+          ),
         )
         expect(result.ok).toBe(true)
         const files = fs.readdirSync(path.join(dir, 'swr')).sort()
@@ -590,10 +597,12 @@ export function usePostUsers<TError = unknown>(options?: {
           },
         } as OpenAPI
 
-        const result = await hooks(simpleOpenAPI, out, '../api', 'swr', {
-          split: false,
-          clientName: 'authClient',
-        })
+        const result = await runGenerator(
+          hooks(simpleOpenAPI, out, '../api', 'swr', {
+            split: false,
+            clientName: 'authClient',
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -725,7 +734,9 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiNoArgs, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(openapiNoArgs, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -876,7 +887,9 @@ export function usePostPing<TError = unknown>(options?: {
           },
         } as OpenAPI
 
-        const result = await hooks(hyphenOpenAPI, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(hyphenOpenAPI, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -1025,7 +1038,9 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
           },
         } as OpenAPI
 
-        const result = await hooks(paramOpenAPI, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(paramOpenAPI, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -1244,7 +1259,9 @@ export function useDeleteUsersId<TError = unknown>(options?: {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-crud-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiCrud, out, '../client', 'swr', { split: true })
+        const result = await runGenerator(
+          hooks(openapiCrud, out, '../client', 'swr', { split: true }),
+        )
 
         expect(result).toStrictEqual({
           ok: true,
@@ -1617,7 +1634,9 @@ export * from './deleteUsersId'
           // paths is undefined
         } as unknown as OpenAPI
 
-        const result = await hooks(invalidOpenAPI, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(invalidOpenAPI, out, '../client', 'swr', { split: false }),
+        )
 
         expect(result).toStrictEqual({
           ok: false,
@@ -1649,7 +1668,9 @@ export * from './deleteUsersId'
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-swr-immutable-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiImmutable, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(openapiImmutable, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -1777,7 +1798,9 @@ export function useInfiniteGetHono<TError = unknown>(options: {
           },
         } as OpenAPI
 
-        const result = await hooks(simpleOpenAPI, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(
+          hooks(simpleOpenAPI, out, '../client', 'swr', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -1903,7 +1926,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
             },
           },
         } as OpenAPI
-        const result = await hooks(openAPI, out, '../client', 'swr', { split: false })
+        const result = await runGenerator(hooks(openAPI, out, '../client', 'swr', { split: false }))
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
         // Assertion: must not contain Infinite-related symbols
@@ -1959,9 +1982,11 @@ describe('tanstack-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'tanstack-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'tanstack-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -2477,9 +2502,11 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'tanstack-query', {
-          split: true,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'tanstack-query', {
+            split: true,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -3042,10 +3069,12 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
           },
         } as OpenAPI
 
-        const result = await hooks(simpleOpenAPI, out, '../api', 'tanstack-query', {
-          split: false,
-          clientName: 'authClient',
-        })
+        const result = await runGenerator(
+          hooks(simpleOpenAPI, out, '../api', 'tanstack-query', {
+            split: false,
+            clientName: 'authClient',
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -3321,9 +3350,11 @@ export function useSuspenseInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiNoArgs, out, '../client', 'tanstack-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiNoArgs, out, '../client', 'tanstack-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -3619,9 +3650,11 @@ export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options
           },
         } as OpenAPI
 
-        const result = await hooks(hyphenOpenAPI, out, '../client', 'tanstack-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(hyphenOpenAPI, out, '../client', 'tanstack-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -3914,9 +3947,11 @@ export function useSuspenseInfiniteHonoX<
           },
         } as OpenAPI
 
-        const result = await hooks(paramOpenAPI, out, '../client', 'tanstack-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(paramOpenAPI, out, '../client', 'tanstack-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -4298,7 +4333,9 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tanstack-query-crud-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiCrud, out, '../client', 'tanstack-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiCrud, out, '../client', 'tanstack-query', { split: true }),
+        )
 
         expect(result).toStrictEqual({
           ok: true,
@@ -5000,9 +5037,11 @@ export function useSuspenseInfiniteUsers<
           // paths is undefined
         } as unknown as OpenAPI
 
-        const result = await hooks(invalidOpenAPI, out, '../client', 'tanstack-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(invalidOpenAPI, out, '../client', 'tanstack-query', {
+            split: false,
+          }),
+        )
 
         expect(result).toStrictEqual({
           ok: false,
@@ -5035,7 +5074,9 @@ export function useSuspenseInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-tq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(spec, out, '../client', 'tanstack-query', { split: false })
+        const result = await runGenerator(
+          hooks(spec, out, '../client', 'tanstack-query', { split: false }),
+        )
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
         expect(code).toBe(`import {
@@ -5336,9 +5377,11 @@ describe('preact-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-preact-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'preact-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'preact-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -5870,7 +5913,9 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-pq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(spec, out, '../client', 'preact-query', { split: false })
+        const result = await runGenerator(
+          hooks(spec, out, '../client', 'preact-query', { split: false }),
+        )
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
         expect(code).toBe(`import {
@@ -6161,7 +6206,9 @@ describe('solid-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-solid-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'solid-query', { split: false })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'solid-query', { split: false }),
+        )
 
         if (!result.ok) throw new Error(result.error)
 
@@ -6443,7 +6490,9 @@ export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-solid-query-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'solid-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'solid-query', { split: true }),
+        )
 
         if (!result.ok) throw new Error(result.error)
 
@@ -6776,7 +6825,9 @@ describe('vue-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'vue-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -7066,7 +7117,9 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'vue-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'vue-query', { split: true }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -7395,10 +7448,12 @@ export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(option
           },
         } as OpenAPI
 
-        const result = await hooks(simpleOpenAPI, out, '../api', 'vue-query', {
-          split: false,
-          clientName: 'authClient',
-        })
+        const result = await runGenerator(
+          hooks(simpleOpenAPI, out, '../api', 'vue-query', {
+            split: false,
+            clientName: 'authClient',
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -7555,7 +7610,9 @@ export function useInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiNoArgs, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(openapiNoArgs, out, '../client', 'vue-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -7729,7 +7786,9 @@ export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options
           },
         } as OpenAPI
 
-        const result = await hooks(hyphenOpenAPI, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(hyphenOpenAPI, out, '../client', 'vue-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -7895,7 +7954,9 @@ export function useInfiniteHonoX<
           },
         } as OpenAPI
 
-        const result = await hooks(paramOpenAPI, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(paramOpenAPI, out, '../client', 'vue-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -8146,7 +8207,9 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vue-query-crud-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiCrud, out, '../client', 'vue-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiCrud, out, '../client', 'vue-query', { split: true }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -8609,7 +8672,9 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
           // paths is undefined
         } as unknown as OpenAPI
 
-        const result = await hooks(invalidOpenAPI, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(invalidOpenAPI, out, '../client', 'vue-query', { split: false }),
+        )
 
         expect(result).toStrictEqual({
           ok: false,
@@ -8657,7 +8722,9 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
           },
         } as OpenAPI
 
-        const result = await hooks(putPatchOpenAPI, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(putPatchOpenAPI, out, '../client', 'vue-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -8774,7 +8841,9 @@ export function usePatchUsersId<TError = unknown, TOnMutateResult = unknown>(opt
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-vq-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(spec, out, '../client', 'vue-query', { split: false })
+        const result = await runGenerator(
+          hooks(spec, out, '../client', 'vue-query', { split: false }),
+        )
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
         expect(code).toBe(`import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
@@ -8973,9 +9042,11 @@ describe('svelte-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'svelte-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'svelte-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -9429,7 +9500,9 @@ export function createDeletePetsPetId<TError = unknown, TOnMutateResult = unknow
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'svelte-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'svelte-query', { split: true }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -9964,10 +10037,12 @@ export function createDeletePetsPetId<TError = unknown, TOnMutateResult = unknow
       try {
         const out = path.join(dir, 'index.ts')
 
-        const result = await hooks(openapiCustomClient, out, '../api', 'svelte-query', {
-          split: false,
-          clientName: 'authClient',
-        })
+        const result = await runGenerator(
+          hooks(openapiCustomClient, out, '../api', 'svelte-query', {
+            split: false,
+            clientName: 'authClient',
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -10165,9 +10240,11 @@ export function createInfiniteUsers<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-noargs-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiNoArgs, out, '../client', 'svelte-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiNoArgs, out, '../client', 'svelte-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -10386,9 +10463,11 @@ export function createPostPing<TError = unknown, TOnMutateResult = unknown>(
           },
         } as OpenAPI
 
-        const result = await hooks(hyphenOpenAPI, out, '../client', 'svelte-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(hyphenOpenAPI, out, '../client', 'svelte-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -10597,7 +10676,9 @@ export function createInfiniteHonoX<
           },
         } as OpenAPI
 
-        const result = await hooks(paramOpenAPI, out, '../client', 'svelte-query', { split: false })
+        const result = await runGenerator(
+          hooks(paramOpenAPI, out, '../client', 'svelte-query', { split: false }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -10875,7 +10956,9 @@ export function createDeleteUsersId<TError = unknown, TOnMutateResult = unknown>
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-svelte-query-crud-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiCrud, out, '../client', 'svelte-query', { split: true })
+        const result = await runGenerator(
+          hooks(openapiCrud, out, '../client', 'svelte-query', { split: true }),
+        )
 
         if (!result.ok) {
           throw new Error(result.error)
@@ -11382,9 +11465,11 @@ export function createDeleteUsersId<TError = unknown, TOnMutateResult = unknown>
           // paths is undefined
         } as unknown as OpenAPI
 
-        const result = await hooks(invalidOpenAPI, out, '../client', 'svelte-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(invalidOpenAPI, out, '../client', 'svelte-query', {
+            split: false,
+          }),
+        )
 
         expect(result).toStrictEqual({
           ok: false,
@@ -11417,7 +11502,9 @@ export function createDeleteUsersId<TError = unknown, TOnMutateResult = unknown>
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-sv-header-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(spec, out, '../client', 'svelte-query', { split: false })
+        const result = await runGenerator(
+          hooks(spec, out, '../client', 'svelte-query', { split: false }),
+        )
         if (!result.ok) throw new Error(result.error)
         const code = fs.readFileSync(out, 'utf-8')
         expect(code).toBe(`import {
@@ -11626,9 +11713,11 @@ describe('angular-query hooks', () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'angular-query', {
-          split: false,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'angular-query', {
+            split: false,
+          }),
+        )
 
         if (!result.ok) throw new Error(result.error)
 
@@ -11895,16 +11984,18 @@ export function injectPostUsers<TError = unknown, TOnMutateResult = unknown>(
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-suspense-'))
       try {
         const out = path.join(dir, 'index.ts')
-        const result = await hooks(
-          {
-            openapi: '3.1.0',
-            info: { title: 'Test', version: '1.0.0' },
-            paths: { '/hono': { get: { responses: { '200': { description: 'OK' } } } } },
-          } as OpenAPI,
-          out,
-          '../client',
-          'angular-query',
-          { split: false },
+        const result = await runGenerator(
+          hooks(
+            {
+              openapi: '3.1.0',
+              info: { title: 'Test', version: '1.0.0' },
+              paths: { '/hono': { get: { responses: { '200': { description: 'OK' } } } } },
+            } as OpenAPI,
+            out,
+            '../client',
+            'angular-query',
+            { split: false },
+          ),
         )
         if (!result.ok) throw new Error(result.error)
 
@@ -11976,9 +12067,11 @@ export function injectHono<
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-angular-query-split-'))
       try {
         const out = path.join(dir, 'hooks', 'index.ts')
-        const result = await hooks(openapiSimple, out, '../client', 'angular-query', {
-          split: true,
-        })
+        const result = await runGenerator(
+          hooks(openapiSimple, out, '../client', 'angular-query', {
+            split: true,
+          }),
+        )
 
         if (!result.ok) throw new Error(result.error)
 

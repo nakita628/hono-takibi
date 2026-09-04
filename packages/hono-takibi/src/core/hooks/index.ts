@@ -130,7 +130,7 @@ const HOOK_CONFIGS = {
   },
 } as const
 
-export async function hooks(
+export function hooks(
   openAPI: OpenAPI,
   output: string,
   importPath: string,

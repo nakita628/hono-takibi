@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { callbacksCode } from '../../generator/zod-openapi-hono/openapi/components/callbacks.js'
+import { runGenerator } from '../../testing/index.js'
 import { callbacks } from './callbacks.js'
 
 let tmpDir: string
@@ -17,14 +18,14 @@ describe('callbacks', () => {
   it('returns error when callbacks is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
-    const result = await callbacks(undefined, output, false)
+    const result = await runGenerator(callbacks(undefined, output, false))
     expect(result).toStrictEqual({ ok: false, error: 'No callbacks found' })
   })
 
   it('returns success message when callbacks is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
     const output = path.join(tmpDir, 'callbacks.ts')
-    const result = await callbacks({}, output, false)
+    const result = await runGenerator(callbacks({}, output, false))
     expect(result).toStrictEqual({ ok: true, value: 'No callbacks found' })
   })
 
@@ -32,26 +33,28 @@ describe('callbacks', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await callbacks(
-        {
-          onEvent: {
-            '{$request.body#/callbackUrl}': {
-              post: {
-                requestBody: {
-                  required: true,
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        callbacks(
+          {
+            onEvent: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  requestBody: {
+                    required: true,
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+                      },
                     },
                   },
+                  responses: { '200': { description: 'OK' } },
                 },
-                responses: { '200': { description: 'OK' } },
               },
             },
           },
-        },
-        output,
-        false,
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -67,26 +70,28 @@ describe('callbacks', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks')
-      const result = await callbacks(
-        {
-          onEvent: {
-            '{$request.body#/callbackUrl}': {
-              post: {
-                requestBody: {
-                  required: true,
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        callbacks(
+          {
+            onEvent: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  requestBody: {
+                    required: true,
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+                      },
                     },
                   },
+                  responses: { '200': { description: 'OK' } },
                 },
-                responses: { '200': { description: 'OK' } },
               },
             },
           },
-        },
-        output,
-        true,
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -99,27 +104,29 @@ describe('callbacks', () => {
     it('skips $ref entries in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks')
-      const result = await callbacks(
-        {
-          onEvent: {
-            '{$request.body#/callbackUrl}': {
-              post: {
-                requestBody: {
-                  required: true,
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        callbacks(
+          {
+            onEvent: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  requestBody: {
+                    required: true,
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+                      },
                     },
                   },
+                  responses: { '200': { description: 'OK' } },
                 },
-                responses: { '200': { description: 'OK' } },
               },
             },
+            refCallback: { $ref: '#/components/callbacks/Shared' },
           },
-          refCallback: { $ref: '#/components/callbacks/Shared' },
-        },
-        output,
-        true,
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -132,20 +139,22 @@ describe('callbacks', () => {
     it('writes callbacks with as const in non-split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await callbacks(
-        {
-          onEvent: {
-            '{$request.body#/callbackUrl}': {
-              post: {
-                responses: { '200': { description: 'OK' } },
+      const result = await runGenerator(
+        callbacks(
+          {
+            onEvent: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  responses: { '200': { description: 'OK' } },
+                },
               },
             },
           },
-        },
-        output,
-        false,
-        undefined,
-        true,
+          output,
+          false,
+          undefined,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -161,12 +170,14 @@ describe('callbacks', () => {
     it('skips $ref entries in non-split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await callbacks(
-        {
-          refOnly: { $ref: '#/components/callbacks/Shared' },
-        },
-        output,
-        false,
+      const result = await runGenerator(
+        callbacks(
+          {
+            refOnly: { $ref: '#/components/callbacks/Shared' },
+          },
+          output,
+          false,
+        ),
       )
       expect(result.ok).toBe(true)
     })
@@ -176,25 +187,27 @@ describe('callbacks', () => {
     it('generates multiple callbacks in single file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-callbacks-'))
       const output = path.join(tmpDir, 'callbacks.ts')
-      const result = await callbacks(
-        {
-          onPayment: {
-            '{$request.body#/callbackUrl}': {
-              post: {
-                responses: { '200': { description: 'OK' } },
+      const result = await runGenerator(
+        callbacks(
+          {
+            onPayment: {
+              '{$request.body#/callbackUrl}': {
+                post: {
+                  responses: { '200': { description: 'OK' } },
+                },
+              },
+            },
+            onShipment: {
+              '{$request.body#/shipmentUrl}': {
+                post: {
+                  responses: { '200': { description: 'OK' } },
+                },
               },
             },
           },
-          onShipment: {
-            '{$request.body#/shipmentUrl}': {
-              post: {
-                responses: { '200': { description: 'OK' } },
-              },
-            },
-          },
-        },
-        output,
-        false,
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -217,7 +230,7 @@ describe('callbacks', () => {
           },
         },
       }
-      const result = await callbacks(sampleCallbacks, output, false)
+      const result = await runGenerator(callbacks(sampleCallbacks, output, false))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = callbacksCode({ callbacks: sampleCallbacks }, true)

@@ -1,6 +1,9 @@
 import { dirname, join } from 'node:path'
 
+import { Effect } from 'effect'
+
 import { emit } from '../../emit/index.js'
+import { GenerateError } from '../../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   formatPath,
@@ -122,7 +125,7 @@ function makeHeader(
  * @param docs - When true, prepend operation summary/description as JSDoc
  * @returns Promise resolving to success message or error
  */
-export async function rpc(
+export function rpc(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
@@ -132,40 +135,41 @@ export async function rpc(
   basePath?: string,
   docs?: boolean,
 ) {
-  const paths = openAPI.paths
-  if (!isOpenAPIPaths(paths)) return { ok: false, error: 'Invalid OpenAPI paths' } as const
-  const hasBasePath = basePath !== undefined && basePath !== '/'
-  const componentsParameters = openAPI.components?.parameters ?? {}
-  const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-  const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath, docs)
-  if (!split) {
-    const body = operationCodes.map(({ code }) => code).join('\n\n')
-    const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-    const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
-    const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
-    const emitResult = await emit(code, dirname(output), output)
-    if (!emitResult.ok) return { ok: false, error: emitResult.error } as const
-    return { ok: true, value: `Generated rpc code written to ${output}` } as const
-  }
-  const { outDir, indexPath } = resolveSplitOutDir(output)
-  const exportLines = [
-    ...new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
-  ]
-  const index = `${exportLines.join('\n')}\n`
-  const results = await Promise.all([
-    ...operationCodes.map(({ funcName, code, hasArgs }) => {
-      const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
-      const fileSrc = `${header}${code}\n`
-      const filePath = join(outDir, `${funcName}.ts`)
-      return emit(fileSrc, dirname(filePath), filePath)
-    }),
-    emit(index, dirname(indexPath), indexPath),
-  ])
-  const e = results.find((result) => !result.ok)
-  if (e) return e
-  return {
-    ok: true,
-    value: `Generated rpc code written to ${outDir}/*.ts (index.ts included)`,
-  } as const
+  return Effect.gen(function* () {
+    const paths = openAPI.paths
+    if (!isOpenAPIPaths(paths)) {
+      return yield* new GenerateError({ message: 'Invalid OpenAPI paths' })
+    }
+    const hasBasePath = basePath !== undefined && basePath !== '/'
+    const componentsParameters = openAPI.components?.parameters ?? {}
+    const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
+    const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
+    const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath, docs)
+    if (!split) {
+      const body = operationCodes.map(({ code }) => code).join('\n\n')
+      const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
+      const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
+      const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
+      yield* emit(code, dirname(output), output)
+      return `Generated rpc code written to ${output}`
+    }
+    const { outDir, indexPath } = resolveSplitOutDir(output)
+    const exportLines = [
+      ...new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
+    ]
+    const index = `${exportLines.join('\n')}\n`
+    yield* Effect.all(
+      [
+        ...operationCodes.map(({ funcName, code, hasArgs }) => {
+          const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
+          const fileSrc = `${header}${code}\n`
+          const filePath = join(outDir, `${funcName}.ts`)
+          return emit(fileSrc, dirname(filePath), filePath)
+        }),
+        emit(index, dirname(indexPath), indexPath),
+      ],
+      { concurrency: 'unbounded' },
+    )
+    return `Generated rpc code written to ${outDir}/*.ts (index.ts included)`
+  })
 }

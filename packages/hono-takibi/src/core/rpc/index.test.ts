@@ -5,6 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { rpc } from './index.js'
 
 const openapi = {
@@ -431,7 +432,7 @@ describe('rpc', () => {
       const out = path.join(dir, 'index.ts')
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
 
-      const result = await rpc(openapi, out, '../index.ts', false)
+      const result = await runGenerator(rpc(openapi, out, '../index.ts', false))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -519,7 +520,7 @@ describe('rpc (split mode)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi, null, 2), 'utf-8')
 
       const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await rpc(openapi, out, '../index.ts', true)
+      const result = await runGenerator(rpc(openapi, out, '../index.ts', true))
 
       const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
       const indexExpected = `export * from './getHono'
@@ -843,7 +844,7 @@ describe('rpc (isOptional tests)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await rpc(openapiIsOptional, out, '../client', false)
+      const result = await runGenerator(rpc(openapiIsOptional, out, '../client', false))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -897,7 +898,7 @@ export async function getAllOptional(
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-split-'))
     try {
       const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await rpc(openapiIsOptional, out, '../client', true)
+      const result = await runGenerator(rpc(openapiIsOptional, out, '../client', true))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -994,7 +995,7 @@ export * from './getAllOptional'
         },
       } as OpenAPI
 
-      const result = await rpc(simpleOpenAPI, out, '../api', false, 'authClient')
+      const result = await runGenerator(rpc(simpleOpenAPI, out, '../api', false, 'authClient'))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1030,7 +1031,7 @@ export async function getUsers(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(simpleOpenAPI, out, '../api', true, 'adminClient')
+      const result = await runGenerator(rpc(simpleOpenAPI, out, '../api', true, 'adminClient'))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1068,7 +1069,7 @@ describe('rpc (parseResponse: true)', () => {
         },
       } as OpenAPI
 
-      const result = await rpc(simpleOpenAPI, out, '../client', false, 'client', true)
+      const result = await runGenerator(rpc(simpleOpenAPI, out, '../client', false, 'client', true))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1113,7 +1114,9 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPIWithArgs, out, '../client', false, 'client', true)
+      const result = await runGenerator(
+        rpc(openAPIWithArgs, out, '../client', false, 'client', true),
+      )
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1153,7 +1156,7 @@ export async function getUsersId(
         },
       } as OpenAPI
 
-      const result = await rpc(simpleOpenAPI, out, '../client', true, 'client', true)
+      const result = await runGenerator(rpc(simpleOpenAPI, out, '../client', true, 'client', true))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1212,7 +1215,7 @@ describe('rpc (trailing slash)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await rpc(trailingSlashOpenAPI, out, '../client', false)
+      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client', false))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1253,7 +1256,7 @@ export async function getPostsIndex(
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-split-'))
     try {
       const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await rpc(trailingSlashOpenAPI, out, '../client', true)
+      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client', true))
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -1330,7 +1333,9 @@ describe('rpc (docs: true)', () => {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', false, 'client', false, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1369,7 +1374,9 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', false, 'client', false, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1410,7 +1417,9 @@ export async function getUsers(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', false, 'client', false, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1447,7 +1456,9 @@ export async function getPing(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client', false, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', false, 'client', false, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1481,7 +1492,7 @@ export async function getSilent(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client')
+      const result = await runGenerator(rpc(openAPI, out, '../client', false, 'client'))
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1516,7 +1527,9 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', false, 'client', true, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', false, 'client', true, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(out, 'utf-8')
@@ -1560,7 +1573,9 @@ export async function getUsersId(
         },
       } as OpenAPI
 
-      const result = await rpc(openAPI, out, '../client', true, 'client', false, undefined, true)
+      const result = await runGenerator(
+        rpc(openAPI, out, '../client', true, 'client', false, undefined, true),
+      )
       if (!result.ok) throw new Error(result.error)
 
       const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
@@ -1590,7 +1605,7 @@ describe('rpc (error behavior)', () => {
       paths: 'not-an-object',
     } as unknown as OpenAPI
 
-    const result = await rpc(invalidOpenAPI, '/tmp/should-not-exist.ts', '../client')
+    const result = await runGenerator(rpc(invalidOpenAPI, '/tmp/should-not-exist.ts', '../client'))
     expect(result).toStrictEqual({ ok: false, error: 'Invalid OpenAPI paths' })
   })
 
@@ -1600,7 +1615,7 @@ describe('rpc (error behavior)', () => {
       info: { title: 'Test', version: '1.0.0' },
     } as unknown as OpenAPI
 
-    const result = await rpc(noPathsOpenAPI, '/tmp/should-not-exist.ts', '../client')
+    const result = await runGenerator(rpc(noPathsOpenAPI, '/tmp/should-not-exist.ts', '../client'))
     expect(result).toStrictEqual({ ok: false, error: 'Invalid OpenAPI paths' })
   })
 })

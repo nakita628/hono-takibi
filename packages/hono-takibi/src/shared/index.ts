@@ -1,5 +1,7 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import type { parseConfig } from '../config/index.js'
 import {
   callbacks,
@@ -26,6 +28,7 @@ import {
   type,
   webhooks,
 } from '../core/index.js'
+import { GenerateError } from '../error/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
 export function makeJob(
@@ -109,7 +112,7 @@ export function makeJob(
                   exportMediaTypes: config.exportMediaTypes,
                   exportMediaTypesTypes: config.exportMediaTypesTypes,
                 })
-              : Promise.resolve({ ok: false, error: `Invalid output format: ${output}` } as const),
+              : Effect.fail(new GenerateError({ message: `Invalid output format: ${output}` })),
         }
       : undefined,
     config.webhooks
@@ -319,7 +322,7 @@ export function makeJob(
           run: (output: string) =>
             ((p: string): p is `${string}.ts` => p.endsWith('.ts'))(output)
               ? type(openAPI, output, config.type?.readonly)
-              : Promise.resolve({ ok: false, error: `Invalid output format: ${output}` } as const),
+              : Effect.fail(new GenerateError({ message: `Invalid output format: ${output}` })),
         }
       : undefined,
     config.rpc

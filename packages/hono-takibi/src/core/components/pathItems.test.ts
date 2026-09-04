@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { pathItemsCode } from '../../generator/zod-openapi-hono/openapi/components/pathItems.js'
 import type { Components } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { pathItems } from './pathItems.js'
 
 let tmpDir: string
@@ -16,26 +17,26 @@ afterEach(() => {
 
 describe('pathItems', () => {
   it('returns error when pathItemsConfig is undefined', async () => {
-    const result = await pathItems({}, undefined)
+    const result = await runGenerator(pathItems({}, undefined))
     expect(result).toStrictEqual({ ok: false, error: 'pathItems.output is required' })
   })
 
   it('returns error when pathItemsConfig.output is missing', async () => {
-    const result = await pathItems({}, {} as { output: string })
+    const result = await runGenerator(pathItems({}, {} as { output: string }))
     expect(result).toStrictEqual({ ok: false, error: 'pathItems.output is required' })
   })
 
   it('returns error when no pathItems in components', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
-    const result = await pathItems({}, { output })
+    const result = await runGenerator(pathItems({}, { output }))
     expect(result).toStrictEqual({ ok: false, error: 'No pathItems found' })
   })
 
   it('returns success message when pathItems is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
     const output = path.join(tmpDir, 'pathItems.ts')
-    const result = await pathItems({ pathItems: {} }, { output })
+    const result = await runGenerator(pathItems({ pathItems: {} }, { output }))
     expect(result).toStrictEqual({ ok: true, value: 'No pathItems found' })
   })
 
@@ -43,17 +44,19 @@ describe('pathItems', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -61,8 +64,8 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output },
+          { output },
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -76,17 +79,19 @@ describe('pathItems', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -94,10 +99,10 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output },
-        undefined,
-        true,
+          { output },
+          undefined,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -111,31 +116,33 @@ describe('pathItems', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-            PostOperations: {
-              post: {
-                responses: {
-                  '201': {
-                    description: 'Created',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { title: { type: 'string' } } },
+              PostOperations: {
+                post: {
+                  responses: {
+                    '201': {
+                      description: 'Created',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { title: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -143,8 +150,8 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output, split: true },
+          { output, split: true },
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -165,17 +172,19 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -183,8 +192,8 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output, split: true },
+          { output, split: true },
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -197,17 +206,19 @@ describe('pathItems', () => {
     it('writes split files with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -215,10 +226,10 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output, split: true },
-        undefined,
-        true,
+          { output, split: true },
+          undefined,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -232,17 +243,19 @@ describe('pathItems', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems')
       const schemasOutput = path.join(tmpDir, 'schemas.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: {
-                responses: {
-                  '200': {
-                    description: 'OK',
-                    content: {
-                      'application/json': {
-                        schema: { type: 'object', properties: { id: { type: 'string' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: {
+                  responses: {
+                    '200': {
+                      description: 'OK',
+                      content: {
+                        'application/json': {
+                          schema: { type: 'object', properties: { id: { type: 'string' } } },
+                        },
                       },
                     },
                   },
@@ -250,10 +263,10 @@ describe('pathItems', () => {
               },
             },
           },
-        },
-        { output, split: true },
-        { schemas: { output: schemasOutput } },
-        false,
+          { output, split: true },
+          { schemas: { output: schemasOutput } },
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -266,13 +279,15 @@ describe('pathItems', () => {
     it('returns no pathItems found when pathItems contain only $ref entries', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: { $ref: '#/components/pathItems/SharedOps' },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: { $ref: '#/components/pathItems/SharedOps' },
+            },
           },
-        },
-        { output },
+          { output },
+        ),
       )
       expect(result).toStrictEqual({ ok: true, value: 'No pathItems found' })
     })
@@ -284,19 +299,21 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: { responses: { '200': { description: 'OK' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: { responses: { '200': { description: 'OK' } } },
+              },
             },
           },
-        },
-        { output },
+          { output },
+        ),
       )
       expect(result).toStrictEqual({
         ok: false,
-        error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
+        error: `AlreadyExists: FileSystem.makeDirectory (${blockingFile})`,
       })
     })
 
@@ -305,18 +322,20 @@ describe('pathItems', () => {
       const blockingFile = path.join(tmpDir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const output = path.join(blockingFile, 'pathItems.ts')
-      const result = await pathItems(
-        {
-          pathItems: {
-            UserOperations: {
-              get: { responses: { '200': { description: 'OK' } } },
-            },
-            AdminOperations: {
-              get: { responses: { '200': { description: 'OK' } } },
+      const result = await runGenerator(
+        pathItems(
+          {
+            pathItems: {
+              UserOperations: {
+                get: { responses: { '200': { description: 'OK' } } },
+              },
+              AdminOperations: {
+                get: { responses: { '200': { description: 'OK' } } },
+              },
             },
           },
-        },
-        { output, split: true },
+          { output, split: true },
+        ),
       )
       expect(result.ok).toBe(false)
     })
@@ -333,7 +352,7 @@ describe('pathItems', () => {
     it('non-split: caller emit contains same const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems.ts')
-      const result = await pathItems(components, { output })
+      const result = await runGenerator(pathItems(components, { output }))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = pathItemsCode(components, true)
@@ -353,7 +372,7 @@ describe('pathItems', () => {
     it('split: union of per-file const names equals generator output const names', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
-      const result = await pathItems(components, { output, split: true })
+      const result = await runGenerator(pathItems(components, { output, split: true }))
       expect(result.ok).toBe(true)
       const files = fs.readdirSync(output).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
@@ -377,7 +396,7 @@ describe('pathItems', () => {
     it('split: barrel index lists every per-file module', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-pathItems-contract-'))
       const output = path.join(tmpDir, 'pathItems')
-      await pathItems(components, { output, split: true })
+      await runGenerator(pathItems(components, { output, split: true }))
       const indexContent = fs.readFileSync(path.join(output, 'index.ts'), 'utf-8')
       expect(indexContent).toBe("export * from './adminOps'\nexport * from './userOps'\n")
     })
@@ -391,7 +410,7 @@ describe('pathItems', () => {
           RefOnly: { $ref: '#/components/pathItems/Shared' },
         },
       }
-      await pathItems(mixed, { output, split: true })
+      await runGenerator(pathItems(mixed, { output, split: true }))
       const files = fs
         .readdirSync(output)
         .filter((f) => f !== 'index.ts')

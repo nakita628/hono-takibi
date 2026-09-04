@@ -3,8 +3,11 @@ import crypto from 'node:crypto'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 
+import { Effect, Result } from 'effect'
+
 import { parseConfig } from '../config/index.js'
-import { setFormatOptions } from '../format/index.js'
+import { FormatOptions } from '../format/index.js'
+import { fileSystemLayer } from '../file/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { makeJob } from '../shared/index.js'
@@ -180,25 +183,40 @@ async function cleanupSplitOutput(absOutput: string): Promise<void> {
   )
 }
 
+/**
+ * Runs one generation pass and reports a log line per job.
+ *
+ * The generators are Effects; this is the plugin's boundary, so it provides the
+ * filesystem and the config's oxfmt options here and hands Vite plain values back.
+ * A job that fails logs and does not stop its siblings — a dev server keeps running.
+ */
 async function runAllGenerationTasks(config: Config) {
-  if (config.format) setFormatOptions(config.format)
-  const openAPIResult = await parseOpenAPI(config.input)
-  if (!openAPIResult.ok) {
-    return { logs: [`❌ parseOpenAPI: ${openAPIResult.error}`], changed: false }
+  const openAPIResult = await Effect.runPromise(
+    Effect.result(parseOpenAPI(config.input).pipe(Effect.provide(fileSystemLayer))),
+  )
+  if (Result.isFailure(openAPIResult)) {
+    return { logs: [`❌ parseOpenAPI: ${openAPIResult.failure.message}`], changed: false }
   }
-  const openAPI = openAPIResult.value
-
-  const jobs = makeJob(openAPI, config)
+  const jobs = makeJob(openAPIResult.success, config)
   const outputPaths = jobs.map((job) => path.resolve(process.cwd(), job.output))
   const beforeSnapshot = await snapshotOutputs(outputPaths)
   const logs = await Promise.all(
     jobs.map(async (job) => {
       const absOutput = path.resolve(process.cwd(), job.output)
       if (job.split) await cleanupSplitOutput(absOutput)
-      const result = await job.run(absOutput)
-      return result.ok
+      const result = await Effect.runPromise(
+        Effect.result(
+          job
+            .run(absOutput)
+            .pipe(
+              Effect.provideService(FormatOptions, config.format ?? {}),
+              Effect.provide(fileSystemLayer),
+            ),
+        ),
+      )
+      return Result.isSuccess(result)
         ? `✅ ${job.name}${job.split ? '(split)' : ''} -> ${absOutput}`
-        : `❌ ${job.name}: ${result.error}`
+        : `❌ ${job.name}: ${result.failure.message}`
     }),
   )
   const afterSnapshot = await snapshotOutputs(outputPaths)

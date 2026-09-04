@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
+import { Data, Effect } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 import * as z from 'zod'
 
@@ -742,6 +743,11 @@ const ConfigSchema = z
     ],
   })
 
+/** The config file is missing, is not a module with a default export, or does not validate. */
+export class ConfigError extends Data.TaggedError('ConfigError')<{
+  readonly message: string
+}> {}
+
 export function parseConfig(config: unknown) {
   const result = ConfigSchema.safeParse(config)
   if (!result.success) {
@@ -752,23 +758,27 @@ export function parseConfig(config: unknown) {
   return { ok: true, value: result.data } as const
 }
 
-export async function readConfig(configPath?: string) {
-  const abs = resolve(process.cwd(), configPath ?? 'hono-takibi.config.ts')
-  if (!existsSync(abs)) return { ok: false, error: `Config not found: ${abs}` } as const
-  try {
-    const mod: unknown = await import(pathToFileURL(abs).href)
+/** Loads and validates a config file, resolved against the current directory. */
+export function readConfig(configPath?: string) {
+  return Effect.gen(function* () {
+    const abs = resolve(process.cwd(), configPath ?? 'hono-takibi.config.ts')
+    if (!existsSync(abs)) return yield* new ConfigError({ message: `Config not found: ${abs}` })
+    const mod: unknown = yield* Effect.tryPromise({
+      try: () => import(pathToFileURL(abs).href),
+      catch: (e) => new ConfigError({ message: e instanceof Error ? e.message : String(e) }),
+    })
     if (
       typeof mod !== 'object' ||
       mod === null ||
       !('default' in mod) ||
       mod.default === undefined
     ) {
-      return { ok: false, error: 'Config must export default object' } as const
+      return yield* new ConfigError({ message: 'Config must export default object' })
     }
-    return parseConfig(mod.default)
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
-  }
+    const parsed = parseConfig(mod.default)
+    if (!parsed.ok) return yield* new ConfigError({ message: parsed.error })
+    return parsed.value
+  })
 }
 
 export function defineConfig(config: z.input<typeof ConfigSchema>) {

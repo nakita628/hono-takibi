@@ -1,14 +1,16 @@
 import path from 'node:path'
 
+import { Effect } from 'effect'
+
 import { fmt } from '../../format/index.js'
-import { readFile, writeFile } from '../../fsp/index.js'
+import { readFile, writeFile } from '../../file/index.js'
 import { app } from '../../generator/zod-openapi-hono/app/index.js'
 import { makeModuleSpec } from '../../helper/code.js'
 import { defineOpenAPIRouteHandler } from '../../helper/handler.js'
 import { mergeAppFile } from '../../merge/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
-export async function defineTemplate(
+export function defineTemplate(
   openAPI: OpenAPI,
   output: string,
   componentsOutput: string,
@@ -29,30 +31,29 @@ export async function defineTemplate(
   const handlerImport = aliasPrefix
     ? `${aliasPrefix}/routes`
     : makeModuleSpec(target, { output: handlerDir })
-  const [appFmtResult, handlersResult] = await Promise.all([
-    fmt(app(openAPI, output, basePath, pathAlias, routeImport, false, true, handlerImport)),
-    defineOpenAPIRouteHandler(
-      openAPI,
-      target,
-      componentsOutput,
-      test,
-      pathAlias,
-      basePath,
-      testFramework,
-      readonly,
-    ),
-  ])
-  if (!appFmtResult.ok) return { ok: false, error: appFmtResult.error } as const
-  if (!handlersResult.ok) return { ok: false, error: handlersResult.error } as const
-  const existingResult = await readFile(target)
-  if (!existingResult.ok) return { ok: false, error: existingResult.error } as const
-  const merged =
-    existingResult.value !== null
-      ? mergeAppFile(existingResult.value, appFmtResult.value)
-      : appFmtResult.value
-  const finalFmtResult = await fmt(merged)
-  const appContent = finalFmtResult.ok ? finalFmtResult.value : merged
-  const writeResult = await writeFile(target, appContent)
-  if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
-  return { ok: true, value: '🔥 Generated code and template files written' } as const
+  return Effect.gen(function* () {
+    const [appCode] = yield* Effect.all(
+      [
+        fmt(app(openAPI, output, basePath, pathAlias, routeImport, false, true, handlerImport)),
+        defineOpenAPIRouteHandler(
+          openAPI,
+          target,
+          componentsOutput,
+          test,
+          pathAlias,
+          basePath,
+          testFramework,
+          readonly,
+        ),
+      ],
+      { concurrency: 'unbounded' },
+    )
+    const existing = yield* readFile(target)
+    const merged = existing !== null ? mergeAppFile(existing, appCode) : appCode
+    // A merge can produce source oxfmt rejects; the unformatted merge is still the
+    // right file to write.
+    const appContent = yield* fmt(merged).pipe(Effect.orElseSucceed(() => merged))
+    yield* writeFile(target, appContent)
+    return '🔥 Generated code and template files written'
+  })
 }

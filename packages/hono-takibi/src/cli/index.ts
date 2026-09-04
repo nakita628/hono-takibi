@@ -1,4 +1,5 @@
-import { Console, Effect, Option, Result, Schema } from 'effect'
+import type { FileSystem } from 'effect'
+import { Console, Effect, Option, Schema } from 'effect'
 import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
 
 /** Config file `hono-takibi` picks up from the working directory when `--config` is omitted. */
@@ -34,9 +35,6 @@ const TypeScriptFileSchema = Schema.String.pipe(
     message: 'a TypeScript file path ending in .ts',
   }),
 )
-
-type Document = typeof DocumentSchema.Type
-type TypeScriptFile = typeof TypeScriptFileSchema.Type
 
 const inputArgument = Argument.file('input', { mustExist: true }).pipe(
   Argument.withSchema(DocumentSchema),
@@ -94,151 +92,86 @@ function userError(message: string) {
 }
 
 /**
- * Runs one step of the generator pipeline.
+ * Everything `hono-takibi` does, in the order it does it.
  *
- * The pipeline predates this CLI and still answers with `{ ok }` objects rather than
- * the error channel, so this is the single place that translation happens: a rejected
- * promise or an `ok: false` both become a rendered `UserError`.
- */
-function step<A>(
-  attempt: () => Promise<
-    { readonly ok: true; readonly value: A } | { readonly ok: false; readonly error: string }
-  >,
-) {
-  return Effect.gen(function* () {
-    const outcome = yield* Effect.tryPromise({
-      try: attempt,
-      catch: (cause) => new CliError.UserError({ cause }),
-    })
-    if (!outcome.ok) return yield* userError(outcome.error)
-    return outcome.value
-  })
-}
-
-/**
- * What the parsed command line resolved to. Keeping the two modes apart as data
- * means the handler never has to re-read the command line to know which one it is in.
- */
-type Plan =
-  | { readonly kind: 'OneShot'; readonly input: Document; readonly output: TypeScriptFile }
-  | { readonly kind: 'Config'; readonly path: string; readonly explicit: boolean }
-
-/**
- * Decides which mode the flags describe.
+ * A command line resolves to one of two modes and nothing else: an `<input>` with an
+ * `-o` writes a single routes file, and anything else runs a config file — which is what
+ * opts in the routes, components, webhooks, types, mock, docs, test and tanstack-query
+ * generators. `--config` and `<input>` are mutually exclusive, and each of `<input>` /
+ * `--output` is meaningless without the other.
  *
- * `--config` and `<input>` are mutually exclusive, and each of `<input>` / `--output`
- * is meaningless without the other. Anything left over is config mode against the
- * default config file.
+ * Every failure leaves through `UserError`, which `Command.run` renders and turns into a
+ * non-zero exit. The `FileSystem` the generators write through comes from the
+ * environment the caller provides.
  */
-export function resolvePlan(args: {
-  readonly input: Option.Option<Document>
-  readonly output: Option.Option<TypeScriptFile>
-  readonly config: Option.Option<string>
-}): Effect.Effect<Plan, CliError.UserError> {
-  return Effect.gen(function* () {
-    const input = Option.getOrUndefined(args.input)
-    const output = Option.getOrUndefined(args.output)
-    const config = Option.getOrUndefined(args.config)
-    if (config !== undefined) {
-      if (input !== undefined || output !== undefined) {
-        return yield* userError(
-          `--config cannot be combined with <input> or --output. A config file already names its own input and outputs.\n\n${USAGE}`,
-        )
-      }
-      return { kind: 'Config', path: config, explicit: true }
-    }
-    if (input !== undefined) {
-      if (output === undefined) {
-        return yield* userError(`<input> requires -o <output.ts>.\n\n${USAGE}`)
-      }
-      return { kind: 'OneShot', input, output }
-    }
-    if (output !== undefined) {
-      return yield* userError(`-o <output.ts> requires an <input> document.\n\n${USAGE}`)
-    }
-    return { kind: 'Config', path: DEFAULT_CONFIG_FILE, explicit: false }
-  })
-}
-
-/**
- * Generates a single routes file from one document, with no config file involved.
- *
- * The generator pipeline is imported here rather than at module scope: it pulls in
- * the OpenAPI parser, the TypeSpec compiler and ts-morph, none of which `--help`,
- * `--version`, `--completions` or a rejected command line ever needs.
- */
-function generateOneShot(input: Document, output: TypeScriptFile) {
-  return Effect.gen(function* () {
-    const [{ parseOpenAPI }, { takibi }] = yield* Effect.promise(() =>
-      Promise.all([import('../openapi/index.js'), import('../core/index.js')]),
-    )
-    const openAPI = yield* step(() => parseOpenAPI(input))
-    return yield* step(() => takibi(openAPI, output, ONE_SHOT_COMPONENTS))
-  })
-}
-
-/**
- * Runs every generator the config opts into and joins their messages.
- *
- * A config the caller never asked for is the "ran `hono-takibi` with nothing" case,
- * the one place where a missing file is worth explaining rather than just reporting.
- */
-function generateFromConfig(path: string, explicit: boolean) {
-  return Effect.gen(function* () {
-    // Deferred for the same reason as `generateOneShot`.
-    const [{ readConfig }, { setFormatOptions }, { parseOpenAPI }, { makeJob }] =
-      yield* Effect.promise(() =>
-        Promise.all([
-          import('../config/index.js'),
-          import('../format/index.js'),
-          import('../openapi/index.js'),
-          import('../shared/index.js'),
-        ]),
-      )
-    const config = yield* step(() => readConfig(path)).pipe(
-      Effect.catchTag('UserError', (e) =>
-        explicit ? Effect.fail(e) : userError(`${e.message}\n\n${USAGE}`),
-      ),
-    )
-    const format = config.format
-    if (format) {
-      yield* Effect.sync(() => {
-        setFormatOptions(format)
-      })
-    }
-    const openAPI = yield* step(() => parseOpenAPI(config.input))
-    // Every job is run to completion before the first failure is reported, so a
-    // generator that would have succeeded still writes its output.
-    const outcomes = yield* Effect.forEach(
-      makeJob(openAPI, config),
-      (job) => Effect.result(step(() => job.run(job.output))),
-      { concurrency: 'unbounded' },
-    )
-    const failed = outcomes.find(Result.isFailure)
-    if (failed !== undefined) return yield* Effect.fail(failed.failure)
-    return outcomes
-      .map((outcome) => Result.getOrElse(outcome, () => ''))
-      .filter((message) => message !== '')
-      .join('\n')
-  })
-}
-
-/** Runs a resolved plan, answering with the message the CLI prints on success. */
-export function execute(plan: Plan) {
-  return plan.kind === 'OneShot'
-    ? generateOneShot(plan.input, plan.output)
-    : generateFromConfig(plan.path, plan.explicit)
-}
-
-function handle(args: {
-  readonly input: Option.Option<Document>
-  readonly output: Option.Option<TypeScriptFile>
+export function honoTakibi(args: {
+  readonly input: Option.Option<typeof DocumentSchema.Type>
+  readonly output: Option.Option<typeof TypeScriptFileSchema.Type>
   readonly config: Option.Option<string>
 }) {
   return Effect.gen(function* () {
-    const plan = yield* resolvePlan(args)
-    const message = yield* execute(plan)
-    return yield* Console.log(message)
+    const input = Option.getOrUndefined(args.input)
+    const output = Option.getOrUndefined(args.output)
+    const configPath = Option.getOrUndefined(args.config)
+
+    if (configPath !== undefined && (input !== undefined || output !== undefined)) {
+      return yield* userError(
+        `--config cannot be combined with <input> or --output. A config file already names its own input and outputs.\n\n${USAGE}`,
+      )
+    }
+    if (input !== undefined && output === undefined) {
+      return yield* userError(`<input> requires -o <output.ts>.\n\n${USAGE}`)
+    }
+    if (output !== undefined && input === undefined) {
+      return yield* userError(`-o <output.ts> requires an <input> document.\n\n${USAGE}`)
+    }
+
+    // The generator pipeline pulls in the OpenAPI parser, the TypeSpec compiler and
+    // ts-morph. `--help`, `--version`, `--completions` and every rejected command line
+    // above must not pay for that, so it is loaded here rather than at module scope.
+    const { parseOpenAPI } = yield* Effect.promise(() => import('../openapi/index.js'))
+
+    // One-shot: no config file is consulted, even when one sits in the working directory.
+    if (input !== undefined && output !== undefined) {
+      const { takibi } = yield* Effect.promise(() => import('../core/index.js'))
+      const openAPI = yield* parseOpenAPI(input).pipe(Effect.mapError((e) => userError(e.message)))
+      const message = yield* takibi(openAPI, output, ONE_SHOT_COMPONENTS).pipe(
+        Effect.mapError((e) => userError(e.message)),
+      )
+      return yield* Console.log(message)
+    }
+
+    // Config mode. A config the caller never asked for is the "ran `hono-takibi` with
+    // nothing" case, the one place where a missing file is worth explaining.
+    const [{ readConfig }, { FormatOptions }, { makeJob }] = yield* Effect.promise(() =>
+      Promise.all([
+        import('../config/index.js'),
+        import('../format/index.js'),
+        import('../shared/index.js'),
+      ]),
+    )
+    const config = yield* readConfig(configPath ?? DEFAULT_CONFIG_FILE).pipe(
+      Effect.mapError((e) =>
+        userError(configPath === undefined ? `${e.message}\n\n${USAGE}` : e.message),
+      ),
+    )
+    const openAPI = yield* parseOpenAPI(config.input).pipe(
+      Effect.mapError((e) => userError(e.message)),
+    )
+    // `makeJob` returns a union of job shapes, so the element type is spelled out here:
+    // without it `Effect.all` widens the requirement channel to `any` and the layer the
+    // caller provides stops discharging it.
+    const messages = yield* Effect.all(
+      makeJob(openAPI, config).map(
+        (job): Effect.Effect<string, { readonly message: string }, FileSystem.FileSystem> =>
+          job.run(job.output),
+      ),
+      { concurrency: 'unbounded' },
+    ).pipe(
+      Effect.provideService(FormatOptions, config.format ?? {}),
+      Effect.mapError((e) => userError(e.message)),
+    )
+    return yield* Console.log(messages.filter((message) => message !== '').join('\n'))
   })
 }
 
@@ -246,12 +179,12 @@ function handle(args: {
  * The `hono-takibi` command.
  *
  * Parsing, validation, `--help`, `--version` and shell completions are owned by
- * `effect/unstable/cli`; everything below the handler is the generator pipeline.
+ * `effect/unstable/cli`; {@link honoTakibi} is everything after a valid command line.
  */
 export const cli = Command.make(
   'hono-takibi',
   { input: inputArgument, output: outputFlag, config: configFlag },
-  handle,
+  honoTakibi,
 ).pipe(
   Command.withDescription(
     `Generate @hono/zod-openapi code from an OpenAPI or TypeSpec document. With an <input> the CLI writes a single routes file; with no <input> it runs ./${DEFAULT_CONFIG_FILE} (or --config), which opts in the routes, components, webhooks, types, mock, docs, test and tanstack-query generators.`,

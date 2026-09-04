@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { defineTemplate } from './define.js'
 
 let tmpDir: string
@@ -31,14 +32,16 @@ const openAPI = {
 describe('defineTemplate', () => {
   it('writes the app to a .ts output and defineOpenAPIRoute handlers to routes/ next to it', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-'))
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'index.ts'),
-      path.join(tmpDir, 'components.ts'),
-      false,
-      '/',
-      undefined,
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'index.ts'),
+        path.join(tmpDir, 'components.ts'),
+        false,
+        '/',
+        undefined,
+        undefined,
+      ),
     )
     expect(result).toStrictEqual({
       ok: true,
@@ -74,14 +77,16 @@ export const getHealthRoute = defineOpenAPIRoute({
 
   it('writes index.ts inside the output when output is a directory', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-dir-'))
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'src'),
-      path.join(tmpDir, 'src', 'components.ts'),
-      false,
-      '/',
-      undefined,
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'src'),
+        path.join(tmpDir, 'src', 'components.ts'),
+        false,
+        '/',
+        undefined,
+        undefined,
+      ),
     )
     expect(result).toStrictEqual({
       ok: true,
@@ -104,14 +109,16 @@ import { customThing } from './custom-marker'
 export const api = new OpenAPIHono()
 `,
     )
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'index.ts'),
-      path.join(tmpDir, 'components.ts'),
-      false,
-      '/',
-      undefined,
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'index.ts'),
+        path.join(tmpDir, 'components.ts'),
+        false,
+        '/',
+        undefined,
+        undefined,
+      ),
     )
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(path.join(tmpDir, 'index.ts'), 'utf-8')
@@ -120,14 +127,16 @@ export const api = new OpenAPIHono()
 
   it('writes a handler test file next to the handler when test is enabled', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-test-'))
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'index.ts'),
-      path.join(tmpDir, 'components.ts'),
-      true,
-      '/',
-      undefined,
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'index.ts'),
+        path.join(tmpDir, 'components.ts'),
+        true,
+        '/',
+        undefined,
+        undefined,
+      ),
     )
     expect(result.ok).toBe(true)
     expect(fs.readFileSync(path.join(tmpDir, 'routes', 'health.test.ts'), 'utf-8')).toBe(
@@ -151,14 +160,8 @@ describe('Health', () => {
     const origCwd = process.cwd()
     process.chdir(tmpDir)
     try {
-      const result = await defineTemplate(
-        openAPI,
-        'index.ts',
-        'components.ts',
-        false,
-        '/',
-        undefined,
-        undefined,
+      const result = await runGenerator(
+        defineTemplate(openAPI, 'index.ts', 'components.ts', false, '/', undefined, undefined),
       )
       expect(result.ok).toBe(true)
       expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)
@@ -174,14 +177,16 @@ describe('Health', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-unreadable-'))
     // A directory at the target path makes readFile fail with a non-ENOENT error.
     fs.mkdirSync(path.join(tmpDir, 'index.ts'))
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'index.ts'),
-      path.join(tmpDir, 'components.ts'),
-      false,
-      '/',
-      undefined,
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'index.ts'),
+        path.join(tmpDir, 'components.ts'),
+        false,
+        '/',
+        undefined,
+        undefined,
+      ),
     )
     expect(result.ok).toBe(false)
     if (!result.ok) {
@@ -191,14 +196,16 @@ describe('Health', () => {
 
   it('imports handlers through a pathAlias when one is configured', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-define-template-alias-'))
-    const result = await defineTemplate(
-      openAPI,
-      path.join(tmpDir, 'index.ts'),
-      path.join(tmpDir, 'components.ts'),
-      false,
-      '/',
-      '@/',
-      undefined,
+    const result = await runGenerator(
+      defineTemplate(
+        openAPI,
+        path.join(tmpDir, 'index.ts'),
+        path.join(tmpDir, 'components.ts'),
+        false,
+        '/',
+        '@/',
+        undefined,
+      ),
     )
     expect(result.ok).toBe(true)
     expect(fs.existsSync(path.join(tmpDir, 'routes', 'health.ts'))).toBe(true)

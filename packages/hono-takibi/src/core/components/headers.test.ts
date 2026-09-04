@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
+import { runGenerator } from '../../testing/index.js'
 import { headers } from './headers.js'
 
 let tmpDir: string
@@ -17,14 +18,14 @@ describe('headers', () => {
   it('returns error when headers is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
     const output = path.join(tmpDir, 'headers.ts')
-    const result = await headers(undefined, output, false, true)
+    const result = await runGenerator(headers(undefined, output, false, true))
     expect(result).toStrictEqual({ ok: false, error: 'No headers found' })
   })
 
   it('returns success message when headers is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
     const output = path.join(tmpDir, 'headers.ts')
-    const result = await headers({}, output, false, true)
+    const result = await runGenerator(headers({}, output, false, true))
     expect(result).toStrictEqual({ ok: true, value: 'No headers found' })
   })
 
@@ -32,16 +33,18 @@ describe('headers', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
       const output = path.join(tmpDir, 'headers.ts')
-      const result = await headers(
-        {
-          'X-Rate-Limit': {
-            schema: { type: 'integer' },
-            description: 'Rate limit',
+      const result = await runGenerator(
+        headers(
+          {
+            'X-Rate-Limit': {
+              schema: { type: 'integer' },
+              description: 'Rate limit',
+            },
           },
-        },
-        output,
-        false,
-        true,
+          output,
+          false,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -57,20 +60,22 @@ describe('headers', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-headers-'))
       const output = path.join(tmpDir, 'headers')
-      const result = await headers(
-        {
-          'X-Rate-Limit': {
-            schema: { type: 'integer' },
-            description: 'Rate limit',
+      const result = await runGenerator(
+        headers(
+          {
+            'X-Rate-Limit': {
+              schema: { type: 'integer' },
+              description: 'Rate limit',
+            },
+            'X-Request-Id': {
+              schema: { type: 'string' },
+              description: 'Request ID',
+            },
           },
-          'X-Request-Id': {
-            schema: { type: 'string' },
-            description: 'Request ID',
-          },
-        },
-        output,
-        true,
-        true,
+          output,
+          true,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -89,7 +94,7 @@ describe('headers', () => {
         XRateLimit: { schema: { type: 'integer' as const }, description: 'Rate limit' },
         XRequestId: { schema: { type: 'string' as const }, description: 'Request ID' },
       }
-      const result = await headers(sampleHeaders, output, false, true)
+      const result = await runGenerator(headers(sampleHeaders, output, false, true))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = headersCode({ headers: sampleHeaders }, true, true)

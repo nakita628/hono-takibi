@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../../testing/index.js'
 import { links } from './links.js'
 
 let tmpDir: string
@@ -16,14 +17,14 @@ describe('links', () => {
   it('returns error when links is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
-    const result = await links(undefined, output, false)
+    const result = await runGenerator(links(undefined, output, false))
     expect(result).toStrictEqual({ ok: false, error: 'No links found' })
   })
 
   it('returns success message when links is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
     const output = path.join(tmpDir, 'links.ts')
-    const result = await links({}, output, false)
+    const result = await runGenerator(links({}, output, false))
     expect(result).toStrictEqual({ ok: true, value: 'No links found' })
   })
 
@@ -31,15 +32,17 @@ describe('links', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links.ts')
-      const result = await links(
-        {
-          GetUserById: {
-            operationId: 'getUser',
-            parameters: { userId: '$response.body#/id' },
+      const result = await runGenerator(
+        links(
+          {
+            GetUserById: {
+              operationId: 'getUser',
+              parameters: { userId: '$response.body#/id' },
+            },
           },
-        },
-        output,
-        false,
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -55,16 +58,18 @@ describe('links', () => {
     it('writes single file with as const', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links.ts')
-      const result = await links(
-        {
-          GetUserById: {
-            operationId: 'getUser',
-            parameters: { userId: '$response.body#/id' },
+      const result = await runGenerator(
+        links(
+          {
+            GetUserById: {
+              operationId: 'getUser',
+              parameters: { userId: '$response.body#/id' },
+            },
           },
-        },
-        output,
-        false,
-        true,
+          output,
+          false,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -80,19 +85,21 @@ describe('links', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      const result = await links(
-        {
-          GetUserById: {
-            operationId: 'getUser',
-            parameters: { userId: '$response.body#/id' },
+      const result = await runGenerator(
+        links(
+          {
+            GetUserById: {
+              operationId: 'getUser',
+              parameters: { userId: '$response.body#/id' },
+            },
+            GetPostById: {
+              operationId: 'getPost',
+              parameters: { postId: '$response.body#/id' },
+            },
           },
-          GetPostById: {
-            operationId: 'getPost',
-            parameters: { postId: '$response.body#/id' },
-          },
-        },
-        output,
-        true,
+          output,
+          true,
+        ),
       )
       expect(result.ok).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)
@@ -103,16 +110,18 @@ describe('links', () => {
     it('writes split files with readonly', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-links-'))
       const output = path.join(tmpDir, 'links')
-      const result = await links(
-        {
-          GetUserById: {
-            operationId: 'getUser',
-            parameters: { userId: '$response.body#/id' },
+      const result = await runGenerator(
+        links(
+          {
+            GetUserById: {
+              operationId: 'getUser',
+              parameters: { userId: '$response.body#/id' },
+            },
           },
-        },
-        output,
-        true,
-        true,
+          output,
+          true,
+          true,
+        ),
       )
       expect(result.ok).toBe(true)
       expect(fs.existsSync(path.join(output, 'index.ts'))).toBe(true)

@@ -3,11 +3,11 @@ import os from 'node:os'
 import path from 'node:path'
 
 import * as NodeServices from '@effect/platform-node/NodeServices'
-import { Cause, Console, Effect, Exit, Option } from 'effect'
-import type { CliError } from 'effect/unstable/cli'
+import { Console, Effect, Exit, Option, Result } from 'effect'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { execute, resolvePlan, run } from './index.js'
+import { fileSystemLayer } from '../file/index.js'
+import { honoTakibi, run } from './index.js'
 
 const openapi = {
   openapi: '3.1.0',
@@ -180,58 +180,44 @@ afterEach(() => {
   tmpDir = ''
 })
 
-/** `resolvePlan` over plain strings, run to an `Exit` so both channels can be asserted. */
-function plan(input?: string, output?: string, config?: string) {
-  return Effect.runSyncExit(
-    resolvePlan({
-      input: Option.fromNullishOr(input as `${string}.yaml` | undefined),
-      output: Option.fromNullishOr(output as `${string}.ts` | undefined),
-      config: Option.fromNullishOr(config),
-    }),
+/**
+ * Calls `honoTakibi` the way the command does, with the filesystem the CLI provides,
+ * and reports the outcome as a value so both channels can be asserted.
+ */
+async function callHonoTakibi(input?: string, output?: string, config?: string) {
+  const outcome = await Effect.runPromise(
+    Effect.result(
+      honoTakibi({
+        input: Option.fromNullishOr(input as `${string}.yaml` | undefined),
+        output: Option.fromNullishOr(output as `${string}.ts` | undefined),
+        config: Option.fromNullishOr(config),
+      }).pipe(Effect.provide(fileSystemLayer)),
+    ),
   )
+  return Result.isFailure(outcome) ? outcome.failure.message : ''
 }
 
-/** The rendered message of the `UserError` a failed plan carries. */
-function planError(exit: Exit.Exit<unknown, CliError.UserError>) {
-  return Exit.isFailure(exit)
-    ? Option.getOrElse(
-        Option.map(Cause.findErrorOption(exit.cause), (error) => error.message),
-        () => '',
-      )
-    : ''
-}
-
-describe('resolvePlan', () => {
-  it('pairs <input> with -o into a one-shot run', () => {
-    expect(plan('openapi.yaml', 'routes.ts')).toStrictEqual(
-      Exit.succeed({ kind: 'OneShot', input: 'openapi.yaml', output: 'routes.ts' }),
-    )
+// The two modes are mutually exclusive and each flag is meaningless alone; these are the
+// four ways a caller can describe neither mode.
+describe('honoTakibi mode resolution', { timeout: 30_000 }, () => {
+  it('rejects <input> without -o', async () => {
+    expect(await callHonoTakibi('openapi.yaml')).toContain('<input> requires -o <output.ts>')
   })
 
-  it('falls back to the default config file when nothing is given', () => {
-    expect(plan()).toStrictEqual(
-      Exit.succeed({ kind: 'Config', path: 'hono-takibi.config.ts', explicit: false }),
-    )
-  })
-
-  it('runs the config file named by --config', () => {
-    expect(plan(undefined, undefined, 'api.config.ts')).toStrictEqual(
-      Exit.succeed({ kind: 'Config', path: 'api.config.ts', explicit: true }),
-    )
-  })
-
-  it('rejects <input> without -o', () => {
-    expect(planError(plan('openapi.yaml'))).toContain('<input> requires -o <output.ts>')
-  })
-
-  it('rejects -o without <input>', () => {
-    expect(planError(plan(undefined, 'routes.ts'))).toContain(
+  it('rejects -o without <input>', async () => {
+    expect(await callHonoTakibi(undefined, 'routes.ts')).toContain(
       '-o <output.ts> requires an <input> document',
     )
   })
 
-  it('rejects --config alongside the one-shot flags', () => {
-    expect(planError(plan('openapi.yaml', 'routes.ts', 'api.config.ts'))).toContain(
+  it('rejects --config alongside the one-shot flags', async () => {
+    expect(await callHonoTakibi('openapi.yaml', 'routes.ts', 'api.config.ts')).toContain(
+      '--config cannot be combined',
+    )
+  })
+
+  it('rejects --config alongside -o alone', async () => {
+    expect(await callHonoTakibi(undefined, 'routes.ts', 'api.config.ts')).toContain(
       '--config cannot be combined',
     )
   })
@@ -680,37 +666,14 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
   })
 })
 
-describe('execute', { timeout: 30_000 }, () => {
+describe('honoTakibi one-shot failures', { timeout: 30_000 }, () => {
   it('propagates a parse failure from the input document', async () => {
     const dir = useTmpDir('cli-execute-parse-')
     const input = path.join(dir, 'broken.json')
     fs.writeFileSync(input, '{ not json')
 
-    const exit = await Effect.runPromiseExit(
-      execute({
-        kind: 'OneShot',
-        input: input as `${string}.json`,
-        output: path.join(dir, 'out.ts') as `${string}.ts`,
-      }),
-    )
+    const message = await callHonoTakibi(input, path.join(dir, 'out.ts'))
 
-    expect(Exit.isFailure(exit)).toBe(true)
-  })
-
-  it('reports the generated file on the success channel', async () => {
-    const dir = useTmpDir('cli-execute-ok-')
-    const input = path.join(dir, 'openapi.json')
-    const output = path.join(dir, 'routes.ts')
-    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
-
-    const message = await Effect.runPromise(
-      execute({
-        kind: 'OneShot',
-        input: input as `${string}.json`,
-        output: output as `${string}.ts`,
-      }),
-    )
-
-    expect(message).toBe(`🔥 Generated code written to ${output}`)
+    expect(message).not.toBe('')
   })
 })

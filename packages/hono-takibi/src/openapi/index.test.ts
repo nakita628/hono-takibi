@@ -3,57 +3,60 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../testing/index.js'
 import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
   it.concurrent('should return ok for a valid OpenAPI YAML string', async () => {
-    const result = await parseOpenAPI({
-      openapi: '3.0.0',
-      info: {
-        title: 'Test API',
-        version: '1.0.0',
-      },
-      components: {
-        schemas: {
-          Test: {
-            type: 'object',
-            required: ['test'],
-            properties: {
-              test: {
-                type: 'string',
-              },
-            },
-          },
+    const result = await runGenerator(
+      parseOpenAPI({
+        openapi: '3.0.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
         },
-      },
-      paths: {
-        '/test': {
-          post: {
-            summary: 'Test endpoint',
-            requestBody: {
-              required: true,
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/Test',
-                  },
+        components: {
+          schemas: {
+            Test: {
+              type: 'object',
+              required: ['test'],
+              properties: {
+                test: {
+                  type: 'string',
                 },
               },
             },
-            responses: {
-              '200': {
-                description: 'Successful test',
+          },
+        },
+        paths: {
+          '/test': {
+            post: {
+              summary: 'Test endpoint',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
+                  },
+                },
+              },
+              responses: {
+                '200': {
+                  description: 'Successful test',
+                },
               },
             },
           },
         },
-      },
-    } as unknown as string)
+      } as unknown as string),
+    )
     expect(result.ok).toBe(true)
   })
 
   it.concurrent('should return err for a completely invalid input', async () => {
-    const result = await parseOpenAPI('not yaml nor json')
+    const result = await runGenerator(parseOpenAPI('not yaml nor json'))
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(typeof result.error).toBe('string')
@@ -121,7 +124,7 @@ model Error {
 @get op read(@path id: string): Widget | Error;
 `
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
-    const result = await parseOpenAPI(TSP_TEST_FILE)
+    const result = await runGenerator(parseOpenAPI(TSP_TEST_FILE))
     expect(result.ok).toBe(true)
   })
 
@@ -171,14 +174,14 @@ model Error {
 `
     fs.mkdirSync(TSP_TEST_SUBDIR, { recursive: true })
     fs.writeFileSync(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`, tmpTsp)
-    const result = await parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`)
+    const result = await runGenerator(parseOpenAPI(`${TSP_TEST_SUBDIR}/tmp-spec.tsp`))
     expect(result.ok).toBe(true)
   })
 
   it('typeSpecToOpenAPI Error', { timeout: 10_000 }, async () => {
     const tmpTsp = `import "@typespec`
     fs.writeFileSync(TSP_TEST_FILE, tmpTsp)
-    const result = await parseOpenAPI(TSP_TEST_FILE)
+    const result = await runGenerator(parseOpenAPI(TSP_TEST_FILE))
     expect(result.ok).toBe(false)
   })
 })

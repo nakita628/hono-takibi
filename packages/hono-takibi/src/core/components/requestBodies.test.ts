@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
+import { runGenerator } from '../../testing/index.js'
 import { requestBodies } from './requestBodies.js'
 
 let tmpDir: string
@@ -17,14 +18,14 @@ describe('requestBodies', () => {
   it('returns error when requestBodies is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
-    const result = await requestBodies(undefined, output, false)
+    const result = await runGenerator(requestBodies(undefined, output, false))
     expect(result).toStrictEqual({ ok: false, error: 'No requestBodies found' })
   })
 
   it('returns success message when requestBodies is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
     const output = path.join(tmpDir, 'requestBodies.ts')
-    const result = await requestBodies({}, output, false)
+    const result = await runGenerator(requestBodies({}, output, false))
     expect(result).toStrictEqual({ ok: true, value: 'No requestBodies found' })
   })
 
@@ -32,24 +33,26 @@ describe('requestBodies', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
       const output = path.join(tmpDir, 'requestBodies.ts')
-      const result = await requestBodies(
-        {
-          CreateUser: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string' },
+      const result = await runGenerator(
+        requestBodies(
+          {
+            CreateUser: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                    },
+                    required: ['name'],
                   },
-                  required: ['name'],
                 },
               },
             },
           },
-        },
-        output,
-        false,
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -65,36 +68,38 @@ describe('requestBodies', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-requestBodies-'))
       const output = path.join(tmpDir, 'requestBodies')
-      const result = await requestBodies(
-        {
-          CreateUser: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string' },
-                  },
-                  required: ['name'],
-                },
-              },
-            },
-          },
-          UpdateUser: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string' },
+      const result = await runGenerator(
+        requestBodies(
+          {
+            CreateUser: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                    },
+                    required: ['name'],
                   },
                 },
               },
             },
+            UpdateUser: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
           },
-        },
-        output,
-        true,
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -120,7 +125,7 @@ describe('requestBodies', () => {
           content: { 'application/json': { schema: { type: 'object' as const } } },
         },
       }
-      const result = await requestBodies(sampleBodies, output, false)
+      const result = await runGenerator(requestBodies(sampleBodies, output, false))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(output, 'utf-8')
       const generated = requestBodiesCode({ requestBodies: sampleBodies }, true)

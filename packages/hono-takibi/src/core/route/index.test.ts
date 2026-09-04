@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vite-plus/test'
 
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { route } from './index.js'
 
 const openapi = {
@@ -97,16 +98,18 @@ describe('route', () => {
       fs.writeFileSync(input, JSON.stringify(openapi))
       const out = path.join(dir, 'test.ts')
 
-      const result = await route(
-        openapi,
-        { output: out },
-        {
-          schemas: {
-            output: path.join(dir, 'schemas'),
-            split: true,
-            import: '@packages/schemas',
+      const result = await runGenerator(
+        route(
+          openapi,
+          { output: out },
+          {
+            schemas: {
+              output: path.join(dir, 'schemas'),
+              split: true,
+              import: '@packages/schemas',
+            },
           },
-        },
+        ),
       )
       const index = fs.readFileSync(out, 'utf-8')
       const expected = `import { createRoute } from '@hono/zod-openapi'
@@ -160,7 +163,7 @@ export const getZodOpenapiHonoRoute = createRoute({
   })
 
   it('returns error when routes.output is missing', async () => {
-    const result = await route(openapi)
+    const result = await runGenerator(route(openapi))
     expect(result).toStrictEqual({ ok: false, error: 'routes.output is required' })
   })
 
@@ -173,7 +176,7 @@ export const getZodOpenapiHonoRoute = createRoute({
         paths: {},
       } as OpenAPI
       const out = path.join(dir, 'empty.ts')
-      const result = await route(emptyOpenapi, { output: out, split: true })
+      const result = await runGenerator(route(emptyOpenapi, { output: out, split: true }))
       expect(result).toStrictEqual({ ok: true, value: `Generated route code written to ${out}` })
       expect(fs.existsSync(out)).toBe(true)
       expect(fs.readFileSync(out, 'utf-8')).toBe('')
@@ -188,10 +191,10 @@ export const getZodOpenapiHonoRoute = createRoute({
       const blockingFile = path.join(dir, 'block')
       fs.writeFileSync(blockingFile, 'x')
       const out = path.join(blockingFile, 'foo.ts')
-      const result = await route(openapi, { output: out })
+      const result = await runGenerator(route(openapi, { output: out }))
       expect(result).toStrictEqual({
         ok: false,
-        error: `EEXIST: file already exists, mkdir '${blockingFile}'`,
+        error: `AlreadyExists: FileSystem.makeDirectory (${blockingFile})`,
       })
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -205,16 +208,18 @@ export const getZodOpenapiHonoRoute = createRoute({
       fs.writeFileSync(input, JSON.stringify(openapi))
       const outDir = path.join(dir, 'test')
 
-      const result = await route(
-        openapi,
-        { output: outDir, split: true },
-        {
-          schemas: {
-            output: path.join(dir, 'schemas'),
-            split: true,
-            import: '@packages/schemas',
+      const result = await runGenerator(
+        route(
+          openapi,
+          { output: outDir, split: true },
+          {
+            schemas: {
+              output: path.join(dir, 'schemas'),
+              split: true,
+              import: '@packages/schemas',
+            },
           },
-        },
+        ),
       )
 
       const index = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
@@ -294,7 +299,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const out = path.join(dir, 'routes.ts')
-        const result = await route(openapi, { output: out })
+        const result = await runGenerator(route(openapi, { output: out }))
         expect(result.ok).toBe(true)
         const emitted = fs.readFileSync(out, 'utf-8')
         const generated = routeCode(openapi)
@@ -318,7 +323,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const outDir = path.join(dir, 'routes')
-        const result = await route(openapi, { output: outDir, split: true })
+        const result = await runGenerator(route(openapi, { output: outDir, split: true }))
         expect(result.ok).toBe(true)
         const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
         const emittedNames = new Set<string>()
@@ -346,7 +351,7 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-contract-'))
       try {
         const outDir = path.join(dir, 'routes')
-        await route(openapi, { output: outDir, split: true })
+        await runGenerator(route(openapi, { output: outDir, split: true }))
         const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
         expect(indexContent).toBe(
           [
@@ -378,7 +383,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-multimethod-'))
       try {
         const outDir = path.join(dir, 'routes')
-        const result = await route(multiMethodOpenAPI, { output: outDir, split: true })
+        const result = await runGenerator(
+          route(multiMethodOpenAPI, { output: outDir, split: true }),
+        )
         expect(result.ok).toBe(true)
         const files = fs
           .readdirSync(outDir)
@@ -424,7 +431,7 @@ export const getZodOpenapiHonoRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await route(richOpenapi, { output: out })
+        const result = await runGenerator(route(richOpenapi, { output: out }))
         expect(result).toStrictEqual({
           ok: true,
           value: `Generated route code written to ${out}`,
@@ -477,7 +484,7 @@ export const postRichRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await route(refOpenapi, { output: out })
+        const result = await runGenerator(route(refOpenapi, { output: out }))
         expect(result).toStrictEqual({
           ok: true,
           value: `Generated route code written to ${out}`,
@@ -521,7 +528,7 @@ export const getUsersIdRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await route(refOpenapi, { output: out })
+        const result = await runGenerator(route(refOpenapi, { output: out }))
         expect(result).toStrictEqual({
           ok: true,
           value: `Generated route code written to ${out}`,
@@ -557,7 +564,7 @@ export const getUsersIdRoute = createRoute({
           },
         } as OpenAPI
         const out = path.join(dir, 'routes.ts')
-        const result = await route(refOpenapi, { output: out })
+        const result = await runGenerator(route(refOpenapi, { output: out }))
         expect(result).toStrictEqual({
           ok: true,
           value: `Generated route code written to ${out}`,

@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../../testing/index.js'
 import { examples } from './examples.js'
 
 let tmpDir: string
@@ -16,14 +17,14 @@ describe('examples', () => {
   it('returns error when examples is undefined', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
     const output = path.join(tmpDir, 'examples.ts')
-    const result = await examples(undefined, output, false)
+    const result = await runGenerator(examples(undefined, output, false))
     expect(result).toStrictEqual({ ok: false, error: 'No examples found' })
   })
 
   it('returns success message when examples is empty', async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
     const output = path.join(tmpDir, 'examples.ts')
-    const result = await examples({}, output, false)
+    const result = await runGenerator(examples({}, output, false))
     expect(result).toStrictEqual({ ok: true, value: 'No examples found' })
   })
 
@@ -31,12 +32,14 @@ describe('examples', () => {
     it('writes single file and returns success', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-        },
-        output,
-        false,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+          },
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -52,13 +55,15 @@ describe('examples', () => {
     it('writes single file with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-        },
-        output,
-        false,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+          },
+          output,
+          false,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -72,13 +77,15 @@ describe('examples', () => {
     it('writes single file with multiple examples', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-          PostExample: { value: { id: 2, title: 'Hello' } },
-        },
-        output,
-        false,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+            PostExample: { value: { id: 2, title: 'Hello' } },
+          },
+          output,
+          false,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -92,13 +99,15 @@ describe('examples', () => {
     it('writes individual files and barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-          PostExample: { value: { id: 2, title: 'Hello' } },
-        },
-        output,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+            PostExample: { value: { id: 2, title: 'Hello' } },
+          },
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -112,13 +121,15 @@ describe('examples', () => {
     it('writes individual files with readonly flag', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-        },
-        output,
-        true,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+          },
+          output,
+          true,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -135,12 +146,14 @@ describe('examples', () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples.ts')
       const outDir = path.join(path.dirname(output), path.basename(output, '.ts'))
-      const result = await examples(
-        {
-          UserExample: { value: { id: 1, name: 'John' } },
-        },
-        output,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            UserExample: { value: { id: 1, name: 'John' } },
+          },
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -153,12 +166,14 @@ describe('examples', () => {
     it('handles $ref references in split mode', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await examples(
-        {
-          AliasExample: { $ref: '#/components/examples/UserExample' },
-        },
-        output,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            AliasExample: { $ref: '#/components/examples/UserExample' },
+          },
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,
@@ -174,13 +189,15 @@ describe('examples', () => {
     it('generates sorted barrel file', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'test-examples-'))
       const output = path.join(tmpDir, 'examples')
-      const result = await examples(
-        {
-          ZooExample: { value: { zoo: true } },
-          AlphaExample: { value: { alpha: true } },
-        },
-        output,
-        true,
+      const result = await runGenerator(
+        examples(
+          {
+            ZooExample: { value: { zoo: true } },
+            AlphaExample: { value: { alpha: true } },
+          },
+          output,
+          true,
+        ),
       )
       expect(result).toStrictEqual({
         ok: true,

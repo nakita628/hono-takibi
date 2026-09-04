@@ -5,6 +5,7 @@ import nodePath from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { type } from './index.js'
 
 describe('type', () => {
@@ -37,7 +38,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       expect(fs.existsSync(out)).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
@@ -65,7 +66,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -95,7 +96,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -125,7 +126,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -154,7 +155,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -198,7 +199,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -239,7 +240,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out, true)
+      const result = await runGenerator(type(openapi, out, true))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -265,7 +266,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out, false)
+      const result = await runGenerator(type(openapi, out, false))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -311,7 +312,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -363,7 +364,7 @@ describe('type', () => {
       const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
       try {
         const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-        const result = await type(openapi, out)
+        const result = await runGenerator(type(openapi, out))
         expect(result.ok).toBe(true)
         const content = fs.readFileSync(out, 'utf-8')
         expect(content).toBe(
@@ -403,7 +404,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out, true)
+      const result = await runGenerator(type(openapi, out, true))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -441,7 +442,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -482,7 +483,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(
@@ -529,7 +530,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -567,7 +568,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
     try {
       const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -637,7 +638,7 @@ describe('type', () => {
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-statusall-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await type(spec, out)
+      const result = await runGenerator(type(spec, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
@@ -724,7 +725,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-mixed-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
@@ -792,7 +793,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-tuple-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
@@ -854,7 +855,7 @@ export default routes
     const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-addprops-'))
     try {
       const out = nodePath.join(dir, 'types.d.ts') as `${string}.ts`
-      const result = await type(openapi, out)
+      const result = await runGenerator(type(openapi, out))
       expect(result.ok).toBe(true)
       const content = fs.readFileSync(out, 'utf-8')
       expect(content).toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<

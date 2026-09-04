@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { components } from './output.js'
 
 let tmpDir: string
@@ -22,7 +23,7 @@ describe('components', () => {
       info: { title: 't', version: '1' },
       paths: {},
     } as unknown as OpenAPI
-    const result = await components(openAPI, output)
+    const result = await runGenerator(components(openAPI, output))
     expect(result).toStrictEqual({ ok: true, value: 'No components found' })
   })
 
@@ -43,7 +44,7 @@ describe('components', () => {
       },
       paths: {},
     } as unknown as OpenAPI
-    const result = await components(openAPI, output)
+    const result = await runGenerator(components(openAPI, output))
     expect(result).toStrictEqual({
       ok: true,
       value: `Generated components code written to ${output}`,

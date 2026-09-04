@@ -69,6 +69,9 @@ export default defineConfig({
       'no-param-reassign': ['error', { props: true }],
       'no-console': 'error',
       'no-plusplus': 'error',
+      // `_tag` is Effect's discriminant on tagged errors and data types; every other
+      // dangling underscore stays a smell.
+      'no-underscore-dangle': ['error', { allow: ['_tag'] }],
       // Paired with `env: { node: true }` above, so `process` resolves and a typo does not.
       'no-undef': 'error',
       'typescript/no-explicit-any': 'error',
@@ -500,8 +503,9 @@ export default defineConfig({
             {
               patterns: [
                 {
-                  regex: '^(\\.\\./)+(cli|core|emit|fsp|generator|helper|merge|utils)(/.*)?$',
-                  message: 'vite-plugin may only import config, format, guard, openapi, shared',
+                  regex: '^(\\.\\./)+(cli|core|emit|generator|helper|merge|utils)(/.*)?$',
+                  message:
+                    'vite-plugin may only import config, format, fsp, guard, openapi, shared',
                 },
               ],
             },

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { webhookCode } from '../../generator/zod-openapi-hono/openapi/webhooks/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { webhooks } from './index.js'
 
 let tmpDir: string
@@ -78,13 +79,13 @@ describe('webhooks', () => {
   } as OpenAPI
 
   it('returns error when output is missing', async () => {
-    const result = await webhooks(mockOpenAPI, undefined)
+    const result = await runGenerator(webhooks(mockOpenAPI, undefined))
     expect(result).toStrictEqual({ ok: false, error: 'webhooks.output is required' })
   })
 
   it('returns error when no webhooks in spec', async () => {
     const noWebhooks: OpenAPI = { ...mockOpenAPI, webhooks: undefined }
-    const result = await webhooks(noWebhooks, { output: 'output.ts' })
+    const result = await runGenerator(webhooks(noWebhooks, { output: 'output.ts' }))
     expect(result).toStrictEqual({ ok: false, error: 'No webhooks found' })
   })
 
@@ -92,7 +93,7 @@ describe('webhooks', () => {
     it('generates webhooks file with correct content', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await webhooks(mockOpenAPI, { output: out })
+      const result = await runGenerator(webhooks(mockOpenAPI, { output: out }))
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}`,
@@ -131,10 +132,12 @@ export const userCreatedPostWebhook = {
     it('generates separate files for each webhook', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-'))
       const out = path.join(tmpDir, 'webhooks')
-      const result = await webhooks(mockOpenAPI, {
-        output: out,
-        split: true,
-      })
+      const result = await runGenerator(
+        webhooks(mockOpenAPI, {
+          output: out,
+          split: true,
+        }),
+      )
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}/*.ts (index.ts included)`,
@@ -199,7 +202,7 @@ export * from './userCreatedPost'
           },
         },
       } as OpenAPI
-      const result = await webhooks(simpleWebhook, { output: out })
+      const result = await runGenerator(webhooks(simpleWebhook, { output: out }))
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}`,
@@ -221,7 +224,7 @@ export * from './userCreatedPost'
     it('non-split: caller emit contains same const names as generator output', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await webhooks(mockOpenAPI, { output: out })
+      const result = await runGenerator(webhooks(mockOpenAPI, { output: out }))
       expect(result.ok).toBe(true)
       const emitted = fs.readFileSync(out, 'utf-8')
       const generated = webhookCode(mockOpenAPI)
@@ -241,7 +244,7 @@ export * from './userCreatedPost'
     it('split: union of per-file const names equals generator output const names', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      const result = await webhooks(mockOpenAPI, { output: outDir, split: true })
+      const result = await runGenerator(webhooks(mockOpenAPI, { output: outDir, split: true }))
       expect(result.ok).toBe(true)
       const files = fs.readdirSync(outDir).filter((f) => f !== 'index.ts')
       const emittedNames = new Set<string>()
@@ -265,7 +268,7 @@ export * from './userCreatedPost'
     it('split: barrel index lists every per-file module sorted alphabetically', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-contract-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      await webhooks(mockOpenAPI, { output: outDir, split: true })
+      await runGenerator(webhooks(mockOpenAPI, { output: outDir, split: true }))
       const indexContent = fs.readFileSync(path.join(outDir, 'index.ts'), 'utf-8')
       expect(indexContent).toBe(
         "export * from './newOrderPost'\nexport * from './userCreatedPost'\n",
@@ -289,7 +292,9 @@ export * from './userCreatedPost'
     it('split: each method becomes its own file, barrel lists them sorted', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-multimethod-'))
       const outDir = path.join(tmpDir, 'webhooks')
-      const result = await webhooks(multiMethodOpenAPI, { output: outDir, split: true })
+      const result = await runGenerator(
+        webhooks(multiMethodOpenAPI, { output: outDir, split: true }),
+      )
       expect(result.ok).toBe(true)
       const files = fs
         .readdirSync(outDir)
@@ -329,7 +334,7 @@ export * from './userCreatedPost'
           },
         },
       } as OpenAPI
-      const result = await webhooks(refOpenapi, { output: out })
+      const result = await runGenerator(webhooks(refOpenapi, { output: out }))
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}`,
@@ -374,7 +379,7 @@ export const pingPostWebhook = {
           },
         },
       } as OpenAPI
-      const result = await webhooks(refOpenapi, { output: out })
+      const result = await runGenerator(webhooks(refOpenapi, { output: out }))
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}`,
@@ -424,7 +429,7 @@ export const pingPostWebhook = {
           },
         },
       } as OpenAPI
-      const result = await webhooks(richOpenapi, { output: out })
+      const result = await runGenerator(webhooks(richOpenapi, { output: out }))
       expect(result).toStrictEqual({
         ok: true,
         value: `Generated webhooks code written to ${out}`,
@@ -453,14 +458,16 @@ export const pingPostWebhook = {
     it('returns success "No webhooks found" for empty webhooks object', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await webhooks(
-        {
-          openapi: '3.1.0',
-          info: { title: 'T', version: '1.0.0' },
-          paths: {},
-          webhooks: {},
-        },
-        { output: out },
+      const result = await runGenerator(
+        webhooks(
+          {
+            openapi: '3.1.0',
+            info: { title: 'T', version: '1.0.0' },
+            paths: {},
+            webhooks: {},
+          },
+          { output: out },
+        ),
       )
       expect(result).toStrictEqual({ ok: true, value: 'No webhooks found' })
     })
@@ -468,16 +475,18 @@ export const pingPostWebhook = {
     it('returns success "No webhooks found" when every method lacks responses', async () => {
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-webhooks-empty-'))
       const out = path.join(tmpDir, 'webhooks.ts')
-      const result = await webhooks(
-        {
-          openapi: '3.1.0',
-          info: { title: 'T', version: '1.0.0' },
-          paths: {},
-          webhooks: {
-            ev: { post: { operationId: 'p' }, get: { operationId: 'g' } },
-          },
-        } as unknown as OpenAPI,
-        { output: out },
+      const result = await runGenerator(
+        webhooks(
+          {
+            openapi: '3.1.0',
+            info: { title: 'T', version: '1.0.0' },
+            paths: {},
+            webhooks: {
+              ev: { post: { operationId: 'p' }, get: { operationId: 'g' } },
+            },
+          } as unknown as OpenAPI,
+          { output: out },
+        ),
       )
       expect(result).toStrictEqual({ ok: true, value: 'No webhooks found' })
     })

@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
+import { runGenerator } from '../testing/index.js'
 import { mkdir, readdir, readFile, unlink, writeFile } from './index.js'
 
 const TEST_DIR = path.join(process.cwd(), 'test-tmp-dir')
@@ -17,20 +18,20 @@ describe('fsp', () => {
 
   describe('mkdir', () => {
     it('returns ok when directory is created', async () => {
-      const result = await mkdir(TEST_DIR)
+      const result = await runGenerator(mkdir(TEST_DIR))
       expect(result).toEqual({ ok: true, value: undefined })
       expect(fs.existsSync(TEST_DIR)).toBe(true)
     })
 
     it('returns ok when directory already exists (recursive:true)', async () => {
       await fsp.mkdir(TEST_DIR, { recursive: true })
-      const result = await mkdir(TEST_DIR)
+      const result = await runGenerator(mkdir(TEST_DIR))
       expect(result).toEqual({ ok: true, value: undefined })
     })
 
     it('creates nested directories', async () => {
       const deepPath = path.join(TEST_DIR, 'a', 'b', 'c')
-      const result = await mkdir(deepPath)
+      const result = await runGenerator(mkdir(deepPath))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       expect(fs.existsSync(deepPath)).toBe(true)
     })
@@ -40,7 +41,7 @@ describe('fsp', () => {
       await fsp.mkdir(TEST_DIR, { recursive: true })
       await fsp.writeFile(filePath, 'dummy')
       const badPath = path.join(filePath, 'bar')
-      const result = await mkdir(badPath)
+      const result = await runGenerator(mkdir(badPath))
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')
@@ -57,7 +58,7 @@ describe('fsp', () => {
     })
 
     it('returns files for a valid directory', async () => {
-      const result = await readdir(TEST_DIR)
+      const result = await runGenerator(readdir(TEST_DIR))
       expect(result.ok).toBe(true)
       if (result.ok) {
         const sorted = [...result.value].sort()
@@ -65,21 +66,17 @@ describe('fsp', () => {
       }
     })
 
-    it('returns err with notFound flag for non-existent directory', async () => {
+    // Every caller treats "the directory is not there yet" as "nothing in it", so
+    // absorbing it here is the contract rather than a swallowed error.
+    it('reads a non-existent directory as empty', async () => {
       const nonExist = path.join(TEST_DIR, 'no-such-dir')
-      const result = await readdir(nonExist)
-      expect(result.ok).toBe(false)
-      if (!result.ok) {
-        expect(typeof result.error).toBe('string')
-        expect(result.error.length).toBeGreaterThan(0)
-        expect(result.notFound).toBe(true)
-      }
+      expect(await runGenerator(readdir(nonExist))).toStrictEqual({ ok: true, value: [] })
     })
 
     it('returns empty array for empty directory', async () => {
       const emptyDir = path.join(TEST_DIR, 'empty-dir')
       await fsp.mkdir(emptyDir, { recursive: true })
-      const result = await readdir(emptyDir)
+      const result = await runGenerator(readdir(emptyDir))
       expect(result).toStrictEqual({ ok: true, value: [] })
     })
   })
@@ -92,19 +89,19 @@ describe('fsp', () => {
     it('returns file content when file exists', async () => {
       const filePath = path.join(TEST_DIR, 'read-test.txt')
       await fsp.writeFile(filePath, 'hello world')
-      const result = await readFile(filePath)
+      const result = await runGenerator(readFile(filePath))
       expect(result).toEqual({ ok: true, value: 'hello world' })
     })
 
     it('returns null when file does not exist', async () => {
       const filePath = path.join(TEST_DIR, 'no-such-file.txt')
-      const result = await readFile(filePath)
+      const result = await runGenerator(readFile(filePath))
       expect(result).toEqual({ ok: true, value: null })
     })
 
     it('returns err for non-file path', async () => {
       // Reading a directory as a file should fail
-      const result = await readFile(TEST_DIR)
+      const result = await runGenerator(readFile(TEST_DIR))
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')
@@ -115,7 +112,7 @@ describe('fsp', () => {
     it('reads empty file correctly', async () => {
       const filePath = path.join(TEST_DIR, 'empty-read.txt')
       await fsp.writeFile(filePath, '')
-      const result = await readFile(filePath)
+      const result = await runGenerator(readFile(filePath))
       expect(result).toStrictEqual({ ok: true, value: '' })
     })
 
@@ -123,7 +120,7 @@ describe('fsp', () => {
       const filePath = path.join(TEST_DIR, 'unicode-read.txt')
       const content = '日本語テスト 🎉'
       await fsp.writeFile(filePath, content)
-      const result = await readFile(filePath)
+      const result = await runGenerator(readFile(filePath))
       expect(result).toStrictEqual({ ok: true, value: content })
     })
   })
@@ -137,19 +134,19 @@ describe('fsp', () => {
       const filePath = path.join(TEST_DIR, 'to-remove.txt')
       await fsp.writeFile(filePath, 'bye')
       expect(fs.existsSync(filePath)).toBe(true)
-      const result = await unlink(filePath)
+      const result = await runGenerator(unlink(filePath))
       expect(result).toEqual({ ok: true, value: undefined })
       expect(fs.existsSync(filePath)).toBe(false)
     })
 
     it('returns ok when file does not exist (ENOENT)', async () => {
       const filePath = path.join(TEST_DIR, 'no-such-file.txt')
-      const result = await unlink(filePath)
+      const result = await runGenerator(unlink(filePath))
       expect(result).toEqual({ ok: true, value: undefined })
     })
 
     it('returns err for invalid path (directory)', async () => {
-      const result = await unlink(TEST_DIR)
+      const result = await runGenerator(unlink(TEST_DIR))
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')
@@ -165,7 +162,7 @@ describe('fsp', () => {
 
     it('writes file successfully', async () => {
       const filePath = path.join(TEST_DIR, 'ok.txt')
-      const result = await writeFile(filePath, 'hello')
+      const result = await runGenerator(writeFile(filePath, 'hello'))
       expect(result.ok).toBe(true)
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe('hello')
@@ -177,7 +174,7 @@ describe('fsp', () => {
       const statBefore = await fsp.stat(filePath)
       // Small delay to ensure mtime would differ if written
       await new Promise((resolve) => setTimeout(resolve, 50))
-      const result = await writeFile(filePath, 'same content')
+      const result = await runGenerator(writeFile(filePath, 'same content'))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const statAfter = await fsp.stat(filePath)
       // mtime should NOT change since content is identical
@@ -187,7 +184,7 @@ describe('fsp', () => {
     it('overwrites when file content differs', async () => {
       const filePath = path.join(TEST_DIR, 'differ.txt')
       await fsp.writeFile(filePath, 'old content')
-      const result = await writeFile(filePath, 'new content')
+      const result = await runGenerator(writeFile(filePath, 'new content'))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe('new content')
@@ -195,7 +192,7 @@ describe('fsp', () => {
 
     it('creates file when it does not exist', async () => {
       const filePath = path.join(TEST_DIR, 'new-file.txt')
-      const result = await writeFile(filePath, 'brand new')
+      const result = await runGenerator(writeFile(filePath, 'brand new'))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe('brand new')
@@ -203,7 +200,7 @@ describe('fsp', () => {
 
     it('handles empty string content', async () => {
       const filePath = path.join(TEST_DIR, 'empty.txt')
-      const result = await writeFile(filePath, '')
+      const result = await runGenerator(writeFile(filePath, ''))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe('')
@@ -212,7 +209,7 @@ describe('fsp', () => {
     it('handles unicode content', async () => {
       const filePath = path.join(TEST_DIR, 'unicode.txt')
       const content = '日本語テスト 🎉 émojis'
-      const result = await writeFile(filePath, content)
+      const result = await runGenerator(writeFile(filePath, content))
       expect(result).toStrictEqual({ ok: true, value: undefined })
       const text = await fsp.readFile(filePath, 'utf-8')
       expect(text).toBe(content)
@@ -222,7 +219,7 @@ describe('fsp', () => {
       const filePath = path.join(TEST_DIR, 'foo.txt')
       await fsp.writeFile(filePath, 'dummy')
       const badPath = path.join(filePath, 'bar.txt')
-      const result = await writeFile(badPath, 'fail')
+      const result = await runGenerator(writeFile(badPath, 'fail'))
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(typeof result.error).toBe('string')

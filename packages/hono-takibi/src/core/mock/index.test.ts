@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { mock } from './index.js'
 
 let tmpDir: string
@@ -47,7 +48,7 @@ describe('mock', () => {
         },
       },
     } as OpenAPI
-    const result = await mock(openAPI, output, '/')
+    const result = await runGenerator(mock(openAPI, output, '/'))
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe(`Generated mock server written to ${output}`)
@@ -85,7 +86,7 @@ describe('mock', () => {
         },
       },
     } as OpenAPI
-    const result = await mock(openAPI, output, '/', { readonly: true })
+    const result = await runGenerator(mock(openAPI, output, '/', { readonly: true }))
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe(`Generated mock server written to ${output}`)

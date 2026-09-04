@@ -5,6 +5,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { template } from '../template/index.js'
 import { takibi } from './index.js'
 
@@ -98,7 +99,7 @@ const componentsOptions = {
 } as const
 
 const runTakibi = async (doc: OpenAPI, output: `${string}.ts`) =>
-  takibi(doc, output, { ...componentsOptions })
+  runGenerator(takibi(doc, output, { ...componentsOptions }))
 
 const runTakibiWithTemplate = async (
   doc: OpenAPI,
@@ -115,14 +116,16 @@ const runTakibiWithTemplate = async (
   const result = await runTakibi(doc, output)
   if (!result.ok) return result
   if (opts.template) {
-    return template(
-      doc,
-      output,
-      opts.test ?? false,
-      opts.basePath ?? '/',
-      opts.pathAlias,
-      opts.routeImport,
-      opts.routeHandler ?? true,
+    return runGenerator(
+      template(
+        doc,
+        output,
+        opts.test ?? false,
+        opts.basePath ?? '/',
+        opts.pathAlias,
+        opts.routeImport,
+        opts.routeHandler ?? true,
+      ),
     )
   }
   return result
@@ -228,7 +231,9 @@ export const getZodOpenapiHonoRoute = createRoute({
       const takibiResult = await runTakibi(openapi, out)
       expect(takibiResult.ok).toBe(true)
 
-      const templateResult = await template(openapi, out, true, '/', undefined, undefined, false)
+      const templateResult = await runGenerator(
+        template(openapi, out, true, '/', undefined, undefined, false),
+      )
       expect(templateResult.ok).toBe(true)
       if (templateResult.ok) {
         expect(templateResult.value).toBe('🔥 Generated code and template files written')
@@ -438,7 +443,9 @@ describe('basePath behavior', () => {
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/', undefined, undefined, true)
+      const result = await runGenerator(
+        template(simpleOpenapi, out, false, '/', undefined, undefined, true),
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -469,7 +476,9 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(simpleOpenapi, out, false, '/api', undefined, undefined, true)
+      const result = await runGenerator(
+        template(simpleOpenapi, out, false, '/api', undefined, undefined, true),
+      )
 
       expect(result).toStrictEqual({
         ok: true,
@@ -500,14 +509,8 @@ export default app
 
       const out = path.join(srcDir, 'route.ts') as `${string}.ts`
       await runTakibi(simpleOpenapi, out)
-      const result = await template(
-        simpleOpenapi,
-        out,
-        false,
-        '/api/v1',
-        undefined,
-        undefined,
-        true,
+      const result = await runGenerator(
+        template(simpleOpenapi, out, false, '/api/v1', undefined, undefined, true),
       )
 
       expect(result).toStrictEqual({
@@ -1198,14 +1201,8 @@ describe('template() unit tests', () => {
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await template(
-        simpleOpenapi,
-        routeOutput,
-        false,
-        '/',
-        undefined,
-        undefined,
-        true,
+      const result = await runGenerator(
+        template(simpleOpenapi, routeOutput, false, '/', undefined, undefined, true),
       )
 
       expect(result).toStrictEqual({
@@ -1249,14 +1246,8 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await template(
-        simpleOpenapi,
-        routeOutput,
-        false,
-        '/',
-        '@/',
-        '@packages/routes',
-        true,
+      const result = await runGenerator(
+        template(simpleOpenapi, routeOutput, false, '/', '@/', '@packages/routes', true),
       )
 
       expect(result).toStrictEqual({
@@ -1296,14 +1287,8 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(srcDir, { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes.ts') as `${string}.ts`
-      const result = await template(
-        simpleOpenapi,
-        routeOutput,
-        true,
-        '/',
-        undefined,
-        undefined,
-        false,
+      const result = await runGenerator(
+        template(simpleOpenapi, routeOutput, true, '/', undefined, undefined, false),
       )
 
       expect(result).toStrictEqual({
@@ -1324,14 +1309,8 @@ export const getTestRouteHandler: RouteHandler<typeof getTestRoute> = async (c) 
       fs.mkdirSync(path.join(srcDir, 'routes'), { recursive: true })
 
       const routeOutput = path.join(srcDir, 'routes', 'index.ts') as `${string}.ts`
-      const result = await template(
-        simpleOpenapi,
-        routeOutput,
-        false,
-        '/',
-        undefined,
-        undefined,
-        true,
+      const result = await runGenerator(
+        template(simpleOpenapi, routeOutput, false, '/', undefined, undefined, true),
       )
 
       expect(result).toStrictEqual({
@@ -1702,7 +1681,9 @@ describe('takibi error paths', () => {
     // wrapper should surface that failure as `{ ok: false, error: <string> }`
     // rather than throwing, so any caller can fall through to its own
     // error handling.
-    const result = await takibi(openapi, '/dev/null/cannot-create/here.ts', errorPathOptions)
+    const result = await runGenerator(
+      takibi(openapi, '/dev/null/cannot-create/here.ts', errorPathOptions),
+    )
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(typeof result.error).toBe('string')
@@ -1726,10 +1707,8 @@ describe('takibi error paths', () => {
     } as unknown as OpenAPI
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-malformed-'))
     try {
-      const result = await takibi(
-        malformed,
-        path.join(dir, 'out.ts') as `${string}.ts`,
-        errorPathOptions,
+      const result = await runGenerator(
+        takibi(malformed, path.join(dir, 'out.ts') as `${string}.ts`, errorPathOptions),
       )
       // Either the codegen throws (caught → error string), or it produces
       // empty/odd-but-valid output. Both are acceptable, but if it failed,

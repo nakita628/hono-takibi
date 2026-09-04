@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
+import { runGenerator } from '../testing/index.js'
 import { makeJob } from './index.js'
 
 const openAPI = {
@@ -114,7 +115,7 @@ describe('makeJob define mode', () => {
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
+    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     for (const r of results) if (!r.ok) throw new Error(r.error)
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
 
@@ -163,7 +164,7 @@ export const getUsersIdRoute = defineOpenAPIRoute({
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
+    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     for (const r of results) if (!r.ok) throw new Error(r.error)
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
@@ -239,7 +240,7 @@ export const UserSchema = z
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
+    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     for (const r of results) if (!r.ok) throw new Error(r.error)
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
 
@@ -267,7 +268,7 @@ import { UserSchema } from '@/components'`)
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    const results = await Promise.all(jobs.map((job) => job.run(job.output)))
+    const results = await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     for (const r of results) if (!r.ok) throw new Error(r.error)
 
     // route files live under routes/, not handlers/
@@ -302,7 +303,9 @@ import { UserSchema } from '../components'`)
       template: { define: true },
     })
     if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output)))) {
+    for (const r of await Promise.all(
+      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
+    )) {
       if (!r.ok) throw new Error(r.error)
     }
 
@@ -339,7 +342,9 @@ import { UserSchema } from '../components'`)
       template: { define: true },
     })
     if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output)))) {
+    for (const r of await Promise.all(
+      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
+    )) {
       if (!r.ok) throw new Error(r.error)
     }
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
@@ -386,7 +391,9 @@ export const getUsersIdRoute = defineOpenAPIRoute({
       template: { define: true },
     })
     if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output)))) {
+    for (const r of await Promise.all(
+      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
+    )) {
       if (!r.ok) throw new Error(r.error)
     }
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'server', p), 'utf-8')
@@ -416,7 +423,9 @@ import { UserSchema } from '../components'`)
       components: { output: `${tmpDir}/shared/components.ts` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output)))) {
+    for (const r of await Promise.all(
+      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
+    )) {
       if (!r.ok) throw new Error(r.error)
     }
 
@@ -442,7 +451,9 @@ import { UserSchema } from '../../shared/components'`)
       components: { output: `${tmpDir}/src/api/components/index.ts` },
     })
     if (!cfg.ok) throw new Error(cfg.error)
-    for (const r of await Promise.all(makeJob(openAPI, cfg.value).map((j) => j.run(j.output)))) {
+    for (const r of await Promise.all(
+      makeJob(openAPI, cfg.value).map((j) => runGenerator(j.run(j.output))),
+    )) {
       if (!r.ok) throw new Error(r.error)
     }
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
@@ -465,7 +476,7 @@ import { UserSchema } from '@/api/components'`)
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output)))) {
+    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
       if (!r.ok) throw new Error(r.error)
     }
     const read = (p: string) => fs.readFileSync(path.join(tmpDir, 'src', p), 'utf-8')
@@ -492,7 +503,7 @@ describe(
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -526,7 +537,7 @@ describe(
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -559,7 +570,7 @@ describe(
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -592,7 +603,7 @@ describe(
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -654,7 +665,7 @@ export * from './tags'
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
       const healthPath = path.join(tmpDir, 'src', 'routes', 'health.ts')
@@ -700,7 +711,7 @@ export default app
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const indexPath = path.join(tmpDir, 'src', 'index.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -752,7 +763,7 @@ export default app
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -789,7 +800,7 @@ export default app
       })
       if (!cfg.ok) throw new Error(cfg.error)
       const run = (spec: OpenAPI) =>
-        Promise.all(makeJob(spec, cfg.value).map((j) => j.run(j.output)))
+        Promise.all(makeJob(spec, cfg.value).map((j) => runGenerator(j.run(j.output))))
       const usersPath = path.join(tmpDir, 'src', 'routes', 'users.ts')
 
       for (const r of await run(openAPI)) if (!r.ok) throw new Error(r.error)
@@ -824,7 +835,7 @@ describe('makeJob test request paths use the global basePath', () => {
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output)))) {
+    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
       if (!r.ok) throw new Error(r.error)
     }
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
@@ -841,7 +852,7 @@ describe('makeJob test request paths use the global basePath', () => {
     })
     if (!cfg.ok) throw new Error(cfg.error)
     const jobs = makeJob(openAPI, cfg.value)
-    for (const r of await Promise.all(jobs.map((job) => job.run(job.output)))) {
+    for (const r of await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))) {
       if (!r.ok) throw new Error(r.error)
     }
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')

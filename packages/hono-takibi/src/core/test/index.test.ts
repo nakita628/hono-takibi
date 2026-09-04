@@ -5,6 +5,7 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import type { OpenAPI } from '../../openapi/index.js'
+import { runGenerator } from '../../testing/index.js'
 import { test as testGen } from './index.js'
 
 let tmpDir: string
@@ -31,7 +32,7 @@ describe('test', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
+    const result = await runGenerator(testGen(openAPI, output, '..'))
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toBe(`Generated test file written to ${output}`)
@@ -72,7 +73,7 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
+    const result = await runGenerator(testGen(openAPI, output, '..'))
     expect(result.ok).toBe(true)
     const content = fs.readFileSync(output, 'utf-8')
     expect(content.includes('custom-marker')).toBe(true)
@@ -97,7 +98,7 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
+    const result = await runGenerator(testGen(openAPI, output, '..'))
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.length > 0).toBe(true)
@@ -123,7 +124,7 @@ describe('custom-marker', () => {
         },
       },
     } as OpenAPI
-    const result = await testGen(openAPI, output, '..')
+    const result = await runGenerator(testGen(openAPI, output, '..'))
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.length > 0).toBe(true)
