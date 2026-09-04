@@ -43,6 +43,18 @@ const createDeferred = <T = void>() => {
 
 const fileExists = async (filePath: string) => Boolean(await fsp.stat(filePath).catch(() => null))
 
+/**
+ * `vi.waitFor` with a budget that matches what these tests actually wait for.
+ *
+ * Its default is one second, and every wait here sits behind the plugin's 200ms debounce
+ * and then a real generation pass — oxfmt and ts-morph over real files — while eighty
+ * other test files run the same work across eight workers. One second is contention, not
+ * a verdict; the allowance below is only paid when the plugin is genuinely broken.
+ */
+function waitFor(assertion: () => void | Promise<void>) {
+  return vi.waitFor(assertion, { timeout: 20_000, interval: 50 })
+}
+
 const createMockViteDevServer = (configuration: unknown) => {
   const reloadedDeferred = createDeferred()
 
@@ -212,7 +224,7 @@ afterEach(async () => {
   process.chdir(testState.previousWorkingDirectory)
   // In-flight generation tasks may still write into the sandbox; retry until
   // the removal wins over the last write.
-  await vi.waitFor(async () => {
+  await waitFor(async () => {
     await fsp.rm(testState.sandboxDirectory, { recursive: true, force: true })
   })
 })
@@ -420,7 +432,7 @@ describe('honoTakibiVite', () => {
     await changePlugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server: changeServer })
 
     // Debounced, so the cleanup lands after the hook returns rather than during it.
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/stale-schema'))).toBe(false)
     })
   })
@@ -641,7 +653,7 @@ describe('honoTakibiVite', () => {
     if (watcherCallback) await watcherCallback('change', configPath)
 
     // Debounced, so the handler has not run at the moment the callback returns.
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith('config changed')
     })
     logSpy.mockRestore()
@@ -668,7 +680,7 @@ describe('honoTakibiVite', () => {
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('❌ parseOpenAPI: parse failure'))
     })
     await new Promise((resolve) => setTimeout(resolve, 50))
@@ -723,7 +735,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
 
     const core = await import('../core/index.js')
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(core.takibi).toHaveBeenCalled()
       expect(core.type).toHaveBeenCalled()
       expect(core.mock).toHaveBeenCalled()
@@ -761,7 +773,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
 
     const core = await import('../core/index.js')
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(core.parameters).toHaveBeenCalled()
       expect(core.headers).toHaveBeenCalled()
       expect(core.securitySchemes).toHaveBeenCalled()
@@ -791,7 +803,7 @@ describe('honoTakibiVite', () => {
 
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(
         logSpy.mock.calls.some(([msg]) => String(msg).includes('takibi internal failure')),
       ).toBe(true)
@@ -814,7 +826,7 @@ describe('honoTakibiVite', () => {
 
     plugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server })
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
     })
     errorSpy.mockRestore()
@@ -832,7 +844,7 @@ describe('honoTakibiVite', () => {
     plugin.configureServer(server)
 
     const { parseOpenAPI } = await import('../openapi/index.js')
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(parseOpenAPI).toHaveBeenCalled()
     })
     await new Promise((resolve) => setTimeout(resolve, 50))
@@ -872,7 +884,7 @@ describe('honoTakibiVite', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
     })
 
@@ -937,13 +949,13 @@ describe('honoTakibiVite', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
     if (watcherCallback) await watcherCallback('change', configPath)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
     })
 
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(logSpy).toHaveBeenCalledWith('⏭️ input unchanged - skipped regeneration')
     })
     expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
@@ -1016,7 +1028,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0\ninfo:\n  title: changed', 'utf8')
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(vi.mocked(routeMock).mock.calls.length).toBe(callsAfterInitialRun + 1)
     })
 
@@ -1026,7 +1038,7 @@ describe('honoTakibiVite', () => {
     expect(configLoadState.count).toBe(0)
 
     gate.resolve()
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(configLoadState.count).toBe(1)
     })
     await configEvent
@@ -1091,7 +1103,7 @@ describe('honoTakibiVite', () => {
     await fsp.writeFile('openapi.yaml', 'openapi: 3.1.0 # comment only', 'utf8')
     const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
     if (watcherCallback) await watcherCallback('change', yamlPath)
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(vi.mocked(core.takibi).mock.calls.length).toBe(callsAfterInitialRun + 1)
     })
     await new Promise((resolve) => setTimeout(resolve, 50))

@@ -82,6 +82,38 @@ async function until(condition: () => boolean, timeoutMs = 90_000) {
   return poll()
 }
 
+/** How long a written edit is given to reach the watcher before it is written again. */
+const REWRITE_AFTER = 5000
+
+/**
+ * Writes `content` to `file` until `condition` holds, and answers whether it ever did.
+ *
+ * `👀 Watching` is printed before anything is being watched: registering the OS watcher
+ * is a `stat` and several async hops behind the message, and an edit that lands in that
+ * window is not delivered late, it is never delivered at all. Writing once and waiting
+ * would therefore be a coin flip whose odds are set by how loaded the machine is — the
+ * window has been measured at 8ms idle here, and the full suite runs eight workers deep.
+ *
+ * So the edit is repeated rather than assumed. Every attempt is a real edit and a real
+ * pass, which is what these tests are about; the repeat only costs anything when the
+ * first one lost the race.
+ */
+async function writeUntil(
+  file: string,
+  content: string,
+  condition: () => boolean,
+  timeoutMs = 90_000,
+) {
+  const deadline = Date.now() + timeoutMs
+  const attempt = async (): Promise<boolean> => {
+    fs.writeFileSync(file, content)
+    if (await until(condition, REWRITE_AFTER)) return true
+    if (Date.now() >= deadline) return false
+    return attempt()
+  }
+  return attempt()
+}
+
 // Long enough for every `until` in the slowest case to spend its full budget, so a real
 // failure still reports as the assertion that failed rather than as a suite timeout.
 describe('hono-takibi --watch', { timeout: 300_000 }, () => {
@@ -95,9 +127,13 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     try {
       expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
 
-      fs.writeFileSync(config, `export default { input: './openapi.json', output: './b.ts' }`)
-
-      expect(await until(() => fs.existsSync(path.join(dir, 'b.ts')))).toBe(true)
+      expect(
+        await writeUntil(
+          config,
+          `export default { input: './openapi.json', output: './b.ts' }`,
+          () => fs.existsSync(path.join(dir, 'b.ts')),
+        ),
+      ).toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -119,23 +155,22 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     try {
       expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
 
-      fs.writeFileSync(input, '{ not json')
-      expect(await until(() => cli.output().includes('❌'))).toBe(true)
+      expect(await writeUntil(input, '{ not json', () => cli.output().includes('❌'))).toBe(true)
 
-      fs.writeFileSync(
-        input,
-        JSON.stringify({
-          ...minimalOpenapi,
-          paths: {
-            '/widgets': {
-              get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
+      expect(
+        await writeUntil(
+          input,
+          JSON.stringify({
+            ...minimalOpenapi,
+            paths: {
+              '/widgets': {
+                get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
+              },
             },
-          },
-        }),
-      )
-      expect(await until(() => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'))).toBe(
-        true,
-      )
+          }),
+          () => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'),
+        ),
+      ).toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -158,12 +193,13 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
       expect(cli.output()).toContain("basePath: must start with '/'")
       expect(fs.existsSync(path.join(dir, 'routes.ts'))).toBe(false)
 
-      fs.writeFileSync(
-        config,
-        `export default { input: './openapi.json', basePath: '/api', output: './routes.ts' }`,
-      )
-
-      expect(await until(() => fs.existsSync(path.join(dir, 'routes.ts')))).toBe(true)
+      expect(
+        await writeUntil(
+          config,
+          `export default { input: './openapi.json', basePath: '/api', output: './routes.ts' }`,
+          () => fs.existsSync(path.join(dir, 'routes.ts')),
+        ),
+      ).toBe(true)
     } finally {
       await Effect.runPromise(Fiber.interrupt(cli.fiber))
     }
@@ -184,27 +220,28 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     try {
       expect(await until(() => cli.output().includes(path.join(dir, 'a')))).toBe(true)
 
-      fs.writeFileSync(
-        config,
-        `export default { input: './b/openapi.json', output: './routes.ts' }`,
-      )
-      expect(await until(() => cli.output().includes(path.join(dir, 'b')))).toBe(true)
-
-      // Editing the document in the directory the config now names has to rerun.
-      fs.writeFileSync(
-        path.join(dir, 'b', 'openapi.json'),
-        JSON.stringify({
-          ...minimalOpenapi,
-          paths: {
-            '/widgets': {
-              get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
-            },
-          },
-        }),
-      )
       expect(
-        await until(() =>
-          fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8').includes('getWidgetsRoute'),
+        await writeUntil(
+          config,
+          `export default { input: './b/openapi.json', output: './routes.ts' }`,
+          () => cli.output().includes(path.join(dir, 'b')),
+        ),
+      ).toBe(true)
+
+      // Editing the document in the directory the config now names has to rerun. The
+      // round restarted to follow it, so this is a second watcher with its own window.
+      expect(
+        await writeUntil(
+          path.join(dir, 'b', 'openapi.json'),
+          JSON.stringify({
+            ...minimalOpenapi,
+            paths: {
+              '/widgets': {
+                get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
+              },
+            },
+          }),
+          () => fs.readFileSync(path.join(dir, 'routes.ts'), 'utf-8').includes('getWidgetsRoute'),
         ),
       ).toBe(true)
     } finally {
