@@ -3,7 +3,7 @@ import type { MonacoEditor } from '@guolao/vue-monaco-editor'
 // Pinned to the versions hono-takibi generates for; bump together with the
 // hono-takibi devDependency.
 const HONO_VERSION = '4.12.22'
-const ZOD_VERSION = '4.4.3'
+const ZOD_VERSION = '4.5.4'
 const HONO_ZOD_OPENAPI_VERSION = '1.4.0'
 
 const ZOD_OPENAPI_AUGMENT_BODY = `
