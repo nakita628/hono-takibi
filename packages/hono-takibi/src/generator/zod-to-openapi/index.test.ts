@@ -2621,7 +2621,7 @@ describe('zodToOpenAPI', () => {
               origin: 'string',
               code: 'invalid_format',
               format: 'emoji',
-              pattern: '/^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$/u',
+              pattern: '/^[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$/u',
               path: [],
               message: 'Invalid emoji',
             },
@@ -2720,7 +2720,7 @@ describe('zodToOpenAPI', () => {
               origin: 'string',
               code: 'invalid_format',
               format: 'ulid',
-              pattern: '/^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/',
+              pattern: '/^[0-7][0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{25}$/',
               path: [],
               message: 'Invalid ULID',
             },
@@ -2860,7 +2860,7 @@ describe('zodToOpenAPI', () => {
               code: 'invalid_format',
               format: 'datetime',
               pattern:
-                '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$/',
+                '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$/',
               path: [],
               message: 'Invalid ISO datetime',
             },
@@ -8638,7 +8638,7 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_format',
             format: 'datetime',
             pattern:
-              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$/',
+              '/^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$/',
             path: [],
             message: 'Invalid ISO datetime',
           },
@@ -8818,7 +8818,7 @@ describe('zodToOpenAPI', () => {
             inclusive: true,
             exact: true,
             path: [],
-            message: 'Too small: expected string to have >=5 characters',
+            message: 'Too small: expected string to have exactly 5 characters',
           },
         ])
       }
@@ -8835,7 +8835,7 @@ describe('zodToOpenAPI', () => {
             inclusive: true,
             exact: true,
             path: [],
-            message: 'Too big: expected string to have <=5 characters',
+            message: 'Too big: expected string to have exactly 5 characters',
           },
         ])
       }
@@ -9460,8 +9460,9 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_union',
             errors: [],
             inclusive: false,
+            matches: [0, 1],
             path: [],
-            message: 'Invalid input',
+            message: 'Invalid input: more than one option matched',
           },
         ])
       }
