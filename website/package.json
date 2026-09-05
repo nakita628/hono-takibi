@@ -35,7 +35,7 @@
     "pathe": "^2.0.3",
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
-    "vite": "^7.3.6",
+    "vite": "^8.0.0",
     "vitepress": "2.0.0-alpha.19",
     "vitepress-plugin-group-icons": "^1.7.6",
     "vscode-languageserver-textdocument": "1.0.14",
