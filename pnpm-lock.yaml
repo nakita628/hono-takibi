@@ -16,7 +16,7 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.2(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
       hono:
         specifier: ^4.13.5
         version: 4.13.5
@@ -75,7 +75,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.2(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
       '@types/node':
         specifier: ^26.4.0
         version: 26.4.1
@@ -102,7 +102,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.2(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
       '@tanstack/angular-query-experimental':
         specifier: ^5.102.8
         version: 5.102.8(@angular/common@22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.5(rxjs@7.8.2))
@@ -732,8 +732,8 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  '@hono/zod-openapi@1.6.2':
-    resolution: {integrity: sha512-ktnBqVgvIlopiiB9ab6hqoYefhcb0DUZU5QJ1F5UtDu8w6+cIORENz93sTZT6G0mQNes0/TbbadfrOpdehioPA==}
+  '@hono/zod-openapi@1.6.3':
+    resolution: {integrity: sha512-VYR82Y60plu8g3pN60OUXMVKpmxh3R04Qs++3DY9vtwZ9/sA/BRY0PcRIR+Z37/3itWtM7pYwT9bKiH9JhqV6Q==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       hono: '>=4.10.0'
@@ -4268,7 +4268,7 @@ snapshots:
       vue: 3.5.42(typescript@7.0.2)
       vue-demi: 0.14.10(vue@3.5.42(typescript@7.0.2))
 
-  '@hono/zod-openapi@1.6.2(hono@4.13.5)(zod@4.5.4)':
+  '@hono/zod-openapi@1.6.3(hono@4.13.5)(zod@4.5.4)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 9.1.0(zod@4.5.4)
       '@hono/zod-validator': 0.9.1(hono@4.13.5)(zod@4.5.4)
