@@ -39,4 +39,5 @@ jobs:
       - run: pipx install zizmor==1.30.0
       - run: pipx install actionlint-py==1.7.12.24
 
-      - run: pnpm lint
+      # setup-vp puts `vp` on PATH, not `pnpm`; `vp run` hands its bundled pnpm to the script.
+      - run: vp run lint
