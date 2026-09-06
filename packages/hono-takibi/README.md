@@ -993,6 +993,17 @@ If you find any issues with the generated code or have suggestions for improveme
 - Open an issue at [GitHub Issues](https://github.com/nakita628/hono-takibi/issues)
 - Submit a pull request with your improvements
 
+Lint and tests run from the repo root:
+
+```bash
+pnpm check            # format, lint, type checks, then `pnpm lint`
+pnpm lint             # what the Lint workflow runs
+pnpm lint:actions     # actionlint (syntax) and zizmor (security) over .github/workflows, when installed
+pnpm test             # unit tests, then the generated cases under test/
+```
+
+`actionlint` and `zizmor` are not npm packages: install them with `pipx install actionlint-py` and `pipx install zizmor` to run them locally. CI always runs both.
+
 ## License
 
 Distributed under the MIT License. See [LICENSE](https://github.com/nakita628/hono-takibi?tab=MIT-1-ov-file) for more information.

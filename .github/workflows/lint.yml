@@ -1,0 +1,42 @@
+name: Lint
+
+# The gates that need no build, as `pnpm lint` runs them locally: the workflows themselves
+# (actionlint for the syntax, zizmor for the security posture). Both tools are installed first
+# so that `pnpm lint` runs them here rather than skipping them as it does on a machine without
+# them — with CI set, the script fails instead of skipping.
+#
+# Action versions are tracked by Renovate, which pins each one to its digest
+# (helpers:pinGitHubActionDigests) and keeps the @vX.Y.Z tag as a comment.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@49c3e4e92c52e7f8392712a9267bbe71c5ab30e5 # v1.19.0
+        with:
+          node-version: '22'
+          cache: true
+
+      - run: vp install --frozen-lockfile
+
+      # Neither tool is an npm dependency, so Renovate does not see them and the versions are
+      # pinned here by hand. zizmor is a Rust tool published on PyPI; actionlint-py downloads the
+      # official actionlint release for its version and verifies the tarball's sha256. pipx is on
+      # the hosted runner.
+      - run: pipx install zizmor==1.30.0
+      - run: pipx install actionlint-py==1.7.12.24
+
+      - run: pnpm lint
