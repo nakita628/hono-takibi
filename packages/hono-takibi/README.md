@@ -1002,7 +1002,7 @@ pnpm lint:actions     # actionlint (syntax) and zizmor (security) over .github/w
 pnpm test             # unit tests, then the generated cases under test/
 ```
 
-`actionlint` and `zizmor` are not npm packages: install them with `pipx install actionlint-py` and `pipx install zizmor` to run them locally. CI always runs both.
+`actionlint` and `zizmor` are not npm packages: install them with `pipx install actionlint-py` and `pipx install zizmor` to run them locally; without them the script only prints a note. The Lint workflow always runs both.
 
 ## License
 

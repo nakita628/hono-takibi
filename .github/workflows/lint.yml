@@ -1,9 +1,10 @@
 name: Lint
 
 # The gates that need no build, as `pnpm lint` runs them locally: the workflows themselves
-# (actionlint for the syntax, zizmor for the security posture). Both tools are installed first
-# so that `pnpm lint` runs them here rather than skipping them as it does on a machine without
-# them — with CI set, the script fails instead of skipping.
+# (actionlint for the syntax, zizmor for the security posture). Both tools are installed first,
+# and LINT_ACTIONS_REQUIRED turns the script's "not installed" note into a failure — here only:
+# Test reaches the same script through `vp run check` and skips it, as a machine without the
+# tools does.
 #
 # Action versions are tracked by Renovate, which pins each one to its digest
 # (helpers:pinGitHubActionDigests) and keeps the @vX.Y.Z tag as a comment.
@@ -16,6 +17,9 @@ on:
 
 permissions:
   contents: read
+
+env:
+  LINT_ACTIONS_REQUIRED: '1'
 
 jobs:
   lint:
