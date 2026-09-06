@@ -1,27 +1,44 @@
 ---
 name: Feature Request
-about: Suggest a new feature or enhancement
+about: Something hono-takibi should generate or do
 title: ''
 labels: enhancement
 assignees: ''
 ---
 
-## Overview
+<!-- Title: the capability, in one line — `cli: print the files a run wrote`. -->
 
-Provide a brief overview of the feature request. What problem does it solve or what functionality does it add?
+## Why
 
-## Motivation
+<!-- The problem or the missing capability behind the request. What do you do by hand today? -->
 
-Explain why this feature is important. How does it benefit users or improve the project?
+## What
 
-## Detailed Description
+<!-- The feature, as someone running the CLI or reading the generated code would see it. One to three sentences. -->
 
-Provide a detailed description of the feature. Include any relevant information, such as:
+## Where
 
-- Specific use cases
-- Expected behavior
-- Any constraints or considerations
+<!-- The generator (routes, Zod schemas, mock, test, docs, client hooks), the OpenAPI parser, the CLI, the config, the Vite plugin or the website. -->
 
-## OpenAPI Definition (if applicable)
+## Who
 
-If this feature involves changes to an API, please provide the relevant OpenAPI definition or describe the changes needed.
+<!-- Who benefits: every user, users of one generator or one client library. Would it change existing output? -->
+
+## When
+
+<!-- Optional: is it blocking you, and is there a workaround until then? -->
+
+## How
+
+<!--
+Optional: a sketch. The OpenAPI input, the config option or CLI flag, and the output you would
+want written.
+-->
+
+```yaml
+# openapi.yaml
+```
+
+```ts
+// generated
+```

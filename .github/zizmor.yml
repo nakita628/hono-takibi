@@ -1,0 +1,8 @@
+# zizmor (https://docs.zizmor.sh) audits the workflows; `pnpm lint:actions` runs it locally when it
+# is installed and the Lint workflow always does. A finding is excused here, with its reason,
+# rather than by loosening the audit.
+rules:
+  artipacked:
+    ignore:
+      # The tag job pushes the tag with the checkout's token, so the credentials have to persist.
+      - release.yml:62:9

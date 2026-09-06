@@ -1,7 +1,11 @@
 name: release
 
+# Runs after Test has passed on main. `workflow_run` is the trigger zizmor warns about because
+# it hands a token to code from a pull request when misused; here every job checks out the
+# commit Test ran on (`head_sha`), only for a `push` to main, and the token stays read-only
+# except where a tag or a release is written from that same commit.
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: [Test]
     types: [completed]
     branches: [main]
@@ -53,6 +57,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      # The token stays in the checkout: the step below pushes the tag with it (.github/zizmor.yml
+      # excuses this one checkout from the artipacked audit).
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
