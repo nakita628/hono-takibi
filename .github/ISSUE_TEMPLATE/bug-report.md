@@ -1,39 +1,48 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve
+about: The generated code, the CLI or the Vite plugin does something wrong
 title: ''
 labels: bug
 assignees: ''
 ---
 
-## Overview
+<!-- Title: what is wrong, in one line — `zod: a nullable $ref loses .nullable()`. -->
 
-This bug report is intended to address issues related to code generated from an OpenAPI definition.
+## What
 
-## OpenAPI Definition
+<!-- What happens, and what you expected instead. Paste the error text if there is one. -->
 
-Please provide the OpenAPI definition for the API in question.
+## Where
 
-## Expected Code
+<!-- The generator (routes, Zod schemas, mock, test, docs, client hooks), the OpenAPI parser, the CLI, the config, the Vite plugin or the website. -->
 
-Describe the code that should be generated based on the OpenAPI definition. This helps us identify discrepancies between expected and actual outputs.
+## When
 
-## Problem Details
+<!-- Under which conditions: always, only with one option (`split`, `template`, a client), since which version. -->
 
-- Clearly describe the difference between the expected and actual behavior.
-- Include any error messages or logs if applicable.
+## Who
 
-## Steps to Reproduce
+<!-- Your setup. -->
 
-1. List the steps to reproduce the issue.
-2. Include the tools and versions used.
+- hono-takibi:
+- Node.js:
+- OS:
 
-## Environment
+## How
 
-- OpenAPI tool version:
-- Programming language and version:
-- Any other relevant information:
+<!--
+How to reproduce: the smallest OpenAPI document that shows it, the config you ran it with and
+the command. Then the output it wrote and the output you expected.
+-->
 
-## Additional Context
+```yaml
+# openapi.yaml
+```
 
-Add any other context or screenshots about the problem here.
+```ts
+// hono-takibi.config.ts
+```
+
+## Why
+
+<!-- Optional: what you think the cause is, or a workaround you found. -->
