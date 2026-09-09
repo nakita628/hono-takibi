@@ -29,13 +29,13 @@ importers:
         version: 10.6.0
       '@typespec/http':
         specifier: ^1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
       '@typespec/openapi':
         specifier: ^1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       '@typespec/openapi3':
         specifier: ^1.15.0
-        version: 1.15.0(5f38954047344f5fac75ce17a53de070)
+        version: 1.15.0(57af0295f59824dbf414f8ddbec7ed65)
       hono-takibi:
         specifier: workspace:*
         version: link:../../packages/hono-takibi
@@ -56,10 +56,10 @@ importers:
         version: 4.0.0-rc.112(effect@4.0.0-rc.112)(redis@6.2.1)
       '@typespec/compiler':
         specifier: ^1.15.0
-        version: 1.15.0(@types/node@26.4.1)
+        version: 1.16.0(@types/node@26.4.1)
       '@typespec/openapi3':
         specifier: ^1.15.0
-        version: 1.15.0(5f38954047344f5fac75ce17a53de070)
+        version: 1.15.0(57af0295f59824dbf414f8ddbec7ed65)
       effect:
         specifier: 4.0.0-rc.112
         version: 4.0.0-rc.112
@@ -81,10 +81,10 @@ importers:
         version: 26.4.1
       '@typespec/http':
         specifier: ^1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
       '@typespec/rest':
         specifier: ^0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       hono:
         specifier: ^4.13.5
         version: 4.13.5
@@ -135,10 +135,10 @@ importers:
         version: 19.2.7(@types/react@19.2.18)
       '@typespec/http':
         specifier: ^1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
       '@typespec/openapi':
         specifier: ^1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       happy-dom:
         specifier: ^20.11.12
         version: 20.14.0
@@ -194,38 +194,38 @@ importers:
         specifier: 0.6.1-dev.3
         version: 0.6.1-dev.3(@types/node@26.4.1)
       '@typespec/compiler':
-        specifier: 1.15.0
-        version: 1.15.0(@types/node@26.4.1)
+        specifier: 1.16.0
+        version: 1.16.0(@types/node@26.4.1)
       '@typespec/events':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
       '@typespec/http':
         specifier: 1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
       '@typespec/json-schema':
         specifier: 1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
       '@typespec/openapi':
         specifier: 1.15.0
-        version: 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+        version: 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       '@typespec/openapi3':
         specifier: 1.15.0
-        version: 1.15.0(5f38954047344f5fac75ce17a53de070)
+        version: 1.15.0(57af0295f59824dbf414f8ddbec7ed65)
       '@typespec/rest':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       '@typespec/sse':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
       '@typespec/streams':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
       '@typespec/versioning':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
       '@typespec/xml':
         specifier: 0.85.0
-        version: 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+        version: 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
       hono-takibi:
         specifier: workspace:*
         version: link:../packages/hono-takibi
@@ -2256,8 +2256,8 @@ packages:
     resolution: {integrity: sha512-hKhFzLHY4Wq8Q18eGqabVySyyCcuBmzhfcEVowO4PXzpPR8qJLMIvPRs+3J9LBl8WB1PA45/2rJ095Y/VqTixQ==}
     engines: {node: '>=22.0.0'}
 
-  '@typespec/compiler@1.15.0':
-    resolution: {integrity: sha512-NbCIRAIzyozchlSaGPVuyV43bC+y+OpXYCuT+8M8kt35Ln9zWzLFcIt7irofQ5QUXBZrHsBFpI5fTOFdCGeWCA==}
+  '@typespec/compiler@1.16.0':
+    resolution: {integrity: sha512-pT4gN+OSEXZMLxIhtI3QgIUafeFktfIBKVb7p+X/rAzDymQSO8yAb+srMBQ43PIcmfrvMxCNaD1SKBa9AGhWtA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
@@ -5289,13 +5289,13 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  '@typespec/asset-emitter@0.79.1(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/asset-emitter@0.79.1(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
 
   '@typespec/bundler@0.6.1-dev.3(@types/node@26.4.1)':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
       esbuild: 0.28.2
       esbuild-plugins-node-modules-polyfill: 1.8.3(esbuild@0.28.2)
       picocolors: 1.1.1
@@ -5303,7 +5303,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@typespec/compiler@1.15.0(@types/node@26.4.1)':
+  '@typespec/compiler@1.16.0(@types/node@26.4.1)':
     dependencies:
       '@babel/code-frame': 7.29.7
       '@inquirer/prompts': 8.7.1(@types/node@26.4.1)
@@ -5324,68 +5324,68 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@typespec/events@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/events@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
 
-  '@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))':
+  '@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
     optionalDependencies:
-      '@typespec/streams': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+      '@typespec/streams': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
 
-  '@typespec/json-schema@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/json-schema@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/asset-emitter': 0.79.1(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/asset-emitter': 0.79.1(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
       yaml: 2.9.0
 
-  '@typespec/openapi3@1.15.0(5f38954047344f5fac75ce17a53de070)':
+  '@typespec/openapi3@1.15.0(57af0295f59824dbf414f8ddbec7ed65)':
     dependencies:
       '@scalar/json-magic': 0.12.20
       '@scalar/openapi-parser': 0.28.16
       '@scalar/openapi-types': 0.9.5
-      '@typespec/asset-emitter': 0.79.1(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
-      '@typespec/http': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
-      '@typespec/openapi': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))
+      '@typespec/asset-emitter': 0.79.1(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
+      '@typespec/http': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
+      '@typespec/openapi': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       yaml: 2.9.0
     optionalDependencies:
-      '@typespec/events': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/json-schema': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/sse': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
-      '@typespec/streams': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/versioning': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/xml': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+      '@typespec/events': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/json-schema': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/sse': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
+      '@typespec/streams': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/versioning': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/xml': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
 
-  '@typespec/openapi@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))':
+  '@typespec/openapi@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
-      '@typespec/http': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
+      '@typespec/http': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
 
-  '@typespec/rest@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))':
+  '@typespec/rest@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
-      '@typespec/http': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
+      '@typespec/http': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
 
-  '@typespec/sse@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))':
+  '@typespec/sse@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/events@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))(@typespec/http@1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
-      '@typespec/events': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
-      '@typespec/http': 1.15.0(@typespec/compiler@1.15.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1)))
-      '@typespec/streams': 0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
+      '@typespec/events': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
+      '@typespec/http': 1.15.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1)))
+      '@typespec/streams': 0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))
 
-  '@typespec/streams@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/streams@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
 
-  '@typespec/versioning@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/versioning@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
 
-  '@typespec/xml@0.85.0(@typespec/compiler@1.15.0(@types/node@26.4.1))':
+  '@typespec/xml@0.85.0(@typespec/compiler@1.16.0(@types/node@26.4.1))':
     dependencies:
-      '@typespec/compiler': 1.15.0(@types/node@26.4.1)
+      '@typespec/compiler': 1.16.0(@types/node@26.4.1)
 
   '@ungap/structured-clone@1.4.0': {}
 
