@@ -3,6 +3,23 @@ packages:
   - packages/*
   - test
   - website
+# TypeSpec ships every @typespec/* package in one release, so each workspace package takes its
+# version from this catalog (`"catalog:"`) and Renovate moves them together (see renovate.json).
+# Strict mode makes `pnpm add` refuse a version outside the catalog.
+catalogMode: strict
+catalog:
+  '@typespec/bundler': ^0.6.1
+  '@typespec/compiler': ^1.16.0
+  '@typespec/events': ^0.86.0
+  '@typespec/http': ^1.16.0
+  '@typespec/json-schema': ^1.16.0
+  '@typespec/openapi': ^1.16.0
+  '@typespec/openapi3': ^1.16.0
+  '@typespec/rest': ^0.86.0
+  '@typespec/sse': ^0.86.0
+  '@typespec/streams': ^0.86.0
+  '@typespec/versioning': ^0.86.0
+  '@typespec/xml': ^0.86.0
 allowBuilds:
   esbuild: true
   # Optional native accelerator pulled in through effect -> msgpackr; the JS

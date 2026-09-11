@@ -15,9 +15,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
-    "@typespec/http": "^1.15.0",
-    "@typespec/openapi": "^1.15.0",
-    "@typespec/openapi3": "^1.15.0",
+    "@typespec/http": "catalog:",
+    "@typespec/openapi": "catalog:",
+    "@typespec/openapi3": "catalog:",
     "hono-takibi": "workspace:*",
     "vitest": "^4.1.11",
     "wrangler": "^4.127.0"
