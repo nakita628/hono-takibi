@@ -9,6 +9,9 @@
   "schedule": ["* * * * 6"],
   "dependencyDashboardAutoclose": true,
   "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": "1 day"
+  },
   "platformAutomerge": false,
   "lockFileMaintenance": {
     "enabled": true,
@@ -19,6 +22,10 @@
     {
       "matchDatasources": ["npm", "github-actions"],
       "minimumReleaseAge": "7 days"
+    },
+    {
+      "matchPackageNames": ["@typespec/**"],
+      "groupName": "typespec"
     },
     {
       "matchUpdateTypes": ["pin", "pinDigest"],
