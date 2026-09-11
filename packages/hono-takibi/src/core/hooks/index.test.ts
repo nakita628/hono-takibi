@@ -1988,10 +1988,13 @@ export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -2011,10 +2014,13 @@ export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -2091,12 +2097,15 @@ export function useInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2143,12 +2152,15 @@ export function useSuspenseInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2197,10 +2209,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -2223,10 +2238,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -2312,12 +2330,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2368,12 +2389,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2500,10 +2524,13 @@ export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -2523,10 +2550,13 @@ export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -2603,12 +2633,15 @@ export function useInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2655,12 +2688,15 @@ export function useSuspenseInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2733,10 +2769,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -2759,10 +2798,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -2848,12 +2890,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -2904,12 +2949,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3059,10 +3107,13 @@ export function useUsers<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3087,10 +3138,13 @@ export function useSuspenseUsers<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3170,12 +3224,17 @@ export function useInfiniteUsers<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof authClient.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3222,12 +3281,17 @@ export function useSuspenseInfiniteUsers<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof authClient.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3336,10 +3400,13 @@ export function usePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3359,10 +3426,13 @@ export function useSuspensePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3439,12 +3509,15 @@ export function useInfinitePing<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.ping.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getPingInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3491,12 +3564,15 @@ export function useSuspenseInfinitePing<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.ping.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getPingInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3631,12 +3707,15 @@ export function useHonoX<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+      >,
+      TError,
+      TData
     >,
-    TError,
-    TData
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3661,12 +3740,15 @@ export function useSuspenseHonoX<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+      >,
+      TError,
+      TData
     >,
-    TError,
-    TData
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -3748,14 +3830,17 @@ export function useInfiniteHonoX<
     getRequestArgs: (pageParam: unknown) => InferRequestType<(typeof client)['hono-x']['$get']>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getHonoXInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3804,14 +3889,17 @@ export function useSuspenseInfiniteHonoX<
     getRequestArgs: (pageParam: unknown) => InferRequestType<(typeof client)['hono-x']['$get']>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getHonoXInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -3932,12 +4020,17 @@ export function useUsersId<
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -3965,12 +4058,17 @@ export function useSuspenseUsersId<
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -4063,14 +4161,19 @@ export function useInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -4123,14 +4226,19 @@ export function useSuspenseInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -4470,12 +4578,17 @@ export function useUsersId<
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -4503,12 +4616,17 @@ export function useSuspenseUsersId<
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -4601,14 +4719,19 @@ export function useInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -4661,14 +4784,19 @@ export function useSuspenseInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -4739,10 +4867,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -4765,10 +4896,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -4854,12 +4988,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -4910,12 +5047,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5043,10 +5183,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5069,10 +5212,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5159,12 +5305,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5215,12 +5364,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5349,10 +5501,13 @@ export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -5372,10 +5527,13 @@ export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseSuspenseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+      TError,
+      TData
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -5452,12 +5610,15 @@ export function useInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5504,12 +5665,15 @@ export function useSuspenseInfiniteHono<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getHonoInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5558,10 +5722,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5584,10 +5751,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5673,12 +5843,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5729,12 +5902,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -5872,10 +6048,13 @@ export function useUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5898,10 +6077,13 @@ export function useSuspenseUsers<
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -5988,12 +6170,15 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -6044,12 +6229,15 @@ export function useSuspenseInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: {
-    query?: UseSuspenseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      UseSuspenseInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -6163,12 +6351,15 @@ export function createHono<
   TError = unknown,
 >(
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        TError,
-        TData
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData
+        >
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6214,12 +6405,15 @@ export function createUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-        TError,
-        TData
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData
+        >
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6307,14 +6501,17 @@ export function createInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataInfiniteOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-        TError,
-        TData,
-        ReturnType<typeof getUsersInfiniteQueryKey>,
-        TPageParam
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataInfiniteOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -6429,12 +6626,15 @@ export function createHono<
   TError = unknown,
 >(
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        TError,
-        TData
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData
+        >
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6499,12 +6699,15 @@ export function createUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-        TError,
-        TData
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData
+        >
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6592,14 +6795,17 @@ export function createInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: ReturnType<
-      UndefinedInitialDataInfiniteOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-        TError,
-        TData,
-        ReturnType<typeof getUsersInfiniteQueryKey>,
-        TPageParam
-      >
+    query?: Omit<
+      ReturnType<
+        UndefinedInitialDataInfiniteOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -6767,10 +6973,18 @@ export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    Extract<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        ReturnType<typeof getHonoQueryKey>
+      >,
+      { queryKey: unknown }
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -6817,12 +7031,18 @@ export function useInfiniteHono<
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get> },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getHonoInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6868,10 +7088,18 @@ export function useUsers<
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          ReturnType<typeof getUsersQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -6936,12 +7164,18 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7051,10 +7285,18 @@ export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    Extract<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData,
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        ReturnType<typeof getHonoQueryKey>
+      >,
+      { queryKey: unknown }
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -7101,12 +7343,18 @@ export function useInfiniteHono<
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get> },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getHonoInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getHonoInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7168,10 +7416,18 @@ export function useUsers<
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          ReturnType<typeof getUsersQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7236,12 +7492,18 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7376,10 +7638,22 @@ export function useUsers<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    Extract<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData,
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        ReturnType<typeof getUsersQueryKey>
+      >,
+      { queryKey: unknown }
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -7435,12 +7709,20 @@ export function useInfiniteUsers<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof authClient.users.$get>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7528,10 +7810,18 @@ export function usePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-    TError,
-    TData
+  query?: Omit<
+    Extract<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData,
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        ReturnType<typeof getPingQueryKey>
+      >,
+      { queryKey: unknown }
+    >,
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -7578,12 +7868,18 @@ export function useInfinitePing<
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.ping.$get> },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getPingInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7699,12 +7995,22 @@ export function useHonoX<
   >,
   TError = unknown,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  query?: Omit<
+    Extract<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData,
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        ReturnType<typeof getHonoXQueryKey>
+      >,
+      { queryKey: unknown }
     >,
-    TError,
-    TData
+    'queryKey' | 'queryFn'
   >
   options?: ClientRequestOptions
 }) {
@@ -7760,14 +8066,20 @@ export function useInfiniteHonoX<
     getRequestArgs: (pageParam: unknown) => InferRequestType<(typeof client)['hono-x']['$get']>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getHonoXInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
       >,
-      TError,
-      TData,
-      ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7871,12 +8183,26 @@ export function useUsersId<
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          ReturnType<typeof getUsersIdQueryKey>
+        >,
+        { queryKey: unknown }
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -7943,14 +8269,22 @@ export function useInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getUsersIdInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8135,10 +8469,18 @@ export function useUsers<
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          ReturnType<typeof getUsersQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8203,12 +8545,18 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8314,12 +8662,26 @@ export function useUsersId<
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          ReturnType<typeof getUsersIdQueryKey>
+        >,
+        { queryKey: unknown }
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8386,14 +8748,22 @@ export function useInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+            >
+          >,
+          TError,
+          TData,
+          ReturnType<typeof getUsersIdInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8735,10 +9105,18 @@ export function useUsers<
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          ReturnType<typeof getUsersQueryKey>
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8804,12 +9182,18 @@ export function useInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options: {
-    query: UseInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query: Omit<
+      Extract<
+        UseInfiniteQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+          TError,
+          TData,
+          ReturnType<typeof getUsersInfiniteQueryKey>,
+          TPageParam
+        >,
+        { queryKey: unknown }
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -8941,10 +9325,13 @@ export function createPets<
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -9032,12 +9419,15 @@ export function createInfinitePets<
     ) => InferRequestType<typeof client.pets.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPetsInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getPetsInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -9118,14 +9508,17 @@ export function createPetsPetId<
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
-        >
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -9228,16 +9621,19 @@ export function createInfinitePetsPetId<
     ) => InferRequestType<(typeof client.pets)[':petId']['$get']>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
-        >
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -9396,10 +9792,13 @@ export function createPets<
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -9487,12 +9886,15 @@ export function createInfinitePets<
     ) => InferRequestType<typeof client.pets.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPetsInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getPetsInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -9570,14 +9972,17 @@ export function createPetsPetId<
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
-        >
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -9680,16 +10085,19 @@ export function createInfinitePetsPetId<
     ) => InferRequestType<(typeof client.pets)[':petId']['$get']>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
-        >
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getPetsPetIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -9921,10 +10329,15 @@ export function createUsers<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -10007,12 +10420,17 @@ export function createInfiniteUsers<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof authClient.users.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -10119,10 +10537,13 @@ export function createPing<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -10205,12 +10626,15 @@ export function createInfinitePing<
     getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.ping.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getPingInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getPingInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -10338,12 +10762,15 @@ export function createHonoX<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -10428,14 +10855,17 @@ export function createInfiniteHonoX<
     getRequestArgs: (pageParam: unknown) => InferRequestType<(typeof client)['hono-x']['$get']>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getHonoXInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getHonoXInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -10549,12 +10979,17 @@ export function createUsersId<
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -10649,14 +11084,19 @@ export function createInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -10839,10 +11279,13 @@ export function createUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -10930,12 +11373,15 @@ export function createInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -11044,12 +11490,17 @@ export function createUsersId<
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11144,14 +11595,19 @@ export function createInfiniteUsersId<
     ) => InferRequestType<(typeof client.users)[':id']['$get']>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
+          >
+        >,
+        TError,
+        TData,
+        ReturnType<typeof getUsersIdInfiniteQueryKey>,
+        TPageParam
       >,
-      TError,
-      TData,
-      ReturnType<typeof getUsersIdInfiniteQueryKey>,
-      TPageParam
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -11355,10 +11811,13 @@ export function createUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11447,12 +11906,15 @@ export function createInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -11569,10 +12031,13 @@ export function injectHono<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11618,10 +12083,13 @@ export function injectUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11709,12 +12177,15 @@ export function injectInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },
@@ -11828,10 +12299,13 @@ export function injectHono<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11906,10 +12380,13 @@ export function injectHono<
   TError = unknown,
 >(
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -11974,10 +12451,13 @@ export function injectUsers<
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
-    query?: CreateQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData
+    query?: Omit<
+      CreateQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
     >
     options?: ClientRequestOptions
   },
@@ -12065,12 +12545,15 @@ export function injectInfiniteUsers<
     ) => InferRequestType<typeof client.users.$get>
   },
   options?: () => {
-    query?: CreateInfiniteQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-      TError,
-      TData,
-      ReturnType<typeof getUsersInfiniteQueryKey>,
-      TPageParam
+    query?: Omit<
+      CreateInfiniteQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+        TError,
+        TData,
+        ReturnType<typeof getUsersInfiniteQueryKey>,
+        TPageParam
+      >,
+      'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam'
     >
     options?: ClientRequestOptions
   },

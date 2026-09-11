@@ -25,6 +25,21 @@ function wrapOptionsType(optionsType: string, unwrapAccessor?: boolean) {
   return unwrapAccessor ? `ReturnType<${optionsType}>` : optionsType
 }
 
+// The hook supplies these itself, so `options.query` leaves them out — the shape
+// openapi-react-query uses. The libraries type `queryKey` as required, which otherwise forces the
+// caller to pass a key the hook then overwrites, and leaves `select` unable to bind TData.
+const QUERY_OMIT_KEYS = `'queryKey'|'queryFn'`
+// Infinite hooks with the helper also supply both page-param functions, from `pagination`.
+const INFINITE_OMIT_KEYS = `'queryKey'|'queryFn'|'initialPageParam'|'getNextPageParam'`
+
+// Vue's option types are `MaybeRef<{...}>` (`Ref | ComputedRef | object`), and a plain `Omit` over
+// that union keeps only the keys all three share — none. The hook spreads the value, which only
+// works on the plain object anyway, so `Extract` keeps that member (the only one with `queryKey`).
+function omitInjectedKeys(optionsType: string, keys: string, isVueQuery?: boolean) {
+  const objectType = isVueQuery ? `Extract<${optionsType},{queryKey:unknown}>` : optionsType
+  return `Omit<${objectType},${keys}>`
+}
+
 function makeHookName(method: string, pathStr: string, prefix: string) {
   const funcName = methodPath(method, pathStr)
   return `${prefix}${capitalize(funcName)}`
@@ -397,9 +412,18 @@ function makeQueryHookCode(
   // TData first so callers can override `select`'s output type without naming TError:
   //   useUsers<string[]>(args, { query: { select: (data) => data.map(u => u.name) } })
   const generics = `<TData=${responseType},TError=${errorType}>`
-  const queryOptionsType = wrapOptionsType(
-    `${config.useQueryOptionsType}<${responseType},TError,TData>`,
-    config.unwrapOptionsAccessor,
+  // Vue spells out TQueryKey (via its 5-parameter form): left at the `QueryKey` default, the
+  // options' key-typed members (`persister`, …) clash with the narrow key the hook supplies.
+  const optionsTypeArgs = config.isVueQuery
+    ? `${responseType},TError,TData,${responseType},ReturnType<typeof ${keyGetterName}>`
+    : `${responseType},TError,TData`
+  const queryOptionsType = omitInjectedKeys(
+    wrapOptionsType(
+      `${config.useQueryOptionsType}<${optionsTypeArgs}>`,
+      config.unwrapOptionsAccessor,
+    ),
+    QUERY_OMIT_KEYS,
+    config.isVueQuery,
   )
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
@@ -484,9 +508,14 @@ function makeInfiniteQueryHookCode(
   const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
-  const queryOptionsType = wrapOptionsType(
-    `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`,
-    config.unwrapOptionsAccessor,
+  // Without the helper (Vue) the page-param functions travel in `options.query`, so they stay.
+  const queryOptionsType = omitInjectedKeys(
+    wrapOptionsType(
+      `${config.useInfiniteQueryOptionsType}<${responseType},TError,TData,${queryKeyType},TPageParam>`,
+      config.unwrapOptionsAccessor,
+    ),
+    useHelper ? INFINITE_OMIT_KEYS : QUERY_OMIT_KEYS,
+    config.isVueQuery,
   )
   const optionsType = useHelper
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
