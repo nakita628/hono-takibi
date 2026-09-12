@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
@@ -7,57 +8,63 @@ import { runGenerator, runGeneratorError } from '../testing/index.js'
 import { parseOpenAPI } from './index.js'
 
 describe('parseOpenAPI', () => {
-  it.concurrent('should return ok for a valid OpenAPI YAML string', async () => {
-    await expect(
-      runGenerator(
-        parseOpenAPI({
-          openapi: '3.0.0',
-          info: {
-            title: 'Test API',
-            version: '1.0.0',
-          },
-          components: {
-            schemas: {
-              Test: {
-                type: 'object',
-                required: ['test'],
-                properties: {
-                  test: {
-                    type: 'string',
-                  },
+  it.concurrent('should return ok for a valid OpenAPI JSON file', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/openapi.json` as const
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.0.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            Test: {
+              type: 'object',
+              required: ['test'],
+              properties: {
+                test: {
+                  type: 'string',
                 },
               },
             },
           },
-          paths: {
-            '/test': {
-              post: {
-                summary: 'Test endpoint',
-                requestBody: {
-                  required: true,
-                  content: {
-                    'application/json': {
-                      schema: {
-                        $ref: '#/components/schemas/Test',
-                      },
+        },
+        paths: {
+          '/test': {
+            post: {
+              summary: 'Test endpoint',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
                     },
                   },
                 },
-                responses: {
-                  '200': {
-                    description: 'Successful test',
-                  },
+              },
+              responses: {
+                '200': {
+                  description: 'Successful test',
                 },
               },
             },
           },
-        } as unknown as string),
-      ),
-    ).resolves.toBeDefined()
+        },
+      }),
+    )
+    try {
+      await expect(runGenerator(parseOpenAPI(input))).resolves.toBeDefined()
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
   })
 
-  it.concurrent('should return err for a completely invalid input', async () => {
-    const result = await runGeneratorError(parseOpenAPI('not yaml nor json'))
+  it.concurrent('should return err for a document that does not exist', async () => {
+    const result = await runGeneratorError(parseOpenAPI('not-yaml-nor-json.yaml'))
     expect(typeof result.message).toBe('string')
   })
 })
@@ -65,7 +72,7 @@ describe('parseOpenAPI', () => {
 // TypeSpec test
 // Files are created in the package root to resolve TypeSpec libraries from node_modules
 const TSP_TEST_DIR = path.resolve(import.meta.dirname, '../..')
-const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp`
+const TSP_TEST_FILE = `${TSP_TEST_DIR}/tmp-spec.tsp` as const
 const TSP_TEST_SUBDIR = `${TSP_TEST_DIR}/tmp`
 
 describe('parseOpenAPI TypeSpec', () => {

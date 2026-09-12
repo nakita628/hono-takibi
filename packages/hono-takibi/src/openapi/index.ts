@@ -12,42 +12,29 @@ import { compile, NodeHost } from '@typespec/compiler'
 import { getOpenAPI3 } from '@typespec/openapi3'
 import { Data, Effect } from 'effect'
 
-/** The document could not be read, compiled or parsed into an OpenAPI object. */
-export class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
+class OpenAPIError extends Data.TaggedError('OpenAPIError')<{
   readonly message: string
 }> {}
 
-/** Parses `input` into an OpenAPI document. */
-export function parseOpenAPI(input: string) {
+export function parseOpenAPI(input: `${string}.yaml` | `${string}.json` | `${string}.tsp`) {
   return Effect.tryPromise({
-    try: () => readOpenAPI(input),
+    try: async () => {
+      if (!input.endsWith('.tsp')) return (await SwaggerParser.bundle(input)) as OpenAPI
+      const program = await compile(NodeHost, path.resolve(input), { noEmit: true })
+      if (program.diagnostics.length > 0) {
+        throw new Error(
+          `TypeSpec compile failed:\n${program.diagnostics.map((d) => d.message).join('\n')}`,
+        )
+      }
+      const [record] = await getOpenAPI3(program)
+      const document =
+        record && ('document' in record ? record.document : record.versions[0]?.document)
+      if (!document) throw new Error(`TypeSpec emitted no OpenAPI document: ${input}`)
+      return document as OpenAPI
+    },
     catch: (error) =>
       new OpenAPIError({ message: error instanceof Error ? error.message : String(error) }),
   })
-}
-
-async function readOpenAPI(input: string): Promise<OpenAPI> {
-  {
-    if (typeof input === 'string' && input.endsWith('.tsp')) {
-      const program = await compile(NodeHost, path.resolve(input), {
-        noEmit: true,
-      })
-      if (program.diagnostics.length > 0) {
-        // Extract error messages from diagnostics (avoid circular reference in JSON.stringify)
-        const errors = program.diagnostics.map((d) => d.message).join('\n')
-        throw new Error(`TypeSpec compile failed:\n${errors}`)
-      }
-      const [record] = await getOpenAPI3(program)
-      // The emitter returns a self-contained document (every `$ref` is `#/...`),
-      // so there is nothing for `bundle()` to resolve here.
-      const tsp = 'document' in record ? record.document : record.versions[0].document
-      return tsp as OpenAPI
-    }
-    // `Awaited<ReturnType<typeof SwaggerParser.parse>>` therefore cannot be narrowed to our `OpenAPI` type.
-    // The parser validates the spec at runtime but does not express this guarantee in its type definition,
-    // so we assert `OpenAPI` here to enable typed access in the generator.
-    return (await SwaggerParser.bundle(input)) as OpenAPI
-  }
 }
 
 export type OpenAPI = {
@@ -185,7 +172,7 @@ export type Type =
 
 export type Format = FormatString | FormatNumber
 
-export type FormatString =
+type FormatString =
   | 'email'
   | 'uuid'
   | 'uuidv4'
@@ -224,7 +211,7 @@ export type FormatString =
   | 'toUpperCase' /* toUpperCase */
   | 'trim' /* trim whitespace */
 
-export type FormatNumber =
+type FormatNumber =
   | 'int32'
   | 'int64'
   | 'bigint'
@@ -234,7 +221,7 @@ export type FormatNumber =
   | 'double'
   | 'password'
 
-export type Ref =
+type Ref =
   | `#/components/schemas/${string}`
   | `#/components/responses/${string}`
   | `#/components/parameters/${string}`

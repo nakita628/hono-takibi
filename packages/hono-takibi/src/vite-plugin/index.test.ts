@@ -8,7 +8,7 @@ import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import * as FormatModule from '../format/index.js'
-import * as OpenAPIModule from '../openapi/index.js'
+import type * as OpenAPIModule from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'
 
 type ViteDevServer = {
@@ -157,21 +157,17 @@ vi.mock('../core/index.js', () => ({
   webhooks: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('webhooks')),
 }))
 
-vi.mock('../openapi/index.js', async () => {
-  const actual = await vi.importActual<typeof OpenAPIModule>('../openapi/index.js')
-  return {
-    OpenAPIError: actual.OpenAPIError,
-    parseOpenAPI: vi.fn<() => Effect.Effect<unknown>>(() =>
-      Effect.succeed({
-        paths: {
-          '/pets': { get: { responses: {} } },
-          '/users': { post: { responses: {} } },
-        },
-        components: { schemas: { Pet: {}, User: {} } },
-      }),
-    ),
-  }
-})
+vi.mock('../openapi/index.js', () => ({
+  parseOpenAPI: vi.fn<() => Effect.Effect<unknown>>(() =>
+    Effect.succeed({
+      paths: {
+        '/pets': { get: { responses: {} } },
+        '/users': { post: { responses: {} } },
+      },
+      components: { schemas: { Pet: {}, User: {} } },
+    }),
+  ),
+}))
 
 vi.mock('../format/index.js', async () => {
   const actual = await vi.importActual<typeof FormatModule>('../format/index.js')
@@ -663,9 +659,12 @@ describe('honoTakibiVite', () => {
 
   it('logs error and does not send full-reload when parseOpenAPI fails', async () => {
     const { parseOpenAPI } = await import('../openapi/index.js')
-    vi.mocked(parseOpenAPI).mockImplementationOnce(() =>
-      Effect.fail(new OpenAPIModule.OpenAPIError({ message: 'parse failure' })),
+    // `OpenAPIError` is module-private, so take a real one from the unmocked parser.
+    const actual = await vi.importActual<typeof OpenAPIModule>('../openapi/index.js')
+    const failure = await Effect.runPromise(
+      Effect.flip(actual.parseOpenAPI(`${testState.sandboxDirectory}/missing.yaml`)),
     )
+    vi.mocked(parseOpenAPI).mockImplementationOnce(() => Effect.fail(failure))
 
     const configuration = {
       input: 'openapi.yaml',
@@ -681,7 +680,7 @@ describe('honoTakibiVite', () => {
     const plugin = honoTakibiVite()
     plugin.configureServer(server)
     await waitFor(() => {
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('❌ parseOpenAPI: parse failure'))
+      expect(logSpy).toHaveBeenCalledWith(`❌ parseOpenAPI: ${failure.message}`)
     })
     await new Promise((resolve) => setTimeout(resolve, 50))
 
