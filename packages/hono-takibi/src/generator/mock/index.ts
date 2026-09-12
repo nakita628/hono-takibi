@@ -9,7 +9,7 @@ import {
   isSchemaObject,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
 import type {
   Components,
   Media,
@@ -21,6 +21,7 @@ import type {
 import {
   cyclicNodes,
   ensureSuffix,
+  makeStringLiteral,
   methodPath,
   statusCodeToNumber,
   toIdentifierPascalCase,
@@ -158,7 +159,7 @@ function makeMockFunction(
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
-  fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number },
+  fakerOptions: FakerOptions,
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas, ...fakerOptions })
   const returnType = isCircular ? ': any' : ''
@@ -172,10 +173,9 @@ function makeMockFunction(
   // The cast target must match the emitted const name, which `helper/schema.ts`
   // derives as `toIdentifierPascalCase(ensureSuffix(name, 'Schema'))` — using
   // the raw name here would mis-case it (e.g. `userIdSchema` vs `UserIdSchema`).
-  const sanitized = name.replaceAll('.', '')
   const schemaConst = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
   const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${schemaConst}>` : mockBody
-  return `function mock${sanitized}()${returnType}{return ${body}}` as const
+  return `function ${mockFunctionName(name)}()${returnType}{return ${body}}` as const
 }
 
 function extractSecurityInfo(
@@ -321,12 +321,13 @@ function makeAuthCheck(
       return [`c.req.header('Authorization')`]
     }
     if (sec.type === 'apiKey') {
-      if (sec.in === 'header') return [`c.req.header('${sec.name}')`]
-      if (sec.in === 'query') return [`c.req.query('${sec.name}')`]
+      // `name` comes from the document, so it is emitted as an escaped literal.
+      if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
+      if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
       // Hono's request object does not expose a `.cookie()` accessor; cookies
       // must come from the `hono/cookie` helper. Caller is responsible for
       // emitting the matching `import { getCookie } from 'hono/cookie'`.
-      if (sec.in === 'cookie') return [`getCookie(c, '${sec.name}')`]
+      if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
     }
     return []
   })
@@ -357,7 +358,7 @@ function makeHandlerBody(args: {
   readonly jsonSchema: Schema | undefined
   readonly textSchema: Schema | undefined
   readonly schemas: { readonly [k: string]: Schema }
-  readonly fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number }
+  readonly fakerOptions: FakerOptions
   readonly allRefs: Set<string>
   readonly exampleValue: unknown
   readonly exampleCast: string | undefined
@@ -398,9 +399,31 @@ export type MockOptions = {
   readonly arrayMin?: number
   readonly arrayMax?: number
   readonly readonly?: boolean
-  readonly useExamples?: boolean
+  /**
+   * `true` (default) answers with a response's media-level `example`/`examples`;
+   * `'all'` also uses the scalar `example`/`examples` of every schema and
+   * property; `false` always generates.
+   */
+  readonly useExamples?: boolean | 'all'
   readonly locale?: string
   readonly delay?: number | { readonly min: number; readonly max: number } | false
+  /**
+   * Re-seeds faker (and pins its reference date to `SEED_REF_DATE`) at the start
+   * of every handler, so each route answers the same body every time.
+   */
+  readonly seed?: number | readonly number[]
+}
+
+// `faker.date.*` is relative to the current time, so a seeded mock also pins
+// the reference date; otherwise every date (and a JWT's `iat`) would drift.
+const SEED_REF_DATE = '2025-01-01T00:00:00.000Z'
+
+// The knobs threaded into `schemaToFaker`; `useExamples` there means the
+// schema-level examples (`MockOptions['useExamples'] === 'all'`).
+type FakerOptions = {
+  readonly arrayMin?: number
+  readonly arrayMax?: number
+  readonly useExamples?: boolean
 }
 
 // Builds the optional response-delay middleware. A fixed `number` sleeps that
@@ -421,20 +444,26 @@ function delayMiddlewareCode(delay: MockOptions['delay']) {
 }
 
 export function makeMock(openapi: OpenAPI, basePath: string, options: MockOptions = {}) {
-  // Split the emit-shell knobs off; the rest is exactly the faker knobs
-  // (`arrayMin`/`arrayMax`), threaded into `schemaToFaker`. `useExamples` is
-  // destructured out (not threaded) so it
-  // gates the media-level example only (`extractMediaExample`); keeping it out of
-  // `fakerOptions` preserves the property-level example behavior in one place.
-  // It defaults to `true`: the mock has always preferred a spec-authored example.
+  // Split the emit-shell knobs off from the faker knobs threaded into
+  // `schemaToFaker`. `useExamples` defaults to `true` — the mock has always
+  // preferred a spec-authored response example — which gates the media-level
+  // example only (`extractMediaExample`); `'all'` additionally lets
+  // `schemaToFaker` use each schema's own scalar example.
   const {
     useExamples: useExamplesOption,
     locale,
     delay,
+    seed,
     readonly: readonlyOption,
-    ...fakerOptions
+    arrayMin,
+    arrayMax,
   } = options
   const useExamples = useExamplesOption ?? true
+  const fakerOptions: FakerOptions = {
+    ...(arrayMin !== undefined ? { arrayMin } : {}),
+    ...(arrayMax !== undefined ? { arrayMax } : {}),
+    ...(useExamples === 'all' ? { useExamples: true } : {}),
+  }
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
@@ -459,7 +488,9 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
       const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
       const exampleValue =
-        useExamples && jsonMedia ? extractMediaExample(jsonMedia, openapi.components) : undefined
+        useExamples !== false && jsonMedia
+          ? extractMediaExample(jsonMedia, openapi.components)
+          : undefined
       const exampleCast =
         exampleValue !== undefined && jsonSchema?.$ref
           ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
@@ -499,7 +530,8 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
               const condition = pathParams
                 .map(
                   // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-                  (p) => `c.req.param('${p.name}') === '${getNonExistentValue(p.schema, schemas)}'`,
+                  (p) =>
+                    `c.req.param(${makeStringLiteral(p.name)}) === '${getNonExistentValue(p.schema, schemas)}'`,
                 )
                 .join(' || ')
               const notFoundJsonMedia = notFoundResponse.content?.['application/json']
@@ -521,7 +553,15 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
           : ''
       const usesContext = handlerBody.includes('c.') || authCheck !== '' || notFoundCheck !== ''
       const param = usesContext ? 'c' : '_c'
-      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${notFoundCheck}${handlerBody}}`
+      // Seeding inside the handler (not once at module load) makes a route's body
+      // independent of which requests ran before it, and the handler body runs
+      // synchronously after the seed, so concurrent requests cannot interleave.
+      const usesFaker = /\bfaker\.|\bmock[A-Za-z0-9_$]*\(/u.test(`${notFoundCheck}${handlerBody}`)
+      const seedCall =
+        seed !== undefined && usesFaker
+          ? `faker.seed(${JSON.stringify(seed)});faker.setDefaultRefDate('${SEED_REF_DATE}');`
+          : ''
+      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${seedCall}${authCheck}${notFoundCheck}${handlerBody}}`
       return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
     }),
   )

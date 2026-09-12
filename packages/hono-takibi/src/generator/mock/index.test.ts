@@ -2493,4 +2493,267 @@ export default app
 `)
     })
   })
+
+  describe('seed', () => {
+    it('re-seeds faker and pins its reference date at the start of every handler', async () => {
+      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: 42 })))
+      expect(result)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getHealthRoute = createRoute({
+  method: 'get',
+  path: '/health',
+  operationId: 'getHealth',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  faker.seed(42)
+  faker.setDefaultRefDate('2025-01-01T00:00:00.000Z')
+  return c.json(
+    {
+      status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    })
+
+    it('passes an array seed through', async () => {
+      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: [1, 2] })))
+      expect(result)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+export const getHealthRoute = createRoute({
+  method: 'get',
+  path: '/health',
+  operationId: 'getHealth',
+  responses: {
+    200: {
+      description: 'OK',
+      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+    },
+  },
+})
+
+const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  faker.seed([1, 2])
+  faker.setDefaultRefDate('2025-01-01T00:00:00.000Z')
+  return c.json(
+    {
+      status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(['active', 'inactive', 'pending']),
+        undefined,
+      ]),
+    },
+    200,
+  )
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    })
+
+    it('does not seed a handler that never calls faker', () => {
+      const result = makeMock(
+        {
+          openapi: '3.1.0',
+          info: { title: 'T', version: '1' },
+          paths: {
+            '/ping': {
+              delete: { operationId: 'deletePing', responses: { '204': { description: 'gone' } } },
+            },
+          },
+        } as OpenAPI,
+        '/',
+        { seed: 42 },
+      )
+      expect(result).not.toContain('faker.seed(')
+    })
+  })
+
+  describe('document-supplied names', () => {
+    const edgeOpenAPI = {
+      openapi: '3.1.0',
+      info: { title: 'T', version: '1' },
+      security: [{ Key: [] }],
+      paths: {
+        '/profiles/{profile-id}': {
+          get: {
+            operationId: 'getProfile',
+            parameters: [
+              { name: 'profile-id', in: 'path', required: true, schema: { type: 'string' } },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': { schema: { $ref: '#/components/schemas/User-Profile' } },
+                },
+              },
+              '401': { description: 'no' },
+              '404': { description: 'none' },
+            },
+          },
+        },
+      },
+      components: {
+        securitySchemes: { Key: { type: 'apiKey', in: 'header', name: "X-Key'); evil(); ('" } },
+        schemas: {
+          'User-Profile': {
+            type: 'object',
+            required: ['first-name', 'role'],
+            properties: {
+              'first-name': { type: 'string' },
+              role: { type: 'string', enum: ['admin', 'member'], example: 'admin' },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+
+    it('sanitizes a hyphenated schema name, quotes keys and escapes auth / param names', async () => {
+      const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/')))
+      expect(result)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserProfileSchema = z
+  .object({
+    'first-name': z.string(),
+    role: z.enum(['admin', 'member']).openapi({ example: 'admin' }),
+  })
+  .openapi({ required: ['first-name', 'role'] })
+  .openapi('UserProfile')
+
+const KeySecurityScheme = { type: 'apiKey', in: 'header', name: "X-Key'); evil(); ('" }
+
+export const getProfilesProfileIdRoute = createRoute({
+  method: 'get',
+  path: '/profiles/{profile-id}',
+  operationId: 'getProfile',
+  request: {
+    params: z.object({
+      'profile-id': z
+        .string()
+        .openapi({
+          param: { name: 'profile-id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
+  },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: UserProfileSchema } } },
+    401: { description: 'no' },
+    404: { description: 'none' },
+  },
+})
+
+function mockUserProfile() {
+  return {
+    'first-name': faker.person.firstName(),
+    role: faker.helpers.arrayElement(['admin', 'member'] as const),
+  }
+}
+
+const getProfilesProfileIdRouteHandler: RouteHandler<typeof getProfilesProfileIdRoute> = async (
+  c,
+) => {
+  if (!c.req.header("X-Key'); evil(); ('")) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+  if (c.req.param('profile-id') === '__non_existent__') {
+    return c.body(null, 404)
+  }
+  return c.json(mockUserProfile(), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getProfilesProfileIdRoute, getProfilesProfileIdRouteHandler)
+
+export default app
+`)
+    })
+
+    it("uses a property's scalar example when useExamples is 'all'", async () => {
+      const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/', { useExamples: 'all' })))
+      expect(result)
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+
+const UserProfileSchema = z
+  .object({
+    'first-name': z.string(),
+    role: z.enum(['admin', 'member']).openapi({ example: 'admin' }),
+  })
+  .openapi({ required: ['first-name', 'role'] })
+  .openapi('UserProfile')
+
+const KeySecurityScheme = { type: 'apiKey', in: 'header', name: "X-Key'); evil(); ('" }
+
+export const getProfilesProfileIdRoute = createRoute({
+  method: 'get',
+  path: '/profiles/{profile-id}',
+  operationId: 'getProfile',
+  request: {
+    params: z.object({
+      'profile-id': z
+        .string()
+        .openapi({
+          param: { name: 'profile-id', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
+  },
+  responses: {
+    200: { description: 'OK', content: { 'application/json': { schema: UserProfileSchema } } },
+    401: { description: 'no' },
+    404: { description: 'none' },
+  },
+})
+
+function mockUserProfile() {
+  return { 'first-name': faker.person.firstName(), role: 'admin' as const }
+}
+
+const getProfilesProfileIdRouteHandler: RouteHandler<typeof getProfilesProfileIdRoute> = async (
+  c,
+) => {
+  if (!c.req.header("X-Key'); evil(); ('")) {
+    return c.json({ message: 'Unauthorized' }, 401)
+  }
+  if (c.req.param('profile-id') === '__non_existent__') {
+    return c.body(null, 404)
+  }
+  return c.json(mockUserProfile(), 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getProfilesProfileIdRoute, getProfilesProfileIdRouteHandler)
+
+export default app
+`)
+    })
+  })
 })

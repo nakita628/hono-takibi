@@ -8,7 +8,7 @@ import {
   isSecurityArray,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
 import type { OpenAPI, Schema } from '../../openapi/index.js'
 import { cyclicNodes, methodPath } from '../../utils/index.js'
 
@@ -217,7 +217,7 @@ function makeMockFunctions(
   return topologicalOrder(usedSchemaNames, schemas)
     .map((name) => {
       const returnType = circular.has(name) ? ': any' : ''
-      return `function mock${name.replaceAll('.', '')}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
+      return `function ${mockFunctionName(name)}()${returnType} {\n  return ${schemaToFaker(schemas[name])}\n}`
     })
     .join('\n\n')
 }

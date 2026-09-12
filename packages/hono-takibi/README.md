@@ -552,8 +552,9 @@ export default defineConfig({
 
   mock: {
     output: './src/mock.ts',
-    useExamples: true,
+    useExamples: true, // true: response examples | 'all': also schema/property examples | false
     locale: 'en',
+    seed: 42, // optional: same body per route on every request (snapshot-friendly)
     delay: false,
     arrayMin: 1,
     arrayMax: 10,

@@ -11,6 +11,7 @@ import {
   makeBarrel,
   makeInferRequestType,
   makeSafeKey,
+  makeStringLiteral,
   methodPath,
   normalizeTypes,
   renderNamedImport,
@@ -531,6 +532,45 @@ export * from './user'
       expect(escapeRegexLiteral('x/}); evil(); z.string({a:/y')).toBe(
         'x\\/}); evil(); z.string({a:\\/y',
       )
+    })
+
+    it('escapes a slash that follows an escaped backslash', () => {
+      expect(escapeRegexLiteral('a\\\\/b')).toBe('a\\\\\\/b')
+    })
+
+    it('neutralizes a breakout that hides the slash behind an escaped backslash', () => {
+      // `\\/` used to pass the look-behind: the literal ended at the slash and the
+      // rest ran as code once the `u` flag made the tail `(2/u)` parse.
+      const escaped = escapeRegexLiteral('\\p{L}\\\\/);globalThis.pwned=true;(2')
+      expect(escaped).toBe('\\p{L}\\\\\\/);globalThis.pwned=true;(2')
+    })
+
+    it('keeps an escaped slash as one escape', () => {
+      expect(escapeRegexLiteral('a\\/b\\\\\\/c')).toBe('a\\/b\\\\\\/c')
+    })
+
+    it('rewrites line terminators, which a regex literal cannot contain', () => {
+      expect(escapeRegexLiteral('a\nb\rc\u2028d\u2029e')).toBe('a\\nb\\rc\\u2028d\\u2029e')
+    })
+
+    it('rewrites an escaped line terminator to its escape sequence', () => {
+      expect(escapeRegexLiteral('a\\\nb')).toBe('a\\nb')
+    })
+
+    it('doubles a trailing lone backslash so it cannot escape the closing slash', () => {
+      expect(escapeRegexLiteral('a\\')).toBe('a\\\\')
+    })
+  })
+
+  describe('makeStringLiteral', () => {
+    it.concurrent.each([
+      ['X-API-Key', "'X-API-Key'"],
+      ["it's", "'it\\'s'"],
+      ['a\\b', "'a\\\\b'"],
+      ['a\nb', "'a\\nb'"],
+      ["x'); evil(); ('", "'x\\'); evil(); (\\''"],
+    ])('makeStringLiteral(%j) -> %s', (input, expected) => {
+      expect(makeStringLiteral(input)).toBe(expected)
     })
   })
 

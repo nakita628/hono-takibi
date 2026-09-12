@@ -24,7 +24,7 @@ import {
 import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
-import { schemaToFaker } from './faker.js'
+import { mockFunctionName, schemaToFaker } from './faker.js'
 
 function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
@@ -62,7 +62,7 @@ function makeRefs(schema: Schema, refs = new Set<string>()) {
 
 function makeMockFunction(name: string, schema: Schema, schemas: { readonly [k: string]: Schema }) {
   const mockBody = schemaToFaker(schema, undefined, { schemas })
-  return `function mock${name}() {\n  return ${mockBody}\n}`
+  return `function ${mockFunctionName(name)}() {\n  return ${mockBody}\n}`
 }
 
 function makeResponseInfo(operation: Operation) {

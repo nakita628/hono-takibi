@@ -803,6 +803,11 @@ describe('string', () => {
       [{ type: 'string', format: 'email', 'x-emailRegex': 'a/b' }, 'z.email({pattern:/a\\/b/})'],
       [{ type: 'string', format: 'uri', 'x-urlProtocol': 'a/b' }, 'z.url({protocol:/a\\/b/})'],
       [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }, 'z.url({hostname:/a\\/b/})'],
+      // A slash after an escaped backslash is unescaped; the look-behind used to miss it.
+      [
+        { type: 'string', pattern: '\\p{L}\\\\/);globalThis.pwned=true;(2' },
+        'z.string().regex(/\\p{L}\\\\\\/);globalThis.pwned=true;(2/u)',
+      ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -818,6 +823,9 @@ describe('string', () => {
       [{ type: 'string', format: 'email', 'x-emailRegex': '^[a-z]+@a/b$' }],
       [{ type: 'string', format: 'uri', 'x-urlProtocol': 'ht/tps?' }],
       [{ type: 'string', format: 'uri', 'x-urlHostname': 'a/b' }],
+      [{ type: 'string', pattern: '^a\\\\/b$' }],
+      [{ type: 'string', pattern: 'a\nb' }],
+      [{ type: 'string', pattern: 'a\\' }],
     ])('fmt(string(%o)) is ok', async (input) => {
       await expect(runGenerator(fmt(`export const X = ${string(input)}`))).resolves.toBeDefined()
     })

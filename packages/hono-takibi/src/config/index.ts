@@ -205,6 +205,13 @@ const DelayMsSchema = Schema.Number.check(
   Schema.isLessThanOrEqualTo(60_000),
 )
 
+/** A faker seed: faker hashes it with Mersenne Twister, which takes a 32-bit unsigned integer. */
+const SeedSchema = Schema.Number.check(
+  Schema.isInt(),
+  Schema.isGreaterThanOrEqualTo(0),
+  Schema.isLessThanOrEqualTo(4_294_967_295),
+)
+
 const ArrayLengthSchema = Schema.Number.check(
   Schema.isInt(),
   Schema.isGreaterThanOrEqualTo(0),
@@ -538,9 +545,18 @@ const ConfigSchema = Schema.Struct({
     Schema.Struct({
       output: FileOutputSchema,
       useExamples: Schema.optionalKey(
-        Schema.Boolean.annotate({
+        Schema.Union([Schema.Boolean, Schema.Literal('all')]).annotate({
           description:
-            'Prefer the `example` / `examples` declared in the document over faker-generated values.',
+            "Prefer the `example` / `examples` declared in the document over faker-generated values. `true` (default) uses a response's media-level example; `'all'` also uses the scalar example of every schema and property; `false` always generates.",
+          examples: [true, 'all', false],
+        }),
+      ),
+      seed: Schema.optionalKey(
+        Schema.Union([SeedSchema, Schema.NonEmptyArray(SeedSchema)]).annotate({
+          title: 'Faker seed',
+          description:
+            'Seeds faker at the start of every handler, so each route answers the same body on every request — stable enough for snapshot tests. Dates are generated relative to a fixed 2025-01-01T00:00:00Z, and the locale-specific faker instance is the one seeded.',
+          examples: [42, [1, 2, 3]],
         }),
       ),
       locale: Schema.optionalKey(
@@ -599,6 +615,7 @@ const ConfigSchema = Schema.Struct({
             output: './src/mock.ts',
             useExamples: true,
             locale: 'ja',
+            seed: 42,
             delay: { min: 100, max: 800 },
             arrayMin: 1,
             arrayMax: 10,

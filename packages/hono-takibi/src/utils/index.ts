@@ -84,13 +84,39 @@ export function requestParamsArray(parameters: {
  */
 export function makeSafeKey(key: string) {
   if (/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(key)) return key
-  const escaped = key
+  return makeStringLiteral(key)
+}
+
+/**
+ * Converts a string to a single-quoted TypeScript string literal.
+ *
+ * Use it for every document-supplied value spliced into generated code as a
+ * string (header, query, cookie and path parameter names, …): a raw `'` or
+ * line break would otherwise end the literal and let the rest run as code.
+ *
+ *
+ * @example
+ * ```ts
+ * makeStringLiteral('X-API-Key')  // → "'X-API-Key'"
+ * makeStringLiteral("it's")       // → "'it\\'s'"
+ * makeStringLiteral('a\nb')       // → "'a\\nb'"
+ * ```
+ */
+export function makeStringLiteral(value: string) {
+  const escaped = value
     .replaceAll('\\', '\\\\')
     .replaceAll("'", "\\'")
     .replaceAll('\n', '\\n')
     .replaceAll('\r', '\\r')
     .replaceAll('	', '\\t')
   return `'${escaped}'`
+}
+
+const REGEX_LINE_TERMINATOR_ESCAPES: { readonly [k: string]: string } = {
+  '\n': '\\n',
+  '\r': '\\r',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
 }
 
 /**
@@ -102,16 +128,32 @@ export function makeSafeKey(key: string) {
  * generated literal — an unescaped `/` would close it and let arbitrary code
  * follow. Slashes already escaped (`\/`) are left untouched.
  *
+ * The source is scanned as escape pairs, so a slash after an escaped backslash
+ * (`\\/`) is still recognised as unescaped. Line terminators, which a regex
+ * literal cannot contain, become their escape sequences (same meaning), and a
+ * trailing lone backslash — which would escape the closing `/` — is doubled.
+ *
  *
  * @example
  * ```ts
  * escapeRegexLiteral('^https?$')   // → '^https?$'
  * escapeRegexLiteral('a/b')        // → 'a\\/b'
  * escapeRegexLiteral('a\\/b')      // → 'a\\/b'
+ * escapeRegexLiteral('a\\\\/b')    // → 'a\\\\\\/b'
+ * escapeRegexLiteral('a\nb')       // → 'a\\nb'
  * ```
  */
 export function escapeRegexLiteral(source: string) {
-  return source.replaceAll(/(?<!\\)\//gu, '\\/')
+  return source.replaceAll(
+    /\\([\s\S]?)|[/\n\r\u2028\u2029]/gu,
+    (match: string, escaped: string | undefined) => {
+      if (escaped === undefined) {
+        return match === '/' ? '\\/' : (REGEX_LINE_TERMINATOR_ESCAPES[match] ?? match)
+      }
+      if (escaped === '') return '\\\\'
+      return REGEX_LINE_TERMINATOR_ESCAPES[escaped] ?? match
+    },
+  )
 }
 
 /**
