@@ -46,7 +46,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Formats'
+  # Prism-compatible `Prefer: code=…, example=…` selection across every kind of
+  # declared response: named examples, problem+json, a 4XX range, default.
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      security: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                shipped:
+                  $ref: '#/components/examples/ShippedOrder'
+                pending:
+                  value: { id: o-2, state: pending }
+        '404':
+          description: No such order
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                gone:
+                  value: { title: Order deleted, status: 404 }
+        '4XX':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Maintenance
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
 components:
+  examples:
+    ShippedOrder:
+      value: { id: o-1, state: shipped }
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -120,6 +170,15 @@ components:
         code:
           type: string
           pattern: '^[a-z]{3}/[0-9]{2}$'
+    Order:
+      type: object
+      required: [id, state]
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+          enum: [pending, shipped]
     Problem:
       type: object
       required: [title, status]

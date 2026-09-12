@@ -5,9 +5,20 @@ import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator } from '../../testing/index.js'
 import { makeMock } from './index.js'
 
+// The Prism-compatible `Prefer` helpers are emitted verbatim into every mock; they
+// are pinned once (the `Prefer` suite) and stand in as one line everywhere else.
+const PREFER_HELPERS = '/* resolvePrefer, preferResponse, preferProblem */\n'
+
+function withoutPreferHelpers(code: string) {
+  return code.replace(
+    /\/\/ Reads Prism's[\s\S]*?\nfunction preferProblem\([\s\S]*?\n\}\n/u,
+    PREFER_HELPERS,
+  )
+}
+
 async function format(spec: OpenAPI, basePath: string) {
   const result = await runGenerator(fmt(makeMock(spec, basePath)))
-  return result
+  return withoutPreferHelpers(result)
 }
 
 const minimalOpenAPI = {
@@ -35,6 +46,8 @@ const minimalOpenAPI = {
 const minimalExpected = (appInit: string) =>
   `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -48,7 +61,10 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -123,6 +139,8 @@ describe('makeMock', () => {
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const AuthUserSchema = z
   .object({ name: z.string() })
@@ -142,7 +160,10 @@ function mockAuthUser() {
   return { name: faker.person.fullName() }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getAuthMeRouteHandler: RouteHandler<typeof getAuthMeRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockAuthUser(), 200)
 }
 
@@ -202,6 +223,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -231,11 +254,15 @@ export const postUsersRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
 
 const postUsersRouteHandler: RouteHandler<typeof postUsersRoute> = async (c) => {
+  resolvePrefer(c.req, { '201': [] }, '201')
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 201)
 }
 
@@ -285,6 +312,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 
@@ -304,9 +333,15 @@ export const getMeRoute = createRoute({
   security: [{ bearerAuth: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('Authorization')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -337,6 +372,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const deletePingRoute = createRoute({
   method: 'delete',
@@ -345,7 +382,10 @@ export const deletePingRoute = createRoute({
   responses: { 204: { description: 'No Content' } },
 })
 
-const deletePingRouteHandler: RouteHandler<typeof deletePingRoute> = async (_c) => {
+/* resolvePrefer, preferResponse, preferProblem */
+
+const deletePingRouteHandler: RouteHandler<typeof deletePingRoute> = async (c) => {
+  resolvePrefer(c.req, { '204': [] }, '204')
   return new Response(null, { status: 204 })
 }
 
@@ -394,6 +434,8 @@ export default app
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
 import { getCookie } from 'hono/cookie'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const CookieAuthSecurityScheme = { type: 'apiKey', in: 'cookie', name: 'session' }
 
@@ -413,9 +455,15 @@ export const getMeRoute = createRoute({
   security: [{ cookieAuth: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!getCookie(c, 'session')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -464,6 +512,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const QkeySecurityScheme = { type: 'apiKey', in: 'query', name: 'api_key' }
 
@@ -483,9 +533,15 @@ export const getMeRoute = createRoute({
   security: [{ qkey: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.query('api_key')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -534,6 +590,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const HkeySecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
@@ -553,9 +611,15 @@ export const getMeRoute = createRoute({
   security: [{ hkey: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('X-API-Key')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -602,6 +666,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const BasicAuthSecurityScheme = { type: 'http', scheme: 'basic' }
 
@@ -621,9 +687,15 @@ export const getMeRoute = createRoute({
   security: [{ basicAuth: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('Authorization')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -670,6 +742,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const OauthSecurityScheme = { type: 'oauth2', flows: {} }
 
@@ -689,9 +763,15 @@ export const getMeRoute = createRoute({
   security: [{ oauth: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('Authorization')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
@@ -737,6 +817,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer' }
 
@@ -755,7 +837,10 @@ export const getMeRoute = createRoute({
   security: [{ bearerAuth: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ id: faker.number.int({ min: 1, max: 99999 }) }, 200)
 }
 
@@ -790,6 +875,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getGreetRoute = createRoute({
   method: 'get',
@@ -798,7 +885,10 @@ export const getGreetRoute = createRoute({
   responses: { 200: { description: 'OK', content: { 'text/plain': { schema: z.string() } } } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getGreetRouteHandler: RouteHandler<typeof getGreetRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.text(faker.string.alpha({ length: { min: 5, max: 20 } }), 200)
 }
 
@@ -846,6 +936,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 type NodeType = { id?: number; next?: NodeType }
 
@@ -869,7 +961,10 @@ function mockNode(): any {
   }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getTreeRouteHandler: RouteHandler<typeof getTreeRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockNode(), 200)
 }
 
@@ -900,6 +995,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const postUploadRoute = createRoute({
   method: 'post',
@@ -909,7 +1006,10 @@ export const postUploadRoute = createRoute({
   responses: { 200: { description: 'OK' } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const postUploadRouteHandler: RouteHandler<typeof postUploadRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.body(null, 200)
 }
 
@@ -937,6 +1037,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getXRoute = createRoute({
   method: 'get',
@@ -954,7 +1056,10 @@ export const getXRoute = createRoute({
   responses: { 200: { description: 'OK' } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getXRouteHandler: RouteHandler<typeof getXRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.body(null, 200)
 }
 
@@ -1000,6 +1105,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const AkSecurityScheme = { type: 'apiKey', in: 'header' }
 
@@ -1017,9 +1124,15 @@ export const getMeRoute = createRoute({
   security: [{ ak: [] }],
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('X-API-Key')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json(
     { id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]) },
@@ -1065,6 +1178,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const BearerSecurityScheme = { type: 'http', scheme: 'bearer' }
 
@@ -1081,9 +1196,15 @@ export const getMeRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
   if (!c.req.header('Authorization')) {
     return c.json({ message: 'Unauthorized' }, 401)
+  }
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
   }
   return c.json(
     { id: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 99999 }), undefined]) },
@@ -1142,6 +1263,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const ChildSchema: z.ZodType<ChildType> = z
   .lazy(() => z.object({ id: z.int().exactOptional(), parent: ParentSchema.exactOptional() }))
@@ -1178,7 +1301,10 @@ function mockParent(): any {
   }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getParentRouteHandler: RouteHandler<typeof getParentRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockParent(), 200)
 }
 
@@ -1216,6 +1342,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserIdSchema = z.string().brand<'UserId'>().openapi('UserId')
 
@@ -1232,7 +1360,10 @@ function mockUserId() {
   return faker.string.alpha({ length: { min: 5, max: 20 } }) as z.infer<typeof UserIdSchema>
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockUserId(), 200)
 }
 
@@ -1271,6 +1402,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const postItemsRoute = createRoute({
   method: 'post',
@@ -1284,7 +1417,22 @@ export const postItemsRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const postItemsRouteHandler: RouteHandler<typeof postItemsRoute> = async (c) => {
+  const prefer = resolvePrefer(c.req, { default: [] }, 'default')
+  if (prefer.key === 'default') {
+    return preferResponse(
+      Number(prefer.code ?? 200),
+      JSON.stringify({
+        id: faker.helpers.arrayElement([
+          faker.string.alpha({ length: { min: 5, max: 20 } }),
+          undefined,
+        ]),
+      }),
+      'application/json',
+    )
+  }
   return c.json(
     {
       id: faker.helpers.arrayElement([
@@ -1325,6 +1473,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getPingRoute = createRoute({
   method: 'get',
@@ -1333,7 +1483,17 @@ export const getPingRoute = createRoute({
   responses: { '2XX': { description: 'ok', content: { 'text/plain': { schema: z.string() } } } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  const prefer = resolvePrefer(c.req, { '2XX': [] }, '2XX')
+  if (prefer.key === '2XX') {
+    return preferResponse(
+      Number(prefer.code ?? 200),
+      String(faker.string.alpha({ length: { min: 5, max: 20 } })),
+      'text/plain',
+    )
+  }
   return c.text(faker.string.alpha({ length: { min: 5, max: 20 } }), 200)
 }
 
@@ -1358,6 +1518,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const postNoopRoute = createRoute({
   method: 'post',
@@ -1366,7 +1528,13 @@ export const postNoopRoute = createRoute({
   responses: { default: { description: 'ok' } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const postNoopRouteHandler: RouteHandler<typeof postNoopRoute> = async (c) => {
+  const prefer = resolvePrefer(c.req, { default: [] }, 'default')
+  if (prefer.key === 'default') {
+    return preferResponse(Number(prefer.code ?? 200), null)
+  }
   return c.body(null, 200)
 }
 
@@ -1391,6 +1559,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const postCreateRoute = createRoute({
   method: 'post',
@@ -1399,7 +1569,10 @@ export const postCreateRoute = createRoute({
   responses: { 201: { description: 'created' } },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const postCreateRouteHandler: RouteHandler<typeof postCreateRoute> = async (c) => {
+  resolvePrefer(c.req, { '201': [] }, '201')
   return c.body(null, 201)
 }
 
@@ -1444,6 +1617,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getBothRoute = createRoute({
   method: 'get',
@@ -1461,7 +1636,22 @@ export const getBothRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getBothRouteHandler: RouteHandler<typeof getBothRoute> = async (c) => {
+  const prefer = resolvePrefer(c.req, { '200': [], default: [] }, '200')
+  if (prefer.key === 'default') {
+    return preferResponse(
+      Number(prefer.code ?? 200),
+      JSON.stringify({
+        b: faker.helpers.arrayElement([
+          faker.string.alpha({ length: { min: 5, max: 20 } }),
+          undefined,
+        ]),
+      }),
+      'application/json',
+    )
+  }
   return c.json(
     {
       a: faker.helpers.arrayElement([
@@ -1521,6 +1711,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserIdSchema = z.string().brand<'userId'>().openapi('UserId')
 
@@ -1552,7 +1744,10 @@ function mockNotification() {
   return { id: mockuserId(), type: mocknotificationType() }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getNRouteHandler: RouteHandler<typeof getNRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockNotification(), 200)
 }
 
@@ -1601,6 +1796,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserSchema = z
   .object({ id: z.int(), name: z.string() })
@@ -1619,7 +1816,10 @@ export const getMeRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
 }
 
@@ -1669,6 +1869,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserSchema = z
   .object({ id: z.int(), name: z.string() })
@@ -1695,7 +1897,13 @@ export const getMeRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  const prefer = resolvePrefer(c.req, { '200': ['first', 'second'] }, '200')
+  if (prefer.key === '200' && prefer.example === 'second') {
+    return c.json({ id: 2, name: 'Bob' } as z.infer<typeof UserSchema>, 200)
+  }
   return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
 }
 
@@ -1743,6 +1951,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserSchema = z
   .object({ id: z.int(), name: z.string() })
@@ -1765,7 +1975,10 @@ export const getMeRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getMeRouteHandler: RouteHandler<typeof getMeRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': ['default'] }, '200')
   return c.json({ id: 1, name: 'Alice' } as z.infer<typeof UserSchema>, 200)
 }
 
@@ -1803,6 +2016,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getVRoute = createRoute({
   method: 'get',
@@ -1821,7 +2036,10 @@ export const getVRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getVRouteHandler: RouteHandler<typeof getVRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ ok: true }, 200)
 }
 
@@ -1869,6 +2087,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const PostSchema = z
   .object({ id: z.int() })
@@ -1907,7 +2127,10 @@ export const getPostsRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json([{ id: 1 }, { id: 2 }], 200)
 }
 
@@ -1956,6 +2179,8 @@ export default app
       expect(await format(spec, '/'))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const PostSchema = z
   .object({ id: z.int() })
@@ -1993,7 +2218,10 @@ function mockPost() {
   return { id: faker.number.int({ min: 1, max: 99999 }) }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getPostsRouteHandler: RouteHandler<typeof getPostsRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => mockPost()),
     200,
@@ -2012,9 +2240,11 @@ export default app
   describe('locale', () => {
     it('imports the localized faker entry when locale is set', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { locale: 'ja' })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker/locale/ja'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -2028,7 +2258,10 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -2052,9 +2285,11 @@ export default app
   describe('delay', () => {
     it('emits a delay middleware when delay is a number', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { delay: 1000 })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -2068,7 +2303,10 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -2097,9 +2335,11 @@ export default app
       const result = await runGenerator(
         fmt(makeMock(minimalOpenAPI, '/', { delay: { min: 100, max: 500 } })),
       )
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -2113,7 +2353,10 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -2171,9 +2414,11 @@ export default app
 
     it('returns the spec example verbatim by default', async () => {
       const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/')))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getPingRoute = createRoute({
   method: 'get',
@@ -2192,7 +2437,10 @@ export const getPingRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ msg: 'pong' }, 200)
 }
 
@@ -2206,9 +2454,11 @@ export default app
 
     it('fakes the response instead of the example when useExamples is false', async () => {
       const result = await runGenerator(fmt(makeMock(exampleOpenAPI, '/', { useExamples: false })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getPingRoute = createRoute({
   method: 'get',
@@ -2227,7 +2477,10 @@ export const getPingRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getPingRouteHandler: RouteHandler<typeof getPingRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       msg: faker.helpers.arrayElement([
@@ -2276,9 +2529,11 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 if (!('toJSON' in BigInt.prototype)) {
   Object.defineProperty(BigInt.prototype, 'toJSON', {
@@ -2304,7 +2559,10 @@ export const getBigRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getBigRouteHandler: RouteHandler<typeof getBigRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json({ id: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) }, 200)
 }
 
@@ -2346,9 +2604,11 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 if (!('toJSON' in BigInt.prototype)) {
   Object.defineProperty(BigInt.prototype, 'toJSON', {
@@ -2378,7 +2638,10 @@ function mockCounter() {
   return { total: faker.number.bigInt({ min: 0n, max: 9007199254740991n }) }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getCounterRouteHandler: RouteHandler<typeof getCounterRoute> = async (c) => {
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(mockCounter(), 200)
 }
 
@@ -2438,9 +2701,11 @@ export default app
         },
       } as OpenAPI
       const result = await runGenerator(fmt(makeMock(spec, '/')))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getItemsIdRoute = createRoute({
   method: 'get',
@@ -2478,8 +2743,14 @@ export const getItemsIdRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getItemsIdRouteHandler: RouteHandler<typeof getItemsIdRoute> = async (c) => {
-  if (c.req.param('id') === '00000000-0000-0000-0000-000000000000') {
+  const prefer = resolvePrefer(c.req, { '200': [], '404': [] }, '200')
+  if (prefer.key === '404') {
+    return c.json({ error: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 404)
+  }
+  if (prefer.key === undefined && c.req.param('id') === '00000000-0000-0000-0000-000000000000') {
     return c.json({ error: faker.string.alpha({ length: { min: 5, max: 20 } }) }, 404)
   }
   return c.json({ id: faker.string.uuid() }, 200)
@@ -2497,9 +2768,11 @@ export default app
   describe('seed', () => {
     it('re-seeds faker and pins its reference date at the start of every handler', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: 42 })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -2513,9 +2786,12 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
   faker.seed(42)
   faker.setDefaultRefDate('2025-01-01T00:00:00.000Z')
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -2537,9 +2813,11 @@ export default app
 
     it('passes an array seed through', async () => {
       const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/', { seed: [1, 2] })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 export const getHealthRoute = createRoute({
   method: 'get',
@@ -2553,9 +2831,12 @@ export const getHealthRoute = createRoute({
   },
 })
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getHealthRouteHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
   faker.seed([1, 2])
   faker.setDefaultRefDate('2025-01-01T00:00:00.000Z')
+  resolvePrefer(c.req, { '200': [] }, '200')
   return c.json(
     {
       status: faker.helpers.arrayElement([
@@ -2589,7 +2870,7 @@ export default app
         '/',
         { seed: 42 },
       )
-      expect(result).not.toContain('faker.seed(')
+      expect(withoutPreferHelpers(result)).not.toContain('faker.seed(')
     })
   })
 
@@ -2635,9 +2916,11 @@ export default app
 
     it('sanitizes a hyphenated schema name, quotes keys and escapes auth / param names', async () => {
       const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/')))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserProfileSchema = z
   .object({
@@ -2676,13 +2959,22 @@ function mockUserProfile() {
   }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getProfilesProfileIdRouteHandler: RouteHandler<typeof getProfilesProfileIdRoute> = async (
   c,
 ) => {
   if (!c.req.header("X-Key'); evil(); ('")) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
-  if (c.req.param('profile-id') === '__non_existent__') {
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [], '404': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
+  }
+  if (prefer.key === '404') {
+    return c.body(null, 404)
+  }
+  if (prefer.key === undefined && c.req.param('profile-id') === '__non_existent__') {
     return c.body(null, 404)
   }
   return c.json(mockUserProfile(), 200)
@@ -2698,9 +2990,11 @@ export default app
 
     it("uses a property's scalar example when useExamples is 'all'", async () => {
       const result = await runGenerator(fmt(makeMock(edgeOpenAPI, '/', { useExamples: 'all' })))
-      expect(result)
+      expect(withoutPreferHelpers(result))
         .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
 import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const UserProfileSchema = z
   .object({
@@ -2736,13 +3030,22 @@ function mockUserProfile() {
   return { 'first-name': faker.person.firstName(), role: 'admin' as const }
 }
 
+/* resolvePrefer, preferResponse, preferProblem */
+
 const getProfilesProfileIdRouteHandler: RouteHandler<typeof getProfilesProfileIdRoute> = async (
   c,
 ) => {
   if (!c.req.header("X-Key'); evil(); ('")) {
     return c.json({ message: 'Unauthorized' }, 401)
   }
-  if (c.req.param('profile-id') === '__non_existent__') {
+  const prefer = resolvePrefer(c.req, { '200': [], '401': [], '404': [] }, '200')
+  if (prefer.key === '401') {
+    return c.body(null, 401)
+  }
+  if (prefer.key === '404') {
+    return c.body(null, 404)
+  }
+  if (prefer.key === undefined && c.req.param('profile-id') === '__non_existent__') {
     return c.body(null, 404)
   }
   return c.json(mockUserProfile(), 200)
@@ -2751,6 +3054,238 @@ const getProfilesProfileIdRouteHandler: RouteHandler<typeof getProfilesProfileId
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getProfilesProfileIdRoute, getProfilesProfileIdRouteHandler)
+
+export default app
+`)
+    })
+  })
+
+  describe('Prefer (Prism-compatible response selection)', () => {
+    it('emits the resolvePrefer / preferResponse / preferProblem helpers once', async () => {
+      const result = await runGenerator(fmt(makeMock(minimalOpenAPI, '/')))
+      const helpers = result.match(
+        /\/\/ Reads Prism's[\s\S]*?\nfunction preferProblem\([\s\S]*?\n\}\n/gu,
+      )
+      expect(helpers?.length).toBe(1)
+      expect(helpers?.[0])
+        .toBe(`// Reads Prism's \`Prefer: code=<status>, example=<name>\` header (or the \`__code\` /
+// \`__example\` query) and resolves it against the responses the route declares:
+// the exact status, then its \`NXX\` range, then \`default\`. Without a code the
+// example is looked up in the success response. Anything the route does not
+// declare answers 500 problem+json, as Prism does.
+function resolvePrefer(
+  req: { header(name: string): string | undefined; query(name: string): string | undefined },
+  responses: { readonly [key: string]: readonly string[] },
+  success: string,
+) {
+  let code = req.query('__code')
+  let example = req.query('__example')
+  for (const [, name = '', quoted, bare] of (req.header('Prefer') ?? '').matchAll(
+    /([A-Za-z]+)\\s*=\\s*(?:"([^"]*)"|([^\\s,;]*))/gu,
+  )) {
+    if (name.toLowerCase() === 'code') code ??= quoted ?? bare
+    if (name.toLowerCase() === 'example') example ??= quoted ?? bare
+  }
+  if (code === undefined && example === undefined) return {}
+  if (code !== undefined && !/^[2-5]\\d\\d$/u.test(code)) {
+    preferProblem(\`Prefer code=\${code} is not a status code between 200 and 599.\`)
+  }
+  const key =
+    code === undefined
+      ? success
+      : [code, \`\${code.slice(0, 1)}XX\`, 'default'].find((k) => Object.hasOwn(responses, k))
+  if (key === undefined) preferProblem(\`No \${code} response is declared for this operation.\`)
+  if (example !== undefined && !responses[key]?.includes(example)) {
+    preferProblem(\`No example named "\${example}" is declared for the \${key} response.\`)
+  }
+  return { key, code, example }
+}
+
+// Answers with a status the route's types cannot name (a \`4XX\`/\`default\` response
+// picked at runtime); Hono's error handler sends \`res\` with that status.
+function preferResponse(status: number, body: string | null, contentType?: string): never {
+  throw new HTTPException(status as ContentfulStatusCode, {
+    res: new Response(body, contentType ? { headers: { 'Content-Type': contentType } } : {}),
+  })
+}
+
+function preferProblem(detail: string): never {
+  return preferResponse(
+    500,
+    JSON.stringify({
+      type: 'about:blank',
+      title: 'Mock response unavailable',
+      status: 500,
+      detail,
+    }),
+    'application/problem+json',
+  )
+}
+`)
+    })
+
+    it('branches on named examples, problem+json, a 4XX range, default and no-content responses', async () => {
+      const spec = {
+        openapi: '3.1.0',
+        info: { title: 'T', version: '1' },
+        paths: {
+          '/orders/{orderId}': {
+            get: {
+              operationId: 'getOrder',
+              parameters: [
+                { name: 'orderId', in: 'path', required: true, schema: { type: 'string' } },
+              ],
+              responses: {
+                '200': {
+                  description: 'The order',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/Order' },
+                      examples: {
+                        shipped: { $ref: '#/components/examples/ShippedOrder' },
+                        pending: { value: { id: 'o-2' } },
+                        external: { externalValue: 'https://example.com/order.json' },
+                      },
+                    },
+                  },
+                },
+                '404': {
+                  description: 'No such order',
+                  content: {
+                    'application/problem+json': {
+                      schema: { $ref: '#/components/schemas/Problem' },
+                    },
+                  },
+                },
+                '4xx': {
+                  description: 'Client error',
+                  content: { 'text/plain': { schema: { type: 'string' } } },
+                },
+                '503': { description: 'Maintenance' },
+                default: {
+                  description: 'Unexpected error',
+                  content: {
+                    'application/json': { schema: { $ref: '#/components/schemas/Problem' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          examples: { ShippedOrder: { value: { id: 'o-1' } } },
+          schemas: {
+            Order: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+            Problem: {
+              type: 'object',
+              required: ['title'],
+              properties: { title: { type: 'string' } },
+            },
+          },
+        },
+      } as OpenAPI
+      expect(await format(spec, '/'))
+        .toBe(`import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+import { HTTPException } from 'hono/http-exception'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
+
+const OrderSchema = z
+  .object({ id: z.string() })
+  .openapi({ required: ['id'] })
+  .openapi('Order')
+
+const ProblemSchema = z
+  .object({ title: z.string() })
+  .openapi({ required: ['title'] })
+  .openapi('Problem')
+
+const ShippedOrderExample = { value: { id: 'o-1' } }
+
+export const getOrdersOrderIdRoute = createRoute({
+  method: 'get',
+  path: '/orders/{orderId}',
+  operationId: 'getOrder',
+  request: {
+    params: z.object({
+      orderId: z
+        .string()
+        .openapi({
+          param: { name: 'orderId', in: 'path', required: true, schema: { type: 'string' } },
+        }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'The order',
+      content: {
+        'application/json': {
+          schema: OrderSchema,
+          examples: {
+            shipped: ShippedOrderExample,
+            pending: { value: { id: 'o-2' } },
+            external: { externalValue: 'https://example.com/order.json' },
+          },
+        },
+      },
+    },
+    404: {
+      description: 'No such order',
+      content: { 'application/problem+json': { schema: ProblemSchema } },
+    },
+    503: { description: 'Maintenance' },
+    '4xx': { description: 'Client error', content: { 'text/plain': { schema: z.string() } } },
+    default: {
+      description: 'Unexpected error',
+      content: { 'application/json': { schema: ProblemSchema } },
+    },
+  },
+})
+
+function mockProblem() {
+  return { title: faker.lorem.sentence() }
+}
+
+/* resolvePrefer, preferResponse, preferProblem */
+
+const getOrdersOrderIdRouteHandler: RouteHandler<typeof getOrdersOrderIdRoute> = async (c) => {
+  const prefer = resolvePrefer(
+    c.req,
+    { '200': ['shipped', 'pending'], '404': [], '503': [], '4XX': [], default: [] },
+    '200',
+  )
+  if (prefer.key === '200' && prefer.example === 'pending') {
+    return c.json({ id: 'o-2' } as z.infer<typeof OrderSchema>, 200)
+  }
+  if (prefer.key === '404') {
+    return c.json(mockProblem(), 404, { 'Content-Type': 'application/problem+json' })
+  }
+  if (prefer.key === '503') {
+    return c.body(null, 503)
+  }
+  if (prefer.key === '4XX') {
+    return preferResponse(
+      Number(prefer.code ?? 400),
+      String(faker.string.alpha({ length: { min: 5, max: 20 } })),
+      'text/plain',
+    )
+  }
+  if (prefer.key === 'default') {
+    return preferResponse(
+      Number(prefer.code ?? 200),
+      JSON.stringify(mockProblem()),
+      'application/json',
+    )
+  }
+  if (prefer.key === undefined && c.req.param('orderId') === '__non_existent__') {
+    return c.json(mockProblem(), 404, { 'Content-Type': 'application/problem+json' })
+  }
+  return c.json({ id: 'o-1' } as z.infer<typeof OrderSchema>, 200)
+}
+
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getOrdersOrderIdRoute, getOrdersOrderIdRouteHandler)
 
 export default app
 `)
