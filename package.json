@@ -16,5 +16,5 @@
   "devDependencies": {
     "vite-plus": "0.3.0"
   },
-  "packageManager": "pnpm@11.24.0"
+  "packageManager": "pnpm@11.25.0"
 }
