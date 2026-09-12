@@ -60,7 +60,7 @@
     "test": "vp test"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^12.1.0",
+    "@apidevtools/swagger-parser": "^13.0.0",
     "@effect/platform-node": "4.0.0-rc.112",
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
