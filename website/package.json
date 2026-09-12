@@ -13,7 +13,7 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
     "@guolao/vue-monaco-editor": "^1.6.0",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^26.4.0",
