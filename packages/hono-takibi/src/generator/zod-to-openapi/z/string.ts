@@ -63,7 +63,7 @@ function makeFormatOptions(schema: Schema): readonly string[] {
       return [
         regex
           ? `pattern:/${escapeRegexLiteral(regex)}/`
-          : preset && EMAIL_PATTERN_PRESET[preset]
+          : preset && Object.hasOwn(EMAIL_PATTERN_PRESET, preset)
             ? `pattern:z.regexes.${EMAIL_PATTERN_PRESET[preset]}`
             : undefined,
       ].filter((v) => v !== undefined)
@@ -192,7 +192,12 @@ export function string(
     return `${baseStr}${decodeStep}${validateStep}`
   }
 
-  const format = schema.format && FORMAT_STRING[schema.format]
+  // `Object.hasOwn`: a document `format: constructor` must not resolve to
+  // `Object.prototype.constructor` and be spliced into the output as source.
+  const format =
+    schema.format && Object.hasOwn(FORMAT_STRING, schema.format)
+      ? FORMAT_STRING[schema.format]
+      : undefined
   const isTransformFormat = !!(schema.format && TRANSFORM_FORMATS.has(schema.format))
   const isValidationFormat = !!(format && !isTransformFormat)
   // Transform extensions applied as pre-validation when paired with a

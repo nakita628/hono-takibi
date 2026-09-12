@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { schemaToFaker } from './faker.js'
+import type { Format } from '../openapi/index.js'
+import { getNonExistentValue, mockFunctionName, schemaToFaker } from './faker.js'
 
 describe('schemaToFaker', () => {
   describe('example values', () => {
@@ -323,15 +324,41 @@ describe('schemaToFaker', () => {
       )
     })
 
-    it.concurrent('uses pattern for string', () => {
+    // faker strips `^`/`$` only from a RegExp, and copies the `\/` a RegExp's
+    // `.source` always contains into the value, so the pattern goes in as a string.
+    it.concurrent('passes the pattern to faker as a string without anchors', () => {
       expect(schemaToFaker({ type: 'string', pattern: '^[A-Z]{3}$' })).toBe(
-        'faker.helpers.fromRegExp(/^[A-Z]{3}$/)',
+        "faker.helpers.fromRegExp('[A-Z]{3}')",
       )
     })
 
-    it.concurrent('escapes an unescaped forward slash in the pattern', () => {
+    it.concurrent('keeps a forward slash literal so the value can match the pattern', () => {
       expect(schemaToFaker({ type: 'string', pattern: 'a/b' })).toBe(
-        'faker.helpers.fromRegExp(/a\\/b/)',
+        "faker.helpers.fromRegExp('a/b')",
+      )
+    })
+
+    it.concurrent('drops the no-op escape of a forward slash', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^a\\/b$' })).toBe(
+        "faker.helpers.fromRegExp('a/b')",
+      )
+    })
+
+    it.concurrent('keeps an escaped trailing dollar (it is not an anchor)', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^a\\$' })).toBe(
+        "faker.helpers.fromRegExp('a\\\\$')",
+      )
+    })
+
+    it.concurrent('strips the end anchor after an escaped backslash', () => {
+      expect(schemaToFaker({ type: 'string', pattern: '^a\\\\$' })).toBe(
+        "faker.helpers.fromRegExp('a\\\\\\\\')",
+      )
+    })
+
+    it.concurrent('emits a pattern that tries to break out as an inert string literal', () => {
+      expect(schemaToFaker({ type: 'string', pattern: "x');globalThis.pwned=1;('\n" })).toBe(
+        "faker.helpers.fromRegExp('x\\');globalThis.pwned=1;(\\'\\n')",
       )
     })
   })
@@ -351,18 +378,31 @@ describe('schemaToFaker', () => {
       ).toBe('null')
     })
 
-    it.concurrent('uses object example', () => {
+    // A whole-object literal would widen enum members to `string` and cannot
+    // express `bigint`, so object/array examples are composed from their members.
+    it.concurrent('builds an object from its members instead of its own example', () => {
       expect(
-        schemaToFaker({ type: 'object', example: { key: 'value' } }, undefined, {
-          useExamples: true,
-        }),
-      ).toBe('{"key":"value"}')
+        schemaToFaker(
+          {
+            type: 'object',
+            example: { key: 'value' },
+            required: ['key'],
+            properties: { key: { type: 'string', example: 'from-property' } },
+          },
+          undefined,
+          { useExamples: true },
+        ),
+      ).toBe('{ key: "from-property" }')
     })
 
-    it.concurrent('uses array example', () => {
+    it.concurrent('builds an array from its items instead of its own example', () => {
       expect(
-        schemaToFaker({ type: 'array', example: [1, 2, 3] }, undefined, { useExamples: true }),
-      ).toBe('[1,2,3]')
+        schemaToFaker(
+          { type: 'array', example: [1, 2, 3], items: { type: 'integer', example: 7 } },
+          undefined,
+          { useExamples: true },
+        ),
+      ).toBe('Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () => (7))')
     })
   })
 
@@ -425,13 +465,52 @@ describe('schemaToFaker', () => {
   })
 
   describe('object with additionalProperties only', () => {
-    it.concurrent('returns empty object when no explicit properties', () => {
+    it.concurrent('generates a few entries for a map', () => {
       expect(
         schemaToFaker({
           type: 'object',
           additionalProperties: { type: 'string' },
         }),
+      ).toBe(
+        'Object.fromEntries(Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, () => [faker.string.alpha(8), faker.string.alpha({ length: { min: 5, max: 20 } })] satisfies [string, unknown]))',
+      )
+    })
+
+    it.concurrent('honors minProperties / maxProperties for a map', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          additionalProperties: { type: 'boolean' },
+          minProperties: 2,
+          maxProperties: 5,
+        }),
+      ).toBe(
+        'Object.fromEntries(Array.from({ length: faker.number.int({ min: 2, max: 5 }) }, () => [faker.string.alpha(8), faker.datatype.boolean()] satisfies [string, unknown]))',
+      )
+    })
+
+    it.concurrent('never inverts the entry count when only maxProperties is 0', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          additionalProperties: { type: 'boolean' },
+          maxProperties: 0,
+        }),
+      ).toContain('faker.number.int({ min: 0, max: 0 })')
+    })
+
+    it.concurrent('keeps a map with propertyNames empty (random keys would violate it)', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          propertyNames: { pattern: '^x-' },
+        }),
       ).toBe('{}')
+    })
+
+    it.concurrent('returns an empty object for a free-form object', () => {
+      expect(schemaToFaker({ type: 'object' })).toBe('{}')
     })
 
     it.concurrent('returns empty object for additionalProperties true', () => {
@@ -662,7 +741,7 @@ describe('schemaToFaker', () => {
 
     it.concurrent('respects pattern over the status hint', () => {
       expect(schemaToFaker({ type: 'string', pattern: '^[0-9]+$' }, 'status')).toBe(
-        'faker.helpers.fromRegExp(/^[0-9]+$/)',
+        "faker.helpers.fromRegExp('[0-9]+')",
       )
     })
 
@@ -854,6 +933,298 @@ describe('schemaToFaker', () => {
 
     it.concurrent('returns undefined for unknown type', () => {
       expect(schemaToFaker({ type: 'date' })).toBe('undefined')
+    })
+  })
+
+  describe('property names that are not identifiers', () => {
+    it.concurrent.each([
+      ['first-name', "'first-name'"],
+      ['user.name', "'user.name'"],
+      ['full name', "'full name'"],
+      ['1st', "'1st'"],
+      ["it's", "'it\\'s'"],
+    ])('quotes the %s key', (name, key) => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          required: [name],
+          properties: { [name]: { type: 'boolean' } },
+        }),
+      ).toBe(`{ ${key}: faker.datatype.boolean() }`)
+    })
+
+    it.concurrent('emits a key that is a JS expression as an inert string key', () => {
+      const name = 'a: (globalThis.pwned = true), b'
+      expect(
+        schemaToFaker({
+          type: 'object',
+          required: [name],
+          properties: { [name]: { type: 'boolean' } },
+        }),
+      ).toBe("{ 'a: (globalThis.pwned = true), b': faker.datatype.boolean() }")
+    })
+
+    it.concurrent('leaves identifier keys (reserved words included) unquoted', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          required: ['class', '$id'],
+          properties: { class: { type: 'boolean' }, $id: { type: 'boolean' } },
+        }),
+      ).toBe('{ class: faker.datatype.boolean(), $id: faker.datatype.boolean() }')
+    })
+  })
+
+  describe('mockFunctionName', () => {
+    it.concurrent.each([
+      ['User', 'mockUser'],
+      ['user', 'mockuser'],
+      ['api.v1.User', 'mockapiv1User'],
+      ['User_Profile', 'mockUser_Profile'],
+      ['User-Profile', 'mockUserProfile'],
+      ['User Profile', 'mockUserProfile'],
+    ])('%s -> %s', (name, expected) => {
+      expect(mockFunctionName(name)).toBe(expected)
+    })
+
+    it.concurrent('calls a hyphenated component through the same sanitized name', () => {
+      expect(schemaToFaker({ $ref: '#/components/schemas/User-Profile' })).toBe('mockUserProfile()')
+    })
+  })
+
+  describe('property-name hints respect the declared type', () => {
+    it.concurrent.each([
+      ['status', 'integer', 'faker.number.int({ min: 1, max: 1000 })'],
+      ['createdAt', 'integer', 'faker.number.int({ min: 1, max: 1000 })'],
+      ['type', 'integer', 'faker.number.int({ min: 1, max: 1000 })'],
+      ['price', 'integer', 'faker.number.int({ min: 1, max: 1000 })'],
+      ['name', 'number', 'faker.number.float({ min: 1, max: 1000, fractionDigits: 2 })'],
+      ['email', 'boolean', 'faker.datatype.boolean()'],
+    ] as const)('ignores the %s hint on a %s', (name, type, expected) => {
+      expect(schemaToFaker({ type }, name)).toBe(expected)
+    })
+
+    it.concurrent('keeps an integer hint on a number (every integer is a number)', () => {
+      expect(schemaToFaker({ type: 'number' }, 'age')).toBe(
+        'faker.number.int({ min: 1, max: 120 })',
+      )
+    })
+
+    it.concurrent('keeps using hints for an untyped schema', () => {
+      expect(schemaToFaker({}, 'email')).toBe('faker.internet.email()')
+    })
+
+    it.concurrent.each([
+      ['created_at', 'faker.date.past().toISOString()'],
+      ['first_name', 'faker.person.firstName()'],
+      ['first-name', 'faker.person.firstName()'],
+      ['zip_code', 'faker.location.zipCode()'],
+    ])('matches the snake/kebab-case name %s', (name, expected) => {
+      expect(schemaToFaker({ type: 'string' }, name)).toBe(expected)
+    })
+
+    it.concurrent.each(['constructor', 'toString', '__proto__', 'hasOwnProperty'])(
+      'does not resolve the Object.prototype member %s as a hint',
+      (name) => {
+        expect(schemaToFaker({ type: 'string' }, name)).toBe(
+          'faker.string.alpha({ length: { min: 5, max: 20 } })',
+        )
+      },
+    )
+  })
+
+  describe('format hints respect the declared type', () => {
+    it.concurrent('does not emit a bigint for a string int64', () => {
+      expect(schemaToFaker({ type: 'string', format: 'int64' })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('does not emit a bigint for a number int64 (z.number(), not z.int64())', () => {
+      expect(schemaToFaker({ type: 'number', format: 'int64' })).toBe(
+        'faker.number.float({ min: 1, max: 1000, fractionDigits: 2 })',
+      )
+    })
+
+    it.concurrent('does not emit a string for an integer with a string format', () => {
+      expect(schemaToFaker({ type: 'integer', format: 'email' })).toBe(
+        'faker.number.int({ min: 1, max: 1000 })',
+      )
+    })
+
+    it.concurrent.each<[Format, string]>([
+      ['uuidv7', 'faker.string.uuid({ version: 7 })'],
+      ['ulid', 'faker.string.ulid()'],
+      ['nanoid', 'faker.string.nanoid()'],
+      ['jwt', 'faker.internet.jwt()'],
+      ['duration', '`P${faker.number.int({ min: 1, max: 30 })}D`'],
+      ['e164', "faker.phone.number({ style: 'international' })"],
+      ['cidrv4', '`${faker.internet.ipv4()}/${faker.number.int({ min: 0, max: 32 })}`'],
+    ])('maps the %s format', (format, expected) => {
+      expect(schemaToFaker({ type: 'string', format })).toBe(expected)
+    })
+  })
+
+  describe('OpenAPI 3.1 type arrays', () => {
+    it.concurrent('mocks a nullable string', () => {
+      expect(schemaToFaker({ type: ['string', 'null'] })).toBe(
+        'faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null])',
+      )
+    })
+
+    it.concurrent('mocks a single-member type array as that type', () => {
+      expect(schemaToFaker({ type: ['integer'], minimum: 3, maximum: 4 })).toBe(
+        'faker.number.int({ min: 3, max: 4 })',
+      )
+    })
+
+    it.concurrent('picks the member the zod schema is built from', () => {
+      expect(schemaToFaker({ type: ['integer', 'string'] })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+
+    it.concurrent('mocks a null-only type array as null', () => {
+      expect(schemaToFaker({ type: ['null'] })).toBe('null')
+    })
+
+    it.concurrent('mocks a nullable object with properties', () => {
+      expect(
+        schemaToFaker({
+          type: ['object', 'null'],
+          required: ['ok'],
+          properties: { ok: { type: 'boolean' } },
+        }),
+      ).toBe('faker.helpers.arrayElement([{ ok: faker.datatype.boolean() }, null])')
+    })
+
+    it.concurrent('keeps the property hint through the type array', () => {
+      expect(schemaToFaker({ type: ['string', 'null'] }, 'email')).toBe(
+        'faker.helpers.arrayElement([faker.internet.email(), null])',
+      )
+    })
+
+    it.concurrent('treats a type-array nullable property like a nullable one', () => {
+      expect(
+        schemaToFaker({
+          type: 'object',
+          properties: { nick: { type: ['string', 'null'] }, age: { type: ['integer', 'null'] } },
+          required: ['nick'],
+        }),
+      ).toBe(
+        '{ nick: faker.helpers.arrayElement([faker.string.alpha({ length: { min: 5, max: 20 } }), null]), age: faker.helpers.arrayElement([faker.number.int({ min: 1, max: 120 }), null]) }',
+      )
+    })
+  })
+
+  describe('array bounds from config never invert the spec bounds', () => {
+    it.concurrent('clamps arrayMin to maxItems', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' }, maxItems: 3 }, undefined, {
+          arrayMin: 5,
+        }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 3, max: 3 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('raises arrayMax to minItems', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' }, minItems: 4 }, undefined, {
+          arrayMax: 2,
+        }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 4, max: 4 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+
+    it.concurrent('keeps arrayMin/arrayMax that fit inside the spec bounds', () => {
+      expect(
+        schemaToFaker({ type: 'array', items: { type: 'boolean' }, maxItems: 8 }, undefined, {
+          arrayMin: 2,
+        }),
+      ).toBe(
+        'Array.from({ length: faker.number.int({ min: 2, max: 8 }) }, () => (faker.datatype.boolean()))',
+      )
+    })
+  })
+
+  describe('schema-level examples (useExamples)', () => {
+    const options = { useExamples: true }
+
+    it.concurrent('uses a property example', () => {
+      expect(
+        schemaToFaker(
+          {
+            type: 'object',
+            required: ['bio'],
+            properties: { bio: { type: 'string', example: 'Hi' } },
+          },
+          undefined,
+          options,
+        ),
+      ).toBe('{ bio: "Hi" }')
+    })
+
+    it.concurrent('reads the first entry of an OpenAPI 3.1 examples array', () => {
+      expect(
+        schemaToFaker({ type: 'string', examples: ['first', 'second'] }, undefined, options),
+      ).toBe('"first"')
+    })
+
+    it.concurrent('keeps an enum example literal so it satisfies z.enum', () => {
+      expect(
+        schemaToFaker({ type: 'string', enum: ['a', 'b'], example: 'b' }, undefined, options),
+      ).toBe('"b" as const')
+    })
+
+    it.concurrent('ignores an example that is not an enum member', () => {
+      expect(
+        schemaToFaker({ type: 'string', enum: ['a', 'b'], example: 'z' }, undefined, options),
+      ).toBe('faker.helpers.arrayElement(["a", "b"] as const)')
+    })
+
+    it.concurrent('emits an int64 example as a bigint', () => {
+      expect(
+        schemaToFaker({ type: 'integer', format: 'int64', example: 42 }, undefined, options),
+      ).toBe('42n')
+    })
+
+    it.concurrent('ignores an example whose type disagrees with the schema', () => {
+      expect(schemaToFaker({ type: 'integer', example: 'ten' }, undefined, options)).toBe(
+        'faker.number.int({ min: 1, max: 1000 })',
+      )
+      expect(schemaToFaker({ type: 'integer', example: 1.5 }, undefined, options)).toBe(
+        'faker.number.int({ min: 1, max: 1000 })',
+      )
+    })
+
+    it.concurrent('ignores an example next to a $ref (its type is unknown here)', () => {
+      expect(
+        schemaToFaker({ $ref: '#/components/schemas/Status', example: 'x' }, undefined, options),
+      ).toBe('mockStatus()')
+    })
+
+    it.concurrent('lets const win over an example', () => {
+      expect(schemaToFaker({ const: 'fixed', example: 'other' }, undefined, options)).toBe(
+        '"fixed" as const',
+      )
+    })
+
+    it.concurrent('ignores examples unless requested', () => {
+      expect(schemaToFaker({ type: 'string', examples: ['first'] })).toBe(
+        'faker.string.alpha({ length: { min: 5, max: 20 } })',
+      )
+    })
+  })
+
+  describe('getNonExistentValue', () => {
+    it.concurrent('uses -1 for an integer type array', () => {
+      expect(getNonExistentValue({ type: ['integer', 'null'] })).toBe('-1')
+    })
+
+    it.concurrent('follows the zod member priority for a mixed type array', () => {
+      expect(getNonExistentValue({ type: ['integer', 'string'] })).toBe('__non_existent__')
     })
   })
 })

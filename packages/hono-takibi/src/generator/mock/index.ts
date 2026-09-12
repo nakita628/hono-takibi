@@ -9,9 +9,10 @@ import {
   isSchemaObject,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
 import type {
   Components,
+  Content,
   Media,
   OpenAPI,
   Operation,
@@ -21,6 +22,7 @@ import type {
 import {
   cyclicNodes,
   ensureSuffix,
+  makeStringLiteral,
   methodPath,
   statusCodeToNumber,
   toIdentifierPascalCase,
@@ -158,7 +160,7 @@ function makeMockFunction(
   schema: Schema,
   schemas: { readonly [k: string]: Schema },
   isCircular: boolean,
-  fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number },
+  fakerOptions: FakerOptions,
 ) {
   const mockBody = schemaToFaker(schema, undefined, { schemas, ...fakerOptions })
   const returnType = isCircular ? ': any' : ''
@@ -172,10 +174,9 @@ function makeMockFunction(
   // The cast target must match the emitted const name, which `helper/schema.ts`
   // derives as `toIdentifierPascalCase(ensureSuffix(name, 'Schema'))` — using
   // the raw name here would mis-case it (e.g. `userIdSchema` vs `UserIdSchema`).
-  const sanitized = name.replaceAll('.', '')
   const schemaConst = toIdentifierPascalCase(ensureSuffix(name, 'Schema'))
   const body = schema['x-brand'] ? `${mockBody} as z.infer<typeof ${schemaConst}>` : mockBody
-  return `function mock${sanitized}()${returnType}{return ${body}}` as const
+  return `function ${mockFunctionName(name)}()${returnType}{return ${body}}` as const
 }
 
 function extractSecurityInfo(
@@ -298,6 +299,7 @@ function resolveSuccessResponse(
   const key = [...priority, ...others][0]
   if (!key) return undefined
   return {
+    key,
     statusCode: statusCodeToNumber(key),
     response: resolveResponse(responses[key], componentResponses),
   }
@@ -321,12 +323,13 @@ function makeAuthCheck(
       return [`c.req.header('Authorization')`]
     }
     if (sec.type === 'apiKey') {
-      if (sec.in === 'header') return [`c.req.header('${sec.name}')`]
-      if (sec.in === 'query') return [`c.req.query('${sec.name}')`]
+      // `name` comes from the document, so it is emitted as an escaped literal.
+      if (sec.in === 'header') return [`c.req.header(${makeStringLiteral(sec.name)})`]
+      if (sec.in === 'query') return [`c.req.query(${makeStringLiteral(sec.name)})`]
       // Hono's request object does not expose a `.cookie()` accessor; cookies
       // must come from the `hono/cookie` helper. Caller is responsible for
       // emitting the matching `import { getCookie } from 'hono/cookie'`.
-      if (sec.in === 'cookie') return [`getCookie(c, '${sec.name}')`]
+      if (sec.in === 'cookie') return [`getCookie(c, ${makeStringLiteral(sec.name)})`]
     }
     return []
   })
@@ -334,73 +337,228 @@ function makeAuthCheck(
   return `if(!(${authChecks.join(' || ')})){return c.json({ message: 'Unauthorized' }, 401)}`
 }
 
-// Reads a media object's representative example. Mirrors the docs generator's
-// `extractMediaExample`: `example` (singular) wins, otherwise the first entry of
-// `examples`. `$ref` entries resolve against `components.examples`;
-// `externalValue`-only entries yield `undefined` (the value lives outside the
-// document) so the handler falls back to faker.
-function extractMediaExample(media: Media, components: Components | undefined): unknown {
-  if (media.example !== undefined) return media.example
-  if (!media.examples) return undefined
-  const first = Object.values(media.examples)[0]
-  if (!first) return undefined
-  if ('$ref' in first && typeof first.$ref === 'string') {
-    const name = first.$ref.split('/').at(-1)
+// A media object's `examples` entry, resolved against `components.examples`.
+// An `externalValue`-only entry yields `undefined`: its value lives outside the
+// document.
+function exampleEntryValue(
+  entry: NonNullable<Media['examples']>[string],
+  components: Components | undefined,
+): unknown {
+  if ('$ref' in entry && typeof entry.$ref === 'string') {
+    const name = entry.$ref.split('/').at(-1)
     const resolved = name ? components?.examples?.[name] : undefined
     return resolved && 'value' in resolved ? resolved.value : undefined
   }
-  return 'value' in first ? first.value : undefined
+  return 'value' in entry ? entry.value : undefined
 }
 
-function makeHandlerBody(args: {
-  readonly statusCode: number
+// Reads a media object's representative example. Mirrors the docs generator's
+// `extractMediaExample`: `example` (singular) wins, otherwise the first entry of
+// `examples`, so the handler falls back to faker when that entry has no value.
+function extractMediaExample(media: Media, components: Components | undefined): unknown {
+  if (media.example !== undefined) return media.example
+  const first = Object.values(media.examples ?? {})[0]
+  return first ? exampleEntryValue(first, components) : undefined
+}
+
+// The media type answered through `c.json()`: `application/json` first, then any
+// `+json` suffix (`application/problem+json`, `application/vnd.api+json`), which
+// `@hono/zod-openapi` also types as JSON — error responses are commonly declared
+// as problem+json, and would otherwise mock to an empty body.
+function jsonMediaType(content: Content | undefined) {
+  const types = Object.keys(content ?? {})
+  return types.includes('application/json')
+    ? 'application/json'
+    : types.find((type) => /^application\/(?:[\w.-]+\+)?json(?:;|$)/u.test(type))
+}
+
+/** What a mock can answer for one declared response. */
+type MockResponse = {
+  /** The spec key (`404`, `4XX`, `default`), `XX` upper-cased. */
+  readonly key: string
+  readonly jsonType: string | undefined
   readonly jsonSchema: Schema | undefined
   readonly textSchema: Schema | undefined
-  readonly schemas: { readonly [k: string]: Schema }
-  readonly fakerOptions: { readonly arrayMin?: number; readonly arrayMax?: number }
-  readonly allRefs: Set<string>
-  readonly exampleValue: unknown
+  /** The example answered by default (`useExamples`), if any. */
+  readonly example: unknown
+  /** The `examples` entries a `Prefer: example=<name>` can select. */
+  readonly namedExamples: readonly (readonly [string, unknown])[]
+  /** The schema const an authored example is cast to (a named `$ref` schema). */
   readonly exampleCast: string | undefined
-}) {
-  const {
-    statusCode,
+}
+
+function describeResponse(
+  key: string,
+  response: Responses,
+  components: Components | undefined,
+  useExamples: boolean,
+): MockResponse {
+  const jsonType = jsonMediaType(response.content)
+  const jsonMedia = jsonType ? response.content?.[jsonType] : undefined
+  const textMedia = response.content?.['text/plain']
+  const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
+  return {
+    key: /^[1-5]xx$/iu.test(key) ? key.toUpperCase() : key,
+    jsonType,
     jsonSchema,
-    textSchema,
-    schemas,
-    fakerOptions,
-    allRefs,
-    exampleValue,
-    exampleCast,
-  } = args
-  // A spec-authored example is the strongest signal of intent: return it
-  // verbatim instead of faker. The cast mirrors the `x-brand` handling — an
-  // authored literal can be widened (e.g. `string` vs an enum/branded member),
-  // so it is pinned to the success schema's inferred type when that schema is a
-  // named `$ref`.
-  if (exampleValue !== undefined) {
-    const cast = exampleCast ? ` as z.infer<typeof ${exampleCast}>` : ''
-    return `return c.json(${JSON.stringify(exampleValue)}${cast}, ${statusCode})`
+    textSchema: textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined,
+    example: useExamples && jsonMedia ? extractMediaExample(jsonMedia, components) : undefined,
+    namedExamples: Object.entries(jsonMedia?.examples ?? {}).flatMap(([name, entry]) => {
+      const value = exampleEntryValue(entry, components)
+      return value === undefined ? [] : [[name, value] as const]
+    }),
+    exampleCast: jsonSchema?.$ref
+      ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
+      : undefined,
   }
-  if (jsonSchema) {
-    collectRefs(jsonSchema, allRefs)
-    const mockData = schemaToFaker(jsonSchema, undefined, { schemas, ...fakerOptions })
-    return `return c.json(${mockData}, ${statusCode})`
+}
+
+// The value expression and media of one answer: an authored example, else faker.
+function responsePayload(
+  response: MockResponse,
+  example: unknown,
+  schemas: { readonly [k: string]: Schema },
+  fakerOptions: FakerOptions,
+  allRefs: Set<string>,
+) {
+  if (example !== undefined) {
+    // An authored literal can be widened (e.g. `string` vs an enum/branded
+    // member), so it is pinned to the schema's inferred type when that schema
+    // is a named `$ref` — mirroring the `x-brand` handling.
+    const cast = response.exampleCast ? ` as z.infer<typeof ${response.exampleCast}>` : ''
+    return { kind: 'json', data: `${JSON.stringify(example)}${cast}` } as const
   }
-  if (textSchema) {
-    const mockData = schemaToFaker(textSchema, undefined, { schemas, ...fakerOptions })
-    return `return c.text(${mockData}, ${statusCode})`
+  if (response.jsonSchema) {
+    collectRefs(response.jsonSchema, allRefs)
+    const data = schemaToFaker(response.jsonSchema, undefined, { schemas, ...fakerOptions })
+    return { kind: 'json', data } as const
   }
+  if (response.textSchema) {
+    const data = schemaToFaker(response.textSchema, undefined, { schemas, ...fakerOptions })
+    return { kind: 'text', data } as const
+  }
+  return { kind: 'none' } as const
+}
+
+// Answers with a status the route declares literally, through the typed
+// `c.json`/`c.text`, so the body is checked against that response's schema.
+function makeHandlerBody(
+  statusCode: number,
+  response: MockResponse | undefined,
+  payload: ReturnType<typeof responsePayload>,
+) {
+  if (payload.kind === 'json') {
+    // `c.json` defaults the header to application/json; a `+json` type is kept.
+    const headers =
+      response?.jsonType && response.jsonType !== 'application/json'
+        ? `, { 'Content-Type': ${makeStringLiteral(response.jsonType)} }`
+        : ''
+    return `return c.json(${payload.data}, ${statusCode}${headers})`
+  }
+  if (payload.kind === 'text') return `return c.text(${payload.data}, ${statusCode})`
   if (statusCode === 204) return `return new Response(null, { status: 204 })`
   return `return c.body(null, ${statusCode})`
 }
+
+// Answers a `4XX`/`default` response, whose status is only known at runtime
+// (the `Prefer` code), so the route's types cannot name it: `preferResponse`
+// builds the `Response` directly.
+function makeRawHandlerBody(
+  statusExpr: string,
+  response: MockResponse,
+  payload: ReturnType<typeof responsePayload>,
+) {
+  if (payload.kind === 'json') {
+    const type = makeStringLiteral(response.jsonType ?? 'application/json')
+    return `return preferResponse(${statusExpr}, JSON.stringify(${payload.data}), ${type})`
+  }
+  if (payload.kind === 'text') {
+    return `return preferResponse(${statusExpr}, String(${payload.data}), 'text/plain')`
+  }
+  return `return preferResponse(${statusExpr}, null)`
+}
+
+// Module-level helpers for Prism-compatible response selection, emitted once
+// per mock file. The names carry no `mock` prefix so they can never collide
+// with a component factory (`mock<Name>`).
+const PREFER_HELPERS = `// Reads Prism's \`Prefer: code=<status>, example=<name>\` header (or the \`__code\` /
+// \`__example\` query) and resolves it against the responses the route declares:
+// the exact status, then its \`NXX\` range, then \`default\`. Without a code the
+// example is looked up in the success response. Anything the route does not
+// declare answers 500 problem+json, as Prism does.
+function resolvePrefer(
+  req: { header(name: string): string | undefined; query(name: string): string | undefined },
+  responses: { readonly [key: string]: readonly string[] },
+  success: string,
+) {
+  let code = req.query('__code')
+  let example = req.query('__example')
+  for (const [, name = '', quoted, bare] of (req.header('Prefer') ?? '').matchAll(
+    /([A-Za-z]+)\\s*=\\s*(?:"([^"]*)"|([^\\s,;]*))/gu,
+  )) {
+    if (name.toLowerCase() === 'code') code ??= quoted ?? bare
+    if (name.toLowerCase() === 'example') example ??= quoted ?? bare
+  }
+  if (code === undefined && example === undefined) return {}
+  if (code !== undefined && !/^[2-5]\\d\\d$/u.test(code)) {
+    preferProblem(\`Prefer code=\${code} is not a status code between 200 and 599.\`)
+  }
+  const key =
+    code === undefined
+      ? success
+      : [code, \`\${code.slice(0, 1)}XX\`, 'default'].find((k) => Object.hasOwn(responses, k))
+  if (key === undefined) preferProblem(\`No \${code} response is declared for this operation.\`)
+  if (example !== undefined && !responses[key]?.includes(example)) {
+    preferProblem(\`No example named "\${example}" is declared for the \${key} response.\`)
+  }
+  return { key, code, example }
+}
+
+// Answers with a status the route's types cannot name (a \`4XX\`/\`default\` response
+// picked at runtime); Hono's error handler sends \`res\` with that status.
+function preferResponse(status: number, body: string | null, contentType?: string): never {
+  throw new HTTPException(status as ContentfulStatusCode, {
+    res: new Response(body, contentType ? { headers: { 'Content-Type': contentType } } : {}),
+  })
+}
+
+function preferProblem(detail: string): never {
+  return preferResponse(
+    500,
+    JSON.stringify({ type: 'about:blank', title: 'Mock response unavailable', status: 500, detail }),
+    'application/problem+json',
+  )
+}`
 
 export type MockOptions = {
   readonly arrayMin?: number
   readonly arrayMax?: number
   readonly readonly?: boolean
-  readonly useExamples?: boolean
+  /**
+   * `true` (default) answers with a response's media-level `example`/`examples`;
+   * `'all'` also uses the scalar `example`/`examples` of every schema and
+   * property; `false` always generates.
+   */
+  readonly useExamples?: boolean | 'all'
   readonly locale?: string
   readonly delay?: number | { readonly min: number; readonly max: number } | false
+  /**
+   * Re-seeds faker (and pins its reference date to `SEED_REF_DATE`) at the start
+   * of every handler, so each route answers the same body every time.
+   */
+  readonly seed?: number | readonly number[]
+}
+
+// `faker.date.*` is relative to the current time, so a seeded mock also pins
+// the reference date; otherwise every date (and a JWT's `iat`) would drift.
+const SEED_REF_DATE = '2025-01-01T00:00:00.000Z'
+
+// The knobs threaded into `schemaToFaker`; `useExamples` there means the
+// schema-level examples (`MockOptions['useExamples'] === 'all'`).
+type FakerOptions = {
+  readonly arrayMin?: number
+  readonly arrayMax?: number
+  readonly useExamples?: boolean
 }
 
 // Builds the optional response-delay middleware. A fixed `number` sleeps that
@@ -421,20 +579,26 @@ function delayMiddlewareCode(delay: MockOptions['delay']) {
 }
 
 export function makeMock(openapi: OpenAPI, basePath: string, options: MockOptions = {}) {
-  // Split the emit-shell knobs off; the rest is exactly the faker knobs
-  // (`arrayMin`/`arrayMax`), threaded into `schemaToFaker`. `useExamples` is
-  // destructured out (not threaded) so it
-  // gates the media-level example only (`extractMediaExample`); keeping it out of
-  // `fakerOptions` preserves the property-level example behavior in one place.
-  // It defaults to `true`: the mock has always preferred a spec-authored example.
+  // Split the emit-shell knobs off from the faker knobs threaded into
+  // `schemaToFaker`. `useExamples` defaults to `true` — the mock has always
+  // preferred a spec-authored response example — which gates the media-level
+  // example only (`extractMediaExample`); `'all'` additionally lets
+  // `schemaToFaker` use each schema's own scalar example.
   const {
     useExamples: useExamplesOption,
     locale,
     delay,
+    seed,
     readonly: readonlyOption,
-    ...fakerOptions
+    arrayMin,
+    arrayMax,
   } = options
   const useExamples = useExamplesOption ?? true
+  const fakerOptions: FakerOptions = {
+    ...(arrayMin !== undefined ? { arrayMin } : {}),
+    ...(arrayMax !== undefined ? { arrayMax } : {}),
+    ...(useExamples === 'all' ? { useExamples: true } : {}),
+  }
   const filteredOpenapi = filterToJsonContentTypes(openapi)
   const paths = filteredOpenapi.paths
   const schemas = openapi.components?.schemas ?? {}
@@ -453,33 +617,71 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
       const requiresAuth = security.length > 0
       const success = resolveSuccessResponse(operation.responses, componentResponses)
       const statusCode = success?.statusCode ?? 200
-      const successResponse = success?.response
-      const jsonMedia = successResponse?.content?.['application/json']
-      const textMedia = successResponse?.content?.['text/plain']
-      const jsonSchema = jsonMedia && isMediaWithSchema(jsonMedia) ? jsonMedia.schema : undefined
-      const textSchema = textMedia && isMediaWithSchema(textMedia) ? textMedia.schema : undefined
-      const exampleValue =
-        useExamples && jsonMedia ? extractMediaExample(jsonMedia, openapi.components) : undefined
-      const exampleCast =
-        exampleValue !== undefined && jsonSchema?.$ref
-          ? toIdentifierPascalCase(ensureSuffix(jsonSchema.$ref.split('/').at(-1) ?? '', 'Schema'))
-          : undefined
-      const handlerBody = makeHandlerBody({
-        statusCode,
-        jsonSchema,
-        textSchema,
-        schemas,
-        fakerOptions,
-        allRefs,
-        exampleValue,
-        exampleCast,
+      const successKey = success?.key ?? '200'
+      const responses = Object.entries(operation.responses ?? {}).flatMap(([key, raw]) => {
+        const response = resolveResponse(raw, componentResponses)
+        return response
+          ? [describeResponse(key, response, openapi.components, useExamples !== false)]
+          : []
       })
+      const successResponse = responses.find((r) => r.key === successKey)
+      const handlerBody = makeHandlerBody(
+        statusCode,
+        successResponse,
+        successResponse
+          ? responsePayload(
+              successResponse,
+              successResponse.example,
+              schemas,
+              fakerOptions,
+              allRefs,
+            )
+          : { kind: 'none' },
+      )
+      // `Prefer: code=…, example=…` picks any declared response or named example
+      // (Prism's convention), so error states can be exercised on demand. A
+      // literally declared status answers through the typed `c.json`; a `4XX` /
+      // `default` one, whose status comes from the request, through
+      // `preferResponse`. The success response's default body stays the final
+      // return below.
+      const preferTable = JSON.stringify(
+        Object.fromEntries(responses.map((r) => [r.key, r.namedExamples.map(([name]) => name)])),
+      )
+      const preferBranches = responses
+        .flatMap((response) => {
+          const isLiteral = /^\d{3}$/u.test(response.key)
+          const key = JSON.stringify(response.key)
+          const render = (example: unknown) => {
+            const payload = responsePayload(response, example, schemas, fakerOptions, allRefs)
+            return isLiteral
+              ? makeHandlerBody(Number(response.key), response, payload)
+              : makeRawHandlerBody(
+                  `Number(prefer.code ?? ${statusCodeToNumber(response.key)})`,
+                  response,
+                  payload,
+                )
+          }
+          // An entry that is already the default answer (the first one) needs no branch.
+          const named = response.namedExamples
+            .filter(([, value]) => value !== response.example)
+            .map(
+              ([name, value]) =>
+                `if(prefer.key===${key}&&prefer.example===${JSON.stringify(name)}){${render(value)}}`,
+            )
+          const isFinalReturn = isLiteral && response.key === successKey
+          return isFinalReturn
+            ? named
+            : [...named, `if(prefer.key===${key}){${render(response.example)}}`]
+        })
+        .join('')
+      const preferCall = `resolvePrefer(c.req,${preferTable},${JSON.stringify(successKey)})`
       // Generate auth check code only when route defines a 401 Unauthorized response
       const has401 = operation.responses?.[String(401)] !== undefined
       const authCheck = makeAuthCheck(security, has401)
       // The generated test suite requests getNonExistentValue() sentinels for
       // routes declaring a 404, so the mock must answer 404 for exactly those
-      // values — the two generators share the sentinel as a contract.
+      // values — the two generators share the sentinel as a contract. An
+      // explicit `Prefer` wins over the sentinel.
       const pathParams = (operation.parameters ?? []).flatMap((rawParam) => {
         const resolved = rawParam.$ref
           ? (openapi.components?.parameters?.[
@@ -489,39 +691,41 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
         if (!(isParameter(resolved) && resolved.in === 'path')) return []
         return [{ name: resolved.name, schema: resolved.schema ?? { type: 'string' as const } }]
       })
-      const notFoundResponse =
-        operation.responses?.[String(404)] !== undefined
-          ? resolveResponse(operation.responses[String(404)], componentResponses)
-          : undefined
+      const notFoundResponse = responses.find((r) => r.key === '404')
       const notFoundCheck =
         notFoundResponse !== undefined && pathParams.length > 0
           ? (() => {
               const condition = pathParams
                 .map(
                   // oxlint-disable-next-line no-shadow -- the inner name is the natural one here
-                  (p) => `c.req.param('${p.name}') === '${getNonExistentValue(p.schema, schemas)}'`,
+                  (p) =>
+                    `c.req.param(${makeStringLiteral(p.name)}) === '${getNonExistentValue(p.schema, schemas)}'`,
                 )
                 .join(' || ')
-              const notFoundJsonMedia = notFoundResponse.content?.['application/json']
-              const notFoundBody = makeHandlerBody({
-                statusCode: 404,
-                jsonSchema:
-                  notFoundJsonMedia && isMediaWithSchema(notFoundJsonMedia)
-                    ? notFoundJsonMedia.schema
-                    : undefined,
-                textSchema: undefined,
-                schemas,
-                fakerOptions,
-                allRefs,
-                exampleValue: undefined,
-                exampleCast: undefined,
-              })
-              return `if(${condition}){${notFoundBody}}`
+              const notFoundBody = makeHandlerBody(
+                404,
+                notFoundResponse,
+                responsePayload(notFoundResponse, undefined, schemas, fakerOptions, allRefs),
+              )
+              return `if(prefer.key===undefined&&(${condition})){${notFoundBody}}`
             })()
           : ''
-      const usesContext = handlerBody.includes('c.') || authCheck !== '' || notFoundCheck !== ''
-      const param = usesContext ? 'c' : '_c'
-      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (${param}) => {${authCheck}${notFoundCheck}${handlerBody}}`
+      // Seeding inside the handler (not once at module load) makes a route's body
+      // independent of which requests ran before it, and the handler body runs
+      // synchronously after the seed, so concurrent requests cannot interleave.
+      const usesFaker = /\bfaker\.|\bmock[A-Za-z0-9_$]*\(/u.test(
+        `${preferBranches}${notFoundCheck}${handlerBody}`,
+      )
+      const seedCall =
+        seed !== undefined && usesFaker
+          ? `faker.seed(${JSON.stringify(seed)});faker.setDefaultRefDate('${SEED_REF_DATE}');`
+          : ''
+      // With nothing to branch on, the call still rejects an undeclared `Prefer`.
+      const preferCheck =
+        preferBranches === '' && notFoundCheck === ''
+          ? `${preferCall};`
+          : `const prefer=${preferCall};${preferBranches}`
+      const handler = `const ${routeId}RouteHandler: RouteHandler<typeof ${routeId}Route> = async (c) => {${seedCall}${authCheck}${preferCheck}${notFoundCheck}${handlerBody}}`
       return [{ entry: { routeId, method, path: p, requiresAuth }, handler }]
     }),
   )
@@ -617,8 +821,13 @@ export function makeMock(openapi: OpenAPI, basePath: string, options: MockOption
   const fakerImport = locale
     ? `import { faker } from '@faker-js/faker/locale/${locale}'`
     : `import { faker } from '@faker-js/faker'`
+  const usesPrefer = handlers.length > 0
   const imports = `import { OpenAPIHono, createRoute, z, type RouteHandler } from '@hono/zod-openapi'
-${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` : ''}`
+${fakerImport}${needsCookieImport ? `\nimport { getCookie } from 'hono/cookie'` : ''}${
+    usesPrefer
+      ? `\nimport { HTTPException } from 'hono/http-exception'\nimport type { ContentfulStatusCode } from 'hono/utils/http-status'`
+      : ''
+  }`
   const delayMiddleware = delayMiddlewareCode(delay)
   const appCode = `const app = new OpenAPIHono()${basePath !== '/' ? `.basePath('${basePath}')` : ''}${delayMiddleware}
 
@@ -631,6 +840,7 @@ export default app`
     components,
     routes,
     mockFunctionsJoined,
+    usesPrefer ? PREFER_HELPERS : '',
     handlersJoined,
     appCode,
   ]

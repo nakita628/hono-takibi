@@ -408,18 +408,21 @@ export type Schema = {
   }
   readonly externalDocs?: ExternalDocs
   readonly example?: unknown
-  readonly examples?: {
-    readonly [k: string]:
-      | {
-          readonly summary?: string
-          readonly description?: string
-          readonly defaultValue?: unknown
-          readonly serializedValue?: string
-          readonly externalValue?: string
-          readonly value?: unknown
-        }
-      | Reference
-  }
+  /** An array of values in OpenAPI 3.1 / JSON Schema 2020-12; the keyed map is the 3.0 shape. */
+  readonly examples?:
+    | readonly unknown[]
+    | {
+        readonly [k: string]:
+          | {
+              readonly summary?: string
+              readonly description?: string
+              readonly defaultValue?: unknown
+              readonly serializedValue?: string
+              readonly externalValue?: string
+              readonly value?: unknown
+            }
+          | Reference
+      }
   readonly title?: string
   readonly name?: string
   readonly description?: string

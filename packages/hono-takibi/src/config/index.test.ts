@@ -368,6 +368,44 @@ describe('parseConfig()', () => {
         "Invalid config: mock.locale: Invalid faker locale. Use a code like 'ja', 'en', or 'zh_CN'.",
       )
     })
+
+    it.concurrent("accepts useExamples: 'all'", async () => {
+      const result = await runGenerator(
+        parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', useExamples: 'all' } }),
+      )
+      expect(result.mock?.useExamples).toBe('all')
+    })
+
+    it.concurrent('rejects an unknown useExamples mode', async () => {
+      const result = await runGeneratorError(
+        parseConfig({
+          input: 'openapi.yaml',
+          mock: { output: 'src/mock.ts', useExamples: 'some' },
+        }),
+      )
+      expect(result.message).toContain('Invalid config: mock.useExamples')
+    })
+
+    it.concurrent('accepts a numeric seed and an array seed', async () => {
+      const single = await runGenerator(
+        parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', seed: 42 } }),
+      )
+      expect(single.mock?.seed).toBe(42)
+      const array = await runGenerator(
+        parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', seed: [1, 2, 3] } }),
+      )
+      expect(array.mock?.seed).toStrictEqual([1, 2, 3])
+    })
+
+    it.concurrent.each([[-1], [1.5], [4_294_967_296], [[]], ['42']])(
+      'rejects the seed %j',
+      async (seed) => {
+        const result = await runGeneratorError(
+          parseConfig({ input: 'openapi.yaml', mock: { output: 'src/mock.ts', seed } }),
+        )
+        expect(result.message).toContain('Invalid config: mock.seed')
+      },
+    )
   })
 
   describe('routes.import and webhooks.import', () => {

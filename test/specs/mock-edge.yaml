@@ -1,0 +1,264 @@
+openapi: 3.1.0
+info:
+  title: Mock edge cases
+  version: 1.0.0
+  description: >-
+    Shapes the mock generator must emit valid, schema-satisfying code for:
+    non-identifier property and component names, property-name hints that
+    disagree with the declared type, OpenAPI 3.1 type arrays, config/spec
+    array-bound conflicts, maps, schema-level examples and every string format
+    the zod generator validates.
+security:
+  - ApiKeyAuth: []
+paths:
+  /users/{userId}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User-Profile'
+        '401':
+          description: Missing API key
+        '404':
+          description: No such user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /formats:
+    get:
+      operationId: getFormats
+      security: []
+      responses:
+        '200':
+          description: One value per string format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Formats'
+  # Prism-compatible `Prefer: code=…, example=…` selection across every kind of
+  # declared response: named examples, problem+json, a 4XX range, default.
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      security: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+              examples:
+                shipped:
+                  $ref: '#/components/examples/ShippedOrder'
+                pending:
+                  value: { id: o-2, state: pending }
+        '404':
+          description: No such order
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              examples:
+                gone:
+                  value: { title: Order deleted, status: 404 }
+        '4XX':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '503':
+          description: Maintenance
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+components:
+  examples:
+    ShippedOrder:
+      value: { id: o-1, state: shipped }
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    User-Profile:
+      type: object
+      required:
+        - first-name
+        - user.name
+        - full name
+        - 1st
+        - status
+        - createdAt
+        - created_at
+        - type
+        - price
+        - nickname
+        - tags
+        - labels
+        - role
+        - bio
+        - code
+      properties:
+        first-name:
+          type: string
+        user.name:
+          type: string
+        full name:
+          type: string
+        1st:
+          type: integer
+        # Property-name hints (status/createdAt/type/price) would emit a
+        # string or a float; the declared integer type wins.
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+        createdAt:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        type:
+          type: integer
+        price:
+          type: integer
+        nickname:
+          type: [string, 'null']
+        age:
+          type: [integer, 'null']
+        # arrayMin: 5 in the config must clamp to this maxItems.
+        tags:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+        labels:
+          type: object
+          additionalProperties:
+            type: integer
+        role:
+          type: string
+          enum: [admin, member]
+          example: admin
+        bio:
+          type: string
+          examples:
+            - Hello
+        code:
+          type: string
+          pattern: '^[a-z]{3}/[0-9]{2}$'
+    Order:
+      type: object
+      required: [id, state]
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+          enum: [pending, shipped]
+    Problem:
+      type: object
+      required: [title, status]
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+    Formats:
+      type: object
+      required:
+        - email
+        - uuid
+        - uuidv4
+        - uuidv7
+        - guid
+        - url
+        - httpUrl
+        - hostname
+        - ipv4
+        - ipv6
+        - cidrv4
+        - cidrv6
+        - mac
+        - date
+        - time
+        - dateTime
+        - duration
+        - ulid
+        - nanoid
+        - cuid
+        - cuid2
+        - jwt
+        - emoji
+        - hex
+        - base64
+        - base64url
+        - e164
+        - uriReference
+        - idnEmail
+        - decimal
+        - constructor
+        - toString
+        - stringInt64
+        - numberInt64
+      properties:
+        email: { type: string, format: email }
+        uuid: { type: string, format: uuid }
+        uuidv4: { type: string, format: uuidv4 }
+        uuidv7: { type: string, format: uuidv7 }
+        guid: { type: string, format: guid }
+        url: { type: string, format: url }
+        httpUrl: { type: string, format: httpUrl }
+        hostname: { type: string, format: hostname }
+        ipv4: { type: string, format: ipv4 }
+        ipv6: { type: string, format: ipv6 }
+        cidrv4: { type: string, format: cidrv4 }
+        cidrv6: { type: string, format: cidrv6 }
+        mac: { type: string, format: mac }
+        date: { type: string, format: date }
+        time: { type: string, format: time }
+        dateTime: { type: string, format: date-time }
+        duration: { type: string, format: duration }
+        ulid: { type: string, format: ulid }
+        nanoid: { type: string, format: nanoid }
+        cuid: { type: string, format: cuid }
+        cuid2: { type: string, format: cuid2 }
+        jwt: { type: string, format: jwt }
+        emoji: { type: string, format: emoji }
+        hex: { type: string, format: hex }
+        base64: { type: string, format: base64 }
+        base64url: { type: string, format: base64url }
+        e164: { type: string, format: e164 }
+        # Formats outside the zod set, and document values that name
+        # Object.prototype members, must still mock to a plain value.
+        uriReference: { type: string, format: uri-reference }
+        idnEmail: { type: string, format: idn-email }
+        decimal: { type: string, format: decimal }
+        constructor: { type: string, format: constructor }
+        toString: { type: string }
+        # A numeric format on a non-integer type is not a bigint (zod has no z.int64() here).
+        stringInt64: { type: string, format: int64 }
+        numberInt64: { type: number, format: int64 }

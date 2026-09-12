@@ -338,6 +338,17 @@ export default defineConfig({
 })
 ```
 
+Each route answers its success response by default. Like [Prism](https://stoplight.io/open-source/prism), a request can pick any response or named example the document declares with the `Prefer` header (or the `__code` / `__example` query):
+
+```bash
+curl -H 'Prefer: code=404' http://localhost:3000/orders/1          # the 404 response
+curl -H 'Prefer: example=pending' http://localhost:3000/orders/1   # a named example
+curl -H 'Prefer: code=404, example=gone' http://localhost:3000/orders/1
+curl 'http://localhost:3000/orders/1?__code=503'
+```
+
+A code falls back to its `4XX` range, then `default`. A code or example the operation does not declare answers `500` with an `application/problem+json` body saying what is missing.
+
 ## API Reference Docs
 
 Generate API reference Markdown with [hono-cli](https://github.com/honojs/cli) `hono request` commands:
@@ -552,8 +563,9 @@ export default defineConfig({
 
   mock: {
     output: './src/mock.ts',
-    useExamples: true,
+    useExamples: true, // true: response examples | 'all': also schema/property examples | false
     locale: 'en',
+    seed: 42, // optional: same body per route on every request (snapshot-friendly)
     delay: false,
     arrayMin: 1,
     arrayMax: 10,
