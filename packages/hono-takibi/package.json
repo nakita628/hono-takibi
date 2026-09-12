@@ -65,7 +65,7 @@
     "@typespec/compiler": "catalog:",
     "@typespec/openapi3": "catalog:",
     "effect": "4.0.0-rc.112",
-    "oxfmt": "^0.65.0",
+    "oxfmt": "^0.66.0",
     "ts-morph": "^28.0.0"
   },
   "devDependencies": {
