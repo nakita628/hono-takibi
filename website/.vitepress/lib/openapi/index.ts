@@ -1,7 +1,7 @@
 import type * as ZodOpenAPIHono from 'hono-takibi/zod-openapi-hono'
 import { load } from 'js-yaml'
 
-import { compileTypeSpec, loadTypeSpecContext } from '../typespec'
+import { compileTypeSpec, loadTypeSpecContext, type TypeSpecMarker } from '../typespec'
 
 export const MODES = ['typespec', 'yaml', 'json'] as const
 
@@ -20,10 +20,11 @@ async function parseDocument(source: string, mode: (typeof MODES)[number]) {
     return compileTypeSpec(source, await loadTypeSpecContext())
   }
   const document: unknown = mode === 'json' ? JSON.parse(source) : load(source)
+  const markers: readonly TypeSpecMarker[] = []
   if (!isOpenAPIDocument(document)) {
-    return { ok: false, error: 'Input must be an OpenAPI document (object)' } as const
+    return { ok: false, error: 'Input must be an OpenAPI document (object)', markers } as const
   }
-  return { ok: true, value: document } as const
+  return { ok: true, value: document, markers } as const
 }
 
 // Single entry point for $ref resolution, shared by every input mode so the
@@ -74,26 +75,37 @@ async function formatCode(code: string) {
   }
 }
 
+// `markers` are the TypeSpec compile diagnostics for the editor (empty for the
+// other modes); they travel with every outcome so the editor stays in sync.
 export async function generate(
   source: string,
   mode: (typeof MODES)[number],
   options: Parameters<(typeof ZodOpenAPIHono)['zodOpenAPIHono']>[1],
 ) {
+  const noMarkers: readonly TypeSpecMarker[] = []
   try {
     const parsed = await parseDocument(source, mode)
+    const { markers } = parsed
     if (!parsed.ok) {
-      return parsed
+      return { ok: false, error: parsed.error, markers } as const
     }
     if (!isOpenAPIDocument(parsed.value)) {
-      return { ok: false, error: 'Input did not produce an OpenAPI document' } as const
+      return { ok: false, error: 'Input did not produce an OpenAPI document', markers } as const
     }
     const bundled = await bundleDocument(parsed.value)
     if (!bundled.ok) {
-      return bundled
+      return { ok: false, error: bundled.error, markers } as const
     }
     const { zodOpenAPIHono } = await import('hono-takibi/zod-openapi-hono')
-    return await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
+    const formatted = await formatCode(zodOpenAPIHono(bundled.value as OpenAPI, options))
+    return formatted.ok
+      ? ({ ok: true, value: formatted.value, markers } as const)
+      : ({ ok: false, error: formatted.error, markers } as const)
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) } as const
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : String(e),
+      markers: noMarkers,
+    } as const
   }
 }

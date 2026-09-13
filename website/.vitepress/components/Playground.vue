@@ -8,15 +8,14 @@ import {
   configureTypeScriptDefaults,
   DEFAULT_GENERATE_OPTIONS,
   generate,
-  initTypeSpecMonaco,
   isMode,
   loadMonaco,
   loadOutputEditorTypes,
   loadTypeSpecContext,
   MAIN_URI,
-  registerTypeSpecLanguage,
   SAMPLES,
   TYPESPEC_COMPILE_FAILED_PREFIX,
+  type TypeSpecMarker,
 } from '../lib'
 const monacoRef = shallowRef<MonacoEditor | null>(null)
 const monacoReady = ref(false)
@@ -27,23 +26,25 @@ function setupMonaco(monaco: MonacoEditor) {
   if (monacoSetup.done) return
   monacoSetup.done = true
 
-  registerTypeSpecLanguage(monaco)
   configureTypeScriptDefaults(monaco)
   void loadOutputEditorTypes(monaco)
-  ensureTypeSpecLanguage()
 }
 
-const languageInit = { started: false }
-
-function ensureTypeSpecLanguage() {
+// The language server paints only tag markers; error / warning squiggles come
+// from the playground's own compilation (see lib/typespec).
+function paintMarkers(markers: readonly TypeSpecMarker[]) {
   const monaco = monacoRef.value
-  if (languageInit.started || !monaco || activeSample.value.mode !== 'typespec') return
-  languageInit.started = true
-  void loadTypeSpecContext()
-    .then((context) => initTypeSpecMonaco(monaco, context))
-    .catch(() => {
-      languageInit.started = false
-    })
+  const model = monaco?.editor.getModel(monaco.Uri.parse(MAIN_URI))
+  if (!monaco || !model) return
+  const severity = {
+    error: monaco.MarkerSeverity.Error,
+    warning: monaco.MarkerSeverity.Warning,
+  }
+  monaco.editor.setModelMarkers(
+    model,
+    'typespec',
+    markers.map((marker) => ({ ...marker, severity: severity[marker.severity] })),
+  )
 }
 
 const { isDark } = useData()
@@ -95,6 +96,7 @@ const shared = ref(false)
 async function run() {
   const mode = activeSample.value.mode
   const result = await generate(input.value, mode, DEFAULT_GENERATE_OPTIONS)
+  paintMarkers(result.markers)
   if (result.ok) {
     output.value = result.value
     error.value = ''
@@ -118,19 +120,13 @@ watch(input, () => {
 
 watch(sampleName, () => {
   input.value = activeSample.value.source
-  const monaco = monacoRef.value
-  if (activeSample.value.mode === 'typespec') {
-    ensureTypeSpecLanguage()
-  } else if (monaco) {
-    const model = monaco.editor.getModel(monaco.Uri.parse(MAIN_URI))
-    if (model) {
-      monaco.editor.setModelMarkers(model, 'typespec', [])
-    }
-  }
 })
 
 onMounted(async () => {
-  loader.config({ monaco: await loadMonaco() })
+  // The TypeSpec context registers the editor language and the `typespec` /
+  // `typespec-dark` themes, so both editors wait for it alongside monaco.
+  const [monaco] = await Promise.all([loadMonaco(), loadTypeSpecContext()])
+  loader.config({ monaco })
   monacoReady.value = true
   await run()
 })

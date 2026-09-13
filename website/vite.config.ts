@@ -34,8 +34,7 @@ export default defineConfig({
       // Side-effect imports are how a VitePress theme loads its CSS and how
       // vitepress-plugin-group-icons injects its virtual stylesheet.
       'import/no-unassigned-import': ['error', { allow: ['**/*.css', 'virtual:*'] }],
-      // `_TypeSpecLibrary_` is the export shape of @typespec/bundler's emitted bundles.
-      'no-underscore-dangle': ['error', { allow: ['_TypeSpecLibrary_'] }],
+      'no-underscore-dangle': 'error',
       eqeqeq: 'error',
       'no-var': 'error',
       'prefer-const': 'error',
@@ -214,14 +213,6 @@ export default defineConfig({
           'typescript/no-unsafe-member-access': 'off',
           'typescript/no-unsafe-call': 'off',
           'typescript/no-unsafe-return': 'off',
-        },
-      },
-      {
-        // async-without-await implements TypeSpec's Promise-returning CompilerHost /
-        // ServerHost contracts.
-        files: ['.vitepress/lib/typespec/index.ts'],
-        rules: {
-          'typescript/require-await': 'off',
         },
       },
       {

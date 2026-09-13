@@ -15,12 +15,16 @@ catalog:
   '@typespec/json-schema': ^1.16.0
   '@typespec/openapi': ^1.16.0
   '@typespec/openapi3': ^1.16.0
+  '@typespec/playground': ^0.17.1
   '@typespec/rest': ^0.86.0
   '@typespec/sse': ^0.86.0
   '@typespec/streams': ^0.86.0
   '@typespec/versioning': ^0.86.0
   '@typespec/xml': ^0.86.0
 allowBuilds:
+  # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
+  # nothing to build, so it never runs.
+  '@scarf/scarf': false
   esbuild: true
   # Optional native accelerator pulled in through effect -> msgpackr; the JS
   # fallback is what hono-takibi uses, so its build script stays off.

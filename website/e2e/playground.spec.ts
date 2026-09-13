@@ -12,16 +12,20 @@ model Message {
   message: string;
 }
 
+@summary("Welcome")
+@doc("Returns a welcome message from Hono Takibi.")
+@returnsDoc("OK")
 @get op welcome(): Message;
 `
 
-const YAML_SOURCE = `openapi: 3.1.0
+const YAML_SOURCE = `openapi: 3.0.0
 info:
   title: Hono Takibi API
-  version: '1.0.0'
+  version: 0.0.0
 paths:
   /:
     get:
+      operationId: welcome
       summary: Welcome
       description: Returns a welcome message from Hono Takibi.
       responses:
@@ -30,16 +34,23 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hono Takibi🔥
-                required:
-                  - message
+                $ref: '#/components/schemas/Message'
+components:
+  schemas:
+    Message:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+      example:
+        message: Hono Takibi🔥
 `
 
-const TYPESPEC_EXPECTED = `import { createRoute, z } from '@hono/zod-openapi'
+// The three samples are one spec: the YAML and JSON are the OpenAPI the TypeSpec
+// sample emits, so every mode generates this same code.
+const EXPECTED = `import { createRoute, z } from '@hono/zod-openapi'
 
 const MessageSchema = z
   .object({ message: z.string() })
@@ -49,50 +60,9 @@ const MessageSchema = z
 export const getRoute = createRoute({
   method: 'get',
   path: '/',
+  summary: 'Welcome',
+  description: 'Returns a welcome message from Hono Takibi.',
   operationId: 'welcome',
-  responses: {
-    200: {
-      description: 'The request has succeeded.',
-      content: { 'application/json': { schema: MessageSchema } },
-    },
-  },
-})
-`
-
-const YAML_EXPECTED = `import { createRoute, z } from '@hono/zod-openapi'
-
-export const getRoute = createRoute({
-  method: 'get',
-  path: '/',
-  summary: 'Welcome',
-  description: 'Returns a welcome message from Hono Takibi.',
-  responses: {
-    200: {
-      description: 'OK',
-      content: {
-        'application/json': {
-          schema: z
-            .object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) })
-            .openapi({ required: ['message'] }),
-        },
-      },
-    },
-  },
-})
-`
-
-const JSON_EXPECTED = `import { createRoute, z } from '@hono/zod-openapi'
-
-const MessageSchema = z
-  .object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) })
-  .openapi({ required: ['message'] })
-  .openapi('Message')
-
-export const getRoute = createRoute({
-  method: 'get',
-  path: '/',
-  summary: 'Welcome',
-  description: 'Returns a welcome message from Hono Takibi.',
   responses: {
     200: { description: 'OK', content: { 'application/json': { schema: MessageSchema } } },
   },
@@ -128,7 +98,7 @@ test.describe('Playground', () => {
     await page.goto('/playground')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
     await expect(page.locator('.pg-error')).toBeHidden()
-    await expectCopiedOutput(page, TYPESPEC_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('generates Hono code from the OpenAPI (YAML) sample', async ({ page }) => {
@@ -136,7 +106,7 @@ test.describe('Playground', () => {
     await page.locator('.pg-select').selectOption('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
     await expect(page.locator('.pg-error')).toBeHidden()
-    await expectCopiedOutput(page, YAML_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('generates Hono code from the OpenAPI (JSON) sample', async ({ page }) => {
@@ -144,7 +114,7 @@ test.describe('Playground', () => {
     await page.locator('.pg-select').selectOption('OpenAPI (JSON)')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
     await expect(page.locator('.pg-error')).toBeHidden()
-    await expectCopiedOutput(page, JSON_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('shows an error and keeps stale output for non-document YAML input', async ({ page }) => {
@@ -171,7 +141,7 @@ test.describe('Playground', () => {
     await page.keyboard.press('ControlOrMeta+v')
     await expect(page.locator('.pg-error')).toBeHidden()
     await expect(page.locator('.pg-pane').nth(1)).not.toHaveClass(/pg-stale/)
-    await expectCopiedOutput(page, YAML_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('shows a parse error for invalid JSON input', async ({ page }) => {
@@ -217,7 +187,7 @@ test.describe('Playground', () => {
     await page.reload()
     await expect(page.locator('.pg-select')).toHaveValue('TypeSpec')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('welcome')
-    await expectCopiedOutput(page, TYPESPEC_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 
   test('restores mode and source from a shared URL', async ({ page }) => {
@@ -226,6 +196,6 @@ test.describe('Playground', () => {
     await expect(page.locator('.pg-select')).toHaveValue('OpenAPI (YAML)')
     await expect(page.locator('.pg-pane').first()).toContainText('openapi:')
     await expect(page.locator('.pg-pane').nth(1)).toContainText('Welcome')
-    await expectCopiedOutput(page, YAML_EXPECTED)
+    await expectCopiedOutput(page, EXPECTED)
   })
 })
