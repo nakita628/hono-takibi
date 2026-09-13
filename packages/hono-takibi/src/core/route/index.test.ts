@@ -391,6 +391,59 @@ export const getZodOpenapiHonoRoute = createRoute({
     })
   })
 
+  describe('query method (OpenAPI 3.2)', () => {
+    it("emits createRoute({ method: 'query' }) next to the GET on the same path", async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-query-method-'))
+      try {
+        const out = path.join(dir, 'routes.ts')
+        const openAPI = {
+          openapi: '3.2.0',
+          info: { title: 'Test', version: '1.0.0' },
+          paths: {
+            '/users': {
+              get: {
+                summary: 'List users',
+                responses: { '200': { description: 'OK' } },
+              },
+              query: {
+                summary: 'Search users',
+                description: 'A safe read whose parameters travel in the body.',
+                'x-pagination': true,
+                requestBody: {
+                  required: true,
+                  content: { 'application/json': { schema: { type: 'object' } } },
+                },
+                responses: { '200': { description: 'OK' } },
+              },
+            },
+          },
+        } as OpenAPI
+        await runGenerator(route(openAPI, { output: out }))
+        expect(fs.readFileSync(out, 'utf-8'))
+          .toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  summary: 'List users',
+  responses: { 200: { description: 'OK' } },
+})
+
+export const queryUsersRoute = createRoute({
+  method: 'query',
+  path: '/users',
+  summary: 'Search users',
+  description: 'A safe read whose parameters travel in the body.',
+  request: { body: { content: { 'application/json': { schema: z.object({}) } }, required: true } },
+  responses: { 200: { description: 'OK' } },
+})
+`)
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+  })
+
   describe('optional operation fields', () => {
     it('emits summary, description, externalDocs, deprecated, security, servers, callbacks', async () => {
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-route-rich-'))

@@ -1551,3 +1551,52 @@ describe('rpc (error behavior)', () => {
     expect(result.message).toBe('Invalid OpenAPI paths')
   })
 })
+
+describe('rpc (query method)', () => {
+  it('wraps an OpenAPI 3.2 QUERY operation as client.x.$query', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-query-method-'))
+    try {
+      const out = path.join(dir, 'rpc.ts')
+      const openAPI = {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'List users',
+              responses: { '200': { description: 'OK' } },
+            },
+            query: {
+              summary: 'Search users',
+              description: 'A safe read whose parameters travel in the body.',
+              'x-pagination': true,
+              requestBody: {
+                required: true,
+                content: { 'application/json': { schema: { type: 'object' } } },
+              },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      } as OpenAPI
+      await runGenerator(rpc(openAPI, out, './client'))
+      expect(fs.readFileSync(out, 'utf-8'))
+        .toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { client } from './client'
+
+export async function getUsers(options?: ClientRequestOptions) {
+  return await client.users.$get(undefined, options)
+}
+
+export async function queryUsers(
+  args: InferRequestType<typeof client.users.$query>,
+  options?: ClientRequestOptions,
+) {
+  return await client.users.$query(args, options)
+}
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})

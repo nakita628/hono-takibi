@@ -327,6 +327,7 @@ usePostUsers({ mutation: { mutationKey: ['custom'], onSuccess } }, queryClient)
 ```
 
 - `options.query` is the library's options type without `queryKey` / `queryFn` (the hook supplies both); `options.mutation` leaves out `mutationFn`, and a `mutationKey` you pass wins over the generated one.
+- Query hooks spread their options factory, so `useUsersId(args, { query })` is `useQuery({ ...getUsersIdQueryOptions(args), ...query })`. The factories take the hooks' `<TData, TError>` (and `TPageParam` for infinite queries) for that reason; leave them off and a direct `getUsersIdQueryOptions(args)` call keeps the default types, ready for `prefetchQuery` / `getQueryData`. Vue Query hooks keep the inline form instead.
 - `options.options` is Hono's `ClientRequestOptions` (headers, fetch, init).
 - The trailing argument is the framework's own: a `QueryClient` (an accessor of one in Solid and Svelte), or `{ injector }` in Angular.
 - Vue hooks accept `Ref` / getter arguments and re-key the query when they change.

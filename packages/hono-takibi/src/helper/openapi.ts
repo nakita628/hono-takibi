@@ -288,7 +288,17 @@ export function makeCallbacks(
       },
   readonly?: boolean,
 ) {
-  const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+  const methods = [
+    'get',
+    'put',
+    'post',
+    'delete',
+    'options',
+    'head',
+    'patch',
+    'trace',
+    'query',
+  ] as const
   const makeMethodsCode = (record: { readonly [k: string]: unknown }): string =>
     methods
       .map((method) => {

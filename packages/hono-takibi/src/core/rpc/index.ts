@@ -43,7 +43,7 @@ function makeJsDoc(
 
 function makeOperationCode(
   path: string,
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
   item: ReturnType<typeof parsePathItem>,
   deps: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
@@ -79,7 +79,17 @@ function makeOperationCodes(
     .filter((entry) => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
-      const methods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+      const methods = [
+        'get',
+        'put',
+        'post',
+        'delete',
+        'options',
+        'head',
+        'patch',
+        'trace',
+        'query',
+      ] as const
       return methods
         .map((method) => {
           const result = makeOperationCode(
