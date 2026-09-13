@@ -42,6 +42,9 @@ catalogs:
     '@typespec/xml':
       specifier: ^0.86.0
       version: 0.86.0
+    hono:
+      specifier: ^4.13.7
+      version: 4.13.7
 
 importers:
 
@@ -55,10 +58,10 @@ importers:
     dependencies:
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.7)(zod@4.5.4)
       hono:
         specifier: ^4.13.5
-        version: 4.13.5
+        version: 4.13.7
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -114,7 +117,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.7)(zod@4.5.4)
       '@types/node':
         specifier: ^26.4.0
         version: 26.4.1
@@ -126,7 +129,7 @@ importers:
         version: 0.86.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/http@1.16.0(@typespec/compiler@1.16.0(@types/node@26.4.1))(@typespec/streams@0.86.0(@typespec/compiler@1.16.0(@types/node@26.4.1))))
       hono:
         specifier: ^4.13.5
-        version: 4.13.5
+        version: 4.13.7
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -141,7 +144,7 @@ importers:
         version: 10.6.0
       '@hono/zod-openapi':
         specifier: ^1.6.1
-        version: 1.6.3(hono@4.13.5)(zod@4.5.4)
+        version: 1.6.3(hono@4.13.7)(zod@4.5.4)
       '@tanstack/angular-query-experimental':
         specifier: ^5.102.8
         version: 5.102.8(@angular/common@22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.5(rxjs@7.8.2))
@@ -183,7 +186,7 @@ importers:
         version: 20.14.0
       hono:
         specifier: ^4.13.5
-        version: 4.13.5
+        version: 4.13.7
       hono-takibi:
         specifier: workspace:^
         version: link:../packages/hono-takibi
@@ -3045,8 +3048,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.13.5:
-    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
+  hono@4.13.7:
+    resolution: {integrity: sha512-c8/gF9ac8Y78/agExVocyLevgR+JlpNB444Py0FSX8pJoPdYUfUzRcXtYEYGwt6l19qIlVZPN5Mfsw9jFShmQQ==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -4294,17 +4297,17 @@ snapshots:
       vue: 3.5.42(typescript@7.0.2)
       vue-demi: 0.14.10(vue@3.5.42(typescript@7.0.2))
 
-  '@hono/zod-openapi@1.6.3(hono@4.13.5)(zod@4.5.4)':
+  '@hono/zod-openapi@1.6.3(hono@4.13.7)(zod@4.5.4)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 9.1.0(zod@4.5.4)
-      '@hono/zod-validator': 0.9.1(hono@4.13.5)(zod@4.5.4)
-      hono: 4.13.5
+      '@hono/zod-validator': 0.9.1(hono@4.13.7)(zod@4.5.4)
+      hono: 4.13.7
       openapi3-ts: 4.6.1
       zod: 4.5.4
 
-  '@hono/zod-validator@0.9.1(hono@4.13.5)(zod@4.5.4)':
+  '@hono/zod-validator@0.9.1(hono@4.13.7)(zod@4.5.4)':
     dependencies:
-      hono: 4.13.5
+      hono: 4.13.7
       zod: 4.5.4
 
   '@iconify-json/logos@1.2.13':
@@ -5970,7 +5973,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
 
-  hono@4.13.5: {}
+  hono@4.13.7: {}
 
   hookable@5.5.3: {}
 
