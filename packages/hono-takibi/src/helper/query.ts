@@ -16,6 +16,22 @@ import {
   resolveSplitOutDir,
 } from './rpc.js'
 
+// Every TanStack adapter's hook takes a trailing argument after the options — `queryClient`
+// (an accessor of one in Solid and Svelte), or `{ injector }` in Angular. The generated hooks
+// forward it so a caller can target a client other than the provided one (tests, multiple
+// clients) or run outside an injection context, the way openapi-react-query does.
+type HookTail = {
+  readonly name: string
+  readonly query: string
+  readonly infinite: string
+  readonly mutation: string
+  readonly imports: readonly string[]
+}
+
+function makeHookTail(tail: HookTail | undefined, kind: 'query' | 'infinite' | 'mutation') {
+  return tail ? { sig: `,${tail.name}?:${tail[kind]}`, arg: `,${tail.name}` } : { sig: '', arg: '' }
+}
+
 // Solid Query types its option objects as `Accessor<...>` (a thunk), because `createQuery`
 // takes the whole options object as a thunk. The user-facing `options.query` slot needs the
 // *unwrapped* object: spreading an accessor copies a function's (empty) own properties, so the
@@ -31,12 +47,23 @@ function wrapOptionsType(optionsType: string, unwrapAccessor?: boolean) {
 const QUERY_OMIT_KEYS = `'queryKey'|'queryFn'`
 // Infinite hooks with the helper also supply both page-param functions, from `pagination`.
 const INFINITE_OMIT_KEYS = `'queryKey'|'queryFn'|'initialPageParam'|'getNextPageParam'`
+// Mutation hooks supply `mutationFn` — the operation contract that types `data` — so the slot
+// leaves it out. `mutationKey` stays: mutations are not cached, so the key is metadata rather
+// than identity (`useIsMutating` / `useMutationState` filter on it, `setMutationDefaults`
+// registers against it), and the hook honours the caller's key over the factory's, the way the
+// SWR mutation hook already honours `swrKey`.
+const MUTATION_OMIT_KEYS = `'mutationFn'`
 
-// Vue's option types are `MaybeRef<{...}>` (`Ref | ComputedRef | object`), and a plain `Omit` over
-// that union keeps only the keys all three share — none. The hook spreads the value, which only
-// works on the plain object anyway, so `Extract` keeps that member (the only one with `queryKey`).
-function omitInjectedKeys(optionsType: string, keys: string, isVueQuery?: boolean) {
-  const objectType = isVueQuery ? `Extract<${optionsType},{queryKey:unknown}>` : optionsType
+// Vue's option types are unions — `MaybeRef<{...}>` (`Ref | ComputedRef | object`), plus a getter
+// for mutations — and a plain `Omit` over a union keeps only the keys every member shares: none.
+// The hook spreads the value, which only works on the plain object anyway, so `Extract` keeps
+// that member. For queries it is the only one with the required `queryKey`. Mutation options are
+// all optional, so the probe is a weak type: a `Ref` (only `value`) and a getter (no properties)
+// share nothing with it and drop out, while the plain object matches.
+const VUE_QUERY_MEMBER = `{queryKey:unknown}`
+const VUE_MUTATION_MEMBER = `{mutationFn?:unknown}`
+function omitInjectedKeys(optionsType: string, keys: string, vueMember?: string) {
+  const objectType = vueMember ? `Extract<${optionsType},${vueMember}>` : optionsType
   return `Omit<${objectType},${keys}>`
 }
 
@@ -76,11 +103,34 @@ function makeQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean
   return `get${capitalize(methodPath('', pathStr))}QueryKey`
 }
 
+// Mutations keep the method in their key — several methods share a path — and, like the query
+// side, expose the key through a getter so `useIsMutating` / `setMutationDefaults` callers do not
+// have to reach into the options factory for it.
+function makeMutationKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
+  if (isSWR) {
+    return `get${capitalize(methodPath(method, pathStr))}Key`
+  }
+  return `get${capitalize(methodPath(method, pathStr))}MutationKey`
+}
+
+function makeMutationKeyGetterCode(keyGetterName: string, method: string, honoPath: string) {
+  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
+  return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','${method.toUpperCase()}']as const}`
+}
+
 function makeInfiniteQueryKeyGetterName(method: string, pathStr: string, isSWR?: boolean) {
   if (isSWR) {
     return `get${capitalize(methodPath(method, pathStr))}InfiniteKey`
   }
   return `get${capitalize(methodPath('', pathStr))}InfiniteQueryKey`
+}
+
+// Vue hooks take `args` as `MaybeRefOrGetter`, so the key has to follow it: a plain getter call
+// unwraps once at setup and freezes the key, and a changed `Ref` would never refetch. `computed`
+// keeps it live — Vue Query unwraps `MaybeRefDeep` keys itself. The key getters stay plain
+// arrays, which is what invalidation and cache lookups want.
+function vueReactiveKey(keyCall: string) {
+  return `computed(()=>${keyCall})`
 }
 
 // Structured key pattern: ['prefix','/full/path',args?] enables both per-prefix
@@ -103,7 +153,7 @@ function makeQueryKeyGetterCode(
   const prefix = honoPath.replace(/^\//u, '').split('/')[0]
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'}]as const}`
+      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'toValue(args)'}]as const}`
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
   }
@@ -117,7 +167,10 @@ function makeQueryKeyGetterCode(
   return `export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
 }
 
-// Same as makeQueryKeyGetterCode but appends 'infinite' to the key tuple.
+// Same as makeQueryKeyGetterCode with an 'infinite' segment after the path and before the args:
+// ['prefix','/path','infinite',args?]. Placing it before the args keeps prefix matching useful —
+// ['prefix','/path','infinite'] hits every infinite list for the endpoint whatever its args —
+// which is where orval and kubb put theirs, too.
 function makeInfiniteQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
@@ -130,14 +183,14 @@ function makeInfiniteQueryKeyGetterCode(
 
   if (config.isVueQuery) {
     if (hasArgs) {
-      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}',${hasHeader ? 'keyArgs' : 'args'},'infinite']as const}`
+      return `export function ${keyGetterName}(args:MaybeRefOrGetter<${argsType}>){${hasHeader ? 'const{header:_,...keyArgs}=toValue(args);return' : 'return'}['${prefix}','${honoPath}','infinite',${hasHeader ? 'keyArgs' : 'toValue(args)'}]as const}`
     }
     return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
   }
   if (hasArgs) {
     const infBody = hasHeader
-      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}',keyArgs,'infinite']as const`
-      : `return['${prefix}','${honoPath}',args,'infinite']as const`
+      ? `const{header:_,...keyArgs}=args;return['${prefix}','${honoPath}','infinite',keyArgs]as const`
+      : `return['${prefix}','${honoPath}','infinite',args]as const`
     return `export function ${keyGetterName}(args:${argsType}){${infBody}}`
   }
   return `export function ${keyGetterName}(){return['${prefix}','${honoPath}','infinite']as const}`
@@ -168,7 +221,7 @@ function makeQueryOptionsGetterCode(
   const queryFnSig = config.hasQueryOptionsHelper ? '{signal}' : '{signal}:QueryFunctionContext'
   if (config.isVueQuery && hasArgs) {
     const fetcherCall = `parseResponse(${runtimeAccess}(toValue(args),{...options,init:{...options?.init,signal}}))`
-    const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
+    const bodyContent = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}`
     const returnExpr = config.hasQueryOptionsHelper
       ? `queryOptions({${bodyContent}})`
       : `{${bodyContent}}`
@@ -229,13 +282,18 @@ function makeInfiniteQueryOptionsGetterCode(
 ) {
   const queryKeyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
-  const queryFnSig = `{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>`
+  // Vue: the factory's key is a `ComputedRef`, and Vue Query cannot infer TQueryKey through
+  // `MaybeRefDeep<ComputedRef<...>>`, so a context pinned to the exact tuple stops the factory
+  // from spreading into `useInfiniteQuery`. The queryFn never reads `queryKey`, so keep it wide.
+  const queryFnSig = config.isVueQuery
+    ? '{pageParam,signal}:QueryFunctionContext<readonly unknown[],TPageParam>'
+    : `{pageParam,signal}:QueryFunctionContext<${queryKeyType},TPageParam>`
   const requestArgsCall = makeRequestArgsCall(hasArgs)
   if (config.hasInfiniteQueryOptionsHelper) {
     const paginationParam = makePaginationParam(hasArgs, argsType, responseType)
     if (config.isVueQuery && hasArgs) {
       const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))`
-      const body = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
+      const body = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}},initialPageParam:pagination.initialPageParam,getNextPageParam:pagination.getNextPageParam`
       return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${paginationParam},options?:ClientRequestOptions){return infiniteQueryOptions({${body}})}`
     }
     const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))`
@@ -250,7 +308,7 @@ function makeInfiniteQueryOptionsGetterCode(
   const vuePaginationParam = `pagination:{${makeGetRequestArgsField(hasArgs, argsType)}}`
   if (config.isVueQuery && hasArgs) {
     const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...options,init:{...options?.init,signal}}))`
-    const bodyContent = `queryKey:${queryKeyCall},queryFn(${queryFnSig}){return ${fetcherCall}}`
+    const bodyContent = `queryKey:${vueReactiveKey(queryKeyCall)},queryFn(${queryFnSig}){return ${fetcherCall}}`
     return `export function ${optionsGetterName}<TPageParam=unknown>(args:MaybeRefOrGetter<${argsType}>,${vuePaginationParam},options?:ClientRequestOptions){return {${bodyContent}}}`
   }
   const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('args')},{...options,init:{...options?.init,signal}}))`
@@ -263,21 +321,19 @@ function makeInfiniteQueryOptionsGetterCode(
 
 function makeMutationOptionsGetterCode(
   optionsGetterName: string,
+  keyGetterName: string,
   hasArgs: boolean,
   argsType: string,
   runtimeAccess: string,
-  method: string,
-  honoPath: string,
   responseType: string,
   hasNoContent: boolean,
   config: {
     readonly hasMutationOptionsHelper?: boolean
     readonly errorType?: string
+    readonly hookTail?: HookTail
   },
 ) {
-  const methodUpper = method.toUpperCase()
-  const prefix = honoPath.replace(/^\//u, '').split('/')[0]
-  const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
+  const inlineKey = `${keyGetterName}()`
   const errorType = config.errorType ?? 'unknown'
   // TError/TOnMutateResult are only useful when wrapped by `mutationOptions<...>`.
   // TOnMutateResult carries `onMutate`'s return value through to onError/onSuccess/onSettled.
@@ -361,7 +417,7 @@ function makeSWRInfiniteHookCode(
   // `swrKey` is narrowed to the same index-loader shape so the fetcher's index stays typed.
   const keyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   const loaderKeyType = `readonly[...${keyType},number]`
-  const swrConfigType = `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}}`
+  const swrConfigType = `SWRInfiniteConfiguration<${responseType},TError>&{swrKey?:(index:number,previousPageData:${responseType}|null)=>${loaderKeyType}|null}`
   const getRequestArgsField = hasArgs
     ? `getRequestArgs:(args:${argsType},index:number)=>${argsType}`
     : `getRequestArgs:(index:number)=>${argsType}`
@@ -405,6 +461,7 @@ function makeQueryHookCode(
     readonly isVueQuery?: boolean
     readonly useQueryOptionsType: string
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly unwrapOptionsAccessor?: boolean
   },
 ) {
@@ -423,10 +480,11 @@ function makeQueryHookCode(
       config.unwrapOptionsAccessor,
     ),
     QUERY_OMIT_KEYS,
-    config.isVueQuery,
+    config.isVueQuery ? VUE_QUERY_MEMBER : undefined,
   )
   const optionsType = `{query?:${queryOptionsType};options?:ClientRequestOptions}`
   const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const tail = makeHookTail(config.hookTail, 'query')
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
   if (config.useThunk) {
     const argsSig = hasArgs ? `args:()=>${argsType},` : ''
@@ -434,20 +492,21 @@ function makeQueryHookCode(
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(args(),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}})}`
+    return `export function ${hookName}${generics}(${argsSig}options?:()=>${optionsType}${tail.sig}){return ${config.queryFn}(()=>{const{query,options:clientOptions}=options?.()??{};return{...query,queryKey:${svelteKeyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}}${tail.arg})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
     const fetcherCall = hasArgs
       ? `parseResponse(${runtimeAccess}(toValue(args),{...clientOptions,init:{...clientOptions?.init,signal}}))`
       : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}){return ${fetcherCall}}})}`
+    const vueKeyCall = hasArgs ? vueReactiveKey(keyCall) : keyCall
+    return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${vueKeyCall},queryFn({signal}){return ${fetcherCall}}}${tail.arg})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const fetcherCall = hasArgs
     ? `parseResponse(${runtimeAccess}(args,{...clientOptions,init:{...clientOptions?.init,signal}}))`
     : `parseResponse(${runtimeAccess}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}}))`
-  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}})}`
+  return `export function ${hookName}${generics}(${argsSig}options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.queryFn}({...queryOptions,queryKey:${keyCall},queryFn({signal}:QueryFunctionContext){return ${fetcherCall}}}${tail.arg})}`
 }
 
 /**
@@ -497,15 +556,16 @@ function makeInfiniteQueryHookCode(
     readonly isVueQuery?: boolean
     readonly hasInfiniteQueryOptionsHelper?: boolean
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly unwrapOptionsAccessor?: boolean
   },
 ) {
   const errorType = config.errorType ?? 'unknown'
-  // When the helper is enabled, TData defaults to `InfiniteData<...>` (TanStack v5 semantics);
-  // pagination is required as a separate arg so options.query becomes optional.
-  // When disabled, TData defaults to the page response type and users supply pagination via options.query.
+  // TData defaults to `InfiniteData<...>` (v5 semantics) with or without the helper — `data` is
+  // the pages container either way. With the helper, pagination is a separate required arg so
+  // options.query becomes optional; without it, users supply pagination via options.query.
   const useHelper = config.hasInfiniteQueryOptionsHelper === true
-  const tDataDefault = useHelper ? `InfiniteData<${responseType}>` : responseType
+  const tDataDefault = `InfiniteData<${responseType}>`
   const generics = `<TData=${tDataDefault},TError=${errorType},TPageParam=unknown>`
   const queryKeyType = `ReturnType<typeof ${infiniteKeyGetterName}>`
   // Without the helper (Vue) the page-param functions travel in `options.query`, so they stay.
@@ -515,7 +575,7 @@ function makeInfiniteQueryHookCode(
       config.unwrapOptionsAccessor,
     ),
     useHelper ? INFINITE_OMIT_KEYS : QUERY_OMIT_KEYS,
-    config.isVueQuery,
+    config.isVueQuery ? VUE_QUERY_MEMBER : undefined,
   )
   const optionsType = useHelper
     ? `{query?:${queryOptionsType};options?:ClientRequestOptions}`
@@ -526,6 +586,7 @@ function makeInfiniteQueryHookCode(
   // Non-helper frameworks (Vue) take pagination's page logic via `options.query`, but
   // `getRequestArgs` is not part of the framework option type — carry it on its own param.
   const vuePaginationParam = `pagination:{${makeGetRequestArgsField(hasArgs, argsType)}}`
+  const tail = makeHookTail(config.hookTail, 'infinite')
 
   // Vue Query: spread factory. Inline `initialPageParam: TPageParam` doesn't satisfy
   // `useInfiniteQuery`'s `MaybeRefDeep<TPageParam>` constraint, but `infiniteQueryOptions(...)`
@@ -535,7 +596,7 @@ function makeInfiniteQueryHookCode(
     const optionsCall = hasArgs
       ? `${infiniteOptionsGetterName}(args,pagination,clientOptions)`
       : `${infiniteOptionsGetterName}(pagination,clientOptions)`
-    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}})}`
+    return `export function ${hookName}${generics}(${argsSig}${paginationParam},options?:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options??{};return ${config.infiniteQueryFn}({...queryOptions,...${optionsCall}}${tail.arg})}`
   }
 
   if (config.useThunk) {
@@ -545,14 +606,16 @@ function makeInfiniteQueryHookCode(
     const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType)
     const optionsTypeSig = useHelper ? `options?:()=>${optionsType}` : `options:()=>${optionsType}`
     const destructure = useHelper ? `options?.()??{}` : 'options()'
-    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}})}`
+    return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){return ${config.infiniteQueryFn}(()=>{const{query,options:clientOptions}=${destructure};return{...query,${body}}}${tail.arg})}`
   }
   if (config.isVueQuery) {
     const argsSig = hasArgs ? `args:MaybeRefOrGetter<${argsType}>,` : ''
-    const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
+    const keyCall = hasArgs
+      ? vueReactiveKey(`${infiniteKeyGetterName}(args)`)
+      : `${infiniteKeyGetterName}()`
     const fetcherCall = `parseResponse(${runtimeAccess}(${requestArgsCall('toValue(args)')},{...clientOptions,init:{...clientOptions?.init,signal}}))`
     const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType, true)
-    return `export function ${hookName}${generics}(${argsSig}${vuePaginationParam},options:${optionsType}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
+    return `export function ${hookName}${generics}(${argsSig}${vuePaginationParam},options:${optionsType}${tail.sig}){const{query:queryOptions,options:clientOptions}=options;return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}`
   }
   const argsSig = hasArgs ? `args:${argsType},` : ''
   const keyCall = hasArgs ? `${infiniteKeyGetterName}(args)` : `${infiniteKeyGetterName}()`
@@ -560,7 +623,7 @@ function makeInfiniteQueryHookCode(
   const body = makeInfiniteHookBody(keyCall, fetcherCall, useHelper, queryKeyType)
   const optionsTypeSig = useHelper ? `options?:${optionsType}` : `options:${optionsType}`
   const destructure = useHelper ? 'options??{}' : 'options'
-  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}})}`
+  return `export function ${hookName}${generics}(${argsSig}${paginationSig}${optionsTypeSig}${tail.sig}){const{query:queryOptions,options:clientOptions}=${destructure};return ${config.infiniteQueryFn}({...queryOptions,${body}}${tail.arg})}`
 }
 
 /**
@@ -612,7 +675,7 @@ function makeSWRHeader(
     if (hasInfiniteQuery) {
       lines.push(
         "import useSWRInfinite from'swr/infinite'",
-        "import type{SWRInfiniteConfiguration,SWRInfiniteKeyLoader}from'swr/infinite'",
+        "import type{SWRInfiniteConfiguration}from'swr/infinite'",
       )
     }
   } else if (hasMutation) {
@@ -651,7 +714,7 @@ function makeSWRHeader(
  */
 function makeSWRMutationHookCode(
   hookName: string,
-  inlineKey: string,
+  keyCall: string,
   hasArgs: boolean,
   argsType: string,
   responseType: string,
@@ -664,11 +727,11 @@ function makeSWRMutationHookCode(
   // TError generic enables custom error types: usePostUsers<APIError>(...)
   const tErrorGeneric = `<TError=${errorType}>`
   const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},TError,Key,${variablesType}>`
-  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};options?:ClientRequestOptions}`
+  const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key;throwOnError?:boolean};options?:ClientRequestOptions}`
   if (hasArgs) {
-    return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>parseResponse(${runtimeAccess}(arg,clientOptions)),restMutationOptions)}}`
+    return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${argsType}})=>parseResponse(${runtimeAccess}(arg,clientOptions)),restMutationOptions)}}`
   }
-  return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${inlineKey};return{swrKey,...useSWRMutation(swrKey,async()=>parseResponse(${runtimeAccess}(undefined,clientOptions)),restMutationOptions)}}`
+  return `export function ${hookName}${tErrorGeneric}(${optionsSig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${keyCall};return{swrKey,...useSWRMutation(swrKey,async()=>parseResponse(${runtimeAccess}(undefined,clientOptions)),restMutationOptions)}}`
 }
 
 function makeMutationHookCode(
@@ -680,8 +743,10 @@ function makeMutationHookCode(
   config: {
     readonly mutationFn: string
     readonly useThunk?: boolean
+    readonly isVueQuery?: boolean
     readonly useMutationOptionsType: string
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly hasMutationOptionsHelper?: boolean
     readonly unwrapOptionsAccessor?: boolean
   },
@@ -692,20 +757,31 @@ function makeMutationHookCode(
   const tErrorGeneric = `<TError=${errorType},TOnMutateResult=unknown>`
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${responseType}|undefined` : responseType
-  const mutationOptionsType = wrapOptionsType(
+  const fullOptionsType = wrapOptionsType(
     `${config.useMutationOptionsType}<${dataType},TError,${variablesType},TOnMutateResult>`,
     config.unwrapOptionsAccessor,
   )
-  const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
   // Only forward the type parameters to the factory when it actually accepts them
   // (i.e. wraps with `mutationOptions<...>` helper). Otherwise the factory has no generics.
   const factoryTypeArg = config.hasMutationOptionsHelper ? '<TError,TOnMutateResult>' : ''
-  // Spread user options first, then the factory so the operation contract wins.
+  const factoryCall = `${optionsGetterName}${factoryTypeArg}(clientOptions)`
+  const tail = makeHookTail(config.hookTail, 'mutation')
+  // Vue's members may still be `Ref`s (`MaybeRefDeep`); `useMutation` unwraps them deeply, so a
+  // caller's `Ref` key passes through `mutationKey` below as-is.
+  const mutationOptionsType = omitInjectedKeys(
+    fullOptionsType,
+    MUTATION_OMIT_KEYS,
+    config.isVueQuery ? VUE_MUTATION_MEMBER : undefined,
+  )
+  const optionsType = `{mutation?:${mutationOptionsType};options?:ClientRequestOptions}`
+  // Spread user options first, then the factory so the operation contract wins — `Omit` only
+  // rejects a fresh object literal, so the spread order is the last line of defence against a
+  // `mutationFn` smuggled in through a variable. `mutationKey` is then restored from the caller.
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (config.useThunk) {
-    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};return{...mutation,...${optionsGetterName}${factoryTypeArg}(clientOptions)}})}`
+    return `export function ${hookName}${tErrorGeneric}(options?:()=>${optionsType}${tail.sig}){return ${config.mutationFn}(()=>{const{mutation,options:clientOptions}=options?.()??{};const mutationDefaults=${factoryCall};return{...mutation,...mutationDefaults,mutationKey:mutation?.mutationKey??mutationDefaults.mutationKey}}${tail.arg})}`
   }
-  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}){const{mutation:mutationOptions,options:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,...${optionsGetterName}${factoryTypeArg}(clientOptions)})}`
+  return `export function ${hookName}${tErrorGeneric}(options?:${optionsType}${tail.sig}){const{mutation:mutationOptions,options:clientOptions}=options??{};const mutationDefaults=${factoryCall};return ${config.mutationFn}({...mutationOptions,...mutationDefaults,mutationKey:mutationOptions?.mutationKey??mutationDefaults.mutationKey}${tail.arg})}`
 }
 
 function makeHookCode(
@@ -733,6 +809,7 @@ function makeHookCode(
     readonly useInfiniteQueryOptionsType?: string
     readonly useSuspenseInfiniteQueryOptionsType?: string
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
     readonly unwrapOptionsAccessor?: boolean
   },
@@ -837,12 +914,11 @@ function makeHookCode(
       } as const
     }
     // SWR mutation
-    const prefix = honoPath.replace(/^\//u, '').split('/')[0]
-    const methodUpper = method.toUpperCase()
-    const inlineKey = `['${prefix}','${honoPath}','${methodUpper}']as const`
+    const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr, true)
+    const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
     const hookCode = makeSWRMutationHookCode(
       hookName,
-      inlineKey,
+      `${mutationKeyGetterName}()`,
       hasArgs,
       argsType,
       responseType,
@@ -851,7 +927,7 @@ function makeHookCode(
       config.errorType,
     )
     return {
-      code: hookCode,
+      code: `${mutationKeyGetterCode}\n\n${hookCode}`,
       isQuery: false,
       hasArgs,
       hasInfinite: false,
@@ -938,6 +1014,7 @@ function makeHookCode(
               ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.isVueQuery ? { isVueQuery: true } : {}),
               ...(config.errorType ? { errorType: config.errorType } : {}),
+              ...(config.hookTail ? { hookTail: config.hookTail } : {}),
               ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
             },
           )
@@ -961,6 +1038,7 @@ function makeHookCode(
               ? { hasInfiniteQueryOptionsHelper: true }
               : {}),
             ...(config.errorType ? { errorType: config.errorType } : {}),
+            ...(config.hookTail ? { hookTail: config.hookTail } : {}),
             ...(config.unwrapOptionsAccessor ? { unwrapOptionsAccessor: true } : {}),
           },
         )
@@ -981,6 +1059,7 @@ function makeHookCode(
               useInfiniteQueryOptionsType: config.useSuspenseInfiniteQueryOptionsType,
               ...(config.useThunk ? { useThunk: true } : {}),
               ...(config.isVueQuery ? { isVueQuery: true } : {}),
+              ...(config.hookTail ? { hookTail: config.hookTail } : {}),
               ...(config.hasInfiniteQueryOptionsHelper
                 ? { hasInfiniteQueryOptionsHelper: true }
                 : {}),
@@ -1010,13 +1089,14 @@ function makeHookCode(
   }
   // Mutation: emit factory + hook
   const optionsGetterName = `get${capitalize(methodPath(method, pathStr))}MutationOptions`
+  const mutationKeyGetterName = makeMutationKeyGetterName(method, pathStr)
+  const mutationKeyGetterCode = makeMutationKeyGetterCode(mutationKeyGetterName, method, honoPath)
   const optionsGetterCode = makeMutationOptionsGetterCode(
     optionsGetterName,
+    mutationKeyGetterName,
     hasArgs,
     argsType,
     runtimeAccess,
-    method,
-    honoPath,
     responseType,
     hasNoContent,
     config,
@@ -1031,7 +1111,7 @@ function makeHookCode(
     hasNoContent,
   )
   return {
-    code: `${optionsGetterCode}\n\n${hookCode}`,
+    code: `${mutationKeyGetterCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
     isQuery: false,
     hasArgs,
     hasInfinite: false,
@@ -1062,6 +1142,7 @@ function makeHookCodes(
     readonly useInfiniteQueryOptionsType?: string
     readonly useSuspenseInfiniteQueryOptionsType?: string
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
   },
   clientName: string,
@@ -1140,6 +1221,8 @@ function makeHeader(
     readonly useInfiniteQueryOptionsType?: string
     readonly useSuspenseInfiniteQueryOptionsType?: string
     readonly immutableQueryFn?: string
+    readonly errorType?: string
+    readonly hookTail?: HookTail
   },
   hasQueryWithArgs = false,
   hasInfiniteQuery = false,
@@ -1182,9 +1265,13 @@ function makeHeader(
     ...(hasInfiniteQuery && config.useSuspenseInfiniteQueryOptionsType
       ? [config.useSuspenseInfiniteQueryOptionsType]
       : []),
-    // InfiniteData: needed when helper-wrapped factory returns InfiniteData<...>-typed options
-    ...(hasInfiniteQuery && config.hasInfiniteQueryOptionsHelper ? ['InfiniteData'] : []),
+    // InfiniteData: the infinite hooks' TData default, helper or not
+    ...(hasInfiniteQuery ? ['InfiniteData'] : []),
     ...(hasMutation ? [config.useMutationOptionsType] : []),
+    // The hooks' TError default (e.g. `DefaultError`, which honours `Register`) and the
+    // trailing-argument types come from the framework package as well.
+    ...(config.errorType ? [config.errorType] : []),
+    ...(config.hookTail?.imports ?? []),
   ]
   // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' only when query has args
   // (used in makeQueryKeyGetterCode for args:MaybeRefOrGetter<...> and toValue(args))
@@ -1202,11 +1289,11 @@ function makeHeader(
       ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
       : []),
     ...(typeImports.length > 0
-      ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
+      ? [`import type{${[...new Set(typeImports)].join(',')}}from'${config.packageName}'`]
       : []),
     // Vue Query needs MaybeRefOrGetter type and toValue from 'vue' for queryKey generation (only when query has args)
     ...(needsVueImports
-      ? ["import{toValue}from'vue'", "import type{MaybeRefOrGetter}from'vue'"]
+      ? ["import{computed,toValue}from'vue'", "import type{MaybeRefOrGetter}from'vue'"]
       : []),
     `import type{${honoTypeImports.join(',')}}from'hono/client'`,
     `import{parseResponse}from'hono/client'`,
@@ -1246,6 +1333,7 @@ export function makeQueryHooks(
     readonly useInfiniteQueryOptionsType?: string
     readonly useSuspenseInfiniteQueryOptionsType?: string
     readonly errorType?: string
+    readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
   },
   split?: boolean,

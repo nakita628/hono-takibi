@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import {
   getDeleteUsersIdMutationOptions,
+  getItemsInfiniteQueryKey,
   getItemsInfiniteQueryOptions,
   getItemsQueryOptions,
   getPostUsersMutationOptions,
@@ -108,6 +109,19 @@ describe('query key behavior (asserted through effects, not shapes)', () => {
       ),
     )
     expect(queryClient.getQueryCache().getAll()).toHaveLength(2)
+    // 'infinite' sits before the args, so ['items', '/items', 'infinite'] prefix-matches every
+    // infinite list for the endpoint, while the plain query key no longer matches infinite ones.
+    expect(getItemsInfiniteQueryKey({ query: { page: '0' } })).toStrictEqual([
+      'items',
+      '/items',
+      'infinite',
+      { query: { page: '0' } },
+    ])
+    const cache = queryClient.getQueryCache()
+    expect(cache.findAll({ queryKey: ['items', '/items', 'infinite'] })).toHaveLength(1)
+    expect(
+      cache.findAll({ queryKey: getItemsQueryOptions({ query: { page: '0' } }).queryKey }),
+    ).toHaveLength(1)
   })
 })
 

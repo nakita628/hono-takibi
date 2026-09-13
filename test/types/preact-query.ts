@@ -1,4 +1,6 @@
 // preact-query: the hook's generics must reach the caller, not degrade to `any` or the library default.
+import type { QueryClient } from '@tanstack/preact-query'
+
 import {
   useInfiniteItems,
   usePostUsers,
@@ -66,4 +68,31 @@ export function queryOptionsAssertions() {
   const suspense = useSuspenseUsers({ query: { select: (users) => users.length } })
   assertType<Equal<typeof suspense.data, number>>(true)
   return { disabled, names, selected, infinite, suspense }
+}
+
+/** The options slot of the mutation hook, as the caller sees it. */
+type MutationSlot = NonNullable<NonNullable<Parameters<typeof usePostUsers>[0]>['mutation']>
+
+// The hook supplies `mutationFn` — the contract that types `data` — so the slot leaves it out: a
+// caller's would type-check and then be silently overwritten by the factory spread. `mutationKey`
+// stays, and the hook honours it: mutations are not cached, so the key only filters and registers.
+export function mutationOptionsAssertions() {
+  assertType<Equal<HasKey<MutationSlot, 'mutationFn'>, false>>(true)
+  assertType<Equal<HasKey<MutationSlot, 'mutationKey'>, true>>(true)
+  // The options stay typed: a right-typed value is accepted, a wrong-typed one is not.
+  assertType<IsAssignable<{ retry: 2 }, MutationSlot>>(true)
+  assertType<Equal<IsAssignable<{ retry: 'never' }, MutationSlot>, false>>(true)
+
+  const keyed = usePostUsers({ mutation: { mutationKey: ['custom', 'users'] } })
+  return { keyed }
+}
+
+// The hooks default TError to the library's `DefaultError` (an `Error`, and whatever a global
+// `Register` augmentation says), so `error` is usable without a type argument; and they forward
+// the framework's trailing argument, so a caller can target another client / injection context.
+export function tailAssertions() {
+  const query = useUsers()
+  assertType<Equal<typeof query.error, Error | null>>(true)
+  assertType<Equal<Parameters<typeof useUsers>[1], QueryClient | undefined>>(true)
+  return { query }
 }

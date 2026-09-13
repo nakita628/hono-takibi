@@ -1,5 +1,17 @@
 // vue-query: the hook's generics must reach the caller, not degrade to `any` or the library default.
-import { useInfiniteItems, usePostUsers, useUsers } from '../__generated__/vue-query/hooks'
+import type { InfiniteData, QueryClient } from '@tanstack/vue-query'
+import { useInfiniteQuery } from '@tanstack/vue-query'
+import type { InferRequestType, parseResponse } from 'hono/client'
+import { ref } from 'vue'
+
+import {
+  getItemsInfiniteQueryOptions,
+  getItemsQueryKey,
+  useInfiniteItems,
+  usePostUsers,
+  useUsers,
+} from '../__generated__/vue-query/hooks'
+import type { client } from '../hosts/users-client'
 import { type Equal, type HasKey, type IsAssignable, type NotAny, assertType } from './assert'
 
 /** The options slot of the plain query hook, as the caller sees it. */
@@ -61,4 +73,65 @@ export function queryOptionsAssertions() {
   // The page-param functions have no other way in, so getNextPageParam stays required.
   assertType<Equal<IsAssignable<{ initialPageParam: 0 }, InfiniteSlot>, false>>(true)
   return { disabled, names, selected, infinite }
+}
+
+/** The options slot of the mutation hook, as the caller sees it. */
+type MutationSlot = NonNullable<NonNullable<Parameters<typeof usePostUsers>[0]>['mutation']>
+
+// The hook supplies `mutationFn` — the contract that types `data` — so the slot leaves it out: a
+// caller's would type-check and then be silently overwritten by the factory spread. `mutationKey`
+// stays, and the hook honours it: mutations are not cached, so the key only filters and registers.
+// Vue's `UseMutationOptions` is a `MaybeRefDeep | getter` union; the slot is its plain-object
+// member (the only one the hook can spread), whose members may still be `Ref`s.
+export function mutationOptionsAssertions() {
+  assertType<Equal<HasKey<MutationSlot, 'mutationFn'>, false>>(true)
+  assertType<Equal<HasKey<MutationSlot, 'mutationKey'>, true>>(true)
+  // The options stay typed: a right-typed value is accepted, a wrong-typed one is not.
+  assertType<IsAssignable<{ retry: 2 }, MutationSlot>>(true)
+  assertType<Equal<IsAssignable<{ retry: 'never' }, MutationSlot>, false>>(true)
+
+  const keyed = usePostUsers({ mutation: { mutationKey: ['custom', 'users'] } })
+  const refKeyed = usePostUsers({ mutation: { mutationKey: ref(['custom', 'users']) } })
+  return { keyed, refKeyed }
+}
+
+type ItemsPage = Awaited<
+  ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.items.$get>>>>
+>
+
+// Vue has no `infiniteQueryOptions` helper, so the hook and factory are typed by hand; pin the
+// parts Vue Query would otherwise get wrong or reject.
+export function infiniteAssertions() {
+  // `data` is the pages container, not a single page, helper or not.
+  const infinite = useInfiniteItems(
+    { query: { page: '0' } },
+    { getRequestArgs: (args, page) => ({ query: { ...args.query, page: String(page) } }) },
+    { query: { initialPageParam: 0, getNextPageParam: (last: ItemsPage) => last.nextPage } },
+  )
+  assertType<Equal<typeof infinite.data.value, InfiniteData<ItemsPage> | undefined>>(true)
+
+  // Key getters unwrap a Ref/getter argument once, so the key is a plain tuple for cache access.
+  const key = getItemsQueryKey(() => ({ query: { page: '0' } }))
+  assertType<Equal<(typeof key)[2], InferRequestType<typeof client.items.$get>>>(true)
+
+  // The factory's key is a ComputedRef, which Vue Query cannot infer TQueryKey through; the
+  // factory must still spread into `useInfiniteQuery`, so its queryFn context stays wide.
+  const composed = useInfiniteQuery({
+    ...getItemsInfiniteQueryOptions(ref({ query: { page: '0' } }), {
+      getRequestArgs: (args, page) => ({ query: { ...args.query, page: String(page) } }),
+    }),
+    initialPageParam: 0,
+    getNextPageParam: (last: ItemsPage) => last.nextPage,
+  })
+  return { infinite, key, composed }
+}
+
+// The hooks default TError to the library's `DefaultError` (an `Error`, and whatever a global
+// `Register` augmentation says), so `error` is usable without a type argument; and they forward
+// the framework's trailing argument, so a caller can target another client / injection context.
+export function tailAssertions() {
+  const query = useUsers()
+  assertType<Equal<typeof query.error.value, Error | null>>(true)
+  assertType<Equal<Parameters<typeof useUsers>[1], QueryClient | undefined>>(true)
+  return { query }
 }

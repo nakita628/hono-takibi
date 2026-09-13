@@ -1,10 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
   "include": [
     "../../__generated__/tanstack-query/**/*",
     "../../hosts/users-app.ts",
     "../../hosts/users-client.ts",
     "../../runtime/tanstack-query.test.ts",
+    "../../runtime/tanstack-query-mutation.test.tsx",
     "../../types/tanstack-query.ts",
     "../../types/assert.ts"
   ]
