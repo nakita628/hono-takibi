@@ -312,6 +312,26 @@ paths:
       x-pagination: true
 ```
 
+### Generated hooks
+
+Every GET operation yields a key getter, an options factory, and a hook; every other method yields a mutation key getter, a `mutationOptions` factory, and a mutation hook.
+
+```ts
+getUsersKey() // ['users']                      — one per path prefix
+getUsersIdQueryKey(args) // ['users', '/users/:id', args]   — header params are left out
+getItemsInfiniteQueryKey(args) // ['items', '/items', 'infinite', args]
+getPostUsersMutationKey() // ['users', '/users', 'POST']
+
+useUsersId(args, { query: { staleTime: 1_000 }, options: { headers } }, queryClient)
+usePostUsers({ mutation: { mutationKey: ['custom'], onSuccess } }, queryClient)
+```
+
+- `options.query` is the library's options type without `queryKey` / `queryFn` (the hook supplies both); `options.mutation` leaves out `mutationFn`, and a `mutationKey` you pass wins over the generated one.
+- `options.options` is Hono's `ClientRequestOptions` (headers, fetch, init).
+- The trailing argument is the framework's own: a `QueryClient` (an accessor of one in Solid and Svelte), or `{ injector }` in Angular.
+- Vue hooks accept `Ref` / getter arguments and re-key the query when they change.
+- SWR mutations revalidate only their own key; pass `swrKey: getGetUsersKey()` to revalidate the list instead.
+
 ## Test & Mock Generation
 
 ### Test Generation

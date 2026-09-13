@@ -1,4 +1,6 @@
 // solid-query: the hook's generics must reach the caller, not degrade to `any` or the library default.
+import type { QueryClient } from '@tanstack/solid-query'
+
 import {
   createInfiniteItems,
   createPostUsers,
@@ -64,4 +66,33 @@ export function queryOptionsAssertions() {
     () => ({ query: { staleTime: 1_000 } }),
   )
   return { disabled, names, selected, infinite }
+}
+
+/** The options slot of the mutation hook, as the caller sees it. */
+type MutationSlot = NonNullable<
+  ReturnType<NonNullable<Parameters<typeof createPostUsers>[0]>>['mutation']
+>
+
+// The hook supplies `mutationFn` — the contract that types `data` — so the slot leaves it out: a
+// caller's would type-check and then be silently overwritten by the factory spread. `mutationKey`
+// stays, and the hook honours it: mutations are not cached, so the key only filters and registers.
+export function mutationOptionsAssertions() {
+  assertType<Equal<HasKey<MutationSlot, 'mutationFn'>, false>>(true)
+  assertType<Equal<HasKey<MutationSlot, 'mutationKey'>, true>>(true)
+  // The options stay typed: a right-typed value is accepted, a wrong-typed one is not.
+  assertType<IsAssignable<{ retry: 2 }, MutationSlot>>(true)
+  assertType<Equal<IsAssignable<{ retry: 'never' }, MutationSlot>, false>>(true)
+
+  const keyed = createPostUsers(() => ({ mutation: { mutationKey: ['custom', 'users'] } }))
+  return { keyed }
+}
+
+// The hooks default TError to the library's `DefaultError` (an `Error`, and whatever a global
+// `Register` augmentation says), so `error` is usable without a type argument; and they forward
+// the framework's trailing argument, so a caller can target another client / injection context.
+export function tailAssertions() {
+  const query = createUsers()
+  assertType<Equal<typeof query.error, Error | null>>(true)
+  assertType<Equal<Parameters<typeof createUsers>[1], (() => QueryClient) | undefined>>(true)
+  return { query }
 }

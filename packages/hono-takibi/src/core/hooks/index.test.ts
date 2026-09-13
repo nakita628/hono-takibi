@@ -58,7 +58,7 @@ describe('swr hooks', () => {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -137,7 +137,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.hono.$get> }
@@ -203,7 +203,7 @@ export function useImmutableGetUsers<TError = unknown>(
 }
 
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function useInfiniteGetUsers<TError = unknown>(
@@ -218,7 +218,7 @@ export function useInfiniteGetUsers<TError = unknown>(
         previousPageData: Awaited<
           ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
         > | null,
-      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]
+      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
     }
     options?: ClientRequestOptions
     pagination: {
@@ -241,18 +241,22 @@ export function useInfiniteGetUsers<TError = unknown>(
   )
 }
 
+export function getPostUsersKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.users.$post>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
+  const swrKey = customKey ?? getPostUsersKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -306,7 +310,7 @@ export function getUsersKey() {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -375,7 +379,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.hono.$get> }
@@ -399,7 +403,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -453,7 +457,7 @@ export function useImmutableGetUsers<TError = unknown>(
 }
 
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function useInfiniteGetUsers<TError = unknown>(
@@ -468,7 +472,7 @@ export function useInfiniteGetUsers<TError = unknown>(
         previousPageData: Awaited<
           ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
         > | null,
-      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]
+      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
     }
     options?: ClientRequestOptions
     pagination: {
@@ -501,18 +505,22 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
+export function getPostUsersKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.users.$post>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
+  const swrKey = customKey ?? getPostUsersKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -597,7 +605,7 @@ export function usePostUsers<TError = unknown>(options?: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -670,7 +678,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof authClient.users.$get> }
@@ -725,7 +733,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -800,7 +808,7 @@ export function useInfiniteGetPing<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetPingInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetPingInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.ping.$get> }
@@ -817,18 +825,22 @@ export function useInfiniteGetPing<TError = unknown>(options: {
   )
 }
 
+export function getPostPingKey() {
+  return ['ping', '/ping', 'POST'] as const
+}
+
 export function usePostPing<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
     TError,
     Key,
     undefined
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['ping', '/ping', 'POST'] as const)
+  const swrKey = customKey ?? getPostPingKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -872,7 +884,7 @@ export function usePostPing<TError = unknown>(options?: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -955,7 +967,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetHonoXInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetHonoXInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: {
@@ -1017,7 +1029,7 @@ export function useInfiniteGetHonoX<TError = unknown>(options: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
@@ -1095,7 +1107,7 @@ export function useImmutableGetUsersId<TError = unknown>(
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function useInfiniteGetUsersId<TError = unknown>(
@@ -1114,7 +1126,7 @@ export function useInfiniteGetUsersId<TError = unknown>(
             typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
           >
         > | null,
-      ) => readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number]
+      ) => readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number] | null
     }
     options?: ClientRequestOptions
     pagination: {
@@ -1139,6 +1151,10 @@ export function useInfiniteGetUsersId<TError = unknown>(
   )
 }
 
+export function getDeleteUsersIdKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
 export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     | Awaited<
@@ -1150,12 +1166,12 @@ export function useDeleteUsersId<TError = unknown>(options?: {
     TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$delete']>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id', 'DELETE'] as const)
+  const swrKey = customKey ?? getDeleteUsersIdKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1250,7 +1266,7 @@ export function useDeleteUsersId<TError = unknown>(options?: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1304,7 +1320,7 @@ export function useImmutableGetUsers<TError = unknown>(
 }
 
 export function getGetUsersInfiniteKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function useInfiniteGetUsers<TError = unknown>(
@@ -1319,7 +1335,7 @@ export function useInfiniteGetUsers<TError = unknown>(
         previousPageData: Awaited<
           ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
         > | null,
-      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]
+      ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
     }
     options?: ClientRequestOptions
     pagination: {
@@ -1349,7 +1365,7 @@ export function useInfiniteGetUsers<TError = unknown>(
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1421,7 +1437,7 @@ export function useImmutableGetUsersId<TError = unknown>(
 export function getGetUsersIdInfiniteKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function useInfiniteGetUsersId<TError = unknown>(
@@ -1440,7 +1456,7 @@ export function useInfiniteGetUsersId<TError = unknown>(
             typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>
           >
         > | null,
-      ) => readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number]
+      ) => readonly [...ReturnType<typeof getGetUsersIdInfiniteKey>, number] | null
     }
     options?: ClientRequestOptions
     pagination: {
@@ -1475,18 +1491,22 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
+export function getPostUsersKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
 export function usePostUsers<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     TError,
     Key,
     InferRequestType<typeof client.users.$post>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users', 'POST'] as const)
+  const swrKey = customKey ?? getPostUsersKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1508,6 +1528,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
+export function getPutUsersIdKey() {
+  return ['users', '/users/:id', 'PUT'] as const
+}
+
 export function usePutUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<
@@ -1516,12 +1540,12 @@ export function usePutUsersId<TError = unknown>(options?: {
     TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$put']>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id', 'PUT'] as const)
+  const swrKey = customKey ?? getPutUsersIdKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1543,6 +1567,10 @@ import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
+export function getDeleteUsersIdKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
 export function useDeleteUsersId<TError = unknown>(options?: {
   mutation?: SWRMutationConfiguration<
     | Awaited<
@@ -1554,12 +1582,12 @@ export function useDeleteUsersId<TError = unknown>(options?: {
     TError,
     Key,
     InferRequestType<(typeof client.users)[':id']['$delete']>
-  > & { swrKey?: Key }
+  > & { swrKey?: Key; throwOnError?: boolean }
   options?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
   const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
-  const swrKey = customKey ?? (['users', '/users/:id', 'DELETE'] as const)
+  const swrKey = customKey ?? getDeleteUsersIdKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1638,7 +1666,7 @@ export * from './deleteUsersId'
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1711,7 +1739,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetHonoInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.hono.$get> }
@@ -1762,7 +1790,7 @@ export function useInfiniteGetHono<TError = unknown>(options: {
 import useSWRImmutable from 'swr/immutable'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRInfinite from 'swr/infinite'
-import type { SWRInfiniteConfiguration, SWRInfiniteKeyLoader } from 'swr/infinite'
+import type { SWRInfiniteConfiguration } from 'swr/infinite'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1835,7 +1863,7 @@ export function useInfiniteGetUsers<TError = unknown>(options: {
       previousPageData: Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>
       > | null,
-    ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number]
+    ) => readonly [...ReturnType<typeof getGetUsersInfiniteKey>, number] | null
   }
   options?: ClientRequestOptions
   pagination: { getRequestArgs: (index: number) => InferRequestType<typeof client.users.$get> }
@@ -1956,6 +1984,8 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -1986,54 +2016,72 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -2079,7 +2127,7 @@ export function useInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -2109,32 +2157,36 @@ export function useInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -2164,25 +2216,29 @@ export function useSuspenseInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -2205,7 +2261,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -2219,22 +2275,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -2248,21 +2308,25 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -2308,7 +2372,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -2342,32 +2406,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -2401,28 +2469,36 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -2431,27 +2507,38 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
 
@@ -2500,6 +2587,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -2522,54 +2611,72 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -2615,7 +2722,7 @@ export function useInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -2645,32 +2752,36 @@ export function useInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -2700,25 +2811,29 @@ export function useSuspenseInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `
         expect(useHono).toBe(useHonoExpected)
@@ -2740,6 +2855,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -2765,7 +2882,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -2779,22 +2896,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -2808,21 +2929,25 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -2868,7 +2993,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -2902,32 +3027,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -2961,25 +3090,29 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `
         expect(useUsers).toBe(useUsersExpected)
@@ -2987,12 +3120,16 @@ export function useSuspenseInfiniteUsers<
         // Check POST hook file (mutation)
         const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
         const usePostUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/react-query'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -3001,27 +3138,38 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(usePostUsers).toBe(usePostUsersExpected)
@@ -3077,6 +3225,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -3105,62 +3255,78 @@ export function useUsers<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          authClient.users.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+        >,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          authClient.users.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey() {
@@ -3206,7 +3372,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3238,32 +3404,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        authClient.users.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          authClient.users.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3295,25 +3465,29 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        authClient.users.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          authClient.users.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -3372,6 +3546,8 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -3398,54 +3574,72 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
 
 export function usePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.ping.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspensePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getPingQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.ping.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getPingInfiniteQueryKey() {
@@ -3491,7 +3685,7 @@ export function useInfinitePing<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3521,32 +3715,36 @@ export function useInfinitePing<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getPingInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.ping.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.ping.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfinitePing<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3576,28 +3774,36 @@ export function useSuspenseInfinitePing<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getPingInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.ping.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.ping.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
-export function getPostPingMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostPingMutationKey() {
+  return ['ping', '/ping', 'POST'] as const
+}
+
+export function getPostPingMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -3606,27 +3812,38 @@ export function getPostPingMutationOptions<TError = unknown, TOnMutateResult = u
     void,
     TOnMutateResult
   >({
-    mutationKey: ['ping', '/ping', 'POST'] as const,
+    mutationKey: getPostPingMutationKey(),
     async mutationFn() {
       return parseResponse(client.ping.$post(undefined, options))
     },
   })
 }
 
-export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-    TError,
-    void,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -3677,6 +3894,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -3705,66 +3924,78 @@ export function useHonoX<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client['hono-x'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseHonoX<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+        >,
+        TError,
+        TData
       >,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoXQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client['hono-x'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoXInfiniteQueryKey() {
@@ -3812,7 +4043,7 @@ export function useInfiniteHonoX<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3844,25 +4075,29 @@ export function useInfiniteHonoX<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteHonoX<
@@ -3871,7 +4106,7 @@ export function useSuspenseInfiniteHonoX<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -3903,25 +4138,29 @@ export function useSuspenseInfiniteHonoX<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -3985,6 +4224,8 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -4016,7 +4257,7 @@ export function useUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -4034,27 +4275,31 @@ export function useUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -4072,26 +4317,30 @@ export function useSuspenseUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -4139,7 +4388,7 @@ export function useInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -4177,25 +4426,29 @@ export function useInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsersId<
@@ -4204,7 +4457,7 @@ export function useSuspenseInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -4242,28 +4495,36 @@ export function useSuspenseInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
-export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -4277,32 +4538,43 @@ export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResul
     InferRequestType<(typeof client.users)[':id']['$delete']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
   })
 }
 
-export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$delete']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -4394,12 +4666,16 @@ export * from './deleteUsersId'
         const postUsersContent = fs.readFileSync(path.join(hooksDir, 'postUsers.ts'), 'utf-8')
         expect(postUsersContent)
           .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -4408,39 +4684,54 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `)
 
         const putUsersIdContent = fs.readFileSync(path.join(hooksDir, 'putUsersId.ts'), 'utf-8')
         expect(putUsersIdContent)
           .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPutUsersIdMutationKey() {
+  return ['users', '/users/:id', 'PUT'] as const
+}
+
+export function getPutUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -4451,29 +4742,42 @@ export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult =
     InferRequestType<(typeof client.users)[':id']['$put']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+    mutationKey: getPutUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
   })
 }
 
-export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
-    >,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$put']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePutUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
+          >
+        >,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$put']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `)
 
@@ -4483,12 +4787,16 @@ export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(optio
         )
         expect(deleteUsersIdContent)
           .toBe(`import { useMutation, mutationOptions } from '@tanstack/react-query'
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -4502,32 +4810,43 @@ export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResul
     InferRequestType<(typeof client.users)[':id']['$delete']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
   })
 }
 
-export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$delete']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+            >
+          >
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `)
 
@@ -4547,6 +4866,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -4574,7 +4895,7 @@ export function useUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -4592,27 +4913,31 @@ export function useUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
@@ -4630,26 +4955,30 @@ export function useSuspenseUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users[':id'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -4697,7 +5026,7 @@ export function useInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -4735,25 +5064,29 @@ export function useInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsersId<
@@ -4762,7 +5095,7 @@ export function useSuspenseInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -4800,25 +5133,29 @@ export function useSuspenseInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersIdInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `)
 
@@ -4838,6 +5175,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -4863,7 +5202,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -4877,22 +5216,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -4906,21 +5249,25 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -4966,7 +5313,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5000,32 +5347,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5059,25 +5410,29 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `)
       } finally {
@@ -5149,6 +5504,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -5179,7 +5536,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -5193,22 +5550,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -5222,22 +5583,26 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   const { header: _, ...keyArgs } = args
-  return ['users', '/users', keyArgs, 'infinite'] as const
+  return ['users', '/users', 'infinite', keyArgs] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -5283,7 +5648,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5317,32 +5682,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5376,25 +5745,29 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `)
       } finally {
@@ -5469,6 +5842,8 @@ import type {
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/preact-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -5499,54 +5874,72 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    UseSuspenseQueryOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-      TError,
-      TData
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      UseSuspenseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+        TError,
+        TData
+      >,
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -5592,7 +5985,7 @@ export function useInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -5622,32 +6015,36 @@ export function useInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteHono<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -5677,25 +6074,29 @@ export function useSuspenseInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -5718,7 +6119,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -5732,22 +6133,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -5761,21 +6166,25 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -5821,7 +6230,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5855,32 +6264,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -5914,28 +6327,36 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -5944,27 +6365,38 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
 
@@ -6014,6 +6446,8 @@ import type {
   UseInfiniteQueryOptions,
   UseSuspenseInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/preact-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -6044,7 +6478,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -6058,22 +6492,26 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
@@ -6087,22 +6525,26 @@ export function useSuspenseUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }: QueryFunctionContext) {
-      return parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useSuspenseQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(args),
+      queryFn({ signal }: QueryFunctionContext) {
+        return parseResponse(
+          client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   const { header: _, ...keyArgs } = args
-  return ['users', '/users', keyArgs, 'infinite'] as const
+  return ['users', '/users', 'infinite', keyArgs] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -6148,7 +6590,7 @@ export function useInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -6182,32 +6624,36 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 
 export function useSuspenseInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: InferRequestType<typeof client.users.$get>,
@@ -6241,25 +6687,29 @@ export function useSuspenseInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useSuspenseInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(args, pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useSuspenseInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(args),
+      queryFn({
+        pageParam,
+        signal,
+      }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(args, pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
+      initialPageParam: pagination.initialPageParam,
+      getNextPageParam: pagination.getNextPageParam,
     },
-    initialPageParam: pagination.initialPageParam,
-    getNextPageParam: pagination.getNextPageParam,
-  })
+    queryClient,
+  )
 }
 `)
       } finally {
@@ -6318,6 +6768,8 @@ import type {
   UndefinedInitialDataInfiniteOptions,
   InfiniteData,
   CreateMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/solid-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -6348,7 +6800,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function createHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -6363,6 +6815,7 @@ export function createHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6378,7 +6831,7 @@ export function createHono<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -6401,7 +6854,7 @@ export function getUsersQueryOptions(
 
 export function createUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -6417,6 +6870,7 @@ export function createUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6429,11 +6883,11 @@ export function createUsers<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -6479,7 +6933,7 @@ export function createInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -6515,6 +6969,7 @@ export function createInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6535,10 +6990,14 @@ export function createInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -6547,30 +7006,39 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
+export function createPostUsers<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: ReturnType<
-      CreateMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        TError,
-        InferRequestType<typeof client.users.$post>,
-        TOnMutateResult
-      >
+    mutation?: Omit<
+      ReturnType<
+        CreateMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+          TError,
+          InferRequestType<typeof client.users.$post>,
+          TOnMutateResult
+        >
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions) }
-  })
+    const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
 
@@ -6601,7 +7069,12 @@ export * from './postUsers'
         // Query-only file: header imports createQuery (+ queryOptions) but no mutation/infinite symbols
         const getHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
         expect(getHono).toBe(`import { createQuery, queryOptions } from '@tanstack/solid-query'
-import type { UndefinedInitialDataOptions, QueryFunctionContext } from '@tanstack/solid-query'
+import type {
+  UndefinedInitialDataOptions,
+  QueryFunctionContext,
+  DefaultError,
+  QueryClient,
+} from '@tanstack/solid-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -6623,7 +7096,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function createHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -6638,6 +7111,7 @@ export function createHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6653,7 +7127,7 @@ export function createHono<
         )
       },
     }
-  })
+  }, queryClient)
 }
 `)
 
@@ -6670,6 +7144,8 @@ import type {
   QueryFunctionContext,
   UndefinedInitialDataInfiniteOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/solid-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -6695,7 +7171,7 @@ export function getUsersQueryOptions(
 
 export function createUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -6711,6 +7187,7 @@ export function createUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6723,11 +7200,11 @@ export function createUsers<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -6773,7 +7250,7 @@ export function createInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -6809,6 +7286,7 @@ export function createInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -6829,7 +7307,7 @@ export function createInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `)
 
@@ -6837,12 +7315,16 @@ export function createInfiniteUsers<
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
         expect(postUsers)
           .toBe(`import { createMutation, mutationOptions } from '@tanstack/solid-query'
-import type { CreateMutationOptions } from '@tanstack/solid-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/solid-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -6851,30 +7333,39 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
+export function createPostUsers<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: ReturnType<
-      CreateMutationOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-        TError,
-        InferRequestType<typeof client.users.$post>,
-        TOnMutateResult
-      >
+    mutation?: Omit<
+      ReturnType<
+        CreateMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+          TError,
+          InferRequestType<typeof client.users.$post>,
+          TOnMutateResult
+        >
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions) }
-  })
+    const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `)
 
@@ -6938,9 +7429,12 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -6971,33 +7465,42 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    Extract<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        TError,
-        TData,
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        ReturnType<typeof getHonoQueryKey>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          ReturnType<typeof getHonoQueryKey>
+        >,
+        { queryKey: unknown }
       >,
-      { queryKey: unknown }
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -7010,10 +7513,7 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 ) {
   return {
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.hono.$get(pagination.getRequestArgs(pageParam), {
           ...options,
@@ -7025,8 +7525,10 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteHono<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get> },
@@ -7046,26 +7548,30 @@ export function useInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args] as const
+  return ['users', '/users', toValue(args)] as const
 }
 
 export function getUsersQueryOptions(
@@ -7073,7 +7579,7 @@ export function getUsersQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersQueryKey(args),
+    queryKey: computed(() => getUsersQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -7084,7 +7590,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -7103,26 +7609,30 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users.$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', toValue(args)] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -7136,11 +7646,8 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -7152,8 +7659,10 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsers<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
@@ -7179,23 +7688,31 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -7204,27 +7721,41 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+          TError,
+          InferRequestType<typeof client.users.$post>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
 
@@ -7261,6 +7792,9 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -7283,33 +7817,42 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function useHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    Extract<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        TError,
-        TData,
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-        ReturnType<typeof getHonoQueryKey>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+          ReturnType<typeof getHonoQueryKey>
+        >,
+        { queryKey: unknown }
       >,
-      { queryKey: unknown }
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoQueryKey(),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.hono.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoInfiniteQueryKey() {
@@ -7322,10 +7865,7 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 ) {
   return {
     queryKey: getHonoInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoInfiniteQueryKey>, TPageParam>) {
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.hono.$get(pagination.getRequestArgs(pageParam), {
           ...options,
@@ -7337,8 +7877,10 @@ export function getHonoInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteHono<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.hono.$get> },
@@ -7358,20 +7900,24 @@ export function useInfiniteHono<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoInfiniteQueryKey(),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.hono.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoInfiniteQueryKey(),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.hono.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(useGetHono).toBe(useGetHonoExpected)
@@ -7383,8 +7929,11 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -7393,7 +7942,7 @@ import { client } from '../client'
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args] as const
+  return ['users', '/users', toValue(args)] as const
 }
 
 export function getUsersQueryOptions(
@@ -7401,7 +7950,7 @@ export function getUsersQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersQueryKey(args),
+    queryKey: computed(() => getUsersQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -7412,7 +7961,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -7431,26 +7980,30 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users.$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', toValue(args)] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -7464,11 +8017,8 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -7480,8 +8030,10 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsers<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
@@ -7507,20 +8059,24 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(useGetUsers).toBe(useGetUsersExpected)
@@ -7528,12 +8084,16 @@ export function useInfiniteUsers<
         // Check POST hook file (mutation)
         const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
         const usePostUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -7542,27 +8102,41 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+          TError,
+          InferRequestType<typeof client.users.$post>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(usePostUsers).toBe(usePostUsersExpected)
@@ -7608,6 +8182,9 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -7636,40 +8213,46 @@ export function useUsers<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    Extract<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+          >,
+          ReturnType<typeof getUsersQueryKey>
         >,
-        TError,
-        TData,
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
-        >,
-        ReturnType<typeof getUsersQueryKey>
+        { queryKey: unknown }
       >,
-      { queryKey: unknown }
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(),
-    queryFn({ signal }) {
-      return parseResponse(
-        authClient.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          authClient.users.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey() {
@@ -7684,10 +8267,7 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 ) {
   return {
     queryKey: getUsersInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         authClient.users.$get(pagination.getRequestArgs(pageParam), {
           ...options,
@@ -7699,10 +8279,10 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsers<
-  TData = Awaited<
-    ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -7726,20 +8306,24 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        authClient.users.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getUsersInfiniteQueryKey(),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          authClient.users.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -7781,7 +8365,10 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -7808,33 +8395,42 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
 
 export function usePing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    Extract<
-      UseQueryOptions<
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-        TError,
-        TData,
-        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-        ReturnType<typeof getPingQueryKey>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+          TError,
+          TData,
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
+          ReturnType<typeof getPingQueryKey>
+        >,
+        { queryKey: unknown }
       >,
-      { queryKey: unknown }
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getPingQueryKey(),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.ping.$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getPingInfiniteQueryKey() {
@@ -7847,10 +8443,7 @@ export function getPingInfiniteQueryOptions<TPageParam = unknown>(
 ) {
   return {
     queryKey: getPingInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getPingInfiniteQueryKey>, TPageParam>) {
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.ping.$get(pagination.getRequestArgs(pageParam), {
           ...options,
@@ -7862,8 +8455,10 @@ export function getPingInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfinitePing<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: { getRequestArgs: (pageParam: unknown) => InferRequestType<typeof client.ping.$get> },
@@ -7883,23 +8478,31 @@ export function useInfinitePing<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getPingInfiniteQueryKey(),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.ping.$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getPingInfiniteQueryKey(),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.ping.$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
-export function getPostPingMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostPingMutationKey() {
+  return ['ping', '/ping', 'POST'] as const
+}
+
+export function getPostPingMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -7908,27 +8511,41 @@ export function getPostPingMutationOptions<TError = unknown, TOnMutateResult = u
     void,
     TOnMutateResult
   >({
-    mutationKey: ['ping', '/ping', 'POST'] as const,
+    mutationKey: getPostPingMutationKey(),
     async mutationFn() {
       return parseResponse(client.ping.$post(undefined, options))
     },
   })
 }
 
-export function usePostPing<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-    TError,
-    void,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostPing<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+          TError,
+          void,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -7965,6 +8582,9 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -7993,40 +8613,46 @@ export function useHonoX<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
   >,
-  TError = unknown,
->(options?: {
-  query?: Omit<
-    Extract<
-      UseQueryOptions<
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  TError = DefaultError,
+>(
+  options?: {
+    query?: Omit<
+      Extract<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+          >,
+          TError,
+          TData,
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+          >,
+          ReturnType<typeof getHonoXQueryKey>
         >,
-        TError,
-        TData,
-        Awaited<
-          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
-        >,
-        ReturnType<typeof getHonoXQueryKey>
+        { queryKey: unknown }
       >,
-      { queryKey: unknown }
-    >,
-    'queryKey' | 'queryFn'
-  >
-  options?: ClientRequestOptions
-}) {
+      'queryKey' | 'queryFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getHonoXQueryKey(),
-    queryFn({ signal }) {
-      return parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXQueryKey(),
+      queryFn({ signal }) {
+        return parseResponse(
+          client['hono-x'].$get(undefined, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getHonoXInfiniteQueryKey() {
@@ -8041,10 +8667,7 @@ export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
 ) {
   return {
     queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getHonoXInfiniteQueryKey>, TPageParam>) {
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
           ...options,
@@ -8056,10 +8679,12 @@ export function getHonoXInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteHonoX<
-  TData = Awaited<
-    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -8083,20 +8708,24 @@ export function useInfiniteHonoX<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getHonoXInfiniteQueryKey(),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: getHonoXInfiniteQueryKey(),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client['hono-x'].$get(pagination.getRequestArgs(pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -8143,9 +8772,12 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
   UseMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -8158,7 +8790,7 @@ export function getUsersKey() {
 export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', '/users/:id', args] as const
+  return ['users', '/users/:id', toValue(args)] as const
 }
 
 export function getUsersIdQueryOptions(
@@ -8166,7 +8798,7 @@ export function getUsersIdQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersIdQueryKey(args),
+    queryKey: computed(() => getUsersIdQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -8179,7 +8811,7 @@ export function useUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
@@ -8206,26 +8838,30 @@ export function useUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users[':id'].$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersIdQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users[':id'].$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', toValue(args)] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -8239,11 +8875,8 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersIdInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -8255,10 +8888,12 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsersId<
-  TData = Awaited<
-    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
@@ -8288,23 +8923,31 @@ export function useInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersIdInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
-export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -8318,32 +8961,46 @@ export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResul
     InferRequestType<(typeof client.users)[':id']['$delete']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
   })
 }
 
-export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$delete']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          | Awaited<
+              ReturnType<
+                typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+              >
+            >
+          | undefined,
+          TError,
+          InferRequestType<(typeof client.users)[':id']['$delete']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -8436,8 +9093,11 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -8446,7 +9106,7 @@ import { client } from '../client'
 export function getUsersQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args] as const
+  return ['users', '/users', toValue(args)] as const
 }
 
 export function getUsersQueryOptions(
@@ -8454,7 +9114,7 @@ export function getUsersQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersQueryKey(args),
+    queryKey: computed(() => getUsersQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -8465,7 +9125,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -8484,26 +9144,30 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users.$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', toValue(args)] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -8517,11 +9181,8 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -8533,8 +9194,10 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsers<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
@@ -8560,20 +9223,24 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(getUsers).toBe(getUsersExpected)
@@ -8581,12 +9248,16 @@ export function useInfiniteUsers<
         // Check POST /users mutation file (no query imports, no MaybeRefOrGetter/toValue)
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
         const postUsersExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -8595,27 +9266,41 @@ export function getPostUsersMutationOptions<TError = unknown, TOnMutateResult = 
     InferRequestType<typeof client.users.$post>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users', 'POST'] as const,
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
   })
 }
 
-export function usePostUsers<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-    TError,
-    InferRequestType<typeof client.users.$post>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePostUsers<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+          TError,
+          InferRequestType<typeof client.users.$post>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(postUsers).toBe(postUsersExpected)
@@ -8627,8 +9312,11 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -8637,7 +9325,7 @@ import { client } from '../client'
 export function getUsersIdQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', '/users/:id', args] as const
+  return ['users', '/users/:id', toValue(args)] as const
 }
 
 export function getUsersIdQueryOptions(
@@ -8645,7 +9333,7 @@ export function getUsersIdQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersIdQueryKey(args),
+    queryKey: computed(() => getUsersIdQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users[':id'].$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -8658,7 +9346,7 @@ export function useUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
   options?: {
@@ -8685,26 +9373,30 @@ export function useUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersIdQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users[':id'].$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersIdQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users[':id'].$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', toValue(args)] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -8718,11 +9410,8 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersIdInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersIdInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -8734,10 +9423,12 @@ export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsersId<
-  TData = Awaited<
-    ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+  TData = InfiniteData<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
+    >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<(typeof client.users)[':id']['$get']>>,
@@ -8767,20 +9458,24 @@ export function useInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersIdInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersIdInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users[':id'].$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `
         expect(getUsersId).toBe(getUsersIdExpected)
@@ -8788,12 +9483,16 @@ export function useInfiniteUsersId<
         // Check PUT /users/{id} mutation file (path param, no query imports)
         const putUsersId = fs.readFileSync(path.join(dir, 'hooks', 'putUsersId.ts'), 'utf-8')
         const putUsersIdExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPutUsersIdMutationKey() {
+  return ['users', '/users/:id', 'PUT'] as const
+}
+
+export function getPutUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -8804,29 +9503,45 @@ export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult =
     InferRequestType<(typeof client.users)[':id']['$put']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+    mutationKey: getPutUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
   })
 }
 
-export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
-    >,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$put']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePutUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
+            >
+          >,
+          TError,
+          InferRequestType<(typeof client.users)[':id']['$put']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(putUsersId).toBe(putUsersIdExpected)
@@ -8834,12 +9549,16 @@ export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(optio
         // Check DELETE /users/{id} mutation file (204 with |undefined)
         const deleteUsersId = fs.readFileSync(path.join(dir, 'hooks', 'deleteUsersId.ts'), 'utf-8')
         const deleteUsersIdExpected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -8853,32 +9572,46 @@ export function getDeleteUsersIdMutationOptions<TError = unknown, TOnMutateResul
     InferRequestType<(typeof client.users)[':id']['$delete']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
   })
 }
 
-export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
-        >
-      >
-    | undefined,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$delete']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function useDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          | Awaited<
+              ReturnType<
+                typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+              >
+            >
+          | undefined,
+          TError,
+          InferRequestType<(typeof client.users)[':id']['$delete']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(deleteUsersId).toBe(deleteUsersIdExpected)
@@ -8951,7 +9684,7 @@ export function useDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(op
 
         const code = fs.readFileSync(out, 'utf-8')
         const expected = `import { useMutation, mutationOptions } from '@tanstack/vue-query'
-import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { UseMutationOptions, DefaultError, QueryClient } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -8960,7 +9693,11 @@ export function getUsersKey() {
   return ['users'] as const
 }
 
-export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPutUsersIdMutationKey() {
+  return ['users', '/users/:id', 'PUT'] as const
+}
+
+export function getPutUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -8971,32 +9708,52 @@ export function getPutUsersIdMutationOptions<TError = unknown, TOnMutateResult =
     InferRequestType<(typeof client.users)[':id']['$put']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+    mutationKey: getPutUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
   })
 }
 
-export function usePutUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
-    >,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$put']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePutUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
+            >
+          >,
+          TError,
+          InferRequestType<(typeof client.users)[':id']['$put']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 
-export function getPatchUsersIdMutationOptions<TError = unknown, TOnMutateResult = unknown>(
+export function getPatchUsersIdMutationKey() {
+  return ['users', '/users/:id', 'PATCH'] as const
+}
+
+export function getPatchUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
   options?: ClientRequestOptions,
 ) {
   return mutationOptions<
@@ -9007,29 +9764,45 @@ export function getPatchUsersIdMutationOptions<TError = unknown, TOnMutateResult
     InferRequestType<(typeof client.users)[':id']['$patch']>,
     TOnMutateResult
   >({
-    mutationKey: ['users', '/users/:id', 'PATCH'] as const,
+    mutationKey: getPatchUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$patch']>) {
       return parseResponse(client.users[':id'].$patch(args, options))
     },
   })
 }
 
-export function usePatchUsersId<TError = unknown, TOnMutateResult = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>>
-    >,
-    TError,
-    InferRequestType<(typeof client.users)[':id']['$patch']>,
-    TOnMutateResult
-  >
-  options?: ClientRequestOptions
-}) {
+export function usePatchUsersId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: {
+    mutation?: Omit<
+      Extract<
+        UseMutationOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$patch']>>>
+            >
+          >,
+          TError,
+          InferRequestType<(typeof client.users)[':id']['$patch']>,
+          TOnMutateResult
+        >,
+        { mutationFn?: unknown }
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
   const { mutation: mutationOptions, options: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    ...getPatchUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions),
-  })
+  const mutationDefaults = getPatchUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+  return useMutation(
+    {
+      ...mutationOptions,
+      ...mutationDefaults,
+      mutationKey: mutationOptions?.mutationKey ?? mutationDefaults.mutationKey,
+    },
+    queryClient,
+  )
 }
 `
         expect(code).toBe(expected)
@@ -9067,8 +9840,11 @@ import type {
   UseQueryOptions,
   QueryFunctionContext,
   UseInfiniteQueryOptions,
+  InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/vue-query'
-import { toValue } from 'vue'
+import { computed, toValue } from 'vue'
 import type { MaybeRefOrGetter } from 'vue'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -9090,7 +9866,7 @@ export function getUsersQueryOptions(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersQueryKey(args),
+    queryKey: computed(() => getUsersQueryKey(args)),
     queryFn({ signal }: QueryFunctionContext) {
       return parseResponse(
         client.users.$get(toValue(args), { ...options, init: { ...options?.init, signal } }),
@@ -9101,7 +9877,7 @@ export function getUsersQueryOptions(
 
 export function useUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
   options?: {
@@ -9120,27 +9896,31 @@ export function useUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options ?? {}
-  return useQuery({
-    ...queryOptions,
-    queryKey: getUsersQueryKey(args),
-    queryFn({ signal }) {
-      return parseResponse(
-        client.users.$get(toValue(args), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersQueryKey(args)),
+      queryFn({ signal }) {
+        return parseResponse(
+          client.users.$get(toValue(args), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 
 export function getUsersInfiniteQueryKey(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
 ) {
   const { header: _, ...keyArgs } = toValue(args)
-  return ['users', '/users', keyArgs, 'infinite'] as const
+  return ['users', '/users', 'infinite', keyArgs] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -9154,11 +9934,8 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
   options?: ClientRequestOptions,
 ) {
   return {
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({
-      pageParam,
-      signal,
-    }: QueryFunctionContext<ReturnType<typeof getUsersInfiniteQueryKey>, TPageParam>) {
+    queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+    queryFn({ pageParam, signal }: QueryFunctionContext<readonly unknown[], TPageParam>) {
       return parseResponse(
         client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
           ...options,
@@ -9170,8 +9947,10 @@ export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
 }
 
 export function useInfiniteUsers<
-  TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TData = InfiniteData<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
+  >,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: MaybeRefOrGetter<InferRequestType<typeof client.users.$get>>,
@@ -9197,20 +9976,24 @@ export function useInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, options: clientOptions } = options
-  return useInfiniteQuery({
-    ...queryOptions,
-    queryKey: getUsersInfiniteQueryKey(args),
-    queryFn({ pageParam, signal }) {
-      return parseResponse(
-        client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      )
+  return useInfiniteQuery(
+    {
+      ...queryOptions,
+      queryKey: computed(() => getUsersInfiniteQueryKey(args)),
+      queryFn({ pageParam, signal }) {
+        return parseResponse(
+          client.users.$get(pagination.getRequestArgs(toValue(args), pageParam), {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        )
+      },
     },
-  })
+    queryClient,
+  )
 }
 `)
       } finally {
@@ -9285,6 +10068,7 @@ describe('svelte-query hooks', () => {
   createMutation,
   queryOptions,
   infiniteQueryOptions,
+  mutationOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -9292,6 +10076,8 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
   CreateMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -9321,7 +10107,7 @@ export function getPetsQueryOptions(
 
 export function createPets<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
@@ -9335,6 +10121,7 @@ export function createPets<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9347,11 +10134,11 @@ export function createPets<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pets.$get>) {
-  return ['pets', '/pets', args, 'infinite'] as const
+  return ['pets', '/pets', 'infinite', args] as const
 }
 
 export function getPetsInfiniteQueryOptions<TPageParam = unknown>(
@@ -9397,7 +10184,7 @@ export function createInfinitePets<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
@@ -9431,6 +10218,7 @@ export function createInfinitePets<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9451,33 +10239,53 @@ export function createInfinitePets<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 
-export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets', 'POST'] as const,
+export function getPostPetsMutationKey() {
+  return ['pets', '/pets', 'POST'] as const
+}
+
+export function getPostPetsMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.pets.$post>,
+    TOnMutateResult
+  >({
+    mutationKey: getPostPetsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
       return parseResponse(client.pets.$post(args, options))
     },
-  }
+  })
 }
 
-export function createPostPets<TError = unknown, TOnMutateResult = unknown>(
+export function createPostPets<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
-      TError,
-      InferRequestType<typeof client.pets.$post>,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.pets.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPetsMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostPetsMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 
 export function getPetsPetIdQueryKey(
@@ -9504,7 +10312,7 @@ export function createPetsPetId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
@@ -9522,6 +10330,7 @@ export function createPetsPetId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9537,13 +10346,13 @@ export function createPetsPetId<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getPetsPetIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
-  return ['pets', '/pets/:petId', args, 'infinite'] as const
+  return ['pets', '/pets/:petId', 'infinite', args] as const
 }
 
 export function getPetsPetIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -9595,7 +10404,7 @@ export function createInfinitePetsPetId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
@@ -9637,6 +10446,7 @@ export function createInfinitePetsPetId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9657,68 +10467,117 @@ export function createInfinitePetsPetId<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 
-export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
+export function getPutPetsPetIdMutationKey() {
+  return ['pets', '/pets/:petId', 'PUT'] as const
+}
+
+export function getPutPetsPetIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.pets)[':petId']['$put']>,
+    TOnMutateResult
+  >({
+    mutationKey: getPutPetsPetIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
       return parseResponse(client.pets[':petId'].$put(args, options))
     },
-  }
-}
-
-export function createPutPetsPetId<TError = unknown, TOnMutateResult = unknown>(
-  options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>
-        >
-      >,
-      TError,
-      InferRequestType<(typeof client.pets)[':petId']['$put']>,
-      TOnMutateResult
-    >
-    options?: ClientRequestOptions
-  },
-) {
-  return createMutation(() => {
-    const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutPetsPetIdMutationOptions(clientOptions) }
   })
 }
 
-export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
+export function createPutPetsPetId<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: () => {
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>
+          >
+        >,
+        TError,
+        InferRequestType<(typeof client.pets)[':petId']['$put']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
+    >
+    options?: ClientRequestOptions
+  },
+  queryClient?: () => QueryClient,
+) {
+  return createMutation(() => {
+    const { mutation, options: clientOptions } = options?.() ?? {}
+    const mutationDefaults = getPutPetsPetIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
+}
+
+export function getDeletePetsPetIdMutationKey() {
+  return ['pets', '/pets/:petId', 'DELETE'] as const
+}
+
+export function getDeletePetsPetIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.pets)[':petId']['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeletePetsPetIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
       return parseResponse(client.pets[':petId'].$delete(args, options))
     },
-  }
+  })
 }
 
-export function createDeletePetsPetId<TError = unknown, TOnMutateResult = unknown>(
+export function createDeletePetsPetId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+            >
           >
-        >
-      | undefined,
-      TError,
-      InferRequestType<(typeof client.pets)[':petId']['$delete']>,
-      TOnMutateResult
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.pets)[':petId']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeletePetsPetIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getDeletePetsPetIdMutationOptions<TError, TOnMutateResult>(
+      clientOptions,
+    )
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
 
@@ -9763,6 +10622,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -9788,7 +10649,7 @@ export function getPetsQueryOptions(
 
 export function createPets<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
   options?: () => {
@@ -9802,6 +10663,7 @@ export function createPets<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9814,11 +10676,11 @@ export function createPets<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getPetsInfiniteQueryKey(args: InferRequestType<typeof client.pets.$get>) {
-  return ['pets', '/pets', args, 'infinite'] as const
+  return ['pets', '/pets', 'infinite', args] as const
 }
 
 export function getPetsInfiniteQueryOptions<TPageParam = unknown>(
@@ -9864,7 +10726,7 @@ export function createInfinitePets<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.pets.$get>,
@@ -9898,6 +10760,7 @@ export function createInfinitePets<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -9918,7 +10781,7 @@ export function createInfinitePets<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(createGetPets).toBe(createGetPetsExpected)
@@ -9939,6 +10802,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -9968,7 +10833,7 @@ export function createPetsPetId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
   options?: () => {
@@ -9986,6 +10851,7 @@ export function createPetsPetId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10001,13 +10867,13 @@ export function createPetsPetId<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getPetsPetIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.pets)[':petId']['$get']>,
 ) {
-  return ['pets', '/pets/:petId', args, 'infinite'] as const
+  return ['pets', '/pets/:petId', 'infinite', args] as const
 }
 
 export function getPetsPetIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -10059,7 +10925,7 @@ export function createInfinitePetsPetId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.pets)[':petId']['$get']>,
@@ -10101,6 +10967,7 @@ export function createInfinitePetsPetId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10121,43 +10988,63 @@ export function createInfinitePetsPetId<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(createGetPetsPetId).toBe(createGetPetsPetIdExpected)
 
         // Check POST hook file (mutation)
         const createPostPets = fs.readFileSync(path.join(dir, 'hooks', 'postPets.ts'), 'utf-8')
-        const createPostPetsExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const createPostPetsExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostPetsMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets', 'POST'] as const,
+export function getPostPetsMutationKey() {
+  return ['pets', '/pets', 'POST'] as const
+}
+
+export function getPostPetsMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.pets.$post>,
+    TOnMutateResult
+  >({
+    mutationKey: getPostPetsMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.pets.$post>) {
       return parseResponse(client.pets.$post(args, options))
     },
-  }
+  })
 }
 
-export function createPostPets<TError = unknown, TOnMutateResult = unknown>(
+export function createPostPets<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
-      TError,
-      InferRequestType<typeof client.pets.$post>,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pets.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.pets.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPetsMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostPetsMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(createPostPets).toBe(createPostPetsExpected)
@@ -10167,40 +11054,62 @@ export function createPostPets<TError = unknown, TOnMutateResult = unknown>(
           path.join(dir, 'hooks', 'putPetsPetId.ts'),
           'utf-8',
         )
-        const createPutPetsPetIdExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const createPutPetsPetIdExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutPetsPetIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets/:petId', 'PUT'] as const,
+export function getPutPetsPetIdMutationKey() {
+  return ['pets', '/pets/:petId', 'PUT'] as const
+}
+
+export function getPutPetsPetIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.pets)[':petId']['$put']>,
+    TOnMutateResult
+  >({
+    mutationKey: getPutPetsPetIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$put']>) {
       return parseResponse(client.pets[':petId'].$put(args, options))
     },
-  }
+  })
 }
 
-export function createPutPetsPetId<TError = unknown, TOnMutateResult = unknown>(
+export function createPutPetsPetId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>
-        >
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$put']>>>
+          >
+        >,
+        TError,
+        InferRequestType<(typeof client.pets)[':petId']['$put']>,
+        TOnMutateResult
       >,
-      TError,
-      InferRequestType<(typeof client.pets)[':petId']['$put']>,
-      TOnMutateResult
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutPetsPetIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPutPetsPetIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(createPutPetsPetId).toBe(createPutPetsPetIdExpected)
@@ -10210,41 +11119,68 @@ export function createPutPetsPetId<TError = unknown, TOnMutateResult = unknown>(
           path.join(dir, 'hooks', 'deletePetsPetId.ts'),
           'utf-8',
         )
-        const createDeletePetsPetIdExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const createDeletePetsPetIdExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeletePetsPetIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['pets', '/pets/:petId', 'DELETE'] as const,
+export function getDeletePetsPetIdMutationKey() {
+  return ['pets', '/pets/:petId', 'DELETE'] as const
+}
+
+export function getDeletePetsPetIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.pets)[':petId']['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeletePetsPetIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.pets)[':petId']['$delete']>) {
       return parseResponse(client.pets[':petId'].$delete(args, options))
     },
-  }
+  })
 }
 
-export function createDeletePetsPetId<TError = unknown, TOnMutateResult = unknown>(
+export function createDeletePetsPetId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.pets)[':petId']['$delete']>>>
+            >
           >
-        >
-      | undefined,
-      TError,
-      InferRequestType<(typeof client.pets)[':petId']['$delete']>,
-      TOnMutateResult
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.pets)[':petId']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeletePetsPetIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getDeletePetsPetIdMutationOptions<TError, TOnMutateResult>(
+      clientOptions,
+    )
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(createDeletePetsPetId).toBe(createDeletePetsPetIdExpected)
@@ -10298,6 +11234,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -10326,7 +11264,7 @@ export function createUsers<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -10341,6 +11279,7 @@ export function createUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10356,7 +11295,7 @@ export function createUsers<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersInfiniteQueryKey() {
@@ -10402,7 +11341,7 @@ export function createInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof authClient.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -10434,6 +11373,7 @@ export function createInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10454,7 +11394,7 @@ export function createInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(code).toBe(expected)
@@ -10501,6 +11441,7 @@ export function createInfiniteUsers<
   createMutation,
   queryOptions,
   infiniteQueryOptions,
+  mutationOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -10508,6 +11449,8 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
   CreateMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -10534,7 +11477,7 @@ export function getPingQueryOptions(options?: ClientRequestOptions) {
 
 export function createPing<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -10547,6 +11490,7 @@ export function createPing<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10562,7 +11506,7 @@ export function createPing<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getPingInfiniteQueryKey() {
@@ -10608,7 +11552,7 @@ export function createInfinitePing<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -10638,6 +11582,7 @@ export function createInfinitePing<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10658,33 +11603,53 @@ export function createInfinitePing<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 
-export function getPostPingMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['ping', '/ping', 'POST'] as const,
+export function getPostPingMutationKey() {
+  return ['ping', '/ping', 'POST'] as const
+}
+
+export function getPostPingMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+    TError,
+    void,
+    TOnMutateResult
+  >({
+    mutationKey: getPostPingMutationKey(),
     async mutationFn() {
       return parseResponse(client.ping.$post(undefined, options))
     },
-  }
+  })
 }
 
-export function createPostPing<TError = unknown, TOnMutateResult = unknown>(
+export function createPostPing<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
-      TError,
-      void,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.ping.$post>>>>>,
+        TError,
+        void,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostPingMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostPingMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(code).toBe(expected)
@@ -10731,6 +11696,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -10759,7 +11726,7 @@ export function createHonoX<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -10774,6 +11741,7 @@ export function createHonoX<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10789,7 +11757,7 @@ export function createHonoX<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getHonoXInfiniteQueryKey() {
@@ -10837,7 +11805,7 @@ export function createInfiniteHonoX<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   pagination: {
@@ -10869,6 +11837,7 @@ export function createInfiniteHonoX<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -10889,7 +11858,7 @@ export function createInfiniteHonoX<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(code).toBe(expected)
@@ -10937,6 +11906,7 @@ export function createInfiniteHonoX<
   createMutation,
   queryOptions,
   infiniteQueryOptions,
+  mutationOptions,
 } from '@tanstack/svelte-query'
 import type {
   CreateQueryOptions,
@@ -10944,6 +11914,8 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
   CreateMutationOptions,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -10975,7 +11947,7 @@ export function createUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
@@ -10993,6 +11965,7 @@ export function createUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11008,13 +11981,13 @@ export function createUsersId<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -11062,7 +12035,7 @@ export function createInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -11100,6 +12073,7 @@ export function createInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11120,38 +12094,63 @@ export function createInfiniteUsersId<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
-  }
+  })
 }
 
-export function createDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(
+export function createDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+            >
           >
-        >
-      | undefined,
-      TError,
-      InferRequestType<(typeof client.users)[':id']['$delete']>,
-      TOnMutateResult
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeleteUsersIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(code).toBe(expected)
@@ -11250,6 +12249,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -11275,7 +12276,7 @@ export function getUsersQueryOptions(
 
 export function createUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -11289,6 +12290,7 @@ export function createUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11301,11 +12303,11 @@ export function createUsers<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -11351,7 +12353,7 @@ export function createInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -11385,6 +12387,7 @@ export function createInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11405,43 +12408,63 @@ export function createInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(getUsers).toBe(getUsersExpected)
 
         // Check POST /users mutation file (no query imports)
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
-        const postUsersExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const postUsersExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users', 'POST'] as const,
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
-export function createPostUsers<TError = unknown, TOnMutateResult = unknown>(
+export function createPostUsers<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-      TError,
-      InferRequestType<typeof client.users.$post>,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(postUsers).toBe(postUsersExpected)
@@ -11459,6 +12482,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -11486,7 +12511,7 @@ export function createUsersId<
   TData = Awaited<
     ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: () => {
@@ -11504,6 +12529,7 @@ export function createUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11519,13 +12545,13 @@ export function createUsersId<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersIdInfiniteQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['users', '/users/:id', args, 'infinite'] as const
+  return ['users', '/users/:id', 'infinite', args] as const
 }
 
 export function getUsersIdInfiniteQueryOptions<TPageParam = unknown>(
@@ -11573,7 +12599,7 @@ export function createInfiniteUsersId<
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$get']>>>>
     >
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<(typeof client.users)[':id']['$get']>,
@@ -11611,6 +12637,7 @@ export function createInfiniteUsersId<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11631,86 +12658,135 @@ export function createInfiniteUsersId<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `
         expect(getUsersId).toBe(getUsersIdExpected)
 
         // Check PUT /users/{id} mutation file (path param, no query imports)
         const putUsersId = fs.readFileSync(path.join(dir, 'hooks', 'putUsersId.ts'), 'utf-8')
-        const putUsersIdExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const putUsersIdExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPutUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users/:id', 'PUT'] as const,
+export function getPutUsersIdMutationKey() {
+  return ['users', '/users/:id', 'PUT'] as const
+}
+
+export function getPutUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    >,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$put']>,
+    TOnMutateResult
+  >({
+    mutationKey: getPutUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$put']>) {
       return parseResponse(client.users[':id'].$put(args, options))
     },
-  }
+  })
 }
 
-export function createPutUsersId<TError = unknown, TOnMutateResult = unknown>(
+export function createPutUsersId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>>
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$put']>>>
+          >
+        >,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$put']>,
+        TOnMutateResult
       >,
-      TError,
-      InferRequestType<(typeof client.users)[':id']['$put']>,
-      TOnMutateResult
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPutUsersIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPutUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(putUsersId).toBe(putUsersIdExpected)
 
         // Check DELETE /users/{id} mutation file (204 with |undefined)
         const deleteUsersId = fs.readFileSync(path.join(dir, 'hooks', 'deleteUsersId.ts'), 'utf-8')
-        const deleteUsersIdExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+        const deleteUsersIdExpected = `import { createMutation, mutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, DefaultError, QueryClient } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getDeleteUsersIdMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users/:id', 'DELETE'] as const,
+export function getDeleteUsersIdMutationKey() {
+  return ['users', '/users/:id', 'DELETE'] as const
+}
+
+export function getDeleteUsersIdMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+        >
+      >
+    | undefined,
+    TError,
+    InferRequestType<(typeof client.users)[':id']['$delete']>,
+    TOnMutateResult
+  >({
+    mutationKey: getDeleteUsersIdMutationKey(),
     async mutationFn(args: InferRequestType<(typeof client.users)[':id']['$delete']>) {
       return parseResponse(client.users[':id'].$delete(args, options))
     },
-  }
+  })
 }
 
-export function createDeleteUsersId<TError = unknown, TOnMutateResult = unknown>(
+export function createDeleteUsersId<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      | Awaited<
-          ReturnType<
-            typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+    mutation?: Omit<
+      CreateMutationOptions<
+        | Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':id']['$delete']>>>
+            >
           >
-        >
-      | undefined,
-      TError,
-      InferRequestType<(typeof client.users)[':id']['$delete']>,
-      TOnMutateResult
+        | undefined,
+        TError,
+        InferRequestType<(typeof client.users)[':id']['$delete']>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getDeleteUsersIdMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getDeleteUsersIdMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, queryClient)
 }
 `
         expect(deleteUsersId).toBe(deleteUsersIdExpected)
@@ -11777,6 +12853,8 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  QueryClient,
 } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -11807,7 +12885,7 @@ export function getUsersQueryOptions(
 
 export function createUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -11821,6 +12899,7 @@ export function createUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11833,12 +12912,12 @@ export function createUsers<
         )
       },
     }
-  })
+  }, queryClient)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
   const { header: _, ...keyArgs } = args
-  return ['users', '/users', keyArgs, 'infinite'] as const
+  return ['users', '/users', 'infinite', keyArgs] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -11884,7 +12963,7 @@ export function createInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -11918,6 +12997,7 @@ export function createInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  queryClient?: () => QueryClient,
 ) {
   return createInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -11938,7 +13018,7 @@ export function createInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, queryClient)
 }
 `)
       } finally {
@@ -11991,6 +13071,7 @@ describe('angular-query hooks', () => {
   injectMutation,
   queryOptions,
   infiniteQueryOptions,
+  mutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type {
   CreateQueryOptions,
@@ -11998,6 +13079,10 @@ import type {
   CreateInfiniteQueryOptions,
   InfiniteData,
   CreateMutationOptions,
+  DefaultError,
+  InjectQueryOptions,
+  InjectInfiniteQueryOptions,
+  InjectMutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -12028,7 +13113,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function injectHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -12041,6 +13126,7 @@ export function injectHono<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12056,7 +13142,7 @@ export function injectHono<
         )
       },
     }
-  })
+  }, injectOptions)
 }
 
 export function getUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
@@ -12079,7 +13165,7 @@ export function getUsersQueryOptions(
 
 export function injectUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -12093,6 +13179,7 @@ export function injectUsers<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12105,11 +13192,11 @@ export function injectUsers<
         )
       },
     }
-  })
+  }, injectOptions)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -12155,7 +13242,7 @@ export function injectInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -12189,6 +13276,7 @@ export function injectInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectInfiniteQueryOptions,
 ) {
   return injectInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12209,33 +13297,53 @@ export function injectInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, injectOptions)
 }
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users', 'POST'] as const,
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
-export function injectPostUsers<TError = unknown, TOnMutateResult = unknown>(
+export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-      TError,
-      InferRequestType<typeof client.users.$post>,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectMutationOptions,
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, injectOptions)
 }
 `
 
@@ -12270,7 +13378,14 @@ export function injectPostUsers<TError = unknown, TOnMutateResult = unknown>(
         const code = fs.readFileSync(out, 'utf-8')
         expect(code)
           .toBe(`import { injectQuery, queryOptions } from '@tanstack/angular-query-experimental'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/angular-query-experimental'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  DefaultError,
+  InjectQueryOptions,
+  InjectInfiniteQueryOptions,
+  InjectMutationOptions,
+} from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -12296,7 +13411,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function injectHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -12309,6 +13424,7 @@ export function injectHono<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12324,7 +13440,7 @@ export function injectHono<
         )
       },
     }
-  })
+  }, injectOptions)
 }
 `)
       } finally {
@@ -12355,7 +13471,14 @@ export * from './postUsers'
         const getHono = fs.readFileSync(path.join(dir, 'hooks', 'getHono.ts'), 'utf-8')
         expect(getHono)
           .toBe(`import { injectQuery, queryOptions } from '@tanstack/angular-query-experimental'
-import type { CreateQueryOptions, QueryFunctionContext } from '@tanstack/angular-query-experimental'
+import type {
+  CreateQueryOptions,
+  QueryFunctionContext,
+  DefaultError,
+  InjectQueryOptions,
+  InjectInfiniteQueryOptions,
+  InjectMutationOptions,
+} from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -12377,7 +13500,7 @@ export function getHonoQueryOptions(options?: ClientRequestOptions) {
 
 export function injectHono<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   options?: () => {
     query?: Omit<
@@ -12390,6 +13513,7 @@ export function injectHono<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12405,7 +13529,7 @@ export function injectHono<
         )
       },
     }
-  })
+  }, injectOptions)
 }
 `)
 
@@ -12422,6 +13546,10 @@ import type {
   QueryFunctionContext,
   CreateInfiniteQueryOptions,
   InfiniteData,
+  DefaultError,
+  InjectQueryOptions,
+  InjectInfiniteQueryOptions,
+  InjectMutationOptions,
 } from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
@@ -12447,7 +13575,7 @@ export function getUsersQueryOptions(
 
 export function injectUsers<
   TData = Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-  TError = unknown,
+  TError = DefaultError,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
   options?: () => {
@@ -12461,6 +13589,7 @@ export function injectUsers<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectQueryOptions,
 ) {
   return injectQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12473,11 +13602,11 @@ export function injectUsers<
         )
       },
     }
-  })
+  }, injectOptions)
 }
 
 export function getUsersInfiniteQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['users', '/users', args, 'infinite'] as const
+  return ['users', '/users', 'infinite', args] as const
 }
 
 export function getUsersInfiniteQueryOptions<TPageParam = unknown>(
@@ -12523,7 +13652,7 @@ export function injectInfiniteUsers<
   TData = InfiniteData<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>
   >,
-  TError = unknown,
+  TError = DefaultError,
   TPageParam = unknown,
 >(
   args: () => InferRequestType<typeof client.users.$get>,
@@ -12557,6 +13686,7 @@ export function injectInfiniteUsers<
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectInfiniteQueryOptions,
 ) {
   return injectInfiniteQuery(() => {
     const { query, options: clientOptions } = options?.() ?? {}
@@ -12577,43 +13707,69 @@ export function injectInfiniteUsers<
       initialPageParam: pagination.initialPageParam,
       getNextPageParam: pagination.getNextPageParam,
     }
-  })
+  }, injectOptions)
 }
 `)
 
         // Mutation-only file: injectMutation, plain-object factory (hasMutationOptionsHelper: false)
         const postUsers = fs.readFileSync(path.join(dir, 'hooks', 'postUsers.ts'), 'utf-8')
         expect(postUsers)
-          .toBe(`import { injectMutation } from '@tanstack/angular-query-experimental'
-import type { CreateMutationOptions } from '@tanstack/angular-query-experimental'
+          .toBe(`import { injectMutation, mutationOptions } from '@tanstack/angular-query-experimental'
+import type {
+  CreateMutationOptions,
+  DefaultError,
+  InjectQueryOptions,
+  InjectInfiniteQueryOptions,
+  InjectMutationOptions,
+} from '@tanstack/angular-query-experimental'
 import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
-export function getPostUsersMutationOptions(options?: ClientRequestOptions) {
-  return {
-    mutationKey: ['users', '/users', 'POST'] as const,
+export function getPostUsersMutationKey() {
+  return ['users', '/users', 'POST'] as const
+}
+
+export function getPostUsersMutationOptions<TError = DefaultError, TOnMutateResult = unknown>(
+  options?: ClientRequestOptions,
+) {
+  return mutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    TError,
+    InferRequestType<typeof client.users.$post>,
+    TOnMutateResult
+  >({
+    mutationKey: getPostUsersMutationKey(),
     async mutationFn(args: InferRequestType<typeof client.users.$post>) {
       return parseResponse(client.users.$post(args, options))
     },
-  }
+  })
 }
 
-export function injectPostUsers<TError = unknown, TOnMutateResult = unknown>(
+export function injectPostUsers<TError = DefaultError, TOnMutateResult = unknown>(
   options?: () => {
-    mutation?: CreateMutationOptions<
-      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
-      TError,
-      InferRequestType<typeof client.users.$post>,
-      TOnMutateResult
+    mutation?: Omit<
+      CreateMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+        TError,
+        InferRequestType<typeof client.users.$post>,
+        TOnMutateResult
+      >,
+      'mutationFn'
     >
     options?: ClientRequestOptions
   },
+  injectOptions?: InjectMutationOptions,
 ) {
   return injectMutation(() => {
     const { mutation, options: clientOptions } = options?.() ?? {}
-    return { ...mutation, ...getPostUsersMutationOptions(clientOptions) }
-  })
+    const mutationDefaults = getPostUsersMutationOptions<TError, TOnMutateResult>(clientOptions)
+    return {
+      ...mutation,
+      ...mutationDefaults,
+      mutationKey: mutation?.mutationKey ?? mutationDefaults.mutationKey,
+    }
+  }, injectOptions)
 }
 `)
 

@@ -1,6 +1,33 @@
 import { makeQueryHooks } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
+// TanStack hooks default TError to the library's `DefaultError`, so a global `Register`
+// augmentation applies and `error` is an `Error` rather than `unknown` out of the box.
+const DEFAULT_ERROR = 'DefaultError'
+// The trailing hook argument each adapter accepts after its options object.
+const QUERY_CLIENT_TAIL = {
+  name: 'queryClient',
+  query: 'QueryClient',
+  infinite: 'QueryClient',
+  mutation: 'QueryClient',
+  imports: ['QueryClient'],
+} as const
+// Solid and Svelte take the client as an accessor (thunk).
+const QUERY_CLIENT_ACCESSOR_TAIL = {
+  name: 'queryClient',
+  query: '()=>QueryClient',
+  infinite: '()=>QueryClient',
+  mutation: '()=>QueryClient',
+  imports: ['QueryClient'],
+} as const
+const INJECT_OPTIONS_TAIL = {
+  name: 'injectOptions',
+  query: 'InjectQueryOptions',
+  infinite: 'InjectInfiniteQueryOptions',
+  mutation: 'InjectMutationOptions',
+  imports: ['InjectQueryOptions', 'InjectInfiniteQueryOptions', 'InjectMutationOptions'],
+} as const
+
 const HOOK_CONFIGS = {
   swr: {
     packageName: 'swr',
@@ -16,6 +43,8 @@ const HOOK_CONFIGS = {
     useInfiniteQueryOptionsType: 'SWRInfiniteConfiguration',
   },
   'tanstack-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: QUERY_CLIENT_TAIL,
     packageName: '@tanstack/react-query',
     frameworkName: 'TanStack Query',
     hookPrefix: 'use',
@@ -34,6 +63,8 @@ const HOOK_CONFIGS = {
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
   },
   'preact-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: QUERY_CLIENT_TAIL,
     packageName: '@tanstack/preact-query',
     frameworkName: 'Preact Query',
     hookPrefix: 'use',
@@ -52,6 +83,8 @@ const HOOK_CONFIGS = {
     useSuspenseQueryOptionsType: 'UseSuspenseQueryOptions',
   },
   'solid-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: QUERY_CLIENT_ACCESSOR_TAIL,
     // Solid Query v5: `createQuery` takes the whole options object as an Accessor (= () => T),
     // and every `Create*Options` alias is itself `Accessor<...>` — see `unwrapOptionsAccessor`.
     packageName: '@tanstack/solid-query',
@@ -75,6 +108,8 @@ const HOOK_CONFIGS = {
     unwrapOptionsAccessor: true,
   },
   'vue-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: QUERY_CLIENT_TAIL,
     packageName: '@tanstack/vue-query',
     frameworkName: 'Vue Query',
     hookPrefix: 'use',
@@ -97,6 +132,8 @@ const HOOK_CONFIGS = {
     // suspense in Vue is handled at the component level via <Suspense>, not separate hooks.
   },
   'svelte-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: QUERY_CLIENT_ACCESSOR_TAIL,
     // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
     // @see https://tanstack.com/query/v5/docs/framework/svelte/reactivity
     packageName: '@tanstack/svelte-query',
@@ -108,11 +145,14 @@ const HOOK_CONFIGS = {
     useQueryOptionsType: 'CreateQueryOptions',
     useMutationOptionsType: 'CreateMutationOptions',
     hasQueryOptionsHelper: true,
+    hasMutationOptionsHelper: true,
     infiniteQueryFn: 'createInfiniteQuery',
     useInfiniteQueryOptionsType: 'CreateInfiniteQueryOptions',
     hasInfiniteQueryOptionsHelper: true,
   },
   'angular-query': {
+    errorType: DEFAULT_ERROR,
+    hookTail: INJECT_OPTIONS_TAIL,
     packageName: '@tanstack/angular-query-experimental',
     frameworkName: 'Angular Query',
     hookPrefix: 'inject',
@@ -121,7 +161,7 @@ const HOOK_CONFIGS = {
     useQueryOptionsType: 'CreateQueryOptions',
     useMutationOptionsType: 'CreateMutationOptions',
     hasQueryOptionsHelper: true,
-    hasMutationOptionsHelper: false,
+    hasMutationOptionsHelper: true,
     hasInfiniteQueryOptionsHelper: true,
     // Angular replaces suspense with Signal-based reactivity, no suspense hooks.
     infiniteQueryFn: 'injectInfiniteQuery',

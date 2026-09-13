@@ -9,6 +9,7 @@ import { SWRConfig, unstable_serialize } from 'swr'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
 import {
+  getGetItemsInfiniteKey,
   getGetUsersIdKey,
   useDeleteUsersId,
   useGetUsers,
@@ -209,5 +210,54 @@ describe('generated useSWRInfinite hooks', () => {
       { items: ['a', 'b'], nextPage: 1 },
       { items: ['c', 'd'], nextPage: 2 },
     ])
+  })
+})
+
+describe('generated useSWRMutation hooks (hook-level options)', () => {
+  it('throwOnError: false makes trigger resolve undefined and surface the error on the hook', async () => {
+    const { result } = renderHook(
+      () => usePostUsers<DetailedError>({ mutation: { throwOnError: false } }),
+      {
+        wrapper: makeWrapper(),
+      },
+    )
+    // oxlint-disable-next-line typescript/no-confusing-void-expression -- asserts trigger swallows the rejection
+    expect(await result.current.trigger({ json: { name: '' } })).toBeUndefined()
+    await waitFor(() => {
+      expect(result.current.error).toBeInstanceOf(DetailedError)
+    })
+  })
+})
+
+describe('generated useSWRInfinite hooks (custom key loader)', () => {
+  it('a custom swrKey loader may return null to stop paging', async () => {
+    const { result } = renderHook(
+      () =>
+        useInfiniteGetItems(
+          { query: { page: '0' } },
+          {
+            swr: {
+              swrKey: (index) =>
+                index === 0
+                  ? ([...getGetItemsInfiniteKey({ query: { page: '0' } }), index] as const)
+                  : null,
+            },
+            pagination: {
+              getRequestArgs: (_args, index) => ({ query: { page: String(index) } }),
+            },
+          },
+        ),
+      { wrapper: makeWrapper() },
+    )
+    await waitFor(() => {
+      expect(result.current.data).toStrictEqual([{ items: ['a', 'b'], nextPage: 1 }])
+    })
+    void result.current.setSize(2)
+    await waitFor(() => {
+      expect(result.current.size).toBe(2)
+    })
+    // The second page's key is null, so nothing is fetched for it.
+    expect(result.current.data).toStrictEqual([{ items: ['a', 'b'], nextPage: 1 }])
+    expect(requestLog.filter((entry) => entry.includes('page=1'))).toHaveLength(0)
   })
 })
