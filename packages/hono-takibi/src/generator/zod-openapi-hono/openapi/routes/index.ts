@@ -60,7 +60,7 @@ export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
       if (!isPathItemEntry(pathItem)) return [] as const
       const resolved = resolvePathItem(pathItem)
       return (
-        ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
+        ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'query'] as const
       ).flatMap((method) => {
         const operation = resolved[method]
         if (!operation?.responses) return []

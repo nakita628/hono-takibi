@@ -18,7 +18,7 @@ export function isRecord(v: unknown): v is { readonly [k: string]: unknown } {
 
 export function isHttpMethod(
   method: string,
-): method is 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' {
+): method is 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query' {
   return (
     method === 'get' ||
     method === 'put' ||
@@ -27,7 +27,8 @@ export function isHttpMethod(
     method === 'patch' ||
     method === 'options' ||
     method === 'head' ||
-    method === 'trace'
+    method === 'trace' ||
+    method === 'query'
   )
 }
 

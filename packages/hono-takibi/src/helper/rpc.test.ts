@@ -149,6 +149,7 @@ describe('parsePathItem', () => {
       head: undefined,
       patch: undefined,
       trace: undefined,
+      query: undefined,
     })
   })
 
@@ -583,6 +584,7 @@ describe('Use Case: OpenAPI path item parsing', () => {
       head: undefined,
       patch: undefined,
       trace: undefined,
+      query: undefined,
     })
   })
 

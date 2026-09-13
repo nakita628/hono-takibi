@@ -84,7 +84,19 @@ export function webhooks(
       }
       return Object.entries(openAPI.webhooks).flatMap(([name, pathItem]) =>
         pathItem
-          ? (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
+          ? (
+              [
+                'get',
+                'put',
+                'post',
+                'delete',
+                'patch',
+                'options',
+                'head',
+                'trace',
+                'query',
+              ] as const
+            )
               .filter((m) => pathItem[m]?.responses)
               .flatMap((method) => {
                 const operation = pathItem[method]

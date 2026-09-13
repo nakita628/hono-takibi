@@ -1,3 +1,5 @@
+import { MAIN_URI } from './typespec'
+
 export const DEFAULT_GENERATE_OPTIONS = {
   exportSchemas: false,
   exportSchemasTypes: false,
@@ -21,7 +23,7 @@ export const SAMPLES = [
     name: 'TypeSpec',
     mode: 'typespec',
     language: 'typespec',
-    path: 'file:///main.tsp',
+    path: MAIN_URI,
     source: `import "@typespec/http";
 
 using Http;
@@ -34,6 +36,9 @@ model Message {
   message: string;
 }
 
+@summary("Welcome")
+@doc("Returns a welcome message from Hono Takibi.")
+@returnsDoc("OK")
 @get op welcome(): Message;
 `,
   },
@@ -42,13 +47,14 @@ model Message {
     mode: 'yaml',
     language: 'yaml',
     path: 'file:///main.yaml',
-    source: `openapi: 3.1.0
+    source: `openapi: 3.0.0
 info:
   title: Hono Takibi API
-  version: '1.0.0'
+  version: 0.0.0
 paths:
   /:
     get:
+      operationId: welcome
       summary: Welcome
       description: Returns a welcome message from Hono Takibi.
       responses:
@@ -57,13 +63,18 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hono Takibi🔥
-                required:
-                  - message
+                $ref: '#/components/schemas/Message'
+components:
+  schemas:
+    Message:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+      example:
+        message: Hono Takibi🔥
 `,
   },
   {
@@ -72,11 +83,15 @@ paths:
     language: 'json',
     path: 'file:///main.json',
     source: `{
-  "openapi": "3.1.0",
-  "info": { "title": "Hono Takibi API", "version": "1.0.0" },
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Hono Takibi API",
+    "version": "0.0.0"
+  },
   "paths": {
     "/": {
       "get": {
+        "operationId": "welcome",
         "summary": "Welcome",
         "description": "Returns a welcome message from Hono Takibi.",
         "responses": {
@@ -84,7 +99,9 @@ paths:
             "description": "OK",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Message" }
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
               }
             }
           }
@@ -96,10 +113,17 @@ paths:
     "schemas": {
       "Message": {
         "type": "object",
+        "required": [
+          "message"
+        ],
         "properties": {
-          "message": { "type": "string", "example": "Hono Takibi🔥" }
+          "message": {
+            "type": "string"
+          }
         },
-        "required": ["message"]
+        "example": {
+          "message": "Hono Takibi🔥"
+        }
       }
     }
   }

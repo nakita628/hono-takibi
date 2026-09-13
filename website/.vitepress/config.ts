@@ -4,7 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vitepress'
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons'
 
-import { typespecBundle, typespecImportMapTag } from './lib/typespec/vite'
+import { injectTypeSpecImportMap, typespecBundle } from './lib/typespec/vite'
+
+const typespec = typespecBundle()
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -13,7 +15,7 @@ export default defineConfig({
 
   cleanUrls: true,
 
-  transformHtml: (html) => html.replace('<head>', `<head>${typespecImportMapTag}`),
+  transformHtml: (html) => injectTypeSpecImportMap(typespec, html),
 
   markdown: {
     config(md) {
@@ -22,7 +24,15 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [groupIconVitePlugin(), tailwindcss(), typespecBundle()],
+    plugins: [groupIconVitePlugin(), tailwindcss(), typespec],
+    build: {
+      rolldownOptions: {
+        // @typespec/playground imports the compiler statically; leaving the
+        // specifier bare lets the page importmap point it at the bundled copy
+        // the browser host already loads, instead of shipping a second one.
+        external: ['@typespec/compiler'],
+      },
+    },
     resolve: {
       alias: [
         // @typespec/compiler imports 'prettier/plugins/yaml.js' (extension-suffixed);

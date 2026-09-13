@@ -49,6 +49,56 @@ describe('type', () => {
     }
   })
 
+  it('should expose an OpenAPI 3.2 QUERY operation as $query', { timeout: 10_000 }, async () => {
+    const openapi = {
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'List users',
+            responses: { '200': { description: 'OK' } },
+          },
+          query: {
+            summary: 'Search users',
+            description: 'A safe read whose parameters travel in the body.',
+            'x-pagination': true,
+            requestBody: {
+              required: true,
+              content: { 'application/json': { schema: { type: 'object' } } },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    } as OpenAPI
+    const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+    try {
+      const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+      await expect(runGenerator(type(openapi, out))).resolves.toBeDefined()
+      expect(fs.readFileSync(out, 'utf-8'))
+        .toBe(`declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
+  {
+    '/users': {
+      $get: { input: {}; output: {}; outputFormat: string; status: 200 }
+      $query: {
+        input: { json: { [x: string]: unknown } }
+        output: {}
+        outputFormat: string
+        status: 200
+      }
+    }
+  },
+  '/'
+>
+export default routes
+`)
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('should generate declaration file for path parameters', { timeout: 10_000 }, async () => {
     const openapi = {
       openapi: '3.0.0',

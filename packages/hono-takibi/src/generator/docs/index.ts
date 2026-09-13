@@ -24,7 +24,17 @@ import type {
 } from '../../openapi/index.js'
 import { escapeHtml } from '../../utils/index.js'
 
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const
+const HTTP_METHODS = [
+  'get',
+  'put',
+  'post',
+  'delete',
+  'options',
+  'head',
+  'patch',
+  'trace',
+  'query',
+] as const
 
 type HttpMethod = (typeof HTTP_METHODS)[number]
 

@@ -166,7 +166,9 @@ export function resolveSplitOutDir(output: string) {
 export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
   parameters?: unknown
 } & {
-  readonly [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
+  readonly [
+    M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query'
+  ]?:
     | {
         readonly summary?: string
         readonly description?: string
@@ -186,6 +188,7 @@ export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {
     head: isOperationLike(rawItem.head) ? rawItem.head : undefined,
     patch: isOperationLike(rawItem.patch) ? rawItem.patch : undefined,
     trace: isOperationLike(rawItem.trace) ? rawItem.trace : undefined,
+    query: isOperationLike(rawItem.query) ? rawItem.query : undefined,
   } as const
 }
 
@@ -197,7 +200,7 @@ export function makeParseResponseType(
     readonly bracketSuffix: string
     readonly hasBracket: boolean
   },
-  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace',
+  method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
 ) {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
   const clientMethodType = hasBracket
@@ -220,7 +223,7 @@ export function operationHasArgs(
   item: {
     parameters?: unknown
   } & {
-    [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace']?:
+    [M in 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query']?:
       | {
           readonly summary?: string
           readonly description?: string

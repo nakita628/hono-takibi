@@ -82,20 +82,20 @@ export function defineEntries(
   return Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
     if (!isPathItemEntry(pathItem)) return [] as const
     const resolved = resolvePathItem(pathItem)
-    return (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const).flatMap(
-      (method) => {
-        const operation = resolved[method]
-        if (!operation?.responses) return []
-        const parameters = [
-          ...(resolved.parameters ?? ([] as const)),
-          ...(operation.parameters ?? ([] as const)),
-        ]
-          .map(resolveParameter)
-          .filter((p) => p !== undefined)
-        return [
-          makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
-        ]
-      },
-    )
+    return (
+      ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace', 'query'] as const
+    ).flatMap((method) => {
+      const operation = resolved[method]
+      if (!operation?.responses) return []
+      const parameters = [
+        ...(resolved.parameters ?? ([] as const)),
+        ...(operation.parameters ?? ([] as const)),
+      ]
+        .map(resolveParameter)
+        .filter((p) => p !== undefined)
+      return [
+        makeEntry(path, method, parameters.length > 0 ? { ...operation, parameters } : operation),
+      ]
+    })
   })
 }
