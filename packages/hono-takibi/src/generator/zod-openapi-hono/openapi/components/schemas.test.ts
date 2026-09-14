@@ -112,7 +112,7 @@ export type Test=z.infer<typeof TestSchema>`,
     }
     const result = schemasCode(components, true, true, true)
     expect(result).toBe(
-      `export const ItemSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('Item')
+      `export const ItemSchema=z.object({name:z.string().exactOptional()}).readonly().openapi({"required":[]}).openapi('Item')
 
 export type Item=z.infer<typeof ItemSchema>`,
     )

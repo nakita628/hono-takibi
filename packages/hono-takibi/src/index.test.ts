@@ -71,7 +71,10 @@ describe('CLI and config options test with string matching', { timeout: 30_000 }
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+export const ItemSchema = z
+  .object({ id: z.int().exactOptional() })
+  .openapi({ required: [] })
+  .openapi('Item')
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -125,7 +128,10 @@ export const getItemsRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+const ItemSchema = z
+  .object({ id: z.int().exactOptional() })
+  .openapi({ required: [] })
+  .openapi('Item')
 
 export type Item = z.infer<typeof ItemSchema>
 
@@ -323,7 +329,11 @@ export const getSecureRoute = createRoute({
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
 export const UserBodyRequestBody = {
-  content: { 'application/json': { schema: z.object({ name: z.string().exactOptional() }) } },
+  content: {
+    'application/json': {
+      schema: z.object({ name: z.string().exactOptional() }).openapi({ required: [] }),
+    },
+  },
   required: true,
 }
 
@@ -424,7 +434,10 @@ export const getUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
+export const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', param: { required: false } })
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -474,7 +487,10 @@ export const getUsersRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
+const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', param: { required: false } })
 
 export type RateLimitHeader = z.infer<typeof RateLimitHeaderSchema>
 
@@ -670,7 +686,9 @@ export const postSubscribeRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: z.object({ callbackUrl: z.string().exactOptional() }) },
+        'application/json': {
+          schema: z.object({ callbackUrl: z.string().exactOptional() }).openapi({ required: [] }),
+        },
       },
     },
   },
@@ -758,11 +776,15 @@ export const postSubscribeRoute = createRoute({
 
 export const ItemSchema = z
   .object({ id: z.int().exactOptional(), name: z.string().exactOptional() })
+  .openapi({ required: [] })
   .openapi('Item')
 
 export type Item = z.infer<typeof ItemSchema>
 
-export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
+export const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', param: { required: false } })
 
 export const GetRelatedLink = {
   operationId: 'getRelated',
@@ -1574,7 +1596,10 @@ export const getOrdersRoute = createRoute({
     const rateLimitHeader = fs.readFileSync(path.join(testDir, 'src/headers/rateLimit.ts'), 'utf-8')
     expect(rateLimitHeader).toBe(`import { z } from '@hono/zod-openapi'
 
-export const RateLimitHeaderSchema = z.int().exactOptional().openapi({ description: 'Rate limit' })
+export const RateLimitHeaderSchema = z
+  .int()
+  .exactOptional()
+  .openapi({ description: 'Rate limit', param: { required: false } })
 `)
 
     const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
@@ -1703,7 +1728,11 @@ export const getSecureRoute = createRoute({
     expect(userBodyFile).toBe(`import { z } from '@hono/zod-openapi'
 
 export const UserBodyRequestBody = {
-  content: { 'application/json': { schema: z.object({ name: z.string().exactOptional() }) } },
+  content: {
+    'application/json': {
+      schema: z.object({ name: z.string().exactOptional() }).openapi({ required: [] }),
+    },
+  },
   required: true,
 }
 `)
@@ -2279,7 +2308,9 @@ export const postSubscribeRoute = createRoute({
   request: {
     body: {
       content: {
-        'application/json': { schema: z.object({ callbackUrl: z.string().exactOptional() }) },
+        'application/json': {
+          schema: z.object({ callbackUrl: z.string().exactOptional() }).openapi({ required: [] }),
+        },
       },
     },
   },
@@ -2838,7 +2869,9 @@ export const JsonContentMediaTypeSchema = z
     const xmlContent = fs.readFileSync(path.join(testDir, 'src/mediaTypes/xmlContent.ts'), 'utf-8')
     expect(xmlContent).toBe(`import { z } from '@hono/zod-openapi'
 
-export const XmlContentMediaTypeSchema = z.object({ root: z.string().exactOptional() })
+export const XmlContentMediaTypeSchema = z
+  .object({ root: z.string().exactOptional() })
+  .openapi({ required: [] })
 `)
   })
 
@@ -3134,7 +3167,10 @@ export const JsonUserMediaTypeSchema = UserSchema
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+export const ItemSchema = z
+  .object({ id: z.int().exactOptional() })
+  .openapi({ required: [] })
+  .openapi('Item')
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -3159,7 +3195,10 @@ export const getItemsRoute = createRoute({
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
       expect(result).toBe(`import { createRoute, z } from "@hono/zod-openapi";
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi("Item");
+export const ItemSchema = z
+  .object({ id: z.int().exactOptional() })
+  .openapi({ required: [] })
+  .openapi("Item");
 
 export const getItemsRoute = createRoute({
   method: "get",
@@ -3184,7 +3223,10 @@ export const getItemsRoute = createRoute({
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi';
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item');
+export const ItemSchema = z
+  .object({ id: z.int().exactOptional() })
+  .openapi({ required: [] })
+  .openapi('Item');
 
 export const getItemsRoute = createRoute({
   method: 'get',
@@ -3209,7 +3251,10 @@ export const getItemsRoute = createRoute({
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+export const ItemSchema = z
+    .object({ id: z.int().exactOptional() })
+    .openapi({ required: [] })
+    .openapi('Item')
 
 export const getItemsRoute = createRoute({
     method: 'get',
@@ -3234,7 +3279,10 @@ export const getItemsRoute = createRoute({
       const result = fs.readFileSync(`${testDir}/output.ts`, { encoding: 'utf-8' })
       expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-export const ItemSchema = z.object({ id: z.int().exactOptional() }).openapi('Item')
+export const ItemSchema = z
+	.object({ id: z.int().exactOptional() })
+	.openapi({ required: [] })
+	.openapi('Item')
 
 export const getItemsRoute = createRoute({
 \tmethod: 'get',

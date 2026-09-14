@@ -1,4 +1,5 @@
-import { isMedia } from '../../../../guard/index.js'
+import { isMedia, isRefObject } from '../../../../guard/index.js'
+import { makeRef } from '../../../../helper/openapi.js'
 import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,
@@ -31,11 +32,17 @@ export function mediaTypesCode(
   if (!mediaTypes) return ''
   const entries = Object.entries(mediaTypes)
   if (entries.length === 0) return ''
+  // Same shapes as the split generator (core/components/mediaTypes.ts): an alias names its
+  // target's constant and an entry without a body `schema` is `z.unknown()`, so every
+  // `#/components/mediaTypes/*` reference has a constant to bind.
   return entries
     .map(([k, v]) => {
-      if (!isMedia(v)) return undefined
       const name = toIdentifierPascalCase(ensureSuffix(k, 'MediaTypeSchema'))
-      const zodCode = zodToOpenAPI(v.schema)
+      const zodCode = isRefObject(v)
+        ? makeRef(v.$ref)
+        : isMedia(v)
+          ? zodToOpenAPI(v.schema)
+          : 'z.unknown()'
       return zodToOpenAPISchema(
         name,
         zodCode,
@@ -45,6 +52,5 @@ export function mediaTypesCode(
         readonly,
       )
     })
-    .filter((v) => v !== undefined)
     .join('\n\n')
 }

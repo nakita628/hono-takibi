@@ -39,7 +39,7 @@ describe('callbacksCode', () => {
     }
     const result = callbacksCode(components, true)
     expect(result).toBe(
-      `export const OnEventCallback={"{callback}":{post:{requestBody:{content:{'application/json':{schema:z.object({message:z.string().exactOptional()})}}},responses:{200:{description:"OK"}}}}}`,
+      `export const OnEventCallback={"{callback}":{post:{requestBody:{content:{'application/json':{schema:z.object({message:z.string().exactOptional()}).openapi({"required":[]})}}},responses:{200:{description:"OK"}}}}}`,
     )
   })
 

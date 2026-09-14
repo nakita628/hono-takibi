@@ -18,7 +18,9 @@ describe('headersCode', () => {
       },
     }
     const result = headersCode(components, true, false)
-    expect(result).toBe('export const XRequestIdHeaderSchema=z.string().exactOptional()')
+    expect(result).toBe(
+      'export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})',
+    )
   })
 
   it('should generate header without export', () => {
@@ -30,7 +32,9 @@ describe('headersCode', () => {
       },
     }
     const result = headersCode(components, false, false)
-    expect(result).toBe('const XRateLimitHeaderSchema=z.int().exactOptional()')
+    expect(result).toBe(
+      'const XRateLimitHeaderSchema=z.int().exactOptional().openapi({param:{required:false}})',
+    )
   })
 
   it('should generate header with export and type', () => {
@@ -43,7 +47,7 @@ describe('headersCode', () => {
     }
     const result = headersCode(components, true, true)
     expect(result).toBe(
-      `export const XTokenHeaderSchema=z.string().exactOptional()
+      `export const XTokenHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})
 
 export type XTokenHeader=z.infer<typeof XTokenHeaderSchema>`,
     )
@@ -164,7 +168,9 @@ export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
       },
     }
     const result = headersCode(components, true, false, true)
-    expect(result).toBe('export const XRequestIdHeaderSchema=z.string().exactOptional().readonly()')
+    expect(result).toBe(
+      'export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}}).readonly()',
+    )
   })
 
   it('should generate multiple headers in single call', () => {
@@ -180,9 +186,9 @@ export type XMetaHeader=z.infer<typeof XMetaHeaderSchema>`,
     }
     const result = headersCode(components, true, false)
     expect(result).toBe(
-      `export const XRequestIdHeaderSchema=z.string().exactOptional()
+      `export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})
 
-export const XRateLimitHeaderSchema=z.int().exactOptional()`,
+export const XRateLimitHeaderSchema=z.int().exactOptional().openapi({param:{required:false}})`,
     )
   })
 
@@ -210,11 +216,11 @@ export const XRateLimitHeaderSchema=z.int().exactOptional()`,
     }
     const result = headersCode(components, true, true)
     expect(result).toBe(
-      `export const XRequestIdHeaderSchema=z.string().exactOptional()
+      `export const XRequestIdHeaderSchema=z.string().exactOptional().openapi({param:{required:false}})
 
 export type XRequestIdHeader=z.infer<typeof XRequestIdHeaderSchema>
 
-export const XRateLimitHeaderSchema=z.int().exactOptional()
+export const XRateLimitHeaderSchema=z.int().exactOptional().openapi({param:{required:false}})
 
 export type XRateLimitHeader=z.infer<typeof XRateLimitHeaderSchema>`,
     )

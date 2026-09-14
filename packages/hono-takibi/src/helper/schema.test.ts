@@ -79,7 +79,7 @@ describe('makeSchemaCode', () => {
     const code = makeSchemaCode(info, { exportKeyword: 'export ', exportType: false })
 
     expect(code).toBe(
-      "export const UserSchema=z.object({name:z.string().exactOptional()}).openapi('User')",
+      'export const UserSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).openapi(\'User\')',
     )
   })
 
@@ -89,7 +89,7 @@ describe('makeSchemaCode', () => {
     const code = makeSchemaCode(info, { exportKeyword: 'export ', exportType: true })
 
     expect(code).toBe(
-      "export const UserSchema=z.object({name:z.string().exactOptional()}).openapi('User')\n\nexport type User=z.infer<typeof UserSchema>",
+      'export const UserSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).openapi(\'User\')\n\nexport type User=z.infer<typeof UserSchema>',
     )
   })
 
@@ -99,7 +99,7 @@ describe('makeSchemaCode', () => {
     const code = makeSchemaCode(info, { exportKeyword: '', exportType: false })
 
     expect(code).toBe(
-      "const UserSchema=z.object({name:z.string().exactOptional()}).openapi('User')",
+      'const UserSchema=z.object({name:z.string().exactOptional()}).openapi({"required":[]}).openapi(\'User\')',
     )
   })
 
@@ -113,7 +113,7 @@ describe('makeSchemaCode', () => {
     })
 
     expect(code).toBe(
-      "export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('User')",
+      'export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi({"required":[]}).openapi(\'User\')',
     )
   })
 
@@ -174,7 +174,7 @@ describe('makeSchemaCode', () => {
     })
 
     expect(code).toBe(
-      "export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('User')\n\nexport type User=z.infer<typeof UserSchema>",
+      'export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi({"required":[]}).openapi(\'User\')\n\nexport type User=z.infer<typeof UserSchema>',
     )
   })
 })
@@ -294,7 +294,7 @@ describe('makeSplitSchemaFile', () => {
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true)
 
       expect(result).toBe(
-        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
+        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).openapi({\"required\":[]}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
       )
     })
 
@@ -304,7 +304,7 @@ describe('makeSplitSchemaFile', () => {
       const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true, true)
 
       expect(result).toBe(
-        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).readonly().openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
+        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).readonly().openapi({\"required\":[]}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
       )
     })
 
@@ -336,7 +336,7 @@ describe('makeSplitSchemaFile', () => {
 
       // The full result should contain both readonly nested object and readonly outer
       expect(result).toBe(
-        "import{z}from'@hono/zod-openapi'\n\n\nexport const OuterSchema=z.object({name:z.string().exactOptional(),inner:z.object({city:z.string().exactOptional()}).readonly().exactOptional()}).readonly().openapi('Outer')\n\nexport type Outer=z.infer<typeof OuterSchema>",
+        'import{z}from\'@hono/zod-openapi\'\n\n\nexport const OuterSchema=z.object({name:z.string().exactOptional(),inner:z.object({city:z.string().exactOptional()}).readonly().exactOptional().openapi({"required":[]})}).readonly().openapi({"required":[]}).openapi(\'Outer\')\n\nexport type Outer=z.infer<typeof OuterSchema>',
       )
     })
 
@@ -365,7 +365,7 @@ describe('makeSplitSchemaFile', () => {
 
       // The full result should contain readonly array
       expect(result).toBe(
-        "import{z}from'@hono/zod-openapi'\n\n\nexport const ContainerSchema=z.object({items:z.array(z.string()).readonly().exactOptional()}).readonly().openapi('Container')\n\nexport type Container=z.infer<typeof ContainerSchema>",
+        "import{z}from'@hono/zod-openapi'\n\n\nexport const ContainerSchema=z.object({items:z.array(z.string()).readonly().exactOptional()}).readonly().openapi({\"required\":[]}).openapi('Container')\n\nexport type Container=z.infer<typeof ContainerSchema>",
       )
     })
   })

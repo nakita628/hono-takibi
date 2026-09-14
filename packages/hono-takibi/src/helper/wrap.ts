@@ -361,9 +361,17 @@ export function wrap(
   const fileMetaProps = isBinaryFile
     ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
     : []
+  // `.exactOptional()` fails the `safeParse(undefined)` probe @hono/zod-openapi derives
+  // `required` from, so an optional parameter or header states `required: false` itself
+  // (the spec default for everything but a path parameter).
+  const parameter =
+    meta?.parameters && meta.parameters.required === undefined && meta.parameters.in !== 'path'
+      ? { ...meta.parameters, required: false }
+      : meta?.parameters
   const result = [
-    meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
+    parameter ? `param:${serializeParam(parameter)}` : undefined,
     ...headerMetaProps,
+    meta?.headers && meta.headers.required !== true ? 'param:{required:false}' : undefined,
     ...fileMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)

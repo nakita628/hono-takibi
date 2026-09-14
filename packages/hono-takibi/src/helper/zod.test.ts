@@ -150,7 +150,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{{const Schema=z.object({a:z.string().exactOptional()});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}};{const Schema=z.object({b:z.number().exactOptional()});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const Schema=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}};{const Schema=z.object({b:z.number().exactOptional()}).openapi({"required":[]});const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
       )
     })
 
@@ -241,7 +241,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).safeParse(val).success;if(ifOk){const Schema=z.object({}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.object({}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("A").exactOptional()}).openapi({"required":[]}).safeParse(val).success;if(ifOk){const Schema=z.object({}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}};if(!ifOk){const Schema=z.object({}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom',message:"err"})}}}})`,
       )
     })
 
@@ -345,7 +345,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("a").exactOptional()}).safeParse(val).success;if(ifOk){const Schema=z.object({x:z.string()}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};if(!ifOk){const Schema=z.object({y:z.int()}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}}}})`,
+        `z.unknown().superRefine((val,ctx)=>{{const ifOk=z.object({kind:z.literal("a").exactOptional()}).openapi({"required":[]}).safeParse(val).success;if(ifOk){const Schema=z.object({x:z.string()}).openapi({"required":["x"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}};if(!ifOk){const Schema=z.object({y:z.int()}).openapi({"required":["y"]});if(!Schema.safeParse(val).success){ctx.addIssue({code:'custom'})}}}})`,
       )
     })
   })
@@ -424,7 +424,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `.superRefine((o,ctx)=>{const e=new Set();if(z.object({c:z.string().exactOptional()}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+        `.superRefine((o,ctx)=>{const e=new Set();if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
       )
     })
 
@@ -463,7 +463,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `.superRefine((o,ctx)=>{const e=new Set();const ifOk=z.object({a:z.string().exactOptional()}).safeParse(o).success;if(ifOk){for(const k of ["a"]){e.add(k)}};if(ifOk){for(const k of ["b"]){e.add(k)}};if(!ifOk){for(const k of ["c"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
+        `.superRefine((o,ctx)=>{const e=new Set();const ifOk=z.object({a:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["a"]){e.add(k)}};if(ifOk){for(const k of ["b"]){e.add(k)}};if(!ifOk){for(const k of ["c"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.addIssue({code:"custom",path:[k]})}}})`,
       )
     })
 
@@ -568,7 +568,7 @@ describe('helper/zod', () => {
           recurse,
         ),
       ).toBe(
-        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}`,
+        `(ctx)=>{const o=ctx.value;if(typeof o!=='object'||o===null||Array.isArray(o))return;const e=new Set();for(const k of ["a"]){e.add(k)};for(const k of Object.keys(o)){for(const p of ["^x_"]){if(new RegExp(p).test(k)){e.add(k)}}};for(const k of ["b"]){e.add(k)};if(z.object({c:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["c"]){e.add(k)}};if(z.object({d:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success){for(const k of ["d"]){e.add(k)}};const ifOk=z.object({x:z.string().exactOptional()}).openapi({"required":[]}).safeParse(o).success;if(ifOk){for(const k of ["x"]){e.add(k)}};if(ifOk){for(const k of ["y"]){e.add(k)}};if(!ifOk){for(const k of ["z"]){e.add(k)}};if("e" in o){for(const k of ["f"]){e.add(k)}};for(const k of Object.keys(o)){if(!e.has(k)){ctx.issues.push({code:"custom",path:[k],input:o,message:"unevaluated"})}}}`,
       )
     })
 

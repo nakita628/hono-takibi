@@ -715,7 +715,7 @@ describe('string', () => {
         'x-error-message': 'デコード失敗',
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}))',
+        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",message:"デコード失敗",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 
@@ -727,7 +727,7 @@ describe('string', () => {
         contentSchema: { type: 'object', properties: { x: { type: 'string' } } },
       })
       expect(out).toBe(
-        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}))',
+        'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
     })
 

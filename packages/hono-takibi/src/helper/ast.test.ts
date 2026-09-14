@@ -349,7 +349,7 @@ describe('analyzeCircularSchemas', () => {
     } as const
     const result = analyzeCircularSchemas(schemas, ['User'])
     expect(result.zSchemaMap.get('User')).toBe(
-      'z.object({id:z.uuid().exactOptional(),email:z.email().exactOptional()})',
+      'z.object({id:z.uuid().exactOptional(),email:z.email().exactOptional()}).openapi({"required":[]})',
     )
   })
 

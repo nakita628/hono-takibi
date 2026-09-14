@@ -345,7 +345,10 @@ export function makeContent(
           ? `'${contentType}'`
           : JSON.stringify(contentType)
         if (isRefObject(mediaOrRef)) {
-          return `${key}:${makeRef(mediaOrRef.$ref)}`
+          // A `components.mediaTypes` constant is the body schema, not a Media Type Object.
+          return mediaOrRef.$ref.startsWith('#/components/mediaTypes/')
+            ? `${key}:{schema:${makeRef(mediaOrRef.$ref)}}`
+            : `${key}:${makeRef(mediaOrRef.$ref)}`
         }
         if (isMedia(mediaOrRef)) {
           return `${key}:${makeMedia(mediaOrRef, readonly)}`

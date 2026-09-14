@@ -38,7 +38,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, false, false)
     expect(result).toBe(
-      `const PageParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})`,
+      `const PageParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
     )
   })
 
@@ -54,7 +54,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, true)
     expect(result).toBe(
-      `export const LimitParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})
+      `export const LimitParamsSchema=z.coerce.number().int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}})
 
 export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
@@ -72,7 +72,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const CreatedAfterParamsSchema=z.coerce.date().exactOptional().openapi({param:{"name":"createdAfter","in":"query","schema":{"type":"date"}}})`,
+      `export const CreatedAfterParamsSchema=z.coerce.date().exactOptional().openapi({param:{"name":"createdAfter","in":"query","schema":{"type":"date"},"required":false}})`,
     )
   })
 
@@ -95,7 +95,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PaginationParamsSchema=z.object({page:z.coerce.number().int().min(1).default(1).exactOptional(),limit:z.coerce.number().int().min(1).max(100).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}}}})`,
+      `export const PaginationParamsSchema=z.object({page:z.coerce.number().int().min(1).default(1).exactOptional(),limit:z.coerce.number().int().min(1).max(100).default(20).exactOptional(),cursor:z.string().exactOptional()}).exactOptional().openapi({param:{"name":"pagination","in":"query","schema":{"type":"object","properties":{"page":{"type":"integer","minimum":1,"default":1},"limit":{"type":"integer","minimum":1,"maximum":100,"default":20},"cursor":{"type":"string"}}},"required":false},"required":[]})`,
     )
   })
 
@@ -117,7 +117,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const RangeParamsSchema=z.object({min:z.coerce.number().exactOptional(),max:z.coerce.number().exactOptional()}).exactOptional().openapi({param:{"name":"range","in":"query","schema":{"type":"object","properties":{"min":{"type":"number"},"max":{"type":"number"}}}}})`,
+      `export const RangeParamsSchema=z.object({min:z.coerce.number().exactOptional(),max:z.coerce.number().exactOptional()}).exactOptional().openapi({param:{"name":"range","in":"query","schema":{"type":"object","properties":{"min":{"type":"number"},"max":{"type":"number"}}},"required":false},"required":[]})`,
     )
   })
 
@@ -150,7 +150,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const SessionIdParamsSchema=z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"}}})`,
+      `export const SessionIdParamsSchema=z.string().exactOptional().openapi({param:{"name":"session_id","in":"cookie","schema":{"type":"string"},"required":false}})`,
     )
   })
 
@@ -166,7 +166,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IncludeDeletedParamsSchema=z.stringbool().exactOptional().openapi({param:{"name":"includeDeleted","in":"query","schema":{"type":"boolean"}}})`,
+      `export const IncludeDeletedParamsSchema=z.stringbool().exactOptional().openapi({param:{"name":"includeDeleted","in":"query","schema":{"type":"boolean"},"required":false}})`,
     )
   })
 
@@ -182,7 +182,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const FlagParamsSchema=z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true}}})`,
+      `export const FlagParamsSchema=z.coerce.boolean().exactOptional().openapi({param:{"name":"flag","in":"query","schema":{"type":"boolean","x-coerce":true},"required":false}})`,
     )
   })
 
@@ -218,7 +218,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdsParamsSchema=z.array(z.coerce.number().int()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}}}})`,
+      `export const IdsParamsSchema=z.array(z.coerce.number().int()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
     )
   })
 
@@ -238,7 +238,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     } as unknown as Components
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const FilterParamsSchema=z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}}}})`,
+      `export const FilterParamsSchema=z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}},"required":false}})`,
     )
   })
 
@@ -335,7 +335,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-error-message":"ページ番号は整数です"}}})`,
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-error-message":"ページ番号は整数です"},"required":false}})`,
     )
   })
 
@@ -385,7 +385,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const OffsetParamsSchema=z.coerce.number({error:"int32必須"}).pipe(z.int32({error:"int32必須"})).exactOptional().openapi({param:{"name":"offset","in":"query","schema":{"type":"integer","format":"int32","x-error-message":"int32必須"}}})`,
+      `export const OffsetParamsSchema=z.coerce.number({error:"int32必須"}).pipe(z.int32({error:"int32必須"})).exactOptional().openapi({param:{"name":"offset","in":"query","schema":{"type":"integer","format":"int32","x-error-message":"int32必須"},"required":false}})`,
     )
   })
 
@@ -401,7 +401,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PageParamsSchema=z.coerce.number({error:"ページ番号が不正です"}).int({error:"ページ番号が不正です"}).min(1,{error:"ページ番号が不正です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"x-error-message":"ページ番号が不正です"}}})`,
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号が不正です"}).int({error:"ページ番号が不正です"}).min(1,{error:"ページ番号が不正です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","minimum":1,"x-error-message":"ページ番号が不正です"},"required":false}})`,
     )
   })
 
@@ -421,7 +421,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-required-message":"必須です","x-error-message":"ページ番号は整数です"}}})`,
+      `export const PageParamsSchema=z.coerce.number({error:"ページ番号は整数です"}).int({error:"ページ番号は整数です"}).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer","x-required-message":"必須です","x-error-message":"ページ番号は整数です"},"required":false}})`,
     )
   })
 

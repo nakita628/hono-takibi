@@ -483,7 +483,7 @@ describe('object', () => {
             },
           },
         },
-        'z.object({metadata:z.object({key:z.string().exactOptional()}).exactOptional()})',
+        'z.object({metadata:z.object({key:z.string().exactOptional()}).exactOptional().openapi({"required":[]})})',
       ],
       // multiple properties with mixed types (no inner required array)
       [
@@ -574,7 +574,7 @@ describe('object', () => {
           ],
         }),
       ).toBe(
-        'z.object({a:z.string().exactOptional()}).and(z.object({b:z.number().exactOptional()}))',
+        'z.object({a:z.string().exactOptional()}).openapi({"required":[]}).and(z.object({b:z.number().exactOptional()}).openapi({"required":[]}))',
       )
     })
   })
@@ -592,7 +592,7 @@ describe('object if/then/else split-branch (per-branch message override)', () =>
         'x-then-message': 'then failed',
       }),
     ).toBe(
-      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()});const ifOk=If.safeParse(o).success;if(ifOk){const Branch=z.object({b:z.number().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"then failed"})}}}else{const Branch=z.object({c:z.boolean().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
+      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;if(ifOk){const Branch=z.object({b:z.number().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path,message:"then failed"})}}}else{const Branch=z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}}})`,
     )
   })
 
@@ -606,7 +606,7 @@ describe('object if/then/else split-branch (per-branch message override)', () =>
         else: { type: 'object', properties: { c: { type: 'boolean' } } },
       }),
     ).toBe(
-      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({b:z.number().exactOptional()}):z.object({c:z.boolean().exactOptional()});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`,
+      `z.object({}).superRefine((o,ctx)=>{const If=z.object({a:z.string().exactOptional()}).openapi({"required":[]});const ifOk=If.safeParse(o).success;const Branch=ifOk?z.object({b:z.number().exactOptional()}).openapi({"required":[]}):z.object({c:z.boolean().exactOptional()}).openapi({"required":[]});if(!Branch){return}const result=Branch.safeParse(o);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:issue.path})}}})`,
     )
   })
 })

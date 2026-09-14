@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/all-in-one/**/*",
+    "../../runtime/all-in-one.test.ts",
+    "../../types/assert.ts"
+  ]
+}

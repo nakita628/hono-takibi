@@ -356,7 +356,24 @@ export function zodToOpenAPI(
     )
   }
   if (schema.properties !== undefined) {
-    return wrap(object(schema, childOptions), schema, meta, options)
+    // An optional property is emitted as `.exactOptional()`, which fails the
+    // `safeParse(undefined)` probe @hono/zod-openapi derives `required` from, so an object
+    // that omits `required` would be documented with every property required. Stating the
+    // default (`required: []`) lets the emitted `.openapi()` override the probe.
+    const needsDefaultRequired =
+      schema.required === undefined &&
+      Object.keys(schema.properties).length > 0 &&
+      typeof schema.additionalProperties !== 'object' &&
+      schema.oneOf === undefined &&
+      schema.anyOf === undefined &&
+      schema.allOf === undefined &&
+      schema.not === undefined
+    return wrap(
+      object(schema, childOptions),
+      needsDefaultRequired ? { ...schema, required: [] } : schema,
+      meta,
+      options,
+    )
   }
   const t = normalizeTypes(schema.type)
   if (t.includes('string')) return wrap(string(schema, childOptions), schema, meta, options)

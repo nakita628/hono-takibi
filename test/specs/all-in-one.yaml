@@ -1,0 +1,384 @@
+# Declared as 3.1.0 on purpose: the body uses OpenAPI 3.2 additions (components.mediaTypes,
+# the `query` method, pathItem additionalOperations, media itemSchema, example
+# dataValue / serializedValue, response summary, tag summary / kind / parent, securityScheme
+# deprecated / oauth2MetadataUrl / deviceAuthorization) and hono-takibi must still emit them.
+openapi: 3.1.0
+info:
+  title: All-in-one — component export flags fixture
+  version: 1.0.0
+  description: >-
+    Declares every `components` kind the way a route consumes it, so one generation pass exercises
+    all fifteen `export*` flags (schemas, responses, parameters, examples, requestBodies, headers,
+    securitySchemes, links, callbacks, pathItems, mediaTypes and their `*Types` variants). Each
+    component is referenced through `$ref`, so the generated routes must use the component
+    constants instead of inlining copies.
+tags:
+  - name: users
+    summary: Users
+    kind: nav
+  - name: admin
+    summary: Admin-only user operations
+    parent: users
+    kind: nav
+  - name: system
+    summary: System
+    kind: nav
+security:
+  - bearerAuth: []
+paths:
+  /users:
+    get:
+      tags: [users]
+      operationId: listUsers
+      summary: List users
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Verbose'
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          summary: Users page
+          description: A page of users
+          headers:
+            X-Rate-Limit:
+              $ref: '#/components/headers/X-Rate-Limit'
+          content:
+            application/json:
+              $ref: '#/components/mediaTypes/UserListJson'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [users, admin]
+      operationId: createUser
+      summary: Create a user
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateUser'
+      callbacks:
+        userCreated:
+          $ref: '#/components/callbacks/UserCreated'
+      responses:
+        '201':
+          $ref: '#/components/responses/User'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [users]
+      operationId: getUser
+      summary: Get a user
+      parameters:
+        - $ref: '#/components/parameters/Session'
+      responses:
+        '200':
+          $ref: '#/components/responses/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /users/search:
+    query:
+      tags: [users]
+      operationId: searchUsers
+      summary: Search users with a filter body (OpenAPI 3.2 QUERY method)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserFilter'
+      responses:
+        '200':
+          description: Matching users
+          content:
+            application/json:
+              $ref: '#/components/mediaTypes/UserListJson'
+  /health:
+    $ref: '#/components/pathItems/Health'
+  /health/events:
+    get:
+      tags: [system]
+      operationId: streamHealthEvents
+      summary: Server-sent liveness events (OpenAPI 3.2 itemSchema)
+      security: []
+      responses:
+        '200':
+          description: One HealthEvent per server-sent event
+          content:
+            text/event-stream:
+              $ref: '#/components/mediaTypes/HealthEventStream'
+components:
+  schemas:
+    UserId:
+      type: string
+      format: uuid
+    Role:
+      type: string
+      enum: [admin, member]
+    Address:
+      type: object
+      required: [city]
+      properties:
+        city:
+          type: string
+        zip:
+          type: string
+    User:
+      type: object
+      required: [id, name, role]
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        name:
+          type: string
+          minLength: 1
+        role:
+          $ref: '#/components/schemas/Role'
+        address:
+          $ref: '#/components/schemas/Address'
+    NewUser:
+      type: object
+      required: [name, callbackUrl]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        role:
+          $ref: '#/components/schemas/Role'
+        callbackUrl:
+          type: string
+          format: uri
+    UserFilter:
+      description: '`required` is omitted on purpose: every property is optional.'
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        nameContains:
+          type: string
+    Category:
+      description: Self-referencing schema — exercises the z.lazy + explicit type path.
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+    HealthEvent:
+      type: object
+      required: [at]
+      properties:
+        at:
+          type: string
+          format: date-time
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserId'
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      examples:
+        ten:
+          $ref: '#/components/examples/LimitTen'
+    Verbose:
+      description: '`required` is omitted on purpose: it defaults to false.'
+      name: verbose
+      in: query
+      schema:
+        type: boolean
+    RequestId:
+      name: X-Request-Id
+      in: header
+      required: false
+      schema:
+        type: string
+    Session:
+      name: session
+      in: cookie
+      required: false
+      schema:
+        type: string
+  examples:
+    Alice:
+      summary: A member user
+      value:
+        id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        name: Alice
+        role: member
+    NewAlice:
+      summary: Payload that creates Alice
+      value:
+        name: Alice
+        callbackUrl: https://example.com/hooks/user-created
+    LimitTen:
+      summary: Ten per page (OpenAPI 3.2 dataValue / serializedValue)
+      dataValue: 10
+      serializedValue: limit=10
+    NotFound:
+      summary: The user does not exist
+      value:
+        code: 404
+        message: User not found
+    DefaultUser:
+      $ref: '#/components/examples/Alice'
+  requestBodies:
+    CreateUser:
+      description: The user to create
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewUser'
+          examples:
+            alice:
+              $ref: '#/components/examples/NewAlice'
+  headers:
+    X-Rate-Limit:
+      description: Requests left in the current window
+      schema:
+        type: integer
+        minimum: 0
+    X-Request-Id:
+      description: Correlates a response with its request
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      deprecated: true
+    oauth2:
+      type: oauth2
+      oauth2MetadataUrl: https://auth.example.com/.well-known/oauth-authorization-server
+      flows:
+        deviceAuthorization:
+          deviceAuthorizationUrl: https://auth.example.com/device
+          tokenUrl: https://auth.example.com/token
+          scopes:
+            users:read: Read users
+  links:
+    GetUserById:
+      operationId: getUser
+      parameters:
+        userId: $response.body#/id
+      description: Fetch the user that was just returned
+  callbacks:
+    UserCreated:
+      '{$request.body#/callbackUrl}':
+        post:
+          operationId: onUserCreated
+          requestBody:
+            required: true
+            content:
+              application/json:
+                $ref: '#/components/mediaTypes/UserJson'
+          responses:
+            '204':
+              description: Callback received
+  pathItems:
+    Health:
+      summary: Liveness probe
+      get:
+        tags: [system]
+        operationId: getHealth
+        security: []
+        responses:
+          '200':
+            description: Service is alive
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Health'
+      additionalOperations:
+        PURGE:
+          tags: [system]
+          operationId: purgeHealthCache
+          responses:
+            '204':
+              description: Cache purged
+  mediaTypes:
+    UserJson:
+      schema:
+        $ref: '#/components/schemas/User'
+    UserListJson:
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/User'
+    LegacyUserJson:
+      $ref: '#/components/mediaTypes/UserJson'
+    HealthEventStream:
+      itemSchema:
+        $ref: '#/components/schemas/HealthEvent'
+  responses:
+    User:
+      summary: One user
+      description: The user
+      headers:
+        X-Request-Id:
+          $ref: '#/components/headers/X-Request-Id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+          examples:
+            alice:
+              $ref: '#/components/examples/DefaultUser'
+      links:
+        self:
+          $ref: '#/components/links/GetUserById'
+    NotFound:
+      description: No user with that id
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            notFound:
+              $ref: '#/components/examples/NotFound'
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ValidationFailed:
+      description: The payload failed validation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

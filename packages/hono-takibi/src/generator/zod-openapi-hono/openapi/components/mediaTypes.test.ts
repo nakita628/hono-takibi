@@ -24,7 +24,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, false)
     expect(result).toBe(
-      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})',
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]})',
     )
   })
 
@@ -37,7 +37,9 @@ describe('mediaTypesCode', () => {
       },
     }
     const result = mediaTypesCode(components, false, false)
-    expect(result).toBe('const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})')
+    expect(result).toBe(
+      'const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]})',
+    )
   })
 
   it('should generate media type schema with type export', () => {
@@ -50,7 +52,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, true)
     expect(result).toBe(
-      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport type JsonMediaMediaType=z.infer<typeof JsonMediaMediaTypeSchema>',
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]})\n\nexport type JsonMediaMediaType=z.infer<typeof JsonMediaMediaTypeSchema>',
     )
   })
 
@@ -64,7 +66,7 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, false, true)
     expect(result).toBe(
-      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).readonly()',
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]}).readonly()',
     )
   })
 
@@ -81,17 +83,32 @@ describe('mediaTypesCode', () => {
     }
     const result = mediaTypesCode(components, true, false)
     expect(result).toBe(
-      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()})\n\nexport const XmlMediaMediaTypeSchema=z.string()',
+      'export const JsonMediaMediaTypeSchema=z.object({id:z.int().exactOptional()}).openapi({"required":[]})\n\nexport const XmlMediaMediaTypeSchema=z.string()',
     )
   })
 
-  it('should skip non-media entries', () => {
+  it('should alias a $ref entry to the media type it names', () => {
     const components: Components = {
       mediaTypes: {
+        LegacyMedia: { $ref: '#/components/mediaTypes/JsonMedia' },
+      },
+    }
+    const result = mediaTypesCode(components, true, true)
+    expect(result).toBe(
+      'export const LegacyMediaMediaTypeSchema=JsonMediaMediaTypeSchema\n\nexport type LegacyMediaMediaType=z.infer<typeof LegacyMediaMediaTypeSchema>',
+    )
+  })
+
+  it('should emit z.unknown() for an entry without a body schema', () => {
+    const components: Components = {
+      mediaTypes: {
+        EventStream: { itemSchema: { type: 'string' } } as any,
         NoSchema: { encoding: {} } as any,
       },
     }
     const result = mediaTypesCode(components, true, false)
-    expect(result).toBe('')
+    expect(result).toBe(
+      'export const EventStreamMediaTypeSchema=z.unknown()\n\nexport const NoSchemaMediaTypeSchema=z.unknown()',
+    )
   })
 })

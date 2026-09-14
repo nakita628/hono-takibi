@@ -56,7 +56,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -942,7 +946,11 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 type NodeType = { id?: number; next?: NodeType }
 
 const NodeSchema: z.ZodType<NodeType> = z
-  .lazy(() => z.object({ id: z.int().exactOptional(), next: NodeSchema.exactOptional() }))
+  .lazy(() =>
+    z
+      .object({ id: z.int().exactOptional(), next: NodeSchema.exactOptional() })
+      .openapi({ required: [] }),
+  )
   .openapi('Node')
 
 export const getTreeRoute = createRoute({
@@ -1050,7 +1058,9 @@ export const getXRoute = createRoute({
         .number()
         .int()
         .exactOptional()
-        .openapi({ param: { name: 'id', in: 'query', schema: { type: 'integer' } } }),
+        .openapi({
+          param: { name: 'id', in: 'query', schema: { type: 'integer' }, required: false },
+        }),
     }),
   },
   responses: { 200: { description: 'OK' } },
@@ -1117,7 +1127,11 @@ export const getMeRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ id: z.int().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ id: z.int().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
     401: { description: 'Unauthorized' },
   },
@@ -1190,7 +1204,11 @@ export const getMeRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ id: z.int().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ id: z.int().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
     401: { description: 'Unauthorized' },
   },
@@ -1267,13 +1285,21 @@ import { HTTPException } from 'hono/http-exception'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 const ChildSchema: z.ZodType<ChildType> = z
-  .lazy(() => z.object({ id: z.int().exactOptional(), parent: ParentSchema.exactOptional() }))
+  .lazy(() =>
+    z
+      .object({ id: z.int().exactOptional(), parent: ParentSchema.exactOptional() })
+      .openapi({ required: [] }),
+  )
   .openapi('Child')
 
 type ParentType = { id?: number; child?: z.infer<typeof ChildSchema> }
 
 const ParentSchema: z.ZodType<ParentType> = z
-  .lazy(() => z.object({ id: z.int().exactOptional(), child: ChildSchema.exactOptional() }))
+  .lazy(() =>
+    z
+      .object({ id: z.int().exactOptional(), child: ChildSchema.exactOptional() })
+      .openapi({ required: [] }),
+  )
   .openapi('Parent')
 
 type ChildType = { id?: number; parent?: z.infer<typeof ParentSchema> }
@@ -1412,7 +1438,11 @@ export const postItemsRoute = createRoute({
   responses: {
     default: {
       description: 'ok',
-      content: { 'application/json': { schema: z.object({ id: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ id: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -1627,11 +1657,19 @@ export const getBothRoute = createRoute({
   responses: {
     200: {
       description: 'ok',
-      content: { 'application/json': { schema: z.object({ a: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ a: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
     default: {
       description: 'err',
-      content: { 'application/json': { schema: z.object({ b: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ b: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -2028,7 +2066,7 @@ export const getVRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ ok: z.boolean().exactOptional() }),
+          schema: z.object({ ok: z.boolean().exactOptional() }).openapi({ required: [] }),
           example: { ok: true },
         },
       },
@@ -2106,14 +2144,26 @@ export const getPostsRoute = createRoute({
         .int()
         .default(1)
         .exactOptional()
-        .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
+        .openapi({
+          param: {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', default: 1 },
+            required: false,
+          },
+        }),
       rows: z.coerce
         .number()
         .int()
         .default(20)
         .exactOptional()
         .openapi({
-          param: { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+          param: {
+            name: 'rows',
+            in: 'query',
+            schema: { type: 'integer', default: 20 },
+            required: false,
+          },
         }),
     }),
   },
@@ -2198,14 +2248,26 @@ export const getPostsRoute = createRoute({
         .int()
         .default(1)
         .exactOptional()
-        .openapi({ param: { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } } }),
+        .openapi({
+          param: {
+            name: 'page',
+            in: 'query',
+            schema: { type: 'integer', default: 1 },
+            required: false,
+          },
+        }),
       rows: z.coerce
         .number()
         .int()
         .default(20)
         .exactOptional()
         .openapi({
-          param: { name: 'rows', in: 'query', schema: { type: 'integer', default: 20 } },
+          param: {
+            name: 'rows',
+            in: 'query',
+            schema: { type: 'integer', default: 20 },
+            required: false,
+          },
         }),
     }),
   },
@@ -2253,7 +2315,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -2298,7 +2364,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -2348,7 +2418,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -2429,7 +2503,7 @@ export const getPingRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ msg: z.string().exactOptional() }),
+          schema: z.object({ msg: z.string().exactOptional() }).openapi({ required: [] }),
           example: { msg: 'pong' },
         },
       },
@@ -2469,7 +2543,7 @@ export const getPingRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ msg: z.string().exactOptional() }),
+          schema: z.object({ msg: z.string().exactOptional() }).openapi({ required: [] }),
           example: { msg: 'pong' },
         },
       },
@@ -2781,7 +2855,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })
@@ -2826,7 +2904,11 @@ export const getHealthRoute = createRoute({
   responses: {
     200: {
       description: 'OK',
-      content: { 'application/json': { schema: z.object({ status: z.string().exactOptional() }) } },
+      content: {
+        'application/json': {
+          schema: z.object({ status: z.string().exactOptional() }).openapi({ required: [] }),
+        },
+      },
     },
   },
 })

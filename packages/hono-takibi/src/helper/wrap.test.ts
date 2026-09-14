@@ -235,7 +235,7 @@ describe('wrap', () => {
       },
     )
     const expected =
-      'z.string().exactOptional().openapi({param:{"name":"q","in":"query"},"example":"query-value","description":"Optional query parameter"})'
+      'z.string().exactOptional().openapi({param:{"name":"q","in":"query","required":false},"example":"query-value","description":"Optional query parameter"})'
     expect(result).toBe(expected)
   })
 
@@ -266,7 +266,8 @@ describe('wrap', () => {
       { type: 'string' },
       { parameters: { name: 'x', in: 'header' } as any },
     )
-    const expected = 'z.string().exactOptional().openapi({param:{"name":"x","in":"header"}})'
+    const expected =
+      'z.string().exactOptional().openapi({param:{"name":"x","in":"header","required":false}})'
     expect(result).toBe(expected)
   })
 
@@ -317,7 +318,7 @@ describe('wrap', () => {
     }
     const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
     expect(result).toBe(
-      'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}}}})',
+      'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"string"}}},"required":false}})',
     )
   })
 
@@ -375,7 +376,9 @@ describe('wrap', () => {
         required: false,
       }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe('z.string().exactOptional().openapi({description:"Optional header"})')
+      expect(result).toBe(
+        'z.string().exactOptional().openapi({description:"Optional header",param:{required:false}})',
+      )
     })
 
     it.concurrent('should add .exactOptional() when header required is undefined', () => {
@@ -384,7 +387,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
       expect(result).toBe(
-        'z.string().exactOptional().openapi({description:"Header without required"})',
+        'z.string().exactOptional().openapi({description:"Header without required",param:{required:false}})',
       )
     })
 
@@ -406,7 +409,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
       expect(result).toBe(
-        'z.string().exactOptional().openapi({description:"Header with example",example:"Bearer token123"})',
+        'z.string().exactOptional().openapi({description:"Header with example",example:"Bearer token123",param:{required:false}})',
       )
     })
 
@@ -418,12 +421,12 @@ describe('wrap', () => {
       expect(result).toBe('z.string()')
     })
 
-    it.concurrent('should handle header with no openapi props when required is false', () => {
+    it.concurrent('should state required:false for a header that is not required', () => {
       const testHeader: Header = {
         required: false,
       }
       const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
-      expect(result).toBe('z.string().exactOptional()')
+      expect(result).toBe('z.string().exactOptional().openapi({param:{required:false}})')
     })
   })
 
@@ -884,7 +887,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.string().exactOptional().openapi({param:{"name":"sessionId","in":"cookie","schema":{"type":"string"}}})',
+        'z.string().exactOptional().openapi({param:{"name":"sessionId","in":"cookie","schema":{"type":"string"},"required":false}})',
       )
     })
 

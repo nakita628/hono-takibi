@@ -29,7 +29,7 @@ describe('requestBodiesCode', () => {
     }
     const result = requestBodiesCode(components, true)
     expect(result).toBe(
-      `export const UserBodyRequestBody={content:{'application/json':{schema:z.object({name:z.string().exactOptional()})}},required:true}`,
+      `export const UserBodyRequestBody={content:{'application/json':{schema:z.object({name:z.string().exactOptional()}).openapi({"required":[]})}},required:true}`,
     )
   })
 

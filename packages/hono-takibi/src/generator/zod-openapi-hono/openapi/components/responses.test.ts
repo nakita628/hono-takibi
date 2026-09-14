@@ -29,7 +29,7 @@ describe('responsesCode', () => {
     }
     const result = responsesCode(components, true)
     expect(result).toBe(
-      `export const NotFoundResponse={description:"Not found",content:{'application/json':{schema:z.object({message:z.string().exactOptional()})}}}`,
+      `export const NotFoundResponse={description:"Not found",content:{'application/json':{schema:z.object({message:z.string().exactOptional()}).openapi({"required":[]})}}}`,
     )
   })
 
