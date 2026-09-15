@@ -11,7 +11,7 @@
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "^12.1.0",
+    "@apidevtools/swagger-parser": "^13.0.0",
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/vite": "^4.3.3",
