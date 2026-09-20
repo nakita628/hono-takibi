@@ -170,6 +170,25 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 
+  // Regression: the array branch coerced items with `z.coerce.number()` before piping
+  // them into `z.int64()`, which is a bigint schema — every request 422'd on arrival.
+  it('coerces array-of-int64 query items to bigint, not number', () => {
+    const result = parametersCode(
+      {
+        parameters: {
+          Ids: {
+            name: 'ids',
+            in: 'query',
+            schema: { type: 'array', items: { type: 'integer', format: 'int64' } },
+          },
+        },
+      },
+      true,
+      false,
+    )
+    expect(result).toContain('z.array(z.coerce.bigint().pipe(z.int64()))')
+  })
+
   it('preserves z.coerce.boolean() for query boolean with x-coerce: true (no z.coerce.stringbool() crash)', () => {
     const components: Components = {
       parameters: {

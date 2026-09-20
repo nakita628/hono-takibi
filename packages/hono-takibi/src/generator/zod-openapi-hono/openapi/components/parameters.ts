@@ -27,7 +27,14 @@ export function parametersCode(
       // Path/query primitive number/integer get the `coerce` hint so the
       // emitter produces `z.coerce.X().pipe(z.Y()...)` directly. Boolean/date/
       // object/array containers still string-replace post-hoc (out of scope).
-      const isStringWire = parameter.in === 'query' || parameter.in === 'path'
+      // Query, path, header and cookie values all reach the handler as strings, so a
+      // numeric or boolean schema has to coerce before it validates. Only a body arrives
+      // already typed.
+      const isStringWire =
+        parameter.in === 'query' ||
+        parameter.in === 'path' ||
+        parameter.in === 'header' ||
+        parameter.in === 'cookie'
       const isPrimitiveNumeric =
         isStringWire && (schema?.type === 'number' || schema?.type === 'integer')
       const baseSchema = schema
@@ -46,11 +53,15 @@ export function parametersCode(
             : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
               ? baseSchema
                   .replaceAll(
-                    /z\.(int\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
+                    /z\.((?:int|float)\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
                     (_: string, type: string, constraints: string) =>
                       type === 'int'
                         ? `z.coerce.number().int()${constraints}`
-                        : `z.coerce.number().pipe(z.${type}()${constraints})`,
+                        : // `z.int64()` is a bigint schema, so a number piped into it is
+                          // rejected outright — the wire value has to become a bigint first.
+                          type === 'int64'
+                          ? `z.coerce.bigint().pipe(z.int64()${constraints})`
+                          : `z.coerce.number().pipe(z.${type}()${constraints})`,
                   )
                   .replaceAll('z.bigint()', 'z.coerce.bigint()')
                   .replaceAll('z.number()', 'z.coerce.number()')

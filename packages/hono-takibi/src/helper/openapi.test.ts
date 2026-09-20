@@ -565,6 +565,57 @@ describe('openapi helper', () => {
         'z.coerce.number().int().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer"}}})',
       )
     })
+    // Regression: the array branch coerced items with `z.coerce.number()` before piping
+    // them into `z.int64()`, which is a bigint schema — every request 422'd on arrival.
+    it.concurrent('coerces array-of-int64 query items to bigint, not number', () => {
+      const result = makeParameters([
+        {
+          name: 'ids',
+          in: 'query',
+          schema: { type: 'array', items: { type: 'integer', format: 'int64' } },
+        },
+      ])
+      expect(result.query.ids).toContain('z.array(z.coerce.bigint().pipe(z.int64()))')
+    })
+    // Regression: `header` and `cookie` were not string wires, so a numeric or boolean
+    // header schema rejected its own input on every request.
+    it.concurrent('coerces header parameters, which arrive as strings too', () => {
+      const result = makeParameters([
+        { name: 'x-count', in: 'header', schema: { type: 'integer' } },
+        { name: 'x-flag', in: 'header', schema: { type: 'boolean' } },
+        { name: 'x-big', in: 'header', schema: { type: 'integer', format: 'int64' } },
+      ])
+      // `makeSafeKey` quotes a name that is not an identifier, so the key carries them.
+      expect(result.header["'x-count'"]).toContain('z.coerce.number().int()')
+      expect(result.header["'x-flag'"]).toContain('z.stringbool()')
+      expect(result.header["'x-big'"]).toContain('z.coerce.bigint().pipe(z.int64())')
+    })
+    it.concurrent('coerces cookie parameters, which arrive as strings too', () => {
+      const result = makeParameters([{ name: 'sid', in: 'cookie', schema: { type: 'integer' } }])
+      expect(result.cookie.sid).toContain('z.coerce.number().int()')
+    })
+    // Regression: the array coercion matched `int*` only, so `z.float64()` items kept a
+    // plain number schema and 422'd on the string that actually arrives.
+    it.concurrent('coerces array-of-double query items', () => {
+      const result = makeParameters([
+        {
+          name: 'ratios',
+          in: 'query',
+          schema: { type: 'array', items: { type: 'number', format: 'double' } },
+        },
+      ])
+      expect(result.query.ratios).toContain('z.array(z.coerce.number().pipe(z.float64()))')
+    })
+    it.concurrent('keeps array-of-int32 query items on the number path', () => {
+      const result = makeParameters([
+        {
+          name: 'ids',
+          in: 'query',
+          schema: { type: 'array', items: { type: 'integer', format: 'int32' } },
+        },
+      ])
+      expect(result.query.ids).toContain('z.array(z.coerce.number().pipe(z.int32()))')
+    })
     it.concurrent('applies coercion for path int64 parameters', () => {
       const result = makeParameters([
         { name: 'id', in: 'path', schema: { type: 'integer', format: 'int64' } },
