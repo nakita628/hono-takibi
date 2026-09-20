@@ -975,7 +975,7 @@ describe('hono-takibi broken install', () => {
 
     expect(result.ok).toBe(false)
     expect(result.stderr).toContain('ERROR')
-    expect(result.stderr).toContain('Cannot read the version from package.json')
+    expect(result.stderr).toContain('Cannot read the version and description from package.json')
   })
 
   it('reports a package.json with no version field', async () => {
@@ -989,7 +989,7 @@ describe('hono-takibi broken install', () => {
     )
 
     expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Cannot read the version from package.json')
+    expect(result.stderr).toContain('Cannot read the version and description from package.json')
   })
 })
 

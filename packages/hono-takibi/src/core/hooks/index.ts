@@ -170,19 +170,15 @@ const HOOK_CONFIGS = {
   },
 } as const
 
+/** The client libraries `hooks` can generate for, named so a caller can hold one. */
+export type HookLibrary = keyof typeof HOOK_CONFIGS
+
 export function hooks(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
-  library: keyof typeof HOOK_CONFIGS,
-  options?: { readonly split?: boolean; readonly clientName?: string },
+  library: HookLibrary,
+  options?: { readonly clientName?: string },
 ) {
-  return makeQueryHooks(
-    openAPI,
-    output,
-    importPath,
-    HOOK_CONFIGS[library],
-    options?.split,
-    options?.clientName,
-  )
+  return makeQueryHooks(openAPI, output, importPath, HOOK_CONFIGS[library], options?.clientName)
 }

@@ -1,4 +1,4 @@
-import { dirname, join } from 'node:path'
+import { dirname } from 'node:path'
 
 import { Effect } from 'effect'
 
@@ -10,7 +10,6 @@ import {
   makeOperationDeps,
   operationHasArgs,
   parsePathItem,
-  resolveSplitOutDir,
 } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { makeInferRequestType, methodPath } from '../../utils/index.js'
@@ -91,20 +90,9 @@ function makeOperationCodes(
         'query',
       ] as const
       return methods
-        .map((method) => {
-          const result = makeOperationCode(
-            p,
-            method,
-            pathItem,
-            deps,
-            useParseResponse,
-            hasBasePath,
-            docs,
-          )
-          return result
-            ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
-            : null
-        })
+        .map((method) =>
+          makeOperationCode(p, method, pathItem, deps, useParseResponse, hasBasePath, docs),
+        )
         .filter((item) => item !== null)
     })
 }
@@ -129,7 +117,6 @@ export function rpc(
   openAPI: OpenAPI,
   output: string,
   importPath: string,
-  split?: boolean,
   clientName = 'client',
   useParseResponse?: boolean,
   basePath?: string,
@@ -145,31 +132,11 @@ export function rpc(
     const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
     const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
     const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath, docs)
-    if (!split) {
-      const body = operationCodes.map(({ code }) => code).join('\n\n')
-      const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-      const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
-      const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
-      yield* emit(code, dirname(output), output)
-      return `Generated rpc code written to ${output}`
-    }
-    const { outDir, indexPath } = resolveSplitOutDir(output)
-    const exportLines = [
-      ...new Set(operationCodes.map(({ funcName }) => `export * from './${funcName}'`)),
-    ]
-    const index = `${exportLines.join('\n')}\n`
-    yield* Effect.all(
-      [
-        ...operationCodes.map(({ funcName, code, hasArgs }) => {
-          const header = makeHeader(importPath, hasArgs, clientName, useParseResponse)
-          const fileSrc = `${header}${code}\n`
-          const filePath = join(outDir, `${funcName}.ts`)
-          return emit(fileSrc, dirname(filePath), filePath)
-        }),
-        emit(index, dirname(indexPath), indexPath),
-      ],
-      { concurrency: 'unbounded' },
-    )
-    return `Generated rpc code written to ${outDir}/*.ts (index.ts included)`
+    const body = operationCodes.map(({ code }) => code).join('\n\n')
+    const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
+    const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
+    const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
+    yield* emit(code, dirname(output), output)
+    return `Generated rpc code written to ${output}`
   })
 }

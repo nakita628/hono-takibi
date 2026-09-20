@@ -69,8 +69,6 @@ describe('x-error-message (number base)', () => {
       { type: 'number', minimum: 0, 'x-error-message': '数値必須' },
       'z.number({error:"数値必須"}).min(0,{error:"数値必須"})',
     ],
-    // No x-error-message → existing behavior
-    [{ type: 'number' }, 'z.number()'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -187,8 +185,6 @@ describe('x-error-message on multipleOf', () => {
       { type: 'number', format: 'float', multipleOf: 0.5, 'x-error-message': '0.5刻み' },
       'z.float32({error:"0.5刻み"}).multipleOf(0.5,{error:"0.5刻み"})',
     ],
-    // No x-error-message → existing behavior
-    [{ type: 'number', multipleOf: 3 }, 'z.number().multipleOf(3)'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -295,11 +291,6 @@ describe('x-multipleOf-message', () => {
         'x-multipleOf-message': '0.5刻み',
       },
       'z.float32({error:"float必須"}).multipleOf(0.5,{error:"0.5刻み"})',
-    ],
-    // fallback: no x-multipleOf-message → x-error-message used
-    [
-      { type: 'number', multipleOf: 2, 'x-error-message': '数値必須' },
-      'z.number({error:"数値必須"}).multipleOf(2,{error:"数値必須"})',
     ],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)

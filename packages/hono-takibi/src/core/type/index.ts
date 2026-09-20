@@ -364,7 +364,9 @@ function makeSingleTypeString(
 ) {
   if (type === 'string') return schema.format === 'binary' ? 'File' : 'string'
   if (type === 'number' || type === 'integer') {
-    return schema.format === 'int64' || schema.format === 'bigint' ? 'bigint' : 'number'
+    const isBigintFormat =
+      schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint'
+    return isBigintFormat ? 'bigint' : 'number'
   }
   if (type === 'array') return makeArrayTypeString(schema, components, visited)
   if (type === 'object') return makeObjectTypeString(schema, components, visited)

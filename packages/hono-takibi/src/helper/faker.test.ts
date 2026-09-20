@@ -1059,6 +1059,11 @@ describe('schemaToFaker', () => {
       ['jwt', 'faker.internet.jwt()'],
       ['duration', '`P${faker.number.int({ min: 1, max: 30 })}D`'],
       ['e164', "faker.phone.number({ style: 'international' })"],
+      ['creditCard', 'faker.finance.creditCardNumber()'],
+      ['iban', 'faker.finance.iban()'],
+      ['currencyCode', "faker.helpers.arrayElement(['USD', 'EUR', 'JPY', 'GBP'])"],
+      ['ksuid', 'faker.string.alphanumeric(27)'],
+      ['xid', "faker.string.fromCharacters('0123456789abcdefghijklmnopqrstuv', 20)"],
       ['cidrv4', '`${faker.internet.ipv4()}/${faker.number.int({ min: 0, max: 32 })}`'],
     ])('maps the %s format', (format, expected) => {
       expect(schemaToFaker({ type: 'string', format })).toBe(expected)

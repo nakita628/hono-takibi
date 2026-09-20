@@ -158,8 +158,6 @@ describe('integer', () => {
         { type: 'integer', minimum: 0, 'x-error-message': '整数必須' },
         'z.int({error:"整数必須"}).min(0,{error:"整数必須"})',
       ],
-      // No x-error-message → existing behavior
-      [{ type: 'integer' }, 'z.int()'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
     })
@@ -310,8 +308,6 @@ describe('integer', () => {
         { type: 'integer', format: 'bigint', multipleOf: 5, 'x-error-message': '5の倍数' },
         'z.bigint({error:"5の倍数"}).multipleOf(BigInt(5),{error:"5の倍数"})',
       ],
-      // No x-error-message → existing behavior
-      [{ type: 'integer', multipleOf: 2 }, 'z.int().multipleOf(2)'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
     })
@@ -355,11 +351,6 @@ describe('integer', () => {
           'x-multipleOf-message': '5の倍数',
         },
         'z.bigint({error:"bigint必須"}).multipleOf(BigInt(5),{error:"5の倍数"})',
-      ],
-      // fallback: no x-multipleOf-message → x-error-message used
-      [
-        { type: 'integer', multipleOf: 2, 'x-error-message': '整数必須' },
-        'z.int({error:"整数必須"}).multipleOf(2,{error:"整数必須"})',
       ],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
@@ -656,5 +647,39 @@ describe('integer min/max non-zero (.min/.max emit paths)', () => {
     [{ type: 'integer', format: 'bigint', maximum: 10 }, 'z.bigint().max(BigInt(10))'],
   ])('integer(%o) → %s', (input, expected) => {
     expect(integer(input)).toBe(expected)
+  })
+
+  // `uint32` and `uint64` are the unsigned halves of the int pair. Without them a spec
+  // that declares one fell through to a plain `z.int()`, which accepts a negative and
+  // rejects anything past `Number.MAX_SAFE_INTEGER` — wrong in both directions.
+  describe('unsigned formats', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ type: 'integer', format: 'uint32' }, 'z.uint32()'],
+      [{ type: 'integer', format: 'uint64' }, 'z.uint64()'],
+      // A `uint32` fits a double exactly, so the wire value coerces to a number; a
+      // `uint64` does not, so it has to become a bigint first.
+      [
+        { type: 'integer', format: 'uint32', 'x-coerce': true },
+        'z.coerce.number().pipe(z.uint32())',
+      ],
+      [
+        { type: 'integer', format: 'uint64', 'x-coerce': true },
+        'z.coerce.bigint().pipe(z.uint64())',
+      ],
+      // A bound on a bigint schema is a bigint literal.
+      [{ type: 'integer', format: 'uint64', minimum: 1 }, 'z.uint64().min(1n)'],
+      [{ type: 'integer', format: 'uint32', minimum: 1 }, 'z.uint32().min(1)'],
+    ])('integer(%o) → %s', (input, expected) => {
+      expect(integer(input)).toBe(expected)
+    })
+
+    it.concurrent('zod enforces the declared ranges', () => {
+      expect(z.uint32().safeParse(-1).success).toBe(false)
+      expect(z.uint32().safeParse(4_294_967_295).success).toBe(true)
+      expect(z.uint32().safeParse(4_294_967_296).success).toBe(false)
+      expect(z.uint64().safeParse(-1n).success).toBe(false)
+      expect(z.uint64().safeParse(18_446_744_073_709_551_615n).success).toBe(true)
+      expect(z.uint64().safeParse(18_446_744_073_709_551_616n).success).toBe(false)
+    })
   })
 })

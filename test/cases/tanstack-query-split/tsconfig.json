@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.base.json",
-  "include": [
-    "../../__generated__/tanstack-query-split/**/*",
-    "../../hosts/users-app.ts",
-    "../../hosts/users-client.ts"
-  ]
-}

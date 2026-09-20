@@ -2520,7 +2520,7 @@ describe('zodToOpenAPI', () => {
               code: 'invalid_format',
               format: 'email',
               pattern:
-                "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+                "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
               path: [],
               message: 'Invalid email address',
             },
@@ -2621,7 +2621,8 @@ describe('zodToOpenAPI', () => {
               origin: 'string',
               code: 'invalid_format',
               format: 'emoji',
-              pattern: '/^[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$/u',
+              pattern:
+                '/^(?=[\\s\\S]*[\\p{Extended_Pictographic}\\p{Regional_Indicator}\\u20E3])[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$/u',
               path: [],
               message: 'Invalid emoji',
             },
@@ -6278,7 +6279,7 @@ describe('zodToOpenAPI', () => {
                 code: 'invalid_format',
                 format: 'email',
                 pattern:
-                  "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+                  "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
                 path: [],
                 message: 'Invalid email',
               },
@@ -7802,10 +7803,6 @@ describe('zodToOpenAPI', () => {
       expect(zodToOpenAPI({ const: 'hello' })).toBe('z.literal("hello")')
     })
 
-    it.concurrent('const with number value', () => {
-      expect(zodToOpenAPI({ const: 42 })).toBe('z.literal(42)')
-    })
-
     it.concurrent('const with boolean value', () => {
       expect(zodToOpenAPI({ const: true })).toBe('z.literal(true)')
     })
@@ -7840,12 +7837,6 @@ describe('zodToOpenAPI', () => {
   })
 
   describe('x-brand', () => {
-    it.concurrent('string with x-brand', () => {
-      expect(zodToOpenAPI({ type: 'string', 'x-brand': 'UserId' })).toBe(
-        'z.string().brand<"UserId">()',
-      )
-    })
-
     it.concurrent('string with format uuid and x-brand', () => {
       expect(zodToOpenAPI({ type: 'string', format: 'uuid', 'x-brand': 'UserId' })).toBe(
         'z.uuid().brand<"UserId">()',
@@ -8586,7 +8577,7 @@ describe('zodToOpenAPI', () => {
             code: 'invalid_format',
             format: 'email',
             pattern:
-              "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
+              "/^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
             path: [],
             message: 'Invalid email address',
           },

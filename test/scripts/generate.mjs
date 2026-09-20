@@ -1,8 +1,10 @@
 import { spawn } from 'node:child_process'
-import { cpSync, existsSync, readdirSync } from 'node:fs'
+import { cpSync, existsSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { listGeneratedCases } from './cases.mjs'
 
 const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Invoke the CLI entry directly (node + file path) instead of the .bin shim:
@@ -14,13 +16,11 @@ if (!existsSync(cli)) {
   process.exit(1)
 }
 // Cases without a config (e.g. handwritten-only reference cases) have nothing to generate.
-const cases = readdirSync(path.join(testRoot, 'cases'))
-  .filter((name) => existsSync(path.join(testRoot, 'cases', name, 'hono-takibi.config.ts')))
-  .sort()
+const cases = listGeneratedCases(testRoot)
 
-const generateCase = (name) =>
+const generateCase = ({ name, dir }) =>
   new Promise((resolve) => {
-    const child = spawn(process.execPath, [cli], { cwd: path.join(testRoot, 'cases', name) })
+    const child = spawn(process.execPath, [cli], { cwd: dir })
     const chunks = []
     child.stdout.on('data', (chunk) => chunks.push(chunk))
     child.stderr.on('data', (chunk) => chunks.push(chunk))
@@ -33,7 +33,7 @@ const generateCase = (name) =>
       // implemented. An overlay/ dir supplies implemented copies (same import lines as
       // the generated stubs) so the case stays typecheckable while routes/index/tests
       // remain purely generated.
-      const overlay = path.join(testRoot, 'cases', name, 'overlay')
+      const overlay = path.join(dir, 'overlay')
       if (ok && existsSync(overlay)) {
         cpSync(overlay, path.join(testRoot, '__generated__', name), { recursive: true })
       }
@@ -48,10 +48,10 @@ const concurrency = Math.max(1, Math.min(8, os.availableParallelism() - 1))
 await Promise.all(
   Array.from({ length: concurrency }, async () => {
     while (queue.length > 0) {
-      const name = queue.shift()
-      if (name) {
+      const entry = queue.shift()
+      if (entry) {
         // oxlint-disable-next-line no-await-in-loop -- each worker drains the queue sequentially to bound concurrency
-        results.push(await generateCase(name))
+        results.push(await generateCase(entry))
       }
     }
   }),
@@ -68,4 +68,4 @@ if (failed.length > 0) {
   process.exit(1)
 }
 // oxlint-disable-next-line no-console -- CLI script reports progress
-console.log(`generated ${cases.length} cases: ${cases.join(', ')}`)
+console.log(`generated ${cases.length} cases: ${cases.map(({ name }) => name).join(', ')}`)

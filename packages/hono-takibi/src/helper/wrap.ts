@@ -92,6 +92,11 @@ export function wrap(
     return filtered
   }
 
+  const typeList = Array.isArray(schema.type)
+    ? schema.type
+    : schema.type !== undefined
+      ? [schema.type]
+      : []
   const formatLiteral = (v: unknown): string => {
     // JSON.stringify(undefined) returns the string "undefined" — emit the
     // JS token explicitly so `.prefault(undefined)` reads unambiguously.
@@ -102,7 +107,7 @@ export function wrap(
       return `${v}`
     }
     if (typeof v === 'number') {
-      if (schema.format === 'int64') {
+      if (schema.format === 'int64' || schema.format === 'uint64') {
         return `${v}n`
       }
       if (schema.format === 'bigint') {
@@ -113,16 +118,37 @@ export function wrap(
     if (schema.type === 'date' && typeof v === 'string') {
       return `new Date(${JSON.stringify(v)})`
     }
-    if (typeof v === 'string') {
-      return JSON.stringify(v)
+    // YAML `default: 'true'` on a boolean schema: `.default()` takes the output type, so
+    // the text has to become the boolean it names.
+    if (typeList.includes('boolean') && (v === 'true' || v === 'false')) {
+      return v
     }
     return JSON.stringify(v)
   }
+  // `.exactOptional()` fails the `safeParse(undefined)` probe @hono/zod-openapi derives
+  // `required` from, so an optional parameter or header states `required: false` itself
+  // (the spec default for everything but a path parameter).
+  const parameter =
+    meta?.parameters && meta.parameters.required === undefined && meta.parameters.in !== 'path'
+      ? { ...meta.parameters, required: false }
+      : meta?.parameters
+  // Under OpenAPI's default `style: form, explode: true`, a one-element array serialises
+  // to a single `?ids=1` — which reaches the handler as a bare string, not an array, so a
+  // plain `z.array(...)` rejects the request a spec-compliant client just made. Accepting
+  // both arities is what closes that gap. A path segment is `style: simple` (one comma
+  // separated value), a different shape, so it is left alone. The wrapper sits directly on
+  // the array, inside `.default()` and the rest of the chain: an absent parameter has to
+  // reach `.default()` as `undefined`, not as the `[undefined]` the wrapper would make of it.
+  const isRepeatedWireArray =
+    typeList.includes('array') &&
+    (parameter?.in === 'query' || parameter?.in === 'header' || parameter?.in === 'cookie')
+  const acceptBothArities = (inner: string) =>
+    isRepeatedWireArray ? `z.preprocess((val)=>(Array.isArray(val)?val:[val]),${inner})` : inner
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
-  const n = isNullable ? `${zod}.nullable()` : zod
+  const n = isNullable ? `${acceptBothArities(zod)}.nullable()` : acceptBothArities(zod)
   // `!== undefined` (not truthy): `default: 0` is valid.
   const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
   const pf =
@@ -137,7 +163,10 @@ export function wrap(
   const transform = schema['x-transform']
   const pipe = schema['x-pipe']
   const codec = schema['x-codec']
-  const replaced = preprocess ?? transform ?? pipe ?? codec ?? superRefineChain
+  // A user-supplied chain replaces the generated one wholesale, so the arity wrapper goes
+  // around it instead.
+  const userChain = preprocess ?? transform ?? pipe ?? codec
+  const replaced = userChain === undefined ? superRefineChain : acceptBothArities(userChain)
   const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
   // Drop-list: keys already expressed in the zod method chain.
   const zodExpressedProps = new Set([
@@ -346,11 +375,6 @@ export function wrap(
   // `getOpenAPIDocument()` throw `UnknownZodTypeError`. `type`/`format` are
   // dropped as `zodExpressedProps` above, so re-surface them in `.openapi()`
   // for the binary-file case only (other formats are derived from the chain).
-  const typeList = Array.isArray(schema.type)
-    ? schema.type
-    : schema.type !== undefined
-      ? [schema.type]
-      : []
   const isBinaryFile =
     schema.format === 'binary' &&
     typeList.includes('string') &&
@@ -361,13 +385,6 @@ export function wrap(
   const fileMetaProps = isBinaryFile
     ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
     : []
-  // `.exactOptional()` fails the `safeParse(undefined)` probe @hono/zod-openapi derives
-  // `required` from, so an optional parameter or header states `required: false` itself
-  // (the spec default for everything but a path parameter).
-  const parameter =
-    meta?.parameters && meta.parameters.required === undefined && meta.parameters.in !== 'path'
-      ? { ...meta.parameters, required: false }
-      : meta?.parameters
   const result = [
     parameter ? `param:${serializeParam(parameter)}` : undefined,
     ...headerMetaProps,

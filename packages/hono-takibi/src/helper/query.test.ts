@@ -132,16 +132,6 @@ describe('Query Hook Generation Shared Module', () => {
       expect(result).toBe(`Generated tanstack-query hooks written to ${output}`)
     })
 
-    it('should return split value message with index.ts included', async () => {
-      const output = `${testDir}/hooks.ts`
-      const result = await runGenerator(
-        makeQueryHooks(minimalGetOpenAPI, output, './client', defaultConfig, true),
-      )
-      expect(result).toBe(
-        `Generated tanstack-query hooks written to ${testDir}/*.ts (index.ts included)`,
-      )
-    })
-
     it('should use custom frameworkName in value message', async () => {
       const output = `${testDir}/hooks.ts`
       const customConfig = {

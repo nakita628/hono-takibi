@@ -4,5 +4,6 @@ node_modules
 dist
 coverage
 test/__generated__
+test/*/__generated__
 cache
 .env

@@ -1,0 +1,204 @@
+# Every parameter shape the generator supports, as a cookie. A cookie reaches the handler
+# as a string exactly like a query or header value, and it took the same branch that used
+# to skip coercion entirely, so every non-string one rejected its own input.
+#
+# A cookie name can appear once, so `ids` is the array axis: it always arrives as a single
+# value and only parses because the generated schema accepts that arity.
+#
+# `format: emoji` and `format: mac` are absent: the `Cookie:` header is a ByteString and
+# `;` / `,` are its separators. `format: binary` is absent because it emits `z.file()`.
+openapi: 3.1.0
+info:
+  title: Cookie Parameter Matrix
+  version: 0.0.0
+paths:
+  /cookies:
+    get:
+      operationId: cookieParams
+      parameters:
+        - { name: integer, in: cookie, required: true, schema: { type: integer } }
+        - { name: int32, in: cookie, required: true, schema: { type: integer, format: int32 } }
+        - { name: int64, in: cookie, required: true, schema: { type: integer, format: int64 } }
+        - { name: bigint, in: cookie, required: true, schema: { type: integer, format: bigint } }
+        - { name: number, in: cookie, required: true, schema: { type: number } }
+        - { name: float, in: cookie, required: true, schema: { type: number, format: float } }
+        - { name: float32, in: cookie, required: true, schema: { type: number, format: float32 } }
+        - { name: float64, in: cookie, required: true, schema: { type: number, format: float64 } }
+        - { name: double, in: cookie, required: true, schema: { type: number, format: double } }
+        - {
+            name: numpassword,
+            in: cookie,
+            required: true,
+            schema: { type: number, format: password },
+          }
+        - { name: boolean, in: cookie, required: true, schema: { type: boolean } }
+        - { name: string, in: cookie, required: true, schema: { type: string } }
+        - { name: email, in: cookie, required: true, schema: { type: string, format: email } }
+        - { name: uuid, in: cookie, required: true, schema: { type: string, format: uuid } }
+        - { name: uuidv4, in: cookie, required: true, schema: { type: string, format: uuidv4 } }
+        - { name: uuidv7, in: cookie, required: true, schema: { type: string, format: uuidv7 } }
+        - { name: url, in: cookie, required: true, schema: { type: string, format: url } }
+        - { name: uri, in: cookie, required: true, schema: { type: string, format: uri } }
+        - { name: httpurl, in: cookie, required: true, schema: { type: string, format: httpUrl } }
+        - { name: hostname, in: cookie, required: true, schema: { type: string, format: hostname } }
+        - { name: hex, in: cookie, required: true, schema: { type: string, format: hex } }
+        - { name: base64, in: cookie, required: true, schema: { type: string, format: base64 } }
+        - {
+            name: base64url,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: base64url },
+          }
+        - { name: nanoid, in: cookie, required: true, schema: { type: string, format: nanoid } }
+        - { name: cuid2, in: cookie, required: true, schema: { type: string, format: cuid2 } }
+        - { name: ulid, in: cookie, required: true, schema: { type: string, format: ulid } }
+        - { name: ipv4, in: cookie, required: true, schema: { type: string, format: ipv4 } }
+        - { name: ipv6, in: cookie, required: true, schema: { type: string, format: ipv6 } }
+        - { name: cidrv4, in: cookie, required: true, schema: { type: string, format: cidrv4 } }
+        - { name: cidrv6, in: cookie, required: true, schema: { type: string, format: cidrv6 } }
+        - { name: date, in: cookie, required: true, schema: { type: string, format: date } }
+        - { name: time, in: cookie, required: true, schema: { type: string, format: time } }
+        - {
+            name: datetime,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: date-time },
+          }
+        - { name: duration, in: cookie, required: true, schema: { type: string, format: duration } }
+        - { name: byte, in: cookie, required: true, schema: { type: string, format: byte } }
+        - {
+            name: strpassword,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: password },
+          }
+        - { name: e164, in: cookie, required: true, schema: { type: string, format: e164 } }
+        - {
+            name: creditcard,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: creditCard },
+          }
+        - { name: iban, in: cookie, required: true, schema: { type: string, format: iban } }
+        - {
+            name: currencycode,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: currencyCode },
+          }
+        - { name: ksuid, in: cookie, required: true, schema: { type: string, format: ksuid } }
+        - { name: xid, in: cookie, required: true, schema: { type: string, format: xid } }
+        - { name: guid, in: cookie, required: true, schema: { type: string, format: guid } }
+        - { name: trim, in: cookie, required: true, schema: { type: string, format: trim } }
+        - {
+            name: ids,
+            in: cookie,
+            required: false,
+            schema: { type: array, items: { type: integer } },
+          }
+        - { name: uint32, in: cookie, required: true, schema: { type: integer, format: uint32 } }
+        - { name: uint64, in: cookie, required: true, schema: { type: integer, format: uint64 } }
+      responses:
+        '200':
+          description: The runtime typeof every cookie, and the int64 value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - integer
+                  - int32
+                  - int64
+                  - bigint
+                  - number
+                  - float
+                  - float32
+                  - float64
+                  - double
+                  - numpassword
+                  - boolean
+                  - string
+                  - email
+                  - uuid
+                  - uuidv4
+                  - uuidv7
+                  - url
+                  - uri
+                  - httpurl
+                  - hostname
+                  - hex
+                  - base64
+                  - base64url
+                  - nanoid
+                  - cuid2
+                  - ulid
+                  - ipv4
+                  - ipv6
+                  - cidrv4
+                  - cidrv6
+                  - date
+                  - time
+                  - datetime
+                  - duration
+                  - byte
+                  - strpassword
+                  - e164
+                  - creditcard
+                  - iban
+                  - currencycode
+                  - ksuid
+                  - xid
+                  - guid
+                  - trim
+                  - uint32
+                  - uint64
+                  - int64Value
+                properties:
+                  integer: { type: string }
+                  int32: { type: string }
+                  int64: { type: string }
+                  bigint: { type: string }
+                  number: { type: string }
+                  float: { type: string }
+                  float32: { type: string }
+                  float64: { type: string }
+                  double: { type: string }
+                  numpassword: { type: string }
+                  boolean: { type: string }
+                  string: { type: string }
+                  email: { type: string }
+                  uuid: { type: string }
+                  uuidv4: { type: string }
+                  uuidv7: { type: string }
+                  url: { type: string }
+                  uri: { type: string }
+                  httpurl: { type: string }
+                  hostname: { type: string }
+                  hex: { type: string }
+                  base64: { type: string }
+                  base64url: { type: string }
+                  nanoid: { type: string }
+                  cuid2: { type: string }
+                  ulid: { type: string }
+                  ipv4: { type: string }
+                  ipv6: { type: string }
+                  cidrv4: { type: string }
+                  cidrv6: { type: string }
+                  date: { type: string }
+                  time: { type: string }
+                  datetime: { type: string }
+                  duration: { type: string }
+                  byte: { type: string }
+                  strpassword: { type: string }
+                  e164: { type: string }
+                  creditcard: { type: string }
+                  iban: { type: string }
+                  currencycode: { type: string }
+                  ksuid: { type: string }
+                  xid: { type: string }
+                  guid: { type: string }
+                  trim: { type: string }
+                  uint32: { type: string }
+                  uint64: { type: string }
+                  int64Value: { type: string }
+                  idsTypes: { type: array, items: { type: string } }

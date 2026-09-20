@@ -154,7 +154,7 @@ describe('parseConfig()', () => {
       expect(result.routes?.output).toBe('routes')
     })
 
-    it.concurrent('normalizes rpc.output when split is undefined', async () => {
+    it.concurrent('normalizes a directory rpc.output', async () => {
       const result = await runGenerator(
         parseConfig({
           input: 'openapi.yaml',
@@ -162,26 +162,6 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.rpc?.output).toBe('rpc/index.ts')
-    })
-
-    it.concurrent('normalizes rpc.output when split is false', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc', import: '../client', split: false },
-        }),
-      )
-      expect(result.rpc?.output).toBe('rpc/index.ts')
-    })
-
-    it.concurrent('keeps rpc.output as directory when split is true', async () => {
-      const result = await runGenerator(
-        parseConfig({
-          input: 'openapi.yaml',
-          rpc: { output: 'rpc', import: '../client', split: true },
-        }),
-      )
-      expect(result.rpc?.output).toBe('rpc')
     })
 
     it.concurrent('normalizes components.schemas.output when split is undefined', async () => {
@@ -463,19 +443,19 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: routes.output: split mode requires directory, not .ts file',
+        'Invalid config: routes: split mode requires directory, not .ts file',
       )
     })
 
-    it.concurrent('fails when rpc split is true but output ends with .ts', async () => {
+    it.concurrent('fails when rpc still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          rpc: { output: 'rpc/index.ts', import: '../client', split: true },
+          rpc: { output: 'rpc', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: rpc.output: split mode requires directory, not .ts file',
+        'Invalid config: rpc.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1280,15 +1260,15 @@ describe('parseConfig()', () => {
       expect(result.swr?.client).toBe('apiClient')
     })
 
-    it.concurrent('fails when swr split is true but output ends with .ts', async () => {
+    it.concurrent('fails when swr still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          swr: { output: 'swr/index.ts', import: '../client', split: true },
+          swr: { output: 'swr', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: swr.output: split mode requires directory, not .ts file',
+        'Invalid config: swr.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1302,15 +1282,15 @@ describe('parseConfig()', () => {
       expect(result['tanstack-query']?.output).toBe('tanstack/index.ts')
     })
 
-    it.concurrent('fails when tanstack-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when tanstack-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'tanstack-query': { output: 'tanstack/index.ts', import: '../client', split: true },
+          'tanstack-query': { output: 'tanstack', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: tanstack-query.output: split mode requires directory, not .ts file',
+        'Invalid config: tanstack-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1324,15 +1304,15 @@ describe('parseConfig()', () => {
       expect(result['svelte-query']?.output).toBe('svelte/index.ts')
     })
 
-    it.concurrent('fails when svelte-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when svelte-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'svelte-query': { output: 'svelte/index.ts', import: '../client', split: true },
+          'svelte-query': { output: 'svelte', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: svelte-query.output: split mode requires directory, not .ts file',
+        'Invalid config: svelte-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1346,15 +1326,15 @@ describe('parseConfig()', () => {
       expect(result['vue-query']?.output).toBe('vue/index.ts')
     })
 
-    it.concurrent('fails when vue-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when vue-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'vue-query': { output: 'vue/index.ts', import: '../client', split: true },
+          'vue-query': { output: 'vue', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: vue-query.output: split mode requires directory, not .ts file',
+        'Invalid config: vue-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1368,15 +1348,15 @@ describe('parseConfig()', () => {
       expect(result['preact-query']?.output).toBe('preact/index.ts')
     })
 
-    it.concurrent('fails when preact-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when preact-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'preact-query': { output: 'preact/index.ts', import: '../client', split: true },
+          'preact-query': { output: 'preact', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: preact-query.output: split mode requires directory, not .ts file',
+        'Invalid config: preact-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1390,15 +1370,15 @@ describe('parseConfig()', () => {
       expect(result['solid-query']?.output).toBe('solid/index.ts')
     })
 
-    it.concurrent('fails when solid-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when solid-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'solid-query': { output: 'solid/index.ts', import: '../client', split: true },
+          'solid-query': { output: 'solid', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: solid-query.output: split mode requires directory, not .ts file',
+        'Invalid config: solid-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1412,15 +1392,15 @@ describe('parseConfig()', () => {
       expect(result['angular-query']?.output).toBe('angular/index.ts')
     })
 
-    it.concurrent('fails when angular-query split is true but output ends with .ts', async () => {
+    it.concurrent('fails when angular-query still sets the removed split', async () => {
       const result = await runGeneratorError(
         parseConfig({
           input: 'openapi.yaml',
-          'angular-query': { output: 'angular/index.ts', import: '../client', split: true },
+          'angular-query': { output: 'angular', import: '../client', split: true },
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: angular-query.output: split mode requires directory, not .ts file',
+        'Invalid config: angular-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
   })
@@ -1468,7 +1448,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.schemas.output: split mode requires directory, not .ts file',
+        'Invalid config: components.schemas: split mode requires directory, not .ts file',
       )
     })
 
@@ -1480,7 +1460,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.securitySchemes.output: split mode requires directory, not .ts file',
+        'Invalid config: components.securitySchemes: split mode requires directory, not .ts file',
       )
     })
 
@@ -1492,7 +1472,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.requestBodies.output: split mode requires directory, not .ts file',
+        'Invalid config: components.requestBodies: split mode requires directory, not .ts file',
       )
     })
 
@@ -1504,7 +1484,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.responses.output: split mode requires directory, not .ts file',
+        'Invalid config: components.responses: split mode requires directory, not .ts file',
       )
     })
 
@@ -1516,7 +1496,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.examples.output: split mode requires directory, not .ts file',
+        'Invalid config: components.examples: split mode requires directory, not .ts file',
       )
     })
 
@@ -1528,7 +1508,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.links.output: split mode requires directory, not .ts file',
+        'Invalid config: components.links: split mode requires directory, not .ts file',
       )
     })
 
@@ -1540,7 +1520,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.callbacks.output: split mode requires directory, not .ts file',
+        'Invalid config: components.callbacks: split mode requires directory, not .ts file',
       )
     })
 
@@ -1552,7 +1532,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.pathItems.output: split mode requires directory, not .ts file',
+        'Invalid config: components.pathItems: split mode requires directory, not .ts file',
       )
     })
 
@@ -1564,7 +1544,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.mediaTypes.output: split mode requires directory, not .ts file',
+        'Invalid config: components.mediaTypes: split mode requires directory, not .ts file',
       )
     })
   })

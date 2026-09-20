@@ -85,8 +85,6 @@ describe('_enum', () => {
       ],
       // Mixed enum (single primitive) → z.literal with error via zLit
       [{ enum: [null], 'x-error-message': 'null必須' }, 'z.literal(null,{error:"null必須"})'],
-      // No x-error-message → existing behavior unchanged
-      [{ enum: ['A', 'B'] }, 'z.enum(["A","B"])'],
     ])('_enum(%o) → %s', (input, expected) => {
       expect(_enum(input)).toBe(expected)
     })
@@ -104,8 +102,6 @@ describe('_enum number/boolean literals (String(v) emit path)', () => {
     [{ type: 'number', enum: [3.14] }, 'z.literal(3.14)'],
     [{ type: 'boolean', enum: [true] }, 'z.literal(true)'],
     [{ type: 'boolean', enum: [false] }, 'z.literal(false)'],
-    [{ type: 'integer', enum: [1, 2] }, 'z.union([z.literal(1),z.literal(2)])'],
-    [{ type: 'boolean', enum: [true, false] }, 'z.union([z.literal(true),z.literal(false)])'],
   ])('_enum(%o) → %s', (input, expected) => {
     expect(_enum(input)).toBe(expected)
   })

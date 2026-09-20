@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process'
-import { readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { listCases } from './cases.mjs'
 
 const testRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Resolve tsc as a file and run it with node instead of the .bin shim:
@@ -17,11 +18,11 @@ const tsc = path.join(
   'lib',
   'tsc.js',
 )
-const cases = readdirSync(path.join(testRoot, 'cases')).sort()
+const cases = listCases(testRoot)
 
-const typecheckCase = (name) =>
+const typecheckCase = ({ name, dir }) =>
   new Promise((resolve) => {
-    const child = spawn(process.execPath, [tsc, '-p', path.join(testRoot, 'cases', name)], {
+    const child = spawn(process.execPath, [tsc, '-p', dir], {
       // Faker-heavy outputs (all-features mock/test) need more headroom than
       // the default old-space limit; each case is heap-isolated per process.
       env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' },
@@ -39,32 +40,33 @@ const typecheckCase = (name) =>
     })
   })
 
-// Faker-heavy projects peak at multiple GB each; running them alongside other tsc
-// processes (and the vitest workers that invoke this script) gets them OOM-killed
-// on small machines, so they run sequentially after the parallel light phase.
-const heavyCases = new Set(['all-features-mock', 'all-features-test'])
+// `all-features-test` pulls in the generated mock through `import app from './mock'`,
+// so one tsc program covers both faker-heavy files. It peaks at multiple GB, and running
+// it alongside other tsc processes (and the vitest workers that invoke this script) gets
+// it OOM-killed on small machines, so it runs on its own after the parallel light phase.
+const heavyCases = new Set(['all-features-test'])
 
 // Bounded parallelism: tsc processes are heap-isolated but memory- and I/O-hungry.
 // Cap at 2 — node_modules can sit on a host bind mount (devcontainer) where more
 // parallel readers thrash the page cache and stall unrelated test spawns; a 2-core
 // CI runner stays sequential to bound peak memory.
-const queue = cases.filter((name) => !heavyCases.has(name))
+const queue = cases.filter(({ name }) => !heavyCases.has(name))
 const results = []
 const concurrency = Math.max(1, Math.min(2, Math.floor(os.availableParallelism() / 2)))
 await Promise.all(
   Array.from({ length: concurrency }, async () => {
     while (queue.length > 0) {
-      const name = queue.shift()
-      if (name) {
+      const entry = queue.shift()
+      if (entry) {
         // oxlint-disable-next-line no-await-in-loop -- each worker drains the queue sequentially to bound concurrency
-        results.push(await typecheckCase(name))
+        results.push(await typecheckCase(entry))
       }
     }
   }),
 )
-for (const name of cases.filter((caseName) => heavyCases.has(caseName))) {
+for (const entry of cases.filter(({ name }) => heavyCases.has(name))) {
   // oxlint-disable-next-line no-await-in-loop -- heavy cases must run one at a time to stay within memory
-  results.push(await typecheckCase(name))
+  results.push(await typecheckCase(entry))
 }
 
 const failed = results.filter((result) => !result.ok)

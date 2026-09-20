@@ -7,22 +7,22 @@ export function zodOpenAPIHono(
   openapi: OpenAPI,
   options: {
     readonly readonly?: boolean
-    readonly exportSchemas: boolean
-    readonly exportSchemasTypes: boolean
-    readonly exportResponses: boolean
-    readonly exportParameters: boolean
-    readonly exportParametersTypes: boolean
-    readonly exportExamples: boolean
-    readonly exportRequestBodies: boolean
-    readonly exportHeaders: boolean
-    readonly exportHeadersTypes: boolean
-    readonly exportSecuritySchemes: boolean
-    readonly exportLinks: boolean
-    readonly exportCallbacks: boolean
-    readonly exportPathItems: boolean
-    readonly exportMediaTypes: boolean
-    readonly exportMediaTypesTypes: boolean
-  },
+    readonly exportSchemas?: boolean
+    readonly exportSchemasTypes?: boolean
+    readonly exportResponses?: boolean
+    readonly exportParameters?: boolean
+    readonly exportParametersTypes?: boolean
+    readonly exportExamples?: boolean
+    readonly exportRequestBodies?: boolean
+    readonly exportHeaders?: boolean
+    readonly exportHeadersTypes?: boolean
+    readonly exportSecuritySchemes?: boolean
+    readonly exportLinks?: boolean
+    readonly exportCallbacks?: boolean
+    readonly exportPathItems?: boolean
+    readonly exportMediaTypes?: boolean
+    readonly exportMediaTypesTypes?: boolean
+  } = {},
 ) {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
   const routes = routeCode(openapi, options.readonly)

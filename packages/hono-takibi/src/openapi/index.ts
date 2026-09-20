@@ -206,14 +206,22 @@ type FormatString =
   | 'hash' /* hash digest — requires x-hashAlg */
   | 'e164' /* E.164 phone */
   | 'guid' /* UUID-like without strict RFC check */
+  | 'creditCard' /* Luhn-valid card number, digits with optional spaces or dashes */
+  | 'iban' /* IBAN with a valid ISO 7064 MOD 97-10 checksum */
+  | 'currencyCode' /* ISO 4217 currency code */
+  | 'ksuid' /* K-Sortable Unique Identifier */
+  | 'xid' /* globally unique, sortable 20-character id */
   /* transforms */
   | 'toLowerCase' /* toLowerCase */
   | 'toUpperCase' /* toUpperCase */
   | 'trim' /* trim whitespace */
+  | 'slugify' /* URL slug: lowercase, hyphen separated */
 
 type FormatNumber =
   | 'int32'
+  | 'uint32'
   | 'int64'
+  | 'uint64'
   | 'bigint'
   | 'float'
   | 'float32'
@@ -525,7 +533,6 @@ export type Schema = {
   readonly 'x-then-message'?: string // failed `then` branch (overrides x-if-message for then)
   readonly 'x-else-message'?: string // failed `else` branch (overrides x-if-message for else)
   readonly $comment?: string
-  // array contains validation (JSON Schema standard)
   readonly contains?: Schema
   readonly minContains?: number
   readonly maxContains?: number
@@ -539,7 +546,6 @@ export type Schema = {
   readonly contentMediaType?: string
   readonly contentSchema?: Schema
   readonly dependentSchemas?: { readonly [k: string]: Schema }
-  // if / then / else (JSON Schema standard conditional)
   readonly if?: Schema
   readonly then?: Schema
   readonly else?: Schema

@@ -4,175 +4,6 @@ import { pathToFileURL } from 'node:url'
 import { Effect, FileSystem, Schema, SchemaIssue, SchemaTransformation } from 'effect'
 import type { FormatConfig } from 'oxfmt'
 
-/**
- * A path constrained to a set of extensions.
- *
- * `Schema.TemplateLiteral` carries the literal type but its rejection reads "Expected a
- * string matching template literal parts"; `Schema.declare` over the same guard keeps the
- * type on both sides — so `defineConfig` still rejects a wrong extension while you type —
- * and lets the message say which extensions are meant.
- */
-const TypeScriptPathSchema = Schema.declare<`${string}.ts`>(
-  Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])),
-  { message: 'must be .ts file' },
-)
-
-const MarkdownPathSchema = Schema.declare<`${string}.md`>(
-  Schema.is(Schema.TemplateLiteral([Schema.String, '.md'])),
-  { message: 'must be .md file' },
-)
-
-const FileOutputSchema = Schema.String.pipe(
-  Schema.decodeTo(
-    Schema.String,
-    SchemaTransformation.transform({
-      decode: (v: string) => (v.endsWith('.ts') ? v : `${v}/index.ts`),
-      encode: (v: string) => v,
-    }),
-  ),
-).annotate({
-  title: 'Output file',
-  description:
-    'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
-  examples: ['./src/routes.ts', './src/routes'],
-})
-
-/**
- * Anything below that is spliced into a generated `'...'` literal — a module
- * specifier, a base path, a URL — has to survive the trip as one token.
- *
- * Neither the schema nor the generators quote what they interpolate, so a value
- * carrying a quote, a backslash or a newline closes the literal early and the
- * failure lands on oxfmt as a syntax error about the generated file. Rejecting the
- * value here names the config field instead.
- */
-const SAFE_IN_STRING_LITERAL = /^[^\s'"`\\]+$/u
-
-const ImportSchema = Schema.String.check(
-  Schema.isPattern(SAFE_IN_STRING_LITERAL, {
-    message: 'must be a module specifier, with no whitespace or quotes',
-  }),
-).annotate({
-  title: 'Import specifier',
-  description: 'Module specifier the generated files use to import from `output`.',
-  examples: ['@packages/routes', '../lib', '.'],
-})
-
-// The name lands in `import { <client> } from '...'`, so anything that is not an
-// identifier reaches oxfmt as an unparseable import statement.
-const ClientSchema = Schema.String.check(
-  Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
-    message: 'must be a JavaScript identifier',
-  }),
-)
-  .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
-  .annotate({
-    title: 'Client export name',
-    description: 'Named export to import from `import` as the Hono client instance.',
-    examples: ['client', 'apiClient'],
-  })
-
-const TestFrameworkSchema = Schema.Literals(['vitest', 'vite-plus', 'bun'])
-  .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
-  .annotate({
-    title: 'Test framework',
-    description: 'Framework whose import specifier the generated test files use.',
-    examples: ['vitest', 'vite-plus', 'bun'],
-  })
-
-/**
- * Every output target is the same two-branch union: `split: true` writes one file per
- * entry into a directory, anything else writes a single file. Only those two fields
- * differ, so the rest is written once and spread into both branches.
- *
- * `Schema.Union` resolves members in order and each member pins `split` to a literal, so
- * a member is only reachable through its own discriminant — the failure reported is the
- * one inside the matching branch, not a union-wide "no member matched".
- */
-function splitUnion<Fields extends Schema.Struct.Fields>(shared: Fields) {
-  return Schema.Union([
-    Schema.Struct({
-      split: Schema.Literal(true).annotate({
-        description: 'Write one file per entry into `output`.',
-      }),
-      output: Schema.String.check(
-        Schema.isPattern(/^(?!.*\.ts$).+/u, {
-          message: 'split mode requires directory, not .ts file',
-        }),
-      ).annotate({
-        title: 'Output directory',
-        description:
-          'Directory that receives one file per generated entry. Never a `.ts` file path.',
-        examples: ['./src/routes', './src/schemas'],
-      }),
-      ...shared,
-    }),
-    Schema.Struct({
-      split: Schema.Literal(false)
-        .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
-        .annotate({ description: 'Write every entry into a single file (default).' }),
-      output: FileOutputSchema,
-      ...shared,
-    }),
-  ])
-}
-
-const OutputSchema = splitUnion({ import: Schema.optionalKey(ImportSchema) }).annotate({
-  title: 'Generated output target',
-  description:
-    'Where one group of generated code is written. `split` picks directory mode or single-file mode.',
-  examples: [
-    { split: false, output: './src/routes.ts' },
-    { split: true, output: './src/routes', import: '@packages/routes' },
-  ],
-})
-
-const ExportTypesOutputSchema = splitUnion({
-  import: Schema.optionalKey(ImportSchema),
-  exportTypes: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-    description: 'Also export the TypeScript type inferred from each generated schema.',
-  }),
-}).annotate({
-  title: 'Generated output target with type exports',
-  description:
-    'Same as a generated output target, plus `exportTypes` for the component sections that carry inferable types (schemas, parameters, headers, mediaTypes).',
-  examples: [
-    { split: false, output: './src/schemas.ts', exportTypes: true },
-    { split: true, output: './src/schemas', import: '../schemas', exportTypes: true },
-  ],
-})
-
-const HooksSchema = splitUnion({ import: ImportSchema, client: ClientSchema }).annotate({
-  title: 'Client hooks target',
-  description:
-    'Data-fetching hooks generated on top of the Hono client. `import` is required because every hook imports the client.',
-  examples: [
-    { split: false, output: './src/swr.ts', import: '../lib', client: 'client' },
-    { split: true, output: './src/swr', import: '../lib', client: 'client' },
-  ],
-})
-
-// `template` discriminates on `define` rather than `split`, but shares the same shape:
-// the scaffold options are common, only `define` and `routeHandler` differ.
-const scaffoldFields = {
-  test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
-    description: 'Also scaffold a test file per handler.',
-  }),
-  pathAlias: Schema.optionalKey(
-    Schema.String.check(
-      Schema.isPattern(SAFE_IN_STRING_LITERAL, {
-        message: 'must be an import prefix, with no whitespace or quotes',
-      }),
-    ).annotate({
-      title: 'Path alias',
-      description: 'Import prefix used by the scaffolded files instead of relative paths.',
-      examples: ['@/', '~/'],
-    }),
-  ),
-  testFramework: TestFrameworkSchema,
-}
-
-/** Component sections that each take their own output target. */
 const COMPONENT_KINDS = [
   'schemas',
   'responses',
@@ -187,7 +18,6 @@ const COMPONENT_KINDS = [
   'mediaTypes',
 ] as const
 
-/** Client-hook generators, each with its own output target. */
 const HOOK_KINDS = [
   'swr',
   'tanstack-query',
@@ -197,26 +27,6 @@ const HOOK_KINDS = [
   'svelte-query',
   'angular-query',
 ] as const
-
-/** Milliseconds, bounded so a mock cannot be configured to hang a request. */
-const DelayMsSchema = Schema.Number.check(
-  Schema.isInt(),
-  Schema.isGreaterThanOrEqualTo(0),
-  Schema.isLessThanOrEqualTo(60_000),
-)
-
-/** A faker seed: faker hashes it with Mersenne Twister, which takes a 32-bit unsigned integer. */
-const SeedSchema = Schema.Number.check(
-  Schema.isInt(),
-  Schema.isGreaterThanOrEqualTo(0),
-  Schema.isLessThanOrEqualTo(4_294_967_295),
-)
-
-const ArrayLengthSchema = Schema.Number.check(
-  Schema.isInt(),
-  Schema.isGreaterThanOrEqualTo(0),
-  Schema.isLessThanOrEqualTo(1000),
-)
 
 const ConfigSchema = Schema.Struct({
   input: Schema.declare<`${string}.yaml` | `${string}.json` | `${string}.tsp`>(
@@ -228,15 +38,15 @@ const ConfigSchema = Schema.Struct({
     examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],
   }),
   output: Schema.optionalKey(
-    TypeScriptPathSchema.annotate({
+    Schema.declare<`${string}.ts`>(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])), {
+      message: 'must be .ts file',
+    }).annotate({
       title: 'Single-file output',
       description:
         'Routes and schemas in one file. Mutually exclusive with `routes`. With `template.define` this is the app entry instead and must be an `index.ts` path.',
       examples: ['./src/routes.ts', './src/index.ts'],
     }),
   ),
-  // Emitted as `new OpenAPIHono().basePath('<basePath>')`, and Hono itself wants the
-  // leading slash — a value without one mounts nothing and reads as a working config.
   basePath: Schema.String.check(
     Schema.isPattern(/^\/[^\s'"`\\]*$/u, {
       message: "must start with '/' and contain no whitespace or quotes",
@@ -245,7 +55,8 @@ const ConfigSchema = Schema.Struct({
     .pipe(Schema.withDecodingDefault(Effect.succeed('/')))
     .annotate({
       title: 'Base path',
-      description: 'Base path the generated Hono app is mounted on.',
+      description:
+        'Base path the generated Hono app is mounted on, emitted as `new OpenAPIHono().basePath(...)`. Hono wants the leading slash — without one nothing is mounted.',
       examples: ['/', '/api', '/api/v1'],
     }),
   readonly: Schema.optionalKey(
@@ -254,7 +65,9 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
   format: Schema.optionalKey(
-    Schema.declare<FormatConfig>((u): u is FormatConfig => typeof u === 'object' && u !== null, {
+    Schema.declare<FormatConfig>(
+      (u): u is FormatConfig => typeof u === 'object' && u !== null,
+    ).annotate({
       title: 'Formatter options',
       description:
         'oxfmt `FormatConfig` applied to every generated file. Defaults to printWidth 100, single quotes, no semicolons.',
@@ -268,7 +81,27 @@ const ConfigSchema = Schema.Struct({
           description:
             'Emit `defineOpenAPIRoute({ route, handler })` entries. Derives `routes/` next to the app entry, so it cannot be combined with `routes` or per-type component outputs.',
         }),
-        ...scaffoldFields,
+        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+          description: 'Also scaffold a test file per handler.',
+        }),
+        pathAlias: Schema.optionalKey(
+          Schema.String.check(
+            Schema.isPattern(/^[^\s'"`\\]+$/u, {
+              message: 'must be an import prefix, with no whitespace or quotes',
+            }),
+          ).annotate({
+            title: 'Path alias',
+            description: 'Import prefix used by the scaffolded files instead of relative paths.',
+            examples: ['@/', '~/'],
+          }),
+        ),
+        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+          .annotate({
+            title: 'Test framework',
+            description: 'Framework whose import specifier the generated test files use.',
+            examples: ['vitest', 'vite-plus', 'bun'],
+          }),
       }),
       Schema.Struct({
         define: Schema.Literal(false)
@@ -280,11 +113,32 @@ const ConfigSchema = Schema.Struct({
           description:
             'Emit the `app.openapi()` pattern with `RouteHandler` type exports. When false, handlers import the app and register routes inline.',
         }),
-        ...scaffoldFields,
+        test: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+          description: 'Also scaffold a test file per handler.',
+        }),
+        pathAlias: Schema.optionalKey(
+          Schema.String.check(
+            Schema.isPattern(/^[^\s'"`\\]+$/u, {
+              message: 'must be an import prefix, with no whitespace or quotes',
+            }),
+          ).annotate({
+            title: 'Path alias',
+            description: 'Import prefix used by the scaffolded files instead of relative paths.',
+            examples: ['@/', '~/'],
+          }),
+        ),
+        testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+          .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+          .annotate({
+            title: 'Test framework',
+            description: 'Framework whose import specifier the generated test files use.',
+            examples: ['vitest', 'vite-plus', 'bun'],
+          }),
       }),
     ]).annotate({
       title: 'App scaffold',
-      description: 'Scaffolds the Hono app, handler stubs, and optional tests around the routes.',
+      description:
+        'Scaffolds the Hono app, handler stubs, and optional tests around the routes. Discriminated on `define`: the scaffold options are common, only `define` and `routeHandler` differ.',
       examples: [
         { define: false, routeHandler: true, test: true, pathAlias: '@/', testFramework: 'vitest' },
         { define: true, test: true, testFramework: 'vitest' },
@@ -355,47 +209,467 @@ const ConfigSchema = Schema.Struct({
       'Also export the TypeScript type inferred from each `components.mediaTypes` entry.',
   }),
   routes: Schema.optionalKey(
-    OutputSchema.annotate({
-      title: 'Routes output',
-      description:
-        'Destination for the `createRoute(...)` definitions built from `paths`. Mutually exclusive with `output` and with `template.define`.',
-      examples: [
-        { split: false, output: './src/routes.ts' },
-        { split: true, output: './src/routes', import: '@packages/routes' },
-      ],
-    }),
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output target',
+        description:
+          'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+        examples: ['./src/routes.ts', './src/routes'],
+      }),
+      split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        description: 'Write one file per entry into `output` rather than a single file.',
+      }),
+      import: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Import specifier',
+          description: 'Module specifier the generated files use to import from `output`.',
+          examples: ['@packages/routes', '../lib', '.'],
+        }),
+      ),
+    })
+      .check(
+        Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+          message: 'split mode requires directory, not .ts file',
+        }),
+      )
+      .annotate({
+        title: 'Routes output',
+        description:
+          'Destination for the `createRoute(...)` definitions built from `paths`. Mutually exclusive with `output` and with `template.define`.',
+      }),
   ),
   webhooks: Schema.optionalKey(
-    OutputSchema.annotate({
-      title: 'Webhooks output',
-      description: 'Destination for the route definitions built from `webhooks`.',
-      examples: [
-        { split: false, output: './src/webhooks.ts' },
-        { split: true, output: './src/webhooks', import: '@packages/webhooks' },
-      ],
-    }),
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output target',
+        description:
+          'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+        examples: ['./src/webhooks.ts', './src/webhooks'],
+      }),
+      split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+        description: 'Write one file per entry into `output` rather than a single file.',
+      }),
+      import: Schema.optionalKey(
+        Schema.String.check(
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
+            message: 'must be a module specifier, with no whitespace or quotes',
+          }),
+        ).annotate({
+          title: 'Import specifier',
+          description: 'Module specifier the generated files use to import from `output`.',
+          examples: ['@packages/routes', '../lib', '.'],
+        }),
+      ),
+    })
+      .check(
+        Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+          message: 'split mode requires directory, not .ts file',
+        }),
+      )
+      .annotate({
+        title: 'Webhooks output',
+        description: 'Destination for the route definitions built from `webhooks`.',
+      }),
   ),
   components: Schema.optionalKey(
     Schema.Struct({
       output: Schema.optionalKey(
-        TypeScriptPathSchema.annotate({
+        Schema.declare<`${string}.ts`>(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])), {
+          message: 'must be .ts file',
+        }).annotate({
           title: 'Single-file components output',
           description:
             'Every component section in one file. Mutually exclusive with the per-type fields below.',
           examples: ['./src/components/index.ts'],
         }),
       ),
-      schemas: Schema.optionalKey(ExportTypesOutputSchema),
-      responses: Schema.optionalKey(OutputSchema),
-      parameters: Schema.optionalKey(ExportTypesOutputSchema),
-      examples: Schema.optionalKey(OutputSchema),
-      requestBodies: Schema.optionalKey(OutputSchema),
-      headers: Schema.optionalKey(ExportTypesOutputSchema),
-      securitySchemes: Schema.optionalKey(OutputSchema),
-      links: Schema.optionalKey(OutputSchema),
-      callbacks: Schema.optionalKey(OutputSchema),
-      pathItems: Schema.optionalKey(OutputSchema),
-      mediaTypes: Schema.optionalKey(ExportTypesOutputSchema),
+      schemas: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/schemas.ts', './src/schemas'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          exportTypes: Schema.Boolean.pipe(
+            Schema.withDecodingDefault(Effect.succeed(false)),
+          ).annotate({
+            description: 'Also export the TypeScript type inferred from each generated schema.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Schemas output',
+            description: 'Destination for `components.schemas`.',
+          }),
+      ),
+      responses: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/responses.ts', './src/responses'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Responses output',
+            description: 'Destination for `components.responses`.',
+          }),
+      ),
+      parameters: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/parameters.ts', './src/parameters'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          exportTypes: Schema.Boolean.pipe(
+            Schema.withDecodingDefault(Effect.succeed(false)),
+          ).annotate({
+            description: 'Also export the TypeScript type inferred from each generated schema.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Parameters output',
+            description: 'Destination for `components.parameters`.',
+          }),
+      ),
+      examples: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/examples.ts', './src/examples'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Examples output',
+            description: 'Destination for `components.examples`.',
+          }),
+      ),
+      requestBodies: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/requestBodies.ts', './src/requestBodies'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Request bodies output',
+            description: 'Destination for `components.requestBodies`.',
+          }),
+      ),
+      headers: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/headers.ts', './src/headers'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          exportTypes: Schema.Boolean.pipe(
+            Schema.withDecodingDefault(Effect.succeed(false)),
+          ).annotate({
+            description: 'Also export the TypeScript type inferred from each generated schema.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Headers output',
+            description: 'Destination for `components.headers`.',
+          }),
+      ),
+      securitySchemes: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/securitySchemes.ts', './src/securitySchemes'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Security schemes output',
+            description: 'Destination for `components.securitySchemes`.',
+          }),
+      ),
+      links: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/links.ts', './src/links'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Links output',
+            description: 'Destination for `components.links`.',
+          }),
+      ),
+      callbacks: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/callbacks.ts', './src/callbacks'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Callbacks output',
+            description: 'Destination for `components.callbacks`.',
+          }),
+      ),
+      pathItems: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/pathItems.ts', './src/pathItems'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Path items output',
+            description: 'Destination for `components.pathItems`.',
+          }),
+      ),
+      mediaTypes: Schema.optionalKey(
+        Schema.Struct({
+          output: Schema.String.annotate({
+            title: 'Output target',
+            description:
+              'A `.ts` file, or a directory — which takes one file per entry when `split` is true, and its `index.ts` when not.',
+            examples: ['./src/mediaTypes.ts', './src/mediaTypes'],
+          }),
+          split: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
+            description: 'Write one file per entry into `output` rather than a single file.',
+          }),
+          exportTypes: Schema.Boolean.pipe(
+            Schema.withDecodingDefault(Effect.succeed(false)),
+          ).annotate({
+            description: 'Also export the TypeScript type inferred from each generated schema.',
+          }),
+          import: Schema.optionalKey(
+            Schema.String.check(
+              Schema.isPattern(/^[^\s'"`\\]+$/u, {
+                message: 'must be a module specifier, with no whitespace or quotes',
+              }),
+            ).annotate({
+              title: 'Import specifier',
+              description: 'Module specifier the generated files use to import from `output`.',
+              examples: ['@packages/routes', '../lib', '.'],
+            }),
+          ),
+        })
+          .check(
+            Schema.makeFilter((v) => !(v.split && v.output.endsWith('.ts')), {
+              message: 'split mode requires directory, not .ts file',
+            }),
+          )
+          .annotate({
+            title: 'Media types output',
+            description: 'Destination for `components.mediaTypes`.',
+          }),
+      ),
     })
       .check(
         Schema.makeFilter(
@@ -410,18 +684,6 @@ const ConfigSchema = Schema.Struct({
         title: 'Components output',
         description:
           'Destination for `components`. Either `output` for one file, or per-type fields that each get their own target.',
-        examples: [
-          { output: './src/components/index.ts' },
-          {
-            schemas: {
-              split: true,
-              output: './src/schemas',
-              import: '../schemas',
-              exportTypes: true,
-            },
-            responses: { split: true, output: './src/responses', import: '../responses' },
-          },
-        ],
       }),
   ),
   type: Schema.optionalKey(
@@ -431,10 +693,10 @@ const ConfigSchema = Schema.Struct({
           description: 'Emit `readonly` modifiers on the declared types.',
         }),
       ),
-      output: TypeScriptPathSchema.annotate({
-        title: 'Types output file',
-        examples: ['./src/types.ts'],
-      }),
+      output: Schema.declare<`${string}.ts`>(
+        Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])),
+        { message: 'must be .ts file' },
+      ).annotate({ title: 'Types output file', examples: ['./src/types.ts'] }),
     }).annotate({
       title: 'Standalone types output',
       description:
@@ -443,9 +705,33 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
   rpc: Schema.optionalKey(
-    splitUnion({
-      import: ImportSchema,
-      client: ClientSchema,
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/rpc.ts', './src/rpc'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
       parseResponse: Schema.Boolean.pipe(
         Schema.withDecodingDefault(Effect.succeed(false)),
       ).annotate({
@@ -454,87 +740,330 @@ const ConfigSchema = Schema.Struct({
       docs: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
         description: 'Emit the operation summary and description as JSDoc.',
       }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
     }).annotate({
       title: 'RPC wrappers target',
       description: 'Typed function wrappers around the Hono RPC client, one per operation.',
       examples: [
         {
-          split: false,
           output: './src/rpc.ts',
           import: '../lib',
           client: 'client',
           parseResponse: false,
           docs: false,
         },
-        {
-          split: true,
-          output: './src/rpc',
-          import: '../lib',
-          client: 'client',
-          parseResponse: true,
-          docs: true,
-        },
       ],
     }),
   ),
   swr: Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/swr.ts', './src/swr'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'SWR hooks output',
       description: 'Generates `useSWR` / `useSWRMutation` hooks per operation.',
-      examples: [{ split: true, output: './src/swr', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/swr.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'tanstack-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/tanstack-query.ts', './src/tanstack-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'TanStack Query hooks output',
       description: 'Generates `@tanstack/react-query` hooks per operation.',
-      examples: [
-        { split: true, output: './src/tanstack-query', import: '../lib', client: 'client' },
-      ],
+      examples: [{ output: './src/tanstack-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'preact-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/preact-query.ts', './src/preact-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'Preact Query hooks output',
       description: 'Generates `@tanstack/preact-query` hooks per operation.',
-      examples: [{ split: true, output: './src/preact-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/preact-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'solid-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/solid-query.ts', './src/solid-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'Solid Query hooks output',
       description: 'Generates `@tanstack/solid-query` hooks per operation.',
-      examples: [{ split: true, output: './src/solid-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/solid-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'vue-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/vue-query.ts', './src/vue-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'Vue Query hooks output',
       description: 'Generates `@tanstack/vue-query` hooks per operation.',
-      examples: [{ split: true, output: './src/vue-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/vue-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'svelte-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/svelte-query.ts', './src/svelte-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'Svelte Query hooks output',
       description: 'Generates `@tanstack/svelte-query` hooks per operation.',
-      examples: [{ split: true, output: './src/svelte-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/svelte-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'angular-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    Schema.Struct({
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/angular-query.ts', './src/angular-query'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      client: Schema.String.check(
+        Schema.isPattern(/^[A-Za-z_$][A-Za-z0-9_$]*$/u, {
+          message: 'must be a JavaScript identifier',
+        }),
+      )
+        .pipe(Schema.withDecodingDefault(Effect.succeed('client')))
+        .annotate({
+          title: 'Client export name',
+          description: 'Named export to import from `import` as the Hono client instance.',
+          examples: ['client', 'apiClient'],
+        }),
+      split: Schema.optionalKey(
+        Schema.Never.annotate({
+          message:
+            'split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
+        }),
+      ),
+    }).annotate({
       title: 'Angular Query hooks output',
       description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
-      examples: [
-        { split: true, output: './src/angular-query', import: '../lib', client: 'client' },
-      ],
+      examples: [{ output: './src/angular-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   test: Schema.optionalKey(
     Schema.Struct({
-      output: FileOutputSchema,
-      import: ImportSchema,
-      testFramework: TestFrameworkSchema,
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/test.ts', './src/test'],
+      }),
+      import: Schema.String.check(
+        Schema.isPattern(/^[^\s'"`\\]+$/u, {
+          message: 'must be a module specifier, with no whitespace or quotes',
+        }),
+      ).annotate({
+        title: 'Import specifier',
+        description: 'Module specifier the generated files use to import from `output`.',
+        examples: ['@packages/routes', '../lib', '.'],
+      }),
+      testFramework: Schema.Literals(['vitest', 'vite-plus', 'bun'])
+        .pipe(Schema.withDecodingDefault(Effect.succeed('vitest')))
+        .annotate({
+          title: 'Test framework',
+          description: 'Framework whose import specifier the generated test files use.',
+          examples: ['vitest', 'vite-plus', 'bun'],
+        }),
     }).annotate({
       title: 'Route tests output',
       description: 'Generates a request-level test per operation against the generated app.',
@@ -543,7 +1072,12 @@ const ConfigSchema = Schema.Struct({
   ),
   mock: Schema.optionalKey(
     Schema.Struct({
-      output: FileOutputSchema,
+      output: Schema.String.annotate({
+        title: 'Output file',
+        description:
+          'Single file that receives every generated entry. A directory path is normalized to `<dir>/index.ts`.',
+        examples: ['./src/mock.ts', './src/mock'],
+      }),
       useExamples: Schema.optionalKey(
         Schema.Union([Schema.Boolean, Schema.Literal('all')]).annotate({
           description:
@@ -552,10 +1086,23 @@ const ConfigSchema = Schema.Struct({
         }),
       ),
       seed: Schema.optionalKey(
-        Schema.Union([SeedSchema, Schema.NonEmptyArray(SeedSchema)]).annotate({
+        Schema.Union([
+          Schema.Number.check(
+            Schema.isInt(),
+            Schema.isGreaterThanOrEqualTo(0),
+            Schema.isLessThanOrEqualTo(4_294_967_295),
+          ),
+          Schema.NonEmptyArray(
+            Schema.Number.check(
+              Schema.isInt(),
+              Schema.isGreaterThanOrEqualTo(0),
+              Schema.isLessThanOrEqualTo(4_294_967_295),
+            ),
+          ),
+        ]).annotate({
           title: 'Faker seed',
           description:
-            'Seeds faker at the start of every handler, so each route answers the same body on every request — stable enough for snapshot tests. Dates are generated relative to a fixed 2025-01-01T00:00:00Z, and the locale-specific faker instance is the one seeded.',
+            'Seeds faker at the start of every handler, so each route answers the same body on every request — stable enough for snapshot tests. Dates are generated relative to a fixed 2025-01-01T00:00:00Z, and the locale-specific faker instance is the one seeded. Bounded to a 32-bit unsigned integer, which is what faker hashes with Mersenne Twister.',
           examples: [42, [1, 2, 3]],
         }),
       ),
@@ -572,9 +1119,24 @@ const ConfigSchema = Schema.Struct({
       ),
       delay: Schema.optionalKey(
         Schema.Union([
-          DelayMsSchema,
+          Schema.Number.check(
+            Schema.isInt(),
+            Schema.isGreaterThanOrEqualTo(0),
+            Schema.isLessThanOrEqualTo(60_000),
+          ),
           Schema.Literal(false),
-          Schema.Struct({ min: DelayMsSchema, max: DelayMsSchema }).check(
+          Schema.Struct({
+            min: Schema.Number.check(
+              Schema.isInt(),
+              Schema.isGreaterThanOrEqualTo(0),
+              Schema.isLessThanOrEqualTo(60_000),
+            ),
+            max: Schema.Number.check(
+              Schema.isInt(),
+              Schema.isGreaterThanOrEqualTo(0),
+              Schema.isLessThanOrEqualTo(60_000),
+            ),
+          }).check(
             Schema.makeFilter((v) => v.min <= v.max, {
               message: 'delay.min must be <= delay.max. Swap the values or remove one.',
             }),
@@ -582,18 +1144,26 @@ const ConfigSchema = Schema.Struct({
         ]).annotate({
           title: 'Response delay',
           description:
-            'Artificial latency in milliseconds: a fixed number, a `{ min, max }` range sampled per request, or `false` for none. Capped at 60000.',
+            'Artificial latency in milliseconds: a fixed number, a `{ min, max }` range sampled per request, or `false` for none. Capped at 60000, so a mock cannot be configured to hang a request.',
           examples: [false, 300, { min: 100, max: 800 }],
         }),
       ),
       arrayMin: Schema.optionalKey(
-        ArrayLengthSchema.annotate({
+        Schema.Number.check(
+          Schema.isInt(),
+          Schema.isGreaterThanOrEqualTo(0),
+          Schema.isLessThanOrEqualTo(1000),
+        ).annotate({
           description: 'Lower bound on the length of generated arrays. Must be <= `arrayMax`.',
           examples: [1],
         }),
       ),
       arrayMax: Schema.optionalKey(
-        ArrayLengthSchema.annotate({
+        Schema.Number.check(
+          Schema.isInt(),
+          Schema.isGreaterThanOrEqualTo(0),
+          Schema.isLessThanOrEqualTo(1000),
+        ).annotate({
           description: 'Upper bound on the length of generated arrays.',
           examples: [10],
         }),
@@ -626,15 +1196,15 @@ const ConfigSchema = Schema.Struct({
   docs: Schema.optionalKey(
     Schema.Union([
       Schema.Struct({
-        output: MarkdownPathSchema.annotate({
-          title: 'Docs output file',
-          examples: ['./docs/api.md'],
-        }),
+        output: Schema.declare<`${string}.md`>(
+          Schema.is(Schema.TemplateLiteral([Schema.String, '.md'])),
+          { message: 'must be .md file' },
+        ).annotate({ title: 'Docs output file', examples: ['./docs/api.md'] }),
         curl: Schema.Literal(true).annotate({
           description: 'Write `curl` commands against `baseUrl`, which then becomes required.',
         }),
         baseUrl: Schema.String.check(
-          Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+          Schema.isPattern(/^[^\s'"`\\]+$/u, {
             message: 'must be a URL, with no whitespace or quotes',
           }),
         )
@@ -648,10 +1218,10 @@ const ConfigSchema = Schema.Struct({
         ),
       }),
       Schema.Struct({
-        output: MarkdownPathSchema.annotate({
-          title: 'Docs output file',
-          examples: ['./docs/api.md'],
-        }),
+        output: Schema.declare<`${string}.md`>(
+          Schema.is(Schema.TemplateLiteral([Schema.String, '.md'])),
+          { message: 'must be .md file' },
+        ).annotate({ title: 'Docs output file', examples: ['./docs/api.md'] }),
         curl: Schema.Literal(false)
           .pipe(Schema.withDecodingDefault(Effect.succeed(false)))
           .annotate({
@@ -665,7 +1235,7 @@ const ConfigSchema = Schema.Struct({
         ),
         baseUrl: Schema.optionalKey(
           Schema.String.check(
-            Schema.isPattern(SAFE_IN_STRING_LITERAL, {
+            Schema.isPattern(/^[^\s'"`\\]+$/u, {
               message: 'must be a URL, with no whitespace or quotes',
             }),
           ).annotate({
@@ -676,7 +1246,8 @@ const ConfigSchema = Schema.Struct({
       }),
     ]).annotate({
       title: 'Markdown docs output',
-      description: 'Generates a Markdown reference with one request example per operation.',
+      description:
+        'Generates a Markdown reference with one request example per operation. Discriminated on `curl`: with it `baseUrl` is required and `entry` is refused.',
       examples: [
         { output: './docs/api.md', curl: false, entry: 'src/index.ts' },
         { output: './docs/api.md', curl: true, baseUrl: 'http://localhost:3000' },
@@ -684,6 +1255,84 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
 })
+  // Every output path, pointed at a file: a generator that writes one file accepts a
+  // directory as shorthand for the `index.ts` inside it, while a `split` target keeps the
+  // directory it was given. Doing it here rather than on each `output` keeps the field
+  // declarations above literal, and puts the rewrite ahead of the checks below — which
+  // compare output paths against each other and would otherwise read two spellings of one
+  // file as two files.
+  .pipe(
+    Schema.decode(
+      SchemaTransformation.transform({
+        decode: (config) => {
+          // oxlint-disable-next-line unicorn/consistent-function-scoping -- reads with the transform it serves
+          const target = <T extends { readonly output: string; readonly split?: boolean }>(v: T) =>
+            v.split === true || v.output.endsWith('.ts')
+              ? v
+              : { ...v, output: `${v.output}/index.ts` }
+          const components = config.components
+          return {
+            ...config,
+            ...(config.routes ? { routes: target(config.routes) } : {}),
+            ...(config.webhooks ? { webhooks: target(config.webhooks) } : {}),
+            ...(components
+              ? {
+                  components: {
+                    ...components,
+                    ...(components.schemas ? { schemas: target(components.schemas) } : {}),
+                    ...(components.responses ? { responses: target(components.responses) } : {}),
+                    ...(components.parameters ? { parameters: target(components.parameters) } : {}),
+                    ...(components.examples ? { examples: target(components.examples) } : {}),
+                    ...(components.requestBodies
+                      ? { requestBodies: target(components.requestBodies) }
+                      : {}),
+                    ...(components.headers ? { headers: target(components.headers) } : {}),
+                    ...(components.securitySchemes
+                      ? { securitySchemes: target(components.securitySchemes) }
+                      : {}),
+                    ...(components.links ? { links: target(components.links) } : {}),
+                    ...(components.callbacks ? { callbacks: target(components.callbacks) } : {}),
+                    ...(components.pathItems ? { pathItems: target(components.pathItems) } : {}),
+                    ...(components.mediaTypes ? { mediaTypes: target(components.mediaTypes) } : {}),
+                  },
+                }
+              : {}),
+            ...(config.rpc ? { rpc: target(config.rpc) } : {}),
+            ...(config.swr ? { swr: target(config.swr) } : {}),
+            ...(config['tanstack-query']
+              ? {
+                  'tanstack-query': target(config['tanstack-query']),
+                }
+              : {}),
+            ...(config['preact-query']
+              ? {
+                  'preact-query': target(config['preact-query']),
+                }
+              : {}),
+            ...(config['solid-query']
+              ? {
+                  'solid-query': target(config['solid-query']),
+                }
+              : {}),
+            ...(config['vue-query'] ? { 'vue-query': target(config['vue-query']) } : {}),
+            ...(config['svelte-query']
+              ? {
+                  'svelte-query': target(config['svelte-query']),
+                }
+              : {}),
+            ...(config['angular-query']
+              ? {
+                  'angular-query': target(config['angular-query']),
+                }
+              : {}),
+            ...(config.test ? { test: target(config.test) } : {}),
+            ...(config.mock ? { mock: target(config.mock) } : {}),
+          }
+        },
+        encode: (config) => config,
+      }),
+    ),
+  )
   .check(
     Schema.makeFilter((v) => !(v.output && v.routes), {
       message:
@@ -791,9 +1440,8 @@ export type Config = typeof ConfigSchema.Type
 /**
  * The config file is missing, is not a module with a default export, or does not validate.
  *
- * `notFound` separates "there is no config here" from "the config here is wrong": only
- * the first is the caller who ran `hono-takibi` with nothing and needs to be told what
- * the command accepts. Everything else already names the field that is wrong.
+ * `notFound` is what lets the caller who ran `hono-takibi` with nothing be shown what the
+ * command accepts, while every other failure already names the field that is wrong.
  *
  * `Schema.TaggedError` rather than `Data.TaggedError`: this is the error a schema decode
  * turns into, which is the shape the Schema guide models, and it makes the failure a
@@ -802,8 +1450,15 @@ export type Config = typeof ConfigSchema.Type
  */
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
-  message: Schema.String,
-  notFound: Schema.optionalKey(Schema.Boolean),
+  message: Schema.String.annotate({
+    description: 'The sentence printed to the caller, naming the field that is wrong.',
+    examples: ['Invalid config: rpc.import: must be a module specifier'],
+  }),
+  notFound: Schema.optionalKey(
+    Schema.Boolean.annotate({
+      description: 'There is no config file at all, as opposed to one that does not validate.',
+    }),
+  ),
 }) {}
 
 // Built once and reused at the edge, as the Schema guide prescribes, rather than

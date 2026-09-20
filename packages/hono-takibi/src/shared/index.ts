@@ -41,7 +41,7 @@ import type { OpenAPI } from '../openapi/index.js'
  * at the call site: the array below is a union of differently-typed entries, and
  * `Effect.all` over that union would lose the `FileSystem` the caller has to provide.
  */
-export type Job = {
+type Job = {
   readonly name: string
   readonly output: string
   readonly split: boolean
@@ -57,7 +57,13 @@ export type Job = {
 // Built once and reused, the way `config` builds its own decoder: the schema is the
 // same for every job, and there is one call per job.
 const decodeTypeScriptPath = Schema.decodeUnknownEffect(
-  Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
+  Schema.String.pipe(
+    Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts']))),
+  ).annotate({
+    title: 'Generator output file',
+    description: 'The `.ts` path a TypeScript generator writes to.',
+    examples: ['./src/routes.ts', './src/schemas/index.ts'],
+  }),
 )
 
 /**
@@ -118,7 +124,9 @@ function cleanSplitDirectory(directory: string) {
  * directory, barrel included, survives as the answer to a document that no longer says it.
  *
  * A split directory is therefore the generator's, not a place to keep anything by hand.
- * `remove` is only pointed at its direct `.ts` children, never at a subdirectory.
+ * `remove` is only pointed at its direct `.ts` children, never at a subdirectory. Only
+ * `routes`, `webhooks` and the `components.*` sections take `split`; every other
+ * generator writes one file and overwrites it in place, so none of them is cleaned.
  *
  * This runs before any job writes, never per job as it goes: two jobs can be aimed at one
  * directory, and a clean that lands after a sibling has filled it would take the fresh
@@ -425,13 +433,12 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
       ? {
           name: 'rpc',
           output: config.rpc.output,
-          split: config.rpc.split,
+          split: false,
           run: (output: string) =>
             rpc(
               openAPI,
               output,
               config.rpc?.import ?? '',
-              config.rpc?.split === true,
               config.rpc?.client ?? 'client',
               config.rpc?.parseResponse ?? false,
               config.basePath,
@@ -455,12 +462,9 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
         ? {
             name: library,
             output: cfg.output,
-            split: cfg.split,
+            split: false,
             run: (output: string) =>
-              hooks(openAPI, output, cfg.import, library, {
-                split: cfg.split,
-                clientName: cfg.client ?? 'client',
-              }),
+              hooks(openAPI, output, cfg.import, library, { clientName: cfg.client ?? 'client' }),
           }
         : undefined
     }),

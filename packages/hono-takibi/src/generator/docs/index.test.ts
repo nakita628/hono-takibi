@@ -940,12 +940,6 @@ describe('makeDocs', () => {
           makeDocs(pathParamGetOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173'),
         ).toBe(expectedCurlGetPathParam)
       })
-
-      it('generates curl GET without -X GET (no path params)', () => {
-        expect(makeDocs(minimalOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
-          expectedCurlGetHealth('http://localhost:5173/health'),
-        )
-      })
     })
 
     describe('PUT with path parameter and body', () => {

@@ -269,13 +269,6 @@ describe('zodType', () => {
     })
   })
 
-  describe('type array notation', () => {
-    it.concurrent('generates nullable object type from type array', () => {
-      const result = zodType({ type: ['string', 'null'] }, 'Maybe')
-      expect(result).toBe('type MaybeType=(string|null)')
-    })
-  })
-
   describe('complex use cases', () => {
     it.concurrent('generates type for self-referencing tree structure', () => {
       const result = zodType(

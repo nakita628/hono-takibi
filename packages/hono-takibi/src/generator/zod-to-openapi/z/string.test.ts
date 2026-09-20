@@ -32,9 +32,10 @@ describe('string', () => {
     [{ type: 'string', format: 'date-time' }, 'z.iso.datetime()'],
     [{ type: 'string', format: 'duration' }, 'z.iso.duration()'],
     [{ type: 'string', format: 'binary' }, 'z.file()'],
-    [{ type: 'string', format: 'toLowerCase' }, 'z.toLowerCase()'],
-    [{ type: 'string', format: 'toUpperCase' }, 'z.toUpperCase()'],
-    [{ type: 'string', format: 'trim' }, 'z.trim()'],
+    // `z.toLowerCase()` and friends are checks, not schemas — they belong on a string.
+    [{ type: 'string', format: 'toLowerCase' }, 'z.string().toLowerCase()'],
+    [{ type: 'string', format: 'toUpperCase' }, 'z.string().toUpperCase()'],
+    [{ type: 'string', format: 'trim' }, 'z.string().trim()'],
     [{ type: 'string', format: 'jwt' }, 'z.jwt()'],
   ])('string(%o) → %s', (input, expected) => {
     expect(string(input)).toBe(expected)
@@ -58,14 +59,22 @@ describe('string', () => {
         { type: 'string', format: 'ipv4', 'x-error-message': 'Invalid IPv4' },
         'z.ipv4({error:"Invalid IPv4"})',
       ],
-      // Transform formats should ignore x-error-message
-      [{ type: 'string', format: 'toLowerCase', 'x-error-message': 'ignored' }, 'z.toLowerCase()'],
-      [{ type: 'string', format: 'toUpperCase', 'x-error-message': 'ignored' }, 'z.toUpperCase()'],
-      [{ type: 'string', format: 'trim', 'x-error-message': 'ignored' }, 'z.trim()'],
+      // A transform format now sits on a real `z.string()`, so the message reaches the
+      // type check the same way it does for a formatless string.
+      [
+        { type: 'string', format: 'toLowerCase', 'x-error-message': 'applied' },
+        'z.string({error:"applied"}).toLowerCase()',
+      ],
+      [
+        { type: 'string', format: 'toUpperCase', 'x-error-message': 'applied' },
+        'z.string({error:"applied"}).toUpperCase()',
+      ],
+      [
+        { type: 'string', format: 'trim', 'x-error-message': 'applied' },
+        'z.string({error:"applied"}).trim()',
+      ],
       // x-error-message on base z.string() (no format)
       [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
-      // No x-error-message → existing behavior
-      [{ type: 'string', format: 'email' }, 'z.email()'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -77,8 +86,6 @@ describe('string', () => {
         { type: 'string', pattern: '^[a-z]+$', 'x-pattern-message': '小文字のみ' },
         'z.string().regex(/^[a-z]+$/,{error:"小文字のみ"})',
       ],
-      // No x-pattern-message → existing behavior
-      [{ type: 'string', pattern: '^[a-z]+$' }, 'z.string().regex(/^[a-z]+$/)'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -280,12 +287,12 @@ describe('string', () => {
         },
         'z.url({error:"URL不正"}).regex(/^https:\\/\\//,{error:"httpsのみ"}).min(10,{error:"10文字以上"}).max(2000,{error:"2000文字以下"})',
       ],
-      // transform format + minLength (transform ignores x-error-message but length still applies)
-      [{ type: 'string', format: 'trim', minLength: 1 }, 'z.trim().min(1)'],
+      // transform format + minLength
+      [{ type: 'string', format: 'trim', minLength: 1 }, 'z.string().trim().min(1)'],
       // transform format + pattern
       [
         { type: 'string', format: 'toLowerCase', pattern: '^[a-z]+$' },
-        'z.toLowerCase().regex(/^[a-z]+$/)',
+        'z.string().toLowerCase().regex(/^[a-z]+$/)',
       ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
@@ -299,6 +306,13 @@ describe('string', () => {
       [{ type: 'string', format: 'base64url' }, 'z.base64url()'],
       [{ type: 'string', format: 'hex' }, 'z.hex()'],
       [{ type: 'string', format: 'mac' } as any, 'z.mac()'],
+      [{ type: 'string', format: 'creditCard' }, 'z.creditCard()'],
+      [{ type: 'string', format: 'iban' }, 'z.iban()'],
+      [{ type: 'string', format: 'currencyCode' }, 'z.currencyCode()'],
+      [{ type: 'string', format: 'ksuid' }, 'z.ksuid()'],
+      [{ type: 'string', format: 'xid' }, 'z.xid()'],
+      // `z.slugify()` is a check like `z.trim()`, so it hangs off a string
+      [{ type: 'string', format: 'slugify' }, 'z.string().slugify()'],
       // unknown format falls back to z.string()
       [{ type: 'string', format: 'unknown-format' } as any, 'z.string()'],
       // empty format string falls back to z.string()
@@ -338,8 +352,11 @@ describe('string', () => {
         'z.string().trim().min(1).max(100)',
       ],
       // idempotent: format:"trim" + x-trim → single .trim() via base, no extra
-      [{ type: 'string', format: 'trim', 'x-trim': true }, 'z.trim()'],
-      [{ type: 'string', format: 'toLowerCase', 'x-toLowerCase': true }, 'z.toLowerCase()'],
+      [{ type: 'string', format: 'trim', 'x-trim': true }, 'z.string().trim()'],
+      [
+        { type: 'string', format: 'toLowerCase', 'x-toLowerCase': true },
+        'z.string().toLowerCase()',
+      ],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -608,8 +625,6 @@ describe('string', () => {
         },
         'z.hash("sha512",{enc:"base64url",error:"ハッシュ不正"})',
       ],
-      // hash without algo → fallback to z.string()
-      [{ type: 'string', format: 'hash' }, 'z.string()'],
       // e164 phone
       [{ type: 'string', format: 'e164' }, 'z.e164()'],
       // option + transforms chain

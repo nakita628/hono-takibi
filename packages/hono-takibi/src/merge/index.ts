@@ -135,7 +135,6 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
 
   const body = applyRangeOps(existingCode, bodyStart, allOps).replaceAll(/\n{3,}/gu, '\n\n')
 
-  // New handlers: in generated but not in existing
   const newHandlerStatements = [...generatedHandlers.entries()]
     .filter(([name]) => !existingHandlers.has(name))
     .map(([, stmt]) => stmt.getText())

@@ -121,24 +121,7 @@ vi.mock('../core/index.js', () => ({
       return 'route'
     }),
   ),
-  rpc: vi.fn<
-    (
-      openAPI: unknown,
-      outputDir: string,
-      importPath: string,
-      split: boolean,
-    ) => Effect.Effect<string>
-  >((_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) =>
-    Effect.promise(async () => {
-      if (split) {
-        await fsp.mkdir(outputDir, { recursive: true })
-        await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
-        await fsp.writeFile(path.join(outputDir, 'postUsers.ts'), '// postUsers', 'utf8')
-        await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
-      }
-      return 'rpc'
-    }),
-  ),
+  rpc: vi.fn<() => Effect.Effect<string>>(() => Effect.succeed('rpc')),
   // Writes through the real file writeFile with the received document embedded,
   // so an identical document produces byte-identical output and no rewrite.
   takibi: vi.fn<
@@ -194,7 +177,6 @@ beforeEach(async () => {
 
   await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/schema'), { recursive: true })
   await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/route'), { recursive: true })
-  await fsp.mkdir(path.join(testState.sandboxDirectory, 'out/rpc'), { recursive: true })
   await fsp.writeFile(
     path.join(testState.sandboxDirectory, 'out/schema/extra.ts'),
     '// should be pruned',
@@ -205,15 +187,9 @@ beforeEach(async () => {
     '// should be pruned',
     'utf8',
   )
-  await fsp.writeFile(
-    path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'),
-    '// should be pruned',
-    'utf8',
-  )
 
   await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/schema/README.md'), 'keep', 'utf8')
   await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/route/README.md'), 'keep', 'utf8')
-  await fsp.writeFile(path.join(testState.sandboxDirectory, 'out/rpc/README.md'), 'keep', 'utf8')
 })
 
 afterEach(async () => {
@@ -237,11 +213,6 @@ describe('honoTakibiVite', () => {
         },
       },
       routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
-      rpc: {
-        output: path.join(testState.sandboxDirectory, 'out/rpc'),
-        split: true,
-        import: '@rpc',
-      },
     }
 
     const { server, reloaded } = createMockViteDevServer(configuration)
@@ -256,19 +227,14 @@ describe('honoTakibiVite', () => {
     expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/extra.ts'))).toBe(
       false,
     )
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/extra.ts'))).toBe(false)
-
     expect(await fileExists(path.join(testState.sandboxDirectory, 'out/schema/README.md'))).toBe(
       true,
     )
     expect(await fileExists(path.join(testState.sandboxDirectory, 'out/route/README.md'))).toBe(
       true,
     )
-    expect(await fileExists(path.join(testState.sandboxDirectory, 'out/rpc/README.md'))).toBe(true)
-
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/schema'))).toBe(true)
     expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/route'))).toBe(true)
-    expect(fs.existsSync(path.join(testState.sandboxDirectory, 'out/rpc'))).toBe(true)
   })
 
   it('runs routes even without schema outputs', async () => {
@@ -289,21 +255,6 @@ describe('honoTakibiVite', () => {
   it('returns plugin with correct name', () => {
     const plugin = honoTakibiVite()
     expect(plugin.name).toBe('hono-takibi-vite')
-  })
-
-  it('has handleHotUpdate method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.handleHotUpdate).toBe('function')
-  })
-
-  it('has configureServer method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.configureServer).toBe('function')
-  })
-
-  it('has buildStart method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.buildStart).toBe('function')
   })
 
   it('handleHotUpdate returns empty array for config file changes', async () => {

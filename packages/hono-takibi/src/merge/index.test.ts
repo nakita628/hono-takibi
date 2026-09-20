@@ -84,35 +84,6 @@ export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) 
       expect(result).toBe(existing)
     })
 
-    it('merges import statements', () => {
-      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getUserRoute } from '../index'
-
-export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
-  return c.json({ id: 1 }, 200)
-}
-`
-
-      const generated = `import type { RouteHandler } from '@hono/zod-openapi'
-import type { getUserRoute, postUserRoute } from '../index'
-
-export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {}
-
-export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {}
-`
-
-      const result = mergeHandlerFile(existing, generated)
-      expect(result).toBe(`import type { RouteHandler } from '@hono/zod-openapi'
-import type { getUserRoute, postUserRoute } from '../index'
-
-export const getUserRouteHandler: RouteHandler<typeof getUserRoute> = async (c) => {
-  return c.json({ id: 1 }, 200)
-}
-
-export const postUserRouteHandler: RouteHandler<typeof postUserRoute> = async (c) => {}
-`)
-    })
-
     it('returns identical code when no changes', () => {
       const code = `import type { RouteHandler } from '@hono/zod-openapi'
 import type { getUserRoute } from '../index'

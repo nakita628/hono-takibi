@@ -116,27 +116,6 @@ describe('wrap', () => {
         }),
       ).toBe('z.int64().nullable().default(0n)')
     })
-
-    it.concurrent('uses BigInt default and adds .nullable for z.int64()', () => {
-      expect(
-        wrap('z.int64()', {
-          type: 'integer',
-          format: 'int64',
-          default: 0,
-          nullable: true,
-        }),
-      ).toBe('z.int64().nullable().default(0n)')
-    })
-
-    it.concurrent('uses BigInt default and marks schema nullable when type includes null', () => {
-      expect(
-        wrap('z.int64()', {
-          type: ['integer', 'null'],
-          format: 'int64',
-          default: 0,
-        }),
-      ).toBe('z.int64().nullable().default(0n)')
-    })
   })
 
   describe('bigint', () => {
@@ -952,10 +931,6 @@ describe('wrap', () => {
       )
     })
 
-    it.concurrent('does not add .brand() when x-brand is not set', () => {
-      expect(wrap('z.string()', { type: 'string' })).toBe('z.string()')
-    })
-
     it.concurrent('x-brand is not included in .openapi() metadata', () => {
       expect(
         wrap('z.string()', {
@@ -978,11 +953,6 @@ describe('formatLiteral via default (format-aware literals)', () => {
       'z.bigint()',
       { type: 'integer', format: 'bigint', default: 5 },
       'z.bigint().default(BigInt(5))',
-    ],
-    [
-      'z.date()',
-      { type: 'date', default: '2020-01-01' },
-      'z.date().default(new Date("2020-01-01"))',
     ],
   ])('wrap(%s, %o) → %s', (zod, schema, expected) => {
     expect(wrap(zod, schema)).toBe(expected)

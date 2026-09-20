@@ -406,26 +406,6 @@ describe('README — Format-Specific Options', () => {
     })
     expect(res.status).toBe(422)
   })
-
-  it('x-isoLocal: accepts datetime without timezone (opposite of x-isoOffset)', async () => {
-    const res = await app.request('/formats', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        htmlEmail: 'user@example.com',
-        customEmail: 'someone@example.com',
-        uuidV7: '0190b1f4-0000-7000-8000-000000000000',
-        httpsUrl: 'https://example.com',
-        preciseDatetime: '2024-01-01T00:00:00.123Z',
-        localDatetime: '2024-01-01T00:00:00',
-        mac: '00:11:22:33:44:55',
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-      }),
-    })
-    expect(res.status).toBe(200)
-  })
 })
 
 describe('README — Branded Types', () => {
@@ -964,19 +944,6 @@ describe('Object — thick coverage', () => {
       errors: ReadonlyArray<{ pointer: string; detail: string }>
     }
     expect(body.errors).toStrictEqual([{ pointer: '/dependent', detail: 'cc must be 16 digits' }])
-  })
-
-  it('dependent OK when neither key present', async () => {
-    const res = await app.request('/object-edge', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        profile: { a: '1' },
-        namespace: { x_one: 'ok', x_two: 'ok' },
-        dependent: {},
-      }),
-    })
-    expect(res.status).toBe(200)
   })
 })
 

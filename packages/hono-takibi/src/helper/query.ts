@@ -13,7 +13,6 @@ import {
   makeOperationDeps,
   operationHasArgs,
   parsePathItem,
-  resolveSplitOutDir,
 } from './rpc.js'
 
 // Every TanStack adapter's hook takes a trailing argument after the options — `queryClient`
@@ -751,7 +750,6 @@ function makeSWRHeader(
       )
     }
   } else if (hasMutation) {
-    // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
   }
   if (hasMutation) {
@@ -762,8 +760,8 @@ function makeSWRHeader(
   }
   // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
   // `pagination.getRequestArgs` even when the operation itself takes no args, so the
-  // import must follow hasInfiniteQuery too (an args-less paginated op in a split file
-  // has hasAnyArgs=false).
+  // import must follow hasInfiniteQuery too (a document whose only paginated operation
+  // takes no args has hasAnyArgs=false).
   const honoTypeImports = [
     'ClientRequestOptions',
     ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
@@ -1375,8 +1373,8 @@ function makeHeader(
   const needsVueImports = config.isVueQuery && hasQueryWithArgs
   // Hono client imports. Infinite (x-pagination) hooks reference InferRequestType in
   // `pagination.getRequestArgs` even when the operation itself takes no args, so the
-  // import must follow hasInfiniteQuery too (an args-less paginated op in a split file
-  // has hasAnyArgs=false).
+  // import must follow hasInfiniteQuery too (a document whose only paginated operation
+  // takes no args has hasAnyArgs=false).
   const honoTypeImports = [
     'ClientRequestOptions',
     ...(hasAnyArgs || hasInfiniteQuery ? ['InferRequestType'] : []),
@@ -1433,7 +1431,6 @@ export function makeQueryHooks(
     readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
   },
-  split?: boolean,
   clientName = 'client',
 ) {
   return Effect.gen(function* () {
@@ -1447,60 +1444,25 @@ export function makeQueryHooks(
     const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
     const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
     const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
-    if (!split) {
-      const prefixBody = prefixKeyCodes.join('\n\n')
-      const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
-      const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
-      const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
-      const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
-      const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
-      const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
-      const header = makeHeader(
-        importPath,
-        clientName,
-        hasQuery,
-        hasMutation,
-        hasAnyArgs,
-        config,
-        hasQueryWithArgs,
-        hasInfiniteQuery,
-      )
-      const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
-      yield* emit(code, path.dirname(output), output)
-      return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`
-    }
-    const { outDir, indexPath } = resolveSplitOutDir(output)
-    const keysCode = prefixKeyCodes.length > 0 ? `${prefixKeyCodes.join('\n\n')}\n` : ''
-    const exportLines = [
-      ...new Set(
-        hookCodes.map(({ operationFileName }) => `export * from './${operationFileName}'`),
-      ),
-    ]
-    const indexLines = keysCode ? [`export * from './keys'`, ...exportLines] : exportLines
-    const index = `${indexLines.join('\n')}\n`
-    yield* Effect.all(
-      [
-        ...hookCodes.map(({ operationFileName, code, isQuery, hasArgs, hasInfinite }) => {
-          const hasQueryWithArgs = isQuery && hasArgs
-          const header = makeHeader(
-            importPath,
-            clientName,
-            isQuery,
-            !isQuery,
-            hasArgs,
-            config,
-            hasQueryWithArgs,
-            hasInfinite,
-          )
-          const fileSrc = `${header}${code}\n`
-          const filePath = path.join(outDir, `${operationFileName}.ts`)
-          return emit(fileSrc, path.dirname(filePath), filePath)
-        }),
-        ...(keysCode ? [emit(keysCode, outDir, path.join(outDir, 'keys.ts'))] : []),
-        emit(index, path.dirname(indexPath), indexPath),
-      ],
-      { concurrency: 'unbounded' },
+    const prefixBody = prefixKeyCodes.join('\n\n')
+    const hookBody = hookCodes.map(({ code }) => code).join('\n\n')
+    const body = prefixBody + (prefixBody && hookBody ? '\n\n' : '') + hookBody
+    const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
+    const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
+    const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
+    const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
+    const header = makeHeader(
+      importPath,
+      clientName,
+      hasQuery,
+      hasMutation,
+      hasAnyArgs,
+      config,
+      hasQueryWithArgs,
+      hasInfiniteQuery,
     )
-    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${outDir}/*.ts (index.ts included)`
+    const code = `${header}${body}${hookCodes.length > 0 ? '\n' : ''}`
+    yield* emit(code, path.dirname(output), output)
+    return `Generated ${config.frameworkName.toLowerCase().replaceAll(' ', '-')} hooks written to ${output}`
   })
 }

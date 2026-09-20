@@ -20,67 +20,52 @@ const DocumentPathSchema = Schema.String.pipe(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
     { message: 'an OpenAPI (.yaml, .json) or TypeSpec (.tsp) document' },
   ),
-)
+).annotate({
+  title: 'Input document',
+  description: 'OpenAPI or TypeSpec document the one-shot mode generates from.',
+  examples: ['openapi.yaml', './spec/openapi.json', './spec/main.tsp'],
+})
 
 const TypeScriptPathSchema = Schema.String.pipe(
   Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])), {
     message: 'a TypeScript file path ending in .ts',
   }),
-)
-
-/**
- * One-shot mode generates routes only; every component export stays off. The
- * config file is what turns those on, one field at a time.
- */
-const ONE_SHOT_COMPONENTS = {
-  readonly: false,
-  exportSchemas: false,
-  exportSchemasTypes: false,
-  exportResponses: false,
-  exportParameters: false,
-  exportParametersTypes: false,
-  exportExamples: false,
-  exportRequestBodies: false,
-  exportHeaders: false,
-  exportHeadersTypes: false,
-  exportSecuritySchemes: false,
-  exportLinks: false,
-  exportCallbacks: false,
-  exportPathItems: false,
-  exportMediaTypes: false,
-  exportMediaTypesTypes: false,
-} as const
+).annotate({
+  title: 'Routes output file',
+  description: 'TypeScript file the one-shot mode writes the generated routes to.',
+  examples: ['./src/routes.ts', 'src/api/routes.ts'],
+})
 
 /**
  * The command line itself: what `hono-takibi` accepts, what each piece means, and the
  * schema every value is decoded through before {@link generate} ever sees it.
  */
 const commandLine = {
-  input: Argument.file('input', { mustExist: true }).pipe(
+  input: Argument.File('input', { mustExist: true }).pipe(
     Argument.withSchema(DocumentPathSchema),
     Argument.withDescription('OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from'),
     Argument.withMetavar('input.{yaml,json,tsp}'),
     Argument.optional,
   ),
-  // `Flag.string`, not `Flag.file`: the file primitive rewrites its value to an
+  // `Flag.String`, not `Flag.File`: the file primitive rewrites its value to an
   // absolute path, and `--output` is echoed back in the "Generated code written to"
   // message, which should read as the path the caller typed.
-  output: Flag.string('output').pipe(
+  output: Flag.String('output').pipe(
     Flag.withAlias('o'),
     Flag.withSchema(TypeScriptPathSchema),
     Flag.withDescription('TypeScript file the generated routes are written to'),
     Flag.withMetavar('output.ts'),
     Flag.optional,
   ),
-  config: Flag.file('config', { mustExist: true }).pipe(
+  config: Flag.File('config', { mustExist: true }).pipe(
     Flag.withAlias('c'),
     Flag.withDescription(`Config file to run (default: ./${DEFAULT_CONFIG_FILE})`),
     Flag.withMetavar('file'),
     Flag.optional,
   ),
-  // `Flag.boolean` is still a required flag until it is given a default — without this,
+  // `Flag.Boolean` is still a required flag until it is given a default — without this,
   // every invocation is rejected for not passing `--watch`.
-  watch: Flag.boolean('watch').pipe(
+  watch: Flag.Boolean('watch').pipe(
     Flag.withAlias('w'),
     Flag.withDescription('Rerun the config on every change to its documents or itself'),
     Flag.withDefault(false),
@@ -245,53 +230,43 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
     const output = Option.getOrUndefined(args.output)
     const configPath = Option.getOrUndefined(args.config)
 
-    // Neither mode is described. `ShowHelp` is how the runner is asked for the help it
-    // renders for a parse failure, so a failure caught here reads the same as one caught
-    // a layer earlier — and the command describes itself in exactly one place.
-    if (configPath !== undefined && (input !== undefined || output !== undefined)) {
-      const message =
-        '--config cannot be combined with <input> or --output. A config file already names its own input and outputs.'
+    // What the command line cannot be, in the order the sentences are worth reading: the
+    // first one that fits is printed, so `--config` alongside `<input>` is reported as
+    // the combination it is rather than as the half-written one-shot it also looks like.
+    const conflicts: readonly (readonly [rejected: boolean, message: string])[] = [
+      [
+        configPath !== undefined && (input !== undefined || output !== undefined),
+        '--config cannot be combined with <input> or --output. A config file already names its own input and outputs.',
+      ],
+      [input !== undefined && output === undefined, '<input> requires -o <output.ts>.'],
+      [output !== undefined && input === undefined, '-o <output.ts> requires an <input> document.'],
+      // One-shot writes one file from one document and is done; there is no second pass
+      // for a change to trigger.
+      [
+        args.watch && (input !== undefined || output !== undefined),
+        '--watch runs a config file, so it cannot be combined with <input> or --output.',
+      ],
+    ]
+    const conflict = conflicts.find(([rejected]) => rejected)?.[1]
+    // Neither mode is described here. `ShowHelp` is how the runner is asked for the help
+    // it renders for a parse failure, so a failure caught here reads the same as one
+    // caught a layer earlier — and the command describes itself in exactly one place.
+    if (conflict !== undefined) {
       return yield* new CliError.ShowHelp({
         commandPath: [COMMAND_NAME],
-        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
-      })
-    }
-    if (input !== undefined && output === undefined) {
-      const message = '<input> requires -o <output.ts>.'
-      return yield* new CliError.ShowHelp({
-        commandPath: [COMMAND_NAME],
-        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
-      })
-    }
-    if (output !== undefined && input === undefined) {
-      const message = '-o <output.ts> requires an <input> document.'
-      return yield* new CliError.ShowHelp({
-        commandPath: [COMMAND_NAME],
-        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
-      })
-    }
-    // One-shot writes one file from one document and is done; there is no second pass for
-    // a change to trigger.
-    if (args.watch && (input !== undefined || output !== undefined)) {
-      const message =
-        '--watch runs a config file, so it cannot be combined with <input> or --output.'
-      return yield* new CliError.ShowHelp({
-        commandPath: [COMMAND_NAME],
-        errors: [new CliError.UserError({ cause: new Error(message), userMessage: message })],
+        errors: [new CliError.UserError({ cause: new Error(conflict), userMessage: conflict })],
       })
     }
 
-    // One-shot: no config file is consulted, even when one sits in the working directory.
-    // The generator pipeline pulls in the OpenAPI parser, the TypeSpec compiler and
-    // ts-morph. `--help`, `--version`, `--completions` and every rejected command line
-    // above must not pay for that, so it is loaded here rather than at module scope.
+    // One-shot: no config file is consulted, even when one sits in the working directory,
+    // so `takibi` is given no component options and generates routes only. Turning any of
+    // them on is what a config file is for. Loaded here rather than at module scope for
+    // the reason `runConfigPass` gives.
     if (input !== undefined && output !== undefined) {
       const [{ parseOpenAPI }, { takibi }] = yield* Effect.promise(() =>
         Promise.all([import('../openapi/index.js'), import('../core/index.js')]),
       )
-      return yield* Console.log(
-        yield* takibi(yield* parseOpenAPI(input), output, ONE_SHOT_COMPONENTS),
-      )
+      return yield* Console.log(yield* takibi(yield* parseOpenAPI(input), output))
     }
 
     const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
@@ -331,61 +306,38 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
 /**
  * The `hono-takibi` command: parsing, validation, `--help`, `--version` and shell
  * completions are owned by `effect/unstable/cli`, {@link generate} is the rest.
- */
-const cli = Command.make(COMMAND_NAME, commandLine, generate).pipe(
-  Command.withDescription('Generate @hono/zod-openapi code from OpenAPI or TypeSpec'),
-  Command.withExamples([
-    {
-      command: 'hono-takibi openapi.yaml -o src/routes.ts',
-      description: 'Generate a single routes file',
-    },
-    {
-      command: 'hono-takibi',
-      description: `Run every generator declared in ./${DEFAULT_CONFIG_FILE}`,
-    },
-    {
-      command: 'hono-takibi --config config/api.config.ts',
-      description: 'Run a config file from another location',
-    },
-    {
-      command: 'hono-takibi --watch',
-      description: 'Rerun on every change to the input documents or the config',
-    },
-  ]),
-)
-
-/**
- * Runs `hono-takibi` against an argument list.
  *
- * `entryUrl` is the `import.meta.url` of the executable, and `--version` is read from the
- * `package.json` beside it. The entry has to supply that: it is the only module whose
- * depth is the same in source and in the bundle (`src/index.ts` and the `dist/cli.js` it
- * is packed into both sit one directory below the manifest), so a relative URL written
- * anywhere else resolves to two different files.
- *
- * A manifest that is missing or malformed is a broken install, so it fails rather than
- * reporting a placeholder version — but through the error channel, which prints a
- * sentence instead of an unhandled `SchemaError` and its whole AST.
+ * `description` is the manifest's, so the sentence `--help` prints and the one npm shows
+ * cannot drift apart — {@link honoTakibi} is already reading that file for `--version`.
  */
-export function honoTakibi(argv: readonly string[], entryUrl: string) {
-  return Effect.gen(function* () {
-    const manifestPath = fileURLToPath(new URL('../package.json', entryUrl))
-    const fs = yield* FileSystem.FileSystem
-    const source = yield* fs.readFileString(manifestPath)
-    const manifest = yield* Effect.try({
-      try: (): unknown => JSON.parse(source),
-      catch: (cause) => new Error(`${manifestPath} is not valid JSON`, { cause }),
-    })
-    const { version } = yield* Schema.decodeUnknownEffect(
-      Schema.Struct({ version: Schema.String }),
-    )(manifest)
-    return yield* Command.runWith(cli, { version })(argv)
-  }).pipe(Effect.catchIf((error) => !CliError.isCliError(error), reportBrokenInstall))
+function makeCli(description: string) {
+  return Command.make(COMMAND_NAME, commandLine, generate).pipe(
+    Command.withDescription(description),
+    Command.withExamples([
+      {
+        command: 'hono-takibi openapi.yaml -o src/routes.ts',
+        description: 'Generate a single routes file',
+      },
+      {
+        command: 'hono-takibi',
+        description: `Run every generator declared in ./${DEFAULT_CONFIG_FILE}`,
+      },
+      {
+        command: 'hono-takibi --config config/api.config.ts',
+        description: 'Run a config file from another location',
+      },
+      {
+        command: 'hono-takibi --watch',
+        description: 'Rerun on every change to the input documents or the config',
+      },
+    ]),
+  )
 }
 
 /**
- * The version could not be read: the manifest beside the entry is missing, is not JSON,
- * or carries no `version`. That is a broken install, not anything the caller typed.
+ * The manifest could not be read: the `package.json` beside the entry is missing, is not
+ * JSON, or carries no `version` / `description`. That is a broken install, not anything
+ * the caller typed.
  *
  * `Command.runWith` renders the errors raised inside the command, but this one is raised
  * before it runs. So it is rendered here through the same formatter — the `ERROR` block
@@ -396,11 +348,54 @@ function reportBrokenInstall(cause: { readonly message: string }) {
   return Effect.gen(function* () {
     const error = new CliError.UserError({
       cause,
-      userMessage: `Cannot read the version from package.json: ${cause.message}`,
+      userMessage: `Cannot read the version and description from package.json: ${cause.message}`,
     })
     error[Runtime.errorReported] = false
     const formatter = yield* CliOutput.Formatter
     yield* Console.error(formatter.formatError(error))
     return yield* error
   })
+}
+
+/**
+ * Runs `hono-takibi` against an argument list.
+ *
+ * `entryUrl` is the `import.meta.url` of the executable, and both `--version` and the
+ * description `--help` prints are read from the `package.json` beside it. The entry has
+ * to supply that URL: it is the only module whose
+ * depth is the same in source and in the bundle (`src/index.ts` and the `dist/cli.js` it
+ * is packed into both sit one directory below the manifest), so a relative URL written
+ * anywhere else resolves to two different files.
+ *
+ * A manifest that is missing or malformed is a broken install, so it fails rather than
+ * reporting a placeholder version — but through the error channel, which prints a
+ * sentence instead of an unhandled `SchemaError` and its whole AST. One `Schema.Struct`
+ * is what says which fields have to be there for the command to describe itself.
+ */
+export function honoTakibi(argv: readonly string[], entryUrl: string) {
+  return Effect.gen(function* () {
+    const manifestPath = fileURLToPath(new URL('../package.json', entryUrl))
+    const fs = yield* FileSystem.FileSystem
+    const source = yield* fs.readFileString(manifestPath)
+    const manifest = yield* Effect.try({
+      try: (): unknown => JSON.parse(source),
+      catch: (cause) => new Error(`${manifestPath} is not valid JSON`, { cause }),
+    })
+    const { version, description } = yield* Schema.decodeUnknownEffect(
+      Schema.Struct({
+        version: Schema.String.annotate({
+          description: 'What `--version` prints.',
+          examples: ['1.2.3'],
+        }),
+        description: Schema.String.annotate({
+          description: 'The sentence `--help` prints under DESCRIPTION.',
+          examples: ['Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi'],
+        }),
+      }).annotate({
+        title: 'Package manifest',
+        description: 'The fields `hono-takibi` reads from the package.json beside its entry.',
+      }),
+    )(manifest)
+    return yield* Command.runWith(makeCli(description), { version })(argv)
+  }).pipe(Effect.catchIf((error) => !CliError.isCliError(error), reportBrokenInstall))
 }

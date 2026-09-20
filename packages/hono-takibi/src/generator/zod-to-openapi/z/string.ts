@@ -34,12 +34,18 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   guid: 'guid()',
   httpUrl: 'httpUrl()',
   hostname: 'hostname()',
+  creditCard: 'creditCard()',
+  iban: 'iban()',
+  currencyCode: 'currencyCode()',
+  ksuid: 'ksuid()',
+  xid: 'xid()',
   toLowerCase: 'toLowerCase()',
   toUpperCase: 'toUpperCase()',
   trim: 'trim()',
+  slugify: 'slugify()',
 }
 
-const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
+const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim', 'slugify'])
 const DATE_FORMATS = new Set(['date', 'date-time'])
 
 const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {
@@ -221,6 +227,12 @@ export function string(
     if (!format) {
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
+    }
+    // `z.trim()` / `z.toLowerCase()` / `z.toUpperCase()` are checks, not schemas — they
+    // carry no `.parse` and no `.openapi`, so emitting one on its own produces a module
+    // that throws on import. They belong on a string.
+    if (isTransformFormat) {
+      return baseErrorArg ? `z.string(${baseErrorArg}).${format}` : `z.string().${format}`
     }
     const fmtOpts = isValidationFormat ? makeFormatOptions(schema) : []
     const includeBaseError = !!baseErrorArg && isValidationFormat

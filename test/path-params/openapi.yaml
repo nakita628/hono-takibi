@@ -1,0 +1,900 @@
+# Every parameter shape the generator supports, as a path parameter: one route each, so a
+# shape that rejects its own value fails on its own. Path values are always single and
+# always required, which is the axis `query-params` cannot cover.
+#
+# `format: binary` is deliberately absent: it emits `z.file()`, which a URL cannot carry.
+#
+# The `tx*` routes are the second axis: the `x-toLowerCase` / `x-toUpperCase` /
+# `x-normalize` extensions, alone and paired with a validation format — the pairing takes a
+# `.pipe()` branch so the transform runs before the format's own check.
+openapi: 3.1.0
+info:
+  title: Path Parameter Matrix
+  version: 0.0.0
+paths:
+  /integer/{value}:
+    get:
+      operationId: integerParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /int32/{value}:
+    get:
+      operationId: int32Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: int32 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /int64/{value}:
+    get:
+      operationId: int64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /bigint/{value}:
+    get:
+      operationId: bigintParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: bigint } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /number/{value}:
+    get:
+      operationId: numberParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /float/{value}:
+    get:
+      operationId: floatParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, format: float } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /float32/{value}:
+    get:
+      operationId: float32Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, format: float32 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /float64/{value}:
+    get:
+      operationId: float64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, format: float64 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /double/{value}:
+    get:
+      operationId: doubleParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, format: double } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /numpassword/{value}:
+    get:
+      operationId: numpasswordParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, format: password } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /boolean/{value}:
+    get:
+      operationId: booleanParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: boolean } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /string/{value}:
+    get:
+      operationId: stringParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /email/{value}:
+    get:
+      operationId: emailParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: email } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uuid/{value}:
+    get:
+      operationId: uuidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uuidv4/{value}:
+    get:
+      operationId: uuidv4Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: uuidv4 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uuidv7/{value}:
+    get:
+      operationId: uuidv7Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: uuidv7 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /url/{value}:
+    get:
+      operationId: urlParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: url } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uri/{value}:
+    get:
+      operationId: uriParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: uri } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /httpurl/{value}:
+    get:
+      operationId: httpurlParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: httpUrl } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /hostname/{value}:
+    get:
+      operationId: hostnameParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: hostname } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /hex/{value}:
+    get:
+      operationId: hexParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: hex } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /emoji/{value}:
+    get:
+      operationId: emojiParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: emoji } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /base64/{value}:
+    get:
+      operationId: base64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: base64 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /base64url/{value}:
+    get:
+      operationId: base64urlParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: base64url } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /nanoid/{value}:
+    get:
+      operationId: nanoidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: nanoid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /cuid2/{value}:
+    get:
+      operationId: cuid2Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: cuid2 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /ulid/{value}:
+    get:
+      operationId: ulidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: ulid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /ipv4/{value}:
+    get:
+      operationId: ipv4Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: ipv4 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /ipv6/{value}:
+    get:
+      operationId: ipv6Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: ipv6 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /cidrv4/{value}:
+    get:
+      operationId: cidrv4Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: cidrv4 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /cidrv6/{value}:
+    get:
+      operationId: cidrv6Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: cidrv6 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /date/{value}:
+    get:
+      operationId: dateParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /time/{value}:
+    get:
+      operationId: timeParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: time } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /datetime/{value}:
+    get:
+      operationId: datetimeParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: date-time } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /duration/{value}:
+    get:
+      operationId: durationParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: duration } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /byte/{value}:
+    get:
+      operationId: byteParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: byte } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /strpassword/{value}:
+    get:
+      operationId: strpasswordParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: password } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /mac/{value}:
+    get:
+      operationId: macParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: mac } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /e164/{value}:
+    get:
+      operationId: e164Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: e164 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /creditcard/{value}:
+    get:
+      operationId: creditcardParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: creditCard } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /iban/{value}:
+    get:
+      operationId: ibanParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: iban } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /currencycode/{value}:
+    get:
+      operationId: currencycodeParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: currencyCode } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /ksuid/{value}:
+    get:
+      operationId: ksuidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: ksuid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /xid/{value}:
+    get:
+      operationId: xidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: xid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /guid/{value}:
+    get:
+      operationId: guidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: guid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /trim/{value}:
+    get:
+      operationId: trimParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: trim } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /txlower/{value}:
+    get:
+      operationId: txlowerParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, x-toLowerCase: true } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /txupper/{value}:
+    get:
+      operationId: txupperParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, x-toUpperCase: true } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /txnormalize/{value}:
+    get:
+      operationId: txnormalizeParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, x-normalize: NFKC } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /txemail/{value}:
+    get:
+      operationId: txemailParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: string, format: email, x-toLowerCase: true },
+          }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uint32/{value}:
+    get:
+      operationId: uint32Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint32 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uint64/{value}:
+    get:
+      operationId: uint64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint64 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  # A numeric or boolean `enum` / `const` names a typed value; the segment is text.
+  /ienum/{value}:
+    get:
+      operationId: ienumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, enum: [1, 2] } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /benum/{value}:
+    get:
+      operationId: benumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: boolean, enum: [true] } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /iconst/{value}:
+    get:
+      operationId: iconstParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, const: 7 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
