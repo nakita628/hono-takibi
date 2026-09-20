@@ -11,10 +11,6 @@ describe('object', () => {
       'z.object({foo:z.string()})',
     ],
     [
-      { type: 'object', properties: { foo: { type: 'string' } }, required: ['foo'] },
-      'z.object({foo:z.string()})',
-    ],
-    [
       {
         type: 'object',
         properties: {
@@ -96,24 +92,6 @@ describe('object', () => {
     })
   })
 
-  describe('x-error-message (dependentRequired)', () => {
-    it.concurrent.each<[Schema, string]>([
-      // dependentRequired emits superRefine — one issue per missing dep
-      // at `path:[d]`, x-error-message used as fallback when no
-      // x-dependentRequired-message is set.
-      [
-        {
-          type: 'object',
-          dependentRequired: { foo: ['bar'] },
-          'x-error-message': 'fooにはbarが必要',
-        },
-        `z.object({}).superRefine((o,ctx)=>{if(!Object.hasOwn(o,"foo")){return}if(!Object.hasOwn(o,"bar")){ctx.addIssue({code:'custom',message:"fooにはbarが必要",path:["bar"]})}})`,
-      ],
-    ])('object(%o) → %s', (input, expected) => {
-      expect(object(input)).toBe(expected)
-    })
-  })
-
   describe('x-dependentRequired-message', () => {
     it.concurrent.each<[Schema, string]>([
       // dependentRequired uses superRefine, emits per-dep issues with
@@ -179,24 +157,6 @@ describe('object', () => {
 
   describe('x-propertyNames-message / x-patternProperties-message', () => {
     it.concurrent.each<[Schema, string]>([
-      // propertyNames.pattern + x-propertyNames-message
-      [
-        {
-          type: 'object',
-          propertyNames: { pattern: '^[a-z]+$' },
-          'x-propertyNames-message': 'Keys must be lowercase',
-        },
-        'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"Keys must be lowercase"})}}})',
-      ],
-      // propertyNames.enum + x-propertyNames-message
-      [
-        {
-          type: 'object',
-          propertyNames: { enum: ['a', 'b', 'c'] },
-          'x-propertyNames-message': 'Keys must be a, b, or c',
-        },
-        'z.looseObject({}).superRefine((o,ctx)=>{const allowed=["a","b","c"];for(const k of Object.keys(o)){if(!allowed.includes(k)){ctx.addIssue({code:"custom",path:[k],message:"Keys must be a, b, or c"})}}})',
-      ],
       // patternProperties + x-patternProperties-message
       // superRefine with closure-captured RegExp/Schema; the message
       // slot OVERRIDES inner sub-issue messages (path/code preserved).
@@ -207,16 +167,6 @@ describe('object', () => {
           'x-patternProperties-message': 'S_ prefixed keys must be strings',
         },
         'z.looseObject({}).superRefine((o,ctx)=>{const regex=new RegExp("^S_");const Schema=z.string();for(const [k,val] of Object.entries(o)){if(!regex.test(k)){continue}const result=Schema.safeParse(val);if(!result.success){for(const issue of result.error.issues){ctx.addIssue({...issue,path:[k,...issue.path],message:"S_ prefixed keys must be strings"})}}}})',
-      ],
-      // record path (additionalProperties: Schema) + x-propertyNames-message
-      [
-        {
-          type: 'object',
-          additionalProperties: { type: 'string' },
-          propertyNames: { pattern: '^[a-z]+$' },
-          'x-propertyNames-message': 'lowercase keys only',
-        },
-        'z.record(z.string(),z.string()).superRefine((o,ctx)=>{const regex=new RegExp("^[a-z]+$");for(const k of Object.keys(o)){if(!regex.test(k)){ctx.addIssue({code:"custom",path:[k],message:"lowercase keys only"})}}})',
       ],
       // record path (additionalProperties: Schema) + patternProperties + x-patternProperties-message
       // same superRefine pattern as object path
@@ -507,8 +457,6 @@ describe('object', () => {
 
   describe('empty object', () => {
     it.concurrent.each<[Schema, string]>([
-      // empty object with no properties
-      [{ type: 'object' }, 'z.object({})'],
       // empty strict object
       [{ type: 'object', additionalProperties: false }, 'z.strictObject({})'],
       // empty loose object

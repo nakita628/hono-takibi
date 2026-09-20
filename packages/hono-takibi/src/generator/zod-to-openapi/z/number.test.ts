@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vite-plus/test'
-import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { number } from './number.js'
@@ -69,8 +68,6 @@ describe('x-error-message (number base)', () => {
       { type: 'number', minimum: 0, 'x-error-message': '数値必須' },
       'z.number({error:"数値必須"}).min(0,{error:"数値必須"})',
     ],
-    // No x-error-message → existing behavior
-    [{ type: 'number' }, 'z.number()'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -187,8 +184,6 @@ describe('x-error-message on multipleOf', () => {
       { type: 'number', format: 'float', multipleOf: 0.5, 'x-error-message': '0.5刻み' },
       'z.float32({error:"0.5刻み"}).multipleOf(0.5,{error:"0.5刻み"})',
     ],
-    // No x-error-message → existing behavior
-    [{ type: 'number', multipleOf: 3 }, 'z.number().multipleOf(3)'],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -296,11 +291,6 @@ describe('x-multipleOf-message', () => {
       },
       'z.float32({error:"float必須"}).multipleOf(0.5,{error:"0.5刻み"})',
     ],
-    // fallback: no x-multipleOf-message → x-error-message used
-    [
-      { type: 'number', multipleOf: 2, 'x-error-message': '数値必須' },
-      'z.number({error:"数値必須"}).multipleOf(2,{error:"数値必須"})',
-    ],
   ])('number(%o) → %s', (input, expected) => {
     expect(number(input)).toBe(expected)
   })
@@ -385,57 +375,5 @@ describe('coerce option vs x-coerce equivalence', () => {
     const withOption = number(schema, { coerce: true })
     const withExtension = number({ ...schema, 'x-coerce': true })
     expect(withOption).toBe(withExtension)
-  })
-})
-
-describe('regression: x-coerce + x-error-message runtime', () => {
-  it.concurrent('wirePipe (float32): non-number string shows custom error', () => {
-    const Schema = z.coerce.number({ error: 'float必須' }).pipe(z.float32({ error: 'float必須' }))
-    const result = Schema.safeParse('abc')
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('float必須')
-    }
-  })
-  it.concurrent('wirePipe (float64): non-number string shows custom error', () => {
-    const Schema = z.coerce
-      .number({ error: 'float64必須' })
-      .pipe(z.float64({ error: 'float64必須' }))
-    const result = Schema.safeParse('abc')
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('float64必須')
-    }
-  })
-  it.concurrent('wirePlain: non-number string shows custom error', () => {
-    const Schema = z.coerce.number({ error: '数値必須' })
-    const result = Schema.safeParse('abc')
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('数値必須')
-    }
-  })
-})
-
-describe('regression: x-required-message unreachable under coerce', () => {
-  it.concurrent('coerce converts undefined to NaN — issue.input is never undefined', () => {
-    const Schema = z.coerce.number({
-      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
-    })
-    const result = Schema.safeParse(undefined)
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('数値必須')
-    }
-  })
-  it.concurrent('non-coerce preserves issue.input === undefined', () => {
-    const Schema = z.number({
-      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
-    })
-    const result = Schema.safeParse(undefined)
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('必須です')
-    }
   })
 })

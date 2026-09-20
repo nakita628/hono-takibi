@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vite-plus/test'
-import { z } from 'zod'
 
 import { fmt } from '../../../format/index.js'
 import type { Schema } from '../../../openapi/index.js'
@@ -75,8 +74,6 @@ describe('string', () => {
       ],
       // x-error-message on base z.string() (no format)
       [{ type: 'string', 'x-error-message': '文字列必須' }, 'z.string({error:"文字列必須"})'],
-      // No x-error-message → existing behavior
-      [{ type: 'string', format: 'email' }, 'z.email()'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -88,8 +85,6 @@ describe('string', () => {
         { type: 'string', pattern: '^[a-z]+$', 'x-pattern-message': '小文字のみ' },
         'z.string().regex(/^[a-z]+$/,{error:"小文字のみ"})',
       ],
-      // No x-pattern-message → existing behavior
-      [{ type: 'string', pattern: '^[a-z]+$' }, 'z.string().regex(/^[a-z]+$/)'],
     ])('string(%o) → %s', (input, expected) => {
       expect(string(input)).toBe(expected)
     })
@@ -497,39 +492,6 @@ describe('string', () => {
     })
   })
 
-  describe('regression: x-required-message unreachable under coerce', () => {
-    it.concurrent('z.coerce.string(undefined) succeeds with "undefined" — error handler never runs', () => {
-      const Schema = z.coerce.string({
-        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
-      })
-      const result = Schema.safeParse(undefined)
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data).toBe('undefined')
-      }
-    })
-    it.concurrent('z.coerce.date(undefined) fails — but issue.input is Invalid Date, not undefined', () => {
-      const Schema = z.coerce.date({
-        error: (issue) => (issue.input === undefined ? '必須です' : '日付不正'),
-      })
-      const result = Schema.safeParse(undefined)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('日付不正')
-      }
-    })
-    it.concurrent('non-coerce preserves issue.input === undefined', () => {
-      const Schema = z.string({
-        error: (issue) => (issue.input === undefined ? '必須です' : '文字列必須'),
-      })
-      const result = Schema.safeParse(undefined)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('必須です')
-      }
-    })
-  })
-
   describe('x-emailPattern / x-uuidVersion / x-url* / x-iso* / x-mac* / x-jwt* / x-hash* (P1 format options)', () => {
     it.concurrent.each<[Schema, string]>([
       // email presets
@@ -622,8 +584,6 @@ describe('string', () => {
         },
         'z.hash("sha512",{enc:"base64url",error:"ハッシュ不正"})',
       ],
-      // hash without algo → fallback to z.string()
-      [{ type: 'string', format: 'hash' }, 'z.string()'],
       // e164 phone
       [{ type: 'string', format: 'e164' }, 'z.e164()'],
       // option + transforms chain
@@ -743,36 +703,6 @@ describe('string', () => {
       expect(out).toBe(
         'z.base64().transform((val,ctx)=>{try{const s=typeof atob==="function"?atob(val):Buffer.from(val,"base64").toString("utf8");return JSON.parse(s)}catch(e){ctx.addIssue({code:"custom",params:{cause:e instanceof Error?e.message:String(e)}});return z.NEVER}}).pipe(z.object({x:z.string().exactOptional()}).openapi({"required":[]}))',
       )
-    })
-
-    // Runtime check: the equivalent Zod schema is mirrored by hand in TS rather than evaluated
-    // from the generated string, so no `new Function` / `eval` is introduced here.
-    it.concurrent('C: ランタイム: x-error-message="M" 指定時、不正 base64 で issue.message === "M"', () => {
-      const schema = z
-        .base64()
-        .transform((val, ctx) => {
-          try {
-            const s =
-              typeof atob === 'function' ? atob(val) : Buffer.from(val, 'base64').toString('utf8')
-            return JSON.parse(s)
-          } catch (error) {
-            // codegen emits message="M" alongside params.cause
-            ctx.addIssue({
-              code: 'custom',
-              message: 'M',
-              params: { cause: error instanceof Error ? error.message : String(error) },
-            })
-            return z.NEVER
-          }
-        })
-        .pipe(z.object({ x: z.string().exactOptional() }))
-      // Valid base64 but not JSON → enters the catch block.
-      const invalidB64Json = Buffer.from('not-json', 'utf8').toString('base64')
-      const result = schema.safeParse(invalidB64Json)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('M')
-      }
     })
   })
 

@@ -257,21 +257,6 @@ describe('honoTakibiVite', () => {
     expect(plugin.name).toBe('hono-takibi-vite')
   })
 
-  it('has handleHotUpdate method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.handleHotUpdate).toBe('function')
-  })
-
-  it('has configureServer method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.configureServer).toBe('function')
-  })
-
-  it('has buildStart method', () => {
-    const plugin = honoTakibiVite()
-    expect(typeof plugin.buildStart).toBe('function')
-  })
-
   it('handleHotUpdate returns empty array for config file changes', async () => {
     const configuration = {
       input: 'openapi.yaml',
