@@ -41,7 +41,7 @@ import type { OpenAPI } from '../openapi/index.js'
  * at the call site: the array below is a union of differently-typed entries, and
  * `Effect.all` over that union would lose the `FileSystem` the caller has to provide.
  */
-export type Job = {
+type Job = {
   readonly name: string
   readonly output: string
   readonly split: boolean
@@ -57,7 +57,13 @@ export type Job = {
 // Built once and reused, the way `config` builds its own decoder: the schema is the
 // same for every job, and there is one call per job.
 const decodeTypeScriptPath = Schema.decodeUnknownEffect(
-  Schema.String.pipe(Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts'])))),
+  Schema.String.pipe(
+    Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts']))),
+  ).annotate({
+    title: 'Generator output file',
+    description: 'The `.ts` path a TypeScript generator writes to.',
+    examples: ['./src/routes.ts', './src/schemas/index.ts'],
+  }),
 )
 
 /**

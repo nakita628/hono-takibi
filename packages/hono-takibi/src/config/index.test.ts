@@ -443,7 +443,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: routes.output: split mode requires directory, not .ts file',
+        'Invalid config: routes: split mode requires directory, not .ts file',
       )
     })
 
@@ -455,7 +455,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: rpc.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/rpc.ts') and delete the directory the previous run wrote.",
+        'Invalid config: rpc.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1268,7 +1268,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: swr.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/swr.ts') and delete the directory the previous run wrote.",
+        'Invalid config: swr.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1290,7 +1290,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: tanstack-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/tanstack-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: tanstack-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1312,7 +1312,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: svelte-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/svelte-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: svelte-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1334,7 +1334,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: vue-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/vue-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: vue-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1356,7 +1356,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: preact-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/preact-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: preact-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1378,7 +1378,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: solid-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/solid-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: solid-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
 
@@ -1400,7 +1400,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        "Invalid config: angular-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. './src/angular-query.ts') and delete the directory the previous run wrote.",
+        'Invalid config: angular-query.split: split was removed: rpc and hooks are always generated into a single file. Set output to a .ts file path and delete the directory the previous run wrote.',
       )
     })
   })
@@ -1448,7 +1448,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.schemas.output: split mode requires directory, not .ts file',
+        'Invalid config: components.schemas: split mode requires directory, not .ts file',
       )
     })
 
@@ -1460,7 +1460,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.securitySchemes.output: split mode requires directory, not .ts file',
+        'Invalid config: components.securitySchemes: split mode requires directory, not .ts file',
       )
     })
 
@@ -1472,7 +1472,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.requestBodies.output: split mode requires directory, not .ts file',
+        'Invalid config: components.requestBodies: split mode requires directory, not .ts file',
       )
     })
 
@@ -1484,7 +1484,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.responses.output: split mode requires directory, not .ts file',
+        'Invalid config: components.responses: split mode requires directory, not .ts file',
       )
     })
 
@@ -1496,7 +1496,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.examples.output: split mode requires directory, not .ts file',
+        'Invalid config: components.examples: split mode requires directory, not .ts file',
       )
     })
 
@@ -1508,7 +1508,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.links.output: split mode requires directory, not .ts file',
+        'Invalid config: components.links: split mode requires directory, not .ts file',
       )
     })
 
@@ -1520,7 +1520,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.callbacks.output: split mode requires directory, not .ts file',
+        'Invalid config: components.callbacks: split mode requires directory, not .ts file',
       )
     })
 
@@ -1532,7 +1532,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.pathItems.output: split mode requires directory, not .ts file',
+        'Invalid config: components.pathItems: split mode requires directory, not .ts file',
       )
     })
 
@@ -1544,7 +1544,7 @@ describe('parseConfig()', () => {
         }),
       )
       expect(result.message).toBe(
-        'Invalid config: components.mediaTypes.output: split mode requires directory, not .ts file',
+        'Invalid config: components.mediaTypes: split mode requires directory, not .ts file',
       )
     })
   })

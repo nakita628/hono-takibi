@@ -750,7 +750,6 @@ function makeSWRHeader(
       )
     }
   } else if (hasMutation) {
-    // Mutation needs Key type from 'swr'
     lines.push("import type{Key}from'swr'")
   }
   if (hasMutation) {

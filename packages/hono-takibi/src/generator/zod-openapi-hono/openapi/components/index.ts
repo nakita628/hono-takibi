@@ -16,45 +16,56 @@ export function componentsCode(
   components: Components,
   options: {
     readonly readonly?: boolean
-    readonly exportSchemas: boolean
-    readonly exportSchemasTypes: boolean
-    readonly exportResponses: boolean
-    readonly exportParameters: boolean
-    readonly exportParametersTypes: boolean
-    readonly exportExamples: boolean
-    readonly exportRequestBodies: boolean
-    readonly exportHeaders: boolean
-    readonly exportHeadersTypes: boolean
-    readonly exportSecuritySchemes: boolean
-    readonly exportLinks: boolean
-    readonly exportCallbacks: boolean
-    readonly exportPathItems: boolean
-    readonly exportMediaTypes: boolean
-    readonly exportMediaTypesTypes: boolean
+    readonly exportSchemas?: boolean
+    readonly exportSchemasTypes?: boolean
+    readonly exportResponses?: boolean
+    readonly exportParameters?: boolean
+    readonly exportParametersTypes?: boolean
+    readonly exportExamples?: boolean
+    readonly exportRequestBodies?: boolean
+    readonly exportHeaders?: boolean
+    readonly exportHeadersTypes?: boolean
+    readonly exportSecuritySchemes?: boolean
+    readonly exportLinks?: boolean
+    readonly exportCallbacks?: boolean
+    readonly exportPathItems?: boolean
+    readonly exportMediaTypes?: boolean
+    readonly exportMediaTypesTypes?: boolean
   },
 ) {
+  // An absent flag is an off flag — the same thing `config`'s schema decodes a missing
+  // field to, and what a caller that passes no options at all is asking for. Said here
+  // so the sections below keep taking a plain boolean.
+  const {
+    readonly,
+    exportSchemas = false,
+    exportSchemasTypes = false,
+    exportResponses = false,
+    exportParameters = false,
+    exportParametersTypes = false,
+    exportExamples = false,
+    exportRequestBodies = false,
+    exportHeaders = false,
+    exportHeadersTypes = false,
+    exportSecuritySchemes = false,
+    exportLinks = false,
+    exportCallbacks = false,
+    exportPathItems = false,
+    exportMediaTypes = false,
+    exportMediaTypesTypes = false,
+  } = options
   const code = [
-    schemasCode(components, options.exportSchemas, options.exportSchemasTypes, options.readonly),
-    responsesCode(components, options.exportResponses, options.readonly),
-    parametersCode(
-      components,
-      options.exportParameters,
-      options.exportParametersTypes,
-      options.readonly,
-    ),
-    examplesCode(components, options.exportExamples, options.readonly),
-    requestBodiesCode(components, options.exportRequestBodies, options.readonly),
-    headersCode(components, options.exportHeaders, options.exportHeadersTypes, options.readonly),
-    securitySchemesCode(components, options.exportSecuritySchemes, options.readonly),
-    linksCode(components, options.exportLinks, options.readonly),
-    callbacksCode(components, options.exportCallbacks, options.readonly),
-    pathItemsCode(components, options.exportPathItems, options.readonly),
-    mediaTypesCode(
-      components,
-      options.exportMediaTypes,
-      options.exportMediaTypesTypes,
-      options.readonly,
-    ),
+    schemasCode(components, exportSchemas, exportSchemasTypes, readonly),
+    responsesCode(components, exportResponses, readonly),
+    parametersCode(components, exportParameters, exportParametersTypes, readonly),
+    examplesCode(components, exportExamples, readonly),
+    requestBodiesCode(components, exportRequestBodies, readonly),
+    headersCode(components, exportHeaders, exportHeadersTypes, readonly),
+    securitySchemesCode(components, exportSecuritySchemes, readonly),
+    linksCode(components, exportLinks, readonly),
+    callbacksCode(components, exportCallbacks, readonly),
+    pathItemsCode(components, exportPathItems, readonly),
+    mediaTypesCode(components, exportMediaTypes, exportMediaTypesTypes, readonly),
   ]
     .filter(Boolean)
     .join('\n\n')

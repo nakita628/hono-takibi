@@ -525,7 +525,6 @@ export type Schema = {
   readonly 'x-then-message'?: string // failed `then` branch (overrides x-if-message for then)
   readonly 'x-else-message'?: string // failed `else` branch (overrides x-if-message for else)
   readonly $comment?: string
-  // array contains validation (JSON Schema standard)
   readonly contains?: Schema
   readonly minContains?: number
   readonly maxContains?: number
@@ -539,7 +538,6 @@ export type Schema = {
   readonly contentMediaType?: string
   readonly contentSchema?: Schema
   readonly dependentSchemas?: { readonly [k: string]: Schema }
-  // if / then / else (JSON Schema standard conditional)
   readonly if?: Schema
   readonly then?: Schema
   readonly else?: Schema

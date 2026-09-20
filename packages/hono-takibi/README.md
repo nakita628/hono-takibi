@@ -50,7 +50,7 @@ npx hono-takibi
 
 ```
 DESCRIPTION
-  Generate @hono/zod-openapi code from OpenAPI or TypeSpec
+  Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
 
 USAGE
   hono-takibi [flags] [<input>]
