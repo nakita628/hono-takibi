@@ -11,6 +11,8 @@ const SHAPES: readonly (readonly [string, string, string])[] = [
   ['int32', '42', 'number'],
   ['int64', '9007199254740993', 'bigint'],
   ['bigint', '9007199254740993', 'bigint'],
+  ['uint32', '4294967295', 'number'],
+  ['uint64', '18446744073709551615', 'bigint'],
   ['number', '1.5', 'number'],
   ['float', '1.5', 'number'],
   ['float32', '1.5', 'number'],
@@ -130,5 +132,34 @@ describe('transform extensions', () => {
     const res = await queryParamsApp.request(query())
     expect(res.status).toBe(200)
     expect((await res.json()) as Record<string, unknown>).toMatchObject({ [name]: arrived })
+  })
+})
+
+// `uint32` and `uint64` are the unsigned halves of the pair: they have to reject a
+// negative, and `uint64` has to carry its full range, whose maximum is past what a
+// double can hold — the two things a plain integer schema gets wrong in both directions.
+describe('unsigned integer bounds', () => {
+  const BOUNDS: readonly (readonly [string, string, 'accept' | 'reject'])[] = [
+    ['uint32', '0', 'accept'],
+    ['uint32', '4294967295', 'accept'],
+    ['uint32', '4294967296', 'reject'],
+    ['uint32', '-1', 'reject'],
+    ['uint32', '1.5', 'reject'],
+    ['uint64', '0', 'accept'],
+    ['uint64', '18446744073709551615', 'accept'],
+    ['uint64', '18446744073709551616', 'reject'],
+    ['uint64', '-1', 'reject'],
+    ['uint64', '1.5', 'reject'],
+  ]
+
+  it.concurrent.each(BOUNDS)('%s=%s is %sed', async (name, value, outcome) => {
+    const res = await queryParamsApp.request(query({ [name]: value }))
+    expect(res.status).toBe(outcome === 'accept' ? 200 : 422)
+  })
+
+  it('uint64 keeps its maximum verbatim', async () => {
+    const res = await queryParamsApp.request(query({ uint64: '18446744073709551615' }))
+    expect(res.status).toBe(200)
+    expect((await res.json()) as { uint64: string }).toMatchObject({ uint64: 'bigint' })
   })
 })

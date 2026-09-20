@@ -53,6 +53,8 @@ export const headerParamsApp = new OpenAPIHono({
     e164: typeof h['x-e164'],
     guid: typeof h['x-guid'],
     trim: typeof h['x-trim'],
+    uint32: typeof h['x-uint32'],
+    uint64: typeof h['x-uint64'],
     int64Value: String(h['x-int64']),
     idsTypes: (h['x-ids'] ?? []).map((value) => typeof value),
   })

@@ -53,14 +53,14 @@ export function parametersCode(
             : isStringWire && (schema?.type === 'object' || schema?.type === 'array')
               ? baseSchema
                   .replaceAll(
-                    /z\.((?:int|float)\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
+                    /z\.((?:u?int|float)\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
                     (_: string, type: string, constraints: string) =>
                       type === 'int'
                         ? `z.coerce.number().int()${constraints}`
                         : // `z.int64()` is a bigint schema, so a number piped into it is
                           // rejected outright — the wire value has to become a bigint first.
-                          type === 'int64'
-                          ? `z.coerce.bigint().pipe(z.int64()${constraints})`
+                          type === 'int64' || type === 'uint64'
+                          ? `z.coerce.bigint().pipe(z.${type}()${constraints})`
                           : `z.coerce.number().pipe(z.${type}()${constraints})`,
                   )
                   .replaceAll('z.bigint()', 'z.coerce.bigint()')

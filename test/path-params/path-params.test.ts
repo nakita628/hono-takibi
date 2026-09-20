@@ -10,6 +10,8 @@ const SHAPES: readonly (readonly [string, string, string])[] = [
   ['int32', '42', 'number'],
   ['int64', '9007199254740993', 'bigint'],
   ['bigint', '9007199254740993', 'bigint'],
+  ['uint32', '4294967295', 'number'],
+  ['uint64', '18446744073709551615', 'bigint'],
   ['number', '1.5', 'number'],
   ['float', '1.5', 'number'],
   ['float32', '1.5', 'number'],

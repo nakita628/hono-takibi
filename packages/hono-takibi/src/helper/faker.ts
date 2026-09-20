@@ -35,6 +35,8 @@ const FORMAT_TO_FAKER: { [k: string]: string } = {
   byte: 'btoa(faker.string.alphanumeric(10))',
   int32: 'faker.number.int({ min: -2147483648, max: 2147483647 })',
   int64: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
+  uint32: 'faker.number.int({ min: 0, max: 4294967295 })',
+  uint64: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
   bigint: 'faker.number.bigInt({ min: 0n, max: 9007199254740991n })',
   float: 'faker.number.float({ min: 0, max: 1000, fractionDigits: 2 })',
   double: 'faker.number.float({ min: 0, max: 1000000, fractionDigits: 4 })',
@@ -210,7 +212,8 @@ function exampleLiteral(schema: Schema) {
   }
   if (typeof example === 'number') {
     const isBigint =
-      types.includes('integer') && (schema.format === 'int64' || schema.format === 'bigint')
+      types.includes('integer') &&
+      (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
     if (isBigint) return Number.isInteger(example) ? `${BigInt(example)}n` : undefined
     if (!(isAccepted('number') || isAccepted('integer'))) return undefined
     if (!(isAccepted('number') || Number.isInteger(example))) return undefined
@@ -273,7 +276,10 @@ function numericFaker(
   schema: Schema,
   range: { readonly min?: number; readonly max?: number; readonly multipleOf?: number },
 ) {
-  if (schema.type === 'integer' && (schema.format === 'int64' || schema.format === 'bigint')) {
+  if (
+    schema.type === 'integer' &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
+  ) {
     return `faker.number.bigInt({ min: ${range.min ?? 0}n, max: ${range.max ?? 9_007_199_254_740_991}n })`
   }
   if (schema.type === 'integer') {

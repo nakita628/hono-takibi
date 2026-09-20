@@ -52,6 +52,8 @@ export const cookieParamsApp = new OpenAPIHono({
     e164: typeof cookies.e164,
     guid: typeof cookies.guid,
     trim: typeof cookies.trim,
+    uint32: typeof cookies.uint32,
+    uint64: typeof cookies.uint64,
     int64Value: String(cookies.int64),
     idsTypes: (cookies.ids ?? []).map((value) => typeof value),
   })

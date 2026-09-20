@@ -737,3 +737,35 @@ paths:
                 properties:
                   valueType: { type: string }
                   valueText: { type: string }
+  /uint32/{value}:
+    get:
+      operationId: uint32Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint32 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /uint64/{value}:
+    get:
+      operationId: uint64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint64 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }

@@ -16,8 +16,10 @@ export function integer(schema: Schema, options?: { coerce?: boolean }) {
   // so issue.input === undefined is unreachable — drop x-required-message.
   const baseErrorArg = baseError(errorMessage, wantsCoerce ? undefined : requiredMessage)
   const isBigint = schema.format === 'bigint'
-  const isInt32 = schema.format === 'int32'
-  const isInt64 = schema.format === 'int64'
+  // `uint32` is a number like `int32`; `uint64` is a bigint like `int64`. Both reject a
+  // negative, which is the half of "unsigned" a plain integer schema cannot express.
+  const isInt32 = schema.format === 'int32' || schema.format === 'uint32'
+  const isInt64 = schema.format === 'int64' || schema.format === 'uint64'
   const bigintBase = wantsCoerce && isBigint
   const bigintPipe = wantsCoerce && isInt64
   const numberPipe = wantsCoerce && isInt32
@@ -25,15 +27,15 @@ export function integer(schema: Schema, options?: { coerce?: boolean }) {
   const base = bigintBase
     ? `z.coerce.bigint(${baseErrorArg})`
     : isInt32
-      ? `z.int32(${baseErrorArg})`
+      ? `z.${schema.format}(${baseErrorArg})`
       : isInt64
-        ? `z.int64(${baseErrorArg})`
+        ? `z.${schema.format}(${baseErrorArg})`
         : isBigint
           ? `z.bigint(${baseErrorArg})`
           : `z.int(${baseErrorArg})`
   const lit = (n: number): string => {
     if (schema.format === 'bigint') return `BigInt(${n})`
-    if (schema.format === 'int64') return `${n}n`
+    if (schema.format === 'int64' || schema.format === 'uint64') return `${n}n`
     return `${n}`
   }
   // Per-keyword precedence (openapi/index.ts): `x-<keyword>-message` >

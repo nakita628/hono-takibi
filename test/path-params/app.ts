@@ -40,6 +40,8 @@ import {
   getTxlowerValueRoute,
   getTxnormalizeValueRoute,
   getTxupperValueRoute,
+  getUint32ValueRoute,
+  getUint64ValueRoute,
   getUlidValueRoute,
   getUriValueRoute,
   getUrlValueRoute,
@@ -236,4 +238,12 @@ export const pathParamsApp = new OpenAPIHono({
   .openapi(getTxemailValueRoute, (c) => {
     const { value } = c.req.valid('param')
     return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getUint32ValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: String(value) })
+  })
+  .openapi(getUint64ValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: String(value) })
   })

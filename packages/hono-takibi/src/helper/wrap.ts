@@ -102,7 +102,7 @@ export function wrap(
       return `${v}`
     }
     if (typeof v === 'number') {
-      if (schema.format === 'int64') {
+      if (schema.format === 'int64' || schema.format === 'uint64') {
         return `${v}n`
       }
       if (schema.format === 'bigint') {

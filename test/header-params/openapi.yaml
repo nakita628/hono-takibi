@@ -91,6 +91,8 @@ paths:
             required: false,
             schema: { type: array, items: { type: integer } },
           }
+        - { name: x-uint32, in: header, required: true, schema: { type: integer, format: uint32 } }
+        - { name: x-uint64, in: header, required: true, schema: { type: integer, format: uint64 } }
       responses:
         '200':
           description: The runtime typeof every header, and the int64 value verbatim.
@@ -139,6 +141,8 @@ paths:
                   - e164
                   - guid
                   - trim
+                  - uint32
+                  - uint64
                   - int64Value
                 properties:
                   integer: { type: string }
@@ -181,5 +185,7 @@ paths:
                   e164: { type: string }
                   guid: { type: string }
                   trim: { type: string }
+                  uint32: { type: string }
+                  uint64: { type: string }
                   int64Value: { type: string }
                   idsTypes: { type: array, items: { type: string } }

@@ -213,7 +213,9 @@ type FormatString =
 
 type FormatNumber =
   | 'int32'
+  | 'uint32'
   | 'int64'
+  | 'uint64'
   | 'bigint'
   | 'float'
   | 'float32'

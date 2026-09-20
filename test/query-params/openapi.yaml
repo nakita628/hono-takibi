@@ -40,6 +40,20 @@ paths:
             schema: { type: array, items: { type: integer, format: int64 } },
           }
         - { name: bigint, in: query, required: true, schema: { type: integer, format: bigint } }
+        - { name: uint32, in: query, required: true, schema: { type: integer, format: uint32 } }
+        - {
+            name: uint32_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, format: uint32 } },
+          }
+        - { name: uint64, in: query, required: true, schema: { type: integer, format: uint64 } }
+        - {
+            name: uint64_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, format: uint64 } },
+          }
         - {
             name: bigint_arr,
             in: query,
@@ -447,6 +461,10 @@ paths:
                   - tx_normalize
                   - tx_email_trim
                   - tx_uuid_trim
+                  - uint32
+                  - uint32_arr
+                  - uint64
+                  - uint64_arr
                   - int64Value
                 properties:
                   integer: { type: string }
@@ -537,4 +555,8 @@ paths:
                   tx_normalize: { type: string }
                   tx_email_trim: { type: string }
                   tx_uuid_trim: { type: string }
+                  uint32: { type: string }
+                  uint32_arr: { type: array, items: { type: string } }
+                  uint64: { type: string }
+                  uint64_arr: { type: array, items: { type: string } }
                   int64Value: { type: string }

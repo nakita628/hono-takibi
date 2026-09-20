@@ -81,6 +81,8 @@ paths:
             required: false,
             schema: { type: array, items: { type: integer } },
           }
+        - { name: uint32, in: cookie, required: true, schema: { type: integer, format: uint32 } }
+        - { name: uint64, in: cookie, required: true, schema: { type: integer, format: uint64 } }
       responses:
         '200':
           description: The runtime typeof every cookie, and the int64 value verbatim.
@@ -128,6 +130,8 @@ paths:
                   - e164
                   - guid
                   - trim
+                  - uint32
+                  - uint64
                   - int64Value
                 properties:
                   integer: { type: string }
@@ -169,5 +173,7 @@ paths:
                   e164: { type: string }
                   guid: { type: string }
                   trim: { type: string }
+                  uint32: { type: string }
+                  uint64: { type: string }
                   int64Value: { type: string }
                   idsTypes: { type: array, items: { type: string } }
