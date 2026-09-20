@@ -52,7 +52,7 @@ importers:
     devDependencies:
       vite-plus:
         specifier: 0.3.3
-        version: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1)
+        version: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1)
 
   apps/nakita628-fizz-buzz:
     dependencies:
@@ -107,7 +107,7 @@ importers:
         version: 4.0.0-rc.116
       oxfmt:
         specifier: ^0.68.0
-        version: 0.68.0(svelte@5.57.0)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1))
+        version: 0.68.0(svelte@5.57.1)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1))
       ts-morph:
         specifier: ^28.0.0
         version: 28.0.0
@@ -147,7 +147,7 @@ importers:
         version: 1.6.3(hono@4.13.8)(zod@4.6.5)
       '@tanstack/angular-query-experimental':
         specifier: ^5.103.1
-        version: 5.103.1(@angular/common@22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.5(rxjs@7.8.2))(csstype@3.2.3)
+        version: 5.103.1(@angular/common@22.1.7(@angular/core@22.1.7(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.7(rxjs@7.8.2))(csstype@3.2.3)
       '@tanstack/preact-query':
         specifier: ^5.103.1
         version: 5.103.1(preact@10.29.8)
@@ -159,7 +159,7 @@ importers:
         version: 5.103.1(solid-js@1.9.15)
       '@tanstack/svelte-query':
         specifier: ^6.2.1
-        version: 6.2.1(svelte@5.57.0)
+        version: 6.2.1(svelte@5.57.1)
       '@tanstack/vue-query':
         specifier: ^5.103.1
         version: 5.103.1(vue@3.5.43(typescript@7.0.2))
@@ -304,18 +304,18 @@ importers:
 
 packages:
 
-  '@angular/common@22.1.5':
-    resolution: {integrity: sha512-KgB+MTDotlTn67YK4sCTNFLja+G+EMCqHo5bB1cvRKw7Gd9AtAi5kgDmYzMk7ftJ9qJ2O30zXR56Hpw37J2CTQ==}
+  '@angular/common@22.1.7':
+    resolution: {integrity: sha512-SLW4AdH2Y8G9SM/iFRNpCQtkmvq55RcIQWsADT9ypZ7FxxcnJRsr4Q/WnbUBbuCslsCkrgzU1i9WDiW0m7gcnw==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0}
     peerDependencies:
-      '@angular/core': 22.1.5
+      '@angular/core': 22.1.7
       rxjs: ^6.5.3 || ^7.4.0
 
-  '@angular/core@22.1.5':
-    resolution: {integrity: sha512-uiL+xVL4264NEuc3E5ILd6meSv9I4Xt82VQHvYlAVYlcjHlWY49yVe0/apzncUOGxUKzvK8/GDbyFEH7WfJYFw==}
+  '@angular/core@22.1.7':
+    resolution: {integrity: sha512-T9bt1PIgoN7n+TxGHTUgu0EsomlGMQ84YMXbMB+N6HhD8C1qZxn0uCbnAtCUjcecg1am8ioKxNTO0eII9ouioQ==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0.0}
     peerDependencies:
-      '@angular/compiler': 22.1.5
+      '@angular/compiler': 22.1.7
       rxjs: ^6.5.3 || ^7.4.0
       zone.js: ~0.15.0 || ~0.16.0
     peerDependenciesMeta:
@@ -945,11 +945,6 @@ packages:
     peerDependencies:
       react: '>=16.8.0 <20.0.0'
 
-  '@fluentui/react-icons@2.0.341':
-    resolution: {integrity: sha512-m4HHq7pRzSw8WlCghLZk1S6wT4hWN7LPCO98dWP3qeReH+8TYaml+lMDW30Ug6Ako6UxLD++7AGDBUQibrI0cQ==}
-    peerDependencies:
-      react: '>=16.8.0 <20.0.0'
-
   '@fluentui/react-image@9.4.4':
     resolution: {integrity: sha512-vjBHrUTuuDVp/IvIiz4bB0iqebU00EJHGJZpF5NlMd+TL7bcMhLU29MrbxQdvlNch78C+XCqoexbjHYoAUET9w==}
     peerDependencies:
@@ -1533,8 +1528,8 @@ packages:
     resolution: {integrity: sha512-WpQM+Ti6Z40EFwwt+uL2p4UabT+W179zHp6HhLVOzfbwnVn05IPO/eXIZXGNqcT1jbQ15SujNLzQ39k4QPPxBQ==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
 
-  '@inquirer/checkbox@5.2.4':
-    resolution: {integrity: sha512-oKT5RNeO9oKYizSyOxKb66IrKUsYVMQD2tnjllYW4wmSOe9WawfL3OE2p82JuvAyo+/nDIEem5P4Bm/ZIVYVew==}
+  '@inquirer/checkbox@5.2.5':
+    resolution: {integrity: sha512-bRt8J8m+Fot9CXv+zNQGXUq2ET0MggR1fPz7v6edN6MFYmsbfGnMmkmWZJEegMKqrAC8ej/o1sqisHZXZJMAfQ==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1542,8 +1537,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/confirm@6.3.1':
-    resolution: {integrity: sha512-HvnOHal39DTenOVoRpIy8Z+n4YYfNa3Qhi/P8zFqn9/d1crpmQG0DPx34rwOeOFvotgKr9Vov/14OmKR/Iwfjw==}
+  '@inquirer/confirm@6.3.2':
+    resolution: {integrity: sha512-Xvr/0HggjddPtGppuqVmxhTw+Hr8PvsZ/k0HmOEaAqQEt80OITNkFWnsdNmyT0/eM4Ab+iJLx2R8rctlEyfSVg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1551,8 +1546,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/core@12.0.2':
-    resolution: {integrity: sha512-9pBhkxE14uUlnHhs8lOt7qVPtS4caRY6CjADl8COejl9Mf7w8i6Uoe3DrljCqYtmYM3Iv2Q6EmPxx/oTYbvTAQ==}
+  '@inquirer/core@12.0.3':
+    resolution: {integrity: sha512-wsSy0sznmXwkty+2PzZwx00Cazc/E0r0B7mAzdGROz2Ct+DFZXaK7WDjGZvgjRldxH5ZhFVfF2lgkYrqgOw2KA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1560,8 +1555,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/editor@5.3.2':
-    resolution: {integrity: sha512-7ruKO5d/wxhGHxdCQ3eyP/aBNrPTZ+Ju7ERtnAwuIsu0RSLs6kotlTRkOxHatbD6sDaEEdwsD82pzFiT9ESIyQ==}
+  '@inquirer/editor@5.3.3':
+    resolution: {integrity: sha512-YsKkS2q63IiLtaDK/9nqzdComN97SDQrmKiyNggN+ceP4ty+Z6VwyTz3FpjeUWeW1Efss2xHFKCC9sx7hnrsxg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1569,8 +1564,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/expand@5.1.4':
-    resolution: {integrity: sha512-12o4aYnjWouoq0fyVhYIL+hwXAaga+kntA/wrijFmVvn2heinkdvkbEXRt1Ob/9IOJ285US5tntjfI/Ukt2YkA==}
+  '@inquirer/expand@5.1.5':
+    resolution: {integrity: sha512-uHuXLmXW+TtIfT/9vSBotypAkqn1n34Ul+CLGPos/xANyO4Ff5xZzkYhbKR4NEcfVK4a9mHQOpwVZzluSHFRGw==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1591,8 +1586,8 @@ packages:
     resolution: {integrity: sha512-EAWgUTGQ/Umgga51dE3B2PUHbufuXarDfg86uVgoSgNHNNQnyFKcOrQLWVqYMghuSyHh8+2HUH0Js9cTC1WAdg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
 
-  '@inquirer/input@5.1.5':
-    resolution: {integrity: sha512-2MkYYFD1Owt1eRBwHhsLSutysRodWasA4DVpl42KJKGmzwBTXRYAIXujisrt0UW0UohUlMjNjLfMDbw4emRbfw==}
+  '@inquirer/input@5.1.6':
+    resolution: {integrity: sha512-HtcJhB2QFVXbLuJ5S3syhNbTUVxYvwqV4VRBDkQceBloC9bmTViUoRFP5PbSaDZb3HzfPmpuU/gG4ybVBz4FHA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1600,8 +1595,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/number@4.2.2':
-    resolution: {integrity: sha512-tjW1gMIQsFb/9Ie11i8SpuPARBdyCVfC5XOeVugWovrdm8CpjzN+A1CBX5QwCCN2mtNmpgDDCnuLCCT94cQ5zA==}
+  '@inquirer/number@4.2.3':
+    resolution: {integrity: sha512-6Yuwh1NGSbu1Lo4N1EWjXs1jKRntLg/ZCwhmeorEHde90v1XxAozdbd4Iu30eOQLW+6h1hp2O9ujNfLSbTPJnA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1609,8 +1604,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/password@5.2.1':
-    resolution: {integrity: sha512-InA6nJxMCXPavPBiTKYHIsYiWz/mkIsk1rkI6pKp5w18gVawqrZOj7eSzSmPJa3j0pVxXm6RlrFP1BE9YeOixA==}
+  '@inquirer/password@5.2.2':
+    resolution: {integrity: sha512-W9zYdyzogK+6110mqwaSJWCBu2yA5Q/OfnGSjjZB1bNpHlmUozXxTl0+QOZBNeVd6Qo81/qT75gW05gLAtITxw==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1618,8 +1613,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/prompts@8.7.1':
-    resolution: {integrity: sha512-xJIKWyrFNUKj3R5VEub/iKodG9Sh/MbCeApZUbATJgHTw8YoAJ2gOT78HlvO6NMFiRvjm6ySM7aiAew/zVY0Sw==}
+  '@inquirer/prompts@8.7.2':
+    resolution: {integrity: sha512-QoRB4wFIjgH5iOhSjoIKMkTvSHDuV+O3OITlIqAYO0oK5x364GJILXiMBvlPiE+klg7Xx9tq5XVqQHcGUDYYPA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1627,8 +1622,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/rawlist@5.3.4':
-    resolution: {integrity: sha512-c4fDwOpQsjJDHjXdHJE1/xXH6w9/BAiyu3QKzH9Ww5Xm1q37mzyUNa20L7qdtM1ECi4e+oUEKjhK8hR37OMAMQ==}
+  '@inquirer/rawlist@5.3.5':
+    resolution: {integrity: sha512-1oHky1ONfCOwNrnkQGDE1oaSij/3fI6HFMSf2H/WsGO2lEyDX9My82iggITSy9ddSZ8yk8j9v41OI0fVoSIoaA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1636,8 +1631,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/search@4.3.2':
-    resolution: {integrity: sha512-YIaEhWmfkdHEWOKwhF/oJar35FFTTrAdzNbJDo9lSsRT6E/obRPx9oVm4rkTMtlcJSqGYttNtLbcHQef9Qw2yw==}
+  '@inquirer/search@4.3.3':
+    resolution: {integrity: sha512-fyuIU1Nbpvwlikjg3gXwJFDI11+EFjqQ7P+iByfmivIKQ1vmaykNrD/vy5unHuUqUpsOsnvJ25//tPF7E/RBRA==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1645,8 +1640,8 @@ packages:
       '@types/node':
         optional: true
 
-  '@inquirer/select@5.2.4':
-    resolution: {integrity: sha512-L9ubNaJdoBsiom/AfPKq0QLHTkhhCFCtszzdVidGremrlJjPZfGlmvp+IULKIbnYjtVFWnvb4mhiEdNTZ12ugA==}
+  '@inquirer/select@5.2.5':
+    resolution: {integrity: sha512-9kc15hr8r/kI+3DO/xLog5nOzTz1jqsHXa6JBFzmQKhkoJ8Slda1I1L/uD8ZSZ9tF1yp79wwXe7mclvX1rqR2Q==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
     peerDependencies:
       '@types/node': '>=18'
@@ -1708,9 +1703,6 @@ packages:
   '@oxc-project/runtime@0.150.0':
     resolution: {integrity: sha512-vC4tN4n2c+gVq69Oi6CoZxGk/1mYjLiN4hVEYwvtuns/S4QwUBiJYViwLGLxPaLQnsY5FQDgGs+h6moAmSedvA==}
     engines: {node: ^20.19.0 || >=22.12.0}
-
-  '@oxc-project/types@0.148.0':
-    resolution: {integrity: sha512-Nm4s/jB+4FpFsPhWGEC4h7rzksesmtnMXomo6rCMcg/b8zLQuOziRgkCS1fxDCXOlJB/6Q8oABOZ/OP6RIPj9A==}
 
   '@oxc-project/types@0.150.0':
     resolution: {integrity: sha512-rDS5/31E9HfPl/CIzGrn0DOlvBbXFseQ5URJ9sYMfstbKLD/c6Gm9vmRzRGDdAXyOIL4zmO37lc9RIwYqVruZw==}
@@ -2046,98 +2038,98 @@ packages:
     peerDependencies:
       '@redis/client': ^6.2.1
 
-  '@rolldown/binding-android-arm-eabi@1.2.7':
-    resolution: {integrity: sha512-EypzgnYCwyVY4NDHKzGmNJT5b+XaQEBniHxsMdeIQLB/tcCzZnhqrzHpZFbX9iaxx+5RiB8caATBtfvZP7zVxQ==}
+  '@rolldown/binding-android-arm-eabi@1.2.9':
+    resolution: {integrity: sha512-tNISae1QEf/vkb3xkRcjV5SEdzPE97We5IVaa2Z8jSszQPZ8U60B/YCYpw4QI7VidYsBtKavczXf+DyDs9WGxw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [android]
 
-  '@rolldown/binding-android-arm64@1.2.7':
-    resolution: {integrity: sha512-l17HE9EweWaqJZhuUuNBN/FzM62xw+DECVnJyvMsxn8vJFAGLy5QfLDoYAcronkAN8VxKZHezDpulHDPx95vFw==}
+  '@rolldown/binding-android-arm64@1.2.9':
+    resolution: {integrity: sha512-YC8YsI30o606GTZi0VyzYlsDKFP8W61i/QzayHDkLbNEz/IShqAmTa+hsJRj13xTHA0H+6fk4b2UmGn+Q/cMlg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [android]
 
-  '@rolldown/binding-darwin-arm64@1.2.7':
-    resolution: {integrity: sha512-8ED8ELFvHXc6OCETIn4gXObPiaR6bckM/ipXtbzlPVDRMBfEGjCKgO90F9YtfdpDatVx/ZQw7aZ1vUMf/+T3Mw==}
+  '@rolldown/binding-darwin-arm64@1.2.9':
+    resolution: {integrity: sha512-IwhlH3qK5urrY8hZiEgGkHKEFN901p/p2bjxCxJlr4GyNnF7wYpUvK+Y43uaRYuC4hpfjzbR3SJC3arX1jGvmw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [darwin]
 
-  '@rolldown/binding-darwin-x64@1.2.7':
-    resolution: {integrity: sha512-/WPripjtiAIZ2tWY7ddijORT0Ujg87wxWW/qcoFVCKAWVDPhtY0xr7Dj0M3GyNGz60jGwTElhro/mkF9dT7dDQ==}
+  '@rolldown/binding-darwin-x64@1.2.9':
+    resolution: {integrity: sha512-XxpJfVzFh+jilRxIXUqcfYAYcunIc/XEzIizsOL1fcJee5Sf7H3mH8WlLmfHfluz5amqR88QQo9izKtmMlavAw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [darwin]
 
-  '@rolldown/binding-freebsd-x64@1.2.7':
-    resolution: {integrity: sha512-14DI4NcqpvbICxSnGLx3PmtDaWqRP/KGSGb6C+JLLVPeZRl6dKdHba3pGsqT3vpdTqhEYIPG0MMQ8c0xYqoJxA==}
+  '@rolldown/binding-freebsd-x64@1.2.9':
+    resolution: {integrity: sha512-kSfvhmgeWyfkbT3p/1s5vSgboogoah2zkm9fX2zjg2hHxSV7T4KhMWRUUaRk4OXNqoD3QAUeRqLcs1aZOK4U1g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [freebsd]
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.2.7':
-    resolution: {integrity: sha512-bxrWIRvHWQvbJwi+VIie/kDJmQxcNE6xxWwZdqF/ExVAigtHkv54WTLQPb+QsZdnFy18fg7JPfWGL0RH6vwIlQ==}
+  '@rolldown/binding-linux-arm-gnueabihf@1.2.9':
+    resolution: {integrity: sha512-1RVzG17pxqbTfYLC352JlLt6kKLG+6Hr30n8DlIJqsnV5luUDd2Qdx9Ayw1Cabfyb1K9k0jXEZ7evxkRoT+uiw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [linux]
 
-  '@rolldown/binding-linux-arm64-gnu@1.2.7':
-    resolution: {integrity: sha512-toOY2BChBZyuxU7OYX6Tn389di4IzAqPTycVcci0O7FSfBqzRB3RZn+K5Is6ANf4tmgRd/K1yZTsNTXbkXsnLg==}
+  '@rolldown/binding-linux-arm64-gnu@1.2.9':
+    resolution: {integrity: sha512-BXqPvZ2drqVD+/Z8UpKwcs4Mp7grM+eGFku4CAEKrEtcbAsUpzREphK1sogCRZGreVPiMkiiBtw0n3TPteuqvw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-arm64-musl@1.2.7':
-    resolution: {integrity: sha512-lAIXTH/aiLRLxsTgQvfhjo4K1ydWIp00+V0voOr9beb/9ZmkUFrSIb03dXNFRgMNvkE6oGsF10ioQ6UsI+vS5Q==}
+  '@rolldown/binding-linux-arm64-musl@1.2.9':
+    resolution: {integrity: sha512-11vWvo8YDwLzukt27J3aYDWU+gg2P7J+ZOmiJ0hkF5BXZDW7pVya7r40MXDy6ya0i9KamoENSVKIugvJNgFXIA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-linux-ppc64-gnu@1.2.7':
-    resolution: {integrity: sha512-kdnwS28Pkenp/mZMRwjXXXwxQ7pIsm+bF919LUK93BOyhcLsrVKdP2p9fxpiPNPAbNuch8ypQt0pm2P2LYCAGg==}
+  '@rolldown/binding-linux-ppc64-gnu@1.2.9':
+    resolution: {integrity: sha512-a1tijMkdwsIARtc0F39ApURROkf3NwqinI6TOiSSWCTR7dT96dffNvMUtDHnq64wKNTIZOIlzKrFvvFUznJiyw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-s390x-gnu@1.2.7':
-    resolution: {integrity: sha512-516OdsyLdr5E65paF3yBF55t8mfm9+gmtCsK3xI7XKXIT7EfRlHhxL8K/NR6Hu8BWSgF5+1w74lTL0+nxcc8Qw==}
+  '@rolldown/binding-linux-s390x-gnu@1.2.9':
+    resolution: {integrity: sha512-x6SQNdAvv4c3hWqTMaWuawzMX9myaCs/yEmlGsxJzkdClnHW7FbrjQuSiRDhuSYzEYoEMhsaJy9qHG/XNemJPQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-gnu@1.2.7':
-    resolution: {integrity: sha512-r8/z8n7GFaYRln3xmP1Cxy0HH/HLM0uBUPkEuSVEfKGDA89M0FsZRZJRSwe/tJjRx+fpH/gjorfhB8tmEbSFLA==}
+  '@rolldown/binding-linux-x64-gnu@1.2.9':
+    resolution: {integrity: sha512-9s0AZ8BFK5/n7B/TBoa2yJE3gI3KURrbXcPBlsAsvjU4VeJKgE90y1YtNxyEUIcHPQkg6/yfF3qihUrcM/Kf0Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-musl@1.2.7':
-    resolution: {integrity: sha512-pAsE8iiDxUg1xBqdhrTfg45AVDVpirjz00sblEYClGNNcMnDb+e8beQgqIAw6LvauX/APvgxUnwrgun/YYGBhw==}
+  '@rolldown/binding-linux-x64-musl@1.2.9':
+    resolution: {integrity: sha512-P7VWAmV+WdJluH7ovnRGoiv2i8To7GAZ+kGzfGup635cyL7SyYl3lSUaA3Gp5THf0n/Co5EyEqb2zbqq+nMOHQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-openharmony-arm64@1.2.7':
-    resolution: {integrity: sha512-lTcIYmmnQQA8Or/2DatS6oSqcdLHvendjS+zLu+FwgToynWMRSmQdpM65fTANJgIS4mjbMOo5KT2lnT9SAb96w==}
+  '@rolldown/binding-openharmony-arm64@1.2.9':
+    resolution: {integrity: sha512-1qixtsE4BK8h+yS3BfmZ09UhA7O/N4IACva6YBr7EBvCJraByTuRcgOTaiA62Tm0vey3UcKXLOaoGHtYmNGEVg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rolldown/binding-win32-arm64-msvc@1.2.7':
-    resolution: {integrity: sha512-e3Gu3WxbNk/UqQhxqU7YIYO+9ZBvWNz3U+h/qRFosscMFzdRPbXYSaSWgSnklv2fz1TgzBTcti2z35c/7irsHw==}
+  '@rolldown/binding-win32-arm64-msvc@1.2.9':
+    resolution: {integrity: sha512-ok8IQjcEPs1AKZfuEUznVBrJw+gK4soq+bx8b1X2XoMqVClarc1q5JDmVtWXY1xfr6ZuHTAsPXHTgTrqKTZeww==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [win32]
 
-  '@rolldown/binding-win32-x64-msvc@1.2.7':
-    resolution: {integrity: sha512-W/jg5qoRSqjsEv0+dZi4e687mcHqmVuU0P4fK6qS/xjetW2Gmc1W8j//z5nAeNcC8Ttm0hV46IjcYeuVwYhuiw==}
+  '@rolldown/binding-win32-x64-msvc@1.2.9':
+    resolution: {integrity: sha512-Ip2mXoU0hM0boq3Rf+ekuT653OROSo6aSYcPT1VHE4q52KvyxgFkQgrgb/IEsxOuvQ2fZZbs8khJAyCEPM24/g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
@@ -3318,8 +3310,8 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
-  devalue@5.9.2:
-    resolution: {integrity: sha512-po4PAY5c53tw5XMocSnf8A/5OHhbbUftpr93aEN6BBoAdntUmK7vu7wOATqvt7cXO7m1Cl4gMVn6p7n6n4mj0w==}
+  devalue@5.9.4:
+    resolution: {integrity: sha512-sPAT4pztbu6586/hrhOnMKS17IJrvg12mXiSPSS3W5qDeN2RGgvZ0diZCm31dBbnevfVmujNO3IM2wrS4Y2Rhg==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -3390,8 +3382,8 @@ packages:
   esm-env@1.2.2:
     resolution: {integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==}
 
-  esrap@2.3.6:
-    resolution: {integrity: sha512-yc0OC12UjPqLoc+fe+v5GNs4TOjAigUw3sTikfC+xeBPGUw7gDRz3DtYaqEhxyMVJojcSWJw7jT0QWR+CbuE/A==}
+  esrap@2.3.7:
+    resolution: {integrity: sha512-n2nf7fZR3c9yXf0BPEuHuXqT+KW0SJVj4cN5FMEkpCZ3scLjOQWpiccyCxVzCC2q1wubTghuEGzngJY/7Ah0Ow==}
     peerDependencies:
       '@typescript-eslint/types': ^8.2.0
     peerDependenciesMeta:
@@ -3428,8 +3420,8 @@ packages:
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
 
-  fast-uri@3.1.7:
-    resolution: {integrity: sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg==}
+  fast-uri@3.1.8:
+    resolution: {integrity: sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==}
 
   fast-wrap-ansi@0.2.2:
     resolution: {integrity: sha512-7F2Fl+TjRSenLqlU3UjSH0iyqopqoZIu7eZVpEirP2g1GtWa2G/ecEmBdgz31+Mxr+ELclgg6sokpSFIQiZ02Q==}
@@ -3455,8 +3447,8 @@ packages:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
     engines: {node: 6.* || 8.* || >= 10.*}
 
-  get-east-asian-width@1.6.0:
-    resolution: {integrity: sha512-QRbvDIbx6YklUe6RxeTeleMR0yv3cYH6PsPZHcnVn7xv7zO1BHN8r0XETu8n6Ye3Q+ahtSarc3WgtNWmehIBfA==}
+  get-east-asian-width@1.7.0:
+    resolution: {integrity: sha512-XjH1AECxf0giL2V1aU8vKyRR2ppRUb5c0EvT7zuJTokQ74bNo52zOtghqdWIqrhUD79fo3x0WfKZdOqxF6LG1Q==}
     engines: {node: '>=18'}
 
   goober@2.1.19:
@@ -3772,8 +3764,8 @@ packages:
     resolution: {integrity: sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  nanoid@3.3.18:
-    resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
+  nanoid@3.3.19:
+    resolution: {integrity: sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -3951,8 +3943,8 @@ packages:
     resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
     engines: {node: '>=10'}
 
-  rolldown@1.2.7:
-    resolution: {integrity: sha512-g0EtLvBjTUB7jhyV0S/TCup3v/XSVl45vUIGbOGU4QPiyjTenCe4mKuFvW9fEgYmS2Fo42AUssRmNuMziXdrig==}
+  rolldown@1.2.9:
+    resolution: {integrity: sha512-hx/Pv0N1haXRb11qkfnK5MXB/iqr7i0yjWQqmO9uHqZpBgQSqzc8UsSnEpalsh+j1I8qQ2CkXAkJC8Br3dKSlg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -4074,8 +4066,8 @@ packages:
     resolution: {integrity: sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g==}
     engines: {node: '>=18'}
 
-  svelte@5.57.0:
-    resolution: {integrity: sha512-NdbDn7fl4be1ViUG0oq/lvG6OZy3oENolV2ONjiqqsfVoeAfzaQAKUcEX3MrQod/Bebv1PgwET9rfXhgn9s4Kg==}
+  svelte@5.57.1:
+    resolution: {integrity: sha512-Uqj49lWKB+iSSnneuwiYYJ7MZgkB+eXr0LXBhv4uDuAkXqnWmq65Sxflfvp0Lc6MdKjMUxGaeOKWJqz5SNiVIA==}
     engines: {node: '>=18'}
 
   swagger-ui-dist@5.33.0:
@@ -4103,14 +4095,14 @@ packages:
     resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
     engines: {node: '>=18'}
 
-  temporal-polyfill@1.0.4:
-    resolution: {integrity: sha512-MLEU0qOD2uXlz24oINNtdLZQl8RgmMxSnRtKEGZGGetTJjlRwQJjk+VsJ4EREaUoiaTb8NJOcUiKtoAiWn9EBg==}
+  temporal-polyfill@1.0.5:
+    resolution: {integrity: sha512-+H/mmY74i6wXCMcjIhGuSnODcyZnc4eois2myhOyX0UqRAKNXQY5m9iB1en5jQ/n4SXtjLXo1ElBI5bmn8tZwQ==}
 
   temporal-spec@1.0.1:
     resolution: {integrity: sha512-wxVoanmDeavXie1vu2JaQ3WIc3JZnWAOYFBsJyATaVsXsycKYUflGsyBmrRSnoCpZJpwPyr38VpgSUlQ8CbFxg==}
 
-  temporal-utils@1.0.2:
-    resolution: {integrity: sha512-1B8Dl4KzrOvsNUlpoWGno2VLQlxroLjDgc5NBjVC9ax9ymdo+ezfyvhyjEMx+IVfhINr6CIG2gcnlP95iRrybQ==}
+  temporal-utils@1.0.3:
+    resolution: {integrity: sha512-9jbTSX3HvkOWvDpNpFzwX/d1mkCrgQgwLmVTOEiuocZGKHsrQJtttGZFmybJ2zYP5zCSZuU5ZyeS8+eOEPABiQ==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -4448,13 +4440,13 @@ packages:
 
 snapshots:
 
-  '@angular/common@22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@angular/common@22.1.7(@angular/core@22.1.7(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
-      '@angular/core': 22.1.5(rxjs@7.8.2)
+      '@angular/core': 22.1.7(rxjs@7.8.2)
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  '@angular/core@22.1.5(rxjs@7.8.2)':
+  '@angular/core@22.1.7(rxjs@7.8.2)':
     dependencies:
       rxjs: 7.8.2
       tslib: 2.8.1
@@ -4762,7 +4754,7 @@ snapshots:
     dependencies:
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4783,7 +4775,7 @@ snapshots:
     dependencies:
       '@fluentui/react-avatar': 9.11.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-theme': 9.2.2
@@ -4814,7 +4806,7 @@ snapshots:
     dependencies:
       '@fluentui/react-badge': 9.5.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-popover': 9.14.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -4833,7 +4825,7 @@ snapshots:
 
   '@fluentui/react-badge@9.5.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-theme': 9.2.2
@@ -4849,7 +4841,7 @@ snapshots:
     dependencies:
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-link': 9.8.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -4867,7 +4859,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4901,7 +4893,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4923,7 +4915,7 @@ snapshots:
   '@fluentui/react-checkbox@9.6.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-label': 9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -4962,7 +4954,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-portal': 9.8.15(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-positioning': 9.23.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5065,7 +5057,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5119,7 +5111,7 @@ snapshots:
   '@fluentui/react-field@9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-label': 9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -5140,12 +5132,6 @@ snapshots:
       react: 19.3.0
       tslib: 2.8.1
 
-  '@fluentui/react-icons@2.0.341(react@19.3.0)':
-    dependencies:
-      '@griffel/react': 1.7.7(react@19.3.0)
-      react: 19.3.0
-      tslib: 2.8.1
-
   '@fluentui/react-image@9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
@@ -5161,7 +5147,7 @@ snapshots:
 
   '@fluentui/react-infobutton@9.0.0-beta.117(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-label': 9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-popover': 9.14.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
@@ -5179,7 +5165,7 @@ snapshots:
 
   '@fluentui/react-infolabel@9.4.25(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-label': 9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-popover': 9.14.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
@@ -5290,7 +5276,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5312,7 +5298,7 @@ snapshots:
   '@fluentui/react-message-bar@9.7.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-link': 9.8.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5354,7 +5340,7 @@ snapshots:
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-divider': 9.7.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-drawer': 9.13.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5471,7 +5457,7 @@ snapshots:
 
   '@fluentui/react-provider@9.22.20(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5505,7 +5491,7 @@ snapshots:
 
   '@fluentui/react-rating@9.4.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5520,7 +5506,7 @@ snapshots:
 
   '@fluentui/react-search@9.4.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-input': 9.8.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -5538,7 +5524,7 @@ snapshots:
   '@fluentui/react-select@9.5.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-theme': 9.2.2
@@ -5596,7 +5582,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-theme': 9.2.2
@@ -5628,7 +5614,7 @@ snapshots:
     dependencies:
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5646,7 +5632,7 @@ snapshots:
   '@fluentui/react-switch@9.7.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)':
     dependencies:
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-label': 9.4.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -5669,7 +5655,7 @@ snapshots:
       '@fluentui/react-avatar': 9.11.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-checkbox': 9.6.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-radio': 9.6.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -5723,7 +5709,7 @@ snapshots:
       '@fluentui/react-combobox': 9.17.5(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-field': 9.5.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-portal': 9.8.15(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-positioning': 9.23.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5746,7 +5732,7 @@ snapshots:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-avatar': 9.11.6(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-tabster': 9.26.17(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5766,7 +5752,7 @@ snapshots:
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-popover': 9.14.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-shared-contexts': 9.26.3(@types/react@19.3.0)(react@19.3.0)
@@ -5821,7 +5807,7 @@ snapshots:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.9
       '@fluentui/react-aria': 9.17.14(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -5882,7 +5868,7 @@ snapshots:
       '@fluentui/react-button': 9.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-checkbox': 9.6.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
       '@fluentui/react-context-selector': 9.2.19(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(scheduler@0.28.0)
-      '@fluentui/react-icons': 2.0.341(react@19.3.0)
+      '@fluentui/react-icons': 2.0.333(react@19.3.0)
       '@fluentui/react-jsx-runtime': 9.4.5(@types/react@19.3.0)(react@19.3.0)
       '@fluentui/react-motion': 9.16.3(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fluentui/react-motion-components-preview': 0.15.8(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -6091,23 +6077,23 @@ snapshots:
 
   '@inquirer/ansi@2.0.8': {}
 
-  '@inquirer/checkbox@5.2.4(@types/node@26.6.2)':
+  '@inquirer/checkbox@5.2.5(@types/node@26.6.2)':
     dependencies:
       '@inquirer/ansi': 2.0.8
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/figures': 2.0.9
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/confirm@6.3.1(@types/node@26.6.2)':
+  '@inquirer/confirm@6.3.2(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/core@12.0.2(@types/node@26.6.2)':
+  '@inquirer/core@12.0.3(@types/node@26.6.2)':
     dependencies:
       '@inquirer/ansi': 2.0.8
       '@inquirer/figures': 2.0.9
@@ -6119,17 +6105,17 @@ snapshots:
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/editor@5.3.2(@types/node@26.6.2)':
+  '@inquirer/editor@5.3.3(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/external-editor': 3.0.5(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/expand@5.1.4(@types/node@26.6.2)':
+  '@inquirer/expand@5.1.5(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
@@ -6143,62 +6129,62 @@ snapshots:
 
   '@inquirer/figures@2.0.9': {}
 
-  '@inquirer/input@5.1.5(@types/node@26.6.2)':
+  '@inquirer/input@5.1.6(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/number@4.2.2(@types/node@26.6.2)':
+  '@inquirer/number@4.2.3(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/password@5.2.1(@types/node@26.6.2)':
+  '@inquirer/password@5.2.2(@types/node@26.6.2)':
     dependencies:
       '@inquirer/ansi': 2.0.8
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/prompts@8.7.1(@types/node@26.6.2)':
+  '@inquirer/prompts@8.7.2(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/checkbox': 5.2.4(@types/node@26.6.2)
-      '@inquirer/confirm': 6.3.1(@types/node@26.6.2)
-      '@inquirer/editor': 5.3.2(@types/node@26.6.2)
-      '@inquirer/expand': 5.1.4(@types/node@26.6.2)
-      '@inquirer/input': 5.1.5(@types/node@26.6.2)
-      '@inquirer/number': 4.2.2(@types/node@26.6.2)
-      '@inquirer/password': 5.2.1(@types/node@26.6.2)
-      '@inquirer/rawlist': 5.3.4(@types/node@26.6.2)
-      '@inquirer/search': 4.3.2(@types/node@26.6.2)
-      '@inquirer/select': 5.2.4(@types/node@26.6.2)
+      '@inquirer/checkbox': 5.2.5(@types/node@26.6.2)
+      '@inquirer/confirm': 6.3.2(@types/node@26.6.2)
+      '@inquirer/editor': 5.3.3(@types/node@26.6.2)
+      '@inquirer/expand': 5.1.5(@types/node@26.6.2)
+      '@inquirer/input': 5.1.6(@types/node@26.6.2)
+      '@inquirer/number': 4.2.3(@types/node@26.6.2)
+      '@inquirer/password': 5.2.2(@types/node@26.6.2)
+      '@inquirer/rawlist': 5.3.5(@types/node@26.6.2)
+      '@inquirer/search': 4.3.3(@types/node@26.6.2)
+      '@inquirer/select': 5.2.5(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/rawlist@5.3.4(@types/node@26.6.2)':
+  '@inquirer/rawlist@5.3.5(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/search@4.3.2(@types/node@26.6.2)':
+  '@inquirer/search@4.3.3(@types/node@26.6.2)':
     dependencies:
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/figures': 2.0.9
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
       '@types/node': 26.6.2
 
-  '@inquirer/select@5.2.4(@types/node@26.6.2)':
+  '@inquirer/select@5.2.5(@types/node@26.6.2)':
     dependencies:
       '@inquirer/ansi': 2.0.8
-      '@inquirer/core': 12.0.2(@types/node@26.6.2)
+      '@inquirer/core': 12.0.3(@types/node@26.6.2)
       '@inquirer/figures': 2.0.9
       '@inquirer/type': 4.1.1(@types/node@26.6.2)
     optionalDependencies:
@@ -6272,8 +6258,6 @@ snapshots:
       state-local: 1.0.7
 
   '@oxc-project/runtime@0.150.0': {}
-
-  '@oxc-project/types@0.148.0': {}
 
   '@oxc-project/types@0.150.0': {}
 
@@ -6449,49 +6433,49 @@ snapshots:
     dependencies:
       '@redis/client': 6.2.1
 
-  '@rolldown/binding-android-arm-eabi@1.2.7':
+  '@rolldown/binding-android-arm-eabi@1.2.9':
     optional: true
 
-  '@rolldown/binding-android-arm64@1.2.7':
+  '@rolldown/binding-android-arm64@1.2.9':
     optional: true
 
-  '@rolldown/binding-darwin-arm64@1.2.7':
+  '@rolldown/binding-darwin-arm64@1.2.9':
     optional: true
 
-  '@rolldown/binding-darwin-x64@1.2.7':
+  '@rolldown/binding-darwin-x64@1.2.9':
     optional: true
 
-  '@rolldown/binding-freebsd-x64@1.2.7':
+  '@rolldown/binding-freebsd-x64@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.2.7':
+  '@rolldown/binding-linux-arm-gnueabihf@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-arm64-gnu@1.2.7':
+  '@rolldown/binding-linux-arm64-gnu@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-arm64-musl@1.2.7':
+  '@rolldown/binding-linux-arm64-musl@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-ppc64-gnu@1.2.7':
+  '@rolldown/binding-linux-ppc64-gnu@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-s390x-gnu@1.2.7':
+  '@rolldown/binding-linux-s390x-gnu@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-x64-gnu@1.2.7':
+  '@rolldown/binding-linux-x64-gnu@1.2.9':
     optional: true
 
-  '@rolldown/binding-linux-x64-musl@1.2.7':
+  '@rolldown/binding-linux-x64-musl@1.2.9':
     optional: true
 
-  '@rolldown/binding-openharmony-arm64@1.2.7':
+  '@rolldown/binding-openharmony-arm64@1.2.9':
     optional: true
 
-  '@rolldown/binding-win32-arm64-msvc@1.2.7':
+  '@rolldown/binding-win32-arm64-msvc@1.2.9':
     optional: true
 
-  '@rolldown/binding-win32-x64-msvc@1.2.7':
+  '@rolldown/binding-win32-x64-msvc@1.2.9':
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
@@ -6744,10 +6728,10 @@ snapshots:
       tailwindcss: 4.3.3
       vite: 8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1)
 
-  '@tanstack/angular-query-experimental@5.103.1(@angular/common@22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.5(rxjs@7.8.2))(csstype@3.2.3)':
+  '@tanstack/angular-query-experimental@5.103.1(@angular/common@22.1.7(@angular/core@22.1.7(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.1.7(rxjs@7.8.2))(csstype@3.2.3)':
     dependencies:
-      '@angular/common': 22.1.5(@angular/core@22.1.5(rxjs@7.8.2))(rxjs@7.8.2)
-      '@angular/core': 22.1.5(rxjs@7.8.2)
+      '@angular/common': 22.1.7(@angular/core@22.1.7(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 22.1.7(rxjs@7.8.2)
       '@tanstack/query-core': 5.103.1
     optionalDependencies:
       '@tanstack/query-devtools': 5.103.1(csstype@3.2.3)
@@ -6792,10 +6776,10 @@ snapshots:
       '@tanstack/query-core': 5.103.1
       solid-js: 1.9.15
 
-  '@tanstack/svelte-query@6.2.1(svelte@5.57.0)':
+  '@tanstack/svelte-query@6.2.1(svelte@5.57.1)':
     dependencies:
       '@tanstack/query-core': 5.103.1
-      svelte: 5.57.0
+      svelte: 5.57.1
 
   '@tanstack/vue-query@5.103.1(vue@3.5.43(typescript@7.0.2))':
     dependencies:
@@ -6970,7 +6954,7 @@ snapshots:
   '@typespec/compiler@1.16.0(@types/node@26.6.2)':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@inquirer/prompts': 8.7.1(@types/node@26.6.2)
+      '@inquirer/prompts': 8.7.2(@types/node@26.6.2)
       ajv: 8.20.0
       change-case: 5.4.4
       env-paths: 4.0.0
@@ -6980,7 +6964,7 @@ snapshots:
       prettier: 3.9.8
       semver: 7.8.5
       tar: 7.5.22
-      temporal-polyfill: 1.0.4
+      temporal-polyfill: 1.0.5
       vscode-languageserver: 10.1.1
       vscode-languageserver-textdocument: 1.0.14
       yaml: 2.9.1
@@ -7451,7 +7435,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.7
+      fast-uri: 3.1.8
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -7547,7 +7531,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  devalue@5.9.2: {}
+  devalue@5.9.4: {}
 
   devlop@1.1.0:
     dependencies:
@@ -7657,7 +7641,7 @@ snapshots:
 
   esm-env@1.2.2: {}
 
-  esrap@2.3.6:
+  esrap@2.3.7:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
@@ -7683,7 +7667,7 @@ snapshots:
     dependencies:
       fast-string-truncated-width: 3.0.3
 
-  fast-uri@3.1.7: {}
+  fast-uri@3.1.8: {}
 
   fast-wrap-ansi@0.2.2:
     dependencies:
@@ -7702,7 +7686,7 @@ snapshots:
 
   get-caller-file@2.0.5: {}
 
-  get-east-asian-width@1.6.0: {}
+  get-east-asian-width@1.7.0: {}
 
   goober@2.1.19(csstype@3.2.3):
     dependencies:
@@ -7980,7 +7964,7 @@ snapshots:
 
   mute-stream@3.0.0: {}
 
-  nanoid@3.3.18: {}
+  nanoid@3.3.19: {}
 
   obug@2.2.1: {}
 
@@ -7998,7 +7982,7 @@ snapshots:
     dependencies:
       yaml: 2.9.1
 
-  oxfmt@0.68.0(svelte@5.57.0)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1)):
+  oxfmt@0.68.0(svelte@5.57.1)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1)):
     dependencies:
       tinypool: 2.1.2
     optionalDependencies:
@@ -8021,8 +8005,8 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.68.0
       '@oxfmt/binding-win32-ia32-msvc': 0.68.0
       '@oxfmt/binding-win32-x64-msvc': 0.68.0
-      svelte: 5.57.0
-      vite-plus: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1)
+      svelte: 5.57.1
+      vite-plus: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1)
 
   oxlint-tsgolint@7.0.2001:
     optionalDependencies:
@@ -8033,7 +8017,7 @@ snapshots:
       '@oxlint-tsgolint/win32-arm64': 7.0.2001
       '@oxlint-tsgolint/win32-x64': 7.0.2001
 
-  oxlint@1.83.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1)):
+  oxlint@1.83.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1)):
     optionalDependencies:
       '@oxlint/binding-android-arm-eabi': 1.83.0
       '@oxlint/binding-android-arm64': 1.83.0
@@ -8055,7 +8039,7 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.83.0
       '@oxlint/binding-win32-x64-msvc': 1.83.0
       oxlint-tsgolint: 7.0.2001
-      vite-plus: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1)
+      vite-plus: 0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1)
 
   package-manager-detector@1.8.0: {}
 
@@ -8093,7 +8077,7 @@ snapshots:
 
   postcss@8.5.28:
     dependencies:
-      nanoid: 3.3.18
+      nanoid: 3.3.19
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -8168,26 +8152,26 @@ snapshots:
 
   resolve.exports@2.0.3: {}
 
-  rolldown@1.2.7:
+  rolldown@1.2.9:
     dependencies:
-      '@oxc-project/types': 0.148.0
+      '@oxc-project/types': 0.150.0
       '@rolldown/pluginutils': 1.0.1
     optionalDependencies:
-      '@rolldown/binding-android-arm-eabi': 1.2.7
-      '@rolldown/binding-android-arm64': 1.2.7
-      '@rolldown/binding-darwin-arm64': 1.2.7
-      '@rolldown/binding-darwin-x64': 1.2.7
-      '@rolldown/binding-freebsd-x64': 1.2.7
-      '@rolldown/binding-linux-arm-gnueabihf': 1.2.7
-      '@rolldown/binding-linux-arm64-gnu': 1.2.7
-      '@rolldown/binding-linux-arm64-musl': 1.2.7
-      '@rolldown/binding-linux-ppc64-gnu': 1.2.7
-      '@rolldown/binding-linux-s390x-gnu': 1.2.7
-      '@rolldown/binding-linux-x64-gnu': 1.2.7
-      '@rolldown/binding-linux-x64-musl': 1.2.7
-      '@rolldown/binding-openharmony-arm64': 1.2.7
-      '@rolldown/binding-win32-arm64-msvc': 1.2.7
-      '@rolldown/binding-win32-x64-msvc': 1.2.7
+      '@rolldown/binding-android-arm-eabi': 1.2.9
+      '@rolldown/binding-android-arm64': 1.2.9
+      '@rolldown/binding-darwin-arm64': 1.2.9
+      '@rolldown/binding-darwin-x64': 1.2.9
+      '@rolldown/binding-freebsd-x64': 1.2.9
+      '@rolldown/binding-linux-arm-gnueabihf': 1.2.9
+      '@rolldown/binding-linux-arm64-gnu': 1.2.9
+      '@rolldown/binding-linux-arm64-musl': 1.2.9
+      '@rolldown/binding-linux-ppc64-gnu': 1.2.9
+      '@rolldown/binding-linux-s390x-gnu': 1.2.9
+      '@rolldown/binding-linux-x64-gnu': 1.2.9
+      '@rolldown/binding-linux-x64-musl': 1.2.9
+      '@rolldown/binding-openharmony-arm64': 1.2.9
+      '@rolldown/binding-win32-arm64-msvc': 1.2.9
+      '@rolldown/binding-win32-x64-msvc': 1.2.9
 
   rtl-css-js@1.16.1:
     dependencies:
@@ -8303,12 +8287,12 @@ snapshots:
   string-width@7.2.0:
     dependencies:
       emoji-regex: 10.6.0
-      get-east-asian-width: 1.6.0
+      get-east-asian-width: 1.7.0
       strip-ansi: 7.2.0
 
   string-width@8.2.2:
     dependencies:
-      get-east-asian-width: 1.6.0
+      get-east-asian-width: 1.7.0
       strip-ansi: 7.2.0
 
   string_decoder@1.3.0:
@@ -8333,7 +8317,7 @@ snapshots:
 
   supports-color@10.2.2: {}
 
-  svelte@5.57.0:
+  svelte@5.57.1:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.6.0
@@ -8343,9 +8327,9 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.9.2
+      devalue: 5.9.4
       esm-env: 1.2.2
-      esrap: 2.3.6
+      esrap: 2.3.7
       is-reference: 3.0.3
       locate-character: 3.0.0
       magic-string: 0.30.21
@@ -8382,14 +8366,14 @@ snapshots:
       minizlib: 3.1.0
       yallist: 5.0.0
 
-  temporal-polyfill@1.0.4:
+  temporal-polyfill@1.0.5:
     dependencies:
       temporal-spec: 1.0.1
-      temporal-utils: 1.0.2
+      temporal-utils: 1.0.3
 
   temporal-spec@1.0.1: {}
 
-  temporal-utils@1.0.2: {}
+  temporal-utils@1.0.3: {}
 
   tinybench@2.9.0: {}
 
@@ -8489,7 +8473,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1):
+  vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1):
     dependencies:
       '@oxc-project/types': 0.150.0
       '@oxlint/plugins': 1.79.0
@@ -8502,8 +8486,8 @@ snapshots:
       '@vitest/snapshot': 4.1.11
       '@vitest/spy': 4.1.11
       '@vitest/utils': 4.1.11
-      oxfmt: 0.68.0(svelte@5.57.0)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1))
-      oxlint: 1.83.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.0)(typescript@7.0.2)(yaml@2.9.1))
+      oxfmt: 0.68.0(svelte@5.57.1)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1))
+      oxlint: 1.83.0(oxlint-tsgolint@7.0.2001)(vite-plus@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(happy-dom@20.14.5)(jiti@2.7.0)(svelte@5.57.1)(typescript@7.0.2)(yaml@2.9.1))
       oxlint-tsgolint: 7.0.2001
       vite: '@voidzero-dev/vite-plus-core@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)'
       vitest: 4.1.11(@types/node@26.6.2)(@vitest/browser-preview@4.1.11)(@voidzero-dev/vite-plus-core@0.3.3(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
@@ -8551,7 +8535,7 @@ snapshots:
       lightningcss: 1.33.0
       picomatch: 4.0.7
       postcss: 8.5.28
-      rolldown: 1.2.7
+      rolldown: 1.2.9
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 26.6.2
