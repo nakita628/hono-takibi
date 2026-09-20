@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { integer } from './integer.js'
@@ -569,6 +570,71 @@ describe('integer', () => {
       expect(withOption).toBe(withExtension)
     })
   })
+
+  describe('regression: x-coerce + format runtime bounds', () => {
+    it.concurrent('int32 + x-coerce accepts INT32_MAX as a string', () => {
+      const Schema = z.coerce.number().pipe(z.int32())
+      expect(Schema.safeParse('2147483647').success).toBe(true)
+    })
+    it.concurrent('int32 + x-coerce rejects INT32_MAX + 1 as a string', () => {
+      const Schema = z.coerce.number().pipe(z.int32())
+      expect(Schema.safeParse('2147483648').success).toBe(false)
+    })
+    it.concurrent('int64 + x-coerce rejects non-integer numeric strings', () => {
+      const Schema = z.coerce.bigint().pipe(z.int64())
+      expect(Schema.safeParse('1.5').success).toBe(false)
+    })
+  })
+
+  describe('regression: x-coerce + x-error-message runtime', () => {
+    it.concurrent('numberChain: non-integer string shows custom error', () => {
+      const Schema = z.coerce.number({ error: '整数必須' }).int({ error: '整数必須' })
+      const result = Schema.safeParse('1.5')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('整数必須')
+      }
+    })
+    it.concurrent('numberPipe: non-number string shows custom error', () => {
+      const Schema = z.coerce.number({ error: 'int32必須' }).pipe(z.int32({ error: 'int32必須' }))
+      const result = Schema.safeParse('abc')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('int32必須')
+      }
+    })
+    it.concurrent('bigintPipe: non-bigint string shows custom error', () => {
+      const Schema = z.coerce.bigint({ error: 'int64必須' }).pipe(z.int64({ error: 'int64必須' }))
+      const result = Schema.safeParse('abc')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('int64必須')
+      }
+    })
+  })
+
+  describe('regression: x-required-message unreachable under coerce', () => {
+    it.concurrent('coerce converts undefined to NaN — issue.input is never undefined', () => {
+      const Schema = z.coerce
+        .number({ error: (issue) => (issue.input === undefined ? '必須です' : '整数必須') })
+        .int({ error: '整数必須' })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('整数必須')
+      }
+    })
+    it.concurrent('non-coerce preserves issue.input === undefined', () => {
+      const Schema = z.int({
+        error: (issue) => (issue.input === undefined ? '必須です' : '整数必須'),
+      })
+      const result = Schema.safeParse(undefined)
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('必須です')
+      }
+    })
+  })
 })
 
 describe('integer min/max non-zero (.min/.max emit paths)', () => {
@@ -605,6 +671,15 @@ describe('integer min/max non-zero (.min/.max emit paths)', () => {
       [{ type: 'integer', format: 'uint32', minimum: 1 }, 'z.uint32().min(1)'],
     ])('integer(%o) → %s', (input, expected) => {
       expect(integer(input)).toBe(expected)
+    })
+
+    it.concurrent('zod enforces the declared ranges', () => {
+      expect(z.uint32().safeParse(-1).success).toBe(false)
+      expect(z.uint32().safeParse(4_294_967_295).success).toBe(true)
+      expect(z.uint32().safeParse(4_294_967_296).success).toBe(false)
+      expect(z.uint64().safeParse(-1n).success).toBe(false)
+      expect(z.uint64().safeParse(18_446_744_073_709_551_615n).success).toBe(true)
+      expect(z.uint64().safeParse(18_446_744_073_709_551_616n).success).toBe(false)
     })
   })
 })

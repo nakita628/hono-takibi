@@ -41,31 +41,31 @@ const TypeScriptPathSchema = Schema.String.pipe(
  * schema every value is decoded through before {@link generate} ever sees it.
  */
 const commandLine = {
-  input: Argument.file('input', { mustExist: true }).pipe(
+  input: Argument.File('input', { mustExist: true }).pipe(
     Argument.withSchema(DocumentPathSchema),
     Argument.withDescription('OpenAPI (.yaml, .json) or TypeSpec (.tsp) document to generate from'),
     Argument.withMetavar('input.{yaml,json,tsp}'),
     Argument.optional,
   ),
-  // `Flag.string`, not `Flag.file`: the file primitive rewrites its value to an
+  // `Flag.String`, not `Flag.File`: the file primitive rewrites its value to an
   // absolute path, and `--output` is echoed back in the "Generated code written to"
   // message, which should read as the path the caller typed.
-  output: Flag.string('output').pipe(
+  output: Flag.String('output').pipe(
     Flag.withAlias('o'),
     Flag.withSchema(TypeScriptPathSchema),
     Flag.withDescription('TypeScript file the generated routes are written to'),
     Flag.withMetavar('output.ts'),
     Flag.optional,
   ),
-  config: Flag.file('config', { mustExist: true }).pipe(
+  config: Flag.File('config', { mustExist: true }).pipe(
     Flag.withAlias('c'),
     Flag.withDescription(`Config file to run (default: ./${DEFAULT_CONFIG_FILE})`),
     Flag.withMetavar('file'),
     Flag.optional,
   ),
-  // `Flag.boolean` is still a required flag until it is given a default — without this,
+  // `Flag.Boolean` is still a required flag until it is given a default — without this,
   // every invocation is rejected for not passing `--watch`.
-  watch: Flag.boolean('watch').pipe(
+  watch: Flag.Boolean('watch').pipe(
     Flag.withAlias('w'),
     Flag.withDescription('Rerun the config on every change to its documents or itself'),
     Flag.withDefault(false),

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vite-plus/test'
+import { z } from 'zod'
 
 import type { Schema } from '../../../openapi/index.js'
 import { number } from './number.js'
@@ -375,5 +376,57 @@ describe('coerce option vs x-coerce equivalence', () => {
     const withOption = number(schema, { coerce: true })
     const withExtension = number({ ...schema, 'x-coerce': true })
     expect(withOption).toBe(withExtension)
+  })
+})
+
+describe('regression: x-coerce + x-error-message runtime', () => {
+  it.concurrent('wirePipe (float32): non-number string shows custom error', () => {
+    const Schema = z.coerce.number({ error: 'float必須' }).pipe(z.float32({ error: 'float必須' }))
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('float必須')
+    }
+  })
+  it.concurrent('wirePipe (float64): non-number string shows custom error', () => {
+    const Schema = z.coerce
+      .number({ error: 'float64必須' })
+      .pipe(z.float64({ error: 'float64必須' }))
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('float64必須')
+    }
+  })
+  it.concurrent('wirePlain: non-number string shows custom error', () => {
+    const Schema = z.coerce.number({ error: '数値必須' })
+    const result = Schema.safeParse('abc')
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('数値必須')
+    }
+  })
+})
+
+describe('regression: x-required-message unreachable under coerce', () => {
+  it.concurrent('coerce converts undefined to NaN — issue.input is never undefined', () => {
+    const Schema = z.coerce.number({
+      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
+    })
+    const result = Schema.safeParse(undefined)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('数値必須')
+    }
+  })
+  it.concurrent('non-coerce preserves issue.input === undefined', () => {
+    const Schema = z.number({
+      error: (issue) => (issue.input === undefined ? '必須です' : '数値必須'),
+    })
+    const result = Schema.safeParse(undefined)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('必須です')
+    }
   })
 })

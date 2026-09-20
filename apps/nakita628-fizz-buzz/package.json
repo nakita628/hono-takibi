@@ -9,9 +9,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hono/zod-openapi": "^1.6.1",
-    "hono": "^4.13.5",
-    "zod": "^4.5.4"
+    "@hono/zod-openapi": "^1.6.3",
+    "hono": "^4.13.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
@@ -20,6 +20,6 @@
     "@typespec/openapi3": "catalog:",
     "hono-takibi": "workspace:*",
     "vitest": "^4.1.11",
-    "wrangler": "^4.127.0"
+    "wrangler": "^4.135.0"
   }
 }
