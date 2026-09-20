@@ -533,10 +533,6 @@ describe('makeTypeString', () => {
       expect(result).toBe('unknown')
     })
 
-    it('should handle array without items returns unknown[]', () => {
-      expect(makeTypeString({ type: 'array' }, 'Test')).toBe('unknown[]')
-    })
-
     it('should handle readonly array without items', () => {
       expect(makeTypeString({ type: 'array' }, 'Test', undefined, true)).toBe('readonly unknown[]')
     })

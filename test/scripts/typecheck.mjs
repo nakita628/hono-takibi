@@ -39,10 +39,11 @@ const typecheckCase = (name) =>
     })
   })
 
-// Faker-heavy projects peak at multiple GB each; running them alongside other tsc
-// processes (and the vitest workers that invoke this script) gets them OOM-killed
-// on small machines, so they run sequentially after the parallel light phase.
-const heavyCases = new Set(['all-features-mock', 'all-features-test'])
+// `all-features-test` pulls in the generated mock through `import app from './mock'`,
+// so one tsc program covers both faker-heavy files. It peaks at multiple GB, and running
+// it alongside other tsc processes (and the vitest workers that invoke this script) gets
+// it OOM-killed on small machines, so it runs on its own after the parallel light phase.
+const heavyCases = new Set(['all-features-test'])
 
 // Bounded parallelism: tsc processes are heap-isolated but memory- and I/O-hungry.
 // Cap at 2 — node_modules can sit on a host bind mount (devcontainer) where more

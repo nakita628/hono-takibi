@@ -754,28 +754,6 @@ describe('x-* vendor extension messages — exhaustive variants', () => {
       })
       expect(res.status).toBe(200)
     })
-
-    it('accepts neither token nor tokenLabel', async () => {
-      const res = await app.request('/form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'taro',
-          code: 'ABC123',
-          slug: 'hello-world',
-          age: 25,
-          score: 1.5,
-          count: 10,
-          active: true,
-          tags: ['dev'],
-          pin: [1, 2, 3, 4],
-          role: 'admin',
-          priority: 1,
-          quota: 5,
-        }),
-      })
-      expect(res.status).toBe(200)
-    })
   })
 
   // ─────────────────────────────────────────────────────────

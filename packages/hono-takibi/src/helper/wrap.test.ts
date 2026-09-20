@@ -116,27 +116,6 @@ describe('wrap', () => {
         }),
       ).toBe('z.int64().nullable().default(0n)')
     })
-
-    it.concurrent('uses BigInt default and adds .nullable for z.int64()', () => {
-      expect(
-        wrap('z.int64()', {
-          type: 'integer',
-          format: 'int64',
-          default: 0,
-          nullable: true,
-        }),
-      ).toBe('z.int64().nullable().default(0n)')
-    })
-
-    it.concurrent('uses BigInt default and marks schema nullable when type includes null', () => {
-      expect(
-        wrap('z.int64()', {
-          type: ['integer', 'null'],
-          format: 'int64',
-          default: 0,
-        }),
-      ).toBe('z.int64().nullable().default(0n)')
-    })
   })
 
   describe('bigint', () => {

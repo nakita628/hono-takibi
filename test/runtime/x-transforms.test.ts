@@ -722,17 +722,4 @@ describe('v2.6: contentEncoding / dependentSchemas / if-then-else', () => {
     })
     expect(res.status).toBe(200)
   })
-
-  it('if-else: premium WITH feature passes (the canonical happy path)', async () => {
-    const res = await app.request('/v26', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        kind: 'premium',
-        feature: 'pro-mode',
-        settings: Buffer.from(JSON.stringify({ theme: 'dark' })).toString('base64'),
-      }),
-    })
-    expect(res.status).toBe(200)
-  })
 })
