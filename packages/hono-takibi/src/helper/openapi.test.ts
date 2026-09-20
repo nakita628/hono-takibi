@@ -1829,6 +1829,101 @@ describe('openapi helper', () => {
       })
     })
 
+    // Regression: a numeric or boolean `enum` / `const` emitted its literals bare, so the
+    // string the wire delivers ("1", "true") never matched — every request 422'd.
+    it.concurrent('coerces a query integer enum before matching its literals', () => {
+      const result = makeParameters([
+        { name: 'kind', in: 'query', schema: { type: 'integer', enum: [1, 2] } },
+      ])
+      expect(result.query.kind).toBe(
+        'z.coerce.number().pipe(z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"query","schema":{"type":"integer","enum":[1,2]},"required":false}})',
+      )
+    })
+    it.concurrent('parses a path boolean enum with stringbool before matching', () => {
+      const result = makeParameters([
+        { name: 'flag', in: 'path', required: true, schema: { type: 'boolean', enum: [true] } },
+      ])
+      expect(result.path.flag).toBe(
+        'z.stringbool().pipe(z.literal(true)).openapi({param:{"name":"flag","in":"path","required":true,"schema":{"type":"boolean","enum":[true]}}})',
+      )
+    })
+    it.concurrent('coerces a query number const before matching its literal', () => {
+      const result = makeParameters([
+        { name: 'version', in: 'query', schema: { type: 'number', const: 2 } },
+      ])
+      expect(result.query.version).toBe(
+        'z.coerce.number().pipe(z.literal(2)).exactOptional().openapi({param:{"name":"version","in":"query","schema":{"type":"number","const":2},"required":false}})',
+      )
+    })
+    it.concurrent('leaves a string enum on the wire as is', () => {
+      const result = makeParameters([
+        { name: 'sort', in: 'query', schema: { type: 'string', enum: ['asc', 'desc'] } },
+      ])
+      expect(result.query.sort).toBe(
+        'z.enum(["asc","desc"]).exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string","enum":["asc","desc"]},"required":false}})',
+      )
+    })
+    // Regression: `type: [integer, 'null']` failed the `type === 'integer'` check, so the
+    // integer arrived uncoerced.
+    it.concurrent('coerces a query integer whose type list includes null', () => {
+      const result = makeParameters([
+        { name: 'limit', in: 'query', schema: { type: ['integer', 'null'] } },
+      ])
+      expect(result.query.limit).toBe(
+        'z.coerce.number().int().nullable().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})',
+      )
+    })
+    // Regression: coercion stopped at the top-level type, so a numeric branch inside a
+    // composition validated the raw string.
+    it.concurrent('coerces the numeric branches of a query oneOf', () => {
+      const result = makeParameters([
+        {
+          name: 'page',
+          in: 'query',
+          schema: { oneOf: [{ type: 'integer' }, { type: 'string', enum: ['all'] }] },
+        },
+      ])
+      expect(result.query.page).toContain("z.xor([z.coerce.number().int(),z.literal('all')])")
+    })
+    it.concurrent('coerces integer enum items of a query array', () => {
+      const result = makeParameters([
+        {
+          name: 'kinds',
+          in: 'query',
+          schema: { type: 'array', items: { type: 'integer', enum: [1, 2] } },
+        },
+      ])
+      expect(result.query.kinds).toContain(
+        'z.array(z.coerce.number().pipe(z.union([z.literal(1),z.literal(2)])))',
+      )
+    })
+    // Regression: the arity wrapper sat outside `.default()`, so an absent parameter reached
+    // the default as `[undefined]` and the default never applied.
+    it.concurrent('keeps an array default outside the arity wrapper', () => {
+      const result = makeParameters([
+        {
+          name: 'tags',
+          in: 'query',
+          schema: { type: 'array', items: { type: 'string' }, default: [] },
+        },
+      ])
+      expect(result.query.tags).toBe(
+        'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string())).default([]).exactOptional().openapi({param:{"name":"tags","in":"query","schema":{"type":"array","items":{"type":"string"},"default":[]},"required":false}})',
+      )
+    })
+    it.concurrent('turns a boolean default written as text into the boolean it names', () => {
+      const result = makeParameters([
+        { name: 'active', in: 'query', schema: { type: 'boolean', default: 'true' } },
+      ])
+      expect(result.query.active).toContain('z.stringbool().default(true)')
+    })
+    it.concurrent('does not coerce a body-like location', () => {
+      const result = makeParameters([
+        { name: 'kind', in: 'body' as 'query', schema: { type: 'integer', enum: [1, 2] } },
+      ])
+      expect(result.body.kind).toContain('z.union([z.literal(1),z.literal(2)])')
+      expect(result.body.kind).not.toContain('z.coerce')
+    })
     describe('makeParameters with readonly', () => {
       it.concurrent('propagates readonly to parameter schema', () => {
         const result = makeParameters(

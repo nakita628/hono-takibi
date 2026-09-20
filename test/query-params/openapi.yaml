@@ -560,3 +560,45 @@ paths:
                   uint64: { type: string }
                   uint64_arr: { type: array, items: { type: string } }
                   int64Value: { type: string }
+  # A numeric or boolean `enum` / `const` and a numeric composition: each names a typed
+  # value, and the string on the wire has to be coerced before the literal is matched.
+  /literals:
+    get:
+      operationId: queryLiterals
+      parameters:
+        - { name: ienum, in: query, required: true, schema: { type: integer, enum: [1, 2, 3] } }
+        - { name: nenum, in: query, required: true, schema: { type: number, enum: [1.5, 2.5] } }
+        - { name: benum, in: query, required: true, schema: { type: boolean, enum: [true] } }
+        - { name: iconst, in: query, required: true, schema: { type: integer, const: 7 } }
+        - { name: inull, in: query, required: true, schema: { type: [integer, 'null'] } }
+        - {
+            name: ioneof,
+            in: query,
+            required: true,
+            schema: { oneOf: [{ type: integer }, { type: string, enum: [all] }] },
+          }
+        - {
+            name: ienum_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, enum: [1, 2, 3] } },
+          }
+        - { name: tags, in: query, schema: { type: array, items: { type: string }, default: [] } }
+      responses:
+        '200':
+          description: Every literal parameter as it arrived.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ienum, nenum, benum, iconst, inull, ioneof, ienum_arr, tagsText]
+                properties:
+                  ienum: { type: integer }
+                  nenum: { type: number }
+                  benum: { type: boolean }
+                  iconst: { type: integer }
+                  inull: { type: [integer, 'null'] }
+                  ioneof: { oneOf: [{ type: integer }, { type: string }] }
+                  ienum_arr: { type: array, items: { type: integer } }
+                  # JSON of `tags` — shows the default applied, or `undefined` when it did not.
+                  tagsText: { type: string }

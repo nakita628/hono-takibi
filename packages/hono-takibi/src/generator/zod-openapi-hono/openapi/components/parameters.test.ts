@@ -444,6 +444,30 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
   })
 
+  // Regression: a component parameter took its own copy of the coercion rules, which
+  // emitted a numeric enum's literals bare — the string on the wire never matched.
+  it('coerces a numeric enum component parameter before matching its literals', () => {
+    const components: Components = {
+      parameters: {
+        kind: { name: 'kind', in: 'query', schema: { type: 'integer', enum: [1, 2] } },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toBe(
+      `export const KindParamsSchema=z.coerce.number().pipe(z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"query","schema":{"type":"integer","enum":[1,2]},"required":false}})`,
+    )
+  })
+
+  it('turns a boolean default written as text into the boolean it names', () => {
+    const components: Components = {
+      parameters: {
+        active: { name: 'active', in: 'query', schema: { type: 'boolean', default: 'true' } },
+      },
+    }
+    const result = parametersCode(components, true, false)
+    expect(result).toContain('z.stringbool().default(true)')
+  })
+
   it('should add readonly modifier when readonly option is true', () => {
     const components: Components = {
       parameters: {

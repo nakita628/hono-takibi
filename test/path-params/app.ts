@@ -3,6 +3,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   getBase64ValueRoute,
   getBase64urlValueRoute,
+  getBenumValueRoute,
   getBigintValueRoute,
   getBooleanValueRoute,
   getByteValueRoute,
@@ -23,6 +24,8 @@ import {
   getHexValueRoute,
   getHostnameValueRoute,
   getHttpurlValueRoute,
+  getIconstValueRoute,
+  getIenumValueRoute,
   getInt32ValueRoute,
   getInt64ValueRoute,
   getIntegerValueRoute,
@@ -244,6 +247,18 @@ export const pathParamsApp = new OpenAPIHono({
     return c.json({ valueType: typeof value, valueText: String(value) })
   })
   .openapi(getUint64ValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: String(value) })
+  })
+  .openapi(getIenumValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: String(value) })
+  })
+  .openapi(getBenumValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: String(value) })
+  })
+  .openapi(getIconstValueRoute, (c) => {
     const { value } = c.req.valid('param')
     return c.json({ valueType: typeof value, valueText: String(value) })
   })

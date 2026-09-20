@@ -769,3 +769,52 @@ paths:
                 properties:
                   valueType: { type: string }
                   valueText: { type: string }
+  # A numeric or boolean `enum` / `const` names a typed value; the segment is text.
+  /ienum/{value}:
+    get:
+      operationId: ienumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, enum: [1, 2] } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /benum/{value}:
+    get:
+      operationId: benumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: boolean, enum: [true] } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /iconst/{value}:
+    get:
+      operationId: iconstParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, const: 7 } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }

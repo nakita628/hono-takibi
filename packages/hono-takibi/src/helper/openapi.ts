@@ -455,6 +455,26 @@ function getSchemaFromContent(content: Content | undefined): Schema | undefined 
   return content[firstKey]?.schema
 }
 
+/**
+ * The Zod schema for one parameter's value. A path, query, header or cookie value reaches
+ * the handler as a string, so every non-string leaf coerces before it validates (the
+ * emitter's `coerce` option); only a request body arrives already typed.
+ */
+export function makeParameterSchema(param: Parameter, readonly?: boolean): string {
+  const schema = param.schema ?? getSchemaFromContent(param.content)
+  if (!schema) return 'z.any()'
+  const isStringWire =
+    param.in === 'query' || param.in === 'path' || param.in === 'header' || param.in === 'cookie'
+  return zodToOpenAPI(
+    schema,
+    { parameters: param },
+    {
+      ...(isStringWire ? { coerce: true } : {}),
+      ...(readonly === true ? { readonly: true } : {}),
+    },
+  )
+}
+
 /* oxlint-disable no-param-reassign -- the reduce accumulator is a fresh object owned by this call */
 export function makeParameters(
   parameters: readonly (Parameter | Reference)[],
@@ -465,58 +485,9 @@ export function makeParameters(
   return parameters.reduce((acc: { [section: string]: { [k: string]: string } }, param) => {
     if (!('in' in param)) return acc
     if (!acc[param.in]) acc[param.in] = {}
-    if (param.$ref) {
-      acc[param.in][makeSafeKey(param.name)] = makeRef(param.$ref)
-      return acc
-    }
-    const schema = param.schema ?? getSchemaFromContent(param.content)
-    if (!schema) {
-      acc[param.in][makeSafeKey(param.name)] = 'z.any()'
-      return acc
-    }
-    // Query, path, header and cookie values all reach the handler as strings, so a
-    // numeric or boolean schema has to coerce before it validates. Only a body arrives
-    // already typed.
-    const isStringWire =
-      param.in === 'query' || param.in === 'path' || param.in === 'header' || param.in === 'cookie'
-    const isPrimitiveNumeric =
-      isStringWire && (schema.type === 'number' || schema.type === 'integer')
-    const baseSchema = zodToOpenAPI(
-      schema,
-      { parameters: param },
-      {
-        ...(isPrimitiveNumeric ? { coerce: true } : {}),
-        ...(readonly === true ? { readonly: true } : {}),
-      },
-    )
-    const z = isPrimitiveNumeric
-      ? baseSchema
-      : isStringWire && schema.type === 'boolean'
-        ? baseSchema
-            .replaceAll(/\bz\.boolean\(/gu, 'z.stringbool(')
-            .replaceAll('.default("true")', '.default(true)')
-            .replaceAll('.default("false")', '.default(false)')
-        : isStringWire && schema.type === 'date'
-          ? `z.coerce.${baseSchema.replace('z.', '')}`
-          : isStringWire && (schema.type === 'object' || schema.type === 'array')
-            ? baseSchema
-                .replaceAll(
-                  /z\.((?:u?int|float)\d*)\(\)((?:\.(?:min|max|gt|lt|positive|negative|nonnegative|nonpositive|multipleOf)\([^)]*\))*)/gu,
-                  (_: string, type: string, constraints: string) =>
-                    type === 'int'
-                      ? `z.coerce.number().int()${constraints}`
-                      : // `z.int64()` is a bigint schema, so a number piped into it is
-                        // rejected outright — the wire value has to become a bigint first.
-                        type === 'int64' || type === 'uint64'
-                        ? `z.coerce.bigint().pipe(z.${type}()${constraints})`
-                        : `z.coerce.number().pipe(z.${type}()${constraints})`,
-                )
-                .replaceAll('z.bigint()', 'z.coerce.bigint()')
-                .replaceAll('z.number()', 'z.coerce.number()')
-                .replaceAll('z.boolean()', 'z.stringbool()')
-                .replaceAll('z.date()', 'z.coerce.date()')
-            : baseSchema
-    acc[param.in][makeSafeKey(param.name)] = z
+    acc[param.in][makeSafeKey(param.name)] = param.$ref
+      ? makeRef(param.$ref)
+      : makeParameterSchema(param, readonly)
     return acc
   }, {})
 }

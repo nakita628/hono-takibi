@@ -25,7 +25,13 @@ export function zodToOpenAPI(
     headers?: Header
   },
   options?: {
-    /** Emit `z.coerce.X().pipe(z.Y()...)` for path/query/header primitives. */
+    /**
+     * The value arrives as a string (a path, query, header or cookie parameter), so every
+     * non-string leaf coerces before it validates: `z.coerce.number()` for a number or
+     * integer, `z.stringbool()` for a boolean, `z.coerce.date()` for a date, and the same
+     * coercion piped into a numeric or boolean `enum` / `const`. Propagates into array
+     * items, object properties and composition branches.
+     */
     coerce?: boolean
     /** Append `.readonly()` to array/object schemas. */
     readonly?: boolean
@@ -324,7 +330,8 @@ export function zodToOpenAPI(
         options,
       )
     }
-    const z = `z.literal(${JSON.stringify(value)}${errorArg})`
+    const literal = `z.literal(${JSON.stringify(value)}${errorArg})`
+    const z = options?.coerce ? wireCoerce(literal, typeof value) : literal
     return wrap(z, schema, meta, options)
   }
   // Typeless enum with non-primitive values → typeless-refine (deep-equal).
@@ -341,7 +348,12 @@ export function zodToOpenAPI(
       )
     }
   }
-  if (schema.enum !== undefined) return wrap(_enum(schema), schema, meta, options)
+  if (schema.enum !== undefined) {
+    const enumZ = _enum(schema)
+    // Every member shares one primitive type, or the wire value cannot be coerced to it.
+    const memberType = options?.coerce ? uniformTypeOf(schema.enum) : undefined
+    return wrap(memberType ? wireCoerce(enumZ, memberType) : enumZ, schema, meta, options)
+  }
   // JSON Schema 2020-12 §6.5: `properties` w/o `type:object` only applies when value IS object.
   if (
     schema.properties !== undefined &&
@@ -408,7 +420,10 @@ export function zodToOpenAPI(
       const base = combinedArg ? `z.stringbool(${combinedArg})` : 'z.stringbool()'
       return wrap(base, schema, meta, options)
     }
-    const baseFn = xCoerce ? 'z.coerce.boolean' : 'z.boolean'
+    // `z.coerce.boolean()` is `Boolean(value)`, which turns the string "false" into
+    // `true`, so a boolean on the wire parses its text with `z.stringbool()` instead —
+    // unless the document asked for `x-coerce` explicitly.
+    const baseFn = xCoerce ? 'z.coerce.boolean' : options?.coerce ? 'z.stringbool' : 'z.boolean'
     const base = arg ? `${baseFn}(${arg})` : `${baseFn}()`
     return wrap(base, schema, meta, options)
   }
@@ -620,7 +635,8 @@ export function zodToOpenAPI(
   if (t.includes('object')) return wrap(object(schema, childOptions), schema, meta, options)
   if (t.includes('date')) {
     const errorMessage = schema['x-error-message']
-    const base = errorMessage ? `z.date(${error(errorMessage)})` : 'z.date()'
+    const dateFn = options?.coerce ? 'z.coerce.date' : 'z.date'
+    const base = errorMessage ? `${dateFn}(${error(errorMessage)})` : `${dateFn}()`
     return wrap(base, schema, meta, options)
   }
   if (t.length === 1 && t[0] === 'null') {
@@ -643,4 +659,27 @@ export function zodToOpenAPI(
   // oxlint-disable-next-line no-console -- warns the user that a schema fell back to z.any()
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return wrap('z.any()', schema, meta, options)
+}
+
+/**
+ * The one `typeof` every member of a `const` / `enum` shares, or `undefined` when they
+ * differ — a mixed list has no single coercion the wire value could take.
+ */
+function uniformTypeOf(values: readonly unknown[]): string | undefined {
+  const [first, ...rest] = values
+  if (first === undefined) return undefined
+  const type = typeof first
+  return rest.every((value) => typeof value === type) ? type : undefined
+}
+
+/**
+ * Pipes a string-wire value into a literal schema (`z.literal` / `z.union` of literals)
+ * that expects it already typed: numeric literals need `z.coerce.number()` in front and
+ * boolean literals `z.stringbool()`. A string literal matches the wire as is, and any
+ * other type has no coercion.
+ */
+function wireCoerce(literalZ: string, valueType: string): string {
+  if (valueType === 'number') return `z.coerce.number().pipe(${literalZ})`
+  if (valueType === 'boolean') return `z.stringbool().pipe(${literalZ})`
+  return literalZ
 }

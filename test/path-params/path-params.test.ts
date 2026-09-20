@@ -89,3 +89,28 @@ describe('transform extensions', () => {
     expect((await res.json()) as { valueText: string }).toMatchObject({ valueText: arrived })
   })
 })
+
+// A numeric or boolean `enum` / `const` names a typed value, and the segment is text: the
+// literal used to be matched against the raw string, so every such request 422'd.
+describe('literal parameters', () => {
+  const LITERALS: readonly (readonly [string, string, string])[] = [
+    ['ienum', '2', 'number'],
+    ['benum', 'true', 'boolean'],
+    ['iconst', '7', 'number'],
+  ]
+
+  it.concurrent.each(LITERALS)('%s=%s arrives as %s', async (name, value, type) => {
+    const res = await pathParamsApp.request(`/${name}/${value}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: type, valueText: value })
+  })
+
+  it.concurrent.each([
+    ['ienum', '3'],
+    ['benum', 'false'],
+    ['iconst', '8'],
+  ])('%s still rejects %s with 422', async (name, value) => {
+    const res = await pathParamsApp.request(`/${name}/${value}`)
+    expect(res.status).toBe(422)
+  })
+})

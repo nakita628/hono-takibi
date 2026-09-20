@@ -163,3 +163,53 @@ describe('unsigned integer bounds', () => {
     expect((await res.json()) as { uint64: string }).toMatchObject({ uint64: 'bigint' })
   })
 })
+
+// A numeric or boolean `enum` / `const` names a typed value, and the wire delivers text:
+// the literal used to be matched against the raw string, so every such request 422'd.
+describe('literal parameters', () => {
+  const LITERALS = 'ienum=2&nenum=2.5&benum=true&iconst=7&inull=3&ioneof=4&ienum_arr=1&ienum_arr=3'
+
+  it('coerces each literal to the value it names', async () => {
+    const res = await queryParamsApp.request(`/literals?${LITERALS}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      ienum: 2,
+      nenum: 2.5,
+      benum: true,
+      iconst: 7,
+      inull: 3,
+      ioneof: 4,
+      ienum_arr: [1, 3],
+      tagsText: '[]',
+    })
+  })
+
+  it('takes the string branch of a oneOf when the integer branch does not match', async () => {
+    const res = await queryParamsApp.request(
+      `/literals?${LITERALS.replace('ioneof=4', 'ioneof=all')}`,
+    )
+    expect(res.status).toBe(200)
+    expect((await res.json()) as { ioneof: unknown }).toMatchObject({ ioneof: 'all' })
+  })
+
+  it('applies an array default when the parameter is absent, and keeps a sent value', async () => {
+    const res = await queryParamsApp.request(`/literals?${LITERALS}&tags=a`)
+    expect(res.status).toBe(200)
+    expect((await res.json()) as { tagsText: string }).toMatchObject({ tagsText: '["a"]' })
+  })
+
+  it.concurrent.each([
+    ['ienum', '4'],
+    ['nenum', '3.5'],
+    ['benum', 'false'],
+    ['iconst', '8'],
+    ['ienum_arr', '9'],
+  ])('%s still rejects a value outside its literals with 422', async (name, value) => {
+    const sent = [
+      ...LITERALS.split('&').filter((part) => !part.startsWith(`${name}=`)),
+      `${name}=${value}`,
+    ].join('&')
+    const res = await queryParamsApp.request(`/literals?${sent}`)
+    expect(res.status).toBe(422)
+  })
+})
