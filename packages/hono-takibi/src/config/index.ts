@@ -81,13 +81,16 @@ const TestFrameworkSchema = Schema.Literals(['vitest', 'vite-plus', 'bun'])
   })
 
 /**
- * Every output target is the same two-branch union: `split: true` writes one file per
- * entry into a directory, anything else writes a single file. Only those two fields
- * differ, so the rest is written once and spread into both branches.
+ * Every `split`-capable output target is the same two-branch union: `split: true` writes
+ * one file per entry into a directory, anything else writes a single file. Only those two
+ * fields differ, so the rest is written once and spread into both branches.
  *
  * `Schema.Union` resolves members in order and each member pins `split` to a literal, so
  * a member is only reachable through its own discriminant — the failure reported is the
  * one inside the matching branch, not a union-wide "no member matched".
+ *
+ * Routes, webhooks and the component sections are the targets that take it; rpc and the
+ * client hooks are always a single file, and carry `removedSplit` instead.
  */
 function splitUnion<Fields extends Schema.Struct.Fields>(shared: Fields) {
   return Schema.Union([
@@ -142,15 +145,34 @@ const ExportTypesOutputSchema = splitUnion({
   ],
 })
 
-const HooksSchema = splitUnion({ import: ImportSchema, client: ClientSchema }).annotate({
-  title: 'Client hooks target',
-  description:
-    'Data-fetching hooks generated on top of the Hono client. `import` is required because every hook imports the client.',
-  examples: [
-    { split: false, output: './src/swr.ts', import: '../lib', client: 'client' },
-    { split: true, output: './src/swr', import: '../lib', client: 'client' },
-  ],
-})
+/**
+ * A `split` key left over from when rpc and the client hooks still wrote one file per
+ * operation.
+ *
+ * `Schema.Struct` drops a key it does not declare, so a config that still carries
+ * `split: true` would decode to a single-file target and write to `<output>/index.ts`
+ * without a word about the directory of per-operation files the previous run left
+ * behind. A key that can never match turns that into the migration note instead — the
+ * issue path already names the generator, so the message only has to say what to write
+ * now.
+ */
+function removedSplit(output: string) {
+  return Schema.optionalKey(
+    Schema.declare<never>((_u): _u is never => false, {
+      message: `split was removed: rpc and hooks are always generated into a single file. Set output to a .ts path (e.g. '${output}') and delete the directory the previous run wrote.`,
+    }),
+  )
+}
+
+/** A client-hook target: one generated file, named after the library it is for. */
+function hooksSchema(kind: string) {
+  return Schema.Struct({
+    output: FileOutputSchema,
+    import: ImportSchema,
+    client: ClientSchema,
+    split: removedSplit(`./src/${kind}.ts`),
+  })
+}
 
 // `template` discriminates on `define` rather than `split`, but shares the same shape:
 // the scaffold options are common, only `define` and `routeHandler` differ.
@@ -443,7 +465,8 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
   rpc: Schema.optionalKey(
-    splitUnion({
+    Schema.Struct({
+      output: FileOutputSchema,
       import: ImportSchema,
       client: ClientSchema,
       parseResponse: Schema.Boolean.pipe(
@@ -454,80 +477,68 @@ const ConfigSchema = Schema.Struct({
       docs: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))).annotate({
         description: 'Emit the operation summary and description as JSDoc.',
       }),
+      split: removedSplit('./src/rpc.ts'),
     }).annotate({
       title: 'RPC wrappers target',
       description: 'Typed function wrappers around the Hono RPC client, one per operation.',
       examples: [
         {
-          split: false,
           output: './src/rpc.ts',
           import: '../lib',
           client: 'client',
           parseResponse: false,
           docs: false,
         },
-        {
-          split: true,
-          output: './src/rpc',
-          import: '../lib',
-          client: 'client',
-          parseResponse: true,
-          docs: true,
-        },
       ],
     }),
   ),
   swr: Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('swr').annotate({
       title: 'SWR hooks output',
       description: 'Generates `useSWR` / `useSWRMutation` hooks per operation.',
-      examples: [{ split: true, output: './src/swr', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/swr.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'tanstack-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('tanstack-query').annotate({
       title: 'TanStack Query hooks output',
       description: 'Generates `@tanstack/react-query` hooks per operation.',
-      examples: [
-        { split: true, output: './src/tanstack-query', import: '../lib', client: 'client' },
-      ],
+      examples: [{ output: './src/tanstack-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'preact-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('preact-query').annotate({
       title: 'Preact Query hooks output',
       description: 'Generates `@tanstack/preact-query` hooks per operation.',
-      examples: [{ split: true, output: './src/preact-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/preact-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'solid-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('solid-query').annotate({
       title: 'Solid Query hooks output',
       description: 'Generates `@tanstack/solid-query` hooks per operation.',
-      examples: [{ split: true, output: './src/solid-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/solid-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'vue-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('vue-query').annotate({
       title: 'Vue Query hooks output',
       description: 'Generates `@tanstack/vue-query` hooks per operation.',
-      examples: [{ split: true, output: './src/vue-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/vue-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'svelte-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('svelte-query').annotate({
       title: 'Svelte Query hooks output',
       description: 'Generates `@tanstack/svelte-query` hooks per operation.',
-      examples: [{ split: true, output: './src/svelte-query', import: '../lib', client: 'client' }],
+      examples: [{ output: './src/svelte-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   'angular-query': Schema.optionalKey(
-    HooksSchema.annotate({
+    hooksSchema('angular-query').annotate({
       title: 'Angular Query hooks output',
       description: 'Generates `@tanstack/angular-query-experimental` hooks per operation.',
-      examples: [
-        { split: true, output: './src/angular-query', import: '../lib', client: 'client' },
-      ],
+      examples: [{ output: './src/angular-query.ts', import: '../lib', client: 'client' }],
     }),
   ),
   test: Schema.optionalKey(

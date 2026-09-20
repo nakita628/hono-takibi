@@ -175,14 +175,7 @@ export function hooks(
   output: string,
   importPath: string,
   library: keyof typeof HOOK_CONFIGS,
-  options?: { readonly split?: boolean; readonly clientName?: string },
+  options?: { readonly clientName?: string },
 ) {
-  return makeQueryHooks(
-    openAPI,
-    output,
-    importPath,
-    HOOK_CONFIGS[library],
-    options?.split,
-    options?.clientName,
-  )
+  return makeQueryHooks(openAPI, output, importPath, HOOK_CONFIGS[library], options?.clientName)
 }

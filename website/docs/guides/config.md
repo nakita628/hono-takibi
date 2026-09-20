@@ -76,9 +76,11 @@ Every generator needs its own `output` path: two of them aimed at one file is re
 rather than resolved, because the generators run concurrently and one would silently
 overwrite the other.
 
-A `split` output directory belongs to the generator: before each run its `.ts` files are
-removed, so an operation or schema that leaves the document does not survive as an
-orphaned file still importing what it defined. Keep hand-written code somewhere else.
+`routes`, `webhooks` and the `components.*` sections take `split`, and a split output
+directory belongs to the generator: before each run its `.ts` files are removed, so a
+route or schema that leaves the document does not survive as an orphaned file still
+importing what it defined. Keep hand-written code somewhere else. Every other generator,
+`rpc` and the client hooks included, writes a single file.
 
 `basePath` must start with `/`, `client` must be a JavaScript identifier, and `import`
 must be a module specifier — each is spliced into the generated code verbatim, so the
@@ -206,54 +208,46 @@ export default defineConfig({
   },
 
   rpc: {
-    output: './src/rpc',
+    output: './src/rpc.ts',
     import: '../lib',
-    split: true,
     client: 'client',
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },
 
   swr: {
-    output: './src/swr',
+    output: './src/swr.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'tanstack-query': {
-    output: './src/tanstack-query',
+    output: './src/tanstack-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'preact-query': {
-    output: './src/preact-query',
+    output: './src/preact-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'solid-query': {
-    output: './src/solid-query',
+    output: './src/solid-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'vue-query': {
-    output: './src/vue-query',
+    output: './src/vue-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'svelte-query': {
-    output: './src/svelte-query',
+    output: './src/svelte-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'angular-query': {
-    output: './src/angular-query',
+    output: './src/angular-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
 

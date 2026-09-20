@@ -293,9 +293,8 @@ Supported: SWR, TanStack Query, Preact Query, Solid Query, Vue Query, Svelte Que
 export default defineConfig({
   input: 'openapi.yaml',
   'tanstack-query': {
-    output: './src/tanstack-query',
+    output: './src/tanstack-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
 })
@@ -401,10 +400,12 @@ export default defineConfig({
 
 Some options are mutually exclusive: `output` ↔ `routes`, `template.define` ↔ `routes`, `components.output` ↔ per-type components, `template.define` ↔ `routeHandler`.
 
-Every generator needs its own `output` path, and a `split` directory belongs to the
-generator — its `.ts` files are removed before each run, so keep hand-written code
-elsewhere. `basePath`, `client` and `import` are checked here because they are spliced
-into the generated code verbatim.
+Every generator needs its own `output` path. `routes`, `webhooks` and the
+`components.*` sections take `split`, and a split directory belongs to the generator —
+its `.ts` files are removed before each run, so keep hand-written code elsewhere. Every
+other generator, `rpc` and the client hooks included, writes a single file. `basePath`,
+`client` and `import` are checked here because they are spliced into the generated code
+verbatim.
 
 ```ts
 import { defineConfig } from 'hono-takibi'
@@ -525,54 +526,46 @@ export default defineConfig({
   },
 
   rpc: {
-    output: './src/rpc',
+    output: './src/rpc.ts',
     import: '../lib',
-    split: true,
     client: 'client',
     parseResponse: true,
     docs: false, // operation summary/description as JSDoc
   },
 
   swr: {
-    output: './src/swr',
+    output: './src/swr.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'tanstack-query': {
-    output: './src/tanstack-query',
+    output: './src/tanstack-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'preact-query': {
-    output: './src/preact-query',
+    output: './src/preact-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'solid-query': {
-    output: './src/solid-query',
+    output: './src/solid-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'vue-query': {
-    output: './src/vue-query',
+    output: './src/vue-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'svelte-query': {
-    output: './src/svelte-query',
+    output: './src/svelte-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
   'angular-query': {
-    output: './src/angular-query',
+    output: './src/angular-query.ts',
     import: '../lib',
-    split: true,
     client: 'client',
   },
 

@@ -1,5 +1,3 @@
-import path from 'node:path'
-
 import {
   isOperationLike,
   isParameterObject,
@@ -155,12 +153,6 @@ function makePickAllBodyInfo(componentsRequestBodies: { readonly [k: string]: un
     }
     return pickAllBodyInfoFromContent(requestBody.content)
   }
-}
-
-export function resolveSplitOutDir(output: string) {
-  const outDir = output.endsWith('.ts') ? path.dirname(output) : output
-  const indexPath = path.join(outDir, 'index.ts')
-  return { outDir, indexPath } as const
 }
 
 export function parsePathItem(rawItem: { readonly [k: string]: unknown }): {

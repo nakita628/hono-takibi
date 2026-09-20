@@ -432,7 +432,7 @@ describe('rpc', () => {
       const out = path.join(dir, 'index.ts')
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
 
-      const result = await runGenerator(rpc(openapi, out, '../index.ts', false))
+      const result = await runGenerator(rpc(openapi, out, '../index.ts'))
 
       const index = fs.readFileSync(out, 'utf-8')
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -496,161 +496,6 @@ export async function patchUsersId(
       expect(index).toStrictEqual(expected)
       expect(typeof result === 'string' && result.startsWith('Generated rpc code written to')).toBe(
         true,
-      )
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-})
-
-describe('rpc (split mode)', () => {
-  it('should generate the correct import code (split: true)', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-'))
-    try {
-      const input = path.join(dir, 'openapi.json') as
-        | `${string}.yaml`
-        | `${string}.json`
-        | `${string}.tsp`
-      fs.writeFileSync(input, JSON.stringify(openapi, null, 2), 'utf-8')
-
-      const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await runGenerator(rpc(openapi, out, '../index.ts', true))
-
-      const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './getHono'
-export * from './getHonoX'
-export * from './getZodOpenapiHono'
-export * from './getUsers'
-export * from './postUsers'
-export * from './getUsersId'
-export * from './putUsersId'
-export * from './deleteUsersId'
-export * from './patchUsersId'
-`
-      expect(index).toBe(indexExpected)
-
-      const deleteUsersId = fs.readFileSync(path.join(dir, 'rpc', 'deleteUsersId.ts'), 'utf-8')
-      const deleteUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function deleteUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users[':id'].$delete(args, options)
-}
-`
-
-      expect(deleteUsersId).toBe(deleteUsersIdExpected)
-
-      const getHono = fs.readFileSync(path.join(dir, 'rpc', 'getHono.ts'), 'utf-8')
-      const getHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function getHono(options?: ClientRequestOptions) {
-  return await client.hono.$get(undefined, options)
-}
-`
-
-      expect(getHono).toBe(getHonoExpected)
-
-      const getHonoX = fs.readFileSync(path.join(dir, 'rpc', 'getHonoX.ts'), 'utf-8')
-      const getHonoXExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function getHonoX(options?: ClientRequestOptions) {
-  return await client['hono-x'].$get(undefined, options)
-}
-`
-
-      expect(getHonoX).toBe(getHonoXExpected)
-
-      const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
-
-      const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function getUsers(
-  args: InferRequestType<typeof client.users.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users.$get(args, options)
-}
-`
-
-      expect(getUsers).toBe(expected)
-
-      const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
-
-      const getUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function getUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users[':id'].$get(args, options)
-}
-`
-      expect(getUsersId).toBe(getUsersIdExpected)
-
-      const getZodOpenapiHono = fs.readFileSync(
-        path.join(dir, 'rpc', 'getZodOpenapiHono.ts'),
-        'utf-8',
-      )
-
-      const getZodOpenapiHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function getZodOpenapiHono(options?: ClientRequestOptions) {
-  return await client['zod-openapi-hono'].$get(undefined, options)
-}
-`
-      expect(getZodOpenapiHono).toBe(getZodOpenapiHonoExpected)
-
-      const patchUsersId = fs.readFileSync(path.join(dir, 'rpc', 'patchUsersId.ts'), 'utf-8')
-
-      const patchUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function patchUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$patch']>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users[':id'].$patch(args, options)
-}
-`
-      expect(patchUsersId).toBe(patchUsersIdExpected)
-
-      const postUsers = fs.readFileSync(path.join(dir, 'rpc', 'postUsers.ts'), 'utf-8')
-      const postUsersExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function postUsers(
-  args: InferRequestType<typeof client.users.$post>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users.$post(args, options)
-}
-`
-      expect(postUsers).toBe(postUsersExpected)
-
-      const putUsersId = fs.readFileSync(path.join(dir, 'rpc', 'putUsersId.ts'), 'utf-8')
-
-      const putUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
-
-export async function putUsersId(
-  args: InferRequestType<(typeof client.users)[':id']['$put']>,
-  options?: ClientRequestOptions,
-) {
-  return await client.users[':id'].$put(args, options)
-}
-`
-      expect(putUsersId).toBe(putUsersIdExpected)
-
-      expect(result).toStrictEqual(
-        `Generated rpc code written to ${path.join(dir, 'rpc')}/*.ts (index.ts included)`,
       )
     } finally {
       fs.rmSync(dir, { recursive: true, force: true })
@@ -837,7 +682,7 @@ describe('rpc (isOptional tests)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await runGenerator(rpc(openapiIsOptional, out, '../client', false))
+      const result = await runGenerator(rpc(openapiIsOptional, out, '../client'))
 
       const generated = fs.readFileSync(out, 'utf-8')
 
@@ -880,85 +725,6 @@ export async function getAllOptional(
     }
   })
 
-  it('should generate optional params in split mode correctly', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-optional-split-'))
-    try {
-      const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await runGenerator(rpc(openapiIsOptional, out, '../client', true))
-
-      // Check getItems.ts for mixed required/optional
-      const getItems = fs.readFileSync(path.join(dir, 'rpc', 'getItems.ts'), 'utf-8')
-      const getItemsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getItems(
-  args: InferRequestType<typeof client.items.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await client.items.$get(args, options)
-}
-`
-      expect(getItems).toBe(getItemsExpected)
-
-      // Check getItemsId.ts for path param + optional query
-      const getItemsId = fs.readFileSync(path.join(dir, 'rpc', 'getItemsId.ts'), 'utf-8')
-      const getItemsIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getItemsId(
-  args: InferRequestType<(typeof client.items)[':id']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await client.items[':id'].$get(args, options)
-}
-`
-      expect(getItemsId).toBe(getItemsIdExpected)
-
-      // Check postAllRequired.ts - all required params
-      const postAllRequired = fs.readFileSync(path.join(dir, 'rpc', 'postAllRequired.ts'), 'utf-8')
-      const postAllRequiredExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function postAllRequired(
-  args: InferRequestType<(typeof client)['all-required']['$post']>,
-  options?: ClientRequestOptions,
-) {
-  return await client['all-required'].$post(args, options)
-}
-`
-      expect(postAllRequired).toBe(postAllRequiredExpected)
-
-      // Check getAllOptional.ts - all optional params
-      const getAllOptional = fs.readFileSync(path.join(dir, 'rpc', 'getAllOptional.ts'), 'utf-8')
-      const getAllOptionalExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getAllOptional(
-  args: InferRequestType<(typeof client)['all-optional']['$get']>,
-  options?: ClientRequestOptions,
-) {
-  return await client['all-optional'].$get(args, options)
-}
-`
-      expect(getAllOptional).toBe(getAllOptionalExpected)
-
-      // Check index.ts barrel file
-      const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './getItems'
-export * from './getItemsId'
-export * from './postAllRequired'
-export * from './getAllOptional'
-`
-      expect(index).toBe(indexExpected)
-
-      expect(result).toStrictEqual(
-        `Generated rpc code written to ${path.join(dir, 'rpc')}/*.ts (index.ts included)`,
-      )
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
   it('should generate code with custom client name', async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-'))
     try {
@@ -976,7 +742,7 @@ export * from './getAllOptional'
         },
       } as OpenAPI
 
-      await runGenerator(rpc(simpleOpenAPI, out, '../api', false, 'authClient'))
+      await runGenerator(rpc(simpleOpenAPI, out, '../api', 'authClient'))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -984,38 +750,6 @@ import { authClient } from '../api'
 
 export async function getUsers(options?: ClientRequestOptions) {
   return await authClient.users.$get(undefined, options)
-}
-`)
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('should generate split files with custom client name', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-split-'))
-    try {
-      const out = path.join(dir, 'rpc')
-      const simpleOpenAPI = {
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/admin/users': {
-            get: {
-              summary: 'Get admin users',
-              responses: { '200': { description: 'OK' } },
-            },
-          },
-        },
-      } as OpenAPI
-
-      await runGenerator(rpc(simpleOpenAPI, out, '../api', true, 'adminClient'))
-
-      const code = fs.readFileSync(path.join(dir, 'rpc', 'getAdminUsers.ts'), 'utf-8')
-      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
-import { adminClient } from '../api'
-
-export async function getAdminUsers(options?: ClientRequestOptions) {
-  return await adminClient.admin.users.$get(undefined, options)
 }
 `)
     } finally {
@@ -1042,7 +776,7 @@ describe('rpc (parseResponse: true)', () => {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(simpleOpenAPI, out, '../client', false, 'client', true))
+      await runGenerator(rpc(simpleOpenAPI, out, '../client', 'client', true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1083,7 +817,7 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPIWithArgs, out, '../client', false, 'client', true))
+      await runGenerator(rpc(openAPIWithArgs, out, '../client', 'client', true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -1095,39 +829,6 @@ export async function getUsersId(
   options?: ClientRequestOptions,
 ) {
   return await parseResponse(client.users[':id'].$get(args, options))
-}
-`)
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('should generate split files with parseResponse', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-parseResponse-split-'))
-    try {
-      const out = path.join(dir, 'rpc')
-      const simpleOpenAPI = {
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/health': {
-            get: {
-              summary: 'Health check',
-              responses: { '200': { description: 'OK' } },
-            },
-          },
-        },
-      } as OpenAPI
-
-      await runGenerator(rpc(simpleOpenAPI, out, '../client', true, 'client', true))
-
-      const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
-      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import { client } from '../client'
-
-export async function getHealth(options?: ClientRequestOptions) {
-  return await parseResponse(client.health.$get(undefined, options))
 }
 `)
     } finally {
@@ -1174,7 +875,7 @@ describe('rpc (trailing slash)', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-'))
     try {
       const out = path.join(dir, 'index.ts')
-      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client', false))
+      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client'))
 
       const code = fs.readFileSync(out, 'utf-8')
 
@@ -1203,63 +904,6 @@ export async function getPostsIndex(
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
-
-  it('should generate split files with trailing-slash names', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-trailing-split-'))
-    try {
-      const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await runGenerator(rpc(trailingSlashOpenAPI, out, '../client', true))
-
-      const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
-      const indexExpected = `export * from './getApiReverseChibanIndex'
-export * from './getApiReverseChiban'
-export * from './getPostsIndex'
-`
-      expect(index).toBe(indexExpected)
-
-      const trailingFile = fs.readFileSync(
-        path.join(dir, 'rpc', 'getApiReverseChibanIndex.ts'),
-        'utf-8',
-      )
-      const trailingExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getApiReverseChibanIndex(options?: ClientRequestOptions) {
-  return await client.api.reverseChiban.index.$get(undefined, options)
-}
-`
-      expect(trailingFile).toBe(trailingExpected)
-
-      const normalFile = fs.readFileSync(path.join(dir, 'rpc', 'getApiReverseChiban.ts'), 'utf-8')
-      const normalExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getApiReverseChiban(options?: ClientRequestOptions) {
-  return await client.api.reverseChiban.$get(undefined, options)
-}
-`
-      expect(normalFile).toBe(normalExpected)
-
-      const postsFile = fs.readFileSync(path.join(dir, 'rpc', 'getPostsIndex.ts'), 'utf-8')
-      const postsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-export async function getPostsIndex(
-  args: InferRequestType<typeof client.posts.index.$get>,
-  options?: ClientRequestOptions,
-) {
-  return await client.posts.index.$get(args, options)
-}
-`
-      expect(postsFile).toBe(postsExpected)
-
-      expect(result).toStrictEqual(
-        `Generated rpc code written to ${path.join(dir, 'rpc')}/*.ts (index.ts included)`,
-      )
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
 })
 
 describe('rpc (docs: true)', () => {
@@ -1280,7 +924,7 @@ describe('rpc (docs: true)', () => {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client', false, undefined, true))
+      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1318,7 +962,7 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client', false, undefined, true))
+      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1358,7 +1002,7 @@ export async function getUsers(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client', false, undefined, true))
+      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1394,7 +1038,7 @@ export async function getPing(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client', false, undefined, true))
+      await runGenerator(rpc(openAPI, out, '../client', 'client', false, undefined, true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1427,7 +1071,7 @@ export async function getSilent(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client'))
+      await runGenerator(rpc(openAPI, out, '../client', 'client'))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
@@ -1461,7 +1105,7 @@ export async function getHealth(options?: ClientRequestOptions) {
         },
       } as OpenAPI
 
-      await runGenerator(rpc(openAPI, out, '../client', false, 'client', true, undefined, true))
+      await runGenerator(rpc(openAPI, out, '../client', 'client', true, undefined, true))
 
       const code = fs.readFileSync(out, 'utf-8')
       expect(code).toBe(`import type { InferRequestType, ClientRequestOptions } from 'hono/client'
@@ -1480,43 +1124,6 @@ export async function getUsersId(
   options?: ClientRequestOptions,
 ) {
   return await parseResponse(client.users[':id'].$get(args, options))
-}
-`)
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true })
-    }
-  })
-
-  it('should generate split files with JSDoc', async () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-docs-split-'))
-    try {
-      const out = path.join(dir, 'rpc')
-      const openAPI = {
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/health': {
-            get: {
-              summary: 'Health check',
-              responses: { '200': { description: 'OK' } },
-            },
-          },
-        },
-      } as OpenAPI
-
-      await runGenerator(rpc(openAPI, out, '../client', true, 'client', false, undefined, true))
-
-      const code = fs.readFileSync(path.join(dir, 'rpc', 'getHealth.ts'), 'utf-8')
-      expect(code).toBe(`import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../client'
-
-/**
- * Health check
- *
- * GET /health
- */
-export async function getHealth(options?: ClientRequestOptions) {
-  return await client.health.$get(undefined, options)
 }
 `)
     } finally {

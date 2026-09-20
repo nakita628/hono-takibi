@@ -7,7 +7,6 @@ import {
   makeParseResponseType,
   operationHasArgs,
   parsePathItem,
-  resolveSplitOutDir,
 } from './rpc.js'
 
 /* ═══════════════════════════════════ formatPath ═══════════════════════════════════ */
@@ -107,28 +106,6 @@ describe('hasNoContentResponse', () => {
 
   it.concurrent('returns true when 204 is among multiple responses', () => {
     expect(hasNoContentResponse({ responses: { '200': {}, '204': {} } })).toBe(true)
-  })
-})
-
-/* ═══════════════════════════════════ resolveSplitOutDir ═══════════════════════════════════ */
-
-describe('resolveSplitOutDir', () => {
-  it.concurrent('strips .ts extension and resolves index path', () => {
-    const result = resolveSplitOutDir('src/output.ts')
-    expect(result.outDir).toBe('src')
-    expect(result.indexPath).toBe('src/index.ts')
-  })
-
-  it.concurrent('uses directory as-is when no .ts extension', () => {
-    const result = resolveSplitOutDir('src/output')
-    expect(result.outDir).toBe('src/output')
-    expect(result.indexPath).toBe('src/output/index.ts')
-  })
-
-  it.concurrent('handles simple file name', () => {
-    const result = resolveSplitOutDir('index.ts')
-    expect(result.outDir).toBe('.')
-    expect(result.indexPath).toBe('index.ts')
   })
 })
 
