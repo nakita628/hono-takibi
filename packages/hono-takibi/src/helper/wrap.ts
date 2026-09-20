@@ -368,6 +368,15 @@ export function wrap(
     meta?.parameters && meta.parameters.required === undefined && meta.parameters.in !== 'path'
       ? { ...meta.parameters, required: false }
       : meta?.parameters
+  // Under OpenAPI's default `style: form, explode: true`, a one-element array serialises
+  // to a single `?ids=1` — which reaches the handler as a bare string, not an array, so a
+  // plain `z.array(...)` rejects the request a spec-compliant client just made. Accepting
+  // both arities is what closes that gap. A path segment is `style: simple` (one comma
+  // separated value), a different shape, so it is left alone.
+  const isRepeatedWireArray =
+    typeList.includes('array') &&
+    (parameter?.in === 'query' || parameter?.in === 'header' || parameter?.in === 'cookie')
+  const wireZ = isRepeatedWireArray ? `z.preprocess((val)=>(Array.isArray(val)?val:[val]),${z})` : z
   const result = [
     parameter ? `param:${serializeParam(parameter)}` : undefined,
     ...headerMetaProps,
@@ -378,16 +387,16 @@ export function wrap(
   // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
-      return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
+      return result.length === 0 ? wireZ : `${wireZ}.openapi({${result.join(',')}})`
     }
     return result.length === 0
-      ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${result.join(',')}})`
+      ? `${wireZ}.exactOptional()`
+      : `${wireZ}.exactOptional().openapi({${result.join(',')}})`
   }
   if (options?.isOptional === true) {
     return result.length === 0
-      ? `${z}.exactOptional()`
-      : `${z}.exactOptional().openapi({${result.join(',')}})`
+      ? `${wireZ}.exactOptional()`
+      : `${wireZ}.exactOptional().openapi({${result.join(',')}})`
   }
-  return result.length === 0 ? z : `${z}.openapi({${result.join(',')}})`
+  return result.length === 0 ? wireZ : `${wireZ}.openapi({${result.join(',')}})`
 }

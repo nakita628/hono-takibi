@@ -1,0 +1,4 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["__generated__/**/*", "app.ts", "cookie-params.test.ts"]
+}

@@ -2,7 +2,8 @@
 # strings exactly like query and path values, but they took a different branch in the
 # generator and every non-string one used to reject its own input.
 #
-# Headers carry a single value, so there is no array axis here — `query-params` has it.
+# A header name is sent once here, so `x-ids` is the array axis: it arrives as a single
+# value and only parses because the generated array schema accepts that arity.
 # `format: emoji` is absent because a header value is a ByteString: HTTP cannot carry one.
 # `format: binary` is absent because it emits `z.file()`.
 openapi: 3.1.0
@@ -84,6 +85,12 @@ paths:
         - { name: x-e164, in: header, required: true, schema: { type: string, format: e164 } }
         - { name: x-guid, in: header, required: true, schema: { type: string, format: guid } }
         - { name: x-trim, in: header, required: true, schema: { type: string, format: trim } }
+        - {
+            name: x-ids,
+            in: header,
+            required: false,
+            schema: { type: array, items: { type: integer } },
+          }
       responses:
         '200':
           description: The runtime typeof every header, and the int64 value verbatim.
@@ -175,3 +182,4 @@ paths:
                   guid: { type: string }
                   trim: { type: string }
                   int64Value: { type: string }
+                  idsTypes: { type: array, items: { type: string } }

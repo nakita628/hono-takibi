@@ -237,7 +237,7 @@ export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const IdsParamsSchema=z.array(z.coerce.number().int()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
+      `export const IdsParamsSchema=z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.coerce.number().int())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer"}},"required":false}})`,
     )
   })
 

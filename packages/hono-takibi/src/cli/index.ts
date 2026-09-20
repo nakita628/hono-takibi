@@ -385,7 +385,7 @@ export function honoTakibi(argv: readonly string[], entryUrl: string) {
       Schema.Struct({
         version: Schema.String.annotate({
           description: 'What `--version` prints.',
-          examples: ['0.12.0'],
+          examples: ['1.2.3'],
         }),
         description: Schema.String.annotate({
           description: 'The sentence `--help` prints under DESCRIPTION.',

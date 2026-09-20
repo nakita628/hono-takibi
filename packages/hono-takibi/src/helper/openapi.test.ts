@@ -579,6 +579,29 @@ describe('openapi helper', () => {
     })
     // Regression: `header` and `cookie` were not string wires, so a numeric or boolean
     // header schema rejected its own input on every request.
+    // Regression: an exploded one-element array serialises to a single `?ids=1`, which
+    // reaches the handler as a bare string — a plain `z.array(...)` rejected the request a
+    // spec-compliant client had just made.
+    it.concurrent.each([['query'], ['header'], ['cookie']] as const)(
+      'accepts both arities for a %s array parameter',
+      (location) => {
+        const result = makeParameters([
+          { name: 'ids', in: location, schema: { type: 'array', items: { type: 'integer' } } },
+        ])
+        expect(result[location].ids).toContain(
+          'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.coerce.number().int()))',
+        )
+      },
+    )
+    // A path segment is `style: simple` — one comma-separated value, never a repetition —
+    // so the arity wrapper is deliberately not applied there.
+    it.concurrent('leaves a path array parameter unwrapped', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'path', schema: { type: 'array', items: { type: 'integer' } } },
+      ])
+      expect(result.path.ids).toContain('z.array(z.coerce.number().int())')
+      expect(result.path.ids).not.toContain('z.preprocess')
+    })
     it.concurrent('coerces header parameters, which arrive as strings too', () => {
       const result = makeParameters([
         { name: 'x-count', in: 'header', schema: { type: 'integer' } },
@@ -684,7 +707,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.ids).toBe(
-        'z.array(z.coerce.number()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}},"required":false}})',
+        'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.coerce.number())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}},"required":false}})',
       )
     })
 
@@ -1814,7 +1837,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string()).readonly().exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
+            ids: `z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string()).readonly()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
           },
         })
       })
@@ -1826,7 +1849,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.array(z.string()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
+            ids: `z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
           },
         })
       })

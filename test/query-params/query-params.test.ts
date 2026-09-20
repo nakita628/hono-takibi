@@ -68,7 +68,7 @@ const TRANSFORMS: readonly (readonly [string, string, string])[] = [
 ]
 
 /** Every parameter is required, so one request has to carry all of them. */
-function query(overrides: Readonly<Record<string, string>> = {}) {
+function query(overrides: Readonly<Record<string, string>> = {}, arity: 'one' | 'many' = 'many') {
   const parts: string[] = []
   for (const [name, value] of TRANSFORMS) {
     parts.push(`${name}=${encodeURIComponent(overrides[name] ?? value)}`)
@@ -76,9 +76,10 @@ function query(overrides: Readonly<Record<string, string>> = {}) {
   for (const [name, value] of SHAPES) {
     const sent = overrides[name] ?? value
     parts.push(`${name}=${encodeURIComponent(sent)}`)
-    // A single repetition would reach the handler as a bare string, so every array
-    // parameter is sent twice — the arity an exploded OpenAPI array actually has.
-    parts.push(`${name}_arr=${encodeURIComponent(sent)}`, `${name}_arr=${encodeURIComponent(sent)}`)
+    const repeats = arity === 'one' ? 1 : 2
+    for (let i = 0; i < repeats; i += 1) {
+      parts.push(`${name}_arr=${encodeURIComponent(sent)}`)
+    }
   }
   return `/params?${parts.join('&')}`
 }
@@ -95,6 +96,18 @@ describe('query parameter matrix', () => {
     expect(body[name]).toBe(type)
     expect(body[`${name}_arr`]).toStrictEqual([type, type])
   })
+
+  // `?ids=1` is what an exploded one-element array serialises to, and it reaches the
+  // handler as a bare string — a plain `z.array(...)` used to reject it.
+  it.concurrent.each(SHAPES)(
+    '%s accepts a single repetition as a one-element array',
+    async (name, _value, type) => {
+      const res = await queryParamsApp.request(query({}, 'one'))
+      expect(res.status).toBe(200)
+      const body = (await res.json()) as Record<string, unknown>
+      expect(body[`${name}_arr`]).toStrictEqual([type])
+    },
+  )
 
   it('int64 keeps precision past Number.MAX_SAFE_INTEGER', async () => {
     const res = await queryParamsApp.request(query())
