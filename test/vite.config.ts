@@ -7,6 +7,10 @@ export default defineConfig({
   },
   test: {
     include: [
+      // Self-contained concern directories: `<name>/<name>.test.ts` beside its own
+      // document, config, host and generated output.
+      '*/*.test.ts',
+      '*/*.test.tsx',
       'runtime/**/*.test.ts',
       'runtime/**/*.test.tsx',
       '__generated__/mock/**/*.test.ts',
@@ -20,7 +24,7 @@ export default defineConfig({
   lint: {
     ignorePatterns: [
       '**/node_modules/**',
-      '__generated__/**',
+      '**/__generated__/**',
       // Overlay sources are copy templates completed inside __generated__/<case>
       // after generation; they only resolve (aliases, relative routes) in that
       // destination, where the per-case tsc checks them.
@@ -102,6 +106,6 @@ export default defineConfig({
   // Style (printWidth / quotes / semicolons / import sorting) is inherited from the root
   // vite.config.ts; only the paths this workspace skips are declared here.
   fmt: {
-    ignorePatterns: ['**/node_modules/**', '__generated__/**'],
+    ignorePatterns: ['**/node_modules/**', '**/__generated__/**'],
   },
 })

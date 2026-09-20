@@ -1,0 +1,177 @@
+# Every parameter shape the generator supports, as a header. Headers reach the handler as
+# strings exactly like query and path values, but they took a different branch in the
+# generator and every non-string one used to reject its own input.
+#
+# Headers carry a single value, so there is no array axis here — `query-params` has it.
+# `format: emoji` is absent because a header value is a ByteString: HTTP cannot carry one.
+# `format: binary` is absent because it emits `z.file()`.
+openapi: 3.1.0
+info:
+  title: Header Parameter Matrix
+  version: 0.0.0
+paths:
+  /headers:
+    get:
+      operationId: headerParams
+      parameters:
+        - { name: x-integer, in: header, required: true, schema: { type: integer } }
+        - { name: x-int32, in: header, required: true, schema: { type: integer, format: int32 } }
+        - { name: x-int64, in: header, required: true, schema: { type: integer, format: int64 } }
+        - { name: x-bigint, in: header, required: true, schema: { type: integer, format: bigint } }
+        - { name: x-number, in: header, required: true, schema: { type: number } }
+        - { name: x-float, in: header, required: true, schema: { type: number, format: float } }
+        - { name: x-float32, in: header, required: true, schema: { type: number, format: float32 } }
+        - { name: x-float64, in: header, required: true, schema: { type: number, format: float64 } }
+        - { name: x-double, in: header, required: true, schema: { type: number, format: double } }
+        - {
+            name: x-numpassword,
+            in: header,
+            required: true,
+            schema: { type: number, format: password },
+          }
+        - { name: x-boolean, in: header, required: true, schema: { type: boolean } }
+        - { name: x-string, in: header, required: true, schema: { type: string } }
+        - { name: x-email, in: header, required: true, schema: { type: string, format: email } }
+        - { name: x-uuid, in: header, required: true, schema: { type: string, format: uuid } }
+        - { name: x-uuidv4, in: header, required: true, schema: { type: string, format: uuidv4 } }
+        - { name: x-uuidv7, in: header, required: true, schema: { type: string, format: uuidv7 } }
+        - { name: x-url, in: header, required: true, schema: { type: string, format: url } }
+        - { name: x-uri, in: header, required: true, schema: { type: string, format: uri } }
+        - { name: x-httpurl, in: header, required: true, schema: { type: string, format: httpUrl } }
+        - {
+            name: x-hostname,
+            in: header,
+            required: true,
+            schema: { type: string, format: hostname },
+          }
+        - { name: x-hex, in: header, required: true, schema: { type: string, format: hex } }
+        - { name: x-base64, in: header, required: true, schema: { type: string, format: base64 } }
+        - {
+            name: x-base64url,
+            in: header,
+            required: true,
+            schema: { type: string, format: base64url },
+          }
+        - { name: x-nanoid, in: header, required: true, schema: { type: string, format: nanoid } }
+        - { name: x-cuid2, in: header, required: true, schema: { type: string, format: cuid2 } }
+        - { name: x-ulid, in: header, required: true, schema: { type: string, format: ulid } }
+        - { name: x-ipv4, in: header, required: true, schema: { type: string, format: ipv4 } }
+        - { name: x-ipv6, in: header, required: true, schema: { type: string, format: ipv6 } }
+        - { name: x-cidrv4, in: header, required: true, schema: { type: string, format: cidrv4 } }
+        - { name: x-cidrv6, in: header, required: true, schema: { type: string, format: cidrv6 } }
+        - { name: x-date, in: header, required: true, schema: { type: string, format: date } }
+        - { name: x-time, in: header, required: true, schema: { type: string, format: time } }
+        - {
+            name: x-datetime,
+            in: header,
+            required: true,
+            schema: { type: string, format: date-time },
+          }
+        - {
+            name: x-duration,
+            in: header,
+            required: true,
+            schema: { type: string, format: duration },
+          }
+        - { name: x-byte, in: header, required: true, schema: { type: string, format: byte } }
+        - {
+            name: x-strpassword,
+            in: header,
+            required: true,
+            schema: { type: string, format: password },
+          }
+        - { name: x-mac, in: header, required: true, schema: { type: string, format: mac } }
+        - { name: x-e164, in: header, required: true, schema: { type: string, format: e164 } }
+        - { name: x-guid, in: header, required: true, schema: { type: string, format: guid } }
+        - { name: x-trim, in: header, required: true, schema: { type: string, format: trim } }
+      responses:
+        '200':
+          description: The runtime typeof every header, and the int64 value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - integer
+                  - int32
+                  - int64
+                  - bigint
+                  - number
+                  - float
+                  - float32
+                  - float64
+                  - double
+                  - numpassword
+                  - boolean
+                  - string
+                  - email
+                  - uuid
+                  - uuidv4
+                  - uuidv7
+                  - url
+                  - uri
+                  - httpurl
+                  - hostname
+                  - hex
+                  - base64
+                  - base64url
+                  - nanoid
+                  - cuid2
+                  - ulid
+                  - ipv4
+                  - ipv6
+                  - cidrv4
+                  - cidrv6
+                  - date
+                  - time
+                  - datetime
+                  - duration
+                  - byte
+                  - strpassword
+                  - mac
+                  - e164
+                  - guid
+                  - trim
+                  - int64Value
+                properties:
+                  integer: { type: string }
+                  int32: { type: string }
+                  int64: { type: string }
+                  bigint: { type: string }
+                  number: { type: string }
+                  float: { type: string }
+                  float32: { type: string }
+                  float64: { type: string }
+                  double: { type: string }
+                  numpassword: { type: string }
+                  boolean: { type: string }
+                  string: { type: string }
+                  email: { type: string }
+                  uuid: { type: string }
+                  uuidv4: { type: string }
+                  uuidv7: { type: string }
+                  url: { type: string }
+                  uri: { type: string }
+                  httpurl: { type: string }
+                  hostname: { type: string }
+                  hex: { type: string }
+                  base64: { type: string }
+                  base64url: { type: string }
+                  nanoid: { type: string }
+                  cuid2: { type: string }
+                  ulid: { type: string }
+                  ipv4: { type: string }
+                  ipv6: { type: string }
+                  cidrv4: { type: string }
+                  cidrv6: { type: string }
+                  date: { type: string }
+                  time: { type: string }
+                  datetime: { type: string }
+                  duration: { type: string }
+                  byte: { type: string }
+                  strpassword: { type: string }
+                  mac: { type: string }
+                  e164: { type: string }
+                  guid: { type: string }
+                  trim: { type: string }
+                  int64Value: { type: string }

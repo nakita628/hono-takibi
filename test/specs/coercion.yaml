@@ -50,26 +50,6 @@ paths:
             type: array
             items:
               type: integer
-        - name: big
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
-        - name: bigs
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: integer
-              format: int64
-        - name: ratio
-          in: query
-          required: false
-          schema:
-            type: number
-            format: double
       responses:
         '200':
           description: Coerced query echo
@@ -90,69 +70,6 @@ paths:
                   activeType:
                     type: string
                   idsTypes:
-                    type: array
-                    items:
-                      type: string
-                  bigType:
-                    type: string
-                  bigValue:
-                    type: string
-                  bigsTypes:
-                    type: array
-                    items:
-                      type: string
-                  ratioType:
-                    type: string
-  /headers:
-    get:
-      operationId: coerceHeaders
-      parameters:
-        - name: x-count
-          in: header
-          required: true
-          schema:
-            type: integer
-        - name: x-flag
-          in: header
-          required: true
-          schema:
-            type: boolean
-        - name: x-big
-          in: header
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: ratios
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: number
-              format: double
-      responses:
-        '200':
-          description: Coerced header echo
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - countType
-                  - flagType
-                  - bigType
-                  - bigValue
-                properties:
-                  countType:
-                    type: string
-                  flagType:
-                    type: string
-                  bigType:
-                    type: string
-                  bigValue:
-                    type: string
-                  ratiosTypes:
                     type: array
                     items:
                       type: string

@@ -222,6 +222,12 @@ export function string(
       if (coerce) return baseErrorArg ? `z.coerce.string(${baseErrorArg})` : 'z.coerce.string()'
       return baseErrorArg ? `z.string(${baseErrorArg})` : 'z.string()'
     }
+    // `z.trim()` / `z.toLowerCase()` / `z.toUpperCase()` are checks, not schemas — they
+    // carry no `.parse` and no `.openapi`, so emitting one on its own produces a module
+    // that throws on import. They belong on a string.
+    if (isTransformFormat) {
+      return baseErrorArg ? `z.string(${baseErrorArg}).${format}` : `z.string().${format}`
+    }
     const fmtOpts = isValidationFormat ? makeFormatOptions(schema) : []
     const includeBaseError = !!baseErrorArg && isValidationFormat
     // baseErrorArg already wraps in `{...}`. Strip the outer braces to merge

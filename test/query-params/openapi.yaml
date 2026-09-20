@@ -1,0 +1,540 @@
+# Every parameter shape the generator supports, as a query parameter: each `type` and
+# `format`, once on its own and once as an array. HTTP delivers all of them as strings, so
+# what the generated schema has to prove is that each arrives as the right JavaScript type.
+#
+# `format: binary` is deliberately absent: it emits `z.file()`, which a query string cannot
+# carry — OpenAPI scopes it to request bodies.
+#
+# The `tx_*` parameters are the second axis: the `x-trim` / `x-toLowerCase` /
+# `x-toUpperCase` / `x-normalize` extensions, alone and paired with a validation format —
+# the pairing takes a `.pipe()` branch so the transform runs before the format's own check.
+# These assert the value that arrives, not just its type.
+openapi: 3.1.0
+info:
+  title: Query Parameter Matrix
+  version: 0.0.0
+paths:
+  /params:
+    get:
+      operationId: queryParams
+      parameters:
+        - { name: integer, in: query, required: true, schema: { type: integer } }
+        - {
+            name: integer_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer } },
+          }
+        - { name: int32, in: query, required: true, schema: { type: integer, format: int32 } }
+        - {
+            name: int32_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, format: int32 } },
+          }
+        - { name: int64, in: query, required: true, schema: { type: integer, format: int64 } }
+        - {
+            name: int64_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, format: int64 } },
+          }
+        - { name: bigint, in: query, required: true, schema: { type: integer, format: bigint } }
+        - {
+            name: bigint_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: integer, format: bigint } },
+          }
+        - { name: number, in: query, required: true, schema: { type: number } }
+        - {
+            name: number_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number } },
+          }
+        - { name: float, in: query, required: true, schema: { type: number, format: float } }
+        - {
+            name: float_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number, format: float } },
+          }
+        - { name: float32, in: query, required: true, schema: { type: number, format: float32 } }
+        - {
+            name: float32_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number, format: float32 } },
+          }
+        - { name: float64, in: query, required: true, schema: { type: number, format: float64 } }
+        - {
+            name: float64_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number, format: float64 } },
+          }
+        - { name: double, in: query, required: true, schema: { type: number, format: double } }
+        - {
+            name: double_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number, format: double } },
+          }
+        - {
+            name: numpassword,
+            in: query,
+            required: true,
+            schema: { type: number, format: password },
+          }
+        - {
+            name: numpassword_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: number, format: password } },
+          }
+        - { name: boolean, in: query, required: true, schema: { type: boolean } }
+        - {
+            name: boolean_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: boolean } },
+          }
+        - { name: string, in: query, required: true, schema: { type: string } }
+        - {
+            name: string_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string } },
+          }
+        - { name: email, in: query, required: true, schema: { type: string, format: email } }
+        - {
+            name: email_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: email } },
+          }
+        - { name: uuid, in: query, required: true, schema: { type: string, format: uuid } }
+        - {
+            name: uuid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: uuid } },
+          }
+        - { name: uuidv4, in: query, required: true, schema: { type: string, format: uuidv4 } }
+        - {
+            name: uuidv4_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: uuidv4 } },
+          }
+        - { name: uuidv7, in: query, required: true, schema: { type: string, format: uuidv7 } }
+        - {
+            name: uuidv7_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: uuidv7 } },
+          }
+        - { name: url, in: query, required: true, schema: { type: string, format: url } }
+        - {
+            name: url_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: url } },
+          }
+        - { name: uri, in: query, required: true, schema: { type: string, format: uri } }
+        - {
+            name: uri_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: uri } },
+          }
+        - { name: httpurl, in: query, required: true, schema: { type: string, format: httpUrl } }
+        - {
+            name: httpurl_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: httpUrl } },
+          }
+        - { name: hostname, in: query, required: true, schema: { type: string, format: hostname } }
+        - {
+            name: hostname_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: hostname } },
+          }
+        - { name: hex, in: query, required: true, schema: { type: string, format: hex } }
+        - {
+            name: hex_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: hex } },
+          }
+        - { name: emoji, in: query, required: true, schema: { type: string, format: emoji } }
+        - {
+            name: emoji_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: emoji } },
+          }
+        - { name: base64, in: query, required: true, schema: { type: string, format: base64 } }
+        - {
+            name: base64_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: base64 } },
+          }
+        - {
+            name: base64url,
+            in: query,
+            required: true,
+            schema: { type: string, format: base64url },
+          }
+        - {
+            name: base64url_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: base64url } },
+          }
+        - { name: nanoid, in: query, required: true, schema: { type: string, format: nanoid } }
+        - {
+            name: nanoid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: nanoid } },
+          }
+        - { name: cuid2, in: query, required: true, schema: { type: string, format: cuid2 } }
+        - {
+            name: cuid2_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: cuid2 } },
+          }
+        - { name: ulid, in: query, required: true, schema: { type: string, format: ulid } }
+        - {
+            name: ulid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: ulid } },
+          }
+        - { name: ipv4, in: query, required: true, schema: { type: string, format: ipv4 } }
+        - {
+            name: ipv4_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: ipv4 } },
+          }
+        - { name: ipv6, in: query, required: true, schema: { type: string, format: ipv6 } }
+        - {
+            name: ipv6_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: ipv6 } },
+          }
+        - { name: cidrv4, in: query, required: true, schema: { type: string, format: cidrv4 } }
+        - {
+            name: cidrv4_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: cidrv4 } },
+          }
+        - { name: cidrv6, in: query, required: true, schema: { type: string, format: cidrv6 } }
+        - {
+            name: cidrv6_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: cidrv6 } },
+          }
+        - { name: date, in: query, required: true, schema: { type: string, format: date } }
+        - {
+            name: date_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: date } },
+          }
+        - { name: time, in: query, required: true, schema: { type: string, format: time } }
+        - {
+            name: time_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: time } },
+          }
+        - { name: datetime, in: query, required: true, schema: { type: string, format: date-time } }
+        - {
+            name: datetime_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: date-time } },
+          }
+        - { name: duration, in: query, required: true, schema: { type: string, format: duration } }
+        - {
+            name: duration_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: duration } },
+          }
+        - { name: byte, in: query, required: true, schema: { type: string, format: byte } }
+        - {
+            name: byte_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: byte } },
+          }
+        - {
+            name: strpassword,
+            in: query,
+            required: true,
+            schema: { type: string, format: password },
+          }
+        - {
+            name: strpassword_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: password } },
+          }
+        - { name: mac, in: query, required: true, schema: { type: string, format: mac } }
+        - {
+            name: mac_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: mac } },
+          }
+        - { name: e164, in: query, required: true, schema: { type: string, format: e164 } }
+        - {
+            name: e164_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: e164 } },
+          }
+        - { name: guid, in: query, required: true, schema: { type: string, format: guid } }
+        - {
+            name: guid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: guid } },
+          }
+        - { name: trim, in: query, required: true, schema: { type: string, format: trim } }
+        - {
+            name: trim_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: trim } },
+          }
+        - { name: tx_trim, in: query, required: true, schema: { type: string, x-trim: true } }
+        - {
+            name: tx_lower,
+            in: query,
+            required: true,
+            schema: { type: string, x-toLowerCase: true },
+          }
+        - {
+            name: tx_upper,
+            in: query,
+            required: true,
+            schema: { type: string, x-toUpperCase: true },
+          }
+        - {
+            name: tx_normalize,
+            in: query,
+            required: true,
+            schema: { type: string, x-normalize: NFKC },
+          }
+        - {
+            name: tx_email_trim,
+            in: query,
+            required: true,
+            schema: { type: string, format: email, x-trim: true },
+          }
+        - {
+            name: tx_uuid_trim,
+            in: query,
+            required: true,
+            schema: { type: string, format: uuid, x-trim: true },
+          }
+      responses:
+        '200':
+          description: The runtime typeof every parameter, and the int64 value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - integer
+                  - integer_arr
+                  - int32
+                  - int32_arr
+                  - int64
+                  - int64_arr
+                  - bigint
+                  - bigint_arr
+                  - number
+                  - number_arr
+                  - float
+                  - float_arr
+                  - float32
+                  - float32_arr
+                  - float64
+                  - float64_arr
+                  - double
+                  - double_arr
+                  - numpassword
+                  - numpassword_arr
+                  - boolean
+                  - boolean_arr
+                  - string
+                  - string_arr
+                  - email
+                  - email_arr
+                  - uuid
+                  - uuid_arr
+                  - uuidv4
+                  - uuidv4_arr
+                  - uuidv7
+                  - uuidv7_arr
+                  - url
+                  - url_arr
+                  - uri
+                  - uri_arr
+                  - httpurl
+                  - httpurl_arr
+                  - hostname
+                  - hostname_arr
+                  - hex
+                  - hex_arr
+                  - emoji
+                  - emoji_arr
+                  - base64
+                  - base64_arr
+                  - base64url
+                  - base64url_arr
+                  - nanoid
+                  - nanoid_arr
+                  - cuid2
+                  - cuid2_arr
+                  - ulid
+                  - ulid_arr
+                  - ipv4
+                  - ipv4_arr
+                  - ipv6
+                  - ipv6_arr
+                  - cidrv4
+                  - cidrv4_arr
+                  - cidrv6
+                  - cidrv6_arr
+                  - date
+                  - date_arr
+                  - time
+                  - time_arr
+                  - datetime
+                  - datetime_arr
+                  - duration
+                  - duration_arr
+                  - byte
+                  - byte_arr
+                  - strpassword
+                  - strpassword_arr
+                  - mac
+                  - mac_arr
+                  - e164
+                  - e164_arr
+                  - guid
+                  - guid_arr
+                  - trim
+                  - trim_arr
+                  - tx_trim
+                  - tx_lower
+                  - tx_upper
+                  - tx_normalize
+                  - tx_email_trim
+                  - tx_uuid_trim
+                  - int64Value
+                properties:
+                  integer: { type: string }
+                  integer_arr: { type: array, items: { type: string } }
+                  int32: { type: string }
+                  int32_arr: { type: array, items: { type: string } }
+                  int64: { type: string }
+                  int64_arr: { type: array, items: { type: string } }
+                  bigint: { type: string }
+                  bigint_arr: { type: array, items: { type: string } }
+                  number: { type: string }
+                  number_arr: { type: array, items: { type: string } }
+                  float: { type: string }
+                  float_arr: { type: array, items: { type: string } }
+                  float32: { type: string }
+                  float32_arr: { type: array, items: { type: string } }
+                  float64: { type: string }
+                  float64_arr: { type: array, items: { type: string } }
+                  double: { type: string }
+                  double_arr: { type: array, items: { type: string } }
+                  numpassword: { type: string }
+                  numpassword_arr: { type: array, items: { type: string } }
+                  boolean: { type: string }
+                  boolean_arr: { type: array, items: { type: string } }
+                  string: { type: string }
+                  string_arr: { type: array, items: { type: string } }
+                  email: { type: string }
+                  email_arr: { type: array, items: { type: string } }
+                  uuid: { type: string }
+                  uuid_arr: { type: array, items: { type: string } }
+                  uuidv4: { type: string }
+                  uuidv4_arr: { type: array, items: { type: string } }
+                  uuidv7: { type: string }
+                  uuidv7_arr: { type: array, items: { type: string } }
+                  url: { type: string }
+                  url_arr: { type: array, items: { type: string } }
+                  uri: { type: string }
+                  uri_arr: { type: array, items: { type: string } }
+                  httpurl: { type: string }
+                  httpurl_arr: { type: array, items: { type: string } }
+                  hostname: { type: string }
+                  hostname_arr: { type: array, items: { type: string } }
+                  hex: { type: string }
+                  hex_arr: { type: array, items: { type: string } }
+                  emoji: { type: string }
+                  emoji_arr: { type: array, items: { type: string } }
+                  base64: { type: string }
+                  base64_arr: { type: array, items: { type: string } }
+                  base64url: { type: string }
+                  base64url_arr: { type: array, items: { type: string } }
+                  nanoid: { type: string }
+                  nanoid_arr: { type: array, items: { type: string } }
+                  cuid2: { type: string }
+                  cuid2_arr: { type: array, items: { type: string } }
+                  ulid: { type: string }
+                  ulid_arr: { type: array, items: { type: string } }
+                  ipv4: { type: string }
+                  ipv4_arr: { type: array, items: { type: string } }
+                  ipv6: { type: string }
+                  ipv6_arr: { type: array, items: { type: string } }
+                  cidrv4: { type: string }
+                  cidrv4_arr: { type: array, items: { type: string } }
+                  cidrv6: { type: string }
+                  cidrv6_arr: { type: array, items: { type: string } }
+                  date: { type: string }
+                  date_arr: { type: array, items: { type: string } }
+                  time: { type: string }
+                  time_arr: { type: array, items: { type: string } }
+                  datetime: { type: string }
+                  datetime_arr: { type: array, items: { type: string } }
+                  duration: { type: string }
+                  duration_arr: { type: array, items: { type: string } }
+                  byte: { type: string }
+                  byte_arr: { type: array, items: { type: string } }
+                  strpassword: { type: string }
+                  strpassword_arr: { type: array, items: { type: string } }
+                  mac: { type: string }
+                  mac_arr: { type: array, items: { type: string } }
+                  e164: { type: string }
+                  e164_arr: { type: array, items: { type: string } }
+                  guid: { type: string }
+                  guid_arr: { type: array, items: { type: string } }
+                  trim: { type: string }
+                  trim_arr: { type: array, items: { type: string } }
+                  tx_trim: { type: string }
+                  tx_lower: { type: string }
+                  tx_upper: { type: string }
+                  tx_normalize: { type: string }
+                  tx_email_trim: { type: string }
+                  tx_uuid_trim: { type: string }
+                  int64Value: { type: string }
