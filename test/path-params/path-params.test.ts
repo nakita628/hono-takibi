@@ -47,6 +47,11 @@ const SHAPES: readonly (readonly [string, string, string])[] = [
   ['strpassword', 'hunter2', 'string'],
   ['mac', '00:1a:2b:3c:4d:5e', 'string'],
   ['e164', '+14155552671', 'string'],
+  ['creditcard', '4111111111111111', 'string'],
+  ['iban', 'DE89370400440532013000', 'string'],
+  ['currencycode', 'USD', 'string'],
+  ['ksuid', '0ujsszwN8NRY24YaXiTIE2VWDTS', 'string'],
+  ['xid', '9m4e2mr0ui3e8a215n4g', 'string'],
   ['guid', '0190b1f4-0000-7000-8000-000000000000', 'string'],
   ['trim', 'spaced', 'string'],
 ]

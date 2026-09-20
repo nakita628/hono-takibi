@@ -34,12 +34,18 @@ const FORMAT_STRING: { readonly [k: string]: string } = {
   guid: 'guid()',
   httpUrl: 'httpUrl()',
   hostname: 'hostname()',
+  creditCard: 'creditCard()',
+  iban: 'iban()',
+  currencyCode: 'currencyCode()',
+  ksuid: 'ksuid()',
+  xid: 'xid()',
   toLowerCase: 'toLowerCase()',
   toUpperCase: 'toUpperCase()',
   trim: 'trim()',
+  slugify: 'slugify()',
 }
 
-const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim'])
+const TRANSFORM_FORMATS = new Set(['toLowerCase', 'toUpperCase', 'trim', 'slugify'])
 const DATE_FORMATS = new Set(['date', 'date-time'])
 
 const EMAIL_PATTERN_PRESET: { readonly [k: string]: string } = {

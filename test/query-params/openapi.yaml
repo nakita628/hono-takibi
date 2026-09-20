@@ -320,6 +320,51 @@ paths:
             required: true,
             schema: { type: array, items: { type: string, format: e164 } },
           }
+        - {
+            name: creditcard,
+            in: query,
+            required: true,
+            schema: { type: string, format: creditCard },
+          }
+        - {
+            name: creditcard_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: creditCard } },
+          }
+        - { name: iban, in: query, required: true, schema: { type: string, format: iban } }
+        - {
+            name: iban_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: iban } },
+          }
+        - {
+            name: currencycode,
+            in: query,
+            required: true,
+            schema: { type: string, format: currencyCode },
+          }
+        - {
+            name: currencycode_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: currencyCode } },
+          }
+        - { name: ksuid, in: query, required: true, schema: { type: string, format: ksuid } }
+        - {
+            name: ksuid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: ksuid } },
+          }
+        - { name: xid, in: query, required: true, schema: { type: string, format: xid } }
+        - {
+            name: xid_arr,
+            in: query,
+            required: true,
+            schema: { type: array, items: { type: string, format: xid } },
+          }
         - { name: guid, in: query, required: true, schema: { type: string, format: guid } }
         - {
             name: guid_arr,
@@ -451,6 +496,16 @@ paths:
                   - mac_arr
                   - e164
                   - e164_arr
+                  - creditcard
+                  - creditcard_arr
+                  - iban
+                  - iban_arr
+                  - currencycode
+                  - currencycode_arr
+                  - ksuid
+                  - ksuid_arr
+                  - xid
+                  - xid_arr
                   - guid
                   - guid_arr
                   - trim
@@ -545,6 +600,16 @@ paths:
                   mac_arr: { type: array, items: { type: string } }
                   e164: { type: string }
                   e164_arr: { type: array, items: { type: string } }
+                  creditcard: { type: string }
+                  creditcard_arr: { type: array, items: { type: string } }
+                  iban: { type: string }
+                  iban_arr: { type: array, items: { type: string } }
+                  currencycode: { type: string }
+                  currencycode_arr: { type: array, items: { type: string } }
+                  ksuid: { type: string }
+                  ksuid_arr: { type: array, items: { type: string } }
+                  xid: { type: string }
+                  xid_arr: { type: array, items: { type: string } }
                   guid: { type: string }
                   guid_arr: { type: array, items: { type: string } }
                   trim: { type: string }

@@ -73,6 +73,21 @@ paths:
             schema: { type: string, format: password },
           }
         - { name: e164, in: cookie, required: true, schema: { type: string, format: e164 } }
+        - {
+            name: creditcard,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: creditCard },
+          }
+        - { name: iban, in: cookie, required: true, schema: { type: string, format: iban } }
+        - {
+            name: currencycode,
+            in: cookie,
+            required: true,
+            schema: { type: string, format: currencyCode },
+          }
+        - { name: ksuid, in: cookie, required: true, schema: { type: string, format: ksuid } }
+        - { name: xid, in: cookie, required: true, schema: { type: string, format: xid } }
         - { name: guid, in: cookie, required: true, schema: { type: string, format: guid } }
         - { name: trim, in: cookie, required: true, schema: { type: string, format: trim } }
         - {
@@ -128,6 +143,11 @@ paths:
                   - byte
                   - strpassword
                   - e164
+                  - creditcard
+                  - iban
+                  - currencycode
+                  - ksuid
+                  - xid
                   - guid
                   - trim
                   - uint32
@@ -171,6 +191,11 @@ paths:
                   byte: { type: string }
                   strpassword: { type: string }
                   e164: { type: string }
+                  creditcard: { type: string }
+                  iban: { type: string }
+                  currencycode: { type: string }
+                  ksuid: { type: string }
+                  xid: { type: string }
                   guid: { type: string }
                   trim: { type: string }
                   uint32: { type: string }

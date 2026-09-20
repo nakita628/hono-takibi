@@ -306,6 +306,13 @@ describe('string', () => {
       [{ type: 'string', format: 'base64url' }, 'z.base64url()'],
       [{ type: 'string', format: 'hex' }, 'z.hex()'],
       [{ type: 'string', format: 'mac' } as any, 'z.mac()'],
+      [{ type: 'string', format: 'creditCard' }, 'z.creditCard()'],
+      [{ type: 'string', format: 'iban' }, 'z.iban()'],
+      [{ type: 'string', format: 'currencyCode' }, 'z.currencyCode()'],
+      [{ type: 'string', format: 'ksuid' }, 'z.ksuid()'],
+      [{ type: 'string', format: 'xid' }, 'z.xid()'],
+      // `z.slugify()` is a check like `z.trim()`, so it hangs off a string
+      [{ type: 'string', format: 'slugify' }, 'z.string().slugify()'],
       // unknown format falls back to z.string()
       [{ type: 'string', format: 'unknown-format' } as any, 'z.string()'],
       // empty format string falls back to z.string()

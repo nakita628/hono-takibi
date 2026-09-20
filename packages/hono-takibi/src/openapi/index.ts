@@ -206,10 +206,16 @@ type FormatString =
   | 'hash' /* hash digest — requires x-hashAlg */
   | 'e164' /* E.164 phone */
   | 'guid' /* UUID-like without strict RFC check */
+  | 'creditCard' /* Luhn-valid card number, digits with optional spaces or dashes */
+  | 'iban' /* IBAN with a valid ISO 7064 MOD 97-10 checksum */
+  | 'currencyCode' /* ISO 4217 currency code */
+  | 'ksuid' /* K-Sortable Unique Identifier */
+  | 'xid' /* globally unique, sortable 20-character id */
   /* transforms */
   | 'toLowerCase' /* toLowerCase */
   | 'toUpperCase' /* toUpperCase */
   | 'trim' /* trim whitespace */
+  | 'slugify' /* URL slug: lowercase, hyphen separated */
 
 type FormatNumber =
   | 'int32'

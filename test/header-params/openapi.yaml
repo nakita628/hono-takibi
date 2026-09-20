@@ -83,6 +83,21 @@ paths:
           }
         - { name: x-mac, in: header, required: true, schema: { type: string, format: mac } }
         - { name: x-e164, in: header, required: true, schema: { type: string, format: e164 } }
+        - {
+            name: x-creditcard,
+            in: header,
+            required: true,
+            schema: { type: string, format: creditCard },
+          }
+        - { name: x-iban, in: header, required: true, schema: { type: string, format: iban } }
+        - {
+            name: x-currencycode,
+            in: header,
+            required: true,
+            schema: { type: string, format: currencyCode },
+          }
+        - { name: x-ksuid, in: header, required: true, schema: { type: string, format: ksuid } }
+        - { name: x-xid, in: header, required: true, schema: { type: string, format: xid } }
         - { name: x-guid, in: header, required: true, schema: { type: string, format: guid } }
         - { name: x-trim, in: header, required: true, schema: { type: string, format: trim } }
         - {
@@ -139,6 +154,11 @@ paths:
                   - strpassword
                   - mac
                   - e164
+                  - creditcard
+                  - iban
+                  - currencycode
+                  - ksuid
+                  - xid
                   - guid
                   - trim
                   - uint32
@@ -183,6 +203,11 @@ paths:
                   strpassword: { type: string }
                   mac: { type: string }
                   e164: { type: string }
+                  creditcard: { type: string }
+                  iban: { type: string }
+                  currencycode: { type: string }
+                  ksuid: { type: string }
+                  xid: { type: string }
                   guid: { type: string }
                   trim: { type: string }
                   uint32: { type: string }

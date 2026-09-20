@@ -65,6 +65,11 @@ const FORMAT_TO_FAKER: { [k: string]: string } = {
   duration: '`P${faker.number.int({ min: 1, max: 30 })}D`',
   e164: "faker.phone.number({ style: 'international' })",
   httpUrl: 'faker.internet.url()',
+  creditCard: 'faker.finance.creditCardNumber()',
+  // `faker.finance.currencyCode()` draws from a wider list than `z.currencyCode()` accepts.
+  currencyCode: "faker.helpers.arrayElement(['USD', 'EUR', 'JPY', 'GBP'])",
+  ksuid: 'faker.string.alphanumeric(27)',
+  xid: "faker.string.fromCharacters('0123456789abcdefghijklmnopqrstuv', 20)",
   'uri-reference': 'faker.internet.url()',
   iri: 'faker.internet.url()',
   'iri-reference': 'faker.internet.url()',

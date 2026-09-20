@@ -636,6 +636,86 @@ paths:
                 properties:
                   valueType: { type: string }
                   valueText: { type: string }
+  /creditcard/{value}:
+    get:
+      operationId: creditcardParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: creditCard } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /iban/{value}:
+    get:
+      operationId: ibanParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: iban } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /currencycode/{value}:
+    get:
+      operationId: currencycodeParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: currencyCode } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /ksuid/{value}:
+    get:
+      operationId: ksuidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: ksuid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
+  /xid/{value}:
+    get:
+      operationId: xidParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, format: xid } }
+      responses:
+        '200':
+          description: The runtime typeof the path parameter, and its value verbatim.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [valueType, valueText]
+                properties:
+                  valueType: { type: string }
+                  valueText: { type: string }
   /guid/{value}:
     get:
       operationId: guidParam

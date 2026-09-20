@@ -20,6 +20,11 @@ import {
   getFloat32ValueRoute,
   getFloat64ValueRoute,
   getFloatValueRoute,
+  getCreditcardValueRoute,
+  getIbanValueRoute,
+  getCurrencycodeValueRoute,
+  getKsuidValueRoute,
+  getXidValueRoute,
   getGuidValueRoute,
   getHexValueRoute,
   getHostnameValueRoute,
@@ -215,6 +220,26 @@ export const pathParamsApp = new OpenAPIHono({
     return c.json({ valueType: typeof value, valueText: value })
   })
   .openapi(getE164ValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getCreditcardValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getIbanValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getCurrencycodeValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getKsuidValueRoute, (c) => {
+    const { value } = c.req.valid('param')
+    return c.json({ valueType: typeof value, valueText: value })
+  })
+  .openapi(getXidValueRoute, (c) => {
     const { value } = c.req.valid('param')
     return c.json({ valueType: typeof value, valueText: value })
   })
