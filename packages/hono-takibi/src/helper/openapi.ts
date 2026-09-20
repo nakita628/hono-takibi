@@ -21,7 +21,6 @@ import type {
   Reference,
   RequestBody,
   Responses,
-  Schema,
 } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -448,20 +447,14 @@ export function makeRequest(
   return result.length > 0 ? `{${result}}` : undefined
 }
 
-function getSchemaFromContent(content: Content | undefined): Schema | undefined {
-  if (!content) return undefined
-  const firstKey = Object.keys(content)[0]
-  if (!firstKey) return undefined
-  return content[firstKey]?.schema
-}
-
 /**
  * The Zod schema for one parameter's value. A path, query, header or cookie value reaches
  * the handler as a string, so every non-string leaf coerces before it validates (the
  * emitter's `coerce` option); only a request body arrives already typed.
  */
 export function makeParameterSchema(param: Parameter, readonly?: boolean): string {
-  const schema = param.schema ?? getSchemaFromContent(param.content)
+  // A parameter carries its schema directly, or under its first `content` media type.
+  const schema = param.schema ?? Object.values(param.content ?? {})[0]?.schema
   if (!schema) return 'z.any()'
   const isStringWire =
     param.in === 'query' || param.in === 'path' || param.in === 'header' || param.in === 'cookie'
