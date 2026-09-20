@@ -5,6 +5,9 @@ hero:
   name: 'Hono Takibi'
   text: 'Zod OpenAPI Hono Code Generator'
   tagline: Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
+  image:
+    src: /web/logo.webp
+    alt: Hono Takibi
   actions:
     - theme: brand
       text: Get Started
