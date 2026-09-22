@@ -9,6 +9,7 @@ import { injectTypeSpecImportMap, typespecBundle } from './lib/typespec/vite'
 const typespec = typespecBundle()
 
 export default defineConfig({
+  lang: 'en-US',
   title: 'Hono Takibi',
   description: 'Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi',
   cleanUrls: true,
@@ -39,7 +40,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
-    logo: '/web/logo.webp',
+    logo: '/web/logo.png',
     nav: [
       { text: 'Docs', link: '/docs' },
       { text: 'Playground', link: '/playground' },
@@ -70,23 +71,11 @@ export default defineConfig({
     },
   },
   head: [
-    ['link', { rel: 'icon', type: 'image/webp', href: '/web/logo.webp' }],
-    [
-      'meta',
-      {
-        property: 'og:image',
-        content: 'https://hono-takibi.dev/web/og.webp',
-      },
-    ],
+    ['link', { rel: 'icon', type: 'image/png', href: '/web/logo.png' }],
+    ['meta', { property: 'og:image', content: 'https://hono-takibi.dev/web/og.png' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'twitter:domain', content: 'hono-takibi.dev' }],
-    [
-      'meta',
-      {
-        property: 'twitter:image',
-        content: 'https://hono-takibi.dev/web/og.webp',
-      },
-    ],
+    ['meta', { property: 'twitter:image', content: 'https://hono-takibi.dev/web/og.png' }],
     ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
   ],
 })
