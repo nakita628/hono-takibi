@@ -39,7 +39,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
-    logo: '/website/logo.webp',
+    logo: '/web/logo.webp',
     nav: [
       { text: 'Docs', link: '/docs' },
       { text: 'Playground', link: '/playground' },
@@ -70,6 +70,7 @@ export default defineConfig({
     },
   },
   head: [
+    ['link', { rel: 'icon', type: 'image/webp', href: '/web/logo.webp' }],
     [
       'meta',
       {
