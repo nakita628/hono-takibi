@@ -231,6 +231,8 @@ export const api = app.route('/', healthHandler)
 export default app
 ```
 
+![routeHandler: false — regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-default.gif)
+
 If you split routes into hand-written files in this mode, name each sub-router export `<fileBasename>Handler` (e.g. `export const sharesHandler = ...` in `shares.ts`) — that is the name the generator merges into and the app mounts.
 
 #### `routeHandler: true`
@@ -258,6 +260,8 @@ export const api = app.openapi(getHealthRoute, getHealthRouteHandler)
 export default app
 ```
 
+![routeHandler: true — regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-route-handler.gif)
+
 #### `define: true`
 
 ```ts
@@ -282,6 +286,8 @@ export const getUsersIdRoute = defineOpenAPIRoute({
   addRoute: true,
 })
 ```
+
+![define: true — regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-define.gif)
 
 The app entry defaults to `src/index.ts` (override with `output`, which must be an `index.ts` path such as `./server/index.ts`). Route files always go to `routes/` next to the app entry, and component schemas to `components/index.ts` (override with `components.output`). When `output` is omitted, `components.output` also anchors the layout: `components: { output: './server/components/index.ts' }` puts the app entry at `server/index.ts` and routes at `server/routes/`.
 

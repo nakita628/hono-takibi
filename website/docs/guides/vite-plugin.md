@@ -26,4 +26,4 @@ export default defineConfig({
 
 ## Demo
 
-![](../../public/vite/hono-takibi-vite.gif)
+![Vite plugin regenerating code on save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
