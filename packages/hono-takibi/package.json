@@ -1,12 +1,12 @@
 {
   "name": "hono-takibi",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "keywords": [
     "hono",
     "openapi"
   ],
-  "homepage": "https://github.com/nakita628/hono-takibi",
+  "homepage": "https://hono-takibi.dev/",
   "bugs": {
     "url": "https://github.com/nakita628/hono-takibi/issues"
   },
@@ -15,6 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/nakita628/hono-takibi.git"
   },
+  "funding": "https://github.com/sponsors/nakita628",
   "bin": {
     "hono-takibi": "dist/cli.js"
   },

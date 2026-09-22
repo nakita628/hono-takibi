@@ -10,7 +10,7 @@ const typespec = typespecBundle()
 
 export default defineConfig({
   title: 'Hono Takibi',
-  description: 'Generate type-safe Hono code from OpenAPI and TypeSpec.',
+  description: 'Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi',
   cleanUrls: true,
   transformHtml: (html) => injectTypeSpecImportMap(typespec, html),
   markdown: {

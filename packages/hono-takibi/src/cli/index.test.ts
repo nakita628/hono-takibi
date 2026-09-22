@@ -480,14 +480,17 @@ describe('hono-takibi --help', () => {
     ])
   })
 
-  it('is what the README prints as its CLI Reference', async () => {
-    useTmpDir('cli-help-readme-')
-    const readme = fs.readFileSync(new URL('../../README.md', import.meta.url), 'utf-8')
+  it('is what the website prints in its CLI section', async () => {
+    useTmpDir('cli-help-docs-')
+    const docs = fs.readFileSync(
+      new URL('../../../../website/docs/index.md', import.meta.url),
+      'utf-8',
+    )
     const marker = '`hono-takibi --help`:\n\n```\n'
-    const opening = readme.indexOf(marker)
+    const opening = docs.indexOf(marker)
     expect(opening).toBeGreaterThan(-1)
     const body = opening + marker.length
-    const block = readme.slice(body, readme.indexOf('\n```', body))
+    const block = docs.slice(body, docs.indexOf('\n```', body))
 
     const result = await runCli(['--help'])
 

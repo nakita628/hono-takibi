@@ -1,9 +1,10 @@
 /**
  * README executable documentation tests.
  *
- * Every schema in `openapi.yaml` corresponds to a code block in
- * `packages/hono-takibi/README.md`. This file proves the documented
- * behavior is correct: validation messages match README text exactly,
+ * Every schema in `../specs/readme.yaml` corresponds to a code block in the
+ * Vendor Extensions guide (`website/docs/guides/vendor.md`, published at
+ * https://hono-takibi.dev/docs/guides/vendor). This file proves the
+ * documented behavior is correct: validation messages match the guide exactly,
  * transforms run in the documented order, codecs round-trip, etc.
  */
 import { describe, expect, it } from 'vite-plus/test'

@@ -3,11 +3,12 @@ info:
   title: README Examples — Executable Documentation
   version: '1.0.0'
   description: |
-    Each schema below corresponds to a code block shown in
-    `packages/hono-takibi/README.md`. The fixture proves the documented
-    behavior is correct by running the generated Zod against representative
-    inputs and asserting the resulting issues (or success) exactly match
-    what the README claims.
+    Each schema below corresponds to a code block shown in the Vendor
+    Extensions guide (`website/docs/guides/vendor.md`, published at
+    https://hono-takibi.dev/docs/guides/vendor). The fixture proves the
+    documented behavior is correct by running the generated Zod against
+    representative inputs and asserting the resulting issues (or success)
+    exactly match what the guide claims.
 
 paths:
   /messages:
