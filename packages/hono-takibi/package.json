@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nakita628/hono-takibi.git",
+    "url": "git+https://github.com/nakita628/hono-takibi.git"
   },
   "funding": "https://github.com/sponsors/nakita628",
   "bin": {

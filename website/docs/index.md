@@ -17,6 +17,10 @@ From one document it can generate:
 - RPC client and hooks for SWR, TanStack Query, Preact / Solid / Vue / Svelte / Angular Query
 - Mock server, TypeScript types and API reference docs
 
+::: warning Pre-1.0
+Hono Takibi is under active development and has not reached a stable release yet. Until 1.0, minor releases (`0.x` → `0.y`) may include breaking changes to the CLI, the config and the generated code. Patch releases are safe to update.
+:::
+
 ## Installation
 
 ::: code-group
