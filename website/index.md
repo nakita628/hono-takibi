@@ -4,7 +4,7 @@ layout: home
 hero:
   name: 'Hono Takibi'
   text: 'Zod OpenAPI Hono Code Generator'
-  tagline: Generate type-safe Hono code from OpenAPI and TypeSpec.
+  tagline: Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
   image:
     src: /web/logo.webp
     alt: Hono Takibi
