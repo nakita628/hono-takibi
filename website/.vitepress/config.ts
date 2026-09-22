@@ -10,7 +10,7 @@ const typespec = typespecBundle()
 
 export default defineConfig({
   title: 'Hono Takibi',
-  description: 'Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi',
+  description: 'Generate type-safe Hono code from OpenAPI and TypeSpec.',
   cleanUrls: true,
   transformHtml: (html) => injectTypeSpecImportMap(typespec, html),
   markdown: {
@@ -45,25 +45,20 @@ export default defineConfig({
       { text: 'Playground', link: '/playground' },
     ],
     sidebar: [
-      {
-        text: 'Docs',
-        // collapsed: true,
-        link: '/docs',
-      },
+      { text: 'Getting Started', link: '/docs' },
       {
         text: 'Guides',
-        // collapsed: true,
         items: [
           { text: 'Configuration', link: '/docs/guides/config' },
-          { text: 'Vendor', link: '/docs/guides/vendor' },
+          { text: 'Template', link: '/docs/guides/template' },
+          { text: 'Client', link: '/docs/guides/client' },
+          { text: 'Test & Mock', link: '/docs/guides/test-mock' },
+          { text: 'API Docs', link: '/docs/guides/api-docs' },
+          { text: 'Vendor Extensions', link: '/docs/guides/vendor' },
           { text: 'Vite Plugin', link: '/docs/guides/vite-plugin' },
         ],
       },
-      {
-        text: 'Playground',
-        // collapsed: true,
-        link: '/playground',
-      },
+      { text: 'Playground', link: '/playground' },
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/nakita628/hono-takibi' },

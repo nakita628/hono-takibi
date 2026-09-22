@@ -1,18 +1,18 @@
 ---
 title: Configuration
 prev:
-  text: 'Docs'
+  text: 'Getting Started'
   link: '/docs'
 next:
-  text: 'Vendor'
-  link: '/docs/guides/vendor'
+  text: 'Template'
+  link: '/docs/guides/template'
 ---
 
 # Configuration
 
-## Configuration File
+## Config file
 
-Create `hono-takibi.config.ts`:
+Create `hono-takibi.config.ts` and run the CLI with no arguments:
 
 ```ts
 import { defineConfig } from 'hono-takibi'
@@ -43,53 +43,35 @@ bunx hono-takibi
 
 :::
 
-To run a config file that lives somewhere else, pass `--config`. Paths inside it still
-resolve against the current directory:
+Every generator is opted in by adding its section to the config. See the [full reference](#full-reference) below.
+
+To run a config file from another location, pass `--config`. Paths inside it still resolve against the current directory:
 
 ```sh
 npx hono-takibi --config config/api.config.ts
 ```
 
-## Watch Mode
-
-`--watch` keeps the config running and regenerates on every change to the input documents
-or to the config file itself:
+## Watch mode
 
 ```sh
 npx hono-takibi --watch
 ```
 
-It pairs with [`template`](#full-configuration), where the generated handlers are merged
-rather than overwritten — add an operation to the document and its handler stub appears,
-while the code already written into the existing ones stays put.
+Reruns the config whenever the input documents or the config itself change, and keeps watching when a run fails.
+The whole directory of the input document is watched, so TypeSpec imports and external `$ref` files trigger a rerun too.
 
-The whole directory holding the input document is watched, not just the file `input`
-names, so a TypeSpec entry that imports its siblings and an external `$ref` both trigger
-a rerun, and pointing `input` at another directory moves the watcher with it. A failing
-pass prints the error and keeps watching — including the first one, so a config that does
-not validate yet is something to fix in place rather than a reason to start over.
-`--watch` runs a config file, so it cannot be combined with `<input>` / `-o`.
+Prefer a Vite dev server? Use the [Vite plugin](/docs/guides/vite-plugin) instead.
 
-## Full Configuration
+## Rules
 
-Every generator needs its own `output` path: two of them aimed at one file is rejected
-rather than resolved, because the generators run concurrently and one would silently
-overwrite the other.
+- Every generator needs its own `output`. Two generators writing to one file is an error.
+- `output` (single file) and `routes` (split) are mutually exclusive. Same for `components.output` and the per-type `components.*` sections.
+- A `split` directory belongs to the generator: its `.ts` files are removed before each run. Keep hand-written code elsewhere.
+- `basePath` must start with `/`. `client` must be an identifier and `import` a module specifier.
 
-`routes`, `webhooks` and the `components.*` sections take `split`, and a split output
-directory belongs to the generator: before each run its `.ts` files are removed, so a
-route or schema that leaves the document does not survive as an orphaned file still
-importing what it defined. Keep hand-written code somewhere else. Every other generator,
-`rpc` and the client hooks included, writes a single file.
-
-`basePath` must start with `/`, `client` must be a JavaScript identifier, and `import`
-must be a module specifier — each is spliced into the generated code verbatim, so the
-config is where a wrong value is caught.
-
-::: code-group
+## Full reference
 
 ```ts
-// hono-takibi.config.ts
 import { defineConfig } from 'hono-takibi'
 
 export default defineConfig({
@@ -259,8 +241,9 @@ export default defineConfig({
 
   mock: {
     output: './src/mock.ts',
-    useExamples: true,
+    useExamples: true, // true: response examples | 'all': also schema/property examples | false
     locale: 'en',
+    seed: 42, // optional: same body per route on every request (snapshot-friendly)
     delay: false,
     arrayMin: 1,
     arrayMax: 10,

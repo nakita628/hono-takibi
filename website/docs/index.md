@@ -1,14 +1,21 @@
 ---
-title: Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi
+title: Getting Started
 prev: false
 next:
-  text: 'Guides'
+  text: 'Configuration'
   link: '/docs/guides/config'
 ---
 
 # Hono Takibi
 
 [Hono Takibi](https://www.npmjs.com/package/hono-takibi) generates type-safe [Hono](https://hono.dev/) code from [OpenAPI](https://www.openapis.org/) / [TypeSpec](https://typespec.io/) specifications.
+
+From one document it can generate:
+
+- [Zod](https://zod.dev/) schemas and [@hono/zod-openapi](https://hono.dev/examples/zod-openapi) route definitions
+- App entry, handler stubs and test files
+- RPC client and hooks for SWR, TanStack Query, Preact / Solid / Vue / Svelte / Angular Query
+- Mock server, TypeScript types and API reference docs
 
 ## Installation
 
@@ -32,31 +39,33 @@ bun add -D hono-takibi
 
 :::
 
+## Usage
+
+Pass an OpenAPI (`.yaml`, `.json`) or TypeSpec (`.tsp`) document and an output file:
+
 ::: code-group
 
 ```sh [npm]
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
+npx hono-takibi openapi.yaml -o src/routes.ts
 ```
 
 ```sh [yarn]
-yarn hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
+yarn hono-takibi openapi.yaml -o src/routes.ts
 ```
 
 ```sh [pnpm]
-pnpm hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
+pnpm hono-takibi openapi.yaml -o src/routes.ts
 ```
 
 ```sh [bun]
-bunx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts
+bunx hono-takibi openapi.yaml -o src/routes.ts
 ```
 
 :::
 
-Run `hono-takibi --help` for the full flag list, including `--config` for a config file
-outside the current directory, `--watch` to regenerate on every change, and
-`--completions` for a shell completion script.
+For anything beyond a single routes file, use a [config file](/docs/guides/config).
 
-### Example
+## Example
 
 input:
 
@@ -110,4 +119,18 @@ export const getRoute = createRoute({
     },
   },
 })
+```
+
+Try it in the [Playground](/playground).
+
+## CLI
+
+```
+hono-takibi [flags] [<input>]
+
+  --output, -o output.ts    TypeScript file the generated routes are written to
+  --config, -c file         Config file to run (default: ./hono-takibi.config.ts)
+  --watch, -w               Rerun the config on every change to its documents or itself
+  --help, -h                Show help information
+  --version, -v             Show version information
 ```

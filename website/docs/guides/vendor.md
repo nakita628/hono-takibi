@@ -1,18 +1,20 @@
 ---
-title: Vendor Extensions (x-\*)
+title: Vendor Extensions
 prev:
-  text: 'Configuration'
-  link: '/docs/guides/config'
+  text: 'API Docs'
+  link: '/docs/guides/api-docs'
 next:
   text: 'Vite Plugin'
   link: '/docs/guides/vite-plugin'
 ---
 
-# Vendor
+# Vendor Extensions
 
-## Vendor Extensions (x-\*)
+Hono Takibi reads `x-*` vendor extensions on your OpenAPI / JSON Schema to customize the generated Zod. Each extension maps 1:1 to a Zod feature.
 
-hono-takibi reads `x-*` vendor extensions on your OpenAPI / JSON Schema to customize the generated Zod. Each extension maps 1:1 to a Zod feature.
+## Custom error messages
+
+One extension per JSON Schema keyword, named `x-<keyword>-message`.
 
 ```yaml
 name:
@@ -30,9 +32,7 @@ z.string({ error: 'Name must be a string' })
   .max(50, { error: 'Name must be at most 50 characters' })
 ```
 
-All custom message extensions follow the `x-<keyword>-message` naming convention and map directly to Zod validator error messages.
-
-#### Common (any schema type)
+### Common (any schema type)
 
 | Extension            | Applies to                                                     |
 | -------------------- | -------------------------------------------------------------- |
@@ -41,7 +41,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-const-message`    | `const`                                                        |
 | `x-enum-message`     | `enum`                                                         |
 
-#### Numeric (number / integer)
+### Numeric (number / integer)
 
 | Extension                    | Applies to         |
 | ---------------------------- | ------------------ |
@@ -51,7 +51,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-exclusiveMaximum-message` | `exclusiveMaximum` |
 | `x-multipleOf-message`       | `multipleOf`       |
 
-#### String
+### String
 
 | Extension             | Applies to                                 |
 | --------------------- | ------------------------------------------ |
@@ -60,7 +60,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-pattern-message`   | `pattern`                                  |
 | `x-length-message`    | Exact length (`minLength` === `maxLength`) |
 
-#### Array
+### Array
 
 | Extension               | Applies to    |
 | ----------------------- | ------------- |
@@ -71,7 +71,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-minContains-message` | `minContains` |
 | `x-maxContains-message` | `maxContains` |
 
-#### Object
+### Object
 
 | Extension                        | Applies to             |
 | -------------------------------- | ---------------------- |
@@ -83,7 +83,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-dependentRequired-message`    | `dependentRequired`    |
 | `x-dependentSchemas-message`     | `dependentSchemas`     |
 
-#### Combinators
+### Combinators
 
 | Extension               | Applies to                                                                                                       |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -93,7 +93,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-not-message`         | `not`                                                                                                            |
 | `x-implication-message` | Implication pattern (`A → B`) encoded as `anyOf:[{not:A},{required:B}]`; takes precedence over `x-anyOf-message` |
 
-#### Conditional
+### Conditional
 
 | Extension        | Applies to |
 | ---------------- | ---------- |
@@ -101,7 +101,7 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-then-message` | `then`     |
 | `x-else-message` | `else`     |
 
-#### Typeless / Array Applicator
+### Typeless / Array Applicator
 
 | Extension                         | Applies to                      |
 | --------------------------------- | ------------------------------- |
@@ -111,9 +111,9 @@ All custom message extensions follow the `x-<keyword>-message` naming convention
 | `x-unevaluatedProperties-message` | `unevaluatedProperties`         |
 | `x-unevaluatedItems-message`      | `unevaluatedItems`              |
 
-### Behavior Extensions
+## Behavior extensions
 
-#### String Pre-validation Transforms
+### String Pre-validation Transforms
 
 | Extension       | Generated                     | Value                                   |
 | --------------- | ----------------------------- | --------------------------------------- |
@@ -133,7 +133,7 @@ homepage:
 z.string().trim().pipe(z.url())
 ```
 
-#### String Validation Checks
+### String Validation Checks
 
 | Extension     | Generated                | Value  |
 | ------------- | ------------------------ | ------ |
@@ -150,7 +150,7 @@ slug:
 z.string().lowercase()
 ```
 
-#### Preprocess
+### Preprocess
 
 **`x-preprocess`**
 
@@ -164,7 +164,7 @@ username:
 z.preprocess((val) => (typeof val === 'string' ? val.trim() : val), z.string())
 ```
 
-#### Type Coercion
+### Type Coercion
 
 **`x-coerce`**
 
@@ -208,7 +208,7 @@ notify:
 z.stringbool({ truthy: ['yes', 'on'], falsy: ['no', 'off'], case: 'sensitive' })
 ```
 
-#### Codec
+### Codec
 
 **`x-codec`**
 
@@ -226,7 +226,7 @@ z.codec(z.iso.datetime(), z.date(), {
 })
 ```
 
-#### Custom Validation
+### Custom Validation
 
 **`x-refine`**
 
@@ -259,7 +259,7 @@ z.email().superRefine((val, ctx) => {
 })
 ```
 
-#### Transform & Pipe
+### Transform & Pipe
 
 **`x-transform`**
 
@@ -285,7 +285,7 @@ port:
 z.string().pipe(z.number().int().positive())
 ```
 
-#### Default & Fallback Values
+### Default & Fallback Values
 
 **`x-prefault`**
 
@@ -311,7 +311,7 @@ retries:
 z.int().catch(0)
 ```
 
-#### Immutability
+### Immutability
 
 **`x-readonly`**
 
@@ -328,7 +328,7 @@ config:
 z.object({ name: z.string() }).readonly()
 ```
 
-#### String Content Checks
+### String Content Checks
 
 **`x-startsWith` / `x-endsWith` / `x-includes`**
 
@@ -347,7 +347,7 @@ z.string().startsWith('https://').endsWith('.com')
 z.string().includes('/api/')
 ```
 
-#### Format-Specific Options
+### Format-Specific Options
 
 ```yaml
 htmlEmail:
@@ -386,9 +386,9 @@ preciseDatetime:
 | `x-hashAlg`      | `z.hash(alg, ...)`              | `sha256` etc.                                         |
 | `x-hashEnc`      | `z.hash(alg, { enc })`          | `hex` / `base64` / `base64url`                        |
 
-### Branded Types (x-brand)
+## Branded types (x-brand)
 
-Use the `x-brand` vendor extension to generate [Zod branded types](https://zod.dev/api?id=branded-types), creating nominal types that are structurally identical but semantically distinct:
+Generates [Zod branded types](https://zod.dev/api?id=branded-types): nominal types that are structurally identical but distinct to the type checker.
 
 ```yaml
 components:
