@@ -3,3 +3,4 @@ node_modules
 .vitepress/cache
 test-results
 playwright-report
+.wrangler
