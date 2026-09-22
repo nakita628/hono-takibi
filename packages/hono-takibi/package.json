@@ -6,15 +6,16 @@
     "hono",
     "openapi"
   ],
-  "homepage": "https://github.com/nakita628/hono-takibi",
+  "homepage": "https://hono-takibi.dev/",
   "bugs": {
     "url": "https://github.com/nakita628/hono-takibi/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nakita628/hono-takibi.git"
+    "url": "git+https://github.com/nakita628/hono-takibi.git",
   },
+  "funding": "https://github.com/sponsors/nakita628",
   "bin": {
     "hono-takibi": "dist/cli.js"
   },
