@@ -21,6 +21,7 @@ catalog:
   '@typespec/streams': ^0.86.0
   '@typespec/versioning': ^0.86.0
   '@typespec/xml': ^0.86.0
+  wrangler: ^4.135.0
 allowBuilds:
   # Telemetry postinstall pulled in through @typespec/playground -> swagger-ui-dist;
   # nothing to build, so it never runs.

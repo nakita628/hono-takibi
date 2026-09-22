@@ -85,6 +85,95 @@ export function collectInlineRouteNames(code: string) {
 }
 
 /**
+ * Collects the non-exported top-level declarations of a generated handler file by name:
+ * `const app = new OpenAPIHono()` and the `function mockXxx() {…}` helpers the exported
+ * handler statements depend on.
+ */
+function collectSupportStatements(file: SourceFile) {
+  const map = new Map<string, string>()
+  for (const stmt of file.getStatements()) {
+    if (Node.isVariableStatement(stmt)) {
+      if (stmt.isExported()) continue
+      for (const decl of stmt.getDeclarations()) map.set(decl.getName(), stmt.getText())
+    } else if (Node.isFunctionDeclaration(stmt)) {
+      const name = stmt.getName()
+      if (name !== undefined && !stmt.isExported()) map.set(name, stmt.getText())
+    }
+  }
+  return map
+}
+
+/**
+ * Lists every name a file declares at the top level, including imported bindings.
+ */
+function collectDeclaredNames(file: SourceFile) {
+  const names = new Set<string>()
+  for (const decl of file.getVariableDeclarations()) names.add(decl.getName())
+  for (const fn of file.getFunctions()) {
+    const name = fn.getName()
+    if (name !== undefined) names.add(name)
+  }
+  for (const cls of file.getClasses()) {
+    const name = cls.getName()
+    if (name !== undefined) names.add(name)
+  }
+  for (const en of file.getEnums()) names.add(en.getName())
+  for (const imp of file.getImportDeclarations()) {
+    const def = imp.getDefaultImport()
+    if (def) names.add(def.getText())
+    const ns = imp.getNamespaceImport()
+    if (ns) names.add(ns.getText())
+    for (const named of imp.getNamedImports()) {
+      names.add((named.getAliasNode() ?? named.getNameNode()).getText())
+    }
+  }
+  return names
+}
+
+function collectIdentifiers(code: string) {
+  return new Set(
+    parseSnippet(code)
+      .getDescendantsOfKind(SyntaxKind.Identifier)
+      .map((id) => id.getText()),
+  )
+}
+
+/**
+ * Picks the generated support declarations the merged handler body needs but the existing
+ * file lacks, in generated order.
+ *
+ * Why: when the merge adds a handler statement (e.g. switching from `*RouteHandler` stubs to an
+ * inline sub-router, or a fresh mock route), only the exported statement used to be copied, so
+ * `export const usersHandler = app.openapi(…)` landed in a file with no `app`. A user who chained
+ * off their own `router` must not get an unused `app` injected, so a declaration is copied only
+ * when the merged body actually references it (transitively, as mocks call nested mocks).
+ */
+function missingSupportStatements(
+  existingFile: SourceFile,
+  generatedFile: SourceFile,
+  mergedBody: string,
+) {
+  const declared = collectDeclaredNames(existingFile)
+  const missing = [...collectSupportStatements(generatedFile)].filter(
+    ([name]) => !declared.has(name),
+  )
+  if (missing.length === 0) return []
+  const referenced = collectIdentifiers(mergedBody)
+  const picked = new Set<string>()
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const [name, text] of missing) {
+      if (picked.has(name) || !referenced.has(name)) continue
+      picked.add(name)
+      changed = true
+      for (const id of collectIdentifiers(text)) referenced.add(id)
+    }
+  }
+  return missing.filter(([name]) => picked.has(name)).map(([, text]) => text)
+}
+
+/**
  * Merges generated handler code with existing handler code.
  *
  * Merge rules:
@@ -94,6 +183,8 @@ export function collectInlineRouteNames(code: string) {
  *   sub-router exports (`xxxHandler`) are deleted the same way only when the generated file is
  *   itself an inline handler file; any other `*Handler` export is the user's and is kept
  * - Non-handler code (helpers, constants, comments): keep existing
+ * - Generated support declarations (`const app = new OpenAPIHono()`, `mockXxx` functions) that the
+ *   merged handlers reference but the existing file lacks: add, right after the imports
  * - Imports: sync with generated (remove deleted route imports, add new ones, keep user imports)
  *
  * Uses AST for analysis only. The existing file's original text (including comments)
@@ -141,7 +232,18 @@ export function mergeHandlerFile(existingCode: string, generatedCode: string) {
 
   const mergedImports = mergeImports(existingFile, generatedFile)
 
-  return joinSections([mergedImports.join('\n'), body.trim(), newHandlerStatements.join('\n\n')])
+  const supportStatements = missingSupportStatements(
+    existingFile,
+    generatedFile,
+    `${body}\n${newHandlerStatements.join('\n')}`,
+  )
+
+  return joinSections([
+    mergedImports.join('\n'),
+    supportStatements.join('\n\n'),
+    body.trim(),
+    newHandlerStatements.join('\n\n'),
+  ])
 }
 
 /**
@@ -565,7 +667,14 @@ function mergeInlineHandler(existingText: string, generatedText: string) {
   const existingCalls = extractOpenApiCalls(existingText)
   const firstCallMatch = generatedText.match(/\.openapi\s*\(/u)
   if (firstCallMatch?.index === undefined) return generatedText
-  const prefix = generatedText.slice(0, firstCallMatch.index).trimEnd()
+  // The part before the chain (`export const xHandler = app`) is the user's when they have a
+  // chain: they may hang the routes off their own router (`= router`, `= new OpenAPIHono()`),
+  // and swapping in the generated `app` would reference a binding their file never declares.
+  const existingFirstCall = existingText.match(/\.openapi\s*\(/u)
+  const prefix =
+    existingCalls.size > 0 && existingFirstCall?.index !== undefined
+      ? existingText.slice(0, existingFirstCall.index).trimEnd()
+      : generatedText.slice(0, firstCallMatch.index).trimEnd()
   const mergedCalls = [...generatedCalls.entries()].map(
     ([routeName, genCall]) => existingCalls.get(routeName) ?? genCall,
   )

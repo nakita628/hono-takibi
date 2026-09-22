@@ -45,6 +45,9 @@ catalogs:
     '@typespec/xml':
       specifier: ^0.86.0
       version: 0.86.0
+    wrangler:
+      specifier: ^4.135.0
+      version: 4.135.0
 
 importers:
 
@@ -301,6 +304,9 @@ importers:
       vue:
         specifier: ^3.5.43
         version: 3.5.43(typescript@7.0.2)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.135.0(@types/node@26.6.2)
 
 packages:
 

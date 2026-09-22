@@ -1,18 +1,14 @@
 ---
 title: Vite Plugin
 prev:
-  text: 'Vendor'
+  text: 'Vendor Extensions'
   link: '/docs/guides/vendor'
-next:
-  text: 'Docs'
-  link: '/docs'
+next: false
 ---
 
 # Vite Plugin
 
-Watches your OpenAPI spec and `hono-takibi.config.ts` for changes, then auto-regenerates code on save.
-
-Requires `hono-takibi.config.ts` in your project root.
+Runs `hono-takibi.config.ts` from the Vite dev server. Saving the spec or the config regenerates the code.
 
 ```ts
 // vite.config.ts
@@ -24,6 +20,8 @@ export default defineConfig({
 })
 ```
 
+The config file must be at the project root. See [Configuration](/docs/guides/config) for its contents.
+
 ## Demo
 
-![](../../public/vite/hono-takibi-vite.gif)
+![Vite plugin regenerating code on save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)

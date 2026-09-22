@@ -361,6 +361,137 @@ export const usersHandler = app
       expect(result).toBe(expected)
     })
 
+    it('adds `const app` when switching a RouteHandler file to an inline handler', () => {
+      const existing = `import type { RouteHandler } from '@hono/zod-openapi'
+import type { getUsersRoute, getUsersIdRoute } from '../routes'
+
+export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c) => {}
+
+export const getUsersIdRouteHandler: RouteHandler<typeof getUsersIdRoute> = async (c) => {}
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute, getUsersIdRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+.openapi(getUsersIdRoute, (c) => {})
+`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersIdRoute, getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+.openapi(getUsersIdRoute, (c) => {})
+`)
+    })
+
+    it('restores a missing `const app` before an existing inline handler that references it', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+export const usersHandler = app
+.openapi(getUsersRoute, async (c) => c.json([], 200))
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, async (c) => c.json([], 200))
+`)
+    })
+
+    it('does not inject an unused `app` when the user chains off their own router', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+const router = new OpenAPIHono()
+
+export const usersHandler = router
+.openapi(getUsersRoute, async (c) => c.json([], 200))
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => {})
+`
+      expect(mergeHandlerFile(existing, generated)).toBe(existing)
+    })
+
+    it('adds mock helper functions (transitively) needed by a newly added inline mock handler', () => {
+      const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => c.json({ status: 'ok' }, 200))
+`
+      const generated = `import { OpenAPIHono } from '@hono/zod-openapi'
+import { faker } from '@faker-js/faker'
+import { getHealthRoute, getUsersRoute } from '../routes'
+
+const app = new OpenAPIHono()
+
+function mockAddress() {
+  return { city: faker.location.city() }
+}
+
+function mockUser() {
+  return { id: faker.string.uuid(), address: mockAddress() }
+}
+
+function mockUnused() {
+  return {}
+}
+
+export const healthHandler = app
+.openapi(getHealthRoute, (c) => c.json({ status: 'ok' }, 200))
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => c.json([mockUser()], 200))
+`
+      expect(mergeHandlerFile(existing, generated))
+        .toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
+import { getHealthRoute, getUsersRoute } from '../routes'
+import { faker } from '@faker-js/faker'
+
+function mockAddress() {
+  return { city: faker.location.city() }
+}
+
+function mockUser() {
+  return { id: faker.string.uuid(), address: mockAddress() }
+}
+
+const app = new OpenAPIHono()
+
+export const healthHandler = app
+.openapi(getHealthRoute, async (c) => c.json({ status: 'ok' }, 200))
+
+export const usersHandler = app
+.openapi(getUsersRoute, (c) => c.json([mockUser()], 200))
+`)
+    })
+
     it('removes deleted inline handler from existing code', () => {
       const existing = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getHealthRoute, getUsersRoute } from '../routes'

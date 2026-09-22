@@ -8,45 +8,29 @@ import { injectTypeSpecImportMap, typespecBundle } from './lib/typespec/vite'
 
 const typespec = typespecBundle()
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'Hono Takibi',
-  description: 'Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi',
-
+  description: 'Generate type-safe Hono code from OpenAPI and TypeSpec.',
   cleanUrls: true,
-
   transformHtml: (html) => injectTypeSpecImportMap(typespec, html),
-
   markdown: {
     config(md) {
       md.use(groupIconMdPlugin)
     },
   },
-
   vite: {
     plugins: [groupIconVitePlugin(), tailwindcss(), typespec],
     build: {
       rolldownOptions: {
-        // @typespec/playground imports the compiler statically; leaving the
-        // specifier bare lets the page importmap point it at the bundled copy
-        // the browser host already loads, instead of shipping a second one.
         external: ['@typespec/compiler'],
       },
     },
     resolve: {
       alias: [
-        // @typespec/compiler imports 'prettier/plugins/yaml.js' (extension-suffixed);
-        // prettier's '"./*"' exports wildcard resolves it to the UMD build, which has
-        // no `default` export under Vite dev. Re-map to the bare specifier so the
-        // exports map resolves the ESM build instead.
         {
           find: /^prettier\/plugins\/yaml\.js$/,
           replacement: 'prettier/plugins/yaml',
         },
-        // The hono-takibi generator chunk imports node:path (dirname/relative);
-        // pathe provides a browser-safe implementation. The absolute path keeps
-        // the alias resolvable from the workspace-linked hono-takibi package,
-        // which lives outside this site's root.
         {
           find: /^node:path$/,
           replacement: fileURLToPath(import.meta.resolve('pathe')),
@@ -54,41 +38,55 @@ export default defineConfig({
       ],
     },
   },
-
   themeConfig: {
+    logo: '/web/logo.webp',
     nav: [
       { text: 'Docs', link: '/docs' },
       { text: 'Playground', link: '/playground' },
     ],
     sidebar: [
-      {
-        text: 'Docs',
-        // collapsed: true,
-        link: '/docs',
-      },
+      { text: 'Getting Started', link: '/docs' },
       {
         text: 'Guides',
-        // collapsed: true,
         items: [
           { text: 'Configuration', link: '/docs/guides/config' },
-          { text: 'Vendor', link: '/docs/guides/vendor' },
+          { text: 'Template', link: '/docs/guides/template' },
+          { text: 'Client', link: '/docs/guides/client' },
+          { text: 'Test & Mock', link: '/docs/guides/test-mock' },
+          { text: 'API Docs', link: '/docs/guides/api-docs' },
+          { text: 'Vendor Extensions', link: '/docs/guides/vendor' },
           { text: 'Vite Plugin', link: '/docs/guides/vite-plugin' },
         ],
       },
-      {
-        text: 'Playground',
-        // collapsed: true,
-        link: '/playground',
-      },
+      { text: 'Playground', link: '/playground' },
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/nakita628/hono-takibi' },
       { icon: 'npm', link: 'https://www.npmjs.com/package/hono-takibi' },
     ],
-
     footer: {
       message: 'Released under the MIT License.',
       copyright: 'Copyright © 2024-present Hono Takibi contributors.',
     },
   },
+  head: [
+    ['link', { rel: 'icon', type: 'image/webp', href: '/web/logo.webp' }],
+    [
+      'meta',
+      {
+        property: 'og:image',
+        content: 'https://hono-takibi.dev/web/og.webp',
+      },
+    ],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'twitter:domain', content: 'hono-takibi.dev' }],
+    [
+      'meta',
+      {
+        property: 'twitter:image',
+        content: 'https://hono-takibi.dev/web/og.webp',
+      },
+    ],
+    ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
+  ],
 })
