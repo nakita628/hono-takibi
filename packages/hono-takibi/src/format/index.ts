@@ -1,10 +1,8 @@
-import { Context, Data, Effect } from 'effect'
+import { Context, Effect } from 'effect'
 import { format } from 'oxfmt'
 import type { FormatConfig } from 'oxfmt'
 
-export class FormatError extends Data.TaggedError('FormatError')<{
-  readonly message: string
-}> {}
+import { FormatError } from '../error/index.js'
 
 const defaultConfig = {
   printWidth: 100,
