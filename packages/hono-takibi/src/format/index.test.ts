@@ -38,6 +38,22 @@ describe('FormatOptions', () => {
     expect(result).toStrictEqual("const x = 'hello';\n")
   })
 
+  // A config file's `format` block usually sets one option. Losing the merge with the
+  // defaults would silently flip every generated file to double quotes and semicolons.
+  it('keeps the other defaults when one option is overridden', async () => {
+    const result = await fmtWith(
+      { printWidth: 30 },
+      "const a = 'x';\nconst pair = [aaaaaaaaaa, bbbbbbbbbb, cccccccccc]",
+    )
+    expect(result).toStrictEqual(`const a = 'x'
+const pair = [
+  aaaaaaaaaa,
+  bbbbbbbbbb,
+  cccccccccc,
+]
+`)
+  })
+
   it('falls back to defaults when called with empty object', async () => {
     // default: singleQuote: true, semi: false
     const result = await fmtWith({}, "const x = 'hello'")
