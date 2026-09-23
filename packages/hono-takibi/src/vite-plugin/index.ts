@@ -2,11 +2,11 @@
 import crypto from 'node:crypto'
 import path from 'node:path'
 
+import * as NodeFileSystem from '@effect/platform-node/NodeFileSystem'
 import { Effect, FileSystem, Option, Result } from 'effect'
 
 import { parseConfig } from '../config/index.js'
 import type { Config } from '../config/index.js'
-import { fileSystemLayer } from '../file/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -379,7 +379,7 @@ export function honoTakibiVite(): any {
     if (!pluginState.current) return false
     console.log('🔥 hono-takibi')
     const { logs, changed } = await Effect.runPromise(
-      runAllGenerationTasks(pluginState.current).pipe(Effect.provide(fileSystemLayer)),
+      runAllGenerationTasks(pluginState.current).pipe(Effect.provide(NodeFileSystem.layer)),
     )
     for (const logMessage of logs) {
       console.log(logMessage)
@@ -398,7 +398,7 @@ export function honoTakibiVite(): any {
       Effect.all({
         inputHash: hashWatchedInputs(pluginState.inputDirectory),
         outputsExist: allOutputsExist(pluginState.current),
-      }).pipe(Effect.provide(fileSystemLayer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
     if (inputHash !== null && inputHash === pluginState.lastInputHash && outputsExist) {
       console.log('⏭️ input unchanged - skipped regeneration')
@@ -426,7 +426,7 @@ export function honoTakibiVite(): any {
     if (pluginState.current) {
       const cleanedPaths = await Effect.runPromise(
         cleanupStaleOutputs(pluginState.current, nextConfiguration.success).pipe(
-          Effect.provide(fileSystemLayer),
+          Effect.provide(NodeFileSystem.layer),
         ),
       )
       for (const cleanedPath of cleanedPaths) {
@@ -440,7 +440,7 @@ export function honoTakibiVite(): any {
     )
     pluginState.inputDirectory = inputDirectory
     pluginState.lastInputHash = await Effect.runPromise(
-      hashWatchedInputs(inputDirectory).pipe(Effect.provide(fileSystemLayer)),
+      hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
     )
     await runGenerationAndReload(server)
   }
@@ -487,7 +487,7 @@ export function honoTakibiVite(): any {
         )
         pluginState.inputDirectory = inputDirectory
         pluginState.lastInputHash = await Effect.runPromise(
-          hashWatchedInputs(inputDirectory).pipe(Effect.provide(fileSystemLayer)),
+          hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
         )
         server.watcher.add(absoluteConfigFilePath)
         // 200ms debounce: editors emit multiple fs events on save, and batch file changes
