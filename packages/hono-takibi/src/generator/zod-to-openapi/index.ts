@@ -331,7 +331,14 @@ export function zodToOpenAPI(
       )
     }
     const literal = `z.literal(${JSON.stringify(value)}${errorArg})`
-    const z = options?.coerce ? wireCoerce(literal, typeof value) : literal
+    // A string-wire value needs coercion in front of a numeric / boolean literal.
+    const valueType = options?.coerce ? typeof value : undefined
+    const z =
+      valueType === 'number'
+        ? `z.coerce.number().pipe(${literal})`
+        : valueType === 'boolean'
+          ? `z.stringbool().pipe(${literal})`
+          : literal
     return wrap(z, schema, meta, options)
   }
   // Typeless enum with non-primitive values → typeless-refine (deep-equal).
@@ -351,8 +358,18 @@ export function zodToOpenAPI(
   if (schema.enum !== undefined) {
     const enumZ = _enum(schema)
     // Every member shares one primitive type, or the wire value cannot be coerced to it.
-    const memberType = options?.coerce ? uniformTypeOf(schema.enum) : undefined
-    return wrap(memberType ? wireCoerce(enumZ, memberType) : enumZ, schema, meta, options)
+    const [first, ...rest] = schema.enum
+    const memberType =
+      options?.coerce && first !== undefined && rest.every((m) => typeof m === typeof first)
+        ? typeof first
+        : undefined
+    const z =
+      memberType === 'number'
+        ? `z.coerce.number().pipe(${enumZ})`
+        : memberType === 'boolean'
+          ? `z.stringbool().pipe(${enumZ})`
+          : enumZ
+    return wrap(z, schema, meta, options)
   }
   // JSON Schema 2020-12 §6.5: `properties` w/o `type:object` only applies when value IS object.
   if (
@@ -659,27 +676,4 @@ export function zodToOpenAPI(
   // oxlint-disable-next-line no-console -- warns the user that a schema fell back to z.any()
   console.warn(`fallback to z.any(): schema=${JSON.stringify(schema)}`)
   return wrap('z.any()', schema, meta, options)
-}
-
-/**
- * The one `typeof` every member of a `const` / `enum` shares, or `undefined` when they
- * differ — a mixed list has no single coercion the wire value could take.
- */
-function uniformTypeOf(values: readonly unknown[]): string | undefined {
-  const [first, ...rest] = values
-  if (first === undefined) return undefined
-  const type = typeof first
-  return rest.every((value) => typeof value === type) ? type : undefined
-}
-
-/**
- * Pipes a string-wire value into a literal schema (`z.literal` / `z.union` of literals)
- * that expects it already typed: numeric literals need `z.coerce.number()` in front and
- * boolean literals `z.stringbool()`. A string literal matches the wire as is, and any
- * other type has no coercion.
- */
-function wireCoerce(literalZ: string, valueType: string): string {
-  if (valueType === 'number') return `z.coerce.number().pipe(${literalZ})`
-  if (valueType === 'boolean') return `z.stringbool().pipe(${literalZ})`
-  return literalZ
 }
