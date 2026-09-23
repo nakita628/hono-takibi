@@ -7,7 +7,8 @@ import type { FileSystem } from 'effect'
 import { Effect } from 'effect'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-import * as FormatModule from '../format/index.js'
+import { FormatError } from '../error/index.js'
+import type * as FormatModule from '../format/index.js'
 import type * as OpenAPIModule from '../openapi/index.js'
 import { honoTakibiVite } from './index.js'
 
@@ -155,7 +156,6 @@ vi.mock('../openapi/index.js', () => ({
 vi.mock('../format/index.js', async () => {
   const actual = await vi.importActual<typeof FormatModule>('../format/index.js')
   return {
-    FormatError: actual.FormatError,
     FormatOptions: actual.FormatOptions,
     fmt: vi.fn<(source: string) => Effect.Effect<string>>((source: string) =>
       Effect.succeed(source),
@@ -742,7 +742,7 @@ describe('honoTakibiVite', () => {
     const core = await import('../core/index.js')
     // Any error in `takibi`'s channel will do; the plugin only reads `.message`.
     vi.mocked(core.takibi).mockImplementationOnce(() =>
-      Effect.fail(new FormatModule.FormatError({ message: 'takibi internal failure' })),
+      Effect.fail(new FormatError({ message: 'takibi internal failure' })),
     )
     const configuration = {
       input: 'openapi.yaml',

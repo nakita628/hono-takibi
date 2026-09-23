@@ -7,14 +7,8 @@ import { Argument, CliError, CliOutput, Command, Flag } from 'effect/unstable/cl
 
 const COMMAND_NAME = 'hono-takibi'
 
-/** Config file `hono-takibi` picks up from the working directory when `--config` is omitted. */
 const DEFAULT_CONFIG_FILE = 'hono-takibi.config.ts'
 
-// `Schema.refine` both rejects the value at runtime and narrows the parsed type, so a
-// wrong extension never reaches the generators and the ones it does reach arrive as
-// `${string}.ts` without a cast. The template literal alone would do the same check but
-// reports "Expected a string matching template literal parts"; wrapping it in
-// `Schema.is` and refining with it is what buys the sentence below.
 const DocumentPathSchema = Schema.String.pipe(
   Schema.refine(
     Schema.is(Schema.TemplateLiteral([Schema.String, Schema.Literals(['.yaml', '.json', '.tsp'])])),
@@ -36,10 +30,6 @@ const TypeScriptPathSchema = Schema.String.pipe(
   examples: ['./src/routes.ts', 'src/api/routes.ts'],
 })
 
-/**
- * The command line itself: what `hono-takibi` accepts, what each piece means, and the
- * schema every value is decoded through before {@link generate} ever sees it.
- */
 const commandLine = {
   input: Argument.File('input', { mustExist: true }).pipe(
     Argument.withSchema(DocumentPathSchema),
@@ -47,9 +37,6 @@ const commandLine = {
     Argument.withMetavar('input.{yaml,json,tsp}'),
     Argument.optional,
   ),
-  // `Flag.String`, not `Flag.File`: the file primitive rewrites its value to an
-  // absolute path, and `--output` is echoed back in the "Generated code written to"
-  // message, which should read as the path the caller typed.
   output: Flag.String('output').pipe(
     Flag.withAlias('o'),
     Flag.withSchema(TypeScriptPathSchema),
@@ -63,8 +50,6 @@ const commandLine = {
     Flag.withMetavar('file'),
     Flag.optional,
   ),
-  // `Flag.Boolean` is still a required flag until it is given a default — without this,
-  // every invocation is rejected for not passing `--watch`.
   watch: Flag.Boolean('watch').pipe(
     Flag.withAlias('w'),
     Flag.withDescription('Rerun the config on every change to its documents or itself'),
@@ -72,21 +57,8 @@ const commandLine = {
   ),
 } as const
 
-/** Extensions a change has to carry to be worth regenerating for. */
 const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
 
-/**
- * One pass over a config file: read it, parse the document it names, and run every
- * generator it opts into.
- *
- * `reload` is for the passes after the first, where the config file may have been edited
- * since it was imported.
- *
- * The generator pipeline pulls in the OpenAPI parser, the TypeSpec compiler and ts-morph.
- * `--help`, `--version`, `--completions` and every rejected command line must not pay for
- * that, so it is loaded here rather than at module scope. After the first pass the loader
- * answers from cache, so a watch tick pays nothing.
- */
 function runConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
     const [{ readConfig }, { parseOpenAPI }, { FormatOptions }, { cleanSplitOutputs, makeJob }] =
@@ -100,8 +72,6 @@ function runConfigPass(configPath: string, reload: boolean) {
       )
     const config = yield* readConfig(configPath, reload)
     const jobs = makeJob(yield* parseOpenAPI(config.input), config)
-    // Every split directory is emptied first, so an entry the document no longer names
-    // does not survive as an orphaned file that still imports what it defined.
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.all(
       jobs.map((job) => job.run(job.output)),
@@ -111,13 +81,6 @@ function runConfigPass(configPath: string, reload: boolean) {
   })
 }
 
-/**
- * A pass whose failure is printed rather than raised, so the watch loop survives it, and
- * which answers with the input directory the config now names.
- *
- * `undefined` means the pass did not get far enough to say — the config is missing, will
- * not import, or does not validate. The loop keeps watching the config either way.
- */
 function reportConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
     const result = yield* Effect.result(runConfigPass(configPath, reload))
@@ -126,19 +89,10 @@ function reportConfigPass(configPath: string, reload: boolean) {
       return undefined
     }
     yield* Console.log(result.success.report)
-    // Where the documents named by the config live, which is the directory worth watching.
     return path.dirname(path.resolve(process.cwd(), result.success.config.input))
   })
 }
 
-/**
- * Watches the config, and the input documents when a pass has said where they are, until
- * the answer changes — then hands the new directory back so {@link watchConfig} restarts.
- *
- * `runForEachWhile` is what ends the round: a pass that reports a different directory
- * returns `false`, and the directory it reported is in the `Ref` for the caller. The
- * `Ref` is what carries a value out of a stream that otherwise only returns `void`.
- */
 function watchRound(configPath: string, inputDirectory: string | undefined) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
@@ -162,9 +116,6 @@ function watchRound(configPath: string, inputDirectory: string | undefined) {
           )
     yield* events.pipe(
       Stream.debounce('200 millis'),
-      // A pass that failed says nothing about where the documents are, so the round
-      // carries on watching what it was watching. Only a pass that succeeded and named a
-      // different directory ends the round.
       Stream.runForEachWhile(() =>
         reportConfigPass(configPath, true).pipe(
           Effect.tap((directory) => Ref.set(nextDirectory, directory ?? inputDirectory)),
@@ -176,26 +127,6 @@ function watchRound(configPath: string, inputDirectory: string | undefined) {
   })
 }
 
-/**
- * Regenerates on every change to the input documents or the config, until interrupted.
- *
- * Two watchers, because two things can invalidate the output. The input document's
- * directory is watched recursively — a TypeSpec entry imports its siblings and a `$ref`
- * can point at one, so the file named by `input` is rarely the only one that matters. The
- * config file is watched through its directory rather than directly, so an editor that
- * saves by renaming does not take the watcher down with it.
- *
- * `WatchEvent.path` is relative to the directory it came from, which is why each stream
- * is filtered before the merge rather than after.
- *
- * `debounce` collapses the burst an editor emits on save into one pass — a plain write
- * already reports twice. Generated files are `.ts` and `.md`, so a pass cannot trigger
- * the next one.
- *
- * `inputDirectory` is `undefined` until a pass has read a config far enough to name one;
- * only the config is watched until then, which is what keeps a config that does not
- * validate at startup from ending the command the caller asked to keep running.
- */
 function watchConfig(
   configPath: string,
   inputDirectory: string | undefined,
@@ -210,29 +141,11 @@ function watchConfig(
   })
 }
 
-/**
- * Everything the command does once the command line has parsed.
- *
- * It resolves to one of two modes and nothing else: an `<input>` with an `-o` writes a
- * single routes file, and anything else runs a config file — which is what opts in the
- * routes, components, webhooks, types, mock, docs, test and tanstack-query generators.
- * `--config` and `<input>` are mutually exclusive, and each of `<input>` / `--output` is
- * meaningless without the other.
- *
- * Everything past the guard clauses fails with something carrying a `message`, so the
- * single `mapError` at the end is where all of it turns into rendered CLI output. The
- * `FileSystem` the generators write through comes from the environment the caller
- * provides.
- */
 function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
   return Effect.gen(function* () {
     const input = Option.getOrUndefined(args.input)
     const output = Option.getOrUndefined(args.output)
     const configPath = Option.getOrUndefined(args.config)
-
-    // What the command line cannot be, in the order the sentences are worth reading: the
-    // first one that fits is printed, so `--config` alongside `<input>` is reported as
-    // the combination it is rather than as the half-written one-shot it also looks like.
     const conflicts: readonly (readonly [rejected: boolean, message: string])[] = [
       [
         configPath !== undefined && (input !== undefined || output !== undefined),
@@ -240,46 +153,29 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
       ],
       [input !== undefined && output === undefined, '<input> requires -o <output.ts>.'],
       [output !== undefined && input === undefined, '-o <output.ts> requires an <input> document.'],
-      // One-shot writes one file from one document and is done; there is no second pass
-      // for a change to trigger.
       [
         args.watch && (input !== undefined || output !== undefined),
         '--watch runs a config file, so it cannot be combined with <input> or --output.',
       ],
     ]
     const conflict = conflicts.find(([rejected]) => rejected)?.[1]
-    // Neither mode is described here. `ShowHelp` is how the runner is asked for the help
-    // it renders for a parse failure, so a failure caught here reads the same as one
-    // caught a layer earlier — and the command describes itself in exactly one place.
     if (conflict !== undefined) {
       return yield* new CliError.ShowHelp({
         commandPath: [COMMAND_NAME],
         errors: [new CliError.UserError({ cause: new Error(conflict), userMessage: conflict })],
       })
     }
-
-    // One-shot: no config file is consulted, even when one sits in the working directory,
-    // so `takibi` is given no component options and generates routes only. Turning any of
-    // them on is what a config file is for. Loaded here rather than at module scope for
-    // the reason `runConfigPass` gives.
     if (input !== undefined && output !== undefined) {
       const [{ parseOpenAPI }, { takibi }] = yield* Effect.promise(() =>
         Promise.all([import('../openapi/index.js'), import('../core/index.js')]),
       )
       return yield* Console.log(yield* takibi(yield* parseOpenAPI(input), output))
     }
-
     const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
-    // Under `--watch` the first pass is a pass like any other: the caller asked for a
-    // command that stays up and reacts to edits, and a config that does not validate yet
-    // is the first edit to react to. Without it, one typo ends the session.
     if (args.watch) {
       return yield* watchConfig(resolvedConfig, yield* reportConfigPass(resolvedConfig, false))
     }
     const first = yield* runConfigPass(resolvedConfig, false).pipe(
-      // A config that is absent and was never asked for is the "ran `hono-takibi` with
-      // nothing" case, the one place where the usage block is the answer. A config that
-      // is present and wrong already names the field, and the usage block only buries it.
       Effect.mapError((error) =>
         configPath === undefined && error._tag === 'ConfigError' && error.notFound === true
           ? new CliError.ShowHelp({
@@ -292,9 +188,6 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
     yield* Console.log(first.report)
     return undefined
   }).pipe(
-    // A `CliError` is already something the runner knows how to render — `ShowHelp` in
-    // particular, which it answers with the generated help. Everything else is a
-    // generator or filesystem failure that only carries a sentence.
     Effect.mapError((error) =>
       CliError.isCliError(error)
         ? error
@@ -303,13 +196,6 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
   )
 }
 
-/**
- * The `hono-takibi` command: parsing, validation, `--help`, `--version` and shell
- * completions are owned by `effect/unstable/cli`, {@link generate} is the rest.
- *
- * `description` is the manifest's, so the sentence `--help` prints and the one npm shows
- * cannot drift apart — {@link honoTakibi} is already reading that file for `--version`.
- */
 function makeCli(description: string) {
   return Command.make(COMMAND_NAME, commandLine, generate).pipe(
     Command.withDescription(description),
@@ -334,16 +220,6 @@ function makeCli(description: string) {
   )
 }
 
-/**
- * The manifest could not be read: the `package.json` beside the entry is missing, is not
- * JSON, or carries no `version` / `description`. That is a broken install, not anything
- * the caller typed.
- *
- * `Command.runWith` renders the errors raised inside the command, but this one is raised
- * before it runs. So it is rendered here through the same formatter — the `ERROR` block
- * every other failure prints — and marked as already reported, so `runMain` does not
- * print it a second time in its own shape.
- */
 function reportBrokenInstall(cause: { readonly message: string }) {
   return Effect.gen(function* () {
     const error = new CliError.UserError({
@@ -357,21 +233,6 @@ function reportBrokenInstall(cause: { readonly message: string }) {
   })
 }
 
-/**
- * Runs `hono-takibi` against an argument list.
- *
- * `entryUrl` is the `import.meta.url` of the executable, and both `--version` and the
- * description `--help` prints are read from the `package.json` beside it. The entry has
- * to supply that URL: it is the only module whose
- * depth is the same in source and in the bundle (`src/index.ts` and the `dist/cli.js` it
- * is packed into both sit one directory below the manifest), so a relative URL written
- * anywhere else resolves to two different files.
- *
- * A manifest that is missing or malformed is a broken install, so it fails rather than
- * reporting a placeholder version — but through the error channel, which prints a
- * sentence instead of an unhandled `SchemaError` and its whole AST. One `Schema.Struct`
- * is what says which fields have to be there for the command to describe itself.
- */
 export function honoTakibi(argv: readonly string[], entryUrl: string) {
   return Effect.gen(function* () {
     const manifestPath = fileURLToPath(new URL('../package.json', entryUrl))

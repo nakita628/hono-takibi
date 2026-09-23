@@ -1255,12 +1255,6 @@ const ConfigSchema = Schema.Struct({
     }),
   ),
 })
-  // Every output path, pointed at a file: a generator that writes one file accepts a
-  // directory as shorthand for the `index.ts` inside it, while a `split` target keeps the
-  // directory it was given. Doing it here rather than on each `output` keeps the field
-  // declarations above literal, and puts the rewrite ahead of the checks below — which
-  // compare output paths against each other and would otherwise read two spellings of one
-  // file as two files.
   .pipe(
     Schema.decode(
       SchemaTransformation.transform({
@@ -1370,8 +1364,6 @@ const ConfigSchema = Schema.Struct({
       (v) => {
         if (v.template?.define !== true || v.components?.output === undefined) return true
         const componentsOutput = v.components.output.replace(/^\.\//u, '')
-        // `<anchor>/<module>` where module is a flat `.ts` file or a `<dir>/index.ts`
-        // pair; the derived app entry is `<anchor>/index.ts`.
         const container = componentsOutput.endsWith('/index.ts')
           ? componentsOutput.slice(0, -'/index.ts'.length)
           : componentsOutput
@@ -1389,10 +1381,6 @@ const ConfigSchema = Schema.Struct({
           'with template.define, components.output must not point at the app entry or inside the derived routes/ directory (it would be overwritten). Choose another path, e.g. src/components/index.ts.',
       },
     ),
-    // Two generators aimed at one path is silent data loss, not a merge: the CLI runs
-    // every job concurrently, so whichever finishes last is the file that survives and
-    // both still report success. Compared after decoding, where a directory `output`
-    // has already become `<dir>/index.ts` and `./a.ts` and `a.ts` are the same path.
     Schema.makeFilter(
       (v) => {
         const declared: readonly (readonly [string, string | undefined])[] = [
@@ -1425,29 +1413,14 @@ const ConfigSchema = Schema.Struct({
       { message: 'every generator needs its own output path' },
     ),
   )
-  // No `examples` here: the annotation is typed against the parsed shape, and a root
-  // example would have to spell out all sixteen defaulted `export*` flags — noise, not
-  // documentation. The minimal configs a user actually writes live in the README.
   .annotate({
     title: 'hono-takibi config',
     description:
       'Everything `hono-takibi` generates from one OpenAPI or TypeSpec document. Only `input` is required; each remaining field opts one generator in.',
   })
 
-/** A validated config: every default filled in and every output path normalized. */
 export type Config = typeof ConfigSchema.Type
 
-/**
- * The config file is missing, is not a module with a default export, or does not validate.
- *
- * `notFound` is what lets the caller who ran `hono-takibi` with nothing be shown what the
- * command accepts, while every other failure already names the field that is wrong.
- *
- * `Schema.TaggedError` rather than `Data.TaggedError`: this is the error a schema decode
- * turns into, which is the shape the Schema guide models, and it makes the failure a
- * schema in its own right. The errors that never meet a schema (`FormatError`,
- * `GenerateError`, `OpenAPIError`) stay plain `Data.TaggedError`.
- */
 // oxlint-disable-next-line unicorn/throw-new-error -- `Schema.TaggedError()` is the class factory, not a throw
 export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError', {
   message: Schema.String.annotate({
@@ -1461,17 +1434,9 @@ export class ConfigError extends Schema.TaggedError<ConfigError>()('ConfigError'
   ),
 }) {}
 
-// Built once and reused at the edge, as the Schema guide prescribes, rather than
-// rebuilt per call.
 const decodeConfig = Schema.decodeUnknownEffect(ConfigSchema)
 const formatIssue = SchemaIssue.makeFormatterStandardSchemaV1()
 
-/**
- * Validates an already-loaded config object.
- *
- * The first issue is reported as `<a.b.c>: <message>`: a config file is written by hand,
- * so naming the field that is wrong matters more than listing every consequence of it.
- */
 export function parseConfig(config: unknown) {
   return decodeConfig(config).pipe(
     Effect.mapError((error) => {
@@ -1485,24 +1450,12 @@ export function parseConfig(config: unknown) {
   )
 }
 
-// A module specifier is imported once per process, so a watch pass that asked for the
-// same config file would get the copy from before the edit. The counter is what makes
-// each reload a specifier the loader has not seen.
 let reloadCount = 0
 
-/**
- * Loads and validates a config file, resolved against the current directory.
- *
- * `reload` re-reads a config that has already been imported — what `--watch` needs after
- * the file changes, and nothing else should ask for, since every reload leaves another
- * copy of the module behind.
- */
 export function readConfig(configPath?: string, reload = false) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const abs = resolve(process.cwd(), configPath ?? 'hono-takibi.config.ts')
-    // Checked before importing so a missing file reads as "no config here" rather than
-    // as whatever the module loader throws.
     const found = yield* fs
       .exists(abs)
       .pipe(Effect.catchTag('PlatformError', () => Effect.succeed(false)))
@@ -1516,9 +1469,6 @@ export function readConfig(configPath?: string, reload = false) {
       catch: (error) =>
         new ConfigError({ message: error instanceof Error ? error.message : String(error) }),
     })
-    // `'default' in mod` is what narrows `mod` for TypeScript, not a second runtime check
-    // — an absent key already reads as `undefined` below. `export default undefined`
-    // leaves the key present, which is why both halves are here.
     if (
       typeof mod !== 'object' ||
       mod === null ||

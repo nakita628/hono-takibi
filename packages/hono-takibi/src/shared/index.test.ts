@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator } from '../testing/index.js'
-import { makeJob } from './index.js'
+import { appEntryOutput, cleanSplitOutputs, makeJob } from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -850,5 +850,85 @@ describe('makeJob test request paths use the global basePath', () => {
     await Promise.all(jobs.map((job) => runGenerator(job.run(job.output))))
     const content = fs.readFileSync(`${tmpDir}/app.test.ts`, 'utf-8')
     expect(content.includes('app.request(`/health`')).toBe(true)
+  })
+})
+
+// `appEntryOutput` is the one place the app entry is derived, and every generated import
+// is relative to it. A wrong anchor here breaks every route import at once.
+const entry = async (config: Record<string, unknown>) =>
+  appEntryOutput(await runGenerator(parseConfig({ input: 'openapi.yaml', ...config })))
+
+describe('appEntryOutput', () => {
+  it.concurrent('prefers an explicit output in every mode', async () => {
+    expect(await entry({ output: 'src/app.ts' })).toBe('src/app.ts')
+    expect(
+      await entry({
+        output: 'src/server/index.ts',
+        template: { define: true },
+        components: { output: 'src/api/components/index.ts' },
+      }),
+    ).toBe('src/server/index.ts')
+  })
+
+  it.concurrent('falls back to routes.output outside define mode', async () => {
+    expect(await entry({ routes: { output: 'src/routes/index.ts' } })).toBe('src/routes/index.ts')
+    expect(await entry({})).toBeUndefined()
+  })
+
+  it.concurrent('defaults define mode to src/index.ts without a components anchor', async () => {
+    expect(await entry({ template: { define: true } })).toBe('src/index.ts')
+  })
+
+  it.concurrent.each([
+    ['src/api/components/index.ts', 'src/api/index.ts'],
+    ['src/api/components.ts', 'src/api/index.ts'],
+    ['components/index.ts', 'index.ts'],
+    ['components.ts', 'index.ts'],
+    ['./components/index.ts', 'index.ts'],
+  ])('anchors define mode next to components.output %s', async (output, expected) => {
+    expect(await entry({ template: { define: true }, components: { output } })).toBe(expected)
+  })
+})
+
+// `cleanSplitOutputs` is the only thing in the package that deletes files the user did
+// not name one by one, so what it leaves alone matters as much as what it removes.
+const makeCleanDir = () => {
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-clean-'))
+  return tmpDir
+}
+
+describe('cleanSplitOutputs', () => {
+  it('removes only the .ts files directly inside the directory', async () => {
+    const dir = makeCleanDir()
+    fs.writeFileSync(path.join(dir, 'a.ts'), '')
+    fs.writeFileSync(path.join(dir, 'b.ts'), '')
+    fs.writeFileSync(path.join(dir, 'README.md'), '')
+    fs.writeFileSync(path.join(dir, 'a.ts.bak'), '')
+    fs.mkdirSync(path.join(dir, 'nested'))
+    fs.writeFileSync(path.join(dir, 'nested', 'keep.ts'), '')
+
+    await runGenerator(cleanSplitOutputs([dir]))
+
+    expect([...fs.readdirSync(dir)].sort()).toStrictEqual(['README.md', 'a.ts.bak', 'nested'])
+    expect(fs.existsSync(path.join(dir, 'nested', 'keep.ts'))).toBe(true)
+  })
+
+  it('treats a directory that does not exist as already clean', async () => {
+    const missing = path.join(makeCleanDir(), 'never-created')
+
+    await expect(runGenerator(cleanSplitOutputs([missing]))).resolves.toBeDefined()
+    expect(fs.existsSync(missing)).toBe(false)
+  })
+
+  it('cleans each directory once even when it is listed twice', async () => {
+    const dir = makeCleanDir()
+    fs.writeFileSync(path.join(dir, 'a.ts'), '')
+
+    await expect(runGenerator(cleanSplitOutputs([dir, dir]))).resolves.toHaveLength(1)
+    expect(fs.readdirSync(dir)).toStrictEqual([])
+  })
+
+  it('does nothing with an empty list', async () => {
+    await expect(runGenerator(cleanSplitOutputs([]))).resolves.toStrictEqual([])
   })
 })

@@ -71,7 +71,7 @@ export default defineConfig({
     },
   },
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/web/logo.png' }],
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { property: 'og:image', content: 'https://hono-takibi.dev/web/og.png' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'twitter:domain', content: 'hono-takibi.dev' }],

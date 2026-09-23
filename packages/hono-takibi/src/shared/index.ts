@@ -30,17 +30,10 @@ import {
   webhooks,
 } from '../core/index.js'
 import { GenerateError } from '../error/index.js'
+import type { FormatError } from '../error/index.js'
 import { readdir, unlink } from '../file/index.js'
-import type { FormatError } from '../format/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
-/**
- * One generator the config opted in, ready to run.
- *
- * Naming the shape here is what keeps the requirement channel from widening to `any`
- * at the call site: the array below is a union of differently-typed entries, and
- * `Effect.all` over that union would lose the `FileSystem` the caller has to provide.
- */
 type Job = {
   readonly name: string
   readonly output: string
@@ -54,8 +47,6 @@ type Job = {
   >
 }
 
-// Built once and reused, the way `config` builds its own decoder: the schema is the
-// same for every job, and there is one call per job.
 const decodeTypeScriptPath = Schema.decodeUnknownEffect(
   Schema.String.pipe(
     Schema.refine(Schema.is(Schema.TemplateLiteral([Schema.String, '.ts']))),
@@ -66,19 +57,12 @@ const decodeTypeScriptPath = Schema.decodeUnknownEffect(
   }),
 )
 
-/**
- * Narrows a job's output path to the `${string}.ts` the TypeScript generators ask for.
- *
- * `config` normalises a directory into `<dir>/index.ts` and the split generators build
- * their own paths, so what reaches a job is a plain string; this is where it is checked.
- */
 function typeScriptPath(output: string) {
   return decodeTypeScriptPath(output).pipe(
     Effect.mapError(() => new GenerateError({ message: `Invalid output format: ${output}` })),
   )
 }
 
-/** `takibi` against a job's output path, once that path is known to be TypeScript. */
 function runTakibi(
   openAPI: OpenAPI,
   output: string,
@@ -89,19 +73,12 @@ function runTakibi(
   })
 }
 
-/** `type` against a job's output path, once that path is known to be TypeScript. */
 function runType(openAPI: OpenAPI, output: string, readonly?: boolean) {
   return Effect.gen(function* () {
     return yield* type(openAPI, yield* typeScriptPath(output), readonly)
   })
 }
 
-/**
- * Empties the generated `.ts` files out of one split output directory.
- *
- * A directory the first run has not created yet reads as empty, which is what `readdir`
- * already answers.
- */
 function cleanSplitDirectory(directory: string) {
   return Effect.gen(function* () {
     const names = yield* readdir(directory)
@@ -114,24 +91,6 @@ function cleanSplitDirectory(directory: string) {
   })
 }
 
-/**
- * Empties every split output directory before the generators refill them.
- *
- * A split generator writes one file per entry plus a barrel beside them, and knows only
- * what it writes — so an entry that leaves the document leaves its file behind, orphaned
- * and still importing names the document no longer defines. Removing the section
- * altogether is worse: the generator writes nothing at all and the whole previous
- * directory, barrel included, survives as the answer to a document that no longer says it.
- *
- * A split directory is therefore the generator's, not a place to keep anything by hand.
- * `remove` is only pointed at its direct `.ts` children, never at a subdirectory. Only
- * `routes`, `webhooks` and the `components.*` sections take `split`; every other
- * generator writes one file and overwrites it in place, so none of them is cleaned.
- *
- * This runs before any job writes, never per job as it goes: two jobs can be aimed at one
- * directory, and a clean that lands after a sibling has filled it would take the fresh
- * files with it.
- */
 export function cleanSplitOutputs(directories: readonly string[]) {
   return Effect.all(
     [...new Set(directories)].map((directory) => cleanSplitDirectory(directory)),
@@ -139,17 +98,6 @@ export function cleanSplitOutputs(directories: readonly string[]) {
   )
 }
 
-/**
- * Where the `template` scaffold writes its app entry.
- *
- * In define mode the entry anchors `routes/` and `components/`. When `output` is omitted
- * the anchor is inferred from `components.output` (`<anchor>/<module>`, module being a
- * flat `.ts` file or a `<dir>/index.ts` pair → `<anchor>/index.ts`), else `src/index.ts`.
- *
- * Exported because the derivation is the only output path a caller cannot read straight
- * off the config, and a caller that lists output paths has to agree with `makeJob` about
- * this one or it will report a file the generators do in fact write.
- */
 export function appEntryOutput(config: Config) {
   if (config.output !== undefined) return config.output
   if (config.template?.define !== true) return config.routes?.output
@@ -181,8 +129,6 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
     'pathItems',
     'mediaTypes',
   ] as const
-  // Import-path resolution map keyed by component kind. When `components.output` is set,
-  // every kind resolves to that single file; otherwise each kind keeps its per-type config.
   const rawComponents = config.components
   const componentsResolve: { readonly [k: string]: { readonly output: string } } | undefined =
     componentsOutput

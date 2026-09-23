@@ -63,6 +63,32 @@ describe('parseOpenAPI', () => {
     }
   })
 
+  it.concurrent('should return err for a YAML file that will not parse', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/broken.yaml` as const
+    fs.writeFileSync(input, 'openapi: "3.0.0\ninfo: [unclosed')
+    try {
+      const error = await runGeneratorError(parseOpenAPI(input))
+      expect(error._tag).toBe('OpenAPIError')
+      expect(error.message.length).toBeGreaterThan(0)
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it.concurrent('should return err for a JSON file that will not parse', async () => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-openapi-'))
+    const input = `${directory}/broken.json` as const
+    fs.writeFileSync(input, '{"openapi": "3.0.0",')
+    try {
+      const error = await runGeneratorError(parseOpenAPI(input))
+      expect(error._tag).toBe('OpenAPIError')
+      expect(error.message.length).toBeGreaterThan(0)
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   it.concurrent('should return err for a document that does not exist', async () => {
     const result = await runGeneratorError(parseOpenAPI('not-yaml-nor-json.yaml'))
     expect(typeof result.message).toBe('string')

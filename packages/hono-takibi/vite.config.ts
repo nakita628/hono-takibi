@@ -380,7 +380,7 @@ export default defineConfig({
       {
         files: [
           'src/utils/**',
-          'src/format/**',
+          'src/error/**',
           'src/file/**',
           'src/merge/**',
           'src/openapi/**',
@@ -394,6 +394,23 @@ export default defineConfig({
                 {
                   regex: '^\\.\\./',
                   message: 'leaf module: no project-internal imports allowed',
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        files: ['src/format/**'],
+        rules: {
+          'no-restricted-imports': [
+            'error',
+            {
+              patterns: [
+                {
+                  regex:
+                    '^(\\.\\./)+(cli|config|core|emit|file|generator|guard|helper|merge|openapi|shared|utils|vite-plugin)(/.*)?$',
+                  message: 'format may only import error',
                 },
               ],
             },

@@ -41,6 +41,19 @@ describe('file', () => {
       expect(fs.existsSync(deepPath)).toBe(true)
     })
 
+    // The pre-write read of a directory fails; that must fall through to the write, which
+    // then reports the real problem, rather than being swallowed as "already identical".
+    it('returns err when the path is an existing directory and leaves it in place', async () => {
+      const dirPath = path.join(TEST_DIR, 'a-directory')
+      await fsp.mkdir(dirPath, { recursive: true })
+      await fsp.writeFile(path.join(dirPath, 'inside.txt'), 'kept')
+      const result = await runGeneratorError(writeFile(dirPath, 'content'))
+      expect(result._tag).toBe('PlatformError')
+      const stat = await fsp.stat(dirPath)
+      expect(stat.isDirectory()).toBe(true)
+      expect(await fsp.readFile(path.join(dirPath, 'inside.txt'), 'utf8')).toBe('kept')
+    })
+
     it('returns err for invalid path', async () => {
       const filePath = path.join(TEST_DIR, 'foo.txt')
       await fsp.mkdir(TEST_DIR, { recursive: true })
