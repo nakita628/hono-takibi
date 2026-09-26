@@ -47,7 +47,7 @@ catalogs:
       version: 0.86.0
     wrangler:
       specifier: ^4.135.0
-      version: 4.139.0
+      version: 4.140.0
 
 importers:
 
@@ -89,7 +89,7 @@ importers:
         version: 4.1.11(@types/node@26.6.2)(@vitest/browser-preview@4.1.11)(happy-dom@20.14.5)(vite@8.3.1(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       wrangler:
         specifier: ^4.135.0
-        version: 4.139.0(@types/node@26.6.2)
+        version: 4.140.0(@types/node@26.6.2)
 
   packages/hono-takibi:
     dependencies:
@@ -306,7 +306,7 @@ importers:
         version: 3.5.43(typescript@7.0.2)
       wrangler:
         specifier: 'catalog:'
-        version: 4.139.0(@types/node@26.6.2)
+        version: 4.140.0(@types/node@26.6.2)
 
 packages:
 
@@ -3460,8 +3460,8 @@ packages:
   esm-env@1.2.2:
     resolution: {integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==}
 
-  esrap@2.3.11:
-    resolution: {integrity: sha512-1kmQFiDHcf1T69K9qKtn2MasiKlaq6xNw2ZEgHD8jNyyoNEfx9eCOiJpYDmc0Yk0FKT0bzx5dyBocMDAitWpaQ==}
+  esrap@2.3.12:
+    resolution: {integrity: sha512-X+t0J3EQKrrw5lgpgjn4hKjD17cHCZBZIcp2OUOyH7teMjH67gNRR2p+b1rMYavBkRN6VfHPWJOPY7w+VwQf/g==}
     peerDependencies:
       '@typescript-eslint/types': ^8.2.0
     peerDependenciesMeta:
@@ -4429,8 +4429,8 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
-  wrangler@4.139.0:
-    resolution: {integrity: sha512-9RtaWkIkxqntg58bGwNVRfGVSgf+cAq/45YzC87LN5YniCt4DDNrFM2gXK5SHMj3iG5YnDHhRVvh63FWnmJnaA==}
+  wrangler@4.140.0:
+    resolution: {integrity: sha512-XeKeC33B4Nglg0RAJ8F8ecGHOW+cPFeE5+fp4WBzn1c0u+H/96cVQYjto3/0ahilfPurnnGcUslJ1xaZXy+NGQ==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -7685,7 +7685,7 @@ snapshots:
 
   esm-env@1.2.2: {}
 
-  esrap@2.3.11:
+  esrap@2.3.12:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
@@ -8369,7 +8369,7 @@ snapshots:
       clsx: 2.1.1
       devalue: 5.9.4
       esm-env: 1.2.2
-      esrap: 2.3.11
+      esrap: 2.3.12
       is-reference: 3.0.3
       locate-character: 3.0.0
       magic-string: 0.30.21
@@ -8741,7 +8741,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260923.1
       '@cloudflare/workerd-windows-64': 1.20260923.1
 
-  wrangler@4.139.0(@types/node@26.6.2):
+  wrangler@4.140.0(@types/node@26.6.2):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20260923.1)
