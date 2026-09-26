@@ -70,13 +70,13 @@
     "ts-morph": "^28.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.6.0",
-    "@hono/zod-openapi": "^1.6.3",
-    "@types/node": "^26.6.2",
+    "@faker-js/faker": "10.6.0",
+    "@hono/zod-openapi": "1.6.3",
+    "@types/node": "26.6.2",
     "@typespec/http": "catalog:",
     "@typespec/rest": "catalog:",
-    "hono": "^4.13.8",
-    "typescript": "^7.0.2",
-    "zod": "^4.6.5"
+    "hono": "4.13.9",
+    "typescript": "7.0.2",
+    "zod": "4.6.5"
   }
 }
