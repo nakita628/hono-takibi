@@ -1,7 +1,8 @@
 import path from 'node:path'
 
-import type { FileSystem, PlatformError } from 'effect'
-import { Effect, Schema } from 'effect'
+import SwaggerParser from '@apidevtools/swagger-parser'
+import type { PlatformError } from 'effect'
+import { Effect, FileSystem, Schema } from 'effect'
 
 import type { Config } from '../config/index.js'
 import {
@@ -96,6 +97,92 @@ export function cleanSplitOutputs(directories: readonly string[]) {
     [...new Set(directories)].map((directory) => cleanSplitDirectory(directory)),
     { concurrency: 'unbounded' },
   )
+}
+
+const TYPESPEC_IMPORT = /^\s*import\s+"(?<specifier>\.{1,2}\/[^"]*)"/gmu
+
+/**
+ * The `.tsp` files reachable from `file` through relative imports, `file` included.
+ *
+ * Read off the source text rather than asked of the compiler: a compile is the expensive
+ * part of a pass, and the only thing wanted here is which files an edit could come from.
+ * An import of a directory is its `main.tsp`, as it is to the compiler. A file that
+ * cannot be read is still named — it is where the fix will be written.
+ */
+function typeSpecSources(
+  file: string,
+  seen: ReadonlySet<string>,
+): Effect.Effect<ReadonlySet<string>, never, FileSystem.FileSystem> {
+  return Effect.gen(function* () {
+    if (seen.has(file)) return seen
+    const fs = yield* FileSystem.FileSystem
+    const info = yield* fs.stat(file).pipe(Effect.orElseSucceed(() => null))
+    if (info?.type === 'Directory') return yield* typeSpecSources(path.join(file, 'main.tsp'), seen)
+    const source = file.endsWith('.tsp')
+      ? yield* fs.readFileString(file).pipe(Effect.orElseSucceed(() => ''))
+      : ''
+    const imports = [...source.matchAll(TYPESPEC_IMPORT)]
+      .map((match) => match.groups?.specifier)
+      .filter((specifier) => specifier !== undefined)
+      .map((specifier) => path.resolve(path.dirname(file), specifier))
+    return yield* Effect.reduce(
+      imports,
+      (): ReadonlySet<string> => new Set([...seen, file]),
+      (found, imported) => typeSpecSources(imported, found),
+    )
+  })
+}
+
+/**
+ * Whether `filePath` sits under `directory`, at any depth.
+ *
+ * Asked of the path segments rather than the string: `/app/spec-old/a.yaml` starts with
+ * `/app/spec` and is not inside it.
+ */
+export function isInsideDirectory(directory: string, filePath: string) {
+  const relative = path.relative(directory, filePath)
+  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
+/**
+ * The files the document at `input` reads from that sit outside its own directory.
+ *
+ * For a watcher, and only for a watcher. A `$ref` or a TypeSpec `import` can reach a file
+ * anywhere on disk, so watching the directory `input` sits in misses some of the edits
+ * that change the output; these are the files it misses.
+ *
+ * Nothing here feeds generation. `parseOpenAPI` still reads the document with `bundle`,
+ * which is what folds a split document into one; this asks `resolve`, which stops after
+ * reading the files `bundle` would go on to fold. The two read the same files, so the
+ * list is the one `bundle` works from, without paying for a document nobody uses — and
+ * an edit to one of them reruns the pass, where `bundle` picks the new contents up.
+ *
+ * Nothing under `node_modules` is named: a library the document imports is not
+ * something the user edits. Fails when the document cannot be read, so the caller can
+ * keep the list it already has rather than trust a partial one.
+ */
+export function outsideSources(input: string) {
+  return Effect.gen(function* () {
+    const files = input.endsWith('.tsp')
+      ? [...(yield* typeSpecSources(path.resolve(input), new Set()))]
+      : yield* Effect.tryPromise({
+          try: async () => {
+            const references = await SwaggerParser.resolve(input)
+            return references.paths('file')
+          },
+          catch: (error) =>
+            new GenerateError({ message: error instanceof Error ? error.message : String(error) }),
+        })
+    const inputDirectory = path.dirname(path.resolve(input))
+    return [...new Set(files.map((file) => path.resolve(file)))]
+      .filter(
+        (file) =>
+          file !== path.resolve(input) &&
+          !isInsideDirectory(inputDirectory, file) &&
+          !file.split(path.sep).includes('node_modules'),
+      )
+      .toSorted()
+  })
 }
 
 export function appEntryOutput(config: Config) {

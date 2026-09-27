@@ -40,6 +40,7 @@ app.openapi(postStringsRoute, (c) => {
 app.openapi(postCoerceRoute, (c) => {
   const body = c.req.valid('json')
   // Re-serialize dates as ISO strings so the JSON response is stable.
+  // JSON レスポンスが安定するよう、日付を ISO 文字列にシリアライズし直す。
   return c.json(
     {
       ...body,
@@ -63,6 +64,8 @@ app.openapi(postCustomRoute, (c) => {
   const body = c.req.valid('json')
   // updatedAt is parsed as a Date instance — no need to call .toISOString().
   // The output schema's codec re-encodes it to an ISO string on response.
+  // updatedAt は Date インスタンスとしてパースされる。.toISOString() を呼び出す必要はない。
+  // 出力スキーマの codec が、レスポンス時に ISO 文字列へ再エンコードする。
   return c.json(body, 200)
 })
 
@@ -75,6 +78,8 @@ app.openapi(postV26Route, (c) => {
   const body = c.req.valid('json')
   // The contentEncoding pipeline decodes settings into an object during
   // validation; cast for the response (which expects the encoded string shape).
+  // contentEncoding のパイプラインは、検証の過程で settings をオブジェクトにデコードする。
+  // レスポンスの型はエンコード済みの文字列を期待しているため、キャストしている。
   // biome-ignore lint/suspicious/noExplicitAny: response shape mismatch with decoded body
   return c.json(body as any, 200)
 })

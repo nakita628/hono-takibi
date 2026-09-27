@@ -7,795 +7,397 @@
 # The `tx*` routes are the second axis: the `x-toLowerCase` / `x-toUpperCase` /
 # `x-normalize` extensions, alone and paired with a validation format — the pairing takes a
 # `.pipe()` branch so the transform runs before the format's own check.
+#
+# The third axis is constraints (`minimum`, `maxLength`, `pattern`, ...): a constraint on a
+# numeric parameter has to apply to the coerced value, not to the text of the segment.
+#
+# The last axis is how a parameter is declared rather than what it holds: several in one
+# path, a name that is not an identifier, a `$ref`, and a declaration shared by every
+# operation of a path item.
+#
+# 生成器が対応するすべてのパラメータ形状を、パスパラメータとして宣言する。形状ごとに
+# ルートを1つ用意しているため、自身の値を拒否する形状は、単独で失敗する。パスの値は常に
+# 単一かつ必須であり、これは `query-params` では検証できない軸である。
+#
+# `format: binary` は意図的に含めていない。`z.file()` として生成されるが、URL では運べない。
+#
+# `tx*` のルートは2つ目の軸である。`x-toLowerCase` / `x-toUpperCase` / `x-normalize` 拡張を、
+# 単独の場合と、検証フォーマットと組み合わせた場合の両方で検証する。組み合わせた場合は
+# `.pipe()` の分岐を通り、変換がフォーマット検証より先に実行される。
+#
+# 3つ目の軸は制約(`minimum`・`maxLength`・`pattern` など)である。数値パラメータの制約は、
+# セグメントの文字列ではなく、coerce 後の値に適用されなければならない。
+#
+# 最後の軸は、パラメータの中身ではなく宣言方法である。1つのパスに複数のパラメータがある
+# 場合、識別子でない名前、`$ref`、パスアイテムの全オペレーションで共有される宣言を検証する。
 openapi: 3.1.0
 info:
   title: Path Parameter Matrix
   version: 0.0.0
 paths:
+  # ---- numeric and boolean shapes ----
+  # ---- 数値・真偽値の形状 ----
   /integer/{value}:
     get:
       operationId: integerParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /int32/{value}:
     get:
       operationId: int32Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer, format: int32 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /int64/{value}:
     get:
       operationId: int64Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer, format: int64 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /bigint/{value}:
     get:
       operationId: bigintParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer, format: bigint } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  /uint32/{value}:
+    get:
+      operationId: uint32Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint32 } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /uint64/{value}:
+    get:
+      operationId: uint64Param
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, format: uint64 } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
   /number/{value}:
     get:
       operationId: numberParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: number } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /float/{value}:
     get:
       operationId: floatParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: number, format: float } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /float32/{value}:
     get:
       operationId: float32Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: number, format: float32 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /float64/{value}:
     get:
       operationId: float64Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: number, format: float64 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /double/{value}:
     get:
       operationId: doubleParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: number, format: double } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /numpassword/{value}:
     get:
       operationId: numpasswordParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: number, format: password } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /boolean/{value}:
     get:
       operationId: booleanParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: boolean } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- string shapes ----
+  # ---- 文字列の形状 ----
   /string/{value}:
     get:
       operationId: stringParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /email/{value}:
     get:
       operationId: emailParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: email } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /uuid/{value}:
     get:
       operationId: uuidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: uuid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /uuidv4/{value}:
     get:
       operationId: uuidv4Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: uuidv4 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /uuidv7/{value}:
     get:
       operationId: uuidv7Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: uuidv7 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /url/{value}:
     get:
       operationId: urlParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: url } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /uri/{value}:
     get:
       operationId: uriParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: uri } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /httpurl/{value}:
     get:
       operationId: httpurlParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: httpUrl } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /hostname/{value}:
     get:
       operationId: hostnameParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: hostname } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /hex/{value}:
     get:
       operationId: hexParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: hex } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /emoji/{value}:
     get:
       operationId: emojiParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: emoji } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /base64/{value}:
     get:
       operationId: base64Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: base64 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /base64url/{value}:
     get:
       operationId: base64urlParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: base64url } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /nanoid/{value}:
     get:
       operationId: nanoidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: nanoid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /cuid2/{value}:
     get:
       operationId: cuid2Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: cuid2 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /ulid/{value}:
     get:
       operationId: ulidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: ulid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /ipv4/{value}:
     get:
       operationId: ipv4Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: ipv4 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /ipv6/{value}:
     get:
       operationId: ipv6Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: ipv6 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /cidrv4/{value}:
     get:
       operationId: cidrv4Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: cidrv4 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /cidrv6/{value}:
     get:
       operationId: cidrv6Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: cidrv6 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /date/{value}:
     get:
       operationId: dateParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: date } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /time/{value}:
     get:
       operationId: timeParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: time } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /datetime/{value}:
     get:
       operationId: datetimeParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: date-time } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /duration/{value}:
     get:
       operationId: durationParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: duration } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /byte/{value}:
     get:
       operationId: byteParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: byte } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /strpassword/{value}:
     get:
       operationId: strpasswordParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: password } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /mac/{value}:
     get:
       operationId: macParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: mac } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /e164/{value}:
     get:
       operationId: e164Param
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: e164 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /creditcard/{value}:
     get:
       operationId: creditcardParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: creditCard } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /iban/{value}:
     get:
       operationId: ibanParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: iban } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /currencycode/{value}:
     get:
       operationId: currencycodeParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: currencyCode } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /ksuid/{value}:
     get:
       operationId: ksuidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: ksuid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /xid/{value}:
     get:
       operationId: xidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: xid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /guid/{value}:
     get:
       operationId: guidParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: guid } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /trim/{value}:
     get:
       operationId: trimParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, format: trim } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- transform extensions ----
+  # ---- 変換用の拡張 ----
   /txlower/{value}:
     get:
       operationId: txlowerParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, x-toLowerCase: true } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /txupper/{value}:
     get:
       operationId: txupperParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, x-toUpperCase: true } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /txnormalize/{value}:
     get:
       operationId: txnormalizeParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: string, x-normalize: NFKC } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /txemail/{value}:
     get:
       operationId: txemailParam
@@ -807,94 +409,241 @@ paths:
             schema: { type: string, format: email, x-toLowerCase: true },
           }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
-  /uint32/{value}:
-    get:
-      operationId: uint32Param
-      parameters:
-        - { name: value, in: path, required: true, schema: { type: integer, format: uint32 } }
-      responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
-  /uint64/{value}:
-    get:
-      operationId: uint64Param
-      parameters:
-        - { name: value, in: path, required: true, schema: { type: integer, format: uint64 } }
-      responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- literals ----
+  # ---- リテラル ----
   # A numeric or boolean `enum` / `const` names a typed value; the segment is text.
+  # 数値・真偽値の `enum` / `const` は型付きの値を指すが、セグメントは文字列である。
   /ienum/{value}:
     get:
       operationId: ienumParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer, enum: [1, 2] } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  /nenum/{value}:
+    get:
+      operationId: nenumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: number, enum: [0.5, 2.5] } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
   /benum/{value}:
     get:
       operationId: benumParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: boolean, enum: [true] } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
   /iconst/{value}:
     get:
       operationId: iconstParam
       parameters:
         - { name: value, in: path, required: true, schema: { type: integer, const: 7 } }
       responses:
-        '200':
-          description: The runtime typeof the path parameter, and its value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [valueType, valueText]
-                properties:
-                  valueType: { type: string }
-                  valueText: { type: string }
+        '200': { $ref: '#/components/responses/Echo' }
+  /senum/{value}:
+    get:
+      operationId: senumParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, enum: [asc, desc] } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /sconst/{value}:
+    get:
+      operationId: sconstParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: string, const: fixed } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # A string enum whose members look like numbers and booleans must stay text.
+  # 数値や真偽値に見えるメンバーを持つ string enum は、文字列のままでなければならない。
+  /numericsenum/{value}:
+    get:
+      operationId: numericsenumParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: string, enum: ['1', '02', 'true'] },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- constraints ----
+  # ---- 制約 ----
+  /range/{value}:
+    get:
+      operationId: rangeParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: integer, minimum: 1, maximum: 10 },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /exclusive/{value}:
+    get:
+      operationId: exclusiveParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: number, exclusiveMinimum: 0, exclusiveMaximum: 1 },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /multiple/{value}:
+    get:
+      operationId: multipleParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { type: integer, multipleOf: 5 } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /int64range/{value}:
+    get:
+      operationId: int64rangeParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: integer, format: int64, minimum: 1, maximum: 100 },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /length/{value}:
+    get:
+      operationId: lengthParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: string, minLength: 2, maxLength: 4 },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /pattern/{value}:
+    get:
+      operationId: patternParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: string, pattern: '^[a-z]+-\d{1,3}$' },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- combinators ----
+  # ---- コンビネータ ----
+  /oneof/{value}:
+    get:
+      operationId: oneofParam
+      parameters:
+        - name: value
+          in: path
+          required: true
+          schema:
+            oneOf:
+              - { type: integer }
+              - { type: string, enum: [all] }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /schemaref/{value}:
+    get:
+      operationId: schemarefParam
+      parameters:
+        - { name: value, in: path, required: true, schema: { $ref: '#/components/schemas/Count' } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- declaration forms ----
+  # ---- 宣言の形式 ----
+  /orgs/{orgId}/repos/{repoId}/issues/{issueId}:
+    get:
+      operationId: multiParam
+      parameters:
+        - { name: orgId, in: path, required: true, schema: { type: integer } }
+        - { name: repoId, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: issueId, in: path, required: true, schema: { type: integer, format: int64 } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  # Neither name is a JavaScript identifier, nor a Hono `:name` without care.
+  # どちらの名前も JavaScript の識別子ではなく、Hono の `:name` としても注意が必要である。
+  /named/{user-id}/{post_id}:
+    get:
+      operationId: namedParam
+      parameters:
+        - { name: user-id, in: path, required: true, schema: { type: integer } }
+        - { name: post_id, in: path, required: true, schema: { type: boolean } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /paramref/{id}:
+    get:
+      operationId: paramrefParam
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # Declared once on the path item, inherited by every operation under it.
+  # パスアイテムで1度だけ宣言し、配下のすべてのオペレーションが継承する。
+  /shared/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: integer } }
+    get:
+      operationId: sharedGetParam
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+    delete:
+      operationId: sharedDeleteParam
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # The operation's own declaration replaces the path item's for the same name.
+  # 同名の場合、オペレーション自身の宣言が、パスアイテムの宣言を置き換える。
+  /override/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: overrideParam
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+components:
+  schemas:
+    Count:
+      type: integer
+      minimum: 0
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+  responses:
+    Echo:
+      description: The runtime typeof the path parameter, and its value verbatim.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [valueType, valueText]
+            properties:
+              valueType: { type: string }
+              valueText: { type: string }
+    Fields:
+      description: The runtime typeof and the verbatim value of each path parameter, by name.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: object
+              required: [valueType, valueText]
+              properties:
+                valueType: { type: string }
+                valueText: { type: string }

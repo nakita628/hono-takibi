@@ -1,5 +1,8 @@
 // Host for cases/query-method: a GET and a QUERY (HTTP safe method with a body) on the same
 // path, so the generated client outputs have to tell the two apart by name and by key.
+// cases/query-method 用のホスト。同じパスに、
+// GET と QUERY(ボディを持つ安全な HTTP メソッド)の両方がある。そのため、
+// 生成されるクライアント側の出力は、名前とキーによってこの2つを区別しなければならない。
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
 

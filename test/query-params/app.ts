@@ -1,9 +1,75 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import { getLiteralsRoute, getParamsRoute } from './__generated__/routes'
+import {
+  getDefaultsRoute,
+  getLimitsRoute,
+  getLiteralsRoute,
+  getOptionalRoute,
+  getParamsRoute,
+  getRequiredRoute,
+  getStylesRoute,
+} from './__generated__/routes'
 
-/** Echoes the runtime `typeof` of every parameter, which is what the matrix asserts on. */
+type Echo = { valueType: string; valueText: string }
+
+/**
+ * Describes one value: the runtime `typeof` it arrived as, and the value as text. Text,
+ * because a bigint cannot cross JSON and text keeps its every digit.
+ *
+ * 値1つを記述する。届いた時点の `typeof` と、その文字列表現である。文字列で返すのは、
+ * bigint が JSON に載せられず、また文字列なら桁落ちしないためである。
+ */
+function echoValue(value: unknown): Echo {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  ) {
+    return { valueType: typeof value, valueText: String(value) }
+  }
+  return {
+    valueType: value === null ? 'null' : typeof value,
+    valueText: JSON.stringify(value) ?? 'undefined',
+  }
+}
+
+/**
+ * Describes every validated parameter, by name. An array is described element by element
+ * and an object key by key, so a test can tell `[1, 2]` from `['1', '2']` and from `'1,2'`.
+ * A key the schema left out stays out: an absent optional parameter is absent here too.
+ *
+ * 検証済みの全パラメータを名前ごとに記述する。配列は要素ごと、オブジェクトはキーごとに
+ * 記述するので、テストは `[1, 2]`・`['1', '2']`・`'1,2'` を区別できる。スキーマが出力
+ * しなかったキーはここでも出力されない。省略された任意パラメータは、キー自体が存在しない。
+ */
+function echoFields(fields: object) {
+  const described: Record<string, Echo | Echo[] | Record<string, Echo>> = {}
+  for (const [name, value] of Object.entries(fields)) {
+    if (value === undefined) continue
+    if (Array.isArray(value)) {
+      described[name] = value.map(echoValue)
+    } else if (typeof value === 'object' && value !== null) {
+      described[name] = Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [key, echoValue(item)]),
+      )
+    } else {
+      described[name] = echoValue(value)
+    }
+  }
+  return described
+}
+
+/**
+ * Every handler returns what `c.req.valid` handed it and nothing else, so the value a test
+ * sees has passed the generated schema — not the raw request.
+ *
+ * すべてのハンドラは `c.req.valid` が返した値だけを返す。テストが見る値は、生のリクエスト
+ * ではなく、生成スキーマを通過したものになる。
+ */
 export const queryParamsApp = new OpenAPIHono({
+  // A rejected request names the parameter that failed, so a test can tell which one did.
+  // 拒否時は失敗したパラメータ名を返す。どのパラメータが原因かをテストで判別できる。
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json({ issues: result.error.issues.map((issue) => issue.path.join('.')) }, 422)
@@ -11,124 +77,10 @@ export const queryParamsApp = new OpenAPIHono({
     return undefined
   },
 })
-  .openapi(getLiteralsRoute, (c) => {
-    const q = c.req.valid('query')
-    return c.json({
-      ienum: q.ienum,
-      nenum: q.nenum,
-      benum: q.benum,
-      iconst: q.iconst,
-      inull: q.inull,
-      ioneof: q.ioneof,
-      ienum_arr: q.ienum_arr,
-      tagsText: q.tags === undefined ? 'undefined' : JSON.stringify(q.tags),
-    })
-  })
-  .openapi(getParamsRoute, (c) => {
-    const q = c.req.valid('query')
-    return c.json({
-      integer: typeof q.integer,
-      integer_arr: q.integer_arr.map((value) => typeof value),
-      int32: typeof q.int32,
-      int32_arr: q.int32_arr.map((value) => typeof value),
-      int64: typeof q.int64,
-      int64_arr: q.int64_arr.map((value) => typeof value),
-      bigint: typeof q.bigint,
-      bigint_arr: q.bigint_arr.map((value) => typeof value),
-      uint32: typeof q.uint32,
-      uint32_arr: q.uint32_arr.map((value) => typeof value),
-      uint64: typeof q.uint64,
-      uint64_arr: q.uint64_arr.map((value) => typeof value),
-      number: typeof q.number,
-      number_arr: q.number_arr.map((value) => typeof value),
-      float: typeof q.float,
-      float_arr: q.float_arr.map((value) => typeof value),
-      float32: typeof q.float32,
-      float32_arr: q.float32_arr.map((value) => typeof value),
-      float64: typeof q.float64,
-      float64_arr: q.float64_arr.map((value) => typeof value),
-      double: typeof q.double,
-      double_arr: q.double_arr.map((value) => typeof value),
-      numpassword: typeof q.numpassword,
-      numpassword_arr: q.numpassword_arr.map((value) => typeof value),
-      boolean: typeof q.boolean,
-      boolean_arr: q.boolean_arr.map((value) => typeof value),
-      string: typeof q.string,
-      string_arr: q.string_arr.map((value) => typeof value),
-      email: typeof q.email,
-      email_arr: q.email_arr.map((value) => typeof value),
-      uuid: typeof q.uuid,
-      uuid_arr: q.uuid_arr.map((value) => typeof value),
-      uuidv4: typeof q.uuidv4,
-      uuidv4_arr: q.uuidv4_arr.map((value) => typeof value),
-      uuidv7: typeof q.uuidv7,
-      uuidv7_arr: q.uuidv7_arr.map((value) => typeof value),
-      url: typeof q.url,
-      url_arr: q.url_arr.map((value) => typeof value),
-      uri: typeof q.uri,
-      uri_arr: q.uri_arr.map((value) => typeof value),
-      httpurl: typeof q.httpurl,
-      httpurl_arr: q.httpurl_arr.map((value) => typeof value),
-      hostname: typeof q.hostname,
-      hostname_arr: q.hostname_arr.map((value) => typeof value),
-      hex: typeof q.hex,
-      hex_arr: q.hex_arr.map((value) => typeof value),
-      emoji: typeof q.emoji,
-      emoji_arr: q.emoji_arr.map((value) => typeof value),
-      base64: typeof q.base64,
-      base64_arr: q.base64_arr.map((value) => typeof value),
-      base64url: typeof q.base64url,
-      base64url_arr: q.base64url_arr.map((value) => typeof value),
-      nanoid: typeof q.nanoid,
-      nanoid_arr: q.nanoid_arr.map((value) => typeof value),
-      cuid2: typeof q.cuid2,
-      cuid2_arr: q.cuid2_arr.map((value) => typeof value),
-      ulid: typeof q.ulid,
-      ulid_arr: q.ulid_arr.map((value) => typeof value),
-      ipv4: typeof q.ipv4,
-      ipv4_arr: q.ipv4_arr.map((value) => typeof value),
-      ipv6: typeof q.ipv6,
-      ipv6_arr: q.ipv6_arr.map((value) => typeof value),
-      cidrv4: typeof q.cidrv4,
-      cidrv4_arr: q.cidrv4_arr.map((value) => typeof value),
-      cidrv6: typeof q.cidrv6,
-      cidrv6_arr: q.cidrv6_arr.map((value) => typeof value),
-      date: typeof q.date,
-      date_arr: q.date_arr.map((value) => typeof value),
-      time: typeof q.time,
-      time_arr: q.time_arr.map((value) => typeof value),
-      datetime: typeof q.datetime,
-      datetime_arr: q.datetime_arr.map((value) => typeof value),
-      duration: typeof q.duration,
-      duration_arr: q.duration_arr.map((value) => typeof value),
-      byte: typeof q.byte,
-      byte_arr: q.byte_arr.map((value) => typeof value),
-      strpassword: typeof q.strpassword,
-      strpassword_arr: q.strpassword_arr.map((value) => typeof value),
-      mac: typeof q.mac,
-      mac_arr: q.mac_arr.map((value) => typeof value),
-      e164: typeof q.e164,
-      e164_arr: q.e164_arr.map((value) => typeof value),
-      creditcard: typeof q.creditcard,
-      creditcard_arr: q.creditcard_arr.map((value) => typeof value),
-      iban: typeof q.iban,
-      iban_arr: q.iban_arr.map((value) => typeof value),
-      currencycode: typeof q.currencycode,
-      currencycode_arr: q.currencycode_arr.map((value) => typeof value),
-      ksuid: typeof q.ksuid,
-      ksuid_arr: q.ksuid_arr.map((value) => typeof value),
-      xid: typeof q.xid,
-      xid_arr: q.xid_arr.map((value) => typeof value),
-      guid: typeof q.guid,
-      guid_arr: q.guid_arr.map((value) => typeof value),
-      trim: typeof q.trim,
-      trim_arr: q.trim_arr.map((value) => typeof value),
-      tx_trim: q.tx_trim,
-      tx_lower: q.tx_lower,
-      tx_upper: q.tx_upper,
-      tx_normalize: q.tx_normalize,
-      tx_email_trim: q.tx_email_trim,
-      tx_uuid_trim: q.tx_uuid_trim,
-      int64Value: String(q.int64),
-    })
-  })
+  .openapi(getParamsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getLiteralsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getOptionalRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getDefaultsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getRequiredRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getLimitsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getStylesRoute, (c) => c.json(echoFields(c.req.valid('query'))))

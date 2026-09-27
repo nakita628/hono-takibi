@@ -7,17 +7,19 @@ import {
   postContainsDefaultRoute,
   postDictionaryRoute,
   postFormRoute,
+  postImplicationRoute,
   postMergedArrowRoute,
   postMergedRoute,
   postMiscRoute,
   postPaymentRoute,
+  postStrictAllofRoute,
   postWriteOnlyRoute,
 } from '../__generated__/x-vendor-messages/generated'
 
-// No defaultHook — uses @hono/zod-openapi default behavior:
-// failed validation responds with raw ZodError + status 400.
-// Each handler echoes c.req.valid('json') so success-path tests can assert
-// the parsed payload exactly matches the input (toStrictEqual completion).
+// No hook: @hono/zod-openapi answers a validation failure itself, with 400 and the raw
+// ZodError. Every handler answers the body as it came out of validation.
+// フックなし。検証の失敗には @hono/zod-openapi 自身が応答し、400 とともに生の ZodError を
+// 返す。すべてのハンドラは、検証を通過した後のボディをそのまま返す。
 const app = new OpenAPIHono()
 
 app.openapi(postFormRoute, (c) => c.json(c.req.valid('json'), 200))
@@ -31,5 +33,7 @@ app.openapi(postBasketRoute, (c) => c.json(c.req.valid('json'), 200))
 app.openapi(postContainsDefaultRoute, (c) => c.json(c.req.valid('json'), 200))
 app.openapi(postWriteOnlyRoute, (c) => c.json(c.req.valid('json'), 200))
 app.openapi(postMiscRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postStrictAllofRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postImplicationRoute, (c) => c.json(c.req.valid('json'), 200))
 
 export default app

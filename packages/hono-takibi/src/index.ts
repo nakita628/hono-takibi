@@ -5,6 +5,4 @@ import { Effect } from 'effect'
 
 import { honoTakibi } from './cli/index.js'
 
-NodeRuntime.runMain(
-  honoTakibi(process.argv.slice(2), import.meta.url).pipe(Effect.provide(NodeServices.layer)),
-)
+NodeRuntime.runMain(honoTakibi(process.argv.slice(2)).pipe(Effect.provide(NodeServices.layer)))

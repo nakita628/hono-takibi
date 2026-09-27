@@ -554,6 +554,87 @@ describe('honoTakibiVite', () => {
     expect(sendSpy).not.toHaveBeenCalled()
   })
 
+  // `spec-old` starts with `spec` as a string and is a different directory. Comparing
+  // the paths as text used to let an edit there rerun the generators.
+  // `spec-old` は文字列としては `spec` で始まるが、別のディレクトリである。パスを
+  // 文字列として比較していたため、そこでの編集でも再生成が走っていた。
+  it('ignores a sibling directory whose name starts with the input directory name', async () => {
+    const configuration = {
+      input: 'spec/openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+    const { parseOpenAPI } = await import('../openapi/index.js')
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    vi.mocked(parseOpenAPI).mockClear()
+
+    const siblingPath = path.resolve(process.cwd(), 'spec-old/openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', siblingPath)
+    await new Promise((resolve) => setTimeout(resolve, 400))
+
+    expect(parseOpenAPI).not.toHaveBeenCalled()
+  })
+
+  // A `$ref` can point at a file anywhere on disk, so the input directory does not cover
+  // every edit that changes the output. The file is handed to the watcher by name and an
+  // edit to it regenerates.
+  // `$ref` はディスク上のどこにあるファイルでも指せるため、入力ディレクトリだけでは
+  // 出力を変える編集をすべて拾えない。そのファイルは名前で watcher に渡され、
+  // 編集されると再生成が走る。
+  it('regenerates when a file referenced from outside the input directory changes', async () => {
+    const root = process.cwd()
+    const sharedPath = path.join(root, 'shared/item.yaml')
+    await fsp.mkdir(path.join(root, 'spec'), { recursive: true })
+    await fsp.mkdir(path.join(root, 'shared'), { recursive: true })
+    await fsp.writeFile(sharedPath, 'type: object\n', 'utf8')
+    await fsp.writeFile(
+      path.join(root, 'spec/openapi.yaml'),
+      [
+        'openapi: 3.1.0',
+        'info: { title: A, version: "1" }',
+        'paths: {}',
+        'components:',
+        '  schemas:',
+        '    Item:',
+        "      $ref: '../shared/item.yaml'",
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+    const configuration = {
+      input: 'spec/openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+    const addSpy = vi.fn<(paths: string | readonly string[]) => void>()
+    server.watcher.add = addSpy
+    const { parseOpenAPI } = await import('../openapi/index.js')
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    expect(addSpy).toHaveBeenCalledWith([sharedPath])
+    vi.mocked(parseOpenAPI).mockClear()
+
+    await fsp.writeFile(sharedPath, 'type: string\n', 'utf8')
+    if (watcherCallback) await watcherCallback('change', sharedPath)
+
+    await waitFor(() => {
+      expect(parseOpenAPI).toHaveBeenCalled()
+    })
+  })
+
   it('ignores non-yaml/json/tsp files inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',
@@ -604,6 +685,54 @@ describe('honoTakibiVite', () => {
       expect(logSpy).toHaveBeenCalledWith('config changed')
     })
     logSpy.mockRestore()
+  })
+
+  // The watcher used to be registered only after the first config read succeeded, so a
+  // config that was broken at startup left the inputs unwatched even once it was fixed.
+  // 以前は最初の config 読み込みが成功した後にしか watcher を登録していなかったため、
+  // 起動時に config が壊れていると、直した後も入力ファイルが監視されなかった。
+  it('watches the input once a config that failed at startup is fixed', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { server } = createMockViteDevServer({})
+    server.ssrLoadModule = () => Promise.resolve({ default: { input: 'invalid.txt' } })
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    })
+    expect(watcherCallback).toBeDefined()
+
+    const fixedDeferred = createDeferred()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') fixedDeferred.resolve()
+    }
+    server.ssrLoadModule = () =>
+      Promise.resolve({
+        default: {
+          input: 'openapi.yaml',
+          routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+        },
+      })
+    const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+    if (watcherCallback) await watcherCallback('change', configPath)
+    await fixedDeferred.promise
+
+    // Removing an output is what makes the next pass change something, so the reload
+    // below can only come from the input edit having been seen.
+    await fsp.rm(path.join(testState.sandboxDirectory, 'out/route/getPets.ts'))
+    const regeneratedDeferred = createDeferred()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') regeneratedDeferred.resolve()
+    }
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await regeneratedDeferred.promise
+    errorSpy.mockRestore()
   })
 
   // --- runAllGenerationTasks: error paths ---

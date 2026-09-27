@@ -1,18 +1,39 @@
-// Why hono-takibi coerces query/path params — a comparison against naive Zod schemas.
+// Why hono-takibi coerces query and path parameters: a comparison against naive Zod
+// schemas. This file is an explanation that runs. What the generator does with every
+// shape is proved in test/path-params and test/query-params; here the point is why.
 //
-// HTTP has no types: every query/path value reaches the validator as a string
-// ("10", "true", "9007199254740993"). Each route definition below is followed by
-// the tests that exercise it:
+// HTTP has no types: every query and path value reaches the validator as a string ("10",
+// "true", "9007199254740993"). Each route definition below is followed by the tests that
+// exercise it:
 //   1. naive schemas (z.number(), z.boolean(), z.bigint())
-//        → reject requests that are perfectly valid per the OpenAPI spec
+//        reject requests that are perfectly valid per the OpenAPI spec
 //   2. naive coercion (z.coerce.boolean(), z.coerce.number())
-//        → accept but silently produce WRONG values ("false" → true, int64 precision loss)
-//   3. what hono-takibi generates — embedded VERBATIM from
+//        accepts, but silently produces WRONG values ("false" becomes true, an int64
+//        loses precision)
+//   3. what hono-takibi generates, embedded VERBATIM from
 //      __generated__/validation/routes.ts (generated from specs/coercion.yaml)
-//        → accept and produce correct values, and still reject garbage
-//   4. the embedded copies are held against the imported generated artifact:
-//      identical requests must yield identical responses, so the code you read
-//      in section 3 cannot drift from what the generator emits today.
+//        accepts and produces correct values, and still rejects garbage
+//   4. the embedded copies are held against the imported generated artifact: identical
+//      requests must yield identical responses, so the code you read in section 3 cannot
+//      drift from what the generator emits today.
+//
+// hono-takibi がクエリ・パスパラメータを coerce する理由を、素朴な Zod スキーマとの比較で
+// 示す。このファイルは「実行できる解説」である。生成器が各形状をどう扱うかは
+// test/path-params と test/query-params で検証しており、ここで示すのは「なぜ」である。
+//
+// HTTP には型がない。クエリやパスの値は、すべて文字列("10"・"true"・"9007199254740993")
+// としてバリデータに届く。以下では、各ルート定義の直後に、それを検証するテストを置く。
+//   1. 素朴なスキーマ(z.number()・z.boolean()・z.bigint())
+//        OpenAPI 仕様上は完全に有効なリクエストを、拒否してしまう
+//   2. 素朴な coerce(z.coerce.boolean()・z.coerce.number())
+//        受理はするが、黙って「誤った値」を生成する("false" が true になる、int64 が
+//        桁落ちする)
+//   3. hono-takibi が生成するコード。__generated__/validation/routes.ts(specs/coercion.yaml
+//      から生成)を「そのまま」埋め込んでいる
+//        受理して正しい値を生成し、不正な値は引き続き拒否する
+//   4. 埋め込んだコピーを、import した生成物と突き合わせる。同一のリクエストに対して
+//      同一のレスポンスを返さなければならないため、セクション 3 のコードが、現在の
+//      生成器の出力からずれることはない。
 
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { describe, expect, it } from 'vite-plus/test'
@@ -24,6 +45,7 @@ import {
 
 // ─────────────────────────────────────────────────────────────
 // 1. Naive schemas: z.number() / z.boolean() / z.bigint()
+//    素朴なスキーマ: z.number() / z.boolean() / z.bigint()
 // ─────────────────────────────────────────────────────────────
 
 const naiveSearchRoute = createRoute({
@@ -44,6 +66,11 @@ const naiveSearchApp = new OpenAPIHono().openapi(naiveSearchRoute, (c) => {
 })
 
 describe('1a. naive z.number() / z.boolean() query params reject valid requests', () => {
+  // limit=5 and active=true are valid by the spec. z.number() and z.boolean() receive the
+  // strings "5" and "true", which are neither a number nor a boolean.
+  // limit=5 と active=true は、仕様上は有効である。
+  // しかし z.number() と z.boolean() が受け取るのは文字列の "5" と "true" であり、
+  // number でも boolean でもない。
   it('a spec-valid request is rejected with 400 because query values are strings', async () => {
     const res = await naiveSearchApp.request('/search?limit=10&active=true')
     expect(res.status).toBe(400)
@@ -79,6 +106,8 @@ const naiveIdApp = new OpenAPIHono().openapi(naiveIdRoute, (c) => {
 })
 
 describe('1b. naive z.bigint() path param rejects valid requests', () => {
+  // z.bigint() receives the string "42", not a bigint.
+  // z.bigint() が受け取るのは、bigint ではなく文字列の "42" である。
   it('a numeric path segment is rejected with 400 because it arrives as a string', async () => {
     const res = await naiveIdApp.request('/coerce/1')
     expect(res.status).toBe(400)
@@ -92,6 +121,7 @@ describe('1b. naive z.bigint() path param rejects valid requests', () => {
 
 // ─────────────────────────────────────────────────────────────
 // 2. Naive coercion: z.coerce.boolean() / z.coerce.number()
+//    素朴な coerce: z.coerce.boolean() / z.coerce.number()
 // ─────────────────────────────────────────────────────────────
 
 const coerceBoolRoute = createRoute({
@@ -111,6 +141,11 @@ const coerceBoolApp = new OpenAPIHono().openapi(coerceBoolRoute, (c) => {
 })
 
 describe('2a. z.coerce.boolean() accepts but silently corrupts', () => {
+  // z.coerce.boolean() is Boolean(value), and every non-empty string is truthy. The request
+  // says false and the handler receives true, with no error: the worst kind of failure.
+  // z.coerce.boolean() は Boolean(value) と同じであり、空でない文字列はすべて truthy である。
+  // リクエストは false を指定しているのに、ハンドラは true を受け取り、エラーも発生しない。
+  // 最も厄介な種類の不具合である。
   it('turns "false" into true (Boolean("false") is truthy)', async () => {
     const res = await coerceBoolApp.request('/search?active=false')
     expect(res.status).toBe(200)
@@ -125,6 +160,8 @@ const coerceNumberIdRoute = createRoute({
     params: z.object({
       // No .int(): zod v4's .int() rejects values outside the safe-integer range,
       // which would mask the precision-loss failure mode shown below.
+      // .int() は付けない。zod v4 の .int() は安全な整数の範囲外の値を拒否するため、
+      // 以下で示す桁落ちの不具合が隠れてしまう。
       id: z.coerce.number(),
     }),
   },
@@ -137,6 +174,10 @@ const coerceNumberIdApp = new OpenAPIHono().openapi(coerceNumberIdRoute, (c) => 
 })
 
 describe('2b. z.coerce.number() accepts int64 but silently loses precision', () => {
+  // z.coerce.number() is Number(value), and a double cannot hold 2^53 + 1. The handler receives
+  // another id than the one requested, with no error.
+  // z.coerce.number() は Number(value) と同じであり、double は 2^53 + 1 を保持できない。
+  // ハンドラは、リクエストされたものとは別の id を受け取り、エラーも発生しない。
   it('2^53 + 1 comes out as 2^53 — off by one, no error', async () => {
     const res = await coerceNumberIdApp.request('/coerce/9007199254740993')
     expect(res.status).toBe(200)
@@ -149,6 +190,10 @@ describe('2b. z.coerce.number() accepts int64 but silently loses precision', () 
 // The two route definitions below are embedded VERBATIM from
 // __generated__/validation/routes.ts; section 4 pins them against
 // the imported artifact so this copy cannot silently drift.
+//    hono-takibi が生成するコード。
+// 以下の2つのルート定義は、__generated__/validation/routes.ts を「そのまま」埋め込んだ
+// ものである。セクション 4 で import した生成物と突き合わせるため、このコピーが
+// 気付かれずにずれることはない。
 // ─────────────────────────────────────────────────────────────
 
 const getCoerceIdRoute = createRoute({
@@ -190,6 +235,8 @@ const embeddedCoerceIdApp = new OpenAPIHono().openapi(getCoerceIdRoute, (c) => {
 })
 
 describe('3a. generated z.coerce.bigint().pipe(z.int64()) path param', () => {
+  // The generated schema coerces to a bigint, which holds the value exactly.
+  // 生成されたスキーマは bigint に coerce するため、値が正確に保持される。
   it('preserves int64 exactly where 2b lost precision', async () => {
     const res = await embeddedCoerceIdApp.request('/coerce/9007199254740993')
     expect(res.status).toBe(200)
@@ -199,6 +246,8 @@ describe('3a. generated z.coerce.bigint().pipe(z.int64()) path param', () => {
     })
   })
 
+  // Coercing does not mean accepting anything: a word is still rejected.
+  // coerce するからといって、何でも受理するわけではない。単語は引き続き拒否される。
   it('rejects non-numeric garbage with 400', async () => {
     const res = await embeddedCoerceIdApp.request('/coerce/abc')
     expect(res.status).toBe(400)
@@ -262,6 +311,9 @@ const getSearchRoute = createRoute({
 // The generated route also declares the 200 echo schema (limit/limitType/activeType/
 // idsTypes), so the handler must return that exact shape — value-level proof for the
 // boolean is asserted directly against the route's query schema below.
+// 生成されたルートは、200 のエコー用スキーマ(limit/limitType/activeType/idsTypes)も
+// 宣言している。そのため、ハンドラはその形どおりに返す必要がある。boolean の値そのものは、
+// 以下でルートのクエリスキーマに対して直接検証する。
 const embeddedSearchApp = new OpenAPIHono().openapi(getSearchRoute, (c) => {
   const { limit, active, ids } = c.req.valid('query')
   return c.json({
@@ -273,6 +325,9 @@ const embeddedSearchApp = new OpenAPIHono().openapi(getSearchRoute, (c) => {
 })
 
 describe('3b. generated z.coerce.number().int() / z.stringbool() query params', () => {
+  // The generated schema uses z.stringbool(), which reads the word, not its truthiness.
+  // 生成されたスキーマは z.stringbool() を使う。これは truthy かどうかではなく、
+  // 単語そのものを読み取る。
   it('the query schema parses "false" to false — the value 2a corrupted', () => {
     expect(getSearchRoute.request.query.parse({ active: 'false' })).toStrictEqual({
       limit: 10,
@@ -280,12 +335,17 @@ describe('3b. generated z.coerce.number().int() / z.stringbool() query params', 
     })
   })
 
+  // Every value is coerced to its declared type, the array element by element.
+  // すべての値が、宣言された型に coerce される。配列は、要素ごとに coerce される。
   it('the query schema parses explicit values: "5" → 5, "true" → true, ids → [1, 2]', () => {
     expect(
       getSearchRoute.request.query.parse({ active: 'true', limit: '5', ids: ['1', '2'] }),
     ).toStrictEqual({ limit: 5, active: true, ids: [1, 2] })
   })
 
+  // The same over a real request. limit is not sent, so its default applies, as a number.
+  // 同じことを、実際のリクエストで検証する。limit は送信していないため、
+  // デフォルト値が number として適用される。
   it('over HTTP: default applies and every param arrives with its schema-declared type', async () => {
     const res = await embeddedSearchApp.request('/search?limit=5&active=true&ids=1&ids=2')
     expect(res.status).toBe(200)
@@ -297,11 +357,15 @@ describe('3b. generated z.coerce.number().int() / z.stringbool() query params', 
     })
   })
 
+  // "maybe" is not a boolean spelling. Naive coercion would have read it as true.
+  // "maybe" は真偽値の表記ではない。素朴な coerce であれば、true として読んでしまう。
   it('z.stringbool() rejects non-boolean garbage instead of truthy-coercing it', async () => {
     const res = await embeddedSearchApp.request('/search?active=maybe')
     expect(res.status).toBe(400)
   })
 
+  // A word is not a number.
+  // 単語は数値ではない。
   it('z.coerce.number().int() rejects a non-numeric limit', async () => {
     const res = await embeddedSearchApp.request('/search?active=true&limit=abc')
     expect(res.status).toBe(400)
@@ -311,6 +375,8 @@ describe('3b. generated z.coerce.number().int() / z.stringbool() query params', 
 // ─────────────────────────────────────────────────────────────
 // 4. Drift guard: the embedded section-3 routes behave identically
 // to the artifact imported from __generated__/validation/routes.ts.
+//    ずれの検出: セクション 3 に埋め込んだルートは、
+// __generated__/validation/routes.ts から import した生成物と、同一の挙動を示す。
 // ─────────────────────────────────────────────────────────────
 
 const generatedCoerceIdApp = new OpenAPIHono().openapi(generatedCoerceIdRoute, (c) => {
@@ -329,6 +395,12 @@ const generatedSearchApp = new OpenAPIHono().openapi(generatedSearchRoute, (c) =
 })
 
 describe('4. embedded copies match the imported generated artifact', () => {
+  // The embedded route and the imported route answer the same to a valid value, a word, and a
+  // value past int64. If the generator changes what it emits, this test fails and section 3 has
+  // to be updated.
+  // 埋め込んだルートと import したルートは、
+  // 有効な値・単語・int64 を超える値のいずれに対しても、同じ応答を返す。
+  // 生成器の出力が変わると、このテストが失敗し、セクション 3 の更新が必要になる。
   it('path route: identical status and body for exact, garbage, and overflow inputs', async () => {
     const pairs = await Promise.all(
       ['/coerce/9007199254740993', '/coerce/abc', '/coerce/1'].map(async (url) => {
@@ -348,6 +420,8 @@ describe('4. embedded copies match the imported generated artifact', () => {
     }
   })
 
+  // The same for the query route.
+  // クエリのルートについても同様である。
   it('search route: identical status and body for defaults, explicit values, and garbage', async () => {
     const pairs = await Promise.all(
       [

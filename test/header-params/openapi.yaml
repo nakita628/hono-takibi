@@ -2,10 +2,27 @@
 # strings exactly like query and path values, but they took a different branch in the
 # generator and every non-string one used to reject its own input.
 #
-# A header name is sent once here, so `x-ids` is the array axis: it arrives as a single
-# value and only parses because the generated array schema accepts that arity.
 # `format: emoji` is absent because a header value is a ByteString: HTTP cannot carry one.
 # `format: binary` is absent because it emits `z.file()`.
+#
+# `/headers`   every shape, each optional so a test sends one alone. `x-ids` is the array.
+# `/optional`  absent headers, literals, constraints, and names declared in the mixed case
+#              the wire never preserves.
+# `/defaults`  what an absent header falls back to.
+# `/required`  what happens when a required header is missing.
+#
+# 生成器が対応するすべてのパラメータ形状を、ヘッダーとして宣言する。ヘッダーも、クエリや
+# パスの値と同じく文字列としてハンドラに届く。しかし生成器内では別の分岐を通っており、
+# かつては文字列以外の形状がすべて、自身の入力を拒否していた。
+#
+# `format: emoji` は含めていない。ヘッダー値は ByteString であり、HTTP では絵文字を運べない。
+# `format: binary` は、`z.file()` として生成されるため含めていない。
+#
+# `/headers`   全形状。テストで1つだけ送信できるよう、すべて任意にしている。`x-ids` は配列。
+# `/optional`  省略されたヘッダー、リテラル、制約、および大文字小文字混在で宣言された名前
+#              (ワイヤ上では、大文字小文字は保持されない)。
+# `/defaults`  省略されたヘッダーに適用されるデフォルト値。
+# `/required`  必須ヘッダーが欠落している場合の挙動。
 openapi: 3.1.0
 info:
   title: Header Parameter Matrix
@@ -15,202 +32,120 @@ paths:
     get:
       operationId: headerParams
       parameters:
-        - { name: x-integer, in: header, required: true, schema: { type: integer } }
-        - { name: x-int32, in: header, required: true, schema: { type: integer, format: int32 } }
-        - { name: x-int64, in: header, required: true, schema: { type: integer, format: int64 } }
-        - { name: x-bigint, in: header, required: true, schema: { type: integer, format: bigint } }
-        - { name: x-number, in: header, required: true, schema: { type: number } }
-        - { name: x-float, in: header, required: true, schema: { type: number, format: float } }
-        - { name: x-float32, in: header, required: true, schema: { type: number, format: float32 } }
-        - { name: x-float64, in: header, required: true, schema: { type: number, format: float64 } }
-        - { name: x-double, in: header, required: true, schema: { type: number, format: double } }
-        - {
-            name: x-numpassword,
-            in: header,
-            required: true,
-            schema: { type: number, format: password },
-          }
-        - { name: x-boolean, in: header, required: true, schema: { type: boolean } }
-        - { name: x-string, in: header, required: true, schema: { type: string } }
-        - { name: x-email, in: header, required: true, schema: { type: string, format: email } }
-        - { name: x-uuid, in: header, required: true, schema: { type: string, format: uuid } }
-        - { name: x-uuidv4, in: header, required: true, schema: { type: string, format: uuidv4 } }
-        - { name: x-uuidv7, in: header, required: true, schema: { type: string, format: uuidv7 } }
-        - { name: x-url, in: header, required: true, schema: { type: string, format: url } }
-        - { name: x-uri, in: header, required: true, schema: { type: string, format: uri } }
-        - { name: x-httpurl, in: header, required: true, schema: { type: string, format: httpUrl } }
-        - {
-            name: x-hostname,
-            in: header,
-            required: true,
-            schema: { type: string, format: hostname },
-          }
-        - { name: x-hex, in: header, required: true, schema: { type: string, format: hex } }
-        - { name: x-base64, in: header, required: true, schema: { type: string, format: base64 } }
-        - {
-            name: x-base64url,
-            in: header,
-            required: true,
-            schema: { type: string, format: base64url },
-          }
-        - { name: x-nanoid, in: header, required: true, schema: { type: string, format: nanoid } }
-        - { name: x-cuid2, in: header, required: true, schema: { type: string, format: cuid2 } }
-        - { name: x-ulid, in: header, required: true, schema: { type: string, format: ulid } }
-        - { name: x-ipv4, in: header, required: true, schema: { type: string, format: ipv4 } }
-        - { name: x-ipv6, in: header, required: true, schema: { type: string, format: ipv6 } }
-        - { name: x-cidrv4, in: header, required: true, schema: { type: string, format: cidrv4 } }
-        - { name: x-cidrv6, in: header, required: true, schema: { type: string, format: cidrv6 } }
-        - { name: x-date, in: header, required: true, schema: { type: string, format: date } }
-        - { name: x-time, in: header, required: true, schema: { type: string, format: time } }
-        - {
-            name: x-datetime,
-            in: header,
-            required: true,
-            schema: { type: string, format: date-time },
-          }
-        - {
-            name: x-duration,
-            in: header,
-            required: true,
-            schema: { type: string, format: duration },
-          }
-        - { name: x-byte, in: header, required: true, schema: { type: string, format: byte } }
-        - {
-            name: x-strpassword,
-            in: header,
-            required: true,
-            schema: { type: string, format: password },
-          }
-        - { name: x-mac, in: header, required: true, schema: { type: string, format: mac } }
-        - { name: x-e164, in: header, required: true, schema: { type: string, format: e164 } }
-        - {
-            name: x-creditcard,
-            in: header,
-            required: true,
-            schema: { type: string, format: creditCard },
-          }
-        - { name: x-iban, in: header, required: true, schema: { type: string, format: iban } }
-        - {
-            name: x-currencycode,
-            in: header,
-            required: true,
-            schema: { type: string, format: currencyCode },
-          }
-        - { name: x-ksuid, in: header, required: true, schema: { type: string, format: ksuid } }
-        - { name: x-xid, in: header, required: true, schema: { type: string, format: xid } }
-        - { name: x-guid, in: header, required: true, schema: { type: string, format: guid } }
-        - { name: x-trim, in: header, required: true, schema: { type: string, format: trim } }
-        - {
-            name: x-ids,
-            in: header,
-            required: false,
-            schema: { type: array, items: { type: integer } },
-          }
-        - { name: x-uint32, in: header, required: true, schema: { type: integer, format: uint32 } }
-        - { name: x-uint64, in: header, required: true, schema: { type: integer, format: uint64 } }
+        - { name: x-integer, in: header, schema: { type: integer } }
+        - { name: x-int32, in: header, schema: { type: integer, format: int32 } }
+        - { name: x-int64, in: header, schema: { type: integer, format: int64 } }
+        - { name: x-bigint, in: header, schema: { type: integer, format: bigint } }
+        - { name: x-uint32, in: header, schema: { type: integer, format: uint32 } }
+        - { name: x-uint64, in: header, schema: { type: integer, format: uint64 } }
+        - { name: x-number, in: header, schema: { type: number } }
+        - { name: x-float, in: header, schema: { type: number, format: float } }
+        - { name: x-float32, in: header, schema: { type: number, format: float32 } }
+        - { name: x-float64, in: header, schema: { type: number, format: float64 } }
+        - { name: x-double, in: header, schema: { type: number, format: double } }
+        - { name: x-numpassword, in: header, schema: { type: number, format: password } }
+        - { name: x-boolean, in: header, schema: { type: boolean } }
+        - { name: x-string, in: header, schema: { type: string } }
+        - { name: x-email, in: header, schema: { type: string, format: email } }
+        - { name: x-uuid, in: header, schema: { type: string, format: uuid } }
+        - { name: x-uuidv4, in: header, schema: { type: string, format: uuidv4 } }
+        - { name: x-uuidv7, in: header, schema: { type: string, format: uuidv7 } }
+        - { name: x-url, in: header, schema: { type: string, format: url } }
+        - { name: x-uri, in: header, schema: { type: string, format: uri } }
+        - { name: x-httpurl, in: header, schema: { type: string, format: httpUrl } }
+        - { name: x-hostname, in: header, schema: { type: string, format: hostname } }
+        - { name: x-hex, in: header, schema: { type: string, format: hex } }
+        - { name: x-base64, in: header, schema: { type: string, format: base64 } }
+        - { name: x-base64url, in: header, schema: { type: string, format: base64url } }
+        - { name: x-nanoid, in: header, schema: { type: string, format: nanoid } }
+        - { name: x-cuid2, in: header, schema: { type: string, format: cuid2 } }
+        - { name: x-ulid, in: header, schema: { type: string, format: ulid } }
+        - { name: x-ipv4, in: header, schema: { type: string, format: ipv4 } }
+        - { name: x-ipv6, in: header, schema: { type: string, format: ipv6 } }
+        - { name: x-cidrv4, in: header, schema: { type: string, format: cidrv4 } }
+        - { name: x-cidrv6, in: header, schema: { type: string, format: cidrv6 } }
+        - { name: x-date, in: header, schema: { type: string, format: date } }
+        - { name: x-time, in: header, schema: { type: string, format: time } }
+        - { name: x-datetime, in: header, schema: { type: string, format: date-time } }
+        - { name: x-duration, in: header, schema: { type: string, format: duration } }
+        - { name: x-byte, in: header, schema: { type: string, format: byte } }
+        - { name: x-strpassword, in: header, schema: { type: string, format: password } }
+        - { name: x-mac, in: header, schema: { type: string, format: mac } }
+        - { name: x-e164, in: header, schema: { type: string, format: e164 } }
+        - { name: x-creditcard, in: header, schema: { type: string, format: creditCard } }
+        - { name: x-iban, in: header, schema: { type: string, format: iban } }
+        - { name: x-currencycode, in: header, schema: { type: string, format: currencyCode } }
+        - { name: x-ksuid, in: header, schema: { type: string, format: ksuid } }
+        - { name: x-xid, in: header, schema: { type: string, format: xid } }
+        - { name: x-guid, in: header, schema: { type: string, format: guid } }
+        - { name: x-trim, in: header, schema: { type: string, format: trim } }
+        - { name: x-ids, in: header, schema: { type: array, items: { type: integer } } }
       responses:
-        '200':
-          description: The runtime typeof every header, and the int64 value verbatim.
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - integer
-                  - int32
-                  - int64
-                  - bigint
-                  - number
-                  - float
-                  - float32
-                  - float64
-                  - double
-                  - numpassword
-                  - boolean
-                  - string
-                  - email
-                  - uuid
-                  - uuidv4
-                  - uuidv7
-                  - url
-                  - uri
-                  - httpurl
-                  - hostname
-                  - hex
-                  - base64
-                  - base64url
-                  - nanoid
-                  - cuid2
-                  - ulid
-                  - ipv4
-                  - ipv6
-                  - cidrv4
-                  - cidrv6
-                  - date
-                  - time
-                  - datetime
-                  - duration
-                  - byte
-                  - strpassword
-                  - mac
-                  - e164
-                  - creditcard
-                  - iban
-                  - currencycode
-                  - ksuid
-                  - xid
-                  - guid
-                  - trim
-                  - uint32
-                  - uint64
-                  - int64Value
-                properties:
-                  integer: { type: string }
-                  int32: { type: string }
-                  int64: { type: string }
-                  bigint: { type: string }
-                  number: { type: string }
-                  float: { type: string }
-                  float32: { type: string }
-                  float64: { type: string }
-                  double: { type: string }
-                  numpassword: { type: string }
-                  boolean: { type: string }
-                  string: { type: string }
-                  email: { type: string }
-                  uuid: { type: string }
-                  uuidv4: { type: string }
-                  uuidv7: { type: string }
-                  url: { type: string }
-                  uri: { type: string }
-                  httpurl: { type: string }
-                  hostname: { type: string }
-                  hex: { type: string }
-                  base64: { type: string }
-                  base64url: { type: string }
-                  nanoid: { type: string }
-                  cuid2: { type: string }
-                  ulid: { type: string }
-                  ipv4: { type: string }
-                  ipv6: { type: string }
-                  cidrv4: { type: string }
-                  cidrv6: { type: string }
-                  date: { type: string }
-                  time: { type: string }
-                  datetime: { type: string }
-                  duration: { type: string }
-                  byte: { type: string }
-                  strpassword: { type: string }
-                  mac: { type: string }
-                  e164: { type: string }
-                  creditcard: { type: string }
-                  iban: { type: string }
-                  currencycode: { type: string }
-                  ksuid: { type: string }
-                  xid: { type: string }
-                  guid: { type: string }
-                  trim: { type: string }
-                  uint32: { type: string }
-                  uint64: { type: string }
-                  int64Value: { type: string }
-                  idsTypes: { type: array, items: { type: string } }
+        '200': { $ref: '#/components/responses/Fields' }
+  /optional:
+    get:
+      operationId: headerOptional
+      parameters:
+        - { name: x-int-opt, in: header, schema: { type: integer } }
+        - { name: x-int64-opt, in: header, schema: { type: integer, format: int64 } }
+        - { name: x-bool-opt, in: header, schema: { type: boolean } }
+        - { name: x-str-opt, in: header, schema: { type: string } }
+        - { name: x-ienum, in: header, schema: { type: integer, enum: [1, 2, 3] } }
+        - { name: x-benum, in: header, schema: { type: boolean, enum: [true] } }
+        - { name: x-iconst, in: header, schema: { type: integer, const: 7 } }
+        - { name: x-senum, in: header, schema: { type: string, enum: [asc, desc] } }
+        - {
+            name: x-ioneof,
+            in: header,
+            schema: { oneOf: [{ type: integer }, { type: string, enum: [all] }] },
+          }
+        - { name: x-range, in: header, schema: { type: integer, minimum: 1, maximum: 100 } }
+        - { name: x-length, in: header, schema: { type: string, minLength: 2, maxLength: 4 } }
+        - { name: x-pattern, in: header, schema: { type: string, pattern: '^[a-z]+-\d{1,3}$' } }
+        - { name: x-tx-lower, in: header, schema: { type: string, x-toLowerCase: true } }
+        - {
+            name: x-tx-email,
+            in: header,
+            schema: { type: string, format: email, x-toLowerCase: true },
+          }
+        - { name: x-str-arr, in: header, schema: { type: array, items: { type: string } } }
+        # Declared in mixed case; a header name is case-insensitive on the wire.
+        # 大文字小文字混在で宣言している。ヘッダー名は、ワイヤ上では大文字小文字を区別しない。
+        - { name: X-Request-Id, in: header, schema: { type: string, format: uuid } }
+        - { name: X-Rate-Limit, in: header, schema: { type: integer } }
+        # No `x-` prefix, and an underscore.
+        # `x-` 接頭辞のない名前と、アンダースコアを含む名前。
+        - { name: accept-version, in: header, schema: { type: integer } }
+        - { name: x_underscore, in: header, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /defaults:
+    get:
+      operationId: headerDefaults
+      parameters:
+        - { name: x-int-def, in: header, schema: { type: integer, default: 20 } }
+        - { name: x-int64-def, in: header, schema: { type: integer, format: int64, default: 5 } }
+        - { name: x-bool-def, in: header, schema: { type: boolean, default: false } }
+        - { name: x-str-def, in: header, schema: { type: string, default: fallback } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /required:
+    get:
+      operationId: headerRequired
+      parameters:
+        - { name: x-id, in: header, required: true, schema: { type: integer } }
+        - { name: x-big, in: header, required: true, schema: { type: integer, format: int64 } }
+        - { name: x-flag, in: header, required: true, schema: { type: boolean } }
+        - { name: x-name, in: header, required: true, schema: { type: string } }
+        - { name: x-note, in: header, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+components:
+  responses:
+    Fields:
+      description: Every validated parameter, by name, as the runtime typeof and the text of its value.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true

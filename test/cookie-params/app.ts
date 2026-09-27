@@ -1,65 +1,80 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import { getCookiesRoute } from './__generated__/routes'
+import {
+  getCookiesRoute,
+  getDefaultsRoute,
+  getOptionalRoute,
+  getRequiredRoute,
+} from './__generated__/routes'
 
-/** Echoes the runtime `typeof` of every cookie, which is what the matrix asserts on. */
+type Echo = { valueType: string; valueText: string }
+
+/**
+ * Describes one value: the runtime `typeof` it arrived as, and the value as text. Text,
+ * because a bigint cannot cross JSON and text keeps its every digit.
+ *
+ * 値1つを記述する。届いた時点の `typeof` と、その文字列表現である。文字列で返すのは、
+ * bigint が JSON に載せられず、また文字列なら桁落ちしないためである。
+ */
+function echoValue(value: unknown): Echo {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  ) {
+    return { valueType: typeof value, valueText: String(value) }
+  }
+  return {
+    valueType: value === null ? 'null' : typeof value,
+    valueText: JSON.stringify(value) ?? 'undefined',
+  }
+}
+
+/**
+ * Describes every validated parameter, by name. An array is described element by element
+ * and an object key by key, so a test can tell `[1, 2]` from `['1', '2']` and from `'1,2'`.
+ * A key the schema left out stays out: an absent optional parameter is absent here too.
+ *
+ * 検証済みの全パラメータを名前ごとに記述する。配列は要素ごと、オブジェクトはキーごとに
+ * 記述するので、テストは `[1, 2]`・`['1', '2']`・`'1,2'` を区別できる。スキーマが出力
+ * しなかったキーはここでも出力されない。省略された任意パラメータは、キー自体が存在しない。
+ */
+function echoFields(fields: object) {
+  const described: Record<string, Echo | Echo[] | Record<string, Echo>> = {}
+  for (const [name, value] of Object.entries(fields)) {
+    if (value === undefined) continue
+    if (Array.isArray(value)) {
+      described[name] = value.map(echoValue)
+    } else if (typeof value === 'object' && value !== null) {
+      described[name] = Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [key, echoValue(item)]),
+      )
+    } else {
+      described[name] = echoValue(value)
+    }
+  }
+  return described
+}
+
+/**
+ * Every handler returns what `c.req.valid` handed it and nothing else, so the value a test
+ * sees has passed the generated schema — not the raw request.
+ *
+ * すべてのハンドラは `c.req.valid` が返した値だけを返す。テストが見る値は、生のリクエスト
+ * ではなく、生成スキーマを通過したものになる。
+ */
 export const cookieParamsApp = new OpenAPIHono({
+  // A rejected request names the parameter that failed, so a test can tell which one did.
+  // 拒否時は失敗したパラメータ名を返す。どのパラメータが原因かをテストで判別できる。
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json({ issues: result.error.issues.map((issue) => issue.path.join('.')) }, 422)
     }
     return undefined
   },
-}).openapi(getCookiesRoute, (c) => {
-  const cookies = c.req.valid('cookie')
-  return c.json({
-    integer: typeof cookies.integer,
-    int32: typeof cookies.int32,
-    int64: typeof cookies.int64,
-    bigint: typeof cookies.bigint,
-    number: typeof cookies.number,
-    float: typeof cookies.float,
-    float32: typeof cookies.float32,
-    float64: typeof cookies.float64,
-    double: typeof cookies.double,
-    numpassword: typeof cookies.numpassword,
-    boolean: typeof cookies.boolean,
-    string: typeof cookies.string,
-    email: typeof cookies.email,
-    uuid: typeof cookies.uuid,
-    uuidv4: typeof cookies.uuidv4,
-    uuidv7: typeof cookies.uuidv7,
-    url: typeof cookies.url,
-    uri: typeof cookies.uri,
-    httpurl: typeof cookies.httpurl,
-    hostname: typeof cookies.hostname,
-    hex: typeof cookies.hex,
-    base64: typeof cookies.base64,
-    base64url: typeof cookies.base64url,
-    nanoid: typeof cookies.nanoid,
-    cuid2: typeof cookies.cuid2,
-    ulid: typeof cookies.ulid,
-    ipv4: typeof cookies.ipv4,
-    ipv6: typeof cookies.ipv6,
-    cidrv4: typeof cookies.cidrv4,
-    cidrv6: typeof cookies.cidrv6,
-    date: typeof cookies.date,
-    time: typeof cookies.time,
-    datetime: typeof cookies.datetime,
-    duration: typeof cookies.duration,
-    byte: typeof cookies.byte,
-    strpassword: typeof cookies.strpassword,
-    e164: typeof cookies.e164,
-    creditcard: typeof cookies.creditcard,
-    iban: typeof cookies.iban,
-    currencycode: typeof cookies.currencycode,
-    ksuid: typeof cookies.ksuid,
-    xid: typeof cookies.xid,
-    guid: typeof cookies.guid,
-    trim: typeof cookies.trim,
-    uint32: typeof cookies.uint32,
-    uint64: typeof cookies.uint64,
-    int64Value: String(cookies.int64),
-    idsTypes: (cookies.ids ?? []).map((value) => typeof value),
-  })
 })
+  .openapi(getCookiesRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
+  .openapi(getOptionalRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
+  .openapi(getDefaultsRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
+  .openapi(getRequiredRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))

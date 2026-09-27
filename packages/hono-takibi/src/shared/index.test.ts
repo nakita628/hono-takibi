@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { parseConfig } from '../config/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 import { runGenerator } from '../testing/index.js'
-import { appEntryOutput, cleanSplitOutputs, makeJob } from './index.js'
+import { appEntryOutput, cleanSplitOutputs, makeJob, outsideSources } from './index.js'
 
 const openAPI = {
   openapi: '3.0.0',
@@ -930,5 +930,135 @@ describe('cleanSplitOutputs', () => {
 
   it('does nothing with an empty list', async () => {
     await expect(runGenerator(cleanSplitOutputs([]))).resolves.toStrictEqual([])
+  })
+})
+
+describe('outsideSources', () => {
+  const directories: string[] = []
+  function makeDirectory() {
+    const directory = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-sources-')))
+    directories.push(directory)
+    return directory
+  }
+  afterEach(() => {
+    for (const directory of directories.splice(0)) {
+      fs.rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  // The document itself is already covered by the watcher on its directory, so a
+  // document that refers to nothing else leaves nothing more to watch.
+  // ドキュメント自身は、そのディレクトリの監視で既に拾える。他のファイルを参照して
+  // いなければ、追加で監視するものは無い。
+  it('names nothing when the document has no external reference', async () => {
+    const directory = makeDirectory()
+    const input = path.join(directory, 'openapi.json')
+    fs.writeFileSync(
+      input,
+      JSON.stringify({ openapi: '3.1.0', info: { title: 'A', version: '1' }, paths: {} }),
+    )
+
+    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([])
+  })
+
+  // A `$ref` that leaves the document's directory is exactly the file a watcher on that
+  // directory would miss, so it has to be named with its real location.
+  // ドキュメントのディレクトリの外に出る `$ref` は、そのディレクトリの監視では
+  // 見落とすファイルそのものなので、実際の場所で列挙されなければならない。
+  it('names a file a $ref reaches outside the document directory', async () => {
+    const directory = makeDirectory()
+    fs.mkdirSync(path.join(directory, 'spec'))
+    fs.mkdirSync(path.join(directory, 'shared'))
+    const input = path.join(directory, 'spec', 'openapi.json')
+    const shared = path.join(directory, 'shared', 'item.json')
+    fs.writeFileSync(shared, JSON.stringify({ type: 'object' }))
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'A', version: '1' },
+        paths: {},
+        components: { schemas: { Item: { $ref: '../shared/item.json' } } },
+      }),
+    )
+
+    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([shared])
+  })
+
+  // A document that does not parse cannot say what it refers to; the caller decides what
+  // to watch instead, so this has to fail rather than answer with a partial list.
+  // パースできないドキュメントは参照先を答えられない。代わりに何を監視するかは
+  // 呼び出し側が決めるので、部分的な一覧を返さず失敗しなければならない。
+  it('fails when the document cannot be parsed', async () => {
+    const directory = makeDirectory()
+    const input = path.join(directory, 'openapi.json')
+    fs.writeFileSync(input, '{ not json')
+
+    await expect(runGenerator(outsideSources(input))).rejects.toBeDefined()
+  })
+
+  // TypeSpec imports are followed through the source text: a relative file, a directory
+  // standing for its `main.tsp`, and an import of an import. A package import is a
+  // library under node_modules and is not something the user edits.
+  // TypeSpec の import はソースの文字列からたどる。相対パスのファイル、`main.tsp` を
+  // 表すディレクトリ、import 先のさらに先の import が対象。パッケージの import は
+  // node_modules 配下のライブラリであり、利用者が編集するものではない。
+  it('follows relative TypeSpec imports and leaves package imports out', async () => {
+    const directory = makeDirectory()
+    fs.mkdirSync(path.join(directory, 'spec'))
+    fs.mkdirSync(path.join(directory, 'models'))
+    fs.mkdirSync(path.join(directory, 'common'))
+    const input = path.join(directory, 'spec', 'main.tsp')
+    const user = path.join(directory, 'models', 'user.tsp')
+    const id = path.join(directory, 'models', 'id.tsp')
+    const common = path.join(directory, 'common', 'main.tsp')
+    fs.writeFileSync(
+      input,
+      'import "@typespec/http";\nimport "../models/user.tsp";\nimport "../common";\n',
+    )
+    fs.writeFileSync(user, 'import "./id.tsp";\nmodel User {}\n')
+    fs.writeFileSync(id, 'scalar Id extends string;\n')
+    fs.writeFileSync(common, 'model Common {}\n')
+
+    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([common, id, user])
+  })
+
+  // Two files importing each other must not send the walk round in circles.
+  // 互いに import し合う 2 つのファイルで、探索が循環してはならない。
+  it('stops on TypeSpec files that import each other', async () => {
+    const directory = makeDirectory()
+    fs.mkdirSync(path.join(directory, 'spec'))
+    fs.mkdirSync(path.join(directory, 'models'))
+    const input = path.join(directory, 'spec', 'a.tsp')
+    const other = path.join(directory, 'models', 'b.tsp')
+    fs.writeFileSync(input, 'import "../models/b.tsp";\n')
+    fs.writeFileSync(other, 'import "../spec/a.tsp";\n')
+
+    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([other])
+  })
+
+  // A file beside the document, or below it, is one the watcher on the directory
+  // already sees; naming it again would watch it twice.
+  // ドキュメントと同じ場所、またはその下にあるファイルは、ディレクトリの監視で既に
+  // 見えている。ここでも挙げると二重に監視することになる。
+  it('leaves out a referenced file under the document directory', async () => {
+    const directory = makeDirectory()
+    fs.mkdirSync(path.join(directory, 'schemas'))
+    const input = path.join(directory, 'openapi.json')
+    fs.writeFileSync(
+      path.join(directory, 'schemas', 'item.json'),
+      JSON.stringify({ type: 'object' }),
+    )
+    fs.writeFileSync(
+      input,
+      JSON.stringify({
+        openapi: '3.1.0',
+        info: { title: 'A', version: '1' },
+        paths: {},
+        components: { schemas: { Item: { $ref: './schemas/item.json' } } },
+      }),
+    )
+
+    await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([])
   })
 })

@@ -10,7 +10,13 @@ import type { Config } from '../config/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { appEntryOutput, cleanSplitOutputs, makeJob } from '../shared/index.js'
+import {
+  appEntryOutput,
+  cleanSplitOutputs,
+  isInsideDirectory,
+  makeJob,
+  outsideSources,
+} from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -43,8 +49,8 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
       return Result.fail('Config must export default object')
     }
-    const parsed = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
-    return Result.mapError(parsed, (error) => error.message)
+    const result = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
+    return Result.mapError(result, (error) => error.message)
   } catch (error) {
     return Result.fail(error instanceof Error ? error.message : String(error))
   }
@@ -131,15 +137,18 @@ function listWatchedInputFiles(
 }
 
 /**
- * Hashes the contents of all watched input files under the input directory.
+ * Hashes the contents of all watched input files: those under the input directory and
+ * the ones the document reads from `outside` it.
  *
  * Returns null when the set cannot be read reliably, so callers treat
  * "unknown" as "changed" and regenerate.
  */
-function hashWatchedInputs(directory: string) {
+function hashWatchedInputs(directory: string, outside: readonly string[]) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const files = [...(yield* listWatchedInputFiles(directory))].toSorted()
+    const files = [
+      ...new Set([...(yield* listWatchedInputFiles(directory)), ...outside]),
+    ].toSorted()
     if (files.length === 0) return null
     const contents = yield* Effect.all(
       files.map((file) => fs.readFileString(file).pipe(Effect.orElseSucceed(() => null))),
@@ -365,11 +374,13 @@ export function honoTakibiVite(): any {
   const pluginState: {
     current: Config | null
     inputDirectory: string | null
+    outside: readonly string[]
     lastInputHash: string | null
     runQueue: Promise<void>
   } = {
     current: null,
     inputDirectory: null,
+    outside: [],
     lastInputHash: null,
     runQueue: Promise.resolve(),
   }
@@ -386,8 +397,31 @@ export function honoTakibiVite(): any {
     }
     return changed
   }
+  // Generation is over by the time this runs and nothing here feeds it: the list only
+  // decides which edits bring the next generation about. The document is what names the
+  // files, so the list is known once it has been read; one that cannot be read keeps the
+  // list it had. The hash is taken again because it has to cover the same files the next
+  // comparison will.
+  const watchOutsideSources = async (server?: ViteDevServer) => {
+    if (!pluginState.current || !pluginState.inputDirectory) return
+    const outside = await Effect.runPromise(
+      outsideSources(pluginState.current.input).pipe(
+        Effect.orElseSucceed(() => pluginState.outside),
+        Effect.provide(NodeFileSystem.layer),
+      ),
+    )
+    if (outside.join('\n') === pluginState.outside.join('\n')) return
+    pluginState.outside = outside
+    if (server && outside.length > 0) server.watcher.add(outside)
+    pluginState.lastInputHash = await Effect.runPromise(
+      hashWatchedInputs(pluginState.inputDirectory, outside).pipe(
+        Effect.provide(NodeFileSystem.layer),
+      ),
+    )
+  }
   const runGenerationAndReload = async (server?: ViteDevServer) => {
     const changed = await runGeneration()
+    await watchOutsideSources(server)
     if (server && changed) server.ws.send({ type: 'full-reload' })
   }
   // Skipping additionally requires every declared output to exist, so deleting
@@ -396,7 +430,7 @@ export function honoTakibiVite(): any {
     if (!pluginState.inputDirectory || !pluginState.current) return
     const { inputHash, outputsExist } = await Effect.runPromise(
       Effect.all({
-        inputHash: hashWatchedInputs(pluginState.inputDirectory),
+        inputHash: hashWatchedInputs(pluginState.inputDirectory, pluginState.outside),
         outputsExist: allOutputsExist(pluginState.current),
       }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
@@ -438,9 +472,14 @@ export function honoTakibiVite(): any {
       server,
       path.resolve(process.cwd(), pluginState.current.input),
     )
+    // The list belongs to the document the previous config named; a document somewhere
+    // else starts from nothing until it has been read.
+    if (inputDirectory !== pluginState.inputDirectory) pluginState.outside = []
     pluginState.inputDirectory = inputDirectory
     pluginState.lastInputHash = await Effect.runPromise(
-      hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
+      hashWatchedInputs(inputDirectory, pluginState.outside).pipe(
+        Effect.provide(NodeFileSystem.layer),
+      ),
     )
     await runGenerationAndReload(server)
   }
@@ -474,6 +513,29 @@ export function honoTakibiVite(): any {
       // Dev-only: handled by configureServer
     },
     configureServer(server: ViteDevServer) {
+      // 200ms debounce: editors emit multiple fs events on save, and batch file changes
+      // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
+      const debouncedRunGeneration = debounce(200, () => {
+        void enqueueRun(() => runIfInputsChanged(server))
+      })
+      // Registered before the config is read, not after: a config that fails to load at
+      // startup is fixed by an edit, and the inputs that edit names still have to be seen.
+      server.watcher.add(absoluteConfigFilePath)
+      server.watcher.on('all', (_eventType, filePath) => {
+        const absoluteChangedPath = path.resolve(filePath)
+        if (absoluteChangedPath === absoluteConfigFilePath) {
+          queueConfigurationChange(server)
+          return
+        }
+        if (
+          pluginState.outside.includes(absoluteChangedPath) ||
+          (pluginState.inputDirectory &&
+            isInsideDirectory(pluginState.inputDirectory, absoluteChangedPath) &&
+            isWatchedInputFile(absoluteChangedPath))
+        ) {
+          debouncedRunGeneration()
+        }
+      })
       ;(async () => {
         const initialConfiguration = await readConfigurationWithHotReload(server)
         if (Result.isFailure(initialConfiguration)) {
@@ -487,29 +549,10 @@ export function honoTakibiVite(): any {
         )
         pluginState.inputDirectory = inputDirectory
         pluginState.lastInputHash = await Effect.runPromise(
-          hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
+          hashWatchedInputs(inputDirectory, pluginState.outside).pipe(
+            Effect.provide(NodeFileSystem.layer),
+          ),
         )
-        server.watcher.add(absoluteConfigFilePath)
-        // 200ms debounce: editors emit multiple fs events on save, and batch file changes
-        // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
-        const debouncedRunGeneration = debounce(200, () => {
-          void enqueueRun(() => runIfInputsChanged(server))
-        })
-
-        server.watcher.on('all', (_eventType, filePath) => {
-          const absoluteChangedPath = path.resolve(filePath)
-          if (absoluteChangedPath === absoluteConfigFilePath) {
-            queueConfigurationChange(server)
-            return
-          }
-          if (
-            pluginState.inputDirectory &&
-            absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
-            isWatchedInputFile(absoluteChangedPath)
-          ) {
-            debouncedRunGeneration()
-          }
-        })
         await enqueueRun(() => runGenerationAndReload(server))
       })().catch((error: unknown) => {
         console.error('❌ watch error:', error)

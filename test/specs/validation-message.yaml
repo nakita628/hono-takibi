@@ -1,0 +1,59 @@
+# One operation with a constraint of each kind (length, format, range), generated with no
+# custom message: the hosts in hosts/validation-message-app-*.ts show the three ways an
+# application can turn the resulting Zod issues into its own error response.
+#
+# 各種類の制約(長さ・フォーマット・範囲)を1つずつ持つオペレーション。カスタムメッセージ
+# なしで生成する。hosts/validation-message-app-*.ts のホストは、生成された Zod の issue を、
+# アプリケーション独自のエラーレスポンスに変換する3つの方法を示している。
+openapi: 3.1.0
+info:
+  title: Validation Message API
+  version: 0.0.0
+paths:
+  /users:
+    post:
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, age]
+              properties:
+                name: { type: string, minLength: 3, maxLength: 20 }
+                email: { type: string, format: email }
+                age: { type: integer, minimum: 0, maximum: 150 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, name, email, age]
+                properties:
+                  id: { type: integer }
+                  name: { type: string }
+                  email: { type: string }
+                  age: { type: integer }
+        '422':
+          description: Validation Error (RFC 9457 Problem Details)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [type, title, status, detail, errors]
+                properties:
+                  type: { type: string }
+                  title: { type: string }
+                  status: { type: integer }
+                  detail: { type: string }
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      required: [pointer, detail]
+                      properties:
+                        pointer: { type: string }
+                        detail: { type: string }

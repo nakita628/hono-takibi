@@ -1,66 +1,80 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import { getHeadersRoute } from './__generated__/routes'
+import {
+  getDefaultsRoute,
+  getHeadersRoute,
+  getOptionalRoute,
+  getRequiredRoute,
+} from './__generated__/routes'
 
-/** Echoes the runtime `typeof` of every header, which is what the matrix asserts on. */
+type Echo = { valueType: string; valueText: string }
+
+/**
+ * Describes one value: the runtime `typeof` it arrived as, and the value as text. Text,
+ * because a bigint cannot cross JSON and text keeps its every digit.
+ *
+ * 値1つを記述する。届いた時点の `typeof` と、その文字列表現である。文字列で返すのは、
+ * bigint が JSON に載せられず、また文字列なら桁落ちしないためである。
+ */
+function echoValue(value: unknown): Echo {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    typeof value === 'boolean'
+  ) {
+    return { valueType: typeof value, valueText: String(value) }
+  }
+  return {
+    valueType: value === null ? 'null' : typeof value,
+    valueText: JSON.stringify(value) ?? 'undefined',
+  }
+}
+
+/**
+ * Describes every validated parameter, by name. An array is described element by element
+ * and an object key by key, so a test can tell `[1, 2]` from `['1', '2']` and from `'1,2'`.
+ * A key the schema left out stays out: an absent optional parameter is absent here too.
+ *
+ * 検証済みの全パラメータを名前ごとに記述する。配列は要素ごと、オブジェクトはキーごとに
+ * 記述するので、テストは `[1, 2]`・`['1', '2']`・`'1,2'` を区別できる。スキーマが出力
+ * しなかったキーはここでも出力されない。省略された任意パラメータは、キー自体が存在しない。
+ */
+function echoFields(fields: object) {
+  const described: Record<string, Echo | Echo[] | Record<string, Echo>> = {}
+  for (const [name, value] of Object.entries(fields)) {
+    if (value === undefined) continue
+    if (Array.isArray(value)) {
+      described[name] = value.map(echoValue)
+    } else if (typeof value === 'object' && value !== null) {
+      described[name] = Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [key, echoValue(item)]),
+      )
+    } else {
+      described[name] = echoValue(value)
+    }
+  }
+  return described
+}
+
+/**
+ * Every handler returns what `c.req.valid` handed it and nothing else, so the value a test
+ * sees has passed the generated schema — not the raw request.
+ *
+ * すべてのハンドラは `c.req.valid` が返した値だけを返す。テストが見る値は、生のリクエスト
+ * ではなく、生成スキーマを通過したものになる。
+ */
 export const headerParamsApp = new OpenAPIHono({
+  // A rejected request names the parameter that failed, so a test can tell which one did.
+  // 拒否時は失敗したパラメータ名を返す。どのパラメータが原因かをテストで判別できる。
   defaultHook: (result, c) => {
     if (!result.success) {
       return c.json({ issues: result.error.issues.map((issue) => issue.path.join('.')) }, 422)
     }
     return undefined
   },
-}).openapi(getHeadersRoute, (c) => {
-  const h = c.req.valid('header')
-  return c.json({
-    integer: typeof h['x-integer'],
-    int32: typeof h['x-int32'],
-    int64: typeof h['x-int64'],
-    bigint: typeof h['x-bigint'],
-    number: typeof h['x-number'],
-    float: typeof h['x-float'],
-    float32: typeof h['x-float32'],
-    float64: typeof h['x-float64'],
-    double: typeof h['x-double'],
-    numpassword: typeof h['x-numpassword'],
-    boolean: typeof h['x-boolean'],
-    string: typeof h['x-string'],
-    email: typeof h['x-email'],
-    uuid: typeof h['x-uuid'],
-    uuidv4: typeof h['x-uuidv4'],
-    uuidv7: typeof h['x-uuidv7'],
-    url: typeof h['x-url'],
-    uri: typeof h['x-uri'],
-    httpurl: typeof h['x-httpurl'],
-    hostname: typeof h['x-hostname'],
-    hex: typeof h['x-hex'],
-    base64: typeof h['x-base64'],
-    base64url: typeof h['x-base64url'],
-    nanoid: typeof h['x-nanoid'],
-    cuid2: typeof h['x-cuid2'],
-    ulid: typeof h['x-ulid'],
-    ipv4: typeof h['x-ipv4'],
-    ipv6: typeof h['x-ipv6'],
-    cidrv4: typeof h['x-cidrv4'],
-    cidrv6: typeof h['x-cidrv6'],
-    date: typeof h['x-date'],
-    time: typeof h['x-time'],
-    datetime: typeof h['x-datetime'],
-    duration: typeof h['x-duration'],
-    byte: typeof h['x-byte'],
-    strpassword: typeof h['x-strpassword'],
-    mac: typeof h['x-mac'],
-    e164: typeof h['x-e164'],
-    creditcard: typeof h['x-creditcard'],
-    iban: typeof h['x-iban'],
-    currencycode: typeof h['x-currencycode'],
-    ksuid: typeof h['x-ksuid'],
-    xid: typeof h['x-xid'],
-    guid: typeof h['x-guid'],
-    trim: typeof h['x-trim'],
-    uint32: typeof h['x-uint32'],
-    uint64: typeof h['x-uint64'],
-    int64Value: String(h['x-int64']),
-    idsTypes: (h['x-ids'] ?? []).map((value) => typeof value),
-  })
 })
+  .openapi(getHeadersRoute, (c) => c.json(echoFields(c.req.valid('header'))))
+  .openapi(getOptionalRoute, (c) => c.json(echoFields(c.req.valid('header'))))
+  .openapi(getDefaultsRoute, (c) => c.json(echoFields(c.req.valid('header'))))
+  .openapi(getRequiredRoute, (c) => c.json(echoFields(c.req.valid('header'))))
