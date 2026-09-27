@@ -95,12 +95,12 @@ function runConfigPass(configPath: string, reload: boolean) {
 }
 
 /**
- * Runs one pass and answers the directory to watch for the documents.
+ * Runs one pass and answers the directory the config keeps its documents in.
  *
  * The directory comes from the config alone, so a pass that fails after the config was
  * read — a document that does not parse, say — still names it. Otherwise the very edit
  * that fixes the document would never be seen. It is `undefined` only when the config
- * itself could not be read, or when the directory it names does not exist to be watched.
+ * itself could not be read.
  */
 function reportConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
@@ -115,16 +115,55 @@ function reportConfigPass(configPath: string, reload: boolean) {
     } else {
       yield* Console.error(`❌ ${report.failure.message}`)
     }
-    const fs = yield* FileSystem.FileSystem
-    const inputDirectory = path.dirname(path.resolve(process.cwd(), config.success.input))
-    const watchable = yield* fs
-      .exists(inputDirectory)
-      .pipe(Effect.catchTag('PlatformError', () => Effect.succeed(false)))
-    return watchable ? inputDirectory : undefined
+    return path.dirname(path.resolve(process.cwd(), config.success.input))
   })
 }
 
-function watchRound(configPath: string, inputDirectory: string | undefined) {
+/**
+ * `directory`, or the closest directory above it that exists.
+ *
+ * A directory that is not there cannot be watched, but the one it will appear in can.
+ */
+function nearestExisting(directory: string): Effect.Effect<string, never, FileSystem.FileSystem> {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const exists = yield* fs.exists(directory).pipe(Effect.orElseSucceed(() => false))
+    const parent = path.dirname(directory)
+    return exists || parent === directory ? directory : yield* nearestExisting(parent)
+  })
+}
+
+/**
+ * One pass inside a round; answers whether the round's watchers are still the right ones.
+ */
+function watchPass(
+  configPath: string,
+  inputDirectory: string | undefined,
+  watched: string | undefined,
+  nextDirectory: Ref.Ref<string | undefined>,
+) {
+  return Effect.gen(function* () {
+    const directory = (yield* reportConfigPass(configPath, true)) ?? inputDirectory
+    yield* Ref.set(nextDirectory, directory)
+    if (directory !== inputDirectory) return false
+    return directory === undefined || (yield* nearestExisting(directory)) === watched
+  })
+}
+
+/**
+ * Watches until what has to be watched changes, and answers the next input directory.
+ *
+ * `watched` is where the watcher actually sits. It is `inputDirectory` while that
+ * exists; once it is removed — or before it is created — it is the closest directory
+ * above, and the only event that matters there is the missing path coming into being.
+ * A watcher left on a removed directory reports nothing, even after the directory is
+ * back, so the round ends whenever `watched` stops being the right place.
+ */
+function watchRound(
+  configPath: string,
+  inputDirectory: string | undefined,
+  watched: string | undefined,
+) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const configFile = path.basename(configPath)
@@ -133,26 +172,30 @@ function watchRound(configPath: string, inputDirectory: string | undefined) {
       .watch(path.dirname(configPath))
       .pipe(Stream.filter((event) => event.path === configFile))
     const events =
-      inputDirectory === undefined
+      inputDirectory === undefined || watched === undefined
         ? configEvents
         : Stream.merge(
-            fs
-              .watch(inputDirectory, { recursive: true })
-              .pipe(
-                Stream.filter((event) =>
-                  INPUT_EXTENSIONS.some((extension) => event.path.endsWith(extension)),
-                ),
-              ),
+            watched === inputDirectory
+              ? fs
+                  .watch(inputDirectory, { recursive: true })
+                  .pipe(
+                    Stream.filter((event) =>
+                      INPUT_EXTENSIONS.some((extension) => event.path.endsWith(extension)),
+                    ),
+                  )
+              : fs
+                  .watch(watched)
+                  .pipe(
+                    Stream.filter(
+                      (event) =>
+                        event.path === path.relative(watched, inputDirectory).split(path.sep)[0],
+                    ),
+                  ),
             configEvents,
           )
     yield* events.pipe(
       Stream.debounce('200 millis'),
-      Stream.runForEachWhile(() =>
-        reportConfigPass(configPath, true).pipe(
-          Effect.tap((directory) => Ref.set(nextDirectory, directory ?? inputDirectory)),
-          Effect.map((directory) => directory === undefined || directory === inputDirectory),
-        ),
-      ),
+      Stream.runForEachWhile(() => watchPass(configPath, inputDirectory, watched, nextDirectory)),
     )
     return yield* Ref.get(nextDirectory)
   })
@@ -163,12 +206,16 @@ function watchConfig(
   inputDirectory: string | undefined,
 ): Effect.Effect<void, PlatformError.PlatformError, FileSystem.FileSystem> {
   return Effect.gen(function* () {
+    const watched =
+      inputDirectory === undefined ? undefined : yield* nearestExisting(inputDirectory)
     yield* Console.log(
       inputDirectory === undefined
         ? `\n👀 Watching ${configPath} — Ctrl-C to stop`
-        : `\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`,
+        : watched === inputDirectory
+          ? `\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`
+          : `\n👀 Watching ${configPath}, waiting for ${inputDirectory} — Ctrl-C to stop`,
     )
-    return yield* watchConfig(configPath, yield* watchRound(configPath, inputDirectory))
+    return yield* watchConfig(configPath, yield* watchRound(configPath, inputDirectory, watched))
   })
 }
 

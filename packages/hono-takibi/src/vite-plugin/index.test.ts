@@ -554,6 +554,34 @@ describe('honoTakibiVite', () => {
     expect(sendSpy).not.toHaveBeenCalled()
   })
 
+  // `spec-old` starts with `spec` as a string and is a different directory. Comparing
+  // the paths as text used to let an edit there rerun the generators.
+  // `spec-old` は文字列としては `spec` で始まるが、別のディレクトリである。パスを
+  // 文字列として比較していたため、そこでの編集でも再生成が走っていた。
+  it('ignores a sibling directory whose name starts with the input directory name', async () => {
+    const configuration = {
+      input: 'spec/openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+    const { parseOpenAPI } = await import('../openapi/index.js')
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    vi.mocked(parseOpenAPI).mockClear()
+
+    const siblingPath = path.resolve(process.cwd(), 'spec-old/openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', siblingPath)
+    await new Promise((resolve) => setTimeout(resolve, 400))
+
+    expect(parseOpenAPI).not.toHaveBeenCalled()
+  })
+
   it('ignores non-yaml/json/tsp files inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',

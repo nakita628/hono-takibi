@@ -66,6 +66,17 @@ function debounce(delayMilliseconds: number, callback: () => void): () => void {
   return wrappedFunction
 }
 
+/**
+ * Whether `filePath` sits under `directory`, at any depth.
+ *
+ * Asked of the path segments rather than the string: `/app/spec-old/a.yaml` starts with
+ * `/app/spec` and is not inside it.
+ */
+function isInsideDirectory(directory: string, filePath: string): boolean {
+  const relative = path.relative(directory, filePath)
+  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
+}
+
 function isWatchedInputFile(filePath: string): boolean {
   return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
 }
@@ -490,7 +501,7 @@ export function honoTakibiVite(): any {
         }
         if (
           pluginState.inputDirectory &&
-          absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
+          isInsideDirectory(pluginState.inputDirectory, absoluteChangedPath) &&
           isWatchedInputFile(absoluteChangedPath)
         ) {
           debouncedRunGeneration()

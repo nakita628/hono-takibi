@@ -1170,6 +1170,87 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     }
   })
 
+  // A watcher on a removed directory stays silent even after the directory is back, so
+  // the session has to notice the removal and pick the directory up again when it
+  // returns — switching branches does exactly this to a spec directory.
+  // 削除されたディレクトリ上の watcher は、ディレクトリが戻っても何も通知しない。
+  // そのため削除に気付き、戻ってきた時点で監視し直す必要がある。ブランチの切り替えは
+  // spec ディレクトリに対してまさにこれを行う。
+  it('picks the input back up after its directory is removed and recreated', async () => {
+    const dir = useTmpDir('cli-watch-recreated-')
+    const spec = path.join(dir, 'spec')
+    const input = path.join(spec, 'openapi.json')
+    const routes = path.join(dir, 'routes.ts')
+    fs.mkdirSync(spec)
+    fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './spec/openapi.json', output: './routes.ts' }`,
+    )
+
+    const cli = startCli(['--watch'])
+    try {
+      expect(await until(() => cli.output().includes(`👀 Watching ${spec} and`))).toBe(true)
+
+      fs.rmSync(spec, { recursive: true })
+      expect(await until(() => cli.output().includes(`waiting for ${spec}`))).toBe(true)
+
+      fs.mkdirSync(spec)
+      fs.writeFileSync(input, JSON.stringify(minimalOpenapi))
+      expect(await until(() => cli.output().split(`👀 Watching ${spec} and`).length === 3)).toBe(
+        true,
+      )
+
+      expect(
+        await writeUntil(
+          input,
+          JSON.stringify({
+            ...minimalOpenapi,
+            paths: {
+              '/widgets': {
+                get: { operationId: 'getWidgets', responses: { '200': { description: 'OK' } } },
+              },
+            },
+          }),
+          () => fs.readFileSync(routes, 'utf-8').includes('getWidgetsRoute'),
+        ),
+      ).toBe(true)
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(cli.fiber))
+    }
+  })
+
+  // The config can name a directory nobody has created yet. There is nothing to watch
+  // there, but the session still has to start watching it the moment it appears.
+  // config が、まだ誰も作っていないディレクトリを指していることがある。その時点では
+  // 監視できるものが無いが、ディレクトリが現れた瞬間から監視を始める必要がある。
+  it('starts watching an input directory that is created after startup', async () => {
+    const dir = useTmpDir('cli-watch-late-directory-')
+    const spec = path.join(dir, 'spec')
+    const routes = path.join(dir, 'routes.ts')
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './spec/openapi.json', output: './routes.ts' }`,
+    )
+
+    const cli = startCli(['--watch'])
+    try {
+      expect(await until(() => cli.output().includes(`waiting for ${spec}`))).toBe(true)
+      expect(fs.existsSync(routes)).toBe(false)
+
+      fs.mkdirSync(spec)
+      expect(await until(() => cli.output().includes(`👀 Watching ${spec} and`))).toBe(true)
+
+      expect(
+        await writeUntil(path.join(spec, 'openapi.json'), JSON.stringify(minimalOpenapi), () =>
+          fs.existsSync(routes),
+        ),
+      ).toBe(true)
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(cli.fiber))
+    }
+  })
+
   // The directory to watch comes from the config, so a config that moves `input` has to
   // move the watcher with it rather than leaving it on the old directory.
   it('follows input to another directory when the config moves it', async () => {
