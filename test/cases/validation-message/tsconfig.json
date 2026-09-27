@@ -1,4 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["../../hosts/validation-message-*.ts"]
+  "include": [
+    "../../__generated__/validation-message/**/*",
+    "../../hosts/validation-message-*.ts",
+    "../../runtime/validation-message.*.test.ts"
+  ]
 }

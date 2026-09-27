@@ -39,19 +39,23 @@ const app = new OpenAPIHono({
   },
 })
 
-app.openapi(postMessagesRoute, (c) => c.json({}, 200))
-app.openapi(postTransformsRoute, (c) => c.json({}, 200))
-app.openapi(postCoerceRoute, (c) => c.json({}, 200))
-app.openapi(postCodecRoute, (c) => c.json({}, 200))
-app.openapi(postCustomValidationRoute, (c) => c.json({}, 200))
-app.openapi(postDefaultsRoute, (c) => c.json({}, 200))
-app.openapi(postContentChecksRoute, (c) => c.json({}, 200))
-app.openapi(postFormatsRoute, (c) => c.json({}, 200))
-app.openapi(postBrandedRoute, (c) => c.json({}, 200))
-app.openapi(postNumericRoute, (c) => c.json({}, 200))
-app.openapi(postArrayEdgeRoute, (c) => c.json({}, 200))
-app.openapi(postObjectEdgeRoute, (c) => c.json({}, 200))
-app.openapi(postCombinatorsRoute, (c) => c.json({}, 200))
-app.openapi(postEnumsRoute, (c) => c.json({}, 200))
+// Every handler answers the body as it came out of validation, so a test sees what a
+// transform, a coercion or a default did to it.
+// すべてのハンドラは、検証を通過した後のボディをそのまま返す。これにより、変換・coerce・
+// デフォルト値がボディに与えた影響を、テストで確認できる。
+app.openapi(postMessagesRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postTransformsRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postCoerceRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postCodecRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postCustomValidationRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postDefaultsRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postContentChecksRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postFormatsRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postBrandedRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postNumericRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postArrayEdgeRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postObjectEdgeRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postCombinatorsRoute, (c) => c.json(c.req.valid('json'), 200))
+app.openapi(postEnumsRoute, (c) => c.json(c.req.valid('json'), 200))
 
 export default app

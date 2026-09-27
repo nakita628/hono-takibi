@@ -1,8 +1,15 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
-import { createUserRoute } from './validation-message-routes'
+import { postUsersRoute } from '../__generated__/validation-message/routes'
 
-// Pattern 2: defaultHook builds RFC 9457 Problem Details from issue metadata
+// Pattern 2: a `defaultHook` on the app answers every validation failure of every route.
+// It builds RFC 9457 Problem Details from the metadata of each issue (code, origin,
+// minimum, format), so the messages are the application's own and the generated schema
+// carries none.
+// パターン 2: アプリの `defaultHook` が、すべてのルートのすべての検証失敗に応答する。
+// 各 issue のメタデータ(code・origin・minimum・format)から RFC 9457 の Problem Details を
+// 組み立てる。メッセージはアプリケーション独自のものであり、生成されたスキーマには
+// メッセージが含まれない。
 const app = new OpenAPIHono({
   defaultHook: (result, c) => {
     if (!result.success) {
@@ -33,10 +40,13 @@ const app = new OpenAPIHono({
             else detail = `Invalid format: ${issue.format}`
             break
           case 'invalid_type':
-            detail =
-              issue.input === undefined || issue.input === null
-                ? 'This field is required'
-                : `Expected ${issue.expected}, received ${typeof issue.input}`
+            // Zod 4 does not put the input on the issue, so a missing value is told apart
+            // from a value of the wrong type by the message, which ends in what was received.
+            // Zod 4 は issue に入力値を含めない。そのため、値の欠落と型の誤りは、受け取った
+            // 値の種類で終わるメッセージによって区別する。
+            detail = issue.message.endsWith('received undefined')
+              ? 'This field is required'
+              : `Expected ${issue.expected}`
             break
           default:
             break
@@ -58,7 +68,7 @@ const app = new OpenAPIHono({
   },
 })
 
-app.openapi(createUserRoute, (c) => {
+app.openapi(postUsersRoute, (c) => {
   const { name, email, age } = c.req.valid('json')
   return c.json({ id: 1, name, email, age }, 201)
 })

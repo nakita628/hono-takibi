@@ -76,3 +76,12 @@ export function updateTask(
 export function deleteTask(id: string): boolean {
   return tasks.delete(id)
 }
+
+/**
+ * Empties the store and restarts the id counter, so that a test can know the ids it gets.
+ * ストアを空にし、id のカウンターを初期化する。テストが採番される id を把握できるようにする。
+ */
+export function resetTasks(): void {
+  tasks.clear()
+  counter = 0
+}
