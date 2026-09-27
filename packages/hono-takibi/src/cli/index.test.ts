@@ -133,9 +133,6 @@ const minimalOpenapi = {
   },
 }
 
-// `honoTakibi` reads `--version` from the `package.json` one directory above its entry,
-// so the tests hand it the URL the real entry has: `src/index.ts`.
-const ENTRY_URL = new URL('../index.ts', import.meta.url).href
 const { version } = JSON.parse(
   fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf-8'),
 ) as { readonly version: string }
@@ -149,7 +146,7 @@ const ANSI = new RegExp(`${String.fromCodePoint(27)}\\[[0-9;]*m`, 'gu')
  * with the `Console` service swapped for a recorder. Help, errors and the success
  * message all go through `Console`, so this captures everything a user would see.
  */
-async function runCli(argv: readonly string[], entryUrl: string = ENTRY_URL) {
+async function runCli(argv: readonly string[]) {
   const stdout: string[] = []
   const stderr: string[] = []
   const recorder: Console.Console = Object.assign(Object.create(console), {
@@ -157,7 +154,7 @@ async function runCli(argv: readonly string[], entryUrl: string = ENTRY_URL) {
     error: (...args: readonly unknown[]) => stderr.push(args.map(String).join(' ')),
   })
   const exit = await Effect.runPromiseExit(
-    honoTakibi(argv, entryUrl).pipe(
+    honoTakibi(argv).pipe(
       Effect.provideService(Console.Console, recorder),
       Effect.provide(NodeServices.layer),
     ),
@@ -962,40 +959,6 @@ export default {}`,
   })
 })
 
-// The version is read before the command runs, so `Command.runWith` never sees this
-// failure. It still has to reach the caller as the `ERROR` block every other failure
-// prints, not as a runtime cause dump.
-describe('hono-takibi broken install', () => {
-  it('renders a package.json it cannot parse through the CLI formatter', async () => {
-    const dir = useTmpDir('cli-broken-manifest-')
-    fs.mkdirSync(path.join(dir, 'sub'))
-    fs.writeFileSync(path.join(dir, 'package.json'), 'not json')
-
-    const result = await runCli(
-      ['--help'],
-      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
-    )
-
-    expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('ERROR')
-    expect(result.stderr).toContain('Cannot read the version and description from package.json')
-  })
-
-  it('reports a package.json with no version field', async () => {
-    const dir = useTmpDir('cli-versionless-manifest-')
-    fs.mkdirSync(path.join(dir, 'sub'))
-    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'x' }))
-
-    const result = await runCli(
-      ['--help'],
-      new URL(`file://${path.join(dir, 'sub', 'index.ts')}`).href,
-    )
-
-    expect(result.ok).toBe(false)
-    expect(result.stderr).toContain('Cannot read the version and description from package.json')
-  })
-})
-
 describe('hono-takibi one-shot failures', { timeout: 30_000 }, () => {
   it('propagates a parse failure from the input document', async () => {
     const dir = useTmpDir('cli-parse-failure-')
@@ -1022,7 +985,7 @@ function startCli(argv: readonly string[]) {
     error: (...args: readonly unknown[]) => lines.push(args.map(String).join(' ')),
   })
   const fiber = Effect.runFork(
-    honoTakibi(argv, ENTRY_URL).pipe(
+    honoTakibi(argv).pipe(
       Effect.provideService(Console.Console, recorder),
       Effect.provide(NodeServices.layer),
     ),

@@ -474,6 +474,28 @@ export function honoTakibiVite(): any {
       // Dev-only: handled by configureServer
     },
     configureServer(server: ViteDevServer) {
+      // 200ms debounce: editors emit multiple fs events on save, and batch file changes
+      // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
+      const debouncedRunGeneration = debounce(200, () => {
+        void enqueueRun(() => runIfInputsChanged(server))
+      })
+      // Registered before the config is read, not after: a config that fails to load at
+      // startup is fixed by an edit, and the inputs that edit names still have to be seen.
+      server.watcher.add(absoluteConfigFilePath)
+      server.watcher.on('all', (_eventType, filePath) => {
+        const absoluteChangedPath = path.resolve(filePath)
+        if (absoluteChangedPath === absoluteConfigFilePath) {
+          queueConfigurationChange(server)
+          return
+        }
+        if (
+          pluginState.inputDirectory &&
+          absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
+          isWatchedInputFile(absoluteChangedPath)
+        ) {
+          debouncedRunGeneration()
+        }
+      })
       ;(async () => {
         const initialConfiguration = await readConfigurationWithHotReload(server)
         if (Result.isFailure(initialConfiguration)) {
@@ -489,27 +511,6 @@ export function honoTakibiVite(): any {
         pluginState.lastInputHash = await Effect.runPromise(
           hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
         )
-        server.watcher.add(absoluteConfigFilePath)
-        // 200ms debounce: editors emit multiple fs events on save, and batch file changes
-        // (e.g. git checkout) would otherwise trigger redundant regeneration cycles.
-        const debouncedRunGeneration = debounce(200, () => {
-          void enqueueRun(() => runIfInputsChanged(server))
-        })
-
-        server.watcher.on('all', (_eventType, filePath) => {
-          const absoluteChangedPath = path.resolve(filePath)
-          if (absoluteChangedPath === absoluteConfigFilePath) {
-            queueConfigurationChange(server)
-            return
-          }
-          if (
-            pluginState.inputDirectory &&
-            absoluteChangedPath.startsWith(pluginState.inputDirectory) &&
-            isWatchedInputFile(absoluteChangedPath)
-          ) {
-            debouncedRunGeneration()
-          }
-        })
         await enqueueRun(() => runGenerationAndReload(server))
       })().catch((error: unknown) => {
         console.error('❌ watch error:', error)

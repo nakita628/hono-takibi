@@ -1,9 +1,10 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import type { PlatformError } from 'effect'
-import { Console, Effect, FileSystem, Option, Ref, Result, Runtime, Schema, Stream } from 'effect'
-import { Argument, CliError, CliOutput, Command, Flag } from 'effect/unstable/cli'
+import { Console, Effect, FileSystem, Option, Ref, Result, Schema, Stream } from 'effect'
+import { Argument, CliError, Command, Flag } from 'effect/unstable/cli'
+
+import manifest from '../../package.json' with { type: 'json' }
 
 const COMMAND_NAME = 'hono-takibi'
 
@@ -226,9 +227,9 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
   )
 }
 
-function makeCli(description: string) {
+function makeCli() {
   return Command.make(COMMAND_NAME, commandLine, generate).pipe(
-    Command.withDescription(description),
+    Command.withDescription(manifest.description),
     Command.withExamples([
       {
         command: 'hono-takibi openapi.yaml -o src/routes.ts',
@@ -250,43 +251,6 @@ function makeCli(description: string) {
   )
 }
 
-function reportBrokenInstall(cause: { readonly message: string }) {
-  return Effect.gen(function* () {
-    const error = new CliError.UserError({
-      cause,
-      userMessage: `Cannot read the version and description from package.json: ${cause.message}`,
-    })
-    error[Runtime.errorReported] = false
-    const formatter = yield* CliOutput.Formatter
-    yield* Console.error(formatter.formatError(error))
-    return yield* error
-  })
-}
-
-export function honoTakibi(argv: readonly string[], entryUrl: string) {
-  return Effect.gen(function* () {
-    const manifestPath = fileURLToPath(new URL('../package.json', entryUrl))
-    const fs = yield* FileSystem.FileSystem
-    const source = yield* fs.readFileString(manifestPath)
-    const manifest = yield* Effect.try({
-      try: (): unknown => JSON.parse(source),
-      catch: (cause) => new Error(`${manifestPath} is not valid JSON`, { cause }),
-    })
-    const { version, description } = yield* Schema.decodeUnknownEffect(
-      Schema.Struct({
-        version: Schema.String.annotate({
-          description: 'What `--version` prints.',
-          examples: ['1.2.3'],
-        }),
-        description: Schema.String.annotate({
-          description: 'The sentence `--help` prints under DESCRIPTION.',
-          examples: ['Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi'],
-        }),
-      }).annotate({
-        title: 'Package manifest',
-        description: 'The fields `hono-takibi` reads from the package.json beside its entry.',
-      }),
-    )(manifest)
-    return yield* Command.runWith(makeCli(description), { version })(argv)
-  }).pipe(Effect.catchIf((error) => !CliError.isCliError(error), reportBrokenInstall))
+export function honoTakibi(argv: readonly string[]) {
+  return Command.runWith(makeCli(), { version: manifest.version })(argv)
 }

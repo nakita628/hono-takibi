@@ -606,6 +606,54 @@ describe('honoTakibiVite', () => {
     logSpy.mockRestore()
   })
 
+  // The watcher used to be registered only after the first config read succeeded, so a
+  // config that was broken at startup left the inputs unwatched even once it was fixed.
+  // 以前は最初の config 読み込みが成功した後にしか watcher を登録していなかったため、
+  // 起動時に config が壊れていると、直した後も入力ファイルが監視されなかった。
+  it('watches the input once a config that failed at startup is fixed', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { server } = createMockViteDevServer({})
+    server.ssrLoadModule = () => Promise.resolve({ default: { input: 'invalid.txt' } })
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await waitFor(() => {
+      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('❌ config:'))
+    })
+    expect(watcherCallback).toBeDefined()
+
+    const fixedDeferred = createDeferred()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') fixedDeferred.resolve()
+    }
+    server.ssrLoadModule = () =>
+      Promise.resolve({
+        default: {
+          input: 'openapi.yaml',
+          routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+        },
+      })
+    const configPath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
+    if (watcherCallback) await watcherCallback('change', configPath)
+    await fixedDeferred.promise
+
+    // Removing an output is what makes the next pass change something, so the reload
+    // below can only come from the input edit having been seen.
+    await fsp.rm(path.join(testState.sandboxDirectory, 'out/route/getPets.ts'))
+    const regeneratedDeferred = createDeferred()
+    server.ws.send = (payload) => {
+      if (payload?.type === 'full-reload') regeneratedDeferred.resolve()
+    }
+    const yamlPath = path.resolve(process.cwd(), 'openapi.yaml')
+    if (watcherCallback) await watcherCallback('change', yamlPath)
+    await regeneratedDeferred.promise
+    errorSpy.mockRestore()
+  })
+
   // --- runAllGenerationTasks: error paths ---
 
   it('logs error and does not send full-reload when parseOpenAPI fails', async () => {
