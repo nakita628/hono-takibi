@@ -59,37 +59,67 @@ const commandLine = {
 
 const INPUT_EXTENSIONS = ['.yaml', '.json', '.tsp'] as const
 
-function runConfigPass(configPath: string, reload: boolean) {
+function loadConfig(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
-    const [{ readConfig }, { parseOpenAPI }, { FormatOptions }, { cleanSplitOutputs, makeJob }] =
+    const { readConfig } = yield* Effect.promise(() => import('../config/index.js'))
+    return yield* readConfig(configPath, reload)
+  })
+}
+
+function runJobs(config: Effect.Success<ReturnType<typeof loadConfig>>) {
+  return Effect.gen(function* () {
+    const [{ parseOpenAPI }, { FormatOptions }, { cleanSplitOutputs, makeJob }] =
       yield* Effect.promise(() =>
         Promise.all([
-          import('../config/index.js'),
           import('../openapi/index.js'),
           import('../format/index.js'),
           import('../shared/index.js'),
         ]),
       )
-    const config = yield* readConfig(configPath, reload)
     const jobs = makeJob(yield* parseOpenAPI(config.input), config)
     yield* cleanSplitOutputs(jobs.filter((job) => job.split).map((job) => job.output))
     const messages = yield* Effect.all(
       jobs.map((job) => job.run(job.output)),
       { concurrency: 'unbounded' },
     ).pipe(Effect.provideService(FormatOptions, config.format ?? {}))
-    return { config, report: messages.filter((message) => message !== '').join('\n') }
+    return messages.filter((message) => message !== '').join('\n')
   })
 }
 
+function runConfigPass(configPath: string, reload: boolean) {
+  return Effect.gen(function* () {
+    const config = yield* loadConfig(configPath, reload)
+    return { config, report: yield* runJobs(config) }
+  })
+}
+
+/**
+ * Runs one pass and answers the directory to watch for the documents.
+ *
+ * The directory comes from the config alone, so a pass that fails after the config was
+ * read — a document that does not parse, say — still names it. Otherwise the very edit
+ * that fixes the document would never be seen. It is `undefined` only when the config
+ * itself could not be read, or when the directory it names does not exist to be watched.
+ */
 function reportConfigPass(configPath: string, reload: boolean) {
   return Effect.gen(function* () {
-    const result = yield* Effect.result(runConfigPass(configPath, reload))
-    if (Result.isFailure(result)) {
-      yield* Console.error(`❌ ${result.failure.message}`)
+    const config = yield* Effect.result(loadConfig(configPath, reload))
+    if (Result.isFailure(config)) {
+      yield* Console.error(`❌ ${config.failure.message}`)
       return undefined
     }
-    yield* Console.log(result.success.report)
-    return path.dirname(path.resolve(process.cwd(), result.success.config.input))
+    const report = yield* Effect.result(runJobs(config.success))
+    if (Result.isSuccess(report)) {
+      yield* Console.log(report.success)
+    } else {
+      yield* Console.error(`❌ ${report.failure.message}`)
+    }
+    const fs = yield* FileSystem.FileSystem
+    const inputDirectory = path.dirname(path.resolve(process.cwd(), config.success.input))
+    const watchable = yield* fs
+      .exists(inputDirectory)
+      .pipe(Effect.catchTag('PlatformError', () => Effect.succeed(false)))
+    return watchable ? inputDirectory : undefined
   })
 }
 
