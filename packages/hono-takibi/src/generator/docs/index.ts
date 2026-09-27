@@ -63,9 +63,26 @@ const MAX_REF_HOPS = 10
 
 const MAX_EXAMPLE_ITEMS = 10
 
+/**
+ * How many `$ref`s one table or one example may expand in total.
+ */
+const MAX_REF_EXPANSIONS = 1000
+
+/**
+ * How many times one table or one example expands the same recursive schema.
+ * Cycle detection works per path, so schemas that reference each other would
+ * otherwise be expanded once per path through them, which grows factorially.
+ * Past the limit the schema is still named and linked, just not expanded.
+ */
+const MAX_EXPANSIONS_PER_RECURSIVE_REF = 2
+
+type Budget = { readonly take: (ref: string) => boolean }
+
 const FORM_URLENCODED = 'application/x-www-form-urlencoded'
 
 const MULTIPART = 'multipart/form-data'
+
+const MULTIPART_BOUNDARY = 'boundary'
 
 const SLUG_STRIP = /[^\p{L}\p{N}\p{M}　-鿿＀-￯ -]/gu
 
@@ -163,8 +180,22 @@ function componentSchemaName(ref: string) {
   return root === 'components' && section === 'schemas' && name ? name : undefined
 }
 
-function schemaLink(name: string) {
-  return `[${name}](#schema${name.toLowerCase()})`
+/**
+ * Lower-cased anchor suffix of a schema. Names that differ only in case would
+ * share it, so every one after the first gets a numeric suffix.
+ */
+function schemaAnchor(name: string, doc: OpenAPI) {
+  const lower = name.toLowerCase()
+  const schemas: unknown = doc.components?.schemas
+  const twins = isRecord(schemas)
+    ? Object.keys(schemas).filter((key) => key.toLowerCase() === lower)
+    : []
+  const index = twins.indexOf(name)
+  return index > 0 ? `${lower}-${index}` : lower
+}
+
+function schemaLink(name: string, doc: OpenAPI) {
+  return `[${name}](#schema${schemaAnchor(name, doc)})`
 }
 
 function isJsonMediaType(mediaType: string) {
@@ -270,6 +301,57 @@ function derefSchema(
   return derefSchema(resolved, doc, withRef(visited, schema.$ref))
 }
 
+function collectRefs(node: unknown, found: Set<string> = new Set<string>()): ReadonlySet<string> {
+  if (Array.isArray(node)) {
+    for (const item of node) collectRefs(item, found)
+  } else if (isRecord(node)) {
+    if (typeof node.$ref === 'string') found.add(node.$ref)
+    for (const value of Object.values(node)) collectRefs(value, found)
+  }
+  return found
+}
+
+/**
+ * Whether the schema a `$ref` names can reach itself again through `$ref`s.
+ */
+function isRecursiveRef(ref: string, doc: OpenAPI) {
+  const seen = new Set<string>()
+  const reaches = (current: string): boolean => {
+    if (seen.has(current)) return false
+    seen.add(current)
+    return [...collectRefs(resolveRef(current, doc))].some((next) => next === ref || reaches(next))
+  }
+  return reaches(ref)
+}
+
+function makeBudget(doc: OpenAPI): Budget {
+  const counts = new Map<string, number>()
+  const recursive = new Map<string, boolean>()
+  const state = { left: MAX_REF_EXPANSIONS }
+  return {
+    take: (ref) => {
+      const count = counts.get(ref) ?? 0
+      const isRecursive = recursive.get(ref) ?? isRecursiveRef(ref, doc)
+      recursive.set(ref, isRecursive)
+      if (state.left <= 0) return false
+      if (isRecursive && count >= MAX_EXPANSIONS_PER_RECURSIVE_REF) return false
+      state.left -= 1
+      counts.set(ref, count + 1)
+      return true
+    },
+  }
+}
+
+/**
+ * `derefSchema` for a schema that is about to be expanded: following a `$ref`
+ * spends the budget, and a reference past the budget is left unexpanded.
+ */
+function expandSchema(schema: Schema, doc: OpenAPI, visited: ReadonlySet<string>, budget: Budget) {
+  if (!schema.$ref) return derefSchema(schema, doc, visited)
+  if (visited.has(schema.$ref) || !budget.take(schema.$ref)) return undefined
+  return derefSchema(schema, doc, visited)
+}
+
 function primaryType(schema: Schema) {
   return Array.isArray(schema.type) ? schema.type.find((t) => t !== 'null') : schema.type
 }
@@ -348,7 +430,7 @@ function formatSchemaType(
   if (!isSchemaLike(schema) || depth > MAX_SCHEMA_DEPTH) return 'object'
   if (schema.$ref) {
     const name = componentSchemaName(schema.$ref)
-    if (name) return schemaLink(name)
+    if (name) return schemaLink(name, doc)
     // A reference outside `components.schemas` has no anchor: describe its target.
     const target = derefSchema(schema, doc, visited)
     return target ? formatSchemaType(target.schema, doc, target.visited, depth + 1) : 'object'
@@ -508,6 +590,7 @@ function makeExampleFromSchema(
   direction: Direction = 'schema',
   visited: ReadonlySet<string> = new Set<string>(),
   depth = 0,
+  budget: Budget = makeBudget(doc),
 ): unknown {
   if (depth > MAX_SCHEMA_DEPTH) return {}
   if (!isSchemaLike(schema)) return null
@@ -515,9 +598,9 @@ function makeExampleFromSchema(
   if (schema.example !== undefined) return schema.example
 
   if (schema.$ref) {
-    const target = derefSchema(schema, doc, visited)
+    const target = expandSchema(schema, doc, visited, budget)
     if (!target) return {}
-    return makeExampleFromSchema(target.schema, doc, direction, target.visited, depth + 1)
+    return makeExampleFromSchema(target.schema, doc, direction, target.visited, depth + 1, budget)
   }
 
   const listed = firstExampleValue(schema.examples, doc)
@@ -540,15 +623,15 @@ function makeExampleFromSchema(
     const result: { [k: string]: unknown } = {}
     const parts = [...(schema.allOf ?? []), ...(variant ? [variant.schema] : [])]
     for (const part of parts) {
-      const example = makeExampleFromSchema(part, doc, direction, visited, depth + 1)
+      const example = makeExampleFromSchema(part, doc, direction, visited, depth + 1, budget)
       if (isRecord(example)) Object.assign(result, example)
     }
     for (const [key, propSchema] of Object.entries(schema.properties ?? {})) {
       if (isHiddenProperty(propSchema, doc, direction, visited)) continue
-      result[key] = makeExampleFromSchema(propSchema, doc, direction, visited, depth + 1)
+      result[key] = makeExampleFromSchema(propSchema, doc, direction, visited, depth + 1, budget)
     }
     if (isSchemaLike(extra)) {
-      const value = makeExampleFromSchema(extra, doc, direction, visited, depth + 1)
+      const value = makeExampleFromSchema(extra, doc, direction, visited, depth + 1, budget)
       result.property1 = value
       result.property2 = value
     }
@@ -559,16 +642,18 @@ function makeExampleFromSchema(
     if (schema.maxItems === 0) return []
     const item = arrayItemSchema(schema)
     if (item) {
-      const value = makeExampleFromSchema(item, doc, direction, visited, depth + 1)
+      const value = makeExampleFromSchema(item, doc, direction, visited, depth + 1, budget)
       const count = Math.min(Math.max(schema.minItems ?? 1, 1), MAX_EXAMPLE_ITEMS)
       return Array.from({ length: count }, () => value)
     }
     return (schema.prefixItems ?? []).map((entry) =>
-      makeExampleFromSchema(entry, doc, direction, visited, depth + 1),
+      makeExampleFromSchema(entry, doc, direction, visited, depth + 1, budget),
     )
   }
 
-  if (variant) return makeExampleFromSchema(variant.schema, doc, direction, visited, depth + 1)
+  if (variant) {
+    return makeExampleFromSchema(variant.schema, doc, direction, visited, depth + 1, budget)
+  }
 
   return makeDefaultValue(schema)
 }
@@ -729,6 +814,19 @@ function shellQuoteWithVars(value: string) {
     .replaceAll(/[\\"`]/gu, (c) => `\\${c}`)
     .replaceAll(/\$(?!\{[A-Z_]+\})/gu, '\\$')
   return `"${escaped}"`
+}
+
+/**
+ * ANSI-C quoting (`$'...'`), the one shell string that can carry the CRLF a
+ * multipart body is framed with.
+ */
+function shellQuoteAnsi(value: string) {
+  const escaped = value
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")
+    .replaceAll('\r', '\\r')
+    .replaceAll('\n', '\\n')
+  return `$'${escaped}'`
 }
 
 function shellArg(value: string, quoteBraces: boolean) {
@@ -918,14 +1016,25 @@ function makeSampleBodyArgs(
     return pairs.length > 0 ? [`-d ${shellQuote(pairs.join('&'))}`] : []
   }
   if (mediaType === MULTIPART) {
-    if (!(curl && isRecord(example))) return []
+    if (!isRecord(example)) return []
     const target = media.schema ? derefSchema(media.schema, doc, new Set<string>()) : undefined
     const properties = target?.schema.properties ?? {}
-    return Object.entries(example).map(([key, value]) =>
+    const entries = Object.entries(example)
+    if (curl) {
+      return entries.map(([key, value]) =>
+        isBinarySchema(properties[key], doc)
+          ? `-F ${shellQuote(`${key}=@/path/to/file`)}`
+          : `-F ${shellQuote(`${key}=${toParamString(value)}`)}`,
+      )
+    }
+    if (entries.length === 0) return []
+    // `hono request` sends `-d` as is, so the parts are framed by hand.
+    const parts = entries.map(([key, value]) =>
       isBinarySchema(properties[key], doc)
-        ? `-F ${shellQuote(`${key}=@/path/to/file`)}`
-        : `-F ${shellQuote(`${key}=${toParamString(value)}`)}`,
+        ? `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="${key}"; filename="${key}"\r\nContent-Type: application/octet-stream\r\n\r\nfile contents\r\n`
+        : `--${MULTIPART_BOUNDARY}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${toParamString(value)}\r\n`,
     )
+    return [`-d ${shellQuoteAnsi(`${parts.join('')}--${MULTIPART_BOUNDARY}--\r\n`)}`]
   }
   if (isBinarySchema(media.schema, doc) && extractMediaExample(media, doc) === undefined) {
     return curl ? [`--data-binary ${shellQuote('@/path/to/file')}`] : []
@@ -958,15 +1067,23 @@ function makeCodeSample(
   const curl = options.curl && options.baseUrl !== undefined
   const params = endpointParameters(endpoint, doc).filter((p) => p.required === true)
   const credentials = makeSampleCredentials(operation, doc)
-  const picked = getBodyMedia(operation, doc)
+  const method = endpoint.method.toUpperCase()
+  // `hono request` builds a `Request`, which refuses a body on GET and HEAD.
+  const picked =
+    !curl && (method === 'GET' || method === 'HEAD') ? undefined : getBodyMedia(operation, doc)
   const bodyArgs = makeSampleBodyArgs(picked, doc, curl)
+  const isMultipart = picked !== undefined && baseMediaType(picked.mediaType) === MULTIPART
 
   // curl writes the multipart boundary into the header itself; a hand-written
-  // `Content-Type: multipart/form-data` would drop it.
-  const contentType =
-    picked && !(curl && baseMediaType(picked.mediaType) === MULTIPART)
+  // `Content-Type: multipart/form-data` would drop it. `hono request` sends the
+  // header as given, so it names the boundary the body is framed with.
+  const contentType = !picked
+    ? undefined
+    : !isMultipart
       ? picked.mediaType
-      : undefined
+      : curl || bodyArgs.length === 0
+        ? undefined
+        : `${MULTIPART}; boundary=${MULTIPART_BOUNDARY}`
   const accept = acceptedMediaType(operation, doc)
   const cookies = [
     ...params
@@ -992,9 +1109,19 @@ function makeCodeSample(
       .flatMap((p) => serializeQueryParameter(p, makeParameterExample(p, doc))),
     ...credentials.query,
   ]
-  const fullPath = makeFullPath(options.basePath, endpoint.path)
+  const allParams = endpointParameters(endpoint, doc)
+  // A path parameter without a declaration or a value keeps its placeholder.
+  const samplePath = endpoint.path.replaceAll(
+    /\{([^{}]+)\}/gu,
+    (placeholder: string, name: string) => {
+      const parameter = allParams.find((p) => p.in === 'path' && p.name === name)
+      if (!parameter) return placeholder
+      const value = serializeHeaderValue(makeParameterExample(parameter, doc))
+      return value === '' ? placeholder : encodeURIComponent(value)
+    },
+  )
+  const fullPath = makeFullPath(options.basePath, samplePath)
   const target = query.length > 0 ? `${fullPath}?${query.join('&')}` : fullPath
-  const method = endpoint.method.toUpperCase()
 
   if (curl) {
     const baseUrl = (options.baseUrl ?? '').replace(/\/+$/u, '')
@@ -1135,9 +1262,10 @@ function flattenFields(
   visited: ReadonlySet<string> = new Set<string>(),
   depth = 0,
   inheritedRequired: readonly string[] = [],
+  budget: Budget = makeBudget(doc),
 ): readonly FieldRow[] {
   if (depth > MAX_SCHEMA_DEPTH || !isSchemaLike(schema)) return []
-  const target = derefSchema(schema, doc, visited)
+  const target = expandSchema(schema, doc, visited, budget)
   if (!target) return []
   const current = target.schema
   const seen = target.visited
@@ -1148,13 +1276,22 @@ function flattenFields(
 
   const nestedRows = (propSchema: Schema): readonly FieldRow[] => {
     if (!options.deep) return []
-    const prop = derefSchema(propSchema, doc, seen)
+    const prop = expandSchema(propSchema, doc, seen, budget)
     if (!prop) return []
     if (hasFields(prop.schema)) {
-      return flattenFields(prop.schema, doc, nestedPrefix, options, prop.visited, depth + 1)
+      return flattenFields(
+        prop.schema,
+        doc,
+        nestedPrefix,
+        options,
+        prop.visited,
+        depth + 1,
+        [],
+        budget,
+      )
     }
     const item = isArraySchema(prop.schema) ? arrayItemSchema(prop.schema) : undefined
-    const resolvedItem = item ? derefSchema(item, doc, prop.visited) : undefined
+    const resolvedItem = item ? expandSchema(item, doc, prop.visited, budget) : undefined
     if (resolvedItem && hasFields(resolvedItem.schema)) {
       return flattenFields(
         resolvedItem.schema,
@@ -1163,6 +1300,8 @@ function flattenFields(
         options,
         resolvedItem.visited,
         depth + 1,
+        [],
+        budget,
       )
     }
     return []
@@ -1184,7 +1323,7 @@ function flattenFields(
   }
 
   const inherited = (current.allOf ?? []).flatMap((part) =>
-    flattenFields(part, doc, prefix, options, seen, depth + 1, required),
+    flattenFields(part, doc, prefix, options, seen, depth + 1, required, budget),
   )
   const own = isObjectSchema(current)
     ? Object.entries(current.properties)
@@ -1207,7 +1346,7 @@ function flattenFields(
   // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each entry into its lines
   const variants = variantsOf(current).flatMap((variant) => [
     makeRow(`*${variant.keyword}*`, variant.schema, false),
-    ...flattenFields(variant.schema, doc, prefix, options, seen, depth + 1, required),
+    ...flattenFields(variant.schema, doc, prefix, options, seen, depth + 1, required, budget),
   ])
   const rows = [...inherited, ...own, ...extra, ...variants]
   if (rows.length > 0 || !options.deep || !isArraySchema(current)) return rows
@@ -1226,7 +1365,7 @@ function flattenFields(
         },
       ]
     : []
-  const resolvedItem = derefSchema(item, doc, seen)
+  const resolvedItem = expandSchema(item, doc, seen, budget)
   if (!(resolvedItem && hasFields(resolvedItem.schema))) return anonymous
   return [
     ...anonymous,
@@ -1237,6 +1376,8 @@ function flattenFields(
       { ...options, anonymous: false },
       resolvedItem.visited,
       depth + 1,
+      [],
+      budget,
     ),
   ]
 }
@@ -1374,7 +1515,7 @@ function makeResponsesTable(
   const rows = resolvedResponses(operation, doc).map(({ statusCode, response }) => {
     const schema = pickMedia(response.content, doc)?.media.schema
     const name = schema?.$ref ? componentSchemaName(schema.$ref) : undefined
-    const schemaStr = schema ? (name ? schemaLink(name) : 'Inline') : 'None'
+    const schemaStr = schema ? (name ? schemaLink(name, doc) : 'Inline') : 'None'
     const description = toText(response.description) ?? ''
     return `|${escapeCell(statusCode)}|${statusMeaning(statusCode)}|${escapeCell(description)}|${schemaStr}|`
   })
@@ -1521,7 +1662,7 @@ function makeSchemasSection(doc: OpenAPI): readonly string[] {
     // oxlint-disable-next-line oxc/no-map-spread -- flatMap fans out each entry into its lines
     ...Object.entries(schemas).flatMap(([name, value]) => {
       const schema = isSchemaLike(value) ? value : {}
-      const nameLower = name.toLowerCase()
+      const nameLower = schemaAnchor(name, doc)
       const safeName = escapeHtml(name)
       const description = toText(derefSchema(schema, doc, new Set<string>())?.schema.description)
       const fields = flattenFields(schema, doc, '', {

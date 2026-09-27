@@ -594,7 +594,7 @@ const noResponseGetOpenAPI = {
 } as OpenAPI
 
 // ---------------------------------------------------------------------------
-// Expected: curl GET /tasks/{taskId} (path parameter URL quoting)
+// Expected: curl GET /tasks/{taskId} (path parameter filled with an example value)
 // ---------------------------------------------------------------------------
 
 const expectedCurlGetPathParam = `<h1 id="test-api">Test API v1.0.0</h1>
@@ -610,7 +610,7 @@ const expectedCurlGetPathParam = `<h1 id="test-api">Test API v1.0.0</h1>
 > Code samples
 
 \`\`\`bash
-curl 'http://localhost:5173/tasks/{taskId}' \\
+curl http://localhost:5173/tasks/string \\
   -H 'Accept: application/json'
 \`\`\`
 
@@ -670,7 +670,7 @@ const expectedCurlPutPathParam = `<h1 id="test-api">Test API v1.0.0</h1>
 > Code samples
 
 \`\`\`bash
-curl 'http://localhost:5173/tasks/{taskId}' \\
+curl http://localhost:5173/tasks/string \\
   -X PUT \\
   -H 'Content-Type: application/json' \\
   -H 'Accept: application/json' \\
@@ -935,7 +935,7 @@ describe('makeDocs', () => {
     })
 
     describe('GET omits -X GET', () => {
-      it('generates curl GET with path parameter (quoted URL, no -X GET)', () => {
+      it('generates curl GET with the path parameter filled in and no -X GET', () => {
         expect(
           makeDocs(pathParamGetOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173'),
         ).toBe(expectedCurlGetPathParam)
@@ -943,7 +943,7 @@ describe('makeDocs', () => {
     })
 
     describe('PUT with path parameter and body', () => {
-      it('generates curl PUT with quoted URL and indented -d body', () => {
+      it('generates curl PUT with the path parameter filled in and indented -d body', () => {
         expect(makeDocs(putOpenAPI, 'src/index.ts', '/', true, 'http://localhost:5173')).toBe(
           expectedCurlPutPathParam,
         )
@@ -1021,7 +1021,7 @@ describe('makeDocs', () => {
 \`\`\`bash
 hono request \\
   -X GET \\
-  -P /users/{id} \\
+  -P /users/0 \\
   -H 'Accept: application/json' \\
   src/index.ts
 \`\`\`
@@ -3260,7 +3260,7 @@ This operation does not require authentication
 \`\`\`bash
 hono request \\
   -X GET \\
-  -P /users/{id} \\
+  -P /users/0 \\
   src/index.ts
 \`\`\`
 
@@ -4643,7 +4643,7 @@ A kitchen sink API.
 \`\`\`bash
 hono request \\
   -X PATCH \\
-  -P /x/{id} \\
+  -P /x/0 \\
   -H 'Content-Type: application/json' \\
   -H 'Accept: application/json' \\
   -d '{
@@ -5287,7 +5287,7 @@ This operation does not require authentication
 \`\`\`bash
 hono request \\
   -X GET \\
-  -P /posts/{id} \\
+  -P /posts/string \\
   -H 'Accept: application/json' \\
   src/index.ts
 \`\`\`
@@ -5556,7 +5556,7 @@ This operation does not require authentication
 \`\`\`bash
 hono request \\
   -X POST \\
-  -P /items/{kind} \\
+  -P /items/a \\
   -H 'Content-Type: application/json' \\
   -d '{
     "sort": "asc",
@@ -7601,11 +7601,11 @@ This operation does not require authentication
     expect(makeDocs(spec, 'src/index.ts', '/', true, 'http://localhost:3000')).toBe(expected)
   })
 
-  // `hono request` has no option for form parts, so the sample carries the header
-  // only. The body is still documented as YAML and in the parameters table.
-  // `hono request` にはフォームパートのオプションがないため、サンプルはヘッダーだけを持つ。
-  // ボディは YAML とパラメータ表として出力される。
-  it('documents a multipart body for hono request', () => {
+  // `hono request` sends `-d` as is and has no option for form parts. The parts are
+  // written out with CRLF inside `$'...'`, and the header names their boundary.
+  // `hono request` は `-d` をそのまま送り、フォームパート用のオプションを持たない。
+  // 各パートは `$'...'` の中に CRLF 付きで書き出され、ヘッダーがその boundary を示す。
+  it('frames a multipart body by hand for hono request', () => {
     const spec = {
       openapi: '3.1.0',
       info: {
@@ -7661,7 +7661,8 @@ This operation does not require authentication
 hono request \\
   -X POST \\
   -P /upload \\
-  -H 'Content-Type: multipart/form-data' \\
+  -H 'Content-Type: multipart/form-data; boundary=boundary' \\
+  -d $'--boundary\\r\\nContent-Disposition: form-data; name="title"\\r\\n\\r\\nstring\\r\\n--boundary\\r\\nContent-Disposition: form-data; name="file"; filename="file"\\r\\nContent-Type: application/octet-stream\\r\\n\\r\\nfile contents\\r\\n--boundary--\\r\\n' \\
   src/index.ts
 \`\`\`
 
@@ -8030,7 +8031,7 @@ This operation does not require authentication
 \`\`\`bash
 hono request \\
   -X POST \\
-  -P /old/{id} \\
+  -P /old/string \\
   -H 'Content-Type: application/json' \\
   -d '{
     "legacy": "string"
@@ -9937,5 +9938,836 @@ This operation does not require authentication
 </aside>
 `
     expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // `id` and `slug` take their example, percent-encoded. `other` is not declared,
+  // so its placeholder stays and the url is quoted: curl reads `{}` as a glob.
+  // `id` と `slug` は例の値をパーセントエンコードして使う。`other` は宣言されていないので
+  // プレースホルダーのまま残り、URL はクォートされる。curl は `{}` をグロブとして読むためである。
+  it('fills path parameters of the code sample with example values', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'PathParams',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users/{id}/posts/{slug}/{other}': {
+          get: {
+            operationId: 'getPost',
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: {
+                  type: 'integer',
+                },
+                example: 42,
+              },
+              {
+                name: 'slug',
+                in: 'path',
+                required: true,
+                schema: {
+                  type: 'string',
+                },
+                example: 'a b/c',
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="pathparams">PathParams v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="pathparams-default">Default</h1>
+
+## getPost
+
+<a id="opIdgetPost"></a>
+
+> Code samples
+
+\`\`\`bash
+curl 'http://localhost:3000/users/42/posts/a%20b%2Fc/{other}'
+\`\`\`
+
+\`GET /users/{id}/posts/{slug}/{other}\`
+
+<h3 id="getpost-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|id|path|integer|true|none|
+|slug|path|string|true|none|
+
+<h3 id="getpost-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+    expect(makeDocs(spec, 'src/index.ts', '/', true, 'http://localhost:3000')).toBe(expected)
+  })
+
+  // `hono request` builds a `Request`, which throws when a GET carries a body. The
+  // body is still documented below the sample.
+  // `hono request` は `Request` を組み立てるが、GET にボディがあると例外になる。
+  // ボディはサンプルの下に引き続き出力される。
+  it('leaves the body out of a GET sample for hono request', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'GetBody',
+        version: '1.0.0',
+      },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      q: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="getbody">GetBody v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="getbody-default">Default</h1>
+
+## search
+
+<a id="opIdsearch"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /search \\
+  src/index.ts
+\`\`\`
+
+\`GET /search\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "q": "string"
+}
+\`\`\`
+
+<h3 id="search-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» q|body|string|false|none|
+
+<h3 id="search-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+    expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // curl sends a body with any method, so nothing is dropped.
+  // curl はどのメソッドでもボディを送れるので、何も省かない。
+  it('keeps the body of a GET sample for curl', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'GetBody',
+        version: '1.0.0',
+      },
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      q: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="getbody">GetBody v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="getbody-default">Default</h1>
+
+## search
+
+<a id="opIdsearch"></a>
+
+> Code samples
+
+\`\`\`bash
+curl http://localhost:3000/search \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "q": "string"
+  }'
+\`\`\`
+
+\`GET /search\`
+
+> Body parameter
+
+\`\`\`json
+{
+  "q": "string"
+}
+\`\`\`
+
+<h3 id="search-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» q|body|string|false|none|
+
+<h3 id="search-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+    expect(makeDocs(spec, 'src/index.ts', '/', true, 'http://localhost:3000')).toBe(expected)
+  })
+
+  // `User` keeps `#schemauser` and `user` gets `#schemauser-1`. Every link follows
+  // the schema it names.
+  // `User` は `#schemauser` のまま、`user` は `#schemauser-1` になる。各リンクは
+  // 自分が指すスキーマのアンカーを使う。
+  it('gives schemas whose names differ only in case distinct anchors', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'SchemaCase',
+        version: '1.0.0',
+      },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/user',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+          user: {
+            type: 'object',
+            properties: {
+              owner: {
+                $ref: '#/components/schemas/User',
+              },
+              self: {
+                $ref: '#/components/schemas/user',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="schemacase">SchemaCase v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="schemacase-default">Default</h1>
+
+## getX
+
+<a id="opIdgetX"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "owner": {
+    "name": "string"
+  },
+  "self": {}
+}
+\`\`\`
+
+<h3 id="getx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|[user](#schemauser-1)|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_User">User</h2>
+<!-- backwards compatibility -->
+<a id="schemauser"></a>
+<a id="schema_User"></a>
+<a id="tocSuser"></a>
+<a id="tocsuser"></a>
+
+\`\`\`json
+{
+  "name": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|false|none|none|
+
+<h2 id="tocS_user">user</h2>
+<!-- backwards compatibility -->
+<a id="schemauser-1"></a>
+<a id="schema_user"></a>
+<a id="tocSuser-1"></a>
+<a id="tocsuser-1"></a>
+
+\`\`\`json
+{
+  "owner": {
+    "name": "string"
+  },
+  "self": {
+    "owner": {
+      "name": "string"
+    },
+    "self": {}
+  }
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|owner|[User](#schemauser)|false|none|none|
+|self|[user](#schemauser-1)|false|none|none|
+`
+    expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // Both would otherwise end the string or start an escape sequence.
+  // どちらも、そのままでは文字列を終わらせたりエスケープシーケンスを始めたりしてしまう。
+  it("escapes a quote and a backslash inside the $'...' body", () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'MultipartQuote',
+        version: '1.0.0',
+      },
+      paths: {
+        '/notes': {
+          post: {
+            operationId: 'createNote',
+            requestBody: {
+              content: {
+                'multipart/form-data': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      text: {
+                        type: 'string',
+                        example: "it's a \\ note",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="multipartquote">MultipartQuote v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="multipartquote-default">Default</h1>
+
+## createNote
+
+<a id="opIdcreateNote"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X POST \\
+  -P /notes \\
+  -H 'Content-Type: multipart/form-data; boundary=boundary' \\
+  -d $'--boundary\\r\\nContent-Disposition: form-data; name="text"\\r\\n\\r\\nit\\'s a \\\\ note\\r\\n--boundary--\\r\\n' \\
+  src/index.ts
+\`\`\`
+
+\`POST /notes\`
+
+> Body parameter
+
+\`\`\`yaml
+text: "it's a \\\\ note"
+\`\`\`
+
+<h3 id="createnote-parameters">Parameters</h3>
+
+|Name|In|Type|Required|Description|
+|---|---|---|---|---|
+|body|body|object|false|none|
+|» text|body|string|false|none|
+
+<h3 id="createnote-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|None|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+`
+    expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // `User` references nothing, so it cannot multiply the output however often it
+  // is used. All four properties are expanded.
+  // `User` は何も参照しないので、何度使われても出力を膨れ上がらせることはない。
+  // 4 つのプロパティすべてが展開される。
+  it('expands a schema that is not recursive for every property that uses it', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'ManySiblings',
+        version: '1.0.0',
+      },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        a: {
+                          $ref: '#/components/schemas/User',
+                        },
+                        b: {
+                          $ref: '#/components/schemas/User',
+                        },
+                        c: {
+                          $ref: '#/components/schemas/User',
+                        },
+                        d: {
+                          $ref: '#/components/schemas/User',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {
+              name: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="manysiblings">ManySiblings v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="manysiblings-default">Default</h1>
+
+## getX
+
+<a id="opIdgetX"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "a": {
+    "name": "string"
+  },
+  "b": {
+    "name": "string"
+  },
+  "c": {
+    "name": "string"
+  },
+  "d": {
+    "name": "string"
+  }
+}
+\`\`\`
+
+<h3 id="getx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="getx-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|a|[User](#schemauser)|false|none|none|
+|» name|string|false|none|none|
+|b|[User](#schemauser)|false|none|none|
+|» name|string|false|none|none|
+|c|[User](#schemauser)|false|none|none|
+|» name|string|false|none|none|
+|d|[User](#schemauser)|false|none|none|
+|» name|string|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_User">User</h2>
+<!-- backwards compatibility -->
+<a id="schemauser"></a>
+<a id="schema_User"></a>
+<a id="tocSuser"></a>
+<a id="tocsuser"></a>
+
+\`\`\`json
+{
+  "name": "string"
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|name|string|false|none|none|
+`
+    expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // `Node` references itself. Expansion of such a schema is limited so that schemas
+  // referencing each other cannot multiply the output. `c` is still named and
+  // linked; its fields are under Schemas.
+  // `Node` は自分自身を参照する。相互に参照するスキーマが出力を膨れ上がらせないよう、
+  // このようなスキーマの展開回数は制限される。`c` は名前とリンクが残り、
+  // フィールドは Schemas にある。
+  it('expands a recursive schema at most twice per table and example', () => {
+    const spec = {
+      openapi: '3.1.0',
+      info: {
+        title: 'RefLimit',
+        version: '1.0.0',
+      },
+      paths: {
+        '/x': {
+          get: {
+            operationId: 'getX',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        a: {
+                          $ref: '#/components/schemas/Node',
+                        },
+                        b: {
+                          $ref: '#/components/schemas/Node',
+                        },
+                        c: {
+                          $ref: '#/components/schemas/Node',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Node: {
+            type: 'object',
+            properties: {
+              value: {
+                type: 'string',
+              },
+              next: {
+                $ref: '#/components/schemas/Node',
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPI
+    const expected = `<h1 id="reflimit">RefLimit v1.0.0</h1>
+
+> Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
+
+<h1 id="reflimit-default">Default</h1>
+
+## getX
+
+<a id="opIdgetX"></a>
+
+> Code samples
+
+\`\`\`bash
+hono request \\
+  -X GET \\
+  -P /x \\
+  -H 'Accept: application/json' \\
+  src/index.ts
+\`\`\`
+
+\`GET /x\`
+
+> Example responses
+
+> 200 Response
+
+\`\`\`json
+{
+  "a": {
+    "value": "string",
+    "next": {}
+  },
+  "b": {
+    "value": "string",
+    "next": {}
+  },
+  "c": {}
+}
+\`\`\`
+
+<h3 id="getx-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|OK|OK|Inline|
+
+<h3 id="getx-responseschema">Response Schema</h3>
+
+Status Code **200**
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|a|[Node](#schemanode)|false|none|none|
+|» value|string|false|none|none|
+|» next|[Node](#schemanode)|false|none|none|
+|b|[Node](#schemanode)|false|none|none|
+|» value|string|false|none|none|
+|» next|[Node](#schemanode)|false|none|none|
+|c|[Node](#schemanode)|false|none|none|
+
+<aside class="success">
+This operation does not require authentication
+</aside>
+
+# Schemas
+
+<h2 id="tocS_Node">Node</h2>
+<!-- backwards compatibility -->
+<a id="schemanode"></a>
+<a id="schema_Node"></a>
+<a id="tocSnode"></a>
+<a id="tocsnode"></a>
+
+\`\`\`json
+{
+  "value": "string",
+  "next": {
+    "value": "string",
+    "next": {}
+  }
+}
+\`\`\`
+
+### Properties
+
+|Name|Type|Required|Restrictions|Description|
+|---|---|---|---|---|
+|value|string|false|none|none|
+|next|[Node](#schemanode)|false|none|none|
+`
+    expect(makeDocs(spec)).toBe(expected)
+  })
+
+  // Eight schemas that all reference each other have 8! paths through them. The
+  // output has to grow with the number of schemas, not with the number of paths.
+  // 互いに参照し合う 8 個のスキーマには 8! 通りの経路がある。出力はスキーマの数に
+  // 応じて増えるべきで、経路の数に応じて増えてはならない。
+  it('stays small when every schema references every other schema', () => {
+    const names = ['S0', 'S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7']
+    const schemas = Object.fromEntries(
+      names.map((name) => [
+        name,
+        {
+          type: 'object',
+          properties: Object.fromEntries(
+            names
+              .filter((other) => other !== name)
+              .map((other) => [other.toLowerCase(), { $ref: `#/components/schemas/${other}` }]),
+          ),
+        },
+      ]),
+    )
+    const spec = {
+      openapi: '3.1.0',
+      info: { title: 'Dense', version: '1.0.0' },
+      paths: {
+        '/x': {
+          post: {
+            operationId: 'postX',
+            requestBody: {
+              content: { 'application/json': { schema: { $ref: '#/components/schemas/S0' } } },
+            },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+      components: { schemas },
+    } as OpenAPI
+    expect(makeDocs(spec).split('\n').length).toBeLessThan(3000)
   })
 })
