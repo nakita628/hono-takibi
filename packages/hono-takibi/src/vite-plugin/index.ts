@@ -49,8 +49,8 @@ async function readConfigurationWithHotReload(server: ViteDevServer) {
     if (!(typeof defaultExport === 'object' && defaultExport !== null)) {
       return Result.fail('Config must export default object')
     }
-    const parsed = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
-    return Result.mapError(parsed, (error) => error.message)
+    const result = await Effect.runPromise(Effect.result(parseConfig(defaultExport)))
+    return Result.mapError(result, (error) => error.message)
   } catch (error) {
     return Result.fail(error instanceof Error ? error.message : String(error))
   }
