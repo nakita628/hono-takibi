@@ -95,14 +95,41 @@ function runConfigPass(configPath: string, reload: boolean) {
 }
 
 /**
- * Runs one pass and answers the directory the config keeps its documents in.
+ * What a watch session has to keep an eye on for the documents.
+ *
+ * `outside` names the files the document reads from that do not sit under
+ * `inputDirectory` — a `$ref` or an `import` can point anywhere on disk.
+ */
+type WatchTarget = {
+  readonly inputDirectory: string
+  readonly outside: readonly string[]
+}
+
+function isSameTarget(left: WatchTarget | undefined, right: WatchTarget | undefined) {
+  return (
+    left?.inputDirectory === right?.inputDirectory &&
+    left?.outside.join('\n') === right?.outside.join('\n')
+  )
+}
+
+/**
+ * Runs one pass and answers what to watch for the documents.
+ *
+ * Two separate things happen to the document here. `runJobs` generates from it, reading
+ * it the way every other mode does. `outsideSources` then only asks which files it was
+ * read from, so that an edit to any of them brings the session back to this function;
+ * what it answers never reaches a generator.
  *
  * The directory comes from the config alone, so a pass that fails after the config was
  * read — a document that does not parse, say — still names it. Otherwise the very edit
- * that fixes the document would never be seen. It is `undefined` only when the config
- * itself could not be read.
+ * that fixes the document would never be seen. The answer is `undefined` only when the
+ * config itself could not be read.
+ *
+ * The files outside the directory come from the document, and a broken document cannot
+ * list them. `previous` is what stands in then: the fix may well belong in one of the
+ * files the last readable version pointed at.
  */
-function reportConfigPass(configPath: string, reload: boolean) {
+function reportConfigPass(configPath: string, reload: boolean, previous: WatchTarget | undefined) {
   return Effect.gen(function* () {
     const config = yield* Effect.result(loadConfig(configPath, reload))
     if (Result.isFailure(config)) {
@@ -115,7 +142,15 @@ function reportConfigPass(configPath: string, reload: boolean) {
     } else {
       yield* Console.error(`❌ ${report.failure.message}`)
     }
-    return path.dirname(path.resolve(process.cwd(), config.success.input))
+    const { outsideSources } = yield* Effect.promise(() => import('../shared/index.js'))
+    const inputDirectory = path.dirname(path.resolve(process.cwd(), config.success.input))
+    const outside = yield* outsideSources(config.success.input).pipe(
+      Effect.orElseSucceed(() =>
+        previous?.inputDirectory === inputDirectory ? previous.outside : [],
+      ),
+    )
+    const target: WatchTarget = { inputDirectory, outside }
+    return target
   })
 }
 
@@ -138,46 +173,71 @@ function nearestExisting(directory: string): Effect.Effect<string, never, FileSy
  */
 function watchPass(
   configPath: string,
-  inputDirectory: string | undefined,
+  target: WatchTarget | undefined,
   watched: string | undefined,
-  nextDirectory: Ref.Ref<string | undefined>,
+  nextTarget: Ref.Ref<WatchTarget | undefined>,
 ) {
   return Effect.gen(function* () {
-    const directory = (yield* reportConfigPass(configPath, true)) ?? inputDirectory
-    yield* Ref.set(nextDirectory, directory)
-    if (directory !== inputDirectory) return false
-    return directory === undefined || (yield* nearestExisting(directory)) === watched
+    const next = (yield* reportConfigPass(configPath, true, target)) ?? target
+    yield* Ref.set(nextTarget, next)
+    if (!isSameTarget(next, target)) return false
+    return next === undefined || (yield* nearestExisting(next.inputDirectory)) === watched
   })
 }
 
 /**
- * Watches until what has to be watched changes, and answers the next input directory.
+ * The edits to the files a document reads from outside its own directory.
  *
- * `watched` is where the watcher actually sits. It is `inputDirectory` while that
- * exists; once it is removed — or before it is created — it is the closest directory
- * above, and the only event that matters there is the missing path coming into being.
- * A watcher left on a removed directory reports nothing, even after the directory is
- * back, so the round ends whenever `watched` stops being the right place.
+ * Each one is watched through the directory it sits in, which is how an editor's
+ * write-then-rename save is still seen. A directory that is not there is skipped rather
+ * than failed on: the pass that follows reports the missing file in its own words.
+ */
+function outsideEvents(outside: readonly string[]) {
+  return Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem
+    const directories = [...new Set(outside.map((file) => path.dirname(file)))]
+    const present = yield* Effect.all(
+      directories.map((directory) => fs.exists(directory).pipe(Effect.orElseSucceed(() => false))),
+      { concurrency: 'unbounded' },
+    )
+    return directories
+      .filter((_, index) => present[index])
+      .map((directory) =>
+        fs
+          .watch(directory)
+          .pipe(Stream.filter((event) => outside.includes(path.join(directory, event.path)))),
+      )
+  })
+}
+
+/**
+ * Watches until what has to be watched changes, and answers the next target.
+ *
+ * `watched` is where the watcher for the input directory actually sits. It is that
+ * directory while it exists; once it is removed — or before it is created — it is the
+ * closest directory above, and the only event that matters there is the missing path
+ * coming into being. A watcher left on a removed directory reports nothing, even after
+ * the directory is back, so the round ends whenever `watched` stops being the right place.
  */
 function watchRound(
   configPath: string,
-  inputDirectory: string | undefined,
+  target: WatchTarget | undefined,
   watched: string | undefined,
 ) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const configFile = path.basename(configPath)
-    const nextDirectory = yield* Ref.make<string | undefined>(inputDirectory)
+    const nextTarget = yield* Ref.make(target)
     const configEvents = fs
       .watch(path.dirname(configPath))
       .pipe(Stream.filter((event) => event.path === configFile))
-    const events =
-      inputDirectory === undefined || watched === undefined
-        ? configEvents
-        : Stream.merge(
-            watched === inputDirectory
+    const inputEvents =
+      target === undefined || watched === undefined
+        ? []
+        : [
+            watched === target.inputDirectory
               ? fs
-                  .watch(inputDirectory, { recursive: true })
+                  .watch(target.inputDirectory, { recursive: true })
                   .pipe(
                     Stream.filter((event) =>
                       INPUT_EXTENSIONS.some((extension) => event.path.endsWith(extension)),
@@ -188,34 +248,39 @@ function watchRound(
                   .pipe(
                     Stream.filter(
                       (event) =>
-                        event.path === path.relative(watched, inputDirectory).split(path.sep)[0],
+                        event.path ===
+                        path.relative(watched, target.inputDirectory).split(path.sep)[0],
                     ),
                   ),
-            configEvents,
-          )
-    yield* events.pipe(
+          ]
+    yield* Stream.mergeAll(
+      [configEvents, ...inputEvents, ...(yield* outsideEvents(target?.outside ?? []))],
+      { concurrency: 'unbounded' },
+    ).pipe(
       Stream.debounce('200 millis'),
-      Stream.runForEachWhile(() => watchPass(configPath, inputDirectory, watched, nextDirectory)),
+      Stream.runForEachWhile(() => watchPass(configPath, target, watched, nextTarget)),
     )
-    return yield* Ref.get(nextDirectory)
+    return yield* Ref.get(nextTarget)
   })
 }
 
 function watchConfig(
   configPath: string,
-  inputDirectory: string | undefined,
+  target: WatchTarget | undefined,
 ): Effect.Effect<void, PlatformError.PlatformError, FileSystem.FileSystem> {
   return Effect.gen(function* () {
-    const watched =
-      inputDirectory === undefined ? undefined : yield* nearestExisting(inputDirectory)
+    const watched = target === undefined ? undefined : yield* nearestExisting(target.inputDirectory)
+    const documents = [target?.inputDirectory, ...(target?.outside ?? [])]
+      .filter((entry) => entry !== undefined)
+      .join(', ')
     yield* Console.log(
-      inputDirectory === undefined
+      target === undefined
         ? `\n👀 Watching ${configPath} — Ctrl-C to stop`
-        : watched === inputDirectory
-          ? `\n👀 Watching ${inputDirectory} and ${configPath} — Ctrl-C to stop`
-          : `\n👀 Watching ${configPath}, waiting for ${inputDirectory} — Ctrl-C to stop`,
+        : watched === target.inputDirectory
+          ? `\n👀 Watching ${documents} and ${configPath} — Ctrl-C to stop`
+          : `\n👀 Watching ${configPath}, waiting for ${target.inputDirectory} — Ctrl-C to stop`,
     )
-    return yield* watchConfig(configPath, yield* watchRound(configPath, inputDirectory, watched))
+    return yield* watchConfig(configPath, yield* watchRound(configPath, target, watched))
   })
 }
 
@@ -251,7 +316,10 @@ function generate(args: Command.Command.Config.Infer<typeof commandLine>) {
     }
     const resolvedConfig = configPath ?? DEFAULT_CONFIG_FILE
     if (args.watch) {
-      return yield* watchConfig(resolvedConfig, yield* reportConfigPass(resolvedConfig, false))
+      return yield* watchConfig(
+        resolvedConfig,
+        yield* reportConfigPass(resolvedConfig, false, undefined),
+      )
     }
     const first = yield* runConfigPass(resolvedConfig, false).pipe(
       Effect.mapError((error) =>

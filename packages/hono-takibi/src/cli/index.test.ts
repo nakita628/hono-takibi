@@ -1251,6 +1251,63 @@ describe('hono-takibi --watch', { timeout: 300_000 }, () => {
     }
   })
 
+  // A `$ref` can point at a file anywhere on disk, so the directory the document sits in
+  // does not cover every edit that changes the output.
+  // `$ref` はディスク上のどこにあるファイルでも指せるため、ドキュメントのある
+  // ディレクトリだけでは、出力を変える編集をすべて拾えない。
+  it('reruns when a file referenced from outside the input directory changes', async () => {
+    const dir = useTmpDir('cli-watch-outside-ref-')
+    const shared = path.join(dir, 'shared', 'item.json')
+    const routes = path.join(dir, 'routes.ts')
+    fs.mkdirSync(path.join(dir, 'spec'))
+    fs.mkdirSync(path.join(dir, 'shared'))
+    fs.writeFileSync(
+      shared,
+      JSON.stringify({ type: 'object', properties: { id: { type: 'string' } } }),
+    )
+    fs.writeFileSync(
+      path.join(dir, 'spec', 'openapi.json'),
+      JSON.stringify({
+        ...minimalOpenapi,
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/json': { schema: { $ref: '../shared/item.json' } } },
+                },
+              },
+            },
+          },
+        },
+      }),
+    )
+    fs.writeFileSync(
+      path.join(dir, 'hono-takibi.config.ts'),
+      `export default { input: './spec/openapi.json', output: './routes.ts' }`,
+    )
+
+    const cli = startCli(['--watch'])
+    try {
+      expect(await until(() => cli.output().includes('👀 Watching'))).toBe(true)
+      expect(cli.output()).toContain(
+        `👀 Watching ${path.join(dir, 'spec')}, ${shared} and hono-takibi.config.ts`,
+      )
+
+      expect(
+        await writeUntil(
+          shared,
+          JSON.stringify({ type: 'object', properties: { renamed: { type: 'number' } } }),
+          () => fs.readFileSync(routes, 'utf-8').includes('renamed'),
+        ),
+      ).toBe(true)
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(cli.fiber))
+    }
+  })
+
   // The directory to watch comes from the config, so a config that moves `input` has to
   // move the watcher with it rather than leaving it on the old directory.
   it('follows input to another directory when the config moves it', async () => {

@@ -582,6 +582,59 @@ describe('honoTakibiVite', () => {
     expect(parseOpenAPI).not.toHaveBeenCalled()
   })
 
+  // A `$ref` can point at a file anywhere on disk, so the input directory does not cover
+  // every edit that changes the output. The file is handed to the watcher by name and an
+  // edit to it regenerates.
+  // `$ref` はディスク上のどこにあるファイルでも指せるため、入力ディレクトリだけでは
+  // 出力を変える編集をすべて拾えない。そのファイルは名前で watcher に渡され、
+  // 編集されると再生成が走る。
+  it('regenerates when a file referenced from outside the input directory changes', async () => {
+    const root = process.cwd()
+    const sharedPath = path.join(root, 'shared/item.yaml')
+    await fsp.mkdir(path.join(root, 'spec'), { recursive: true })
+    await fsp.mkdir(path.join(root, 'shared'), { recursive: true })
+    await fsp.writeFile(sharedPath, 'type: object\n', 'utf8')
+    await fsp.writeFile(
+      path.join(root, 'spec/openapi.yaml'),
+      [
+        'openapi: 3.1.0',
+        'info: { title: A, version: "1" }',
+        'paths: {}',
+        'components:',
+        '  schemas:',
+        '    Item:',
+        "      $ref: '../shared/item.yaml'",
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+    const configuration = {
+      input: 'spec/openapi.yaml',
+      routes: { output: path.join(testState.sandboxDirectory, 'out/route'), split: true },
+    }
+    const { server, reloaded } = createMockViteDevServer(configuration)
+    let watcherCallback: ((eventType: string, filePath: string) => void | Promise<void>) | undefined
+    server.watcher.on = (_event: 'all', callback) => {
+      watcherCallback = callback
+    }
+    const addSpy = vi.fn<(paths: string | readonly string[]) => void>()
+    server.watcher.add = addSpy
+    const { parseOpenAPI } = await import('../openapi/index.js')
+
+    const plugin = honoTakibiVite()
+    plugin.configureServer(server)
+    await reloaded
+    expect(addSpy).toHaveBeenCalledWith([sharedPath])
+    vi.mocked(parseOpenAPI).mockClear()
+
+    await fsp.writeFile(sharedPath, 'type: string\n', 'utf8')
+    if (watcherCallback) await watcherCallback('change', sharedPath)
+
+    await waitFor(() => {
+      expect(parseOpenAPI).toHaveBeenCalled()
+    })
+  })
+
   it('ignores non-yaml/json/tsp files inside input directory', async () => {
     const configuration = {
       input: 'openapi.yaml',

@@ -10,7 +10,13 @@ import type { Config } from '../config/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { appEntryOutput, cleanSplitOutputs, makeJob } from '../shared/index.js'
+import {
+  appEntryOutput,
+  cleanSplitOutputs,
+  isInsideDirectory,
+  makeJob,
+  outsideSources,
+} from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -64,17 +70,6 @@ function debounce(delayMilliseconds: number, callback: () => void): () => void {
     timerStorage.set(wrappedFunction, setTimeout(callback, delayMilliseconds))
   }
   return wrappedFunction
-}
-
-/**
- * Whether `filePath` sits under `directory`, at any depth.
- *
- * Asked of the path segments rather than the string: `/app/spec-old/a.yaml` starts with
- * `/app/spec` and is not inside it.
- */
-function isInsideDirectory(directory: string, filePath: string): boolean {
-  const relative = path.relative(directory, filePath)
-  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
 }
 
 function isWatchedInputFile(filePath: string): boolean {
@@ -142,15 +137,18 @@ function listWatchedInputFiles(
 }
 
 /**
- * Hashes the contents of all watched input files under the input directory.
+ * Hashes the contents of all watched input files: those under the input directory and
+ * the ones the document reads from `outside` it.
  *
  * Returns null when the set cannot be read reliably, so callers treat
  * "unknown" as "changed" and regenerate.
  */
-function hashWatchedInputs(directory: string) {
+function hashWatchedInputs(directory: string, outside: readonly string[]) {
   return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
-    const files = [...(yield* listWatchedInputFiles(directory))].toSorted()
+    const files = [
+      ...new Set([...(yield* listWatchedInputFiles(directory)), ...outside]),
+    ].toSorted()
     if (files.length === 0) return null
     const contents = yield* Effect.all(
       files.map((file) => fs.readFileString(file).pipe(Effect.orElseSucceed(() => null))),
@@ -376,11 +374,13 @@ export function honoTakibiVite(): any {
   const pluginState: {
     current: Config | null
     inputDirectory: string | null
+    outside: readonly string[]
     lastInputHash: string | null
     runQueue: Promise<void>
   } = {
     current: null,
     inputDirectory: null,
+    outside: [],
     lastInputHash: null,
     runQueue: Promise.resolve(),
   }
@@ -397,8 +397,31 @@ export function honoTakibiVite(): any {
     }
     return changed
   }
+  // Generation is over by the time this runs and nothing here feeds it: the list only
+  // decides which edits bring the next generation about. The document is what names the
+  // files, so the list is known once it has been read; one that cannot be read keeps the
+  // list it had. The hash is taken again because it has to cover the same files the next
+  // comparison will.
+  const watchOutsideSources = async (server?: ViteDevServer) => {
+    if (!pluginState.current || !pluginState.inputDirectory) return
+    const outside = await Effect.runPromise(
+      outsideSources(pluginState.current.input).pipe(
+        Effect.orElseSucceed(() => pluginState.outside),
+        Effect.provide(NodeFileSystem.layer),
+      ),
+    )
+    if (outside.join('\n') === pluginState.outside.join('\n')) return
+    pluginState.outside = outside
+    if (server && outside.length > 0) server.watcher.add(outside)
+    pluginState.lastInputHash = await Effect.runPromise(
+      hashWatchedInputs(pluginState.inputDirectory, outside).pipe(
+        Effect.provide(NodeFileSystem.layer),
+      ),
+    )
+  }
   const runGenerationAndReload = async (server?: ViteDevServer) => {
     const changed = await runGeneration()
+    await watchOutsideSources(server)
     if (server && changed) server.ws.send({ type: 'full-reload' })
   }
   // Skipping additionally requires every declared output to exist, so deleting
@@ -407,7 +430,7 @@ export function honoTakibiVite(): any {
     if (!pluginState.inputDirectory || !pluginState.current) return
     const { inputHash, outputsExist } = await Effect.runPromise(
       Effect.all({
-        inputHash: hashWatchedInputs(pluginState.inputDirectory),
+        inputHash: hashWatchedInputs(pluginState.inputDirectory, pluginState.outside),
         outputsExist: allOutputsExist(pluginState.current),
       }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
@@ -449,9 +472,14 @@ export function honoTakibiVite(): any {
       server,
       path.resolve(process.cwd(), pluginState.current.input),
     )
+    // The list belongs to the document the previous config named; a document somewhere
+    // else starts from nothing until it has been read.
+    if (inputDirectory !== pluginState.inputDirectory) pluginState.outside = []
     pluginState.inputDirectory = inputDirectory
     pluginState.lastInputHash = await Effect.runPromise(
-      hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
+      hashWatchedInputs(inputDirectory, pluginState.outside).pipe(
+        Effect.provide(NodeFileSystem.layer),
+      ),
     )
     await runGenerationAndReload(server)
   }
@@ -500,9 +528,10 @@ export function honoTakibiVite(): any {
           return
         }
         if (
-          pluginState.inputDirectory &&
-          isInsideDirectory(pluginState.inputDirectory, absoluteChangedPath) &&
-          isWatchedInputFile(absoluteChangedPath)
+          pluginState.outside.includes(absoluteChangedPath) ||
+          (pluginState.inputDirectory &&
+            isInsideDirectory(pluginState.inputDirectory, absoluteChangedPath) &&
+            isWatchedInputFile(absoluteChangedPath))
         ) {
           debouncedRunGeneration()
         }
@@ -520,7 +549,9 @@ export function honoTakibiVite(): any {
         )
         pluginState.inputDirectory = inputDirectory
         pluginState.lastInputHash = await Effect.runPromise(
-          hashWatchedInputs(inputDirectory).pipe(Effect.provide(NodeFileSystem.layer)),
+          hashWatchedInputs(inputDirectory, pluginState.outside).pipe(
+            Effect.provide(NodeFileSystem.layer),
+          ),
         )
         await enqueueRun(() => runGenerationAndReload(server))
       })().catch((error: unknown) => {
