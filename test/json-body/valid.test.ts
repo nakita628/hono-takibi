@@ -455,4 +455,18 @@ describe('types: a list of types', () => {
       labelled: { valueType: 'object', valueText: '{"name":"a","count":2}' },
     })
   })
+
+  // constructor is optional: what the object inherits under that name is not a value of it.
+  // constructor は任意である。オブジェクトがその名前で継承しているものは、このプロパティの値ではない。
+  it('inherited accepts an object without its constructor property', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"inherited":{"name":"a"}}',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      inherited: { valueType: 'object', valueText: '{"name":"a"}' },
+    })
+  })
 })

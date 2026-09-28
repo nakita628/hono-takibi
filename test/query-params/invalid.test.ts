@@ -3029,6 +3029,14 @@ describe('objects: a parameter spread over the query', () => {
     expect(await res.json()).toStrictEqual({ issues: ['deep.range.min'] })
   })
 
+  // A property of an element is validated like any other, and reported at its index.
+  // 要素のプロパティは、他のプロパティと同じように検証され、そのインデックスで報告される。
+  it('deep rejects a word in an element of an array of objects', async () => {
+    const res = await queryParamsApp.request('/objects?deep[points][][x]=1&deep[points][][x]=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['deep.points.1.x'] })
+  })
+
   // A key nothing declares is a property of extra, which holds it to an integer.
   // どこにも宣言されていないキーは extra のプロパティになり、integer であることを求められる。
   it('extra rejects a word for an additional property', async () => {

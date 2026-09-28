@@ -343,4 +343,16 @@ describe('types: rejected values', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['labelled.count'] })
   })
+
+  // Sent, the property is validated like any other.
+  // 送信された場合、このプロパティは他のプロパティと同じように検証される。
+  it('inherited rejects a word for its constructor property', async () => {
+    const res = await jsonBodyApp.request('/types', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"inherited":{"constructor":"x"}}',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['inherited.constructor'] })
+  })
 })

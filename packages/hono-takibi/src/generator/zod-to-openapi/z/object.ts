@@ -66,11 +66,13 @@ export function object(schema: Schema, options?: { readonly?: boolean }) {
         .map(([key, propSchema]) => {
           const isRequired = Array.isArray(schema.required) && schema.required.includes(key)
           const safeKey = makeSafeKey(key)
-          const z = zodToOpenAPI(
-            propSchema,
-            undefined,
-            isRequired ? options : { ...options, isOptional: true },
-          )
+          // A property named like something every object inherits, `constructor`, is read
+          // as what the object inherits when it was not sent.
+          const z = zodToOpenAPI(propSchema, undefined, {
+            ...options,
+            ...(isRequired ? {} : { isOptional: true }),
+            ...(key in Object.prototype ? { inheritedAbsent: true } : {}),
+          })
           return `${safeKey}:${z}`
         })
         .join(',')

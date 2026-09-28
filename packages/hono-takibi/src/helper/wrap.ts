@@ -373,7 +373,9 @@ export function wrap(
     if (schema.default !== undefined) {
       return `${read(chain)}.default(${formatLiteral(schema.default)})`
     }
-    return read(`${chain}${parameter?.required === true ? '' : '.optional()'}`)
+    const isRequired =
+      parameter === undefined ? options?.isOptional !== true : parameter.required === true
+    return read(`${chain}${isRequired ? '' : '.optional()'}`)
   }
   const z = absent(build(around(zod)))
   // Drop schema-level keys that header meta already emits (avoids duplicates

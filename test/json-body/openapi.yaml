@@ -60,6 +60,13 @@ paths:
                 # every other key an integer.
                 # `additionalProperties` と並ぶ宣言済みプロパティ。`name` は string であり、
                 # それ以外のキーはすべて integer である。
+                # A property named like something every JavaScript object inherits.
+                # すべての JavaScript オブジェクトが継承する名前を持つプロパティ。
+                inherited:
+                  type: object
+                  properties:
+                    constructor: { type: integer }
+                    name: { type: string }
                 labelled:
                   type: object
                   properties:

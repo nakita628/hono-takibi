@@ -2481,6 +2481,16 @@ describe('objects: an object in one segment', () => {
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
   })
 
+  // The dot separates the assignments and may stand in a value as well. A part with no "="
+  // continues the value before it, so x.y is the value of b.
+  // ドットは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の
+  // 続きである。そのため、x.y が b の値になる。
+  it('labelobjx reads a value that holds a dot', async () => {
+    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x.y')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x.y"}' })
+  })
+
   // style: matrix serialises the object as ;value=a,1,b,x.
   // style: matrix では、オブジェクトは ;value=a,1,b,x としてシリアライズされる。
   it('matrixobj reads pairs behind the name of the parameter', async () => {

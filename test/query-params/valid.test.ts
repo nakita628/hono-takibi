@@ -5492,6 +5492,53 @@ describe('objects: a parameter spread over the query', () => {
     })
   })
 
+  // An element may be named by its index instead, in any order.
+  // 要素は、インデックスで指定することもできる。順序は問わない。
+  it('deep reads the elements of an array written with their index', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][1]=2&deep[ids][0]=1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { ids: { valueType: 'object', valueText: '[1,2]' } },
+    })
+  })
+
+  // points is an array of objects. A key goes to the first element that does not hold it
+  // yet, so x, y, x, y written in order are two points.
+  // points はオブジェクトの配列である。キーは、まだそのキーを持たない最初の要素に入る。
+  // そのため、x・y・x・y の順に書くと、2つの点になる。
+  it('deep reads the elements of an array of objects', async () => {
+    const res = await queryParamsApp.request(
+      '/objects?deep[points][][x]=1&deep[points][][y]=2&deep[points][][x]=3&deep[points][][y]=4',
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { points: { valueType: 'object', valueText: '[{"x":1,"y":2},{"x":3,"y":4}]' } },
+    })
+  })
+
+  // The same array with the index of each element spelled out.
+  // 同じ配列を、各要素のインデックスを明記して書いた場合。
+  it('deep reads the elements of an array of objects written with their index', async () => {
+    const res = await queryParamsApp.request('/objects?deep[points][0][x]=1&deep[points][1][x]=3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { points: { valueType: 'object', valueText: '[{"x":1},{"x":3}]' } },
+    })
+  })
+
+  // A key is the client's to write, and is read one pair of brackets at a time. One that
+  // reaches deeper than sixteen pairs is left as a key nothing declares, and the request is
+  // answered like any other.
+  // キーはクライアントが自由に書けるものであり、角括弧1組ずつ読み取られる。16組より深い
+  // キーは、どこにも宣言されていないキーとして残され、リクエストは通常どおり処理される。
+  it('deep leaves a key that reaches too deep unread', async () => {
+    const res = await queryParamsApp.request(`/objects?deep${'[a]'.repeat(5000)}=1&limit=3`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      limit: { valueType: 'number', valueText: '3' },
+    })
+  })
+
   // /shared declares filter and sort, and both declare name: the key is a property of each.
   // /shared は filter と sort を宣言しており、どちらも name を宣言している。このキーは、
   // 両方のプロパティになる。

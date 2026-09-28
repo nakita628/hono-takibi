@@ -559,9 +559,20 @@ paths:
               active: { type: boolean }
               ids: { type: array, items: { type: integer } }
               # A key names a path into the object, deep[range][min]=1, and an element of
-              # an array by an empty pair of brackets, deep[tags][]=a.
+              # an array by an empty pair of brackets or by its index, deep[tags][]=a and
+              # deep[tags][0]=a. An element that is an object takes the keys written behind
+              # it, deep[points][][x]=1.
               # キーはオブジェクト内のパスを表す(deep[range][min]=1)。配列の要素は、
-              # 空の角括弧で表す(deep[tags][]=a)。
+              # 空の角括弧またはインデックスで表す(deep[tags][]=a、deep[tags][0]=a)。
+              # オブジェクトである要素は、その後ろに書かれたキーを受け取る
+              # (deep[points][][x]=1)。
+              points:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    x: { type: integer }
+                    y: { type: integer }
               tags: { type: array, items: { type: string } }
               range:
                 type: object

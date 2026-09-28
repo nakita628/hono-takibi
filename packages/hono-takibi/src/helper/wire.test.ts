@@ -961,7 +961,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      `(val)=>{if(typeof val!=='string')return val;const parts=val.split(",").map((part)=>part.trim());const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
+      `(val)=>{if(typeof val!=='string')return val;const parts=val.split(",").map((part)=>part.trim());const entries:[string,string][]=[];for(const part of parts){const at=part.indexOf('=');const last=entries.at(-1);if(at>=0){entries.push([part.slice(0,at),part.slice(at+1)])}else if(last===undefined){return val}else{last[1]+=","+part}}return Object.fromEntries(entries)}`,
     )
   })
 
@@ -998,7 +998,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith("."))return undefined;const parts=val.slice(1).split(".");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
+      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith("."))return undefined;const parts=val.slice(1).split(".");const entries:[string,string][]=[];for(const part of parts){const at=part.indexOf('=');const last=entries.at(-1);if(at>=0){entries.push([part.slice(0,at),part.slice(at+1)])}else if(last===undefined){return val}else{last[1]+="."+part}}return Object.fromEntries(entries)}`,
     )
   })
 
@@ -1036,7 +1036,7 @@ describe('wireObject', () => {
         schemas,
       )?.reader,
     ).toBe(
-      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith(";"))return undefined;const parts=val.slice(1).split(";");const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`,
+      `(val)=>{if(typeof val!=='string')return val;if(!val.startsWith(";"))return undefined;const parts=val.slice(1).split(";");const entries:[string,string][]=[];for(const part of parts){const at=part.indexOf('=');const last=entries.at(-1);if(at>=0){entries.push([part.slice(0,at),part.slice(at+1)])}else if(last===undefined){return val}else{last[1]+=";"+part}}return Object.fromEntries(entries)}`,
     )
   })
 
@@ -1141,7 +1141,7 @@ describe('wireGather', () => {
   // キーは `name[property]` の形で照合され、name は deepObject パラメータのいずれかである。
   it.concurrent('gathers the keys of a deepObject parameter', () => {
     expect(wireGather([{ name: 'filter', how: 'deep', properties: ['size'] }], [])).toBe(
-      String.raw`(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;if(tail.length===0){target[head]=item;return}const held=target[head];if(tail.length===1&&tail[0]===''){target[head]=[...(Array.isArray(held)?held:[]),...(Array.isArray(item)?item:[item])];return}const next:Record<string,unknown>=isGroup(held)?held:Object.create(null);target[head]=next;set(next,tail,item)};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){set(group(name),path.slice(1,-1).split(']['),item);continue};rest.push([key,item])};return Object.fromEntries([...rest,...groups])}`,
+      String.raw`(val)=>{const rest:[string,unknown][]=[];const groups=new Map<string,Record<string,unknown>>();const group=(name:string)=>{const found=groups.get(name);if(found!==undefined)return found;const made:Record<string,unknown>=Object.create(null);groups.set(name,made);return made};const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item);const lists=new WeakSet<object>();const isIndex=(part:string|undefined)=>part!==undefined&&/^\d*$/.test(part);const child=(target:Record<string,unknown>,key:string,asList:boolean)=>{const held=target[key];if(isGroup(held))return held;const made:Record<string,unknown>=Object.create(null);if(asList)lists.add(made);target[key]=made;return made};const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;const [next]=tail;if(head===''){for(const one of Array.isArray(item)?item:[item]){const size=Object.keys(target).length;if(next===undefined){target[String(size)]=one;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));set(child(target,String(free<0?size:free),isIndex(next)),tail,one)}return}if(next===undefined){target[head]=item;return}set(child(target,head,isIndex(next)),tail,item)};const settle=(item:unknown):unknown=>{if(!isGroup(item))return item;const held=Object.entries(item).map(([key,inner])=>[key,settle(inner)] as const);return lists.has(item)?[...held].sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),Object.fromEntries(held))};const deep:string[]=["filter"];for(const [key,item] of Object.entries(val)){const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');if(parts.length<=16){set(group(name),parts,item);continue}};rest.push([key,item])};return Object.fromEntries([...rest,...[...groups].map(([name,held])=>[name,settle(held)] as const)])}`,
     )
   })
 

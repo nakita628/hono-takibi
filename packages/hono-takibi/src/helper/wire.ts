@@ -543,8 +543,10 @@ export function isObjectParameter(parameter: Parameter, schemas: Schemas | undef
 /**
  * The function that reads one value holding an object, as source. `separator` is what
  * stands between the parts. With `assignments` each part is `name=value`; without, names and values alternate.
- * A value that does not come apart that way — a name left without its value, a part with no
- * `=` — is handed on as the text it is, for the schema to reject. `Object.fromEntries`
+ * A part with no `=` continues the value before it, which held the separator: a decimal
+ * in an exploded `label`, `.a=1.5`. A value that does not come apart — a name left without
+ * its value, no `=` in its first part — is handed on as the text it is, for the schema to
+ * reject. `Object.fromEntries`
  * defines each key as a property of its own, so a name such as `__proto__` stays a name.
  */
 function objectReader(
@@ -559,7 +561,7 @@ function objectReader(
   const text = prefix === '' ? 'val' : `val.slice(${prefix.length})`
   const parts = `${text}.split(${JSON.stringify(separator)})${trim ? '.map((part)=>part.trim())' : ''}`
   return assignments
-    ? `(val)=>{if(typeof val!=='string')return val;${guard}const parts=${parts};const entries=parts.flatMap((part)=>{const at=part.indexOf('=');return at<0?[]:[[part.slice(0,at),part.slice(at+1)]]});if(entries.length!==parts.length)return val;return Object.fromEntries(entries)}`
+    ? `(val)=>{if(typeof val!=='string')return val;${guard}const parts=${parts};const entries:[string,string][]=[];for(const part of parts){const at=part.indexOf('=');const last=entries.at(-1);if(at>=0){entries.push([part.slice(0,at),part.slice(at+1)])}else if(last===undefined){return val}else{last[1]+=${JSON.stringify(separator)}+part}}return Object.fromEntries(entries)}`
     : `(val)=>{if(typeof val!=='string')return val;${guard}const parts=${parts};if(parts.length%2!==0)return val;return Object.fromEntries(parts.flatMap((part,i)=>(i%2===0?[[part,parts[i+1]]]:[])))}`
 }
 
@@ -607,6 +609,11 @@ export function wireObject(
   return value(objectReader(',', explode))
 }
 
+// How deep a `deepObject` key may reach. A key is read by a function that calls itself
+// once for each pair of brackets, and the key is the client's to write: one that reaches
+// deeper than any schema does is left as a key of the query, which nothing declares.
+const DEEP_OBJECT_DEPTH = 16
+
 /**
  * The function that gathers the keys of a query, or of the cookies, into the object
  * parameters among them, as source, or `undefined` when none is spread over several keys.
@@ -614,7 +621,10 @@ export function wireObject(
  * own is never read as the property of an exploded object.
  *
  * - A `deepObject` key names a path into the object: `filter[name]`, a nested
- *   `filter[range][min]`, and `filter[tags][]` for an element of an array.
+ *   `filter[range][min]`, and an element of an array by an empty pair of brackets or by
+ *   its index, `filter[tags][]` and `filter[tags][0]`. An element that is an object takes
+ *   the keys written behind it, `filter[list][][x]`: a key goes to the first element that
+ *   does not hold it yet, which is how the elements of a list written in order come apart.
  * - A key that several exploded objects declare is a property of each of them.
  * - A key that nothing declares is a property of every exploded object that is open.
  *
@@ -651,7 +661,11 @@ export function wireGather(
     ...(deep.length > 0
       ? [
           "const isGroup=(item:unknown):item is Record<string,unknown>=>typeof item==='object'&&item!==null&&!Array.isArray(item)",
-          "const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;if(tail.length===0){target[head]=item;return}const held=target[head];if(tail.length===1&&tail[0]===''){target[head]=[...(Array.isArray(held)?held:[]),...(Array.isArray(item)?item:[item])];return}const next:Record<string,unknown>=isGroup(held)?held:Object.create(null);target[head]=next;set(next,tail,item)}",
+          'const lists=new WeakSet<object>()',
+          String.raw`const isIndex=(part:string|undefined)=>part!==undefined&&/^\d*$/.test(part)`,
+          'const child=(target:Record<string,unknown>,key:string,asList:boolean)=>{const held=target[key];if(isGroup(held))return held;const made:Record<string,unknown>=Object.create(null);if(asList)lists.add(made);target[key]=made;return made}',
+          "const set=(target:Record<string,unknown>,path:readonly string[],item:unknown):void=>{const [head,...tail]=path;if(head===undefined)return;const [next]=tail;if(head===''){for(const one of Array.isArray(item)?item:[item]){const size=Object.keys(target).length;if(next===undefined){target[String(size)]=one;continue}const free=next===''?-1:Object.values(target).findIndex((held)=>isGroup(held)&&!(next in held));set(child(target,String(free<0?size:free),isIndex(next)),tail,one)}return}if(next===undefined){target[head]=item;return}set(child(target,head,isIndex(next)),tail,item)}",
+          'const settle=(item:unknown):unknown=>{if(!isGroup(item))return item;const held=Object.entries(item).map(([key,inner])=>[key,settle(inner)] as const);return lists.has(item)?[...held].sort((a,b)=>Number(a[0])-Number(b[0])).map(([,inner])=>inner):Object.assign(Object.create(null),Object.fromEntries(held))}',
           `const deep:string[]=${JSON.stringify(deep)}`,
         ]
       : []),
@@ -667,7 +681,7 @@ export function wireGather(
     `for(const [key,item] of Object.entries(val)){${[
       ...(deep.length > 0
         ? [
-            String.raw`const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){set(group(name),path.slice(1,-1).split(']['),item);continue}`,
+            String.raw`const match=/^([^\[\]]+)((?:\[[^\[\]]*\])+)$/.exec(key);const name=match?.[1];const path=match?.[2];if(name!==undefined&&path!==undefined&&deep.includes(name)){const parts=path.slice(1,-1).split('][');if(parts.length<=${DEEP_OBJECT_DEPTH}){set(group(name),parts,item);continue}}`,
           ]
         : []),
       ...(spread.length > 0
@@ -680,7 +694,9 @@ export function wireGather(
         : []),
       'rest.push([key,item])',
     ].join(';')}}`,
-    'return Object.fromEntries([...rest,...groups])',
+    deep.length > 0
+      ? 'return Object.fromEntries([...rest,...[...groups].map(([name,held])=>[name,settle(held)] as const)])'
+      : 'return Object.fromEntries([...rest,...groups])',
   ]
   return `(val)=>{${steps.join(';')}}`
 }
