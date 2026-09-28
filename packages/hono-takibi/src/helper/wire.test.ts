@@ -4,8 +4,10 @@ import type { Schema } from '../openapi/index.js'
 import {
   inlineWireRefs,
   isEmptyAbsent,
+  isInheritedName,
   isObjectParameter,
   needsWireConversion,
+  nullReading,
   resolveSchemaRef,
   wireConverter,
   wireGather,
@@ -1210,5 +1212,279 @@ describe('isEmptyAbsent', () => {
         schemas,
       ),
     ).toBe(false)
+  })
+})
+
+describe('nullReading', () => {
+  // The schema takes no string, so the text null can mean nothing else.
+  // スキーマは文字列を受理しないため、テキスト null に他の意味はない。
+  it.concurrent("is 'first' for an integer that may be null", () => {
+    expect(nullReading({ type: ['integer', 'null'] }, schemas)).toBe('first')
+  })
+
+  // The OpenAPI 3.0 spelling of the same.
+  // 同じ内容の、OpenAPI 3.0 での表記。
+  it.concurrent("is 'first' for an integer declared nullable", () => {
+    expect(nullReading({ type: 'integer', nullable: true }, schemas)).toBe('first')
+  })
+
+  // The schema does not take null.
+  // スキーマは null を受理しない。
+  it.concurrent('is undefined for an integer that may not be null', () => {
+    expect(nullReading({ type: 'integer' }, schemas)).toBeUndefined()
+  })
+
+  // A string takes every text, null included, as the text it is.
+  // 文字列は、null を含むあらゆるテキストを、文字列のまま受理する。
+  it.concurrent('is undefined for a string that may be null', () => {
+    expect(nullReading({ type: ['string', 'null'] }, schemas)).toBeUndefined()
+  })
+
+  // The text null is three characters short of minLength: 7, and is then read as the value.
+  // テキスト null は minLength: 7 に3文字足りない。その場合に、値として読まれる。
+  it.concurrent("is 'last' for a constrained string that may be null", () => {
+    expect(nullReading({ type: ['string', 'null'], minLength: 7 }, schemas)).toBe('last')
+  })
+
+  // null is no string, so not: { type: string } takes it; the text is tried as a string first.
+  // null は文字列ではないため、not: { type: string } はこれを受理する。テキストは、まず文字列として試される。
+  it.concurrent("is 'last' for a schema that takes anything but a string", () => {
+    expect(nullReading({ not: { type: 'string' } }, schemas)).toBe('last')
+  })
+
+  // No member is text.
+  // テキストであるメンバーが存在しない。
+  it.concurrent("is 'first' for an enum of numbers and null", () => {
+    expect(nullReading({ enum: [1, 2, null] }, schemas)).toBe('first')
+  })
+
+  // A member may be the text null itself.
+  // メンバー自体が、テキスト null である可能性がある。
+  it.concurrent("is 'last' for an enum of strings and null", () => {
+    expect(nullReading({ enum: ['a', null] }, schemas)).toBe('last')
+  })
+
+  // The schema does not take null.
+  // スキーマは null を受理しない。
+  it.concurrent('is undefined for an enum without null', () => {
+    expect(nullReading({ enum: [1, 2] }, schemas)).toBeUndefined()
+  })
+
+  // null is the one value.
+  // null が、唯一の値である。
+  it.concurrent("is 'first' for a const of null", () => {
+    expect(nullReading({ const: null }, schemas)).toBe('first')
+  })
+
+  // null declared as a branch of its own.
+  // null が、独立した分岐として宣言されている。
+  it.concurrent("is 'first' for a union with a branch of null", () => {
+    expect(nullReading({ oneOf: [{ type: 'integer' }, { type: 'null' }] }, schemas)).toBe('first')
+  })
+
+  // The component says whether null is taken.
+  // null を受理するかどうかは、コンポーネントが定める。
+  it.concurrent("is 'first' behind a reference", () => {
+    expect(
+      nullReading({ $ref: '#/components/schemas/Maybe' }, { Maybe: { type: ['boolean', 'null'] } }),
+    ).toBe('first')
+  })
+
+  // The text null is no element of it, so it is the array that is null.
+  // テキスト null は要素になりえないため、null なのは配列そのものである。
+  it.concurrent("is 'first' for an array of integers that may be null", () => {
+    expect(nullReading({ type: ['array', 'null'], items: { type: 'integer' } }, schemas)).toBe(
+      'first',
+    )
+  })
+
+  // The text null is an element like any other.
+  // テキスト null は、他と同じく要素の1つである。
+  it.concurrent('is undefined for an array of strings that may be null', () => {
+    expect(
+      nullReading({ type: ['array', 'null'], items: { type: 'string' } }, schemas),
+    ).toBeUndefined()
+  })
+
+  // The schema does not take null.
+  // スキーマは null を受理しない。
+  it.concurrent('is undefined for an array that may not be null', () => {
+    expect(nullReading({ type: 'array', items: { type: 'integer' } }, schemas)).toBeUndefined()
+  })
+
+  // An object is no scalar.
+  // オブジェクトは、スカラーではない。
+  it.concurrent('is undefined for an object', () => {
+    expect(nullReading({ type: 'object', properties: {} }, schemas)).toBeUndefined()
+  })
+
+  // It takes every text as the text it is.
+  // あらゆるテキストを、文字列のまま受理する。
+  it.concurrent('is undefined for a schema that constrains nothing', () => {
+    expect(nullReading({}, schemas)).toBeUndefined()
+  })
+
+  // minimum says nothing of null, which the schema therefore takes.
+  // minimum は null について何も定めないため、スキーマは null を受理する。
+  it.concurrent("is 'last' for a typeless constraint", () => {
+    expect(nullReading({ minimum: 1 }, schemas)).toBe('last')
+  })
+})
+
+describe('isInheritedName', () => {
+  // The request object answers to the name whether the parameter was sent or not.
+  // リクエストオブジェクトは、パラメータが送信されたかどうかにかかわらず、この名前に応答する。
+  it.concurrent('is true for a query parameter named like what every object inherits', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'toString', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'valueOf', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: 'hasOwnProperty', in: 'query' })).toBe(true)
+    expect(isInheritedName({ name: '__proto__', in: 'query' })).toBe(true)
+  })
+
+  // The same for a header and for a cookie.
+  // ヘッダーと Cookie でも同様である。
+  it.concurrent('is true for a header and for a cookie of such a name', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'header' })).toBe(true)
+    expect(isInheritedName({ name: 'constructor', in: 'cookie' })).toBe(true)
+  })
+
+  // A path parameter is always sent: the route does not match without it.
+  // パスパラメータは、必ず送信される。なければ、ルートが一致しない。
+  it.concurrent('is false for a path parameter', () => {
+    expect(isInheritedName({ name: 'constructor', in: 'path' })).toBe(false)
+  })
+
+  // A name no object inherits.
+  // どのオブジェクトも継承しない名前。
+  it.concurrent('is false for any other name', () => {
+    expect(isInheritedName({ name: 'page', in: 'query' })).toBe(false)
+    expect(isInheritedName({ name: 'x-request-id', in: 'header' })).toBe(false)
+  })
+})
+
+describe('wireObject: an object that takes additional properties', () => {
+  // The object declares no property, and is read all the same: what it takes is every key
+  // nothing else declares.
+  // オブジェクトはプロパティを宣言していないが、それでも読み取られる。受け取るのは、
+  // 他のどこにも宣言されていないすべてのキーである。
+  it.concurrent('is open when additionalProperties is a schema', () => {
+    expect(
+      wireObject(
+        {
+          name: 'bag',
+          in: 'query',
+          schema: { type: 'object', additionalProperties: { type: 'integer' } },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'bag', how: 'spread', properties: [], open: true })
+  })
+
+  // additionalProperties: true says the same without a schema.
+  // additionalProperties: true は、スキーマなしで同じことを表す。
+  it.concurrent('is open when additionalProperties is true', () => {
+    expect(
+      wireObject(
+        {
+          name: 'bag',
+          in: 'query',
+          schema: {
+            type: 'object',
+            additionalProperties: true,
+            properties: { known: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'bag', how: 'spread', properties: ['known'], open: true })
+  })
+
+  // additionalProperties: false takes the declared properties alone.
+  // additionalProperties: false は、宣言済みのプロパティだけを受理する。
+  it.concurrent('is not open when additionalProperties is false', () => {
+    expect(
+      wireObject(
+        {
+          name: 'bag',
+          in: 'query',
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: { known: { type: 'string' } },
+          },
+        },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'bag', how: 'spread', properties: ['known'] })
+  })
+
+  // Nothing is declared and nothing else is taken: there is no key to read.
+  // 何も宣言されておらず、他のキーも受理しない。読み取るキーが存在しない。
+  it.concurrent('cannot be read when it declares nothing and takes nothing else', () => {
+    expect(
+      wireObject(
+        { name: 'bag', in: 'query', schema: { type: 'object', additionalProperties: false } },
+        schemas,
+      ),
+    ).toBeUndefined()
+  })
+
+  // A cookie object explodes by default, and is open the same way.
+  // Cookie のオブジェクトはデフォルトで explode され、同じように open になる。
+  it.concurrent('is open as an exploded cookie', () => {
+    expect(
+      wireObject(
+        { name: 'bag', in: 'cookie', schema: { type: 'object', additionalProperties: true } },
+        schemas,
+      ),
+    ).toStrictEqual({ name: 'bag', how: 'spread', properties: [], open: true })
+  })
+})
+
+describe('wireGather: keys that several objects share, and keys nothing declares', () => {
+  // name is a property of both objects, so the key is handed to each.
+  // name は両方のオブジェクトのプロパティであるため、このキーはそれぞれに渡される。
+  it.concurrent('hands a key two objects declare to both', () => {
+    expect(
+      wireGather(
+        [
+          { name: 'filter', how: 'spread', properties: ['name', 'age'] },
+          { name: 'sort', how: 'spread', properties: ['name'] },
+        ],
+        [],
+      ),
+    ).toContain(
+      'const spread=new Map<string,string[]>([["name",["filter","sort"]],["age",["filter"]]]);',
+    )
+  })
+
+  // page is a parameter of its own, so it is no property of the open object.
+  // page は独立したパラメータであるため、open なオブジェクトのプロパティにはならない。
+  it.concurrent('keeps the names of other parameters from an open object', () => {
+    const gather = wireGather(
+      [{ name: 'bag', how: 'spread', properties: [], open: true }],
+      ['page'],
+    )
+    expect(gather).toContain('const open:string[]=["bag"];const taken:string[]=["page"];')
+    expect(gather).toContain(
+      'if(!taken.includes(key)){for(const owner of open){group(owner)[key]=item}}',
+    )
+  })
+
+  // Without an open object there is nothing to hand an undeclared key to.
+  // open なオブジェクトがなければ、宣言されていないキーを渡す先がない。
+  it.concurrent('does not look for undeclared keys without an open object', () => {
+    expect(wireGather([{ name: 'opts', how: 'spread', properties: ['size'] }], [])).not.toContain(
+      'const open',
+    )
+  })
+
+  // A key that reaches deeper than sixteen pairs of brackets is left unread.
+  // 角括弧が16組より深いキーは、読み取られない。
+  it.concurrent('reads a deepObject key of sixteen pairs of brackets at most', () => {
+    expect(wireGather([{ name: 'filter', how: 'deep', properties: [] }], [])).toContain(
+      'if(parts.length<=16){set(group(name),parts,item);continue}',
+    )
   })
 })

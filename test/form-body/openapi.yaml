@@ -49,6 +49,16 @@ paths:
                 # An RFC 3339 date-time: an offset is valid beside `Z`.
                 # RFC 3339 の日時。`Z` と同様に、オフセットも有効である。
                 moment: { type: string, format: date-time }
+                clock: { type: string, format: time }
+                # A form field is text, and `null` has no spelling of its own in one: the text
+                # `null` is read as the value by a field that takes `null` and no string.
+                # フォームのフィールドは文字列であり、`null` 専用の表記がない。`null` を受理し
+                # 文字列を受理しないフィールドは、テキスト `null` を値として読む。
+                maybe: { type: [integer, 'null'] }
+                label: { type: [string, 'null'] }
+                # A field named like what every JavaScript object inherits.
+                # すべての JavaScript オブジェクトが継承する名前を持つフィールド。
+                constructor: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
   /multipart:

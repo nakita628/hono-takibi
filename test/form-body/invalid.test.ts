@@ -232,6 +232,54 @@ describe('fields: rejected values', () => {
     expect(res.status).toBe(422)
     expect(await res.json()).toStrictEqual({ issues: ['flag'] })
   })
+
+  // The text that stands for null is the one JSON spells, in lower case.
+  // null を表すテキストは、JSON の表記どおり小文字である。
+  it('maybe rejects "NULL"', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'maybe=NULL',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['maybe'] })
+  })
+
+  // The empty value is neither null nor an integer.
+  // 空の値は、null でも整数でもない。
+  it('maybe rejects an empty value', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'maybe=',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['maybe'] })
+  })
+
+  // An offset is written with a colon.
+  // オフセットはコロン付きで表記する。
+  it('clock rejects an offset without a colon', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: `clock=${encodeURIComponent('12:34:56+0900')}`,
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['clock'] })
+  })
+
+  // Sent, the field is validated like any other.
+  // 送信された場合、このフィールドは他のフィールドと同じように検証される。
+  it('constructor rejects a word', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'constructor=abc',
+    })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['constructor'] })
+  })
 })
 
 // An element is validated on its own and reported at its index.

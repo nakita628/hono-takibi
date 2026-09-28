@@ -1025,3 +1025,437 @@ describe('outsideSources', () => {
     await expect(runGenerator(outsideSources(input))).resolves.toStrictEqual([])
   })
 })
+
+describe('makeJob: the client and what imports it', () => {
+  // Runs every job of the config and reads what was written under src.
+  // 設定のすべてのジョブを実行し、src の下に書き出されたものを読み取る。
+  async function generate(dir: string, config: object) {
+    const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+    const jobs = makeJob(openAPI, cfg)
+    // The app entry is what the client and the rpc file are written against, so the jobs
+    // run in the order they are made.
+    // アプリのエントリは、クライアントと rpc ファイルの前提になる。そのため、ジョブは作られた
+    // 順に実行する。
+    for (const job of jobs) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    return {
+      read: (file: string) => fs.readFileSync(path.join(dir, file), 'utf8'),
+      has: (file: string) => fs.existsSync(path.join(dir, file)),
+      imports: (file: string) =>
+        fs
+          .readFileSync(path.join(dir, file), 'utf8')
+          .split('\n')
+          .filter((text) => /from '(?:\.|@\/|@packages)/u.test(text))
+          .map((text) => text.replace(/^.* from /u, '')),
+    }
+  }
+
+  // The client beside the app entry imports it as ./index, and rpc imports the client
+  // as ./client. The index.ts there is the app, so no barrel is written over it.
+  // アプリのエントリの隣にあるクライアントは、それを ./index として import し、rpc は
+  // クライアントを ./client として import する。そこにある index.ts はアプリであるため、
+  // バレルで上書きされることはない。
+  it('imports the client beside the app entry by its file', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-beside-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.imports('src/client.ts')).toStrictEqual(["'./index'"])
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
+    expect(out.read('src/index.ts')).toContain('export const api = app')
+  })
+
+  // A client in a directory of its own is re-exported by the index.ts beside it, which is
+  // what rpc imports.
+  // 専用のディレクトリにあるクライアントは、隣の index.ts から再 export される。rpc が
+  // import するのは、そのファイルである。
+  it('imports the client in a directory of its own through the barrel', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-barrel-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+      'tanstack-query': { output: `${tmpDir}/src/hooks/query.ts` },
+    })
+    expect(out.read('src/lib/index.ts')).toBe("export * from './client'\n")
+    expect(out.imports('src/lib/client.ts')).toStrictEqual(["'../index'"])
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./lib'"])
+    expect(out.imports('src/hooks/query.ts')).toStrictEqual(["'../lib'"])
+  })
+
+  // A file beside the client imports the client itself: the barrel may come to re-export
+  // the file that would import it.
+  // クライアントと同じディレクトリのファイルは、クライアント自体を import する。バレルは、
+  // それを import するファイル自身を再 export するようになる可能性がある。
+  it('imports the client by its file from a file beside it', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-sibling-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts` },
+      rpc: { output: `${tmpDir}/src/lib/rpc.ts` },
+    })
+    expect(out.imports('src/lib/rpc.ts')).toStrictEqual(["'./client'"])
+  })
+
+  // A client that is an index.ts is imported by its directory, and needs no barrel.
+  // index.ts であるクライアントは、ディレクトリで import される。バレルは不要である。
+  it('imports a client that is an index.ts by its directory', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-index-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/client/index.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
+    expect(fs.readdirSync(path.join(tmpDir, 'src/client'))).toStrictEqual(['index.ts'])
+  })
+
+  // The index.ts beside the client is what rpc writes, so the client is imported by its
+  // file and the rpc file is left as it is.
+  // クライアントの隣の index.ts は、rpc が書き出すファイルである。そのためクライアントは
+  // ファイル名で import され、rpc のファイルはそのまま残る。
+  it('writes no barrel over the output of another generator', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-taken-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts` },
+      rpc: { output: `${tmpDir}/src/lib` },
+    })
+    expect(out.imports('src/lib/index.ts')).toStrictEqual(["'./client'"])
+    expect(out.read('src/lib/index.ts')).toContain('export async function getUsersId(')
+  })
+
+  // The alias stands for the directory the app entry is in.
+  // エイリアスは、アプリのエントリがあるディレクトリを表す。
+  it('imports through the path alias', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true, pathAlias: '@/' },
+      client: { output: `${tmpDir}/src/lib/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.imports('src/lib/client.ts')).toStrictEqual(["'@/index'"])
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'@/lib'"])
+  })
+
+  // An alias that names a directory is the app entry as it stands. The client is outside
+  // that directory, so rpc reaches it by a relative path.
+  // ディレクトリを指すエイリアスは、そのままアプリのエントリになる。クライアントはその
+  // ディレクトリの外にあるため、rpc は相対パスで到達する。
+  it('imports the app by an alias that names its directory', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-alias-dir-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/api/routes.ts`,
+      template: { routeHandler: true, pathAlias: '@/api' },
+      client: { output: `${tmpDir}/src/client/http.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(out.imports('src/client/http.ts')).toStrictEqual(["'@/api'"])
+    expect(out.read('src/client/index.ts')).toBe("export * from './http'\n")
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'./client'"])
+  })
+
+  // The import a generator names is the one it uses, whatever the client block says.
+  // 生成器に指定された import は、client ブロックの内容にかかわらず、そのまま使われる。
+  it('takes the import a generator names over the generated client', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-named-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/lib/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '@packages/client' },
+    })
+    expect(out.read('src/rpc.ts')).toContain("import { client } from '@packages/client'")
+  })
+
+  // Without a client block nothing is written for it.
+  // client ブロックがなければ、クライアントは何も書き出されない。
+  it('writes no client without a client block', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-none-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib' },
+    })
+    expect(out.has('src/client.ts')).toBe(false)
+    expect(out.imports('src/rpc.ts')).toStrictEqual(["'../lib'"])
+  })
+
+  // Without template, rpc calls the client by the name the config gives.
+  // template がなければ、rpc は設定で指定した名前でクライアントを呼び出す。
+  it('imports the named client without template', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-name-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      rpc: { output: `${tmpDir}/src/rpc.ts`, import: '../lib', client: 'api' },
+    })
+    expect(out.read('src/rpc.ts')).toContain("import { api } from '../lib'")
+  })
+
+  // The same for a hook library.
+  // フックのライブラリも同様である。
+  it('imports the named client into hooks without template', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-job-hook-'))
+    const out = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      swr: { output: `${tmpDir}/src/swr.ts`, import: '../lib', client: 'api' },
+    })
+    expect(out.read('src/swr.ts')).toContain("import { api } from '../lib'")
+  })
+})
+
+describe('makeJob: a split application', () => {
+  async function generate(dir: string, config: object) {
+    const cfg = await runGenerator(parseConfig({ input: 'openapi.yaml', ...config }))
+    for (const job of makeJob(openAPI, cfg)) {
+      // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+      await runGenerator(job.run(job.output))
+    }
+    return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
+  }
+
+  // Every group is the app registering its routes, and rpc calls each through its client.
+  // すべてのグループは、アプリが自身のルートを登録したものである。rpc は、それぞれを
+  // グループのクライアントを通して呼び出す。
+  it('divides the app, the client and rpc with routeHandler', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-handler-'))
+    const read = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true, split: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
+
+export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export const api = app
+
+export default app
+`)
+    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
+    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+  })
+
+  // The same with the routes a handler file defines.
+  // ハンドラーファイルが定義するルートでも、同様である。
+  it('divides the app, the client and rpc with define', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-define-'))
+    const read = await generate(tmpDir, {
+      output: `${tmpDir}/src/index.ts`,
+      template: { define: true, split: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const users = app.openapiRoutes([getUsersIdRoute] as const)
+
+export const health = app.openapiRoutes([getHealthRoute] as const)
+
+export const api = app
+
+export default app
+`)
+    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
+    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+  })
+
+  // Where the handlers register their routes themselves, a group is a handler file the
+  // app mounts.
+  // ハンドラーが自身でルートを登録する場合、グループは、アプリがマウントするハンドラー
+  // ファイルである。
+  it('divides the app, the client and rpc where the handlers register their routes', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-inline-'))
+    const read = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { split: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const users = app.route('/', usersHandler)
+
+export const health = app.route('/', healthHandler)
+
+export const api = app
+
+export default app
+`)
+    expect(read('src/client.ts')).toContain("import type { users, health } from './index'")
+    expect(read('src/rpc.ts')).toContain("import { usersClient, healthClient } from './client'")
+  })
+
+  // Without split the app is one chain and there is one client.
+  // split がなければ、アプリは1本のチェーンになり、クライアントは1つである。
+  it('leaves the app, the client and rpc whole without split', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-job-off-'))
+    const read = await generate(tmpDir, {
+      output: `${tmpDir}/src/routes.ts`,
+      template: { routeHandler: true },
+      client: { output: `${tmpDir}/src/client.ts` },
+      rpc: { output: `${tmpDir}/src/rpc.ts` },
+    })
+    expect(read('src/index.ts')).toContain(`export const api = app
+  .openapi(getUsersIdRoute, getUsersIdRouteHandler)
+  .openapi(getHealthRoute, getHealthRouteHandler)
+`)
+    expect(read('src/client.ts')).toContain("import type { api } from './index'")
+    expect(read('src/rpc.ts')).toContain("import { client } from './client'")
+  })
+})
+
+// Runs every job of a config that scaffolds the app, the client and the rpc file.
+// アプリ・クライアント・rpc ファイルを生成する設定の、すべてのジョブを実行する。
+async function generateAgain(document: OpenAPI, dir: string, split: boolean) {
+  const cfg = await runGenerator(
+    parseConfig({
+      input: 'openapi.yaml',
+      output: `${dir}/src/routes.ts`,
+      template: { routeHandler: true, split },
+      client: { output: `${dir}/src/lib/client.ts` },
+      rpc: { output: `${dir}/src/rpc.ts` },
+    }),
+  )
+  for (const job of makeJob(document, cfg)) {
+    // oxlint-disable-next-line no-await-in-loop -- the jobs run one after the other
+    await runGenerator(job.run(job.output))
+  }
+  return (file: string) => fs.readFileSync(path.join(dir, file), 'utf8')
+}
+
+describe('makeJob: generating a split application again', () => {
+  const withItems = {
+    ...openAPI,
+    paths: {
+      '/items': { get: { operationId: 'getItems', responses: { 200: { description: 'ok' } } } },
+      ...openAPI.paths,
+    },
+  } as unknown as OpenAPI
+
+  const withoutHealth = {
+    ...openAPI,
+    paths: Object.fromEntries(
+      Object.entries(openAPI.paths).filter(([route]) => route !== '/health'),
+    ),
+  } as unknown as OpenAPI
+
+  // What the user wrote into the app entry is kept, and the group of the new path is
+  // placed where the document has it: before users.
+  // 利用者がアプリのエントリに書いたものは残る。新しいパスのグループは、ドキュメント上の
+  // 位置、つまり users の前に置かれる。
+  it('adds the group of a new path and keeps what the user wrote', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-add-'))
+    await generateAgain(openAPI, tmpDir, true)
+    const entry = path.join(tmpDir, 'src/index.ts')
+    fs.writeFileSync(
+      entry,
+      fs
+        .readFileSync(entry, 'utf8')
+        .replace(
+          'const app = new OpenAPIHono()',
+          "const app = new OpenAPIHono()\n\napp.use(logger())\n\nexport const version = '1'",
+        ),
+    )
+    const read = await generateAgain(withItems, tmpDir, true)
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+app.use(logger())
+
+export const version = '1'
+
+export const items = app.openapi(getItemsRoute, getItemsRouteHandler)
+
+export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
+
+export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export const api = app
+
+export default app
+`)
+    expect(read('src/lib/client.ts')).toContain(
+      "import type { items, users, health } from '../index'",
+    )
+    expect(read('src/rpc.ts')).toContain(
+      "import { itemsClient, usersClient, healthClient } from './lib'",
+    )
+  })
+
+  // A group whose paths left the document is removed, with its client.
+  // パスがドキュメントからなくなったグループは、クライアントとともに削除される。
+  it('removes the group of a path that left the document', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-remove-'))
+    await generateAgain(openAPI, tmpDir, true)
+    const read = await generateAgain(withoutHealth, tmpDir, true)
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
+
+export const api = app
+
+export default app
+`)
+    expect(read('src/index.ts')).not.toContain('health')
+    expect(read('src/lib/client.ts')).not.toContain('healthClient')
+    expect(read('src/rpc.ts')).not.toContain('healthClient')
+  })
+
+  // Turning split off makes the app one chain again, and the client one.
+  // split を無効にすると、アプリは再び1本のチェーンになり、クライアントは1つになる。
+  it('makes the app whole again when split is turned off', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-off-'))
+    await generateAgain(openAPI, tmpDir, true)
+    const read = await generateAgain(openAPI, tmpDir, false)
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const api = app
+  .openapi(getUsersIdRoute, getUsersIdRouteHandler)
+  .openapi(getHealthRoute, getHealthRouteHandler)
+
+export default app
+`)
+    expect(read('src/lib/client.ts')).toContain("import type { api } from '../index'")
+    expect(read('src/rpc.ts')).toContain("import { client } from './lib'")
+  })
+
+  // Turning split on divides an app that was one chain.
+  // split を有効にすると、1本のチェーンだったアプリが分割される。
+  it('divides an app that was whole when split is turned on', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-on-'))
+    await generateAgain(openAPI, tmpDir, false)
+    const read = await generateAgain(openAPI, tmpDir, true)
+    expect(read('src/index.ts')).toContain(`const app = new OpenAPIHono()
+
+export const users = app.openapi(getUsersIdRoute, getUsersIdRouteHandler)
+
+export const health = app.openapi(getHealthRoute, getHealthRouteHandler)
+
+export const api = app
+
+export default app
+`)
+  })
+
+  // The barrel of the client is written once, however often the client is generated.
+  // クライアントのバレルは、クライアントを何度生成しても、1回だけ書き出される。
+  it('leaves the barrel of the client as it is', async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'split-again-barrel-'))
+    await generateAgain(openAPI, tmpDir, true)
+    await generateAgain(openAPI, tmpDir, true)
+    const read = await generateAgain(openAPI, tmpDir, true)
+    expect(read('src/lib/index.ts')).toBe("export * from './client'\n")
+  })
+})

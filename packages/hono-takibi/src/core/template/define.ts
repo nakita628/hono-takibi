@@ -19,6 +19,7 @@ export function defineTemplate(
   routeImport: string | undefined,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
   readonly?: boolean,
+  split = false,
 ) {
   const target = output.endsWith('.ts') ? output : path.join(output, 'index.ts')
   // The generated route/handler directory always sits next to the app entry
@@ -33,7 +34,20 @@ export function defineTemplate(
   return Effect.gen(function* () {
     const [appCode] = yield* Effect.all(
       [
-        fmt(app(openAPI, output, basePath, pathAlias, routeImport, false, true, handlerImport)),
+        fmt(
+          app(
+            openAPI,
+            output,
+            basePath,
+            pathAlias,
+            routeImport,
+            false,
+            true,
+            handlerImport,
+            undefined,
+            split,
+          ),
+        ),
         defineOpenAPIRouteHandler(
           openAPI,
           target,

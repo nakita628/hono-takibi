@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { describe, expect, it } from 'vite-plus/test'
 
+import { handlerGroupOf } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { runGenerator, runGeneratorError } from '../../testing/index.js'
 import { hooks } from './index.js'
@@ -8940,5 +8941,128 @@ export function injectHono<
         fs.rmSync(dir, { recursive: true, force: true })
       }
     })
+  })
+})
+
+// The hooks of TanStack Query, generated to a file of their own and read back.
+// TanStack Query のフックを専用のファイルに生成し、読み戻す。
+async function generateGrouped(document: OpenAPI, options: Parameters<typeof hooks>[4]) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-groups-'))
+  const out = path.join(dir, 'query.ts')
+  await runGenerator(hooks(document, out, './client', 'tanstack-query', options))
+  return fs.readFileSync(out, 'utf8')
+}
+
+describe('hooks: the groups of a split application', () => {
+  const ok = { '200': { description: 'OK' } }
+  // `/` names no group, and is the route of client.
+  // `/` はグループ名にならず、client のルートになる。
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'Library', version: '1.0.0' },
+    paths: {
+      '/': { get: { responses: ok } },
+      '/books': { get: { tags: ['Library'], responses: ok }, post: { responses: ok } },
+      '/v2-public/ping': { get: { responses: ok } },
+    },
+  } as OpenAPI
+  // Every route belongs to a group.
+  // すべてのルートが、いずれかのグループに属する。
+  const grouped = {
+    openapi: '3.1.0',
+    info: { title: 'Library', version: '1.0.0' },
+    paths: { '/books': { get: { responses: ok } }, '/items': { get: { responses: ok } } },
+  } as OpenAPI
+
+  // Each hook calls the client of its group.
+  // 各フックは、自身のグループのクライアントを呼び出す。
+  it('imports the client of every group the hooks call', async () => {
+    const code = await generateGrouped(spec, {
+      grouping: (route) => handlerGroupOf(route),
+      basePath: '/api',
+    })
+    expect(code).toContain("import { client, booksClient, v2PublicClient } from './client'")
+    expect(code).toContain('booksClient.books.$get(undefined, {')
+    expect(code).toContain('booksClient.books.$post(undefined, options)')
+    expect(code).toContain("v2PublicClient['v2-public'].ping.$get(undefined, {")
+  })
+
+  // GET /books is tagged Library, which a grouping by tag goes by.
+  // GET /books には Library タグが付いており、タグによるグループ分けではこれに従う。
+  it('groups by the first tag where the grouping looks at tags', async () => {
+    const code = await generateGrouped(spec, { grouping: handlerGroupOf, basePath: '/api' })
+    expect(code).toContain(
+      "import { client, libraryClient, booksClient, v2PublicClient } from './client'",
+    )
+    expect(code).toContain('libraryClient.books.$get(undefined, {')
+    expect(code).toContain('booksClient.books.$post(undefined, options)')
+  })
+
+  // An import that nothing uses would be an error in a strict project.
+  // どこからも使われない import は、厳格な設定のプロジェクトではエラーになる。
+  it('does not import client when every hook belongs to a group', async () => {
+    const code = await generateGrouped(grouped, { grouping: (route) => handlerGroupOf(route) })
+    expect(code).toContain("import { booksClient, itemsClient } from './client'")
+  })
+
+  // Without a grouping every hook calls client.
+  // グループ分けがなければ、すべてのフックが client を呼び出す。
+  it('calls client everywhere without a grouping', async () => {
+    const code = await generateGrouped(grouped, {})
+    expect(code).toContain("import { client } from './client'")
+    expect(code).toContain('client.books.$get(undefined, {')
+    expect(code).toContain('client.items.$get(undefined, {')
+  })
+
+  // The name the config gives stands for client, and the groups keep theirs.
+  // 設定で指定された名前は client の代わりになり、グループの名前は変わらない。
+  it('calls the client of the rest under the name the config gives', async () => {
+    const code = await generateGrouped(spec, {
+      clientName: 'http',
+      grouping: (route) => handlerGroupOf(route),
+      basePath: '/api',
+    })
+    expect(code).toContain("import { http, booksClient, v2PublicClient } from './client'")
+  })
+})
+
+describe('hooks: the root of an application under a base path', () => {
+  const spec = {
+    openapi: '3.1.0',
+    info: { title: 'Root', version: '1.0.0' },
+    paths: { '/': { get: { responses: { '200': { description: 'OK' } } } } },
+  } as OpenAPI
+
+  async function generate(basePath: string | undefined) {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hooks-root-'))
+    const out = path.join(dir, 'query.ts')
+    await runGenerator(
+      hooks(spec, out, './client', 'tanstack-query', basePath === undefined ? {} : { basePath }),
+    )
+    return fs.readFileSync(out, 'utf8')
+  }
+
+  // Under a base path the client is handed out from below it, where the root of the
+  // application is the client itself.
+  // ベースパスの下では、クライアントはその下から渡される。そこでは、アプリケーションの
+  // ルートパスはクライアントそのものである。
+  it('calls the client itself for the root under a base path', async () => {
+    const code = await generate('/api')
+    expect(code).toContain('client.$get(undefined, {')
+    expect(code).not.toContain('client.index')
+  })
+
+  // Without a base path the root is the index of the client.
+  // ベースパスがなければ、ルートパスはクライアントの index である。
+  it('calls the index of the client for the root without a base path', async () => {
+    const code = await generate('/')
+    expect(code).toContain('client.index.$get(undefined, {')
+  })
+
+  // The same when no base path is given at all.
+  // ベースパスがまったく指定されていない場合も同様である。
+  it('calls the index of the client for the root when no base path is given', async () => {
+    const code = await generate(undefined)
+    expect(code).toContain('client.index.$get(undefined, {')
   })
 })

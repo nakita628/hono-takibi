@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["../../__generated__/client-split/**/*", "../../runtime/client-split.test.ts"]
+}

@@ -2144,6 +2144,27 @@ describe('required', () => {
   })
 })
 
+// An exploded object is a list of assignments, a=1,b=x.
+// explode されたオブジェクトは、代入を並べたものである(a=1,b=x)。
+describe('objects: a value that holds the separator', () => {
+  // The comma separates the assignments and may stand in a value as well. A part with no "="
+  // continues the value before it.
+  // カンマは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の
+  // 続きである。
+  it('x-objx reads a value that holds a comma', async () => {
+    const res = await headerParamsApp.request('/optional', {
+      headers: { 'x-objx': 'a=1,b=x,y' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      'x-objx': {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x,y' },
+      },
+    })
+  })
+})
+
 // `null` has no spelling of its own in a parameter, so the text `null` stands for it.
 // パラメータには `null` 専用の表記がないため、テキスト `null` がその値を表す。
 describe('null', () => {

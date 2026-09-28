@@ -2262,6 +2262,40 @@ describe('required', () => {
   })
 })
 
+// /open declares bag with additionalProperties: { type: integer }. A cookie nothing declares
+// is a property of bag; known is one bag declares; page is a parameter of its own.
+// /open は、bag を additionalProperties: { type: integer } 付きで宣言している。どこにも
+// 宣言されていない Cookie は bag のプロパティになる。known は bag が宣言するプロパティであり、
+// page は独立したパラメータである。
+describe('open: an object that takes additional properties', () => {
+  // Every cookie finds its place.
+  // すべての Cookie が、それぞれの場所に振り分けられる。
+  it('bag takes the cookies nothing else declares', async () => {
+    const res = await cookieParamsApp.request('/open', {
+      headers: { Cookie: 'page=2; known=k; other=7; more=8' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      page: { valueType: 'number', valueText: '2' },
+      bag: {
+        known: { valueType: 'string', valueText: 'k' },
+        other: { valueType: 'number', valueText: '7' },
+        more: { valueType: 'number', valueText: '8' },
+      },
+    })
+  })
+
+  // Without a cookie for it, bag is absent.
+  // bag に属する Cookie がなければ、bag は存在しない。
+  it('bag is absent when no cookie belongs to it', async () => {
+    const res = await cookieParamsApp.request('/open', { headers: { Cookie: 'page=2' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      page: { valueType: 'number', valueText: '2' },
+    })
+  })
+})
+
 // `null` has no spelling of its own in a parameter, so the text `null` stands for it.
 // パラメータには `null` 専用の表記がないため、テキスト `null` がその値を表す。
 describe('null', () => {

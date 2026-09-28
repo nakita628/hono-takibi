@@ -7,4 +7,14 @@ export default defineConfig({
     routeHandler: true,
     pathAlias: '@/',
   },
+  // The client and what imports it go through the alias as well: the client imports the app
+  // as `@/index`, and the rpc file imports the barrel of the client as `@/lib`.
+  // クライアントと、それを import するファイルも、エイリアスを経由する。クライアントはアプリを
+  // `@/index` として、rpc ファイルはクライアントのバレルを `@/lib` として import する。
+  client: {
+    output: '../../__generated__/path-alias/src/lib/client.ts',
+  },
+  rpc: {
+    output: '../../__generated__/path-alias/src/rpc.ts',
+  },
 })

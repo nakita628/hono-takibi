@@ -1,3 +1,4 @@
+export * from './client/index.js'
 export * from './components/index.js'
 export * from './docs/index.js'
 export * from './hooks/index.js'

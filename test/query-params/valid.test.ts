@@ -4106,6 +4106,319 @@ describe('literals: enum, const and oneOf', () => {
   })
 })
 
+// date-time and time are RFC 3339 values, so an offset is valid beside Z. The extensions
+// narrow what is accepted: x-isoOffset: false takes the offset back, x-isoPrecision fixes the
+// number of fractional digits, x-isoLocal lets the zone be left out.
+// date-time と time は RFC 3339 の値であり、Z と同様にオフセットも有効である。拡張は受理する
+// 範囲を絞り込む。x-isoOffset: false はオフセットを無効に戻し、x-isoPrecision は小数部の桁数を
+// 固定し、x-isoLocal はゾーンの省略を許す。
+describe('iso: date-time and time with their extensions', () => {
+  // x-isoOffset: false takes Z.
+
+  // x-isoOffset: false は Z を受理する。
+  it('datetime_z accepts "2020-01-02T03:04:05Z"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_z=${encodeURIComponent('2020-01-02T03:04:05Z')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime_z: { valueType: 'string', valueText: '2020-01-02T03:04:05Z' },
+    })
+  })
+
+  // x-isoPrecision: 3 takes three fractional digits.
+
+  // x-isoPrecision: 3 は、小数部3桁を受理する。
+  it('datetime_p3 accepts "2020-01-02T03:04:05.123Z"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_p3=${encodeURIComponent('2020-01-02T03:04:05.123Z')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime_p3: { valueType: 'string', valueText: '2020-01-02T03:04:05.123Z' },
+    })
+  })
+
+  // The precision says nothing of the zone: an offset is still valid.
+
+  // 精度はゾーンについて何も定めない。オフセットは引き続き有効である。
+  it('datetime_p3 accepts "2020-01-02T03:04:05.123+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_p3=${encodeURIComponent('2020-01-02T03:04:05.123+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime_p3: { valueType: 'string', valueText: '2020-01-02T03:04:05.123+09:00' },
+    })
+  })
+
+  // x-isoLocal: true lets the zone be left out.
+
+  // x-isoLocal: true は、ゾーンの省略を許す。
+  it('datetime_local accepts "2020-01-02T03:04:05"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_local=${encodeURIComponent('2020-01-02T03:04:05')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime_local: { valueType: 'string', valueText: '2020-01-02T03:04:05' },
+    })
+  })
+
+  // A zone is still valid when it is given.
+
+  // ゾーンが指定された場合も、引き続き有効である。
+  it('datetime_local accepts "2020-01-02T03:04:05+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?datetime_local=${encodeURIComponent('2020-01-02T03:04:05+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      datetime_local: { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
+    })
+  })
+
+  // A time without a zone.
+
+  // ゾーンなしの時刻。
+  it('time_any accepts "12:34:56"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34:56' },
+    })
+  })
+
+  // A time in UTC.
+
+  // UTC の時刻。
+  it('time_any accepts "12:34:56Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34:56Z' },
+    })
+  })
+
+  // A time ahead of UTC.
+
+  // UTC より進んだ時刻。
+  it('time_any accepts "12:34:56+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('12:34:56+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
+  // A time behind UTC, by an offset that is not a whole hour.
+
+  // UTC より遅れた時刻。オフセットは1時間単位ではない。
+  it('time_any accepts "12:34:56-05:30"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('12:34:56-05:30')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34:56-05:30' },
+    })
+  })
+
+  // The seconds are optional, with a zone as without.
+
+  // 秒は省略できる。ゾーンがあっても同様である。
+  it('time_any accepts "12:34Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_any=${encodeURIComponent('12:34Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34Z' },
+    })
+  })
+
+  // Fractional seconds before an offset.
+
+  // オフセットの前に小数秒がある。
+  it('time_any accepts "12:34:56.789+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('12:34:56.789+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '12:34:56.789+09:00' },
+    })
+  })
+
+  // The largest offset.
+
+  // 最大のオフセット。
+  it('time_any accepts "23:59:59+23:59"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_any=${encodeURIComponent('23:59:59+23:59')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_any: { valueType: 'string', valueText: '23:59:59+23:59' },
+    })
+  })
+
+  // x-isoOffset: false takes a time without a zone.
+
+  // x-isoOffset: false は、ゾーンなしの時刻を受理する。
+  it('time_z accepts "12:34:56"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_z=${encodeURIComponent('12:34:56')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_z: { valueType: 'string', valueText: '12:34:56' },
+    })
+  })
+
+  // x-isoPrecision: 0 takes whole seconds.
+
+  // x-isoPrecision: 0 は、整数の秒を受理する。
+  it('time_p0 accepts "12:34:56"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34:56')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_p0: { valueType: 'string', valueText: '12:34:56' },
+    })
+  })
+
+  // Whole seconds in UTC.
+
+  // UTC の整数秒。
+  it('time_p0 accepts "12:34:56Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34:56Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_p0: { valueType: 'string', valueText: '12:34:56Z' },
+    })
+  })
+
+  // Whole seconds with an offset.
+
+  // オフセット付きの整数秒。
+  it('time_p0 accepts "12:34:56+09:00"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p0=${encodeURIComponent('12:34:56+09:00')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_p0: { valueType: 'string', valueText: '12:34:56+09:00' },
+    })
+  })
+
+  // x-isoPrecision: 3 takes three fractional digits.
+
+  // x-isoPrecision: 3 は、小数部3桁を受理する。
+  it('time_p3 accepts "12:34:56.789"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p3=${encodeURIComponent('12:34:56.789')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_p3: { valueType: 'string', valueText: '12:34:56.789' },
+    })
+  })
+
+  // Three fractional digits in UTC.
+
+  // UTC の小数部3桁。
+  it('time_p3 accepts "12:34:56.789Z"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_p3=${encodeURIComponent('12:34:56.789Z')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_p3: { valueType: 'string', valueText: '12:34:56.789Z' },
+    })
+  })
+
+  // x-isoPrecision: -1 takes hours and minutes.
+
+  // x-isoPrecision: -1 は、時と分を受理する。
+  it('time_minute accepts "12:34"', async () => {
+    const res = await queryParamsApp.request(`/iso?time_minute=${encodeURIComponent('12:34')}`)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_minute: { valueType: 'string', valueText: '12:34' },
+    })
+  })
+
+  // Hours and minutes with an offset.
+
+  // オフセット付きの時と分。
+  it('time_minute accepts "12:34+09:00"', async () => {
+    const res = await queryParamsApp.request(
+      `/iso?time_minute=${encodeURIComponent('12:34+09:00')}`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      time_minute: { valueType: 'string', valueText: '12:34+09:00' },
+    })
+  })
+})
+
+// /inherited declares parameters named like what every object inherits. The request object
+// answers to toString and valueOf whether they were sent or not, and what it answers with is
+// not a value of the parameter.
+// /inherited は、すべてのオブジェクトが継承するものと同じ名前のパラメータを宣言している。
+// リクエストオブジェクトは、送信の有無にかかわらず toString や valueOf に応答するが、
+// その応答はパラメータの値ではない。
+describe('inherited: parameters named like what every object inherits', () => {
+  // The body is compared as text: the names under test are what toStrictEqual itself relies on.
+
+  // ボディは文字列として比較する。テスト対象の名前は、toStrictEqual 自身が利用するものである。
+  it('toString accepts "a", and valueOf falls back to its default', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a')
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"toString":{"valueType":"string","valueText":"a"},"valueOf":{"valueType":"number","valueText":"3"}}',
+    )
+  })
+
+  // A value that is sent is read like any other.
+
+  // 送信された値は、他のパラメータと同じように読まれる。
+  it('valueOf accepts "7" over its default', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a&valueOf=7')
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"toString":{"valueType":"string","valueText":"a"},"valueOf":{"valueType":"number","valueText":"7"}}',
+    )
+  })
+
+  // A boolean under an inherited name.
+
+  // 継承される名前を持つ boolean。
+  it('hasOwnProperty accepts "true"', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a&hasOwnProperty=true')
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"toString":{"valueType":"string","valueText":"a"},"valueOf":{"valueType":"number","valueText":"3"},"hasOwnProperty":{"valueType":"boolean","valueText":"true"}}',
+    )
+  })
+
+  // An array under an inherited name.
+
+  // 継承される名前を持つ配列。
+  it('isPrototypeOf accepts "1" and "2"', async () => {
+    const res = await queryParamsApp.request(
+      '/inherited?toString=a&isPrototypeOf=1&isPrototypeOf=2',
+    )
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"toString":{"valueType":"string","valueText":"a"},"valueOf":{"valueType":"number","valueText":"3"},"isPrototypeOf":[{"valueType":"number","valueText":"1"},{"valueType":"number","valueText":"2"}]}',
+    )
+  })
+
+  // allowEmptyValue applies under an inherited name as well.
+
+  // allowEmptyValue は、継承される名前でも適用される。
+  it('toLocaleString reads an empty value as absent', async () => {
+    const res = await queryParamsApp.request('/inherited?toString=a&toLocaleString=')
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"toString":{"valueType":"string","valueText":"a"},"valueOf":{"valueType":"number","valueText":"3"}}',
+    )
+  })
+})
+
 // /optional declares every parameter without required: true.
 // /optional は、すべてのパラメータを required: true なしで宣言している。
 describe('optional: absent and present', () => {
@@ -5590,6 +5903,94 @@ describe('objects: a parameter spread over the query', () => {
         name: { valueType: 'string', valueText: 'bob' },
         age: { valueType: 'number', valueText: '5' },
       },
+    })
+  })
+
+  // An empty pair of brackets takes the first free index, 0, and the index 0 written out names the same element: the later one stands.
+  // 空の角括弧は最初の空きインデックスである 0 を取り、明記されたインデックス 0 は同じ要素を指す。後に書かれたほうが残る。
+  it('deep keeps the last of an element written both ways', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][]=1&deep[ids][0]=2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { ids: { valueType: 'object', valueText: '[2]' } },
+    })
+  })
+
+  // The indexes say the order, not the length: 2 stands before 5.
+  // インデックスが示すのは順序であり、長さではない。2 は 5 の前に並ぶ。
+  it('deep closes the gaps between indexes', async () => {
+    const res = await queryParamsApp.request('/objects?deep[ids][5]=1&deep[ids][2]=2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { ids: { valueType: 'object', valueText: '[2,1]' } },
+    })
+  })
+
+  // A client may percent-encode the brackets; it is the same key.
+  // クライアントが角括弧をパーセントエンコードしても、同じキーである。
+  it('deep reads a key whose brackets are percent-encoded', async () => {
+    const res = await queryParamsApp.request(
+      `/objects?${encodeURIComponent('deep[points][][x]')}=1&${encodeURIComponent('deep[range][min]')}=2`,
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: {
+        points: { valueType: 'object', valueText: '[{"x":1}]' },
+        range: { valueType: 'object', valueText: '{"min":2}' },
+      },
+    })
+  })
+
+  // x is written twice and y once: y goes to the first point, which does not hold one yet.
+  // x は2回、y は1回書かれている。y は、まだ y を持たない最初の点に入る。
+  it('deep gives a key to the first element that does not hold it', async () => {
+    const res = await queryParamsApp.request(
+      '/objects?deep[points][][x]=1&deep[points][][x]=2&deep[points][][y]=9',
+    )
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { points: { valueType: 'object', valueText: '[{"x":1,"y":9},{"x":2}]' } },
+    })
+  })
+
+  // The object is built without a prototype, so the key names a property nothing declares, and is left out.
+  // オブジェクトはプロトタイプなしで組み立てられる。そのためこのキーは、どこにも宣言されていないプロパティを指し、出力から除かれる。
+  it('deep leaves __proto__ a key like any other', async () => {
+    const res = await queryParamsApp.request('/objects?deep[__proto__][polluted]=1&deep[name]=bob')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: { name: { valueType: 'string', valueText: 'bob' } },
+    })
+  })
+
+  // The name is followed by no property, so the key names none.
+  // 名前の後ろにプロパティがないため、このキーはどのプロパティも指さない。
+  it('deep ignores a key with an empty pair of brackets behind the name', async () => {
+    const res = await queryParamsApp.request('/objects?deep[]=1&limit=3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      deep: {},
+      limit: { valueType: 'number', valueText: '3' },
+    })
+  })
+
+  // The key is no path into deep; it is a key nothing declares.
+  // このキーは deep 内のパスではなく、どこにも宣言されていないキーである。
+  it('deep ignores a key whose bracket is not closed', async () => {
+    const res = await queryParamsApp.request('/objects?deep[name=bob&limit=3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      limit: { valueType: 'number', valueText: '3' },
+    })
+  })
+
+  // The same for text after the closing bracket.
+  // 閉じ括弧の後ろに文字がある場合も同様である。
+  it('deep ignores a key with text behind its brackets', async () => {
+    const res = await queryParamsApp.request('/objects?deep[name]x=bob&limit=3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      limit: { valueType: 'number', valueText: '3' },
     })
   })
 })

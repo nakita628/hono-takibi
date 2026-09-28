@@ -2144,3 +2144,15 @@ describe('strictness: what the wire grammar does not read', () => {
     expect(await res.json()).toStrictEqual({ issues: ['httpurl'] })
   })
 })
+
+// A cookie nothing declares is a property of bag, which holds it to an integer.
+// どこにも宣言されていない Cookie は bag のプロパティになり、integer であることを求められる。
+describe('open: an object that takes additional properties', () => {
+  // other is an additional property of bag.
+  // other は、bag の追加プロパティである。
+  it('bag rejects a word for an additional property', async () => {
+    const res = await cookieParamsApp.request('/open', { headers: { Cookie: 'other=abc' } })
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['bag.other'] })
+  })
+})

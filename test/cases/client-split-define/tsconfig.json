@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "../../__generated__/client-split-define/**/*",
+    "../../runtime/client-split-define.test.ts"
+  ]
+}

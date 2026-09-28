@@ -2025,6 +2025,54 @@ describe('styles: simple, label and matrix', () => {
     expect(await res.json()).toStrictEqual({ issues: ['value'] })
   })
 
+  // There is no value before the first part for it to continue.
+  // 最初の部分には、続きとなる直前の値が存在しない。
+  it('simpleobjx rejects a value whose first part is no assignment', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/x,a=1')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // The parts 1 and 5 are read as the value 1.5, which is no integer.
+  // 1 と 5 の部分は 1.5 という値として読まれるが、これは整数ではない。
+  it('labelobjx rejects a decimal where a property is an integer', async () => {
+    const res = await pathParamsApp.request('/labelobjx/.a=1.5')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value.a'] })
+  })
+
+  // The prefix is the name of this parameter.
+  // 接頭辞は、このパラメータ自身の名前である。
+  it('matrixstr rejects the name of another parameter', async () => {
+    const res = await pathParamsApp.request('/matrixstr/;other=abc')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded label array starts with its dot as well.
+  // explode された label の配列も、ドットで始まる。
+  it('labelexplode rejects elements without the dot', async () => {
+    const res = await pathParamsApp.request('/labelexplode/1.2.3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // An exploded matrix array starts with ";" and the name.
+  // explode された matrix の配列は、";" と名前で始まる。
+  it('matrixexplode rejects elements without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixexplode/1;value=2')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
+  // A matrix array starts with ";" and the name.
+  // matrix の配列は、";" と名前で始まる。
+  it('matrixarr rejects elements without the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixarr/1,2,3')
+    expect(res.status).toBe(422)
+    expect(await res.json()).toStrictEqual({ issues: ['value'] })
+  })
+
   // The prefix is stripped and what is left is not an integer.
   // 接頭辞を取り除いた残りが、整数ではない。
   it('label rejects a word after the dot', async () => {

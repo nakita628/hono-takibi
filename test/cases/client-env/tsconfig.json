@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["../../__generated__/client-env/**/*", "../../runtime/client-env.test.ts"]
+}

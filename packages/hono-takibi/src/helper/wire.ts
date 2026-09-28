@@ -730,8 +730,10 @@ function mayTakeNull(
 // reading of the text to be tried for.
 function takesEveryText(schema: Schema | boolean): boolean {
   if (typeof schema === 'boolean') return schema
+  // A schema that names no type and constrains nothing takes text like a string does.
+  const types = normalizeTypes(schema.type)
   return (
-    normalizeTypes(schema.type).includes('string') &&
+    (types.length === 0 || types.includes('string')) &&
     Object.keys(schema).every((key) =>
       [
         'type',

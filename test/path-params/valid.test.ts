@@ -2491,6 +2491,30 @@ describe('objects: an object in one segment', () => {
     expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x.y"}' })
   })
 
+  // The comma separates the assignments and may stand in a value as well. A part with no "=" continues the value before it.
+  // カンマは代入同士を区切るが、値の中にも現れうる。"=" を持たない部分は、直前の値の続きである。
+  it('simpleobjx reads a value that holds a comma', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/a=1,b=x,y')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x,y"}' })
+  })
+
+  // The same for the semicolon of an exploded matrix.
+  // explode された matrix のセミコロンも同様である。
+  it('matrixobjx reads a value that holds a semicolon', async () => {
+    const res = await pathParamsApp.request('/matrixobjx/;a=1;b=x;y')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x;y"}' })
+  })
+
+  // The first "=" of a part ends the name; the ones after it belong to the value.
+  // 各部分の最初の "=" が名前の終わりであり、それ以降の "=" は値に属する。
+  it('labelobjx reads a value that holds an equals sign', async () => {
+    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x=y')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x=y"}' })
+  })
+
   // style: matrix serialises the object as ;value=a,1,b,x.
   // style: matrix では、オブジェクトは ;value=a,1,b,x としてシリアライズされる。
   it('matrixobj reads pairs behind the name of the parameter', async () => {

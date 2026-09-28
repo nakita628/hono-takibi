@@ -7,6 +7,7 @@ import { Effect, FileSystem, Schema } from 'effect'
 import type { Config } from '../config/index.js'
 import {
   callbacks,
+  client,
   components,
   defineTemplate,
   docs,
@@ -33,7 +34,15 @@ import {
 import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { readdir, unlink } from '../file/index.js'
-import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
+import {
+  appEntryFile,
+  appEntryImport,
+  appEntryOutput,
+  handlerGroupOf,
+  generatedImport,
+  isInsideDirectory,
+} from '../helper/index.js'
+import type { Grouping } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
 type Job = {
@@ -178,6 +187,63 @@ export function outsideSources(input: string) {
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
   const defineOn = config.template?.define === true
   const appOutput = appEntryOutput(config)
+  const isSplit = config.template?.split === true
+  // What divides a split application: the handler file where the handlers register their
+  // routes themselves, which goes by the first tag, and the first segment of the path
+  // otherwise. Both are named the way a handler file is.
+  const isInline = config.template?.define === false && !config.template.routeHandler
+  const grouping: Grouping | undefined = isSplit
+    ? isInline
+      ? handlerGroupOf
+      : (endpoint) => handlerGroupOf(endpoint)
+    : undefined
+  // A client that is not an `index.ts` is re-exported by the `index.ts` beside it, and
+  // imported through it — unless that file is what another generator writes.
+  const generatedClient = config.client
+  const clientBarrel = (() => {
+    const output = generatedClient?.output
+    if (output === undefined || path.basename(output) === 'index.ts') return undefined
+    const barrel = path.join(path.dirname(output), 'index.ts')
+    const written = [
+      appOutput === undefined ? undefined : appEntryFile(appOutput, defineOn),
+      config.output,
+      config.routes?.output,
+      config.webhooks?.output,
+      config.components?.output,
+      ...Object.values(config.components ?? {}).map((target) =>
+        typeof target === 'object' ? target.output : undefined,
+      ),
+      config.type?.output,
+      config.rpc?.output,
+      config.swr?.output,
+      config['tanstack-query']?.output,
+      config['preact-query']?.output,
+      config['solid-query']?.output,
+      config['vue-query']?.output,
+      config['svelte-query']?.output,
+      config['angular-query']?.output,
+      config.test?.output,
+      config.mock?.output,
+    ]
+    return written.some((file) => file !== undefined && path.normalize(file) === barrel)
+      ? undefined
+      : barrel
+  })()
+  // The module a generated file imports the client from: the one it names, or the file
+  // `client` generates, reached from where the generated file is written.
+  const clientImport = (output: string, named: string | undefined) => {
+    if (named !== undefined || generatedClient === undefined) return named ?? ''
+    // A file beside the client imports the client itself: the barrel is for the others,
+    // and may come to re-export the file that would import it.
+    const isBeside = path.dirname(output) === path.dirname(generatedClient.output)
+    return generatedImport(
+      output,
+      isBeside ? generatedClient.output : (clientBarrel ?? generatedClient.output),
+      appOutput,
+      config.template?.pathAlias,
+      defineOn,
+    )
+  }
   const componentsOutput =
     config.components?.output ??
     (defineOn && appOutput ? `${path.dirname(appOutput)}/components/index.ts` : undefined)
@@ -443,6 +509,23 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
           run: (output: string) => runType(openAPI, output, config.type?.readonly),
         }
       : undefined,
+    generatedClient && config.template && appOutput
+      ? {
+          name: 'client',
+          output: generatedClient.output,
+          split: false,
+          run: (output: string) =>
+            client(
+              openAPI,
+              output,
+              appEntryImport(output, appOutput, config.template?.pathAlias, defineOn),
+              generatedClient.baseUrl,
+              config.basePath,
+              grouping,
+              clientBarrel === undefined ? undefined : path.join(path.dirname(output), 'index.ts'),
+            ),
+        }
+      : undefined,
     config.rpc
       ? {
           name: 'rpc',
@@ -452,11 +535,12 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             rpc(
               openAPI,
               output,
-              config.rpc?.import ?? '',
+              clientImport(output, config.rpc?.import),
               config.rpc?.client ?? 'client',
               config.rpc?.parseResponse ?? false,
               config.basePath,
               config.rpc?.docs ?? false,
+              grouping,
             ),
         }
       : undefined,
@@ -478,7 +562,11 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
             output: cfg.output,
             split: false,
             run: (output: string) =>
-              hooks(openAPI, output, cfg.import, library, { clientName: cfg.client ?? 'client' }),
+              hooks(openAPI, output, clientImport(output, cfg.import), library, {
+                clientName: cfg.client ?? 'client',
+                ...(grouping === undefined ? {} : { grouping }),
+                basePath: config.basePath,
+              }),
           }
         : undefined
     }),
@@ -541,6 +629,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.routes?.import,
               config.template?.testFramework,
               config.readonly,
+              isSplit,
             ),
         }
       : config.template && !defineOn && appOutput
@@ -558,6 +647,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
                 config.routes?.import,
                 config.template?.define === false ? config.template.routeHandler : false,
                 config.template?.testFramework,
+                isSplit,
               ),
           }
         : undefined,

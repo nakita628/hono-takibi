@@ -7,6 +7,8 @@ import { GenerateError } from '../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../guard/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { capitalize, methodPath, toIdentifierPascalCase } from '../utils/index.js'
+import { groupClientName } from './group.js'
+import type { Grouping } from './group.js'
 import {
   formatPath,
   hasNoContentResponse,
@@ -72,27 +74,37 @@ function makeHookName(method: string, pathStr: string, prefix: string) {
 }
 
 // e.g. ('client','get','/users/{id}') → "client.users[':id'].$get"
-function makeRuntimeAccess(clientName: string, method: string, pathStr: string) {
-  const pathResult = formatPath(pathStr)
+function makeRuntimeAccess(
+  clientName: string,
+  method: string,
+  pathStr: string,
+  hasBasePath = false,
+) {
+  const pathResult = formatPath(pathStr, hasBasePath)
   return `${clientName}${pathResult.runtimePath}.$${method}`
 }
 
 // A bracketed path (`client.users[':id']`) cannot be reached through `typeof` on the runtime
 // expression, so the type position indexes the method off the bracket instead.
-function makeTypeAccess(clientName: string, method: string, pathStr: string) {
-  const pathResult = formatPath(pathStr)
+function makeTypeAccess(clientName: string, method: string, pathStr: string, hasBasePath = false) {
+  const pathResult = formatPath(pathStr, hasBasePath)
   return pathResult.hasBracket
     ? `typeof ${clientName}${pathResult.typeofPrefix}${pathResult.bracketSuffix}['$${method}']`
     : `typeof ${clientName}${pathResult.runtimePath}.$${method}`
 }
 
 // Chains Awaited/ReturnType/typeof parseResponse to derive parsed JSON shape.
-function makeResponseTypeFromClient(clientName: string, method: string, pathStr: string) {
-  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${makeTypeAccess(clientName, method, pathStr)}>>>>>`
+function makeResponseTypeFromClient(
+  clientName: string,
+  method: string,
+  pathStr: string,
+  hasBasePath = false,
+) {
+  return `Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>>>>>`
 }
 
-function makeArgsType(clientName: string, method: string, pathStr: string) {
-  return `InferRequestType<${makeTypeAccess(clientName, method, pathStr)}>`
+function makeArgsType(clientName: string, method: string, pathStr: string, hasBasePath = false) {
+  return `InferRequestType<${makeTypeAccess(clientName, method, pathStr, hasBasePath)}>`
 }
 
 // GET is the resource's default read, so its query-side names carry only the path (`useUsers`,
@@ -884,6 +896,9 @@ function makeHookCode(
     readonly unwrapOptionsAccessor?: boolean
   },
   clientName: string,
+  // Under a base path the client is handed out from below it, where the root of the
+  // application is the client itself and not its `index`.
+  hasBasePath = false,
 ) {
   const op = item[method]
   if (!isOperationLike(op)) return null
@@ -902,9 +917,9 @@ function makeHookCode(
   // Operation file naming uses methodPath (e.g. `getHealth`) — same convention as before
   // even though the corresponding fetcher function is no longer emitted.
   const operationFileName = methodPath(method, pathStr)
-  const argsType = makeArgsType(clientName, method, pathStr)
-  const runtimeAccess = makeRuntimeAccess(clientName, method, pathStr)
-  const responseType = makeResponseTypeFromClient(clientName, method, pathStr)
+  const argsType = makeArgsType(clientName, method, pathStr, hasBasePath)
+  const runtimeAccess = makeRuntimeAccess(clientName, method, pathStr, hasBasePath)
+  const responseType = makeResponseTypeFromClient(clientName, method, pathStr, hasBasePath)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
   // Convert {param} to :param for key path display
@@ -1201,6 +1216,11 @@ function makeHookCode(
   }
 }
 
+function operationTags(operation: object): readonly string[] | undefined {
+  const tags: unknown = 'tags' in operation ? operation.tags : undefined
+  return Array.isArray(tags) ? tags.filter((tag) => typeof tag === 'string') : undefined
+}
+
 function makeHookCodes(
   paths: OpenAPIPaths,
   deps: ReturnType<typeof makeOperationDeps>,
@@ -1227,9 +1247,11 @@ function makeHookCodes(
     readonly hookTail?: HookTail
     readonly immutableQueryFn?: string
   },
-  clientName: string,
+  clientOf: (path: string, tags: readonly string[] | undefined) => string,
+  hasBasePath = false,
 ): readonly {
   readonly hookName: string
+  readonly client: string
   readonly code: string
   readonly isQuery: boolean
   readonly hasArgs: boolean
@@ -1253,10 +1275,16 @@ function makeHookCodes(
       ] as const
       return methods
         .map((method) => {
-          const result = makeHookCode(p, method, pathItem, deps, config, clientName)
+          const operation = pathItem[method]
+          const client = clientOf(
+            p,
+            isOperationLike(operation) ? operationTags(operation) : undefined,
+          )
+          const result = makeHookCode(p, method, pathItem, deps, config, client, hasBasePath)
           return result
             ? {
                 hookName: makeHookName(method, p, config.hookPrefix),
+                client,
                 code: result.code,
                 isQuery: result.isQuery,
                 hasArgs: result.hasArgs,
@@ -1270,6 +1298,7 @@ function makeHookCodes(
             item,
           ): item is {
             hookName: string
+            client: string
             code: string
             isQuery: boolean
             hasArgs: boolean
@@ -1432,6 +1461,8 @@ export function makeQueryHooks(
     readonly immutableQueryFn?: string
   },
   clientName = 'client',
+  grouping?: Grouping,
+  basePath?: string,
 ) {
   return Effect.gen(function* () {
     const pathsMaybe = openAPI.paths
@@ -1441,7 +1472,20 @@ export function makeQueryHooks(
     const componentsParameters = openAPI.components?.parameters ?? {}
     const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
     const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-    const hookCodes = makeHookCodes(pathsMaybe, deps, config, clientName)
+    // An operation of a split application is called through the client of its group, and
+    // through the client of the application when it belongs to none.
+    const clientOf = (route: string, tags: readonly string[] | undefined) => {
+      const group = grouping?.(route, tags)
+      return group === undefined ? clientName : groupClientName(group)
+    }
+    const hookCodes = makeHookCodes(
+      pathsMaybe,
+      deps,
+      config,
+      clientOf,
+      basePath !== undefined && basePath !== '/',
+    )
+    const clientNames = [...new Set(hookCodes.map(({ client }) => client))]
     const prefixKeyCodes = makePrefixKeyCodes(pathsMaybe)
     const hasAnyArgs = hookCodes.some(({ hasArgs }) => hasArgs)
     const prefixBody = prefixKeyCodes.join('\n\n')
@@ -1453,7 +1497,7 @@ export function makeQueryHooks(
     const hasInfiniteQuery = hookCodes.some(({ hasInfinite }) => hasInfinite)
     const header = makeHeader(
       importPath,
-      clientName,
+      clientNames.length > 0 ? clientNames.join(',') : clientName,
       hasQuery,
       hasMutation,
       hasAnyArgs,

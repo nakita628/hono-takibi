@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import type { Schema } from '../openapi/index.js'
-import { makeContent, makeParameterSchema, makeRequestBody, makeRequestParams } from './openapi.js'
+import {
+  makeContent,
+  makeParameterSchema,
+  makeParameters,
+  makeRequestBody,
+  makeRequestParams,
+  warnUnroutablePath,
+} from './openapi.js'
 
 // The component schemas the references below point at.
 // 以下の参照が指すコンポーネントスキーマ。
@@ -881,5 +888,163 @@ describe('makeContent: a form media type outside a request body', () => {
     ).toStrictEqual([
       `'application/x-www-form-urlencoded':{schema:z.object({age:z.int().exactOptional()}).openapi({"required":[]})}`,
     ])
+  })
+})
+
+// A path Hono cannot route is registered and never matches, so the generator says so when
+// it writes the route.
+// Hono がルーティングできないパスは、登録されても一致することがない。そのため生成器は、
+// ルートを書き出す時点でそれを知らせる。
+describe('warnUnroutablePath', () => {
+  // Hono reads a parameter as a whole segment.
+  // Hono は、パラメータをセグメント全体として読み取る。
+  it('warns about two parameters in one segment', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnUnroutablePath('/files/{name}.{ext}')
+    expect(warn).toHaveBeenCalledWith(
+      'path "/files/{name}.{ext}" never matches a request: "{name}.{ext}" holds a parameter that is not a whole segment, which Hono does not route. Give each parameter a segment of its own.',
+    )
+    warn.mockRestore()
+  })
+
+  // Text beside a parameter makes the segment more than the parameter.
+  // パラメータの隣に文字があると、セグメントはパラメータだけではなくなる。
+  it('warns about a parameter beside text', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnUnroutablePath('/v{version}/users')
+    expect(warn).toHaveBeenCalledWith(
+      'path "/v{version}/users" never matches a request: "v{version}" holds a parameter that is not a whole segment, which Hono does not route. Give each parameter a segment of its own.',
+    )
+    warn.mockRestore()
+  })
+
+  // Every segment at fault is named.
+  // 問題のあるセグメントは、すべて挙げられる。
+  it('names every segment at fault', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnUnroutablePath('/{a}-{b}/x/{c}.json')
+    expect(warn).toHaveBeenCalledWith(
+      'path "/{a}-{b}/x/{c}.json" never matches a request: "{a}-{b}", "{c}.json" holds a parameter that is not a whole segment, which Hono does not route. Give each parameter a segment of its own.',
+    )
+    warn.mockRestore()
+  })
+
+  // A parameter that is a whole segment is what Hono routes.
+  // セグメント全体であるパラメータは、Hono がルーティングできる。
+  it('says nothing of a parameter that is a whole segment', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnUnroutablePath('/users/{id}/posts/{post-id}')
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
+  // A path without parameters.
+  // パラメータのないパス。
+  it('says nothing of a path without parameters', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    warnUnroutablePath('/health')
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
+
+// Zod leaves a key named __proto__ out of every object it parses, so a parameter of that
+// name is never read. The generator says so.
+// Zod は、パースするすべてのオブジェクトから __proto__ という名前のキーを除外する。そのため、
+// この名前のパラメータは読み取られない。生成器は、それを知らせる。
+describe('makeParameters: a parameter named __proto__', () => {
+  // The warning names where the parameter is sent.
+  // 警告には、パラメータの送信場所が含まれる。
+  it('warns that the parameter is never read', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    makeParameters([{ name: '__proto__', in: 'query', schema: { type: 'integer' } }])
+    expect(warn).toHaveBeenCalledWith(
+      'parameter "__proto__" (in: query) is never read: Zod leaves a key of that name out of every object it parses, so that a request cannot reach the prototype. Give the parameter another name.',
+    )
+    warn.mockRestore()
+  })
+
+  // The key is written as a computed one, so that it is a key and not the prototype of the
+  // object that holds the parameters.
+  // キーは計算されたキーとして書き出される。これによりキーとして扱われ、パラメータを保持する
+  // オブジェクトのプロトタイプにはならない。
+  it('writes the parameter under a computed key', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { query } = makeParameters([
+      { name: '__proto__', in: 'query', schema: { type: 'integer' } },
+    ])
+    expect(Object.keys(query ?? {})).toStrictEqual(["['__proto__']"])
+    warn.mockRestore()
+  })
+
+  // Any other name every object inherits is read, and needs no warning.
+  // すべてのオブジェクトが継承する他の名前は読み取られるため、警告は不要である。
+  it('says nothing of a parameter named constructor', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    makeParameters([{ name: 'constructor', in: 'query', schema: { type: 'integer' } }])
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+})
+
+// A parameter named like what every object inherits is read as absent when the request
+// object answers with what it inherits.
+// すべてのオブジェクトが継承するものと同じ名前のパラメータは、リクエストオブジェクトが
+// 継承したものを返した場合に、存在しないものとして読まれる。
+describe('makeParameterSchema: a name every object inherits', () => {
+  // The reader stands outside the schema, around .optional(), so that what is inherited
+  // becomes a missing value an optional parameter takes.
+  // リーダーはスキーマの外側、.optional() の周りに置かれる。これにより、継承されたものは、
+  // 任意パラメータが受理する欠落値になる。
+  it('reads what is inherited as absent for an optional parameter', () => {
+    expect(
+      makeParameterSchema({ name: 'constructor', in: 'query', schema: { type: 'string' } }),
+    ).toBe(
+      `z.preprocess((val)=>(typeof val==='function'||val===Object.prototype?undefined:val),z.string().optional()).exactOptional().openapi({param:{"name":"constructor","in":"query","schema":{"type":"string"},"required":false}})`,
+    )
+  })
+
+  // A required parameter stays required: what is inherited is a missing value it rejects.
+  // 必須パラメータは、必須のままである。継承されたものは欠落値となり、拒否される。
+  it('reads what is inherited as missing for a required parameter', () => {
+    expect(
+      makeParameterSchema({
+        name: 'toString',
+        in: 'header',
+        required: true,
+        schema: { type: 'string' },
+      }),
+    ).toBe(
+      `z.preprocess((val)=>(typeof val==='function'||val===Object.prototype?undefined:val),z.string()).openapi({param:{"name":"toString","in":"header","required":true,"schema":{"type":"string"}}})`,
+    )
+  })
+
+  // The default is stated outside the reader, where a missing value reaches it.
+  // デフォルト値は、リーダーの外側に記述される。欠落値は、そこでデフォルト値に到達する。
+  it('states the default outside the reader', () => {
+    expect(
+      makeParameterSchema({
+        name: 'valueOf',
+        in: 'cookie',
+        schema: { type: 'string', default: 'a' },
+      }),
+    ).toBe(
+      `z.preprocess((val)=>(typeof val==='function'||val===Object.prototype?undefined:val),z.string().default("a")).default("a").exactOptional().openapi({param:{"name":"valueOf","in":"cookie","schema":{"type":"string","default":"a"},"required":false}})`,
+    )
+  })
+
+  // A path parameter is always sent, so there is nothing inherited to read.
+  // パスパラメータは必ず送信されるため、読み取るべき継承値は存在しない。
+  it('leaves a path parameter as it is', () => {
+    expect(
+      makeParameterSchema({
+        name: 'constructor',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      }),
+    ).toBe(
+      `z.string().openapi({param:{"name":"constructor","in":"path","required":true,"schema":{"type":"string"}}})`,
+    )
   })
 })

@@ -7,10 +7,12 @@ import { GenerateError } from '../../error/index.js'
 import { isOpenAPIPaths, isOperationLike, isRecord } from '../../guard/index.js'
 import {
   formatPath,
+  groupClientName,
   makeOperationDeps,
   operationHasArgs,
   parsePathItem,
 } from '../../helper/index.js'
+import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { makeInferRequestType, methodPath } from '../../utils/index.js'
 
@@ -44,13 +46,18 @@ function makeOperationCode(
   path: string,
   method: 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace' | 'query',
   item: ReturnType<typeof parsePathItem>,
-  deps: ReturnType<typeof makeOperationDeps>,
+  base: ReturnType<typeof makeOperationDeps>,
   useParseResponse?: boolean,
   hasBasePath?: boolean,
   docs?: boolean,
+  grouping?: Grouping,
 ) {
   const operation = item[method]
   if (!isOperationLike(operation)) return null
+  // An operation of a split application is called through the client of its group, and
+  // through the client of the application when it belongs to none.
+  const group = grouping?.(path, operationTags(operation))
+  const deps = group === undefined ? base : { ...base, client: groupClientName(group) }
   const funcName = methodPath(method, path)
   const pathResult = formatPath(path, hasBasePath)
   const hasArgs = operationHasArgs(item, operation, deps)
@@ -64,7 +71,12 @@ function makeOperationCode(
   const call = useParseResponse ? `parseResponse(${clientCall})` : clientCall
   const jsDoc = docs ? makeJsDoc(operation, method, path) : ''
   const func = `${jsDoc}export async function ${funcName}(${argSig}){return await ${call}}`
-  return { code: func, hasArgs } as const
+  return { code: func, hasArgs, client: deps.client } as const
+}
+
+function operationTags(operation: object): readonly string[] | undefined {
+  const tags: unknown = 'tags' in operation ? operation.tags : undefined
+  return Array.isArray(tags) ? tags.filter((tag) => typeof tag === 'string') : undefined
 }
 
 function makeOperationCodes(
@@ -73,6 +85,7 @@ function makeOperationCodes(
   useParseResponse?: boolean,
   hasBasePath?: boolean,
   docs?: boolean,
+  grouping?: Grouping,
 ) {
   return Object.entries(paths)
     .filter((entry) => isRecord(entry[1]))
@@ -91,7 +104,16 @@ function makeOperationCodes(
       ] as const
       return methods
         .map((method) =>
-          makeOperationCode(p, method, pathItem, deps, useParseResponse, hasBasePath, docs),
+          makeOperationCode(
+            p,
+            method,
+            pathItem,
+            deps,
+            useParseResponse,
+            hasBasePath,
+            docs,
+            grouping,
+          ),
         )
         .filter((item) => item !== null)
     })
@@ -100,14 +122,14 @@ function makeOperationCodes(
 function makeHeader(
   importPath: string,
   needsInferRequestType: boolean,
-  clientName: string,
+  clientNames: readonly string[],
   useParseResponse?: boolean,
 ) {
   const typeImports = needsInferRequestType
     ? 'InferRequestType,ClientRequestOptions'
     : 'ClientRequestOptions'
   const parseResponseImport = useParseResponse ? `import{parseResponse}from'hono/client'\n` : ''
-  return `import type{${typeImports}}from'hono/client'\n${parseResponseImport}import{${clientName}}from'${importPath}'\n\n` as const
+  return `import type{${typeImports}}from'hono/client'\n${parseResponseImport}import{${clientNames.join(',')}}from'${importPath}'\n\n` as const
 }
 
 /**
@@ -121,6 +143,7 @@ export function rpc(
   useParseResponse?: boolean,
   basePath?: string,
   docs?: boolean,
+  grouping?: Grouping,
 ) {
   return Effect.gen(function* () {
     const paths = openAPI.paths
@@ -131,10 +154,23 @@ export function rpc(
     const componentsParameters = openAPI.components?.parameters ?? {}
     const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
     const deps = makeOperationDeps(clientName, componentsParameters, componentsRequestBodies)
-    const operationCodes = makeOperationCodes(paths, deps, useParseResponse, hasBasePath, docs)
+    const operationCodes = makeOperationCodes(
+      paths,
+      deps,
+      useParseResponse,
+      hasBasePath,
+      docs,
+      grouping,
+    )
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-    const header = makeHeader(importPath, needsInferRequestType, clientName, useParseResponse)
+    const clientNames = [...new Set(operationCodes.map(({ client }) => client))]
+    const header = makeHeader(
+      importPath,
+      needsInferRequestType,
+      clientNames.length > 0 ? clientNames : [clientName],
+      useParseResponse,
+    )
     const code = `${header}${body}${operationCodes.length > 0 ? '\n' : ''}`
     yield* emit(code, dirname(output), output)
     return `Generated rpc code written to ${output}`

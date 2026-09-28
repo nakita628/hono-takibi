@@ -87,10 +87,89 @@ type Shape = 'scalar' | 'array' | 'object'
 
 type TestParam = {
   readonly name: string
+  readonly variable: string
   readonly fakerCode: string
   readonly shape?: 'array' | 'object'
   readonly style?: string
   readonly explode?: boolean
+}
+
+const TAKEN = new Set([
+  'app',
+  'body',
+  'res',
+  'faker',
+  'describe',
+  'it',
+  'expect',
+  'deepObjectQuery',
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'let',
+  'static',
+  'yield',
+  'await',
+])
+
+function toVariable(name: string) {
+  const camel = name
+    .replaceAll(/[^A-Za-z0-9_$]+(.?)/gu, (_, next: string) => next.toUpperCase())
+    .replace(/^[A-Z]/u, (first) => first.toLowerCase())
+  const word = /^[A-Za-z_$]/u.test(camel) ? camel : `_${camel}`
+  return TAKEN.has(word) ? `${word}_` : word
+}
+
+function nameVariables<T extends { readonly name: string }>(
+  located: readonly (readonly [string, readonly T[]])[],
+) {
+  const used = new Set<string>()
+  return located.map(([location, params]) =>
+    params.map((param) => {
+      const base = toVariable(param.name)
+      const candidates = [
+        base,
+        `${base}${location}`,
+        ...Array.from({ length: used.size + 1 }, (_, i) => `${base}${location}${i + 2}`),
+      ]
+      const variable = candidates.find((candidate) => !used.has(candidate)) ?? base
+      used.add(variable)
+      return { ...param, variable }
+    }),
+  )
 }
 
 function shapeOf(
@@ -299,18 +378,18 @@ function makeHelpers(body: string) {
 
 function joinedValue(param: TestParam, separator: string, assignments: boolean, encoded = ENCODED) {
   const glue = quoteSingle(separator)
-  if (param.shape === 'array') return `${param.name}.map((item)=>${encoded}).join(${glue})`
+  if (param.shape === 'array') return `${param.variable}.map((item)=>${encoded}).join(${glue})`
   return assignments
-    ? `Object.entries(${param.name}).map(([key,item])=>key+'='+${encoded}).join(${glue})`
-    : `Object.entries(${param.name}).flatMap(([key,item])=>[key,${encoded}]).join(${glue})`
+    ? `Object.entries(${param.variable}).map(([key,item])=>key+'='+${encoded}).join(${glue})`
+    : `Object.entries(${param.variable}).flatMap(([key,item])=>[key,${encoded}]).join(${glue})`
 }
 
 function repeatedValue(param: TestParam, before: string, separator: string) {
   const head = before === '' ? '' : `${quoteSingle(before)}+`
   const glue = quoteSingle(separator)
   return param.shape === 'array'
-    ? `${param.name}.map((item)=>${head}${ENCODED}).join(${glue})`
-    : `Object.entries(${param.name}).map(([key,item])=>${head}key+'='+${ENCODED}).join(${glue})`
+    ? `${param.variable}.map((item)=>${head}${ENCODED}).join(${glue})`
+    : `Object.entries(${param.variable}).map(([key,item])=>${head}key+'='+${ENCODED}).join(${glue})`
 }
 
 function makePathValue(param: TestParam) {
@@ -318,9 +397,9 @@ function makePathValue(param: TestParam) {
   const explode = param.explode ?? false
   const name = escapeTemplateLiteral(param.name)
   if (param.shape === undefined) {
-    if (style === 'label') return `.\${${param.name}}`
-    if (style === 'matrix') return `;${name}=\${${param.name}}`
-    return `\${${param.name}}`
+    if (style === 'label') return `.\${${param.variable}}`
+    if (style === 'matrix') return `;${name}=\${${param.variable}}`
+    return `\${${param.variable}}`
   }
   if (style === 'label') {
     return `.\${${joinedValue(param, explode ? '.' : ',', explode)}}`
@@ -338,10 +417,10 @@ function makeQueryPart(param: TestParam) {
   const explode = param.explode ?? style === 'form'
   const name = escapeTemplateLiteral(param.name)
   if (param.shape === undefined) {
-    return `${name}=\${encodeURIComponent(String(${param.name}))}`
+    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
   }
   if (param.shape === 'object' && style === 'deepObject') {
-    return `\${deepObjectQuery(${quoteSingle(param.name)},${param.name}).join('&')}`
+    return `\${deepObjectQuery(${quoteSingle(param.name)},${param.variable}).join('&')}`
   }
   if (explode) {
     return `\${${repeatedValue(param, param.shape === 'array' ? `${param.name}=` : '', '&')}}`
@@ -351,7 +430,7 @@ function makeQueryPart(param: TestParam) {
 }
 
 function makeHeaderValue(param: TestParam) {
-  if (param.shape === undefined) return `String(${param.name})`
+  if (param.shape === undefined) return `String(${param.variable})`
   return joinedValue(param, ',', param.explode ?? false, 'String(item)')
 }
 
@@ -361,7 +440,9 @@ function isCookieAuth(sec: { readonly type: string; readonly in?: string }) {
 
 function makeCookiePart(param: TestParam) {
   const name = escapeTemplateLiteral(param.name)
-  if (param.shape === undefined) return `${name}=\${encodeURIComponent(String(${param.name}))}`
+  if (param.shape === undefined) {
+    return `${name}=\${encodeURIComponent(String(${param.variable}))}`
+  }
   if (param.shape === 'object' && (param.explode ?? true)) {
     return `\${${repeatedValue(param, '', '; ')}}`
   }
@@ -370,6 +451,10 @@ function makeCookiePart(param: TestParam) {
 
 function makeCookieHeader(parts: readonly string[]) {
   return parts.length > 0 ? [`'Cookie':\`${parts.join('; ')}\``] : []
+}
+
+function setup(param: TestParam) {
+  return `const ${param.variable}=${param.fakerCode}`
 }
 
 function makeTestCase(
@@ -383,13 +468,20 @@ function makeTestCase(
   // Escape template-literal metacharacters BEFORE injecting `${name}` markers
   // to prevent codegen injection from malicious path keys.
   const escapedFullPath = escapeTemplateLiteral(fullPath)
-  const testPath = tc.pathParams.reduce(
+  const [pathParams = [], queryParams = [], requiredHeaderParams = [], requiredCookieParams = []] =
+    nameVariables<(typeof tc.pathParams)[number] | (typeof tc.queryParams)[number]>([
+      ['Path', tc.pathParams],
+      ['Query', tc.queryParams],
+      ['Header', tc.headerParams.filter((p) => p.required)],
+      ['Cookie', tc.cookieParams.filter((p) => p.required)],
+    ])
+  const testPath = pathParams.reduce(
     (path, param) => path.replace(`{${param.name}}`, makePathValue(param)),
     escapedFullPath,
   )
-  const pathSetup = tc.pathParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const querySetup = tc.queryParams.map((param) => `const ${param.name}=${param.fakerCode}`)
-  const queryParts = tc.queryParams.map(makeQueryPart)
+  const pathSetup = pathParams.map(setup)
+  const querySetup = queryParams.map(setup)
+  const queryParts = queryParams.map(makeQueryPart)
   const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
   // apiKey-in-query credentials go on the URL; bare `queryString` is reused
   // for the unauthorized-flow test which omits the credential.
@@ -402,13 +494,11 @@ function makeTestCase(
         ? `&${authQueryParts.join('&')}`
         : `?${authQueryParts.join('&')}`
       : ''
-  const requiredHeaderParams = tc.headerParams.filter((p) => p.required)
-  const headerSetup = requiredHeaderParams.map((param) => `const ${param.name}=${param.fakerCode}`)
+  const headerSetup = requiredHeaderParams.map(setup)
   const headerEntries = requiredHeaderParams.map(
     (param) => `${quoteSingle(param.name)}:${makeHeaderValue(param)}`,
   )
-  const requiredCookieParams = tc.cookieParams.filter((p) => p.required)
-  const cookieSetup = requiredCookieParams.map((param) => `const ${param.name}=${param.fakerCode}`)
+  const cookieSetup = requiredCookieParams.map(setup)
   const cookieParts = requiredCookieParams.map(makeCookiePart)
   const authCookieParts = tc.security
     .filter(isCookieAuth)
@@ -455,9 +545,7 @@ function makeTestCase(
               path.replace(`{${param.name}}`, getNonExistentValue(param.schema, schemas)),
             escapedFullPath,
           )
-          const notFoundQuerySetup = tc.queryParams.map(
-            (param) => `const ${param.name}=${param.fakerCode}`,
-          )
+          const notFoundQuerySetup = queryParams.map(setup)
           const notFoundSetupCode = [
             ...notFoundQuerySetup,
             ...headerSetup,

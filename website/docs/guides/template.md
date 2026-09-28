@@ -131,3 +131,38 @@ export const getUsersIdRoute = defineOpenAPIRoute({
 ![define: true, regenerating on TypeSpec save](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/template/template-define.gif)
 
 In this mode `output` is the app entry (default `./src/index.ts`, must be an `index.ts` path). Routes go to `routes/` next to it, and component schemas to `components/index.ts`.
+
+## Splitting the app
+
+`split: true` divides the routes into groups, each exported under its name. A [client](/docs/guides/client#larger-applications) of one group resolves the routes of that group alone.
+
+```ts
+export default defineConfig({
+  input: 'openapi.yaml',
+  output: './src/routes.ts',
+  template: { routeHandler: true, split: true },
+})
+```
+
+| Mode                  | A group is                      | Written as                                    |
+| --------------------- | ------------------------------- | --------------------------------------------- |
+| `routeHandler: true`  | the first segment of the path   | `app.openapi(getBooksRoute, ...)`             |
+| `define: true`        | the first segment of the path   | `app.openapiRoutes([getBooksRoute] as const)` |
+| `routeHandler: false` | the handler file the app mounts | `app.route('/', booksHandler)`                |
+
+```ts
+// src/index.ts
+const app = new OpenAPIHono()
+
+export const api = app.openapi(getRoute, getRouteHandler)
+
+export const books = app
+  .openapi(getBooksRoute, getBooksRouteHandler)
+  .openapi(postBooksRoute, postBooksRouteHandler)
+
+export default app
+```
+
+`api` holds the routes that belong to no group, the root for one. Every group is the one `app`: only the types differ.
+
+Re-running replaces each group where it stands, adds a new one in the order of the document, and removes one whose paths left it. An export of your own is kept, unless it is written like a group: `export const x = app.openapi(...)`, `app.openapiRoutes([...])` or `app.route('/', xHandler)`.

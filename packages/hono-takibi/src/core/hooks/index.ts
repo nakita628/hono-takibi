@@ -1,4 +1,5 @@
 import { makeQueryHooks } from '../../helper/index.js'
+import type { Grouping } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 // TanStack hooks default TError to the library's `DefaultError`, so a global `Register`
@@ -178,7 +179,19 @@ export function hooks(
   output: string,
   importPath: string,
   library: HookLibrary,
-  options?: { readonly clientName?: string },
+  options?: {
+    readonly clientName?: string
+    readonly grouping?: Grouping
+    readonly basePath?: string
+  },
 ) {
-  return makeQueryHooks(openAPI, output, importPath, HOOK_CONFIGS[library], options?.clientName)
+  return makeQueryHooks(
+    openAPI,
+    output,
+    importPath,
+    HOOK_CONFIGS[library],
+    options?.clientName,
+    options?.grouping,
+    options?.basePath,
+  )
 }

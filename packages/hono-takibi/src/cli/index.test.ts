@@ -618,7 +618,8 @@ describe('hono-takibi config-driven', { timeout: 30_000 }, () => {
         mock: { output: ${JSON.stringify(mockOut)} },
         docs: { output: ${JSON.stringify(docsOut)} },
         test: { output: ${JSON.stringify(testOut)}, import: './routes' },
-        'tanstack-query': { output: ${JSON.stringify(queryOut)}, import: './client' },
+        client: { output: ${JSON.stringify(path.join(dir, 'client.ts'))} },
+        'tanstack-query': { output: ${JSON.stringify(queryOut)} },
       }`,
     )
 

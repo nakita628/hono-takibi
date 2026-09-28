@@ -13,6 +13,67 @@ export function isInsideDirectory(directory: string, filePath: string) {
   return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
 }
 
+// Without `define` the output named is the routes file, and the app entry is the
+// `index.ts` beside it.
+function appEntryDirectory(appOutput: string, define: boolean) {
+  return define || !appOutput.endsWith('/index.ts')
+    ? path.dirname(appOutput)
+    : path.dirname(path.dirname(appOutput))
+}
+
+/** The file the app entry is, whichever output the config names. */
+export function appEntryFile(appOutput: string, define: boolean) {
+  return path.join(appEntryDirectory(appOutput, define), 'index.ts')
+}
+
+function relativeSpecifier(from: string, to: string) {
+  const relative = path.relative(path.dirname(from), to).split(path.sep).join('/')
+  return relative === '' ? '.' : relative.startsWith('.') ? relative : `./${relative}`
+}
+
+/**
+ * The module specifier the app entry is imported by from `from`: relative to it, or under
+ * the path alias, which stands for the directory the app entry is in. An alias that names a
+ * directory, `@/api`, is the entry as it stands; one that names a root, `@/`, takes `index`.
+ */
+export function appEntryImport(
+  from: string,
+  appOutput: string,
+  pathAlias: string | undefined,
+  define: boolean,
+) {
+  if (pathAlias !== undefined) {
+    const prefix = pathAlias.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias
+    return prefix.includes('/') ? prefix : `${prefix}/index`
+  }
+  return `${relativeSpecifier(from, appEntryDirectory(appOutput, define))}/index`
+}
+
+/**
+ * The module specifier a generated file is imported by from `from`: under the path alias
+ * when the file is in the directory the alias stands for, and relative to `from` otherwise.
+ */
+export function generatedImport(
+  from: string,
+  file: string,
+  appOutput: string | undefined,
+  pathAlias: string | undefined,
+  define: boolean,
+) {
+  // A barrel is imported by its directory.
+  const target = file.replace(/(?:\/index)?\.ts$/u, '')
+  if (pathAlias !== undefined && appOutput !== undefined) {
+    const inside = path
+      .relative(appEntryDirectory(appOutput, define), target)
+      .split(path.sep)
+      .join('/')
+    if (inside !== '' && !inside.startsWith('..')) {
+      return `${pathAlias.endsWith('/') ? pathAlias.slice(0, -1) : pathAlias}/${inside}`
+    }
+  }
+  return relativeSpecifier(from, target)
+}
+
 /**
  * The file the app entry is written to, or `undefined` when the config names none.
  *

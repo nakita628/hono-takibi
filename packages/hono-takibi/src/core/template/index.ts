@@ -18,6 +18,7 @@ export function template(
   routeImport: string | undefined,
   routeHandler: boolean,
   testFramework: 'vitest' | 'vite-plus' | 'bun' = 'vitest',
+  split = false,
 ) {
   return Effect.gen(function* () {
     const isIndexFile = output.endsWith('/index.ts')
@@ -49,6 +50,7 @@ export function template(
         false,
         undefined,
         inlineFiles,
+        split,
       ),
     )
     const existing = yield* readFile(target)

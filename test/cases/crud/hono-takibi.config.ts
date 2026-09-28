@@ -7,9 +7,12 @@ export default defineConfig({
   template: {
     routeHandler: true,
   },
+  client: {
+    output: '../../__generated__/crud/src/client.ts',
+    baseUrl: 'http://localhost:3000',
+  },
   rpc: {
     output: '../../__generated__/crud/src/rpc.ts',
-    import: './client',
   },
   test: {
     output: '../../__generated__/crud/src/index.test.ts',

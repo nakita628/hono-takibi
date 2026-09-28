@@ -100,6 +100,13 @@ paths:
                 required: [min]
                 properties:
                   min: { type: integer }
+        # Names that are no identifiers, and one the generated test has taken: each is
+        # declared under a variable of its own.
+        # 識別子でない名前と、生成されるテストがすでに使っている名前。それぞれ専用の変数で
+        # 宣言される。
+        - { name: X-Request-Id, in: header, required: true, schema: { type: string, format: uuid } }
+        - { name: page-size, in: query, required: true, schema: { type: integer, minimum: 1 } }
+        - { name: res, in: query, required: true, schema: { type: integer } }
         - name: ids
           in: cookie
           required: true

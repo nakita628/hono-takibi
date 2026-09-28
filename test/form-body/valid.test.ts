@@ -298,6 +298,90 @@ describe('fields: every kind of field is read from text', () => {
       moment: { valueType: 'string', valueText: '2020-01-02T03:04:05+09:00' },
     })
   })
+
+  // The field takes null and no string, so the text can mean nothing else. The body is compared as text throughout this group, which holds a field named constructor.
+  // このフィールドは null を受理し文字列を受理しないため、このテキストに他の意味はない。このグループには constructor という名前のフィールドがあるため、ボディは一貫して文字列として比較する。
+  it('maybe reads "null" as the value', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'maybe=null',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"limit":{"valueType":"number","valueText":"20"},"maybe":{"valueType":"null","valueText":"null"}}',
+    )
+  })
+
+  // The same field with a number.
+  // 同じフィールドに数値を送る。
+  it('maybe reads "5" as a number', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'maybe=5',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"limit":{"valueType":"number","valueText":"20"},"maybe":{"valueType":"number","valueText":"5"}}',
+    )
+  })
+
+  // A string takes every text, null included, as the text it is.
+  // 文字列は、null を含むあらゆるテキストを、文字列のまま受理する。
+  it('label keeps "null" a string', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'label=null',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"limit":{"valueType":"number","valueText":"20"},"label":{"valueType":"string","valueText":"null"}}',
+    )
+  })
+
+  // clock is format: time, which ends in an offset as well.
+  // clock は format: time であり、これもオフセットで終わる。
+  it('clock accepts a time with an offset', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: `clock=${encodeURIComponent('12:34:56+09:00')}`,
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"limit":{"valueType":"number","valueText":"20"},"clock":{"valueType":"string","valueText":"12:34:56+09:00"}}',
+    )
+  })
+
+  // A field under a name every object inherits is read like any other.
+  // すべてのオブジェクトが継承する名前を持つフィールドも、他と同じように読まれる。
+  it('constructor reads "5" as a number', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'constructor=5',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"limit":{"valueType":"number","valueText":"20"},"constructor":{"valueType":"number","valueText":"5"}}',
+    )
+  })
+
+  // What the body inherits under the name is no value of the field.
+  // ボディがその名前で継承しているものは、フィールドの値ではない。
+  it('constructor is absent when it is not sent', async () => {
+    const res = await formBodyApp.request('/urlencoded', {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: 'name=alice',
+    })
+    expect(res.status).toBe(200)
+    expect(await res.text()).toBe(
+      '{"name":{"valueType":"string","valueText":"alice"},"limit":{"valueType":"number","valueText":"20"}}',
+    )
+  })
 })
 
 // An array field is sent by repeating its name. Sent once, it arrives as a bare string, which the

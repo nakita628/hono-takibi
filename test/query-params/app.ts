@@ -5,6 +5,8 @@ import {
   getCombinatorsRoute,
   getContentRoute,
   getDefaultsRoute,
+  getInheritedRoute,
+  getIsoRoute,
   getLimitsRoute,
   getLiteralsRoute,
   getObjectsRoute,
@@ -95,6 +97,8 @@ export const queryParamsApp = new OpenAPIHono({
   .openapi(getCombinatorsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getContentRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getObjectsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getIsoRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getInheritedRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getSharedRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getOpenRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getAbsentRoute, (c) => c.json(echoFields(c.req.valid('query'))))

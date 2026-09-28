@@ -147,6 +147,24 @@ paths:
         - { name: constructor, in: cookie, schema: { type: integer } }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
+  # An exploded object that declares `additionalProperties` takes the cookies nothing else
+  # declares. `page` is a parameter of its own and stays one.
+  # `additionalProperties` を宣言する explode されたオブジェクトは、他のどこにも宣言されて
+  # いない Cookie を受け取る。`page` は独立したパラメータであり、そのまま扱われる。
+  /open:
+    get:
+      operationId: cookieOpen
+      parameters:
+        - { name: page, in: cookie, schema: { type: integer } }
+        - name: bag
+          in: cookie
+          schema:
+            type: object
+            properties:
+              known: { type: string }
+            additionalProperties: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
   /defaults:
     get:
       operationId: cookieDefaults

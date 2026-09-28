@@ -658,6 +658,55 @@ paths:
             additionalProperties: { type: integer }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
+  # `date-time` and `time` with the extensions that narrow them. An offset is valid by
+  # default, and `x-isoOffset: false` takes it back.
+  # `date-time` と `time` を、絞り込み用の拡張とともに宣言する。オフセットはデフォルトで
+  # 有効であり、`x-isoOffset: false` で無効に戻せる。
+  /iso:
+    get:
+      operationId: queryIso
+      parameters:
+        - {
+            name: datetime_z,
+            in: query,
+            schema: { type: string, format: date-time, x-isoOffset: false },
+          }
+        - {
+            name: datetime_p3,
+            in: query,
+            schema: { type: string, format: date-time, x-isoPrecision: 3 },
+          }
+        - {
+            name: datetime_local,
+            in: query,
+            schema: { type: string, format: date-time, x-isoLocal: true },
+          }
+        - { name: time_any, in: query, schema: { type: string, format: time } }
+        - { name: time_z, in: query, schema: { type: string, format: time, x-isoOffset: false } }
+        - { name: time_p0, in: query, schema: { type: string, format: time, x-isoPrecision: 0 } }
+        - { name: time_p3, in: query, schema: { type: string, format: time, x-isoPrecision: 3 } }
+        - {
+            name: time_minute,
+            in: query,
+            schema: { type: string, format: time, x-isoPrecision: -1 },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  # Parameters named like what every JavaScript object inherits. The request object answers
+  # to these names whether the parameter was sent or not.
+  # すべての JavaScript オブジェクトが継承するものと同じ名前のパラメータ。リクエスト
+  # オブジェクトは、パラメータが送信されたかどうかにかかわらず、これらの名前に応答する。
+  /inherited:
+    get:
+      operationId: queryInherited
+      parameters:
+        - { name: toString, in: query, required: true, schema: { type: string } }
+        - { name: valueOf, in: query, schema: { type: integer, default: 3 } }
+        - { name: hasOwnProperty, in: query, schema: { type: boolean } }
+        - { name: isPrototypeOf, in: query, schema: { type: array, items: { type: integer } } }
+        - { name: toLocaleString, in: query, allowEmptyValue: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
   /absent:
     get:
       operationId: queryAbsent

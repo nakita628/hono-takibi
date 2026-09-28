@@ -3,6 +3,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   getCookiesRoute,
   getDefaultsRoute,
+  getOpenRoute,
   getOptionalRoute,
   getRequiredRoute,
 } from './__generated__/routes'
@@ -78,3 +79,4 @@ export const cookieParamsApp = new OpenAPIHono({
   .openapi(getOptionalRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
   .openapi(getDefaultsRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
   .openapi(getRequiredRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))
+  .openapi(getOpenRoute, (c) => c.json(echoFields(c.req.valid('cookie'))))

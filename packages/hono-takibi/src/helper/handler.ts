@@ -25,6 +25,7 @@ import type { OpenAPI, Operation, Schema } from '../openapi/index.js'
 import { methodPath, uncapitalizeWord } from '../utils/index.js'
 import { makeImports, makeModuleSpec } from './code.js'
 import { mockFunctionName, schemaToFaker } from './faker.js'
+import { isGroupName } from './group.js'
 
 function makeRefs(schema: Schema, refs = new Set<string>()) {
   if (schema.$ref) {
@@ -124,6 +125,17 @@ export function makeHandlerFileName(path: string, tags?: readonly string[]): `${
   const pathName = sanitizeHandlerSegment(path.replace(/^\/+/u, '').split('/')[0] ?? '')
   const name = tagName !== '' ? tagName : pathName !== '' ? pathName : '__root'
   return `${name}.ts`
+}
+
+/**
+ * The group an operation belongs to: the name of the handler file it is written to, the
+ * first tag or else the first segment of the path, `/v2-public/ping` as `v2Public`. An
+ * operation belongs to no group, and `undefined` is returned, when the name cannot be an
+ * export: the root, a word the language or the generated app has taken.
+ */
+export function handlerGroupOf(path: string, tags?: readonly string[]): string | undefined {
+  const name = makeHandlerFileName(path, tags).replace(/\.ts$/u, '')
+  return isGroupName(name) ? name : undefined
 }
 
 function isTsFileName(file: string): file is `${string}.ts` {
