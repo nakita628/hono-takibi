@@ -1,5 +1,5 @@
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../../../guard/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../../../openapi/index.js'
 import { methodPath } from '../../../../utils/index.js'
 

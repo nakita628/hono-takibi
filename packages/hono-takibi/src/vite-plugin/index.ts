@@ -9,14 +9,9 @@ import { parseConfig } from '../config/index.js'
 import type { Config } from '../config/index.js'
 import { FormatOptions } from '../format/index.js'
 import { isRecord } from '../guard/index.js'
+import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import {
-  appEntryOutput,
-  cleanSplitOutputs,
-  isInsideDirectory,
-  makeJob,
-  outsideSources,
-} from '../shared/index.js'
+import { cleanSplitOutputs, makeJob, outsideSources } from '../shared/index.js'
 
 type ViteDevServer = {
   watcher: {
@@ -332,8 +327,8 @@ function cleanupStaleOutputs(previousConfiguration: Config, currentConfiguration
  *
  * Hand-listed rather than read off `makeJob`, which needs the parsed document these
  * callers do not have. The two entries a caller cannot read straight off the config —
- * `components.output` and the derived app entry — come from `shared` so they cannot
- * disagree with what the generators actually write.
+ * `components.output` and the derived app entry — come from where the generators take
+ * them, so they cannot disagree with what the generators actually write.
  */
 function extractOutputPaths(config: Config): readonly string[] {
   return [

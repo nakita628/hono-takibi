@@ -1,6 +1,5 @@
 import { isPathItem } from '../../../../guard/index.js'
-import { makeConst } from '../../../../helper/code.js'
-import { makePathItem } from '../../../../helper/openapi.js'
+import { makeConst, makePathItem } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 import { ensureSuffix, toIdentifierPascalCase } from '../../../../utils/index.js'
 

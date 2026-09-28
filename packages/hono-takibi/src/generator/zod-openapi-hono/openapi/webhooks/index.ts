@@ -1,5 +1,5 @@
 import { isParameterRef } from '../../../../guard/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/openapi.js'
+import { makeCallbacks, makeOperationResponses, makeRequest } from '../../../../helper/index.js'
 import type { OpenAPI, Operation, Parameter } from '../../../../openapi/index.js'
 import { toIdentifierPascalCase } from '../../../../utils/index.js'
 

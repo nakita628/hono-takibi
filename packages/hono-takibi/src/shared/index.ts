@@ -33,6 +33,7 @@ import {
 import { GenerateError } from '../error/index.js'
 import type { FormatError } from '../error/index.js'
 import { readdir, unlink } from '../file/index.js'
+import { appEntryOutput, isInsideDirectory } from '../helper/index.js'
 import type { OpenAPI } from '../openapi/index.js'
 
 type Job = {
@@ -134,17 +135,6 @@ function typeSpecSources(
 }
 
 /**
- * Whether `filePath` sits under `directory`, at any depth.
- *
- * Asked of the path segments rather than the string: `/app/spec-old/a.yaml` starts with
- * `/app/spec` and is not inside it.
- */
-export function isInsideDirectory(directory: string, filePath: string) {
-  const relative = path.relative(directory, filePath)
-  return relative !== '' && !relative.startsWith('..') && !path.isAbsolute(relative)
-}
-
-/**
  * The files the document at `input` reads from that sit outside its own directory.
  *
  * For a watcher, and only for a watcher. A `$ref` or a TypeSpec `import` can reach a file
@@ -183,17 +173,6 @@ export function outsideSources(input: string) {
       )
       .toSorted()
   })
-}
-
-export function appEntryOutput(config: Config) {
-  if (config.output !== undefined) return config.output
-  if (config.template?.define !== true) return config.routes?.output
-  if (config.components?.output === undefined) return 'src/index.ts'
-  const container = config.components.output.endsWith('/index.ts')
-    ? config.components.output.slice(0, -'/index.ts'.length)
-    : config.components.output
-  const anchor = container.includes('/') ? container.slice(0, container.lastIndexOf('/')) : ''
-  return anchor === '' || anchor === '.' ? 'index.ts' : `${anchor}/index.ts`
 }
 
 export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {

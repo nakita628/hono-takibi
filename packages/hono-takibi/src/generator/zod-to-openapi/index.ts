@@ -7,13 +7,13 @@ import {
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeRef } from '../../helper/openapi.js'
 import {
-  needsWireConversion,
   FORM_ARITY,
-  hasSeveralReadings,
   JSON_BIGINT,
-  isDecoratedRef,
-  resolveSchemaRef,
   WIRE_JSON,
+  hasSeveralReadings,
+  isDecoratedRef,
+  needsWireConversion,
+  resolveSchemaRef,
   wireConverter,
   wireKeep,
   wireKinds,

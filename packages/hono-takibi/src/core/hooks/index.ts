@@ -1,4 +1,4 @@
-import { makeQueryHooks } from '../../helper/query.js'
+import { makeQueryHooks } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 // TanStack hooks default TError to the library's `DefaultError`, so a global `Register`

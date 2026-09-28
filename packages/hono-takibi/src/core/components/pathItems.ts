@@ -5,9 +5,7 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isPathItem } from '../../guard/index.js'
-import { makeConst } from '../../helper/code.js'
-import { makeImports } from '../../helper/index.js'
-import { makePathItem } from '../../helper/openapi.js'
+import { makeConst, makeImports, makePathItem } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import {
   ensureSuffix,

@@ -1,7 +1,5 @@
 import { isRefObject } from '../../../../guard/index.js'
-import { ast } from '../../../../helper/ast.js'
-import { makeConst } from '../../../../helper/code.js'
-import { makeRef } from '../../../../helper/openapi.js'
+import { ast, makeConst, makeRef } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
 /**

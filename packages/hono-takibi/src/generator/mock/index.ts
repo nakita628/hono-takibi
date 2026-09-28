@@ -9,7 +9,7 @@ import {
   isSchemaObject,
   isSecurityScheme,
 } from '../../guard/index.js'
-import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/faker.js'
+import { getNonExistentValue, mockFunctionName, schemaToFaker } from '../../helper/index.js'
 import type {
   Components,
   Content,

@@ -5,8 +5,12 @@ import { Effect } from 'effect'
 import { emit } from '../../emit/index.js'
 import { GenerateError } from '../../error/index.js'
 import { isParameterRef, isPathItemEntry, isPathItemRef } from '../../guard/index.js'
-import { makeImports } from '../../helper/index.js'
-import { makeCallbacks, makeOperationResponses, makeRequest } from '../../helper/openapi.js'
+import {
+  makeCallbacks,
+  makeImports,
+  makeOperationResponses,
+  makeRequest,
+} from '../../helper/index.js'
 import type { OpenAPI, Operation, Parameter, PathItem } from '../../openapi/index.js'
 import { makeBarrel, methodPath } from '../../utils/index.js'
 

@@ -1,4 +1,4 @@
-import { makeParameterSchema } from '../../../../helper/openapi.js'
+import { makeParameterSchema } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 import {
   ensureSuffix,

@@ -1,7 +1,7 @@
 import { basename } from 'node:path'
 
 import { isHttpMethod, isOperation } from '../../../guard/index.js'
-import { makeHandlerFileName } from '../../../helper/handler.js'
+import { makeHandlerFileName } from '../../../helper/index.js'
 import type { OpenAPI } from '../../../openapi/index.js'
 import { methodPath } from '../../../utils/index.js'
 
