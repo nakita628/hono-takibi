@@ -33,3 +33,94 @@ paths:
                     type: string
                 required:
                   - status
+  # Parameters whose `style` decides how they are written on the wire. The generated tests
+  # have to write them that way for the generated routes to read them.
+  # `style` によってワイヤ上の表記が決まるパラメータ。生成されるテストは、生成されるルートが
+  # 読み取れるよう、その表記で送信しなければならない。
+  /styles/label/{id}:
+    get:
+      operationId: getStylesLabel
+      parameters:
+        - { name: id, in: path, required: true, style: label, schema: { type: integer } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+  /styles/matrix/{ids}:
+    get:
+      operationId: getStylesMatrix
+      parameters:
+        - name: ids
+          in: path
+          required: true
+          style: matrix
+          explode: true
+          schema: { type: array, minItems: 1, items: { type: integer } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status
+  /styles/query:
+    get:
+      operationId: getStylesQuery
+      parameters:
+        - name: csv
+          in: query
+          required: true
+          explode: false
+          schema: { type: array, minItems: 1, items: { type: integer } }
+        - name: filter
+          in: query
+          required: true
+          style: deepObject
+          schema:
+            type: object
+            required: [age, tags, range]
+            properties:
+              age: { type: integer }
+              tags: { type: array, minItems: 1, items: { type: integer } }
+              range:
+                type: object
+                required: [min]
+                properties:
+                  min: { type: integer }
+        - name: ids
+          in: cookie
+          required: true
+          schema: { type: array, minItems: 1, items: { type: integer } }
+        - name: prefs
+          in: cookie
+          required: true
+          schema:
+            type: object
+            required: [size]
+            properties:
+              size: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                required:
+                  - status

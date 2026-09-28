@@ -247,6 +247,7 @@ describe('extractTestCases', () => {
         pathParams: [],
         queryParams: [],
         headerParams: [],
+        cookieParams: [],
         requestBody: undefined,
         successStatus: 200,
         errorStatuses: [],
@@ -269,6 +270,7 @@ describe('extractTestCases', () => {
         pathParams: [],
         queryParams: [],
         headerParams: [],
+        cookieParams: [],
         requestBody: {
           fakerCode:
             '{ title: faker.lorem.sentence(), done: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]) }',
