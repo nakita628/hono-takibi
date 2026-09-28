@@ -221,39 +221,153 @@ function meanings(sentTexts: readonly string[], schema: unknown): readonly Json[
   return declaresArray(schema) ? [...readings(only, schema), ...arrays] : readings(only, schema)
 }
 
+/**
+ * Sends one parameter as these texts to every place a parameter travels, and lists where
+ * the generated code and the document disagree. `carry` sends the request, or answers
+ * `undefined` for texts the place cannot carry as they are. With `isJoined` several values
+ * travel as one, separated by commas — a path segment, a header, a cookie — and mean an
+ * array only where the schema declares one.
+ *
+ * 1つのパラメータをこれらの文字列として送信し、生成コードとドキュメントの答えが食い違う
+ * 箇所を列挙する。`carry` はリクエストを送信する。その場所が文字列をそのまま運べない場合は
+ * `undefined` を返す。`isJoined` の場合、複数の値はカンマ区切りの1つの値(パスセグメント・
+ * ヘッダー・Cookie)として運ばれ、スキーマが配列を宣言している場合に限り配列を意味する。
+ */
+async function disagreementsOf(
+  schema: unknown,
+  key: string,
+  isJoined: boolean,
+  carry: (texts: readonly string[]) => Response | Promise<Response> | undefined,
+): Promise<readonly string[]> {
+  const disagreements: string[] = []
+  for (const sentTexts of sent) {
+    const joined = [sentTexts.join(',')]
+    const valid = (
+      isJoined && !declaresArray(schema)
+        ? meanings(joined, schema)
+        : isJoined
+          ? meanings(sentTexts, schema).filter((meaning) => Array.isArray(meaning))
+          : meanings(sentTexts, schema)
+    ).filter((meaning) => accepts(schema, meaning, schemas))
+    // oxlint-disable-next-line no-await-in-loop -- one request at a time keeps the report in order
+    const res = await carry(sentTexts)
+    if (res === undefined) continue
+    // oxlint-disable-next-line no-await-in-loop -- read with the request it belongs to
+    const body = (await res.json()) as { readonly [k: string]: Json }
+    const shown = JSON.stringify(sentTexts)
+    const [expected] = valid
+    if (res.status === 200 && expected === undefined) {
+      disagreements.push(
+        `${shown}: the document rejects it, the generated code accepts ${JSON.stringify(body[key])}`,
+      )
+    }
+    if (res.status !== 200 && expected !== undefined) {
+      disagreements.push(
+        `${shown}: the document accepts ${JSON.stringify(expected)}, the generated code rejects it`,
+      )
+    }
+    if (res.status === 200 && valid.length === 1 && expected !== undefined) {
+      if (!isSame(body[key] ?? null, expected)) {
+        disagreements.push(
+          `${shown}: the document reads ${JSON.stringify(expected)}, the generated code hands out ${JSON.stringify(body[key])}`,
+        )
+      }
+    }
+  }
+  return disagreements
+}
+
+// A value that holds a comma cannot be told from two values where values are joined by one.
+// カンマを含む値は、値がカンマで連結される場所では、2つの値と区別できない。
+const hasComma = (sentTexts: readonly string[]) => sentTexts.some((text) => text.includes(','))
+
 describe('query: a text is accepted when the document accepts what it stands for', () => {
   for (const parameter of parameters) {
     it(`${parameter.name} answers as the document says`, async () => {
-      const disagreements: string[] = []
-      for (const sentTexts of sent) {
-        const valid = meanings(sentTexts, parameter.schema).filter((meaning) =>
-          accepts(parameter.schema, meaning, schemas),
-        )
-        const search = new URLSearchParams(sentTexts.map((text) => [parameter.name, text]))
-        // oxlint-disable-next-line no-await-in-loop -- one request at a time keeps the report in order
-        const res = await conformanceApp.request(`/query?${search.toString()}`)
-        // oxlint-disable-next-line no-await-in-loop -- read with the request it belongs to
-        const body = (await res.json()) as { readonly [k: string]: Json }
-        const shown = JSON.stringify(sentTexts)
-        if (res.status === 200 && valid.length === 0) {
-          disagreements.push(
-            `${shown}: the document rejects it, the generated code accepts ${JSON.stringify(body[parameter.name])}`,
-          )
+      const disagreements = await disagreementsOf(
+        parameter.schema,
+        parameter.name,
+        false,
+        (sentTexts) => {
+          const search = new URLSearchParams(sentTexts.map((text) => [parameter.name, text]))
+          return conformanceApp.request(`/query?${search.toString()}`)
+        },
+      )
+      expect(disagreements).toStrictEqual([])
+    }, 60_000)
+  }
+})
+
+describe('form: a field is accepted when the document accepts what it stands for', () => {
+  for (const parameter of parameters) {
+    it(`${parameter.name} answers as the document says`, async () => {
+      const disagreements = await disagreementsOf(
+        parameter.schema,
+        parameter.name,
+        false,
+        (sentTexts) =>
+          conformanceApp.request('/form', {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(sentTexts.map((text) => [parameter.name, text])).toString(),
+          }),
+      )
+      expect(disagreements).toStrictEqual([])
+    }, 60_000)
+  }
+})
+
+describe('path: a segment is accepted when the document accepts what it stands for', () => {
+  for (const parameter of parameters) {
+    it(`${parameter.name} answers as the document says`, async () => {
+      const disagreements = await disagreementsOf(parameter.schema, 'value', true, (sentTexts) => {
+        const segment = sentTexts.join(',')
+        // An empty segment is another path, and "." and ".." are not segments at all.
+        // 空のセグメントは別のパスになる。"." と ".." は、そもそもセグメントではない。
+        if (hasComma(sentTexts) || segment === '' || segment === '.' || segment === '..') {
+          return undefined
         }
-        if (res.status !== 200 && valid.length > 0) {
-          disagreements.push(
-            `${shown}: the document accepts ${JSON.stringify(valid[0])}, the generated code rejects it`,
-          )
+        return conformanceApp.request(`/path/${parameter.name}/${encodeURIComponent(segment)}`)
+      })
+      expect(disagreements).toStrictEqual([])
+    }, 60_000)
+  }
+})
+
+describe('header: a header is accepted when the document accepts what it stands for', () => {
+  for (const parameter of parameters) {
+    const name = parameter.name.replaceAll('_', '-')
+    it(`${name} answers as the document says`, async () => {
+      const disagreements = await disagreementsOf(parameter.schema, name, true, (sentTexts) => {
+        // The transport strips the whitespace around a header value, so a text that has some
+        // does not arrive as it was sent.
+        // トランスポートはヘッダー値の前後の空白を取り除くため、前後に空白を持つ文字列は、
+        // 送信したとおりには届かない。
+        if (hasComma(sentTexts) || sentTexts.some((text) => text !== text.trim())) {
+          return undefined
         }
-        const [expected] = valid
-        if (res.status === 200 && valid.length === 1 && expected !== undefined) {
-          if (!isSame(body[parameter.name] ?? null, expected)) {
-            disagreements.push(
-              `${shown}: the document reads ${JSON.stringify(expected)}, the generated code hands out ${JSON.stringify(body[parameter.name])}`,
-            )
-          }
-        }
-      }
+        return conformanceApp.request('/header', { headers: { [name]: sentTexts.join(',') } })
+      })
+      expect(disagreements).toStrictEqual([])
+    }, 60_000)
+  }
+})
+
+describe('cookie: a cookie is accepted when the document accepts what it stands for', () => {
+  for (const parameter of parameters) {
+    it(`${parameter.name} answers as the document says`, async () => {
+      const disagreements = await disagreementsOf(
+        parameter.schema,
+        parameter.name,
+        true,
+        (sentTexts) => {
+          if (hasComma(sentTexts)) return undefined
+          const value = encodeURIComponent(sentTexts.join(','))
+          return conformanceApp.request('/cookie', {
+            headers: { Cookie: `${parameter.name}=${value}` },
+          })
+        },
+      )
       expect(disagreements).toStrictEqual([])
     }, 60_000)
   }
