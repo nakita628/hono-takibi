@@ -4247,7 +4247,9 @@ describe('zodToOpenAPI', () => {
 
         describe('type: integer, format: int64', () => {
           it.concurrent('int64: bare → z.int64()', () => {
-            expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
+            expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).openapi({type:"integer",format:"int64"})`,
+            )
             const runtime = z.int64()
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4270,7 +4272,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 nullable: true,
               }),
-            ).toBe('z.int64().nullable()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().openapi({type:["integer","null"],format:"int64"})`,
+            )
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4292,7 +4296,9 @@ describe('zodToOpenAPI', () => {
                 type: ['integer', 'null'],
                 format: 'int64',
               }),
-            ).toBe('z.int64().nullable()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().openapi({type:["integer","null"],format:"int64"})`,
+            )
             const runtime = z.int64().nullable()
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4316,7 +4322,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 0,
                 exclusiveMinimum: true,
               }),
-            ).toBe('z.int64().positive()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().positive()).openapi({type:"integer",format:"int64",minimum:0,exclusiveMinimum:true})`,
+            )
             const runtime = z.int64().positive()
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse(0n)
@@ -4342,7 +4350,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 0,
                 exclusiveMinimum: false,
               }),
-            ).toBe('z.int64().nonnegative()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().nonnegative()).openapi({type:"integer",format:"int64",minimum:0,exclusiveMinimum:false})`,
+            )
             const runtime = z.int64().nonnegative()
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(-1n)
@@ -4368,7 +4378,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 0,
                 exclusiveMaximum: true,
               }),
-            ).toBe('z.int64().negative()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().negative()).openapi({type:"integer",format:"int64",maximum:0,exclusiveMaximum:true})`,
+            )
             const runtime = z.int64().negative()
             expect(runtime.safeParse(-1n).success).toBe(true)
             const result = runtime.safeParse(0n)
@@ -4394,7 +4406,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 0,
                 exclusiveMaximum: false,
               }),
-            ).toBe('z.int64().nonpositive()')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().nonpositive()).openapi({type:"integer",format:"int64",maximum:0,exclusiveMaximum:false})`,
+            )
             const runtime = z.int64().nonpositive()
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(1n)
@@ -4419,7 +4433,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 100,
               }),
-            ).toBe('z.int64().min(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().min(100n)).openapi({type:"integer",format:"int64",minimum:100})`,
+            )
             const runtime = z.int64().min(100n)
             expect(runtime.safeParse(200n).success).toBe(true)
             const result = runtime.safeParse(99n)
@@ -4444,7 +4460,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 minimum: 0,
               }),
-            ).toBe('z.int64().min(0n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().min(0n)).openapi({type:"integer",format:"int64",minimum:0})`,
+            )
             const runtime = z.int64().min(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(-1n)
@@ -4470,7 +4488,9 @@ describe('zodToOpenAPI', () => {
                 minimum: 100,
                 exclusiveMinimum: true,
               }),
-            ).toBe('z.int64().gt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().gt(100n)).openapi({type:"integer",format:"int64",minimum:100,exclusiveMinimum:true})`,
+            )
             const runtime = z.int64().gt(100n)
             expect(runtime.safeParse(101n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4495,7 +4515,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 100,
               }),
-            ).toBe('z.int64().max(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(100n)).openapi({type:"integer",format:"int64",maximum:100})`,
+            )
             const runtime = z.int64().max(100n)
             expect(runtime.safeParse(50n).success).toBe(true)
             const result = runtime.safeParse(101n)
@@ -4520,7 +4542,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 maximum: 0,
               }),
-            ).toBe('z.int64().max(0n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(0n)).openapi({type:"integer",format:"int64",maximum:0})`,
+            )
             const runtime = z.int64().max(0n)
             expect(runtime.safeParse(0n).success).toBe(true)
             const result = runtime.safeParse(1n)
@@ -4546,7 +4570,9 @@ describe('zodToOpenAPI', () => {
                 maximum: 100,
                 exclusiveMaximum: true,
               }),
-            ).toBe('z.int64().lt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().lt(100n)).openapi({type:"integer",format:"int64",maximum:100,exclusiveMaximum:true})`,
+            )
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4571,7 +4597,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 exclusiveMaximum: 100,
               }),
-            ).toBe('z.int64().lt(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().lt(100n)).openapi({type:"integer",format:"int64",exclusiveMaximum:100})`,
+            )
             const runtime = z.int64().lt(100n)
             expect(runtime.safeParse(99n).success).toBe(true)
             const result = runtime.safeParse(100n)
@@ -4596,7 +4624,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 multipleOf: 2,
               }),
-            ).toBe('z.int64().multipleOf(2n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().multipleOf(2n)).openapi({type:"integer",format:"int64",multipleOf:2})`,
+            )
             const runtime = z.int64().multipleOf(2n)
             expect(runtime.safeParse(4n).success).toBe(true)
             const result = runtime.safeParse(3n)
@@ -4620,7 +4650,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 default: 100,
               }),
-            ).toBe('z.int64().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).default(100n).openapi({type:"integer",format:"int64",default:100})`,
+            )
             const runtime = z.int64().default(100n)
             expect(runtime.safeParse(1n).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4644,7 +4676,9 @@ describe('zodToOpenAPI', () => {
                 default: 100,
                 nullable: true,
               }),
-            ).toBe('z.int64().nullable().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().default(100n).openapi({type:["integer","null"],format:"int64",default:100})`,
+            )
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -4667,7 +4701,9 @@ describe('zodToOpenAPI', () => {
                 format: 'int64',
                 default: 100,
               }),
-            ).toBe('z.int64().nullable().default(100n)')
+            ).toBe(
+              String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).nullable().default(100n).openapi({type:["integer","null"],format:"int64",default:100})`,
+            )
             const runtime = z.int64().nullable().default(100n)
             expect(runtime.safeParse(null).success).toBe(true)
             const result = runtime.safeParse('a')
@@ -6422,7 +6458,9 @@ describe('zodToOpenAPI', () => {
               maximum: 100,
               'x-maximum-message': '100以下',
             }),
-          ).toBe('z.int64().max(100n,{error:"100以下"})')
+          ).toBe(
+            String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64().max(100n,{error:"100以下"})).openapi({type:"integer",format:"int64",maximum:100})`,
+          )
           const runtime = z.int64().max(100n, { error: '100以下' })
           expect(runtime.safeParse(50n).success).toBe(true)
           const result = runtime.safeParse(101n)
@@ -7465,7 +7503,9 @@ describe('zodToOpenAPI', () => {
               multipleOf: 5,
               'x-error-message': '5の倍数',
             }),
-          ).toBe('z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})')
+          ).toBe(
+            String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64({error:"5の倍数"}).multipleOf(5n,{error:"5の倍数"})).openapi({type:"integer",format:"int64",multipleOf:5})`,
+          )
           const runtime = z.int64({ error: '5の倍数' }).multipleOf(5n, { error: '5の倍数' })
           expect(runtime.safeParse(10n).success).toBe(true)
           const result = runtime.safeParse(3n)
@@ -12191,7 +12231,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: bigint', () => {
     const Bi = z.bigint()
     it.concurrent('codegen: z.bigint()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' })).toBe('z.bigint()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'bigint' })).toBe(
+        String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.bigint()).openapi({type:"integer",format:"bigint"})`,
+      )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(Bi.safeParse(BigInt(1)).success).toBe(true)
@@ -12215,7 +12257,9 @@ describe('zodToOpenAPI', () => {
   describe('v3.2 integer format: int64', () => {
     const I64 = z.int64()
     it.concurrent('codegen: z.int64()', () => {
-      expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe('z.int64()')
+      expect(zodToOpenAPI({ type: 'integer', format: 'int64' })).toBe(
+        String.raw`z.preprocess((val)=>(typeof val==='number'&&Number.isSafeInteger(val)?BigInt(val):typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).openapi({type:"integer",format:"int64"})`,
+      )
     })
     it.concurrent('runtime: BigInt(1) PASSES', () => {
       expect(I64.safeParse(BigInt(1)).success).toBe(true)

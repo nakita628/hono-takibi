@@ -2,6 +2,7 @@ import { isRecord } from '../guard/index.js'
 import type { Header, Parameter, Schema } from '../openapi/index.js'
 // oxlint-disable-next-line import/no-cycle -- zodToOpenAPI and the openapi code helpers compose in both directions
 import { makeExamples } from './openapi.js'
+import { WIRE_EMPTY, wireStyle } from './wire.js'
 
 function hasNotProperty(v: unknown): v is { not: unknown } {
   return typeof v === 'object' && v !== null && 'not' in v
@@ -43,6 +44,170 @@ function isExamplesInput(v: unknown): v is {
   )
 }
 
+// Drop-list: keys already expressed in the zod method chain.
+const zodExpressedProps = new Set([
+  'type',
+  'format',
+  'default',
+  'minLength',
+  'maxLength',
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'pattern',
+  'enum',
+  'items',
+  'minItems',
+  'maxItems',
+  'properties',
+  'additionalProperties',
+  'oneOf',
+  'anyOf',
+  'allOf',
+  'not',
+  'multipleOf',
+  'uniqueItems',
+  'minProperties',
+  'maxProperties',
+  'patternProperties',
+  'propertyNames',
+  'dependentRequired',
+  'nullable',
+  'const',
+  '$ref',
+  'prefixItems',
+  'x-error-message',
+  'x-length-message',
+  'x-pattern-message',
+  'x-minimum-message',
+  'x-maximum-message',
+  'x-multipleOf-message',
+  'x-dependentRequired-message',
+  'x-propertyNames-message',
+  'x-allOf-message',
+  'x-anyOf-message',
+  'x-oneOf-message',
+  'x-not-message',
+  'x-required-message',
+  'x-additionalProperties-message',
+  'x-uniqueItems-message',
+  'x-const-message',
+  'x-enum-message',
+  'x-dependentSchemas-message',
+  'x-minLength-message',
+  'x-maxLength-message',
+  'x-minItems-message',
+  'x-maxItems-message',
+  'x-minProperties-message',
+  'x-maxProperties-message',
+  'x-patternProperties-message',
+  'x-contains-message',
+  'x-exclusiveMinimum-message',
+  'x-exclusiveMaximum-message',
+  'x-minContains-message',
+  'x-maxContains-message',
+  '$comment',
+  'contains',
+  'minContains',
+  'maxContains',
+  // full JSON Schema 2020-12 coverage
+  'contentEncoding',
+  'contentMediaType',
+  'contentSchema',
+  'dependentSchemas',
+  'if',
+  'then',
+  'else',
+  'unevaluatedProperties',
+  'unevaluatedItems',
+  'x-enum-error-messages',
+  'x-brand',
+  'x-trim',
+  'x-toLowerCase',
+  'x-toUpperCase',
+  'x-normalize',
+  'x-coerce',
+  'x-stringbool',
+  'x-lowercase',
+  'x-uppercase',
+  'x-emailPattern',
+  'x-emailRegex',
+  'x-uuidVersion',
+  'x-urlHostname',
+  'x-urlProtocol',
+  'x-urlNormalize',
+  'x-isoPrecision',
+  'x-isoOffset',
+  'x-isoLocal',
+  'x-macDelimiter',
+  'x-jwtAlg',
+  'x-hashAlg',
+  'x-hashEnc',
+  'x-catch',
+  'x-prefault',
+  'x-readonly',
+  'x-includes',
+  'x-startsWith',
+  'x-endsWith',
+  'x-refine',
+  'x-superRefine',
+  'x-codec',
+  'x-preprocess',
+  'x-transform',
+  'x-pipe',
+  'x-properties-message',
+  'x-prefixItems-message',
+  'x-items-message',
+  'x-unevaluatedProperties-message',
+  'x-unevaluatedItems-message',
+  'x-if-message',
+  'x-then-message',
+  'x-else-message',
+])
+
+// What `wrap` puts around a schema, as opposed to what the schema validates.
+const decorationProps = new Set([
+  'default',
+  'nullable',
+  'x-prefault',
+  'x-catch',
+  'x-readonly',
+  'x-refine',
+  'x-superRefine',
+  'x-brand',
+  'x-codec',
+  'x-preprocess',
+  'x-transform',
+  'x-pipe',
+])
+
+/**
+ * A schema reduced to what it validates: no default, no metadata, nothing `wrap` would add
+ * around it. It is what a schema emitted inside another one is made from — a branch of a
+ * type list, the base of a `not` — so that the decoration is written once, outside.
+ */
+export function undecorated(schema: Schema): Schema {
+  return Object.entries(schema).reduce<Schema>(
+    (kept, [key, value]) =>
+      zodExpressedProps.has(key) && !decorationProps.has(key)
+        ? Object.assign(kept, { [key]: value })
+        : kept,
+    {},
+  )
+}
+
+// A user-supplied chain replaces the generated schema, and with it what the document
+// derives from it.
+function hasNoUserChain(schema: Schema) {
+  return (
+    schema['x-preprocess'] === undefined &&
+    schema['x-transform'] === undefined &&
+    schema['x-pipe'] === undefined &&
+    schema['x-codec'] === undefined
+  )
+}
+
 export function wrap(
   zod: string,
   schema: Schema,
@@ -53,6 +218,14 @@ export function wrap(
   options?: {
     /** Triggers `.exactOptional()`; do not pass from external callers. @internal */
     isOptional?: boolean
+    /** What reads the value from the wire, put directly around `zod`. @internal */
+    around?: (zod: string) => string
+    /** `zod` is the identifier of a component schema and nothing else. @internal */
+    component?: boolean
+    /** What reads the value before its serialisation is undone, outermost first. @internal */
+    readers?: readonly string[]
+    /** An empty value is read as an absent one (`allowEmptyValue: true`). @internal */
+    emptyAbsent?: boolean
   },
 ) {
   // JSON Schema 2020-12: pre-2019-09 legacy keys + non-standard underscore variants.
@@ -132,163 +305,57 @@ export function wrap(
     meta?.parameters && meta.parameters.required === undefined && meta.parameters.in !== 'path'
       ? { ...meta.parameters, required: false }
       : meta?.parameters
-  // Under OpenAPI's default `style: form, explode: true`, a one-element array serialises
-  // to a single `?ids=1` — which reaches the handler as a bare string, not an array, so a
-  // plain `z.array(...)` rejects the request a spec-compliant client just made. Accepting
-  // both arities is what closes that gap. A path segment is `style: simple` (one comma
-  // separated value), a different shape, so it is left alone. The wrapper sits directly on
-  // the array, inside `.default()` and the rest of the chain: an absent parameter has to
-  // reach `.default()` as `undefined`, not as the `[undefined]` the wrapper would make of it.
-  const isRepeatedWireArray =
-    typeList.includes('array') &&
-    (parameter?.in === 'query' || parameter?.in === 'header' || parameter?.in === 'cookie')
+  // Only `style: form` + `explode: true` (`?ids=1&ids=2`) reaches the handler as an array,
+  // and even then a one-element array arrives as a bare string. Every other serialisation
+  // is one piece of text to split, and a `label` or `matrix` path segment carries a prefix.
+  // The wrapper sits directly on the schema, inside `.default()` and the rest of the chain:
+  // an absent parameter has to reach `.default()` as `undefined`.
+  const style =
+    parameter === undefined ? undefined : wireStyle(parameter, typeList.includes('array'))
+  const readers = [...(options?.readers ?? []), ...(style === undefined ? [] : [style])]
   const acceptBothArities = (inner: string) =>
-    isRepeatedWireArray ? `z.preprocess((val)=>(Array.isArray(val)?val:[val]),${inner})` : inner
+    readers.reduceRight((read, reader) => `z.preprocess(${reader},${read})`, inner)
   const isNullable =
     schema.nullable === true ||
     (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null')
   // `.nullable()` must precede `.default()` so `.default(null)` validates.
-  const n = isNullable ? `${acceptBothArities(zod)}.nullable()` : acceptBothArities(zod)
-  // `!== undefined` (not truthy): `default: 0` is valid.
-  const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
-  const pf =
-    schema['x-prefault'] !== undefined ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})` : d
-  const c =
-    schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
-  const fr = schema['x-readonly'] === true ? `${c}.readonly()` : c
-  const refineChain = `${fr}${schema['x-refine'] ?? ''}`
-  const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
-  // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
-  const preprocess = schema['x-preprocess']
-  const transform = schema['x-transform']
-  const pipe = schema['x-pipe']
-  const codec = schema['x-codec']
-  // A user-supplied chain replaces the generated one wholesale, so the arity wrapper goes
-  // around it instead.
-  const userChain = preprocess ?? transform ?? pipe ?? codec
-  const replaced = userChain === undefined ? superRefineChain : acceptBothArities(userChain)
-  const z = schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
-  // Drop-list: keys already expressed in the zod method chain.
-  const zodExpressedProps = new Set([
-    'type',
-    'format',
-    'default',
-    'minLength',
-    'maxLength',
-    'minimum',
-    'maximum',
-    'exclusiveMinimum',
-    'exclusiveMaximum',
-    'pattern',
-    'enum',
-    'items',
-    'minItems',
-    'maxItems',
-    'properties',
-    'additionalProperties',
-    'oneOf',
-    'anyOf',
-    'allOf',
-    'not',
-    'multipleOf',
-    'uniqueItems',
-    'minProperties',
-    'maxProperties',
-    'patternProperties',
-    'propertyNames',
-    'dependentRequired',
-    'nullable',
-    'const',
-    '$ref',
-    'prefixItems',
-    'x-error-message',
-    'x-length-message',
-    'x-pattern-message',
-    'x-minimum-message',
-    'x-maximum-message',
-    'x-multipleOf-message',
-    'x-dependentRequired-message',
-    'x-propertyNames-message',
-    'x-allOf-message',
-    'x-anyOf-message',
-    'x-oneOf-message',
-    'x-not-message',
-    'x-required-message',
-    'x-additionalProperties-message',
-    'x-uniqueItems-message',
-    'x-const-message',
-    'x-enum-message',
-    'x-dependentSchemas-message',
-    'x-minLength-message',
-    'x-maxLength-message',
-    'x-minItems-message',
-    'x-maxItems-message',
-    'x-minProperties-message',
-    'x-maxProperties-message',
-    'x-patternProperties-message',
-    'x-contains-message',
-    'x-exclusiveMinimum-message',
-    'x-exclusiveMaximum-message',
-    'x-minContains-message',
-    'x-maxContains-message',
-    '$comment',
-    'contains',
-    'minContains',
-    'maxContains',
-    // full JSON Schema 2020-12 coverage
-    'contentEncoding',
-    'contentMediaType',
-    'contentSchema',
-    'dependentSchemas',
-    'if',
-    'then',
-    'else',
-    'unevaluatedProperties',
-    'unevaluatedItems',
-    'x-enum-error-messages',
-    'x-brand',
-    'x-trim',
-    'x-toLowerCase',
-    'x-toUpperCase',
-    'x-normalize',
-    'x-coerce',
-    'x-stringbool',
-    'x-lowercase',
-    'x-uppercase',
-    'x-emailPattern',
-    'x-emailRegex',
-    'x-uuidVersion',
-    'x-urlHostname',
-    'x-urlProtocol',
-    'x-urlNormalize',
-    'x-isoPrecision',
-    'x-isoOffset',
-    'x-isoLocal',
-    'x-macDelimiter',
-    'x-jwtAlg',
-    'x-hashAlg',
-    'x-hashEnc',
-    'x-catch',
-    'x-prefault',
-    'x-readonly',
-    'x-includes',
-    'x-startsWith',
-    'x-endsWith',
-    'x-refine',
-    'x-superRefine',
-    'x-codec',
-    'x-preprocess',
-    'x-transform',
-    'x-pipe',
-    'x-properties-message',
-    'x-prefixItems-message',
-    'x-items-message',
-    'x-unevaluatedProperties-message',
-    'x-unevaluatedItems-message',
-    'x-if-message',
-    'x-then-message',
-    'x-else-message',
-  ])
+  const build = (core: string) => {
+    const n = isNullable ? `${acceptBothArities(core)}.nullable()` : acceptBothArities(core)
+    // `!== undefined` (not truthy): `default: 0` is valid.
+    const d = schema.default !== undefined ? `${n}.default(${formatLiteral(schema.default)})` : n
+    const pf =
+      schema['x-prefault'] !== undefined
+        ? `${d}.prefault(${formatLiteral(schema['x-prefault'])})`
+        : d
+    const c =
+      schema['x-catch'] !== undefined ? `${pf}.catch(${formatLiteral(schema['x-catch'])})` : pf
+    const fr = schema['x-readonly'] === true ? `${c}.readonly()` : c
+    const refineChain = `${fr}${schema['x-refine'] ?? ''}`
+    const superRefineChain = `${refineChain}${schema['x-superRefine'] ?? ''}`
+    // Precedence (outermost wins): x-preprocess > x-transform > x-pipe > x-codec.
+    const preprocess = schema['x-preprocess']
+    const transform = schema['x-transform']
+    const pipe = schema['x-pipe']
+    const codec = schema['x-codec']
+    // A user-supplied chain replaces the generated one wholesale, so the arity wrapper goes
+    // around it instead.
+    const userChain = preprocess ?? transform ?? pipe ?? codec
+    const replaced = userChain === undefined ? superRefineChain : acceptBothArities(userChain)
+    return schema['x-brand'] ? `${replaced}.brand<"${schema['x-brand']}">()` : replaced
+  }
+  const around = options?.around ?? ((core: string) => core)
+  // An empty value that stands for an absent one is read as `undefined` before anything
+  // else sees it — outside `.default()`, which only applies to a value that is missing, and
+  // around `.optional()`, without which a missing value is rejected. The default is stated
+  // again outside: a parameter that is not sent at all never reaches the one inside.
+  const absent = (chain: string) => {
+    if (options?.emptyAbsent !== true) return chain
+    if (schema.default !== undefined) {
+      return `z.preprocess(${WIRE_EMPTY},${chain}).default(${formatLiteral(schema.default)})`
+    }
+    return `z.preprocess(${WIRE_EMPTY},${chain}${parameter?.required === true ? '' : '.optional()'})`
+  }
+  const z = absent(build(around(zod)))
   // Drop schema-level keys that header meta already emits (avoids duplicates
   // at the top of `.openapi({...})`). Parameters serialize under `param:{...}`
   // and don't need this.
@@ -385,11 +452,64 @@ export function wrap(
   const fileMetaProps = isBinaryFile
     ? [isNullable ? 'type:["string","null"]' : 'type:"string"', 'format:"binary"']
     : []
+  // A bigint has no place in a document: the schema derived from `z.int64()` is a string
+  // of digits, which drops the bounds, and a bigint default cannot be serialised at all —
+  // serving the document throws. What the source declares is a JSON integer, so its own
+  // keywords are what the document states. A parameter states its schema already.
+  const isBigintInteger =
+    typeList.includes('integer') &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint') &&
+    meta?.parameters === undefined &&
+    hasNoUserChain(schema)
+  const bigintMetaProps = isBigintInteger
+    ? [
+        isNullable ? 'type:["integer","null"]' : 'type:"integer"',
+        `format:${JSON.stringify(schema.format)}`,
+        ...(
+          [
+            'minimum',
+            'maximum',
+            'exclusiveMinimum',
+            'exclusiveMaximum',
+            'multipleOf',
+            'default',
+            'enum',
+            'const',
+          ] as const
+        ).flatMap((key) =>
+          schema[key] === undefined ? [] : [`${key}:${JSON.stringify(schema[key])}`],
+        ),
+      ]
+    : []
+  // `.openapi()` on a wrapper — `.exactOptional()`, the `z.preprocess` that reads the wire —
+  // hides the component inside it: the document then names the component in the
+  // parameter's `$ref` and never defines it. On the component itself the metadata keeps
+  // the definition in the document. Whatever else decorates the schema (`.nullable()`,
+  // `.default()`, a refinement) would be written into that definition, so a decorated
+  // reference keeps its metadata outside.
+  const isDecorated =
+    isNullable ||
+    schema.default !== undefined ||
+    schema['x-prefault'] !== undefined ||
+    schema['x-catch'] !== undefined ||
+    schema['x-readonly'] === true ||
+    schema['x-refine'] !== undefined ||
+    schema['x-superRefine'] !== undefined ||
+    schema['x-brand'] !== undefined ||
+    schema['x-preprocess'] !== undefined ||
+    schema['x-transform'] !== undefined ||
+    schema['x-pipe'] !== undefined ||
+    schema['x-codec'] !== undefined
+  if (options?.component === true && parameter !== undefined && !isDecorated) {
+    const inside = absent(build(around(`${zod}.openapi({param:${serializeParam(parameter)}})`)))
+    return parameter.required === true ? inside : `${inside}.exactOptional()`
+  }
   const result = [
     parameter ? `param:${serializeParam(parameter)}` : undefined,
     ...headerMetaProps,
     meta?.headers && meta.headers.required !== true ? 'param:{required:false}' : undefined,
     ...fileMetaProps,
+    ...bigintMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
   // https://github.com/OAI/OpenAPI-Specification/issues/2385

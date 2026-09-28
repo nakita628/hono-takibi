@@ -48,8 +48,18 @@ export function webhooks(
           operation.operationId
             ? `operationId:${JSON.stringify(operation.operationId)}`
             : undefined,
-          makeRequest(operation.parameters, operation.requestBody, readonly)
-            ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
+          makeRequest(
+            operation.parameters,
+            operation.requestBody,
+            readonly,
+            openAPI.components?.schemas,
+          )
+            ? `request:${makeRequest(
+                operation.parameters,
+                operation.requestBody,
+                readonly,
+                openAPI.components?.schemas,
+              )}`
             : undefined,
           operation.responses
             ? `responses:${makeOperationResponses(operation.responses, readonly)}`

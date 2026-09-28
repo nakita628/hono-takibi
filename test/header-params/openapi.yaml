@@ -108,7 +108,25 @@ paths:
             in: header,
             schema: { type: string, format: email, x-toLowerCase: true },
           }
+        # A schema behind `$ref`: the component is written for a typed value.
+        # `$ref` の先にあるスキーマ。コンポーネントは型付きの値を前提としている。
+        - { name: x-ref-int, in: header, schema: { $ref: '#/components/schemas/Count' } }
         - { name: x-str-arr, in: header, schema: { type: array, items: { type: string } } }
+        # An object is one header of alternating names and values, a,1,b,x, or of assignments
+        # with `explode: true`, a=1,b=x.
+        # オブジェクトは、名前と値を交互に並べた1つのヘッダー(a,1,b,x)になる。
+        # `explode: true` では、代入を並べた形(a=1,b=x)になる。
+        - {
+            name: x-obj,
+            in: header,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+        - {
+            name: x-objx,
+            in: header,
+            explode: true,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
         # Declared in mixed case; a header name is case-insensitive on the wire.
         # 大文字小文字混在で宣言している。ヘッダー名は、ワイヤ上では大文字小文字を区別しない。
         - { name: X-Request-Id, in: header, schema: { type: string, format: uuid } }
@@ -141,6 +159,10 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/Fields' }
 components:
+  schemas:
+    Count:
+      type: integer
+      minimum: 0
   responses:
     Fields:
       description: Every validated parameter, by name, as the runtime typeof and the text of its value.

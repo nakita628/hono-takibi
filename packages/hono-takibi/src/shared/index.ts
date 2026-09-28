@@ -305,6 +305,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.components?.parameters?.exportTypes === true,
               componentsResolve,
               config.readonly,
+              openAPI.components?.schemas,
             ),
         }
       : undefined,
@@ -422,6 +423,7 @@ export function makeJob(openAPI: OpenAPI, config: Config): readonly Job[] {
               config.components?.requestBodies?.split === true,
               componentsResolve,
               config.readonly,
+              openAPI.components?.schemas,
             ),
         }
       : undefined,

@@ -41,9 +41,13 @@ export function methodPath(method: string, path: string) {
 /**
  * Generates an array of Zod validator strings from OpenAPI parameter objects.
  */
-export function requestParamsArray(parameters: {
-  readonly [k: string]: { readonly [k: string]: string }
-}) {
+export function requestParamsArray(
+  parameters: {
+    readonly [k: string]: { readonly [k: string]: string }
+  },
+  // A function, as source, that a section runs over the request before it validates it.
+  gather: { readonly [section: string]: string } = {},
+) {
   return Object.freeze(
     Object.entries(parameters)
       .filter(([, obj]) => obj && Object.keys(obj).length > 0)
@@ -59,7 +63,10 @@ export function requestParamsArray(parameters: {
         const fields = Object.entries(obj)
           .map(([k, v]) => `${k}:${v}`)
           .join(',')
-        return `${name}:z.object({${fields}})` as const
+        const before = gather[section]
+        return before === undefined
+          ? (`${name}:z.object({${fields}})` as const)
+          : (`${name}:z.looseObject({}).transform(${before}).pipe(z.object({${fields}}))` as const)
       }),
   )
 }

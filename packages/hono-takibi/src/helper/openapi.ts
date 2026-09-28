@@ -21,6 +21,7 @@ import type {
   Reference,
   RequestBody,
   Responses,
+  Schema,
 } from '../openapi/index.js'
 import {
   ensureSuffix,
@@ -28,6 +29,7 @@ import {
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
+import { inlineWireRefs, isEmptyAbsent, isObjectParameter, wireGather, wireObject } from './wire.js'
 
 export function makeRef($ref: string) {
   const COMPONENT_SUFFIX_MAP: readonly {
@@ -335,6 +337,8 @@ export function makeCallbacks(
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
   readonly?: boolean,
+  // Set for the content of a request body, whose form media types arrive as text.
+  request?: { readonly schemas?: { readonly [k: string]: Schema } },
 ) {
   return Object.freeze(
     Object.entries(content)
@@ -350,7 +354,12 @@ export function makeContent(
             : `${key}:${makeRef(mediaOrRef.$ref)}`
         }
         if (isMedia(mediaOrRef)) {
-          return `${key}:${makeMedia(mediaOrRef, readonly)}`
+          const mediaType = contentType.toLowerCase()
+          const isForm =
+            request !== undefined &&
+            (mediaType.startsWith('application/x-www-form-urlencoded') ||
+              mediaType.startsWith('multipart/form-data'))
+          return `${key}:${makeMedia(mediaOrRef, readonly, isForm ? request : undefined)}`
         }
         return undefined
       })
@@ -358,14 +367,18 @@ export function makeContent(
   )
 }
 
-export function makeRequestBody(body: RequestBody | Reference, readonly?: boolean) {
+export function makeRequestBody(
+  body: RequestBody | Reference,
+  readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
+) {
   if ('$ref' in body && body.$ref) {
     return makeRef(body.$ref)
   }
   const result = [
     body.description !== undefined ? `description:${JSON.stringify(body.description)}` : undefined,
     'content' in body && body.content
-      ? `content:{${makeContent(body.content, readonly).join(',')}}`
+      ? `content:{${makeContent(body.content, readonly, schemas === undefined ? {} : { schemas }).join(',')}}`
       : undefined,
     'required' in body && body.required ? `required:${JSON.stringify(body.required)}` : undefined,
   ]
@@ -374,7 +387,21 @@ export function makeRequestBody(body: RequestBody | Reference, readonly?: boolea
   return `{${result}}`
 }
 
-export function makeMedia(media: Media, readonly?: boolean) {
+/**
+ * `form` is set for a form media type of a request body (`application/x-www-form-urlencoded`,
+ * `multipart/form-data`). Every field of a form arrives as text — or as a file — so its
+ * schema reads text where a JSON body is already typed.
+ */
+export function makeMedia(
+  media: Media,
+  readonly?: boolean,
+  form?: { readonly schemas?: { readonly [k: string]: Schema } },
+) {
+  const schemaOptions = {
+    ...(readonly === true ? { readonly: true } : {}),
+    ...(form === undefined ? {} : { coerce: true, form: true }),
+    ...(form?.schemas === undefined ? {} : { schemas: form.schemas }),
+  }
   const encodingCode = media.encoding
     ? Object.entries(media.encoding)
         .map(([name, encoding]) => `${JSON.stringify(name)}:{${makeEncoding(encoding, readonly)}}`)
@@ -382,7 +409,7 @@ export function makeMedia(media: Media, readonly?: boolean) {
     : undefined
   const result = [
     media.schema
-      ? `schema:${zodToOpenAPI(media.schema, undefined, readonly === true ? { readonly: true } : undefined)}`
+      ? `schema:${zodToOpenAPI(media.schema, undefined, Object.keys(schemaOptions).length > 0 ? schemaOptions : undefined)}`
       : undefined,
     media.itemSchema
       ? `itemSchema:${zodToOpenAPI(media.itemSchema, undefined, readonly === true ? { readonly: true } : undefined)}`
@@ -434,12 +461,15 @@ export function makeRequest(
   parameters: readonly (Parameter | Reference)[] | undefined,
   requestBody: RequestBody | Reference | undefined,
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
   const result = [
-    parameters && parameters.length > 0 ? makeRequestParams(parameters, readonly) : undefined,
+    parameters && parameters.length > 0
+      ? makeRequestParams(parameters, readonly, schemas)
+      : undefined,
     (requestBody && '$ref' in requestBody && requestBody.$ref) ||
     (requestBody && 'content' in requestBody && requestBody.content)
-      ? `body:${makeRequestBody(requestBody, readonly)}`
+      ? `body:${makeRequestBody(requestBody, readonly, schemas)}`
       : undefined,
   ]
     .filter((v) => v !== undefined)
@@ -449,21 +479,57 @@ export function makeRequest(
 
 /**
  * The Zod schema for one parameter's value. A path, query, header or cookie value reaches
- * the handler as a string, so every non-string leaf coerces before it validates (the
- * emitter's `coerce` option); only a request body arrives already typed.
+ * the handler as text, so whatever is not a string is read from text before it validates
+ * (the emitter's `coerce` option); only a request body arrives already typed.
+ *
+ * `schemas` are the document's component schemas. A parameter that names one by `$ref`
+ * needs them: the component was emitted for a typed value, and what it has to be read as
+ * is only known from its definition.
  */
-export function makeParameterSchema(param: Parameter, readonly?: boolean): string {
-  // A parameter carries its schema directly, or under its first `content` media type.
-  const schema = param.schema ?? Object.values(param.content ?? {})[0]?.schema
-  if (!schema) return 'z.any()'
-  const isStringWire =
-    param.in === 'query' || param.in === 'path' || param.in === 'header' || param.in === 'cookie'
+export function makeParameterSchema(
+  param: Parameter,
+  readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
+): string {
+  if (param.schema === undefined) {
+    // A parameter without a schema carries it under its first `content` media type, and
+    // its value is one encoded document. JSON is decoded and then validated as typed.
+    const [mediaType, media] = Object.entries(param.content ?? {})[0] ?? []
+    if (mediaType === undefined || media?.schema === undefined) return 'z.any()'
+    const isJson = mediaType.toLowerCase().includes('json')
+    return zodToOpenAPI(
+      media.schema,
+      { parameters: param },
+      {
+        ...(isJson ? { json: true } : { coerce: true }),
+        ...(readonly === true ? { readonly: true } : {}),
+        ...(schemas === undefined ? {} : { schemas }),
+      },
+    )
+  }
+  // An object is spread over the request in a way that depends on where it is sent, and
+  // the generated schema gathers it. What it cannot gather, it says so, instead of emitting
+  // a schema that silently never sees the parameter.
+  const object = wireObject(param, schemas)
+  if (object === undefined && isObjectParameter(param, schemas)) {
+    // oxlint-disable-next-line no-console -- warns the user that the parameter is never read
+    console.warn(
+      `parameter "${param.name}" (in: ${param.in}) is an object the generated schema does not read: it declares no properties, so its keys cannot be told from those of other parameters. Declare each property as a parameter of its own, or send the object as \`content: application/json\`.`,
+    )
+  }
+  const readers = object?.reader === undefined ? [] : [object.reader]
   return zodToOpenAPI(
-    schema,
-    { parameters: param },
+    param.schema,
+    { parameters: { ...param, schema: inlineWireRefs(param.schema, schemas) } },
     {
-      ...(isStringWire ? { coerce: true } : {}),
+      coerce: true,
+      // The properties of an object arrive like the fields of a form: one sent once is a
+      // bare string, and nothing but the schema describes them.
+      ...(object === undefined ? {} : { form: true }),
+      ...(readers.length === 0 ? {} : { readers }),
+      ...(isEmptyAbsent(param, schemas) ? { emptyAbsent: true } : {}),
       ...(readonly === true ? { readonly: true } : {}),
+      ...(schemas === undefined ? {} : { schemas }),
     },
   )
 }
@@ -472,6 +538,7 @@ export function makeParameterSchema(param: Parameter, readonly?: boolean): strin
 export function makeParameters(
   parameters: readonly (Parameter | Reference)[],
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ): {
   readonly [section: string]: { readonly [k: string]: string }
 } {
@@ -480,7 +547,7 @@ export function makeParameters(
     if (!acc[param.in]) acc[param.in] = {}
     acc[param.in][makeSafeKey(param.name)] = param.$ref
       ? makeRef(param.$ref)
-      : makeParameterSchema(param, readonly)
+      : makeParameterSchema(param, readonly, schemas)
     return acc
   }, {})
 }
@@ -489,9 +556,32 @@ export function makeParameters(
 export function makeRequestParams(
   parameters: readonly (Parameter | Reference)[],
   readonly?: boolean,
+  schemas?: { readonly [k: string]: Schema },
 ) {
-  const paramsObject = makeParameters(parameters, readonly)
-  const paramsArray = requestParamsArray(paramsObject)
+  const paramsObject = makeParameters(parameters, readonly, schemas)
+  // `filter[name]=bob` and an exploded `name=bob` are keys of the query, or of the cookies,
+  // not of the parameter they belong to, so they are gathered before the section is
+  // validated.
+  const gatherIn = (section: 'query' | 'cookie') => {
+    const declared = parameters.filter((param) => 'in' in param && param.in === section)
+    const objects = declared
+      .map((param) => ('in' in param ? wireObject(param, schemas) : undefined))
+      .filter((object) => object !== undefined)
+    return wireGather(
+      objects,
+      declared.flatMap((param) =>
+        'name' in param && !objects.some((object) => object.name === param.name)
+          ? [param.name]
+          : [],
+      ),
+    )
+  }
+  const query = gatherIn('query')
+  const cookie = gatherIn('cookie')
+  const paramsArray = requestParamsArray(paramsObject, {
+    ...(query === undefined ? {} : { query }),
+    ...(cookie === undefined ? {} : { cookie }),
+  })
   return paramsArray.length > 0 ? paramsArray.join(',') : undefined
 }
 

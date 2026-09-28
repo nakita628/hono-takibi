@@ -104,7 +104,9 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.int64().nullable().default(0n)')
+      ).toBe(
+        'z.int64().nullable().default(0n).openapi({type:["integer","null"],format:"int64",default:0})',
+      )
     })
 
     it.concurrent('handles default number and marks schema nullable when type includes null', () => {
@@ -114,7 +116,9 @@ describe('wrap', () => {
           format: 'int64',
           default: 0,
         }),
-      ).toBe('z.int64().nullable().default(0n)')
+      ).toBe(
+        'z.int64().nullable().default(0n).openapi({type:["integer","null"],format:"int64",default:0})',
+      )
     })
   })
 
@@ -127,7 +131,9 @@ describe('wrap', () => {
           default: 0,
           nullable: true,
         }),
-      ).toBe('z.bigint().nullable().default(BigInt(0))')
+      ).toBe(
+        'z.bigint().nullable().default(BigInt(0)).openapi({type:["integer","null"],format:"bigint",default:0})',
+      )
     })
 
     it.concurrent('handles BigInt default and marks schema nullable when type includes null', () => {
@@ -137,7 +143,9 @@ describe('wrap', () => {
           format: 'bigint',
           default: 0,
         }),
-      ).toBe('z.bigint().nullable().default(BigInt(0))')
+      ).toBe(
+        'z.bigint().nullable().default(BigInt(0)).openapi({type:["integer","null"],format:"bigint",default:0})',
+      )
     })
   })
 
@@ -948,11 +956,15 @@ describe('formatLiteral via default (format-aware literals)', () => {
     ['z.boolean()', { type: 'boolean', default: true }, 'z.boolean().default(true)'],
     ['z.boolean()', { type: 'boolean', default: false }, 'z.boolean().default(false)'],
     ['z.number()', { type: 'number', default: 3.14 }, 'z.number().default(3.14)'],
-    ['z.int64()', { type: 'integer', format: 'int64', default: 5 }, 'z.int64().default(5n)'],
+    [
+      'z.int64()',
+      { type: 'integer', format: 'int64', default: 5 },
+      'z.int64().default(5n).openapi({type:"integer",format:"int64",default:5})',
+    ],
     [
       'z.bigint()',
       { type: 'integer', format: 'bigint', default: 5 },
-      'z.bigint().default(BigInt(5))',
+      'z.bigint().default(BigInt(5)).openapi({type:"integer",format:"bigint",default:5})',
     ],
   ])('wrap(%s, %o) → %s', (zod, schema, expected) => {
     expect(wrap(zod, schema)).toBe(expected)

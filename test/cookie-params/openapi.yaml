@@ -104,6 +104,26 @@ paths:
         - { name: range, in: cookie, schema: { type: integer, minimum: 1, maximum: 100 } }
         - { name: length, in: cookie, schema: { type: string, minLength: 2, maxLength: 4 } }
         - { name: pattern, in: cookie, schema: { type: string, pattern: '^[a-z]+-\d{1,3}$' } }
+        # A schema behind `$ref`: the component is written for a typed value.
+        # `$ref` の先にあるスキーマ。コンポーネントは型付きの値を前提としている。
+        - { name: ref_int, in: cookie, schema: { $ref: '#/components/schemas/Count' } }
+        # An object explodes by default: each property is a cookie of its own, theme=dark;
+        # size=5. With `explode: false` one cookie holds names and values, a,1,b,x.
+        # オブジェクトは、デフォルトで explode される。各プロパティが独立した Cookie になる
+        # (theme=dark; size=5)。`explode: false` では、1つの Cookie が名前と値を保持する
+        # (a,1,b,x)。
+        - {
+            name: prefs,
+            in: cookie,
+            schema:
+              { type: object, properties: { theme: { type: string }, size: { type: integer } } },
+          }
+        - {
+            name: obj,
+            in: cookie,
+            explode: false,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
         - { name: tx_lower, in: cookie, schema: { type: string, x-toLowerCase: true } }
         - {
             name: tx_email,
@@ -139,6 +159,10 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/Fields' }
 components:
+  schemas:
+    Count:
+      type: integer
+      minimum: 0
   responses:
     Fields:
       description: Every validated parameter, by name, as the runtime typeof and the text of its value.

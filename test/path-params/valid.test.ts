@@ -28,13 +28,15 @@
 //   - transforms: x-* extensions and format: trim
 //   - literals: enum and const
 //   - constraints: numeric and string
-//   - combinators: oneOf
+//   - combinators: oneOf and allOf
 //   - declarations: several parameters in one path
 //   - declarations: parameter names that are not identifiers
 //   - declarations: $ref and path-item level
 //   - wire: percent-encoding
 //   - wire: routing
-//   - leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)
+//   - styles: simple, label and matrix
+//   - objects: an object in one segment
+//   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
 import { pathParamsApp } from './app'
@@ -1793,7 +1795,7 @@ describe('constraints: numeric and string', () => {
 // string branch does not need to.
 // パラメータは integer または文字列 "all" の oneOf である。integer 側の分岐は coerce され、
 // string 側の分岐は coerce 不要である。
-describe('combinators: oneOf', () => {
+describe('combinators: oneOf and allOf', () => {
   // Matches the integer branch and arrives as a number.
   // integer 側に一致し、number として届く。
   it('oneof accepts "1"', async () => {
@@ -1816,6 +1818,34 @@ describe('combinators: oneOf', () => {
     const res = await pathParamsApp.request('/oneof/all')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'all' })
+  })
+
+  // allof is allOf of type: integer and minimum: 5. The segment is read once, around the whole
+  // allOf, so both branches see the number 10.
+  // allof は type: integer と minimum: 5 の allOf である。セグメントは allOf 全体の外側で
+  // 1度だけ読み取られるため、両方の分岐が number の 10 を見る。
+  it('allof accepts a value that meets both branches', async () => {
+    const res = await pathParamsApp.request('/allof/10')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '10' })
+  })
+
+  // oneofis is oneOf an integer or a string. Digits are read as a number, which only the integer
+  // branch takes.
+  // oneofis は integer または string の oneOf である。
+  // 数字は number として読み取られ、integer 側の分岐だけがそれを受理する。
+  it('oneofis reads digits as the integer branch', async () => {
+    const res = await pathParamsApp.request('/oneofis/1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
+  })
+
+  // A word is not the text of an integer, so it stays text and only the string branch takes it.
+  // 単語は整数の表記ではないため文字列のままとなり、string 側の分岐だけが受理する。
+  it('oneofis reads a word as the string branch', async () => {
+    const res = await pathParamsApp.request('/oneofis/abc')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: 'abc' })
   })
 })
 
@@ -1914,6 +1944,26 @@ describe('declarations: $ref and path-item level', () => {
     const res = await pathParamsApp.request('/override/1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
+  })
+
+  // The parameter is declared with schema: { $ref: '#/components/schemas/Count' }, an integer
+  // with minimum: 0. The component schema, z.int().min(0), is written for a typed value, so
+  // the segment is read from text before it reaches the component.
+  // パラメータは schema: { $ref: '#/components/schemas/Count' }(minimum: 0 の integer)で
+  // 宣言されている。コンポーネントスキーマ z.int().min(0) は型付きの値を前提としているため、
+  // セグメントはコンポーネントに渡る前に文字列から読み取られる。
+  it('a numeric schema behind a schema $ref coerces the segment', async () => {
+    const res = await pathParamsApp.request('/schemaref/5')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
+  })
+
+  // Zero is the minimum of the referenced schema.
+  // 0 は参照先スキーマの最小値である。
+  it('a schema $ref accepts the minimum of the referenced schema', async () => {
+    const res = await pathParamsApp.request('/schemaref/0')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
   })
 })
 
@@ -2124,24 +2174,188 @@ describe('wire: routing', () => {
   })
 })
 
-// Numbers are coerced with z.coerce, that is Number(text) and BigInt(text). Both read more
-// than a decimal literal, and these tests pin exactly how much more, so that a change to the
-// coercion shows up here as a decision and not as a surprise. They record today's behaviour;
-// they do not say it is desirable.
-// 数値は z.coerce、すなわち Number(text) と BigInt(text) で変換される。
-// どちらも10進リテラル以外も読み取るため、「どこまで読むか」をここで固定する。
-// coerce の実装を変えたときに、想定外の変化ではなく意図した判断として差分が
-// 現れるようにするためである。これらは現状の挙動の記録であり、
-// 望ましい挙動だと主張するものではない。
-describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)', () => {
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('integer accepts "+1"', async () => {
-    const res = await pathParamsApp.request(`/integer/${encodeURIComponent('+1')}`)
+// A path parameter is one segment, so an array travels inside it. style: simple, the default,
+// joins the elements with commas; label puts a "." in front of the value and matrix a ";name=",
+// on a scalar as much as on an array, and with explode: true that prefix separates the elements
+// too. The answer shows an array as its JSON text: [1,2,3] holds numbers, ["1","2","3"] would
+// hold text.
+// パスパラメータは1つのセグメントなので、配列はその中に収めて運ばれる。デフォルトの
+// style: simple は要素をカンマで連結する。label は値の先頭に "." を、matrix は ";name=" を付ける。
+// これはスカラーでも配列でも同じであり、explode: true ではその接頭辞が要素の区切りも兼ねる。
+// 応答は配列を JSON 文字列で示す。[1,2,3] は number を、["1","2","3"] であれば文字列を保持している。
+describe('styles: simple, label and matrix', () => {
+  // style: simple serialises [1, 2, 3] as 1,2,3.
+  // style: simple では、[1, 2, 3] は 1,2,3 としてシリアライズされる。
+  it('simplearr splits a comma-separated segment', async () => {
+    const res = await pathParamsApp.request('/simplearr/1,2,3')
     expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
   })
 
+  // A one-element array has no separator to split on.
+  // 1要素の配列には、分割すべき区切り文字がない。
+  it('simplearr reads a single value as a one-element array', async () => {
+    const res = await pathParamsApp.request('/simplearr/7')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[7]' })
+  })
+
+  // The comma is decoded before the segment is split.
+  // カンマは、セグメントが分割される前にデコードされる。
+  it('simplearr splits a percent-encoded comma', async () => {
+    const res = await pathParamsApp.request('/simplearr/1%2C2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2]' })
+  })
+
+  // The same for an array of strings.
+  // string の配列でも同様である。
+  it('simplestrarr splits an array of strings', async () => {
+    const res = await pathParamsApp.request('/simplestrarr/a,b')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '["a","b"]' })
+  })
+
+  // style: label serialises 5 as .5. The dot is the prefix, not a decimal point.
+  // style: label では、5 は .5 としてシリアライズされる。
+  // このドットは接頭辞であり、小数点ではない。
+  it('label strips the leading dot of a scalar', async () => {
+    const res = await pathParamsApp.request('/label/.5')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
+  })
+
+  // With explode: false the elements after the dot are separated by commas.
+  // explode: false では、ドットに続く要素はカンマで区切られる。
+  it('labelarr strips the dot and splits on commas', async () => {
+    const res = await pathParamsApp.request('/labelarr/.1,2,3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
+  })
+
+  // With explode: true every element carries the dot.
+  // explode: true では、すべての要素にドットが付く。
+  it('labelexplode splits on the dot', async () => {
+    const res = await pathParamsApp.request('/labelexplode/.1.2.3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
+  })
+
+  // One element, one dot.
+  // 要素が1つなら、ドットも1つである。
+  it('labelexplode reads a single value as a one-element array', async () => {
+    const res = await pathParamsApp.request('/labelexplode/.7')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[7]' })
+  })
+
+  // style: matrix serialises 5 as ;value=5.
+  // style: matrix では、5 は ;value=5 としてシリアライズされる。
+  it('matrix strips the name prefix of a scalar', async () => {
+    const res = await pathParamsApp.request('/matrix/;value=5')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
+  })
+
+  // The segment is decoded before the prefix is stripped.
+  // セグメントは、接頭辞が取り除かれる前にデコードされる。
+  it('matrix strips a percent-encoded prefix', async () => {
+    const res = await pathParamsApp.request('/matrix/%3Bvalue=5')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '5' })
+  })
+
+  // With explode: false the name appears once and the elements are separated by commas.
+  // explode: false では、名前は1度だけ現れ、要素はカンマで区切られる。
+  it('matrixarr strips the prefix and splits on commas', async () => {
+    const res = await pathParamsApp.request('/matrixarr/;value=1,2,3')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2,3]' })
+  })
+
+  // With explode: true every element carries the name.
+  // explode: true では、すべての要素に名前が付く。
+  it('matrixexplode splits on the repeated name', async () => {
+    const res = await pathParamsApp.request('/matrixexplode/;value=1;value=2')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '[1,2]' })
+  })
+})
+
+// An object is one segment too. style: simple alternates names and values, and with explode: true
+// writes assignments; label and matrix put their prefix in front. The object is a: integer, b:
+// string on every route. The answer shows it as its JSON text: {"a":1} holds a number.
+// オブジェクトも、1つのセグメントになる。style: simple は名前と値を交互に並べ、explode: true では
+// 代入の形で書く。label と matrix は、それぞれの接頭辞を先頭に付ける。どのルートでも、オブジェクトは
+// a: integer, b: string である。応答は、オブジェクトを JSON 文字列で示す。{"a":1} は number を
+// 保持している。
+describe('objects: an object in one segment', () => {
+  // style: simple serialises { a: 1, b: "x" } as a,1,b,x.
+  // style: simple では、{ a: 1, b: "x" } は a,1,b,x としてシリアライズされる。
+  it('simpleobj reads alternating names and values', async () => {
+    const res = await pathParamsApp.request('/simpleobj/a,1,b,x')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
+  })
+
+  // One name and one value.
+  // 名前1つと値1つ。
+  it('simpleobj reads a single pair', async () => {
+    const res = await pathParamsApp.request('/simpleobj/a,1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1}' })
+  })
+
+  // c is not a property of the object.
+  // c は、オブジェクトのプロパティではない。
+  it('simpleobj drops a property it does not declare', async () => {
+    const res = await pathParamsApp.request('/simpleobj/c,1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{}' })
+  })
+
+  // With explode: true the object is a=1,b=x.
+  // explode: true では、オブジェクトは a=1,b=x になる。
+  it('simpleobjx reads assignments', async () => {
+    const res = await pathParamsApp.request('/simpleobjx/a=1,b=x')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
+  })
+
+  // style: label with explode: true serialises the object as .a=1.b=x.
+  // style: label + explode: true では、オブジェクトは .a=1.b=x としてシリアライズされる。
+  it('labelobjx reads assignments separated by dots', async () => {
+    const res = await pathParamsApp.request('/labelobjx/.a=1.b=x')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
+  })
+
+  // style: matrix serialises the object as ;value=a,1,b,x.
+  // style: matrix では、オブジェクトは ;value=a,1,b,x としてシリアライズされる。
+  it('matrixobj reads pairs behind the name of the parameter', async () => {
+    const res = await pathParamsApp.request('/matrixobj/;value=a,1,b,x')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
+  })
+
+  // With explode: true every property carries its own name, ;a=1;b=x.
+  // explode: true では、各プロパティが自身の名前を持つ(;a=1;b=x)。
+  it('matrixobjx reads assignments separated by semicolons', async () => {
+    const res = await pathParamsApp.request('/matrixobjx/;a=1;b=x')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({ valueType: 'object', valueText: '{"a":1,"b":"x"}' })
+  })
+})
+
+// Numbers are read from text by a decimal grammar, and string formats by Zod's own checks.
+// Both take a little more than the plainest spelling, and these tests pin exactly how much
+// more, so that a change shows up here as a decision and not as a surprise. They record
+// today's behaviour; they do not say it is desirable.
+// 数値は10進の文法で、文字列フォーマットは Zod 自身の検証で、文字列から読み取られる。
+// どちらも最も素直な表記より少し広く受理するため、「どこまで読むか」をここで固定する。
+// 変更が、想定外の変化ではなく意図した判断として差分に現れるようにするためである。
+// これらは現状の挙動の記録であり、望ましい挙動だと主張するものではない。
+describe('leniency: what is read beyond the plainest spelling (pinned, not endorsed)', () => {
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('integer accepts "-0"', async () => {
@@ -2156,30 +2370,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     const res = await pathParamsApp.request('/integer/007')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
-  })
-
-  // A fraction of zero is an integer.
-  // 小数部が 0 なら整数として扱われる。
-  it('integer accepts "1.0"', async () => {
-    const res = await pathParamsApp.request('/integer/1.0')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
-  })
-
-  // Exponent notation that comes out whole.
-  // 結果が整数になる指数表記。
-  it('integer accepts "1e3"', async () => {
-    const res = await pathParamsApp.request('/integer/1e3')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1000' })
-  })
-
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('int64 accepts "+5"', async () => {
-    const res = await pathParamsApp.request(`/int64/${encodeURIComponent('+5')}`)
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '5' })
   })
 
   // Negative zero is zero.
@@ -2204,78 +2394,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     const res = await pathParamsApp.request('/number/-0')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
-  })
-
-  // A hexadecimal literal is read as 16.
-  // 16進リテラルは 16 として読まれる。
-  it('integer accepts "0x10"', async () => {
-    const res = await pathParamsApp.request('/integer/0x10')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '16' })
-  })
-
-  // A binary literal is read as 3.
-  // 2進リテラルは 3 として読まれる。
-  it('integer accepts "0b11"', async () => {
-    const res = await pathParamsApp.request('/integer/0b11')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '3' })
-  })
-
-  // An octal literal is read as 7.
-  // 8進リテラルは 7 として読まれる。
-  it('integer accepts "0o7"', async () => {
-    const res = await pathParamsApp.request('/integer/0o7')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
-  })
-
-  // A hexadecimal literal is read as 31.
-  // 16進リテラルは 31 として読まれる。
-  it('number accepts "0x1F"', async () => {
-    const res = await pathParamsApp.request('/number/0x1F')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '31' })
-  })
-
-  // BigInt reads a hexadecimal literal too.
-  // BigInt も16進リテラルを読み取る。
-  it('int64 accepts "0x10"', async () => {
-    const res = await pathParamsApp.request('/int64/0x10')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '16' })
-  })
-
-  // Surrounding whitespace is ignored.
-  // 前後の空白は無視される。
-  it('integer accepts " 42 "', async () => {
-    const res = await pathParamsApp.request(`/integer/${encodeURIComponent(' 42 ')}`)
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '42' })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('integer accepts " "', async () => {
-    const res = await pathParamsApp.request(`/integer/${encodeURIComponent(' ')}`)
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('number accepts " "', async () => {
-    const res = await pathParamsApp.request(`/number/${encodeURIComponent(' ')}`)
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0' })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('int64 accepts " "', async () => {
-    const res = await pathParamsApp.request(`/int64/${encodeURIComponent(' ')}`)
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'bigint', valueText: '0' })
   })
 
   // cuid2 is a pattern with no fixed length: one letter passes.
@@ -2324,34 +2442,10 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(await res.json()).toStrictEqual({ valueType: 'string', valueText: '192.168.0.1' })
   })
 
-  // A literal is compared after coercion, so "1.0" matches the member 1.
-  // リテラルは coerce 後に比較されるため、"1.0" はメンバー 1 に一致する。
-  it('ienum accepts "1.0"', async () => {
-    const res = await pathParamsApp.request('/ienum/1.0')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
-  })
-
   // A leading zero still names the member 1.
   // 先頭にゼロがあっても、メンバー 1 を指す。
   it('ienum accepts "01"', async () => {
     const res = await pathParamsApp.request('/ienum/01')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
-  })
-
-  // Exponent notation still names the member 1.
-  // 指数表記でも、メンバー 1 を指す。
-  it('ienum accepts "1e0"', async () => {
-    const res = await pathParamsApp.request('/ienum/1e0')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
-  })
-
-  // A hexadecimal literal still names the member 1.
-  // 16進リテラルでも、メンバー 1 を指す。
-  it('ienum accepts "0x1"', async () => {
-    const res = await pathParamsApp.request('/ienum/0x1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '1' })
   })
@@ -2378,14 +2472,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     const res = await pathParamsApp.request('/nenum/5e-1')
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '0.5' })
-  })
-
-  // A fraction of zero still names the constant 7.
-  // 小数部が 0 でも、定数 7 を指す。
-  it('iconst accepts "7.0"', async () => {
-    const res = await pathParamsApp.request('/iconst/7.0')
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({ valueType: 'number', valueText: '7' })
   })
 
   // A leading zero still names the constant 7.

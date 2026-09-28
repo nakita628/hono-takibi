@@ -22,6 +22,7 @@ export function requestBodies(
     }
   },
   readonly?: boolean,
+  schemas?: Components['schemas'],
 ) {
   return Effect.gen(function* () {
     if (!requestBodies) return yield* new GenerateError({ message: 'No requestBodies found' })
@@ -32,7 +33,10 @@ export function requestBodies(
       yield* Effect.all(
         [
           ...bodyNames.map((bodyName) => {
-            const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
+            const singleComponent = {
+              requestBodies: { [bodyName]: requestBodies[bodyName] },
+              ...(schemas === undefined ? {} : { schemas }),
+            }
             const code = requestBodiesCode(singleComponent, true, readonly)
             const filePath = path.join(outDir, `${uncapitalize(bodyName)}.ts`)
             return emit(
@@ -47,7 +51,11 @@ export function requestBodies(
       )
       return `Generated requestBodies code written to ${outDir}/*.ts (index.ts included)`
     }
-    const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
+    const bodyDefinitions = requestBodiesCode(
+      { requestBodies, ...(schemas === undefined ? {} : { schemas }) },
+      true,
+      readonly,
+    )
     yield* emit(
       makeImports(bodyDefinitions, output, components, split),
       path.dirname(output),

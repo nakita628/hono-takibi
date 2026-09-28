@@ -492,7 +492,7 @@ describe('openapi helper', () => {
     it.concurrent('applies coercion for query number parameters', () => {
       const result = makeParameters([{ name: 'page', in: 'query', schema: { type: 'number' } }])
       expect(result.query.page).toBe(
-        'z.coerce.number().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"number"},"required":false}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"number"},"required":false}})`,
       )
     })
     it.concurrent('applies stringbool for query boolean parameters', () => {
@@ -518,7 +518,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.filter).toBe(
-        'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}},"required":false}})',
+        `z.preprocess((val)=>{if(typeof val!=='string')return val;try{return JSON.parse(val)}catch{return val}},z.object({})).exactOptional().openapi({param:{"name":"filter","in":"query","content":{"application/json":{"schema":{"type":"object"}}},"required":false}})`,
       )
     })
     it.concurrent('handles parameters without schema returns z.any()', () => {
@@ -534,7 +534,7 @@ describe('openapi helper', () => {
     it.concurrent('generates a query parameter with exact string output', () => {
       const result = makeParameters([{ name: 'page', in: 'query', schema: { type: 'integer' } }])
       expect(result.query.page).toBe(
-        'z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})`,
       )
     })
     it.concurrent('generates path parameter with exact string output', () => {
@@ -546,7 +546,7 @@ describe('openapi helper', () => {
     it.concurrent('applies coercion for path integer parameters', () => {
       const result = makeParameters([{ name: 'id', in: 'path', schema: { type: 'integer' } }])
       expect(result.path.id).toBe(
-        'z.coerce.number().int().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer"}}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer"}}})`,
       )
     })
     // Regression: the array branch coerced items with `z.coerce.number()` before piping
@@ -559,32 +559,51 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'integer', format: 'int64' } },
         },
       ])
-      expect(result.query.ids).toContain('z.array(z.coerce.bigint().pipe(z.int64()))')
+      expect(result.query.ids).toContain(
+        String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).openapi({type:"integer",format:"int64"}))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"integer","format":"int64"}},"required":false}})`,
+      )
     })
-    // Regression: `header` and `cookie` were not string wires, so a numeric or boolean
-    // header schema rejected its own input on every request.
     // Regression: an exploded one-element array serialises to a single `?ids=1`, which
     // reaches the handler as a bare string — a plain `z.array(...)` rejected the request a
-    // spec-compliant client had just made.
-    it.concurrent.each([['query'], ['header'], ['cookie']] as const)(
-      'accepts both arities for a %s array parameter',
-      (location) => {
-        const result = makeParameters([
-          { name: 'ids', in: location, schema: { type: 'array', items: { type: 'integer' } } },
-        ])
-        expect(result[location].ids).toContain(
-          'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.coerce.number().int()))',
-        )
-      },
-    )
-    // A path segment is `style: simple` — one comma-separated value, never a repetition —
-    // so the arity wrapper is deliberately not applied there.
-    it.concurrent('leaves a path array parameter unwrapped', () => {
+    // spec-compliant client had just made. An absent parameter stays `undefined`, so that
+    // it is reported as missing rather than as an invalid first element.
+    it.concurrent('accepts both arities for a query array parameter', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'query', schema: { type: 'array', items: { type: 'integer' } } },
+      ])
+      expect(result.query.ids).toContain(
+        String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())))`,
+      )
+    })
+    // A cookie name appears once, so several values can only travel as one comma-separated
+    // value.
+    it.concurrent('splits a cookie array parameter on commas', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'cookie', schema: { type: 'array', items: { type: 'integer' } } },
+      ])
+      expect(result.cookie.ids).toContain(
+        String.raw`z.preprocess((val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(","):[item]))),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())))`,
+      )
+    })
+    // A header array is `style: simple`: one header holding comma-separated values, with
+    // optional whitespace after each comma. A header sent several times arrives joined by
+    // ", ", the same shape.
+    it.concurrent('splits a header array parameter on commas and trims each value', () => {
+      const result = makeParameters([
+        { name: 'ids', in: 'header', schema: { type: 'array', items: { type: 'integer' } } },
+      ])
+      expect(result.header.ids).toContain(
+        String.raw`z.preprocess((val)=>(val===undefined?val:(Array.isArray(val)?val:[val]).flatMap((item)=>(typeof item==='string'?item.split(",").map((part)=>part.trim()):[item]))),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())))`,
+      )
+    })
+    // A path segment is `style: simple` — one comma-separated value, never a repetition.
+    it.concurrent('splits a path array parameter on commas', () => {
       const result = makeParameters([
         { name: 'ids', in: 'path', schema: { type: 'array', items: { type: 'integer' } } },
       ])
-      expect(result.path.ids).toContain('z.array(z.coerce.number().int())')
-      expect(result.path.ids).not.toContain('z.preprocess')
+      expect(result.path.ids).toContain(
+        String.raw`z.preprocess((val)=>(typeof val==='string'?val.split(','):val),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())))`,
+      )
     })
     it.concurrent('coerces header parameters, which arrive as strings too', () => {
       const result = makeParameters([
@@ -593,13 +612,19 @@ describe('openapi helper', () => {
         { name: 'x-big', in: 'header', schema: { type: 'integer', format: 'int64' } },
       ])
       // `makeSafeKey` quotes a name that is not an identifier, so the key carries them.
-      expect(result.header["'x-count'"]).toContain('z.coerce.number().int()')
+      expect(result.header["'x-count'"]).toContain(
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())`,
+      )
       expect(result.header["'x-flag'"]).toContain('z.stringbool()')
-      expect(result.header["'x-big'"]).toContain('z.coerce.bigint().pipe(z.int64())')
+      expect(result.header["'x-big'"]).toContain(
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64())`,
+      )
     })
     it.concurrent('coerces cookie parameters, which arrive as strings too', () => {
       const result = makeParameters([{ name: 'sid', in: 'cookie', schema: { type: 'integer' } }])
-      expect(result.cookie.sid).toContain('z.coerce.number().int()')
+      expect(result.cookie.sid).toContain(
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int())`,
+      )
     })
     // Regression: the array coercion matched `int*` only, so `z.float64()` items kept a
     // plain number schema and 422'd on the string that actually arrives.
@@ -611,7 +636,9 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'number', format: 'double' } },
         },
       ])
-      expect(result.query.ratios).toContain('z.array(z.coerce.number().pipe(z.float64()))')
+      expect(result.query.ratios).toContain(
+        String.raw`z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.float64()))`,
+      )
     })
     it.concurrent('keeps array-of-int32 query items on the number path', () => {
       const result = makeParameters([
@@ -621,20 +648,22 @@ describe('openapi helper', () => {
           schema: { type: 'array', items: { type: 'integer', format: 'int32' } },
         },
       ])
-      expect(result.query.ids).toContain('z.array(z.coerce.number().pipe(z.int32()))')
+      expect(result.query.ids).toContain(
+        String.raw`z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int32()))`,
+      )
     })
     it.concurrent('applies coercion for path int64 parameters', () => {
       const result = makeParameters([
         { name: 'id', in: 'path', schema: { type: 'integer', format: 'int64' } },
       ])
       expect(result.path.id).toBe(
-        'z.coerce.bigint().pipe(z.int64()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer","format":"int64"}}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)?BigInt(val):val),z.int64()).exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"integer","format":"int64"}}})`,
       )
     })
     it.concurrent('applies coercion for path number parameters', () => {
       const result = makeParameters([{ name: 'value', in: 'path', schema: { type: 'number' } }])
       expect(result.path.value).toBe(
-        'z.coerce.number().exactOptional().openapi({param:{"name":"value","in":"path","schema":{"type":"number"}}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()).exactOptional().openapi({param:{"name":"value","in":"path","schema":{"type":"number"}}})`,
       )
     })
     it.concurrent('applies stringbool for path boolean parameters', () => {
@@ -660,6 +689,8 @@ describe('openapi helper', () => {
       )
     })
 
+    // The properties of an object arrive like the fields of a form: nothing but the schema
+    // describes them, so a boolean is read by a converter the document looks through.
     it.concurrent('applies coercion for nested integers in query object parameter', () => {
       const result = makeParameters([
         {
@@ -675,7 +706,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.filter).toBe(
-        'z.object({count:z.coerce.number().int().exactOptional(),active:z.stringbool().exactOptional()}).exactOptional().openapi({param:{"name":"filter","in":"query","schema":{"type":"object","properties":{"count":{"type":"integer"},"active":{"type":"boolean"}}},"required":false},"required":[]})',
+        String.raw`z.object({count:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional(),active:z.preprocess(((read)=>(val:unknown)=>{const result=read.safeParse(val);return result.success?result.data:val})(z.stringbool()),z.boolean()).exactOptional()}).exactOptional().openapi({param:{"name":"filter","in":"query","schema":{"type":"object","properties":{"count":{"type":"integer"},"active":{"type":"boolean"}}},"required":false},"required":[]})`,
       )
     })
 
@@ -691,7 +722,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.ids).toBe(
-        'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.coerce.number())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}},"required":false}})',
+        String.raw`z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.number()))).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"number"}},"required":false}})`,
       )
     })
 
@@ -715,7 +746,7 @@ describe('openapi helper', () => {
         { name: 'kind', in: 'query', schema: { type: 'integer', enum: [1, 2] } },
       ])
       expect(result.query.kind).toBe(
-        'z.coerce.number().pipe(z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"query","schema":{"type":"integer","enum":[1,2]},"required":false}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.union([z.literal(1),z.literal(2)])).exactOptional().openapi({param:{"name":"kind","in":"query","schema":{"type":"integer","enum":[1,2]},"required":false}})`,
       )
     })
     it.concurrent('parses a path boolean enum with stringbool before matching', () => {
@@ -726,12 +757,14 @@ describe('openapi helper', () => {
         'z.stringbool().pipe(z.literal(true)).openapi({param:{"name":"flag","in":"path","required":true,"schema":{"type":"boolean","enum":[true]}}})',
       )
     })
+    // `type: number` reads the text with the number grammar even though the literal is
+    // whole, so "2.0" is the value 2 as much as "2" is.
     it.concurrent('coerces a query number const before matching its literal', () => {
       const result = makeParameters([
         { name: 'version', in: 'query', schema: { type: 'number', const: 2 } },
       ])
       expect(result.query.version).toBe(
-        'z.coerce.number().pipe(z.literal(2)).exactOptional().openapi({param:{"name":"version","in":"query","schema":{"type":"number","const":2},"required":false}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(val)&&(!/^-?\d+$/.test(val)||Number.isSafeInteger(Number(val)))?Number(val):val),z.literal(2)).exactOptional().openapi({param:{"name":"version","in":"query","schema":{"type":"number","const":2},"required":false}})`,
       )
     })
     it.concurrent('leaves a string enum on the wire as is', () => {
@@ -749,12 +782,14 @@ describe('openapi helper', () => {
         { name: 'limit', in: 'query', schema: { type: ['integer', 'null'] } },
       ])
       expect(result.query.limit).toBe(
-        'z.coerce.number().int().nullable().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})',
+        String.raw`z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).nullable().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":["integer","null"]},"required":false}})`,
       )
     })
     // Regression: coercion stopped at the top-level type, so a numeric branch inside a
-    // composition validated the raw string.
-    it.concurrent('coerces the numeric branches of a query oneOf', () => {
+    // composition validated the raw string. The text is read once, around the whole
+    // `oneOf`: reading it per branch lets "1" match an integer branch and a string branch
+    // at once, which `oneOf` rejects.
+    it.concurrent('reads a query oneOf from text once, around its branches', () => {
       const result = makeParameters([
         {
           name: 'page',
@@ -762,7 +797,9 @@ describe('openapi helper', () => {
           schema: { oneOf: [{ type: 'integer' }, { type: 'string', enum: ['all'] }] },
         },
       ])
-      expect(result.query.page).toContain("z.xor([z.coerce.number().int(),z.literal('all')])")
+      expect(result.query.page).toContain(
+        String.raw`z.preprocess((val)=>{if(typeof val!=='string'||["all"].includes(val))return val;if(/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val)))return Number(val);return val},z.xor([z.int(),z.literal('all')]))`,
+      )
     })
     it.concurrent('coerces integer enum items of a query array', () => {
       const result = makeParameters([
@@ -773,7 +810,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.kinds).toContain(
-        'z.array(z.coerce.number().pipe(z.union([z.literal(1),z.literal(2)])))',
+        String.raw`z.array(z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.union([z.literal(1),z.literal(2)])))`,
       )
     })
     // Regression: the arity wrapper sat outside `.default()`, so an absent parameter reached
@@ -787,7 +824,7 @@ describe('openapi helper', () => {
         },
       ])
       expect(result.query.tags).toBe(
-        'z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string())).default([]).exactOptional().openapi({param:{"name":"tags","in":"query","schema":{"type":"array","items":{"type":"string"},"default":[]},"required":false}})',
+        'z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.string())).default([]).exactOptional().openapi({param:{"name":"tags","in":"query","schema":{"type":"array","items":{"type":"string"},"default":[]},"required":false}})',
       )
     })
     it.concurrent('does not coerce a body-like location', () => {
@@ -990,7 +1027,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{query:z.object({page:z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})}',
+        String.raw`{query:z.object({page:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})}`,
       )
     })
     it.concurrent('generates request with header parameters', () => {
@@ -1011,7 +1048,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        '{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})}',
+        String.raw`{params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})}`,
       )
     })
   })
@@ -1026,7 +1063,7 @@ describe('openapi helper', () => {
     it.concurrent('generates query for query parameter', () => {
       const result = makeRequestParams([{ name: 'page', in: 'query', schema: { type: 'integer' } }])
       expect(result).toBe(
-        'query:z.object({page:z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})',
+        String.raw`query:z.object({page:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})})`,
       )
     })
     it.concurrent('generates header for header parameter', () => {
@@ -1056,7 +1093,7 @@ describe('openapi helper', () => {
         { name: 'Authorization', in: 'header', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"},"required":false}})})',
+        String.raw`params:z.object({id:z.string().exactOptional().openapi({param:{"name":"id","in":"path","schema":{"type":"string"}}})}),query:z.object({page:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}})}),headers:z.object({Authorization:z.string().exactOptional().openapi({param:{"name":"Authorization","in":"header","schema":{"type":"string"},"required":false}})})`,
       )
     })
     it.concurrent('generates multiple query parameters', () => {
@@ -1066,7 +1103,7 @@ describe('openapi helper', () => {
         { name: 'sort', in: 'query', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        'query:z.object({page:z.coerce.number().int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}}),limit:z.coerce.number().int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"},"required":false}})})',
+        String.raw`query:z.object({page:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"},"required":false}}),limit:z.preprocess((val)=>(typeof val==='string'&&/^-?\d+$/.test(val)&&Number.isSafeInteger(Number(val))?Number(val):val),z.int()).exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"},"required":false}}),sort:z.string().exactOptional().openapi({param:{"name":"sort","in":"query","schema":{"type":"string"},"required":false}})})`,
       )
     })
   })
@@ -1888,7 +1925,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string()).readonly()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
+            ids: 'z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.string()).readonly()).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})',
           },
         })
       })
@@ -1900,7 +1937,7 @@ describe('openapi helper', () => {
         )
         expect(result).toStrictEqual({
           query: {
-            ids: `z.preprocess((val)=>(Array.isArray(val)?val:[val]),z.array(z.string())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})`,
+            ids: 'z.preprocess((val)=>(val===undefined||Array.isArray(val)?val:[val]),z.array(z.string())).exactOptional().openapi({param:{"name":"ids","in":"query","schema":{"type":"array","items":{"type":"string"}},"required":false}})',
           },
         })
       })

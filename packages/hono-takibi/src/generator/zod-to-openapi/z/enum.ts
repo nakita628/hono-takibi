@@ -25,6 +25,9 @@ export function _enum(schema: Schema) {
   // Zod v4 `z.enum` emits a single issue code (`invalid_value`) for both type
   // and value mismatches, so a per-code dispatch isn't possible — the
   // override is a clearer name for the enum case (no new capability).
+  const isBigint =
+    ht('integer') &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
   const enumMessage = schema['x-enum-message']
   const errorMessage = enumMessage ?? schema['x-error-message']
   const errorArg = errorMessage ? `,${error(errorMessage)}` : ''
@@ -33,6 +36,8 @@ export function _enum(schema: Schema) {
     const arg = suffix ?? errorArg
     if (v === null) return `z.literal(null${arg})`
     if (typeof v === 'string') return `z.literal('${v.replaceAll("'", "\\'")}'${arg})`
+    // An int64 is a bigint in the generated schema, and so are the members of its enum.
+    if (typeof v === 'number' && isBigint && Number.isInteger(v)) return `z.literal(${v}n${arg})`
     if (typeof v === 'number' || typeof v === 'boolean') return `z.literal(${String(v)}${arg})`
     return `z.custom<${JSON.stringify(v)}>()`
   }

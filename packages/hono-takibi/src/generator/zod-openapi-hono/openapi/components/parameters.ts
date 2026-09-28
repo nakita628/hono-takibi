@@ -21,7 +21,7 @@ export function parametersCode(
     .map((k) =>
       zodToOpenAPISchema(
         toIdentifierPascalCase(ensureSuffix(k, 'ParamsSchema')),
-        makeParameterSchema(parameters[k]),
+        makeParameterSchema(parameters[k], undefined, components.schemas),
         exportParameters,
         exportParametersTypes,
         true,

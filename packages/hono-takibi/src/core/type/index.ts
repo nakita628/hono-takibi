@@ -310,12 +310,20 @@ function makeSchemaTypeString(
   if (schema.allOf && schema.allOf.length > 0) {
     return makeAllOfTypeString(schema.allOf, components, visited)
   }
+  // An int64 is a bigint in the generated schema, and so are the literals of its enum.
+  const isBigintLiteral = (value: unknown): value is number =>
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    (Array.isArray(schema.type) ? schema.type.includes('integer') : schema.type === 'integer') &&
+    (schema.format === 'int64' || schema.format === 'uint64' || schema.format === 'bigint')
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum
       .map((v) =>
         typeof v === 'string'
           ? `'${v.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
-          : String(v),
+          : isBigintLiteral(v)
+            ? `${v}n`
+            : String(v),
       )
       .join('|')
   }
@@ -323,6 +331,7 @@ function makeSchemaTypeString(
     if (typeof schema.const === 'string') {
       return `'${schema.const.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
     }
+    if (isBigintLiteral(schema.const)) return `${schema.const}n`
     if (typeof schema.const === 'number' || typeof schema.const === 'boolean') {
       return String(schema.const)
     }

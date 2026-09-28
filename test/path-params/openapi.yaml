@@ -561,6 +561,207 @@ paths:
         - { name: value, in: path, required: true, schema: { $ref: '#/components/schemas/Count' } }
       responses:
         '200': { $ref: '#/components/responses/Echo' }
+  # ---- serialisation styles ----
+  # ---- シリアライズ形式 ----
+  # `style: simple` is the default of a path parameter: an array is one segment holding
+  # comma-separated values. `label` puts a "." in front and `matrix` a ";name=", on a scalar
+  # as much as on an array; with `explode: true` the prefix separates the elements as well.
+  # `style: simple` はパスパラメータのデフォルトである。配列は、値をカンマ区切りで並べた
+  # 1つのセグメントになる。`label` は先頭に "." を、`matrix` は ";name=" を付ける。これは
+  # スカラーでも配列でも同じである。`explode: true` では、その接頭辞が要素の区切りも兼ねる。
+  /simplearr/{value}:
+    get:
+      operationId: simplearrParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: array, items: { type: integer } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /simplestrarr/{value}:
+    get:
+      operationId: simplestrarrParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: array, items: { type: string } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /label/{value}:
+    get:
+      operationId: labelParam
+      parameters:
+        - { name: value, in: path, required: true, style: label, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /labelarr/{value}:
+    get:
+      operationId: labelarrParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: label,
+            schema: { type: array, items: { type: integer } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /labelexplode/{value}:
+    get:
+      operationId: labelexplodeParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: label,
+            explode: true,
+            schema: { type: array, items: { type: integer } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrix/{value}:
+    get:
+      operationId: matrixParam
+      parameters:
+        - { name: value, in: path, required: true, style: matrix, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrixarr/{value}:
+    get:
+      operationId: matrixarrParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: matrix,
+            schema: { type: array, items: { type: integer } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrixexplode/{value}:
+    get:
+      operationId: matrixexplodeParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: matrix,
+            explode: true,
+            schema: { type: array, items: { type: integer } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- objects ----
+  # ---- オブジェクト ----
+  # An object is one segment too. `style: simple` alternates names and values, a,1,b,x, and
+  # with `explode: true` writes assignments, a=1,b=x. `label` and `matrix` put their prefix
+  # in front; exploded, `label` separates the assignments with "." and `matrix` with ";".
+  # オブジェクトも、1つのセグメントになる。`style: simple` は名前と値を交互に並べ
+  # (a,1,b,x)、`explode: true` では代入の形で書く(a=1,b=x)。`label` と `matrix` は、
+  # それぞれの接頭辞を先頭に付ける。explode された場合、`label` は代入同士を "." で、
+  # `matrix` は ";" で区切る。
+  /simpleobj/{value}:
+    get:
+      operationId: simpleobjParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /simpleobjx/{value}:
+    get:
+      operationId: simpleobjxParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            explode: true,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /labelobjx/{value}:
+    get:
+      operationId: labelobjxParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: label,
+            explode: true,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrixobj/{value}:
+    get:
+      operationId: matrixobjParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: matrix,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /matrixobjx/{value}:
+    get:
+      operationId: matrixobjxParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            style: matrix,
+            explode: true,
+            schema: { type: object, properties: { a: { type: integer }, b: { type: string } } },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  # ---- combinators read once ----
+  # ---- 1度だけ読み取られるコンビネータ ----
+  /allof/{value}:
+    get:
+      operationId: allofParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { allOf: [{ type: integer }, { minimum: 5 }] },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
+  /oneofis/{value}:
+    get:
+      operationId: oneofisParam
+      parameters:
+        - {
+            name: value,
+            in: path,
+            required: true,
+            schema: { oneOf: [{ type: integer }, { type: string }] },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Echo' }
   # ---- declaration forms ----
   # ---- 宣言の形式 ----
   /orgs/{orgId}/repos/{repoId}/issues/{issueId}:

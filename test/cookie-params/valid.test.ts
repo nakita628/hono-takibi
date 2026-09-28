@@ -50,7 +50,9 @@
 //   - names
 //   - wire: the Cookie header
 //   - arrays
-//   - leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)
+//   - objects: an object in cookies
+//   - references: a schema behind $ref
+//   - leniency: what is read beyond the plainest spelling (pinned, not endorsed)
 import { describe, expect, it } from 'vite-plus/test'
 
 import { cookieParamsApp } from './app'
@@ -2611,30 +2613,151 @@ describe('arrays', () => {
       ids: [{ valueType: 'number', valueText: '7' }],
     })
   })
-})
 
-// Numbers are coerced with z.coerce, that is Number(text) and BigInt(text). Both read more
-// than a decimal literal, and these tests pin exactly how much more, so that a change to the
-// coercion shows up here as a decision and not as a surprise. They record today's behaviour;
-// they do not say it is desirable.
-// 数値は z.coerce、すなわち Number(text) と BigInt(text) で変換される。
-// どちらも10進リテラル以外も読み取るため、「どこまで読むか」をここで固定する。
-// coerce の実装を変えたときに、想定外の変化ではなく意図した判断として差分が
-// 現れるようにするためである。これらは現状の挙動の記録であり、
-// 望ましい挙動だと主張するものではない。
-describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not endorsed)', () => {
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('integer accepts "+1"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `integer=${encodeURIComponent('+1')}` },
-    })
+  // A cookie name appears once, so several values travel as one cookie holding them
+  // comma-separated. The comma is percent-encoded here, as a cookie value requires.
+  // Cookie 名は1度しか現れないため、複数の値は1つの Cookie にカンマ区切りで並べて運ばれる。
+  // ここでは、Cookie 値の規則に従ってカンマをパーセントエンコードしている。
+  it('splits an encoded comma-separated value', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=1%2C2%2C3' } })
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '1' },
+      ids: [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+        { valueType: 'number', valueText: '3' },
+      ],
     })
   })
 
+  // The same with the commas sent as they are.
+  // カンマをそのまま送信した場合も同様である。
+  it('splits an unencoded comma-separated value', async () => {
+    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'ids=1,2,3' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      ids: [
+        { valueType: 'number', valueText: '1' },
+        { valueType: 'number', valueText: '2' },
+        { valueType: 'number', valueText: '3' },
+      ],
+    })
+  })
+})
+
+// An object explodes by default: prefs is theme: string, size: integer, and each property is a
+// cookie of its own. With explode: false one cookie holds names and values: obj is a: integer, b:
+// string.
+// オブジェクトは、デフォルトで explode される。prefs は theme: string, size: integer であり、
+// 各プロパティが独立した Cookie になる。explode: false では、1つの Cookie が名前と値を保持する。
+// obj は a: integer, b: string である。
+describe('objects: an object in cookies', () => {
+  // theme and size are cookies of their own, gathered into prefs.
+  // theme と size は独立した Cookie であり、prefs にまとめられる。
+  it('prefs gathers the cookies that are its properties', async () => {
+    const res = await cookieParamsApp.request('/optional', {
+      headers: { Cookie: 'theme=dark; size=5' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      prefs: {
+        theme: { valueType: 'string', valueText: 'dark' },
+        size: { valueType: 'number', valueText: '5' },
+      },
+    })
+  })
+
+  // One property is enough for the object to be there.
+  // プロパティが1つあれば、オブジェクトは存在することになる。
+  it('prefs gathers a single property', async () => {
+    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'size=5' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      prefs: {
+        size: { valueType: 'number', valueText: '5' },
+      },
+    })
+  })
+
+  // int_opt is a cookie of its own and theme a property of prefs.
+  // int_opt は独立した Cookie であり、theme は prefs のプロパティである。
+  it('prefs arrives beside a cookie of its own', async () => {
+    const res = await cookieParamsApp.request('/optional', {
+      headers: { Cookie: 'int_opt=1; theme=dark' },
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      int_opt: { valueType: 'number', valueText: '1' },
+      prefs: {
+        theme: { valueType: 'string', valueText: 'dark' },
+      },
+    })
+  })
+
+  // { a: 1, b: "x" } is sent as one cookie, a,1,b,x.
+  // { a: 1, b: "x" } は、1つの Cookie a,1,b,x として送信される。
+  it('obj reads alternating names and values', async () => {
+    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'obj=a,1,b,x' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      obj: {
+        a: { valueType: 'number', valueText: '1' },
+        b: { valueType: 'string', valueText: 'x' },
+      },
+    })
+  })
+
+  // The comma is percent-encoded, as a cookie value requires.
+  // Cookie 値の規則に従って、カンマをパーセントエンコードしている。
+  it('obj reads percent-encoded commas', async () => {
+    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'obj=a%2C1' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      obj: {
+        a: { valueType: 'number', valueText: '1' },
+      },
+    })
+  })
+})
+
+// A component schema is generated for a typed value: Count is z.int().min(0), which the text of a
+// cookie does not satisfy. A cookie that names one reads the text first and hands the component
+// the value.
+// コンポーネントスキーマは、型付きの値を前提に生成される。Count は z.int().min(0) であり、
+// Cookieの文字列はこれを満たさない。コンポーネントを参照するCookieは、先に文字列を読み取り、
+// その値をコンポーネントに渡す。
+describe('references: a schema behind $ref', () => {
+  // Count is an integer with minimum: 0.
+  // Count は minimum: 0 の integer である。
+  it('ref_int coerces an integer component', async () => {
+    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ref_int=5' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      ref_int: { valueType: 'number', valueText: '5' },
+    })
+  })
+
+  // Zero is the minimum of Count: the constraint of the component applies to the value that was
+  // read.
+  // 0 は Count の最小値である。コンポーネントの制約は、読み取った値に適用される。
+  it('ref_int accepts the minimum of the component', async () => {
+    const res = await cookieParamsApp.request('/optional', { headers: { Cookie: 'ref_int=0' } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toStrictEqual({
+      ref_int: { valueType: 'number', valueText: '0' },
+    })
+  })
+})
+
+// Numbers are read from text by a decimal grammar, and string formats by Zod's own checks.
+// Both take a little more than the plainest spelling, and these tests pin exactly how much
+// more, so that a change shows up here as a decision and not as a surprise. They record
+// today's behaviour; they do not say it is desirable.
+// 数値は10進の文法で、文字列フォーマットは Zod 自身の検証で、文字列から読み取られる。
+// どちらも最も素直な表記より少し広く受理するため、「どこまで読むか」をここで固定する。
+// 変更が、想定外の変化ではなく意図した判断として差分に現れるようにするためである。
+// これらは現状の挙動の記録であり、望ましい挙動だと主張するものではない。
+describe('leniency: what is read beyond the plainest spelling (pinned, not endorsed)', () => {
   // Negative zero is zero.
   // 負のゼロはゼロになる。
   it('integer accepts "-0"', async () => {
@@ -2652,38 +2775,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       integer: { valueType: 'number', valueText: '7' },
-    })
-  })
-
-  // A fraction of zero is an integer.
-  // 小数部が 0 なら整数として扱われる。
-  it('integer accepts "1.0"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1.0' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '1' },
-    })
-  })
-
-  // Exponent notation that comes out whole.
-  // 結果が整数になる指数表記。
-  it('integer accepts "1e3"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=1e3' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '1000' },
-    })
-  })
-
-  // An explicit plus sign.
-  // 明示的なプラス記号。
-  it('int64 accepts "+5"', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `int64=${encodeURIComponent('+5')}` },
-    })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      int64: { valueType: 'bigint', valueText: '5' },
     })
   })
 
@@ -2714,104 +2805,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       number: { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // A hexadecimal literal is read as 16.
-  // 16進リテラルは 16 として読まれる。
-  it('integer accepts "0x10"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=0x10' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '16' },
-    })
-  })
-
-  // A binary literal is read as 3.
-  // 2進リテラルは 3 として読まれる。
-  it('integer accepts "0b11"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=0b11' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '3' },
-    })
-  })
-
-  // An octal literal is read as 7.
-  // 8進リテラルは 7 として読まれる。
-  it('integer accepts "0o7"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=0o7' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '7' },
-    })
-  })
-
-  // A hexadecimal literal is read as 31.
-  // 16進リテラルは 31 として読まれる。
-  it('number accepts "0x1F"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'number=0x1F' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      number: { valueType: 'number', valueText: '31' },
-    })
-  })
-
-  // BigInt reads a hexadecimal literal too.
-  // BigInt も16進リテラルを読み取る。
-  it('int64 accepts "0x10"', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=0x10' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      int64: { valueType: 'bigint', valueText: '16' },
-    })
-  })
-
-  // Surrounding whitespace is ignored.
-  // 前後の空白は無視される。
-  it('integer accepts " 42 "', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `integer=${encodeURIComponent(' 42 ')}` },
-    })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '42' },
-    })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('integer accepts " "', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `integer=${encodeURIComponent(' ')}` },
-    })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('number accepts " "', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `number=${encodeURIComponent(' ')}` },
-    })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      number: { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // Whitespace alone is read as zero.
-  // 空白だけの値は 0 として読まれる。
-  it('int64 accepts " "', async () => {
-    const res = await cookieParamsApp.request('/cookies', {
-      headers: { Cookie: `int64=${encodeURIComponent(' ')}` },
-    })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      int64: { valueType: 'bigint', valueText: '0' },
     })
   })
 
@@ -2870,41 +2863,6 @@ describe('leniency: what z.coerce reads beyond a decimal literal (pinned, not en
     expect(res.status).toBe(200)
     expect(await res.json()).toStrictEqual({
       hostname: { valueType: 'string', valueText: '192.168.0.1' },
-    })
-  })
-
-  // An empty cookie is Number(""), which is zero.
-  // 空の Cookie は Number("") であり、0 になる。
-  it('reads an empty integer as zero', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'integer=' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      integer: { valueType: 'number', valueText: '0' },
-    })
-  })
-
-  // BigInt("") is 0n.
-  // BigInt("") は 0n である。
-  it('reads an empty int64 as zero', async () => {
-    const res = await cookieParamsApp.request('/cookies', { headers: { Cookie: 'int64=' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      int64: { valueType: 'bigint', valueText: '0' },
-    })
-  })
-
-  // The default of 20 does not apply, because the cookie was sent: the empty value is read as
-  // zero.
-  // Cookie 自体は送信されているため、デフォルトの 20 は適用されない。
-  // 空の値は 0 として読まれる。
-  it('reads an empty integer over its default', async () => {
-    const res = await cookieParamsApp.request('/defaults', { headers: { Cookie: 'int_def=' } })
-    expect(res.status).toBe(200)
-    expect(await res.json()).toStrictEqual({
-      int_def: { valueType: 'number', valueText: '0' },
-      int64_def: { valueType: 'bigint', valueText: '5' },
-      bool_def: { valueType: 'boolean', valueText: 'false' },
-      str_def: { valueType: 'string', valueText: 'fallback' },
     })
   })
 

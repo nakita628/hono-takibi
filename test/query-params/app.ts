@@ -1,11 +1,16 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
 
 import {
+  getAbsentRoute,
+  getCombinatorsRoute,
+  getContentRoute,
   getDefaultsRoute,
   getLimitsRoute,
   getLiteralsRoute,
+  getObjectsRoute,
   getOptionalRoute,
   getParamsRoute,
+  getRefsRoute,
   getRequiredRoute,
   getStylesRoute,
 } from './__generated__/routes'
@@ -84,3 +89,8 @@ export const queryParamsApp = new OpenAPIHono({
   .openapi(getRequiredRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getLimitsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
   .openapi(getStylesRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getRefsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getCombinatorsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getContentRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getObjectsRoute, (c) => c.json(echoFields(c.req.valid('query'))))
+  .openapi(getAbsentRoute, (c) => c.json(echoFields(c.req.valid('query'))))

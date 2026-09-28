@@ -16,6 +16,14 @@
 # `/required`  what happens when a required parameter is missing.
 # `/limits`    constraints, on a scalar and on an array.
 # `/styles`    the serialisations other than the default `form` + `explode: true`.
+# `/objects`   a parameter that is an object, spread over the query in each of the ways
+#              OpenAPI serialises one.
+# `/absent`    `allowEmptyValue`, and a reference that carries a default.
+# `/refs`      a schema behind `$ref`: the component is written for a typed value, so the
+#              text is read before it reaches the component.
+# `/combinators`  `allOf`, `oneOf`, `anyOf`, `not`, a mixed `enum`, a typeless constraint and
+#              a tuple: the text is read once, around the whole schema.
+# `/content`   a parameter declared with `content: application/json`, one JSON document.
 #
 # 生成器が対応するすべてのパラメータ形状を、クエリパラメータとして宣言する。各 `type` と
 # `format` を、単独の場合と配列の場合の両方で宣言している。HTTP はすべてを文字列で運ぶため、
@@ -35,6 +43,14 @@
 # `/required`  必須パラメータが欠落している場合の挙動。
 # `/limits`    スカラーと配列に対する制約。
 # `/styles`    デフォルトの `form` + `explode: true` 以外のシリアライズ形式。
+# `/objects`   オブジェクトであるパラメータ。OpenAPI が定める各シリアライズ形式で、
+#              クエリに分散して送られる。
+# `/absent`    `allowEmptyValue` と、デフォルト値を持つ参照。
+# `/refs`      `$ref` の先にあるスキーマ。コンポーネントは型付きの値を前提としているため、
+#              文字列はコンポーネントに渡る前に読み取られる。
+# `/combinators`  `allOf`・`oneOf`・`anyOf`・`not`・型混在の `enum`・型なしの制約・タプル。
+#              文字列は、スキーマ全体の外側で1度だけ読み取られる。
+# `/content`   `content: application/json` で宣言されたパラメータ。1つの JSON 文書である。
 openapi: 3.1.0
 info:
   title: Query Parameter Matrix
@@ -490,9 +506,202 @@ paths:
             properties:
               name: { type: string }
               age: { type: integer }
+        - name: csv_str
+          in: query
+          style: form
+          explode: false
+          schema: { type: array, items: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /objects:
+    get:
+      operationId: queryObjects
+      parameters:
+        # One key per property: deep[name]=bob&deep[age]=5.
+        # プロパティごとに1つのキーになる。deep[name]=bob&deep[age]=5。
+        - name: deep
+          in: query
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              age: { type: integer, minimum: 0 }
+              active: { type: boolean }
+              ids: { type: array, items: { type: integer } }
+        # The object is a component.
+        # オブジェクトがコンポーネントである。
+        - name: deep_ref
+          in: query
+          style: deepObject
+          schema: { $ref: '#/components/schemas/Range' }
+        # `style: form` with `explode: true`, the default: the properties are keys of the
+        # query themselves, sort=asc&size=5.
+        # デフォルトである `style: form` + `explode: true`。プロパティ自体がクエリのキーに
+        # なる。sort=asc&size=5。
+        - name: spread
+          in: query
+          schema:
+            type: object
+            properties:
+              sort: { type: string, enum: [asc, desc] }
+              size: { type: integer }
+              page: { type: integer }
+        # `explode: false`: one value alternating names and values, pairs=name,bob,age,5.
+        # `explode: false`。名前と値を交互に並べた1つの値になる。pairs=name,bob,age,5。
+        - name: pairs
+          in: query
+          style: form
+          explode: false
+          schema:
+            type: object
+            properties:
+              name: { type: string }
+              age: { type: integer }
+        # A parameter of its own, named like a property of `spread`. It is never read as that
+        # property.
+        # `spread` のプロパティと同じ名前を持つ、独立したパラメータ。そのプロパティとして
+        # 読み取られることはない。
+        - { name: page, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /absent:
+    get:
+      operationId: queryAbsent
+      parameters:
+        # `allowEmptyValue: true` lets `?empty_ok=` say the same as leaving the parameter out.
+        # `allowEmptyValue: true` の場合、`?empty_ok=` はパラメータを省略したのと同じ意味になる。
+        - { name: empty_ok, in: query, allowEmptyValue: true, schema: { type: integer } }
+        - {
+            name: empty_def,
+            in: query,
+            allowEmptyValue: true,
+            schema: { type: integer, default: 7 },
+          }
+        - { name: empty_str, in: query, allowEmptyValue: true, schema: { type: string } }
+        # A reference that carries a default of its own.
+        # 独自のデフォルト値を持つ参照。
+        - { name: ref_def, in: query, schema: { $ref: '#/components/schemas/Count', default: 3 } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /refs:
+    get:
+      operationId: queryRefs
+      parameters:
+        - { name: ref_int, in: query, schema: { $ref: '#/components/schemas/Count' } }
+        - { name: ref_big, in: query, schema: { $ref: '#/components/schemas/Big' } }
+        - { name: ref_num, in: query, schema: { $ref: '#/components/schemas/Ratio' } }
+        - { name: ref_bool, in: query, schema: { $ref: '#/components/schemas/Flag' } }
+        - { name: ref_enum, in: query, schema: { $ref: '#/components/schemas/Level' } }
+        - { name: ref_str, in: query, schema: { $ref: '#/components/schemas/Name' } }
+        # The component is the array itself.
+        # コンポーネントが配列そのものである。
+        - { name: ref_arr, in: query, schema: { $ref: '#/components/schemas/Counts' } }
+        # The component is the element of an inline array.
+        # コンポーネントが、インライン配列の要素である。
+        - {
+            name: arr_ref,
+            in: query,
+            schema: { type: array, items: { $ref: '#/components/schemas/Count' } },
+          }
+        # A reference wrapped in `allOf`, the usual way to add a description to one.
+        # `allOf` で包んだ参照。参照に description を付ける際の一般的な書き方である。
+        - {
+            name: allof_ref,
+            in: query,
+            schema: { allOf: [{ $ref: '#/components/schemas/Count' }], description: A count. },
+          }
+        # A reference to a reference.
+        # 参照への参照。
+        - { name: ref_ref, in: query, schema: { $ref: '#/components/schemas/CountAlias' } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /combinators:
+    get:
+      operationId: queryCombinators
+      parameters:
+        - { name: allof, in: query, schema: { allOf: [{ type: integer }, { minimum: 5 }] } }
+        - {
+            name: allof_range,
+            in: query,
+            schema: { allOf: [{ type: integer, minimum: 1 }, { type: integer, maximum: 10 }] },
+          }
+        - { name: oneof_is, in: query, schema: { oneOf: [{ type: integer }, { type: string }] } }
+        - { name: oneof_ib, in: query, schema: { oneOf: [{ type: integer }, { type: boolean }] } }
+        - { name: anyof_ns, in: query, schema: { anyOf: [{ type: number }, { type: string }] } }
+        - { name: mixed, in: query, schema: { enum: [1, a, '2'] } }
+        - { name: not_zero, in: query, schema: { type: integer, not: { const: 0 } } }
+        - { name: not_enum, in: query, schema: { not: { enum: [1, 2] } } }
+        - { name: not_string, in: query, schema: { not: { type: string } } }
+        - { name: typeless_min, in: query, schema: { minimum: 1 } }
+        - { name: typeless_len, in: query, schema: { minLength: 3 } }
+        - { name: nconst, in: query, schema: { type: number, const: 2 } }
+        - { name: multi, in: query, schema: { type: [integer, string] } }
+        - { name: multi_nb, in: query, schema: { type: [number, boolean] } }
+        - {
+            name: tuple,
+            in: query,
+            schema:
+              {
+                type: array,
+                prefixItems: [{ type: integer }, { type: string }],
+                items: { type: boolean },
+              },
+          }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /content:
+    get:
+      operationId: queryContent
+      parameters:
+        - name: filter
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [page]
+                properties:
+                  page: { type: integer }
+                  name: { type: string }
+        - name: list
+          in: query
+          content:
+            application/json:
+              schema: { type: array, items: { type: integer } }
       responses:
         '200': { $ref: '#/components/responses/Fields' }
 components:
+  schemas:
+    Count:
+      type: integer
+      minimum: 0
+    CountAlias:
+      $ref: '#/components/schemas/Count'
+    Big:
+      type: integer
+      format: int64
+    Ratio:
+      type: number
+    Flag:
+      type: boolean
+    Level:
+      type: integer
+      enum: [1, 2, 3]
+    Name:
+      type: string
+      minLength: 2
+    Counts:
+      type: array
+      items: { type: integer }
+    Range:
+      type: object
+      required: [from]
+      properties:
+        from: { type: integer }
+        to: { type: integer }
   responses:
     Fields:
       description: Every validated parameter, by name, as the runtime typeof and the text of its value.

@@ -1,0 +1,109 @@
+# A form body, `application/x-www-form-urlencoded` or `multipart/form-data`, carries every
+# field as text (or as a file), exactly like a query string. A schema written for a typed
+# value rejects all of it: what the generated schema has to prove is that each field
+# arrives as the right JavaScript type. A JSON body is the contrast: it has types of its
+# own, and nothing in it is read from text.
+#
+# `/urlencoded`  every kind of field, each optional so a test sends one alone.
+# `/multipart`   a file beside fields that are read from text.
+# `/component`   the body is a component schema, the same one `/json` takes.
+# `/json`        the same component as a JSON body, which stays typed.
+#
+# フォームボディ(`application/x-www-form-urlencoded`・`multipart/form-data`)は、クエリ文字列と
+# まったく同じく、すべてのフィールドを文字列(またはファイル)として運ぶ。型付きの値を前提に
+# 書かれたスキーマは、そのすべてを拒否してしまう。生成されたスキーマが示すべきことは、
+# 各フィールドが正しい JavaScript の型で届くことである。JSON ボディはその対比である。
+# JSON は自身で型を持つため、その中の値が文字列から読み取られることはない。
+#
+# `/urlencoded`  あらゆる種類のフィールド。テストで1つだけ送信できるよう、すべて任意にしている。
+# `/multipart`   ファイルと、文字列から読み取られるフィールド。
+# `/component`   ボディがコンポーネントスキーマである。`/json` が受け取るものと同じである。
+# `/json`        同じコンポーネントを JSON ボディとして受け取る。こちらは型付きのままである。
+openapi: 3.1.0
+info:
+  title: Form Body Matrix
+  version: 0.0.0
+paths:
+  /urlencoded:
+    post:
+      operationId: urlencoded
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                age: { type: integer, minimum: 0 }
+                ratio: { type: number }
+                big: { type: integer, format: int64 }
+                active: { type: boolean }
+                level: { type: integer, enum: [1, 2] }
+                agreed: { type: boolean, const: true }
+                limit: { type: integer, default: 20 }
+                count: { $ref: '#/components/schemas/Count' }
+                flag: { $ref: '#/components/schemas/Flag' }
+                tags: { type: array, items: { type: string } }
+                ids: { type: array, items: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /multipart:
+    post:
+      operationId: multipart
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+                age: { type: integer }
+                active: { type: boolean }
+                ids: { type: array, items: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /component:
+    post:
+      operationId: component
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: '#/components/schemas/Item' }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+  /json:
+    post:
+      operationId: json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Item' }
+      responses:
+        '200': { $ref: '#/components/responses/Fields' }
+components:
+  schemas:
+    Count:
+      type: integer
+      minimum: 0
+    Flag:
+      type: boolean
+    Item:
+      type: object
+      required: [name, price]
+      properties:
+        name: { type: string }
+        price: { type: integer, minimum: 0 }
+        stocked: { type: boolean }
+  responses:
+    Fields:
+      description: Every validated field, by name, as the runtime typeof and the text of its value.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true

@@ -411,9 +411,9 @@ describe('list', () => {
     ])
   })
 
-  // An empty value is read as zero, which is below the minimum: the default of 20 does not
-  // apply, because the parameter was sent.
-  // 空の値は 0 として読まれ、最小値を下回る。パラメータ自体は送信されているため、
+  // An empty value holds no digits, so it is not a number: the default of 20 does not apply,
+  // because the parameter was sent.
+  // 空の値は数字を含まないため、数値ではない。パラメータ自体は送信されているため、
   // デフォルトの 20 は適用されない。
   it('GET /api/tasks rejects limit=', async () => {
     const res = await api.request('/api/tasks?limit=')
@@ -421,7 +421,9 @@ describe('list', () => {
     const body = (await res.json()) as ZodFailure
     expect(body.success).toBe(false)
     expect(body.error.name).toBe('ZodError')
-    expect(JSON.parse(body.error.message)).toMatchObject([{ code: 'too_small', path: ['limit'] }])
+    expect(JSON.parse(body.error.message)).toMatchObject([
+      { code: 'invalid_type', path: ['limit'] },
+    ])
   })
 
   // A scalar sent twice is an array on the wire, which a number rejects.

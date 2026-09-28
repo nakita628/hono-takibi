@@ -6,12 +6,10 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max/multipleOf constraints and `x-*-message` vendor extensions translated
  * to Zod v4 `{error: "msg"}` parameters.
  */
-export function number(schema: Schema, options?: { coerce?: boolean }) {
-  const coerce = options?.coerce
+export function number(schema: Schema) {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
-  const xCoerce = schema['x-coerce'] === true
-  const wantsCoerce = coerce === true || xCoerce
+  const wantsCoerce = schema['x-coerce'] === true
   // coerce converts undefined → NaN before the error handler runs,
   // so issue.input === undefined is unreachable — drop x-required-message.
   const baseErrorArg = baseError(errorMessage, wantsCoerce ? undefined : requiredMessage)

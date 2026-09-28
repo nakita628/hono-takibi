@@ -1,3 +1,4 @@
+import { JSON_BIGINT } from '../../../helper/wire.js'
 import type { Schema } from '../../../openapi/index.js'
 import { baseError, error } from '../../../utils/index.js'
 
@@ -6,12 +7,19 @@ import { baseError, error } from '../../../utils/index.js'
  * min/max constraints and `x-minimum-message` / `x-maximum-message` vendor
  * extensions translated to Zod v4 `{error: "msg"}` parameters.
  */
-export function integer(schema: Schema, options?: { coerce?: boolean }) {
-  const coerce = options?.coerce
+export function integer(
+  schema: Schema,
+  options?: {
+    /**
+     * The value comes out of a JSON document, which has no bigint: an int64 is read from
+     * the number or the string of digits it is sent as.
+     */
+    json?: boolean
+  },
+) {
   const errorMessage = schema['x-error-message']
   const requiredMessage = schema['x-required-message']
-  const xCoerce = schema['x-coerce'] === true
-  const wantsCoerce = coerce === true || xCoerce
+  const wantsCoerce = schema['x-coerce'] === true
   // coerce converts undefined → NaN before the error handler runs,
   // so issue.input === undefined is unreachable — drop x-required-message.
   const baseErrorArg = baseError(errorMessage, wantsCoerce ? undefined : requiredMessage)
@@ -111,5 +119,7 @@ export function integer(schema: Schema, options?: { coerce?: boolean }) {
   }
   if (numberPipe) return `z.coerce.number(${baseErrorArg}).pipe(${innerChain})`
   if (bigintPipe) return `z.coerce.bigint(${baseErrorArg}).pipe(${innerChain})`
-  return innerChain
+  return options?.json === true && !wantsCoerce && (isBigint || isInt64)
+    ? `z.preprocess(${JSON_BIGINT},${innerChain})`
+    : innerChain
 }

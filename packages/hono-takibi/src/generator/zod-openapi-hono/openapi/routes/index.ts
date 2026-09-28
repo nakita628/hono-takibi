@@ -6,7 +6,12 @@ import { methodPath } from '../../../../utils/index.js'
 export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
   const routeEntries = (): readonly { readonly name: string; readonly code: string }[] => {
     const makeEntry = (path: string, method: string, operation: Operation) => {
-      const request = makeRequest(operation.parameters, operation.requestBody, readonly)
+      const request = makeRequest(
+        operation.parameters,
+        operation.requestBody,
+        readonly,
+        openapi.components?.schemas,
+      )
       const properties = [
         `method:${JSON.stringify(method)}`,
         `path:${JSON.stringify(path)}`,

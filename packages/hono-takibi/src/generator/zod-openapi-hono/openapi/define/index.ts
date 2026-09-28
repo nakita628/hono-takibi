@@ -36,8 +36,18 @@ export function defineEntries(
       operation.description ? `description:${JSON.stringify(operation.description)}` : undefined,
       operation.externalDocs ? `externalDocs:${JSON.stringify(operation.externalDocs)}` : undefined,
       operation.operationId ? `operationId:${JSON.stringify(operation.operationId)}` : undefined,
-      makeRequest(operation.parameters, operation.requestBody, readonly)
-        ? `request:${makeRequest(operation.parameters, operation.requestBody, readonly)}`
+      makeRequest(
+        operation.parameters,
+        operation.requestBody,
+        readonly,
+        openapi.components?.schemas,
+      )
+        ? `request:${makeRequest(
+            operation.parameters,
+            operation.requestBody,
+            readonly,
+            openapi.components?.schemas,
+          )}`
         : undefined,
       operation.responses
         ? `responses:${makeOperationResponses(operation.responses, readonly)}`

@@ -370,15 +370,6 @@ describe('x-coerce + x-required-message only (no x-error-message)', () => {
   })
 })
 
-describe('coerce option vs x-coerce equivalence', () => {
-  it.concurrent('coerce option produces same output as x-coerce', () => {
-    const schema: Schema = { type: 'number', 'x-error-message': '数値必須' }
-    const withOption = number(schema, { coerce: true })
-    const withExtension = number({ ...schema, 'x-coerce': true })
-    expect(withOption).toBe(withExtension)
-  })
-})
-
 describe('regression: x-coerce + x-error-message runtime', () => {
   it.concurrent('wirePipe (float32): non-number string shows custom error', () => {
     const Schema = z.coerce.number({ error: 'float必須' }).pipe(z.float32({ error: 'float必須' }))
